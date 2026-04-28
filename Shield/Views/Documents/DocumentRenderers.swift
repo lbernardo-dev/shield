@@ -70,6 +70,48 @@ func DocumentView(
     }
 }
 
+// MARK: - Blur redaction overlay (real UIKit blur per-rect)
+
+struct BlurRedactionOverlay: View {
+    let redactions: [Redaction]
+    let size: CGSize
+
+    var body: some View {
+        ZStack {
+            ForEach(redactions.filter { $0.style == .blurStrong || $0.style == .blurSoft }) { r in
+                let radius: CGFloat = r.style == .blurStrong ? 18 : 8
+                let scaledRect = CGRect(
+                    x: r.rect.origin.x * size.width,
+                    y: r.rect.origin.y * size.height,
+                    width: r.rect.width * size.width,
+                    height: r.rect.height * size.height
+                )
+                BlurRectView(radius: radius)
+                    .frame(width: scaledRect.width, height: scaledRect.height)
+                    .position(x: scaledRect.midX, y: scaledRect.midY)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .allowsHitTesting(false)
+    }
+}
+
+struct BlurRectView: UIViewRepresentable {
+    let radius: CGFloat
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let effect = UIBlurEffect(style: .systemUltraThinMaterial)
+        let view = UIVisualEffectView(effect: effect)
+        view.clipsToBounds = true
+        return view
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        let intensity: CGFloat = radius >= 16 ? 1.0 : 0.5
+        uiView.alpha = intensity
+    }
+}
+
 // MARK: - PhotoDocumentView
 
 struct PhotoDocumentView: View {
@@ -89,22 +131,19 @@ struct PhotoDocumentView: View {
                     .frame(width: size.width, height: size.height)
                     .clipped()
             } else {
-                // Placeholder when image not yet loaded
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color(hex: "2a2a2a"))
                     .overlay(
-                        VStack(spacing: 6) {
-                            Image(systemName: "doc.fill")
-                                .font(.system(size: size.height * 0.25))
-                                .foregroundColor(Color(hex: "555555"))
-                        }
+                        Image(systemName: "doc.fill")
+                            .font(.system(size: size.height * 0.25))
+                            .foregroundColor(Color(hex: "555555"))
                     )
                     .frame(width: size.width, height: size.height)
             }
 
-            // Redactions overlay
+            // Non-blur redactions + watermark via Canvas
             Canvas { context, sz in
-                for r in redactions {
+                for r in redactions where r.style != .blurStrong && r.style != .blurSoft {
                     let rect = CGRect(
                         x: r.rect.origin.x * sz.width,
                         y: r.rect.origin.y * sz.height,
@@ -118,6 +157,9 @@ struct PhotoDocumentView: View {
                 }
             }
             .frame(width: size.width, height: size.height)
+
+            // Real blur via UIVisualEffectView
+            BlurRedactionOverlay(redactions: redactions, size: size)
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -127,6 +169,22 @@ struct PhotoDocumentView: View {
 // MARK: - Helpers
 
 func scaled(_ v: CGFloat, _ base: CGFloat) -> CGFloat { v * base }
+
+// MARK: - Vector doc wrapper (adds real blur layer on top of Canvas)
+
+struct VectorDocBlurWrapper<Content: View>: View {
+    let redactions: [Redaction]
+    let size: CGSize
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        ZStack {
+            content()
+            BlurRedactionOverlay(redactions: redactions, size: size)
+        }
+        .frame(width: size.width, height: size.height)
+    }
+}
 
 // MARK: - MaskOverlay (Canvas draw func)
 
@@ -161,26 +219,33 @@ func drawMask(
             }
         }
 
-    case .blurStrong, .blurSoft:
-        let blurColor = Color.white.opacity(0.18)
+    case .blurStrong:
+        // Heavy frosted glass: dense white layers simulate strong blur
+        context.fill(Path(rect), with: .color(Color.white.opacity(0.80)))
+        context.fill(Path(rect), with: .color(Color.gray.opacity(0.30)))
+
+    case .blurSoft:
+        // Light frosted glass: subtle white veil
         context.fill(Path(rect), with: .color(Color.white.opacity(0.55)))
-        context.fill(Path(rect), with: .color(blurColor))
+        context.fill(Path(rect), with: .color(Color.white.opacity(0.15)))
 
     case .diagonal:
         // Black + yellow stripes
         context.fill(Path(rect), with: .color(.black))
-        var stripeX = rect.minX
-        while stripeX < rect.maxX + rect.height {
-            let stripePath = Path { p in
-                p.move(to: CGPoint(x: stripeX, y: rect.minY))
-                p.addLine(to: CGPoint(x: stripeX + 3, y: rect.minY))
-                p.addLine(to: CGPoint(x: stripeX + 3 - rect.height, y: rect.maxY))
-                p.addLine(to: CGPoint(x: stripeX - rect.height, y: rect.maxY))
-                p.closeSubpath()
+        context.drawLayer { ctx in
+            ctx.clip(to: Path(rect))
+            var stripeX = rect.minX
+            while stripeX < rect.maxX + rect.height {
+                let stripePath = Path { p in
+                    p.move(to: CGPoint(x: stripeX, y: rect.minY))
+                    p.addLine(to: CGPoint(x: stripeX + 3, y: rect.minY))
+                    p.addLine(to: CGPoint(x: stripeX + 3 - rect.height, y: rect.maxY))
+                    p.addLine(to: CGPoint(x: stripeX - rect.height, y: rect.maxY))
+                    p.closeSubpath()
+                }
+                ctx.fill(stripePath, with: .color(Color(hex: "FFD60A")))
+                stripeX += 6
             }
-            context.clip(to: Path(rect))
-            context.fill(stripePath, with: .color(Color(hex: "FFD60A")))
-            stripeX += 6
         }
 
     case .secure:
@@ -248,33 +313,35 @@ struct DNISpainView: View {
     var showFieldOverlays: Bool = false
 
     var body: some View {
-        Canvas { context, sz in
-            drawDNI(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width,
-                    y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width,
-                    height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
-            }
-            if showFieldOverlays {
-                for box in DocumentFieldBoxes.dniESP {
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                drawDNI(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
                     let rect = CGRect(
-                        x: box.rect.origin.x * sz.width,
-                        y: box.rect.origin.y * sz.height,
-                        width: box.rect.width * sz.width,
-                        height: box.rect.height * sz.height
+                        x: r.rect.origin.x * sz.width,
+                        y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width,
+                        height: r.rect.height * sz.height
                     )
-                    context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
-                    context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
+                if showFieldOverlays {
+                    for box in DocumentFieldBoxes.dniESP {
+                        let rect = CGRect(
+                            x: box.rect.origin.x * sz.width,
+                            y: box.rect.origin.y * sz.height,
+                            width: box.rect.width * sz.width,
+                            height: box.rect.height * sz.height
+                        )
+                        context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
+                        context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    }
                 }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func drawDNI(context: inout GraphicsContext, size sz: CGSize) {
@@ -378,33 +445,35 @@ struct PassportUSAView: View {
     var showFieldOverlays: Bool = false
 
     var body: some View {
-        Canvas { context, sz in
-            drawPassport(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width,
-                    y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width,
-                    height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
-            }
-            if showFieldOverlays {
-                for box in DocumentFieldBoxes.passportUSA {
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                drawPassport(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
                     let rect = CGRect(
-                        x: box.rect.origin.x * sz.width,
-                        y: box.rect.origin.y * sz.height,
-                        width: box.rect.width * sz.width,
-                        height: box.rect.height * sz.height
+                        x: r.rect.origin.x * sz.width,
+                        y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width,
+                        height: r.rect.height * sz.height
                     )
-                    context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
-                    context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
+                if showFieldOverlays {
+                    for box in DocumentFieldBoxes.passportUSA {
+                        let rect = CGRect(
+                            x: box.rect.origin.x * sz.width,
+                            y: box.rect.origin.y * sz.height,
+                            width: box.rect.width * sz.width,
+                            height: box.rect.height * sz.height
+                        )
+                        context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
+                        context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    }
                 }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func drawPassport(context: inout GraphicsContext, size sz: CGSize) {
@@ -498,33 +567,35 @@ struct DrivingUKView: View {
     var showFieldOverlays: Bool = false
 
     var body: some View {
-        Canvas { context, sz in
-            drawLicence(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width,
-                    y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width,
-                    height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
-            }
-            if showFieldOverlays {
-                for box in DocumentFieldBoxes.drivingUK {
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                drawLicence(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
                     let rect = CGRect(
-                        x: box.rect.origin.x * sz.width,
-                        y: box.rect.origin.y * sz.height,
-                        width: box.rect.width * sz.width,
-                        height: box.rect.height * sz.height
+                        x: r.rect.origin.x * sz.width,
+                        y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width,
+                        height: r.rect.height * sz.height
                     )
-                    context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
-                    context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
+                if showFieldOverlays {
+                    for box in DocumentFieldBoxes.drivingUK {
+                        let rect = CGRect(
+                            x: box.rect.origin.x * sz.width,
+                            y: box.rect.origin.y * sz.height,
+                            width: box.rect.width * sz.width,
+                            height: box.rect.height * sz.height
+                        )
+                        context.fill(Path(rect), with: .color(Color(hex: "FFD60A").opacity(0.12)))
+                        context.stroke(Path(rect), with: .color(Color(hex: "FFD60A")), lineWidth: 1)
+                    }
                 }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func drawLicence(context: inout GraphicsContext, size sz: CGSize) {
@@ -601,19 +672,21 @@ struct PassportMEXView: View {
     var watermark: Watermark? = nil
 
     var body: some View {
-        Canvas { context, sz in
-            draw(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width, height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                draw(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
+                    let rect = CGRect(
+                        x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width, height: r.rect.height * sz.height
+                    )
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func draw(context: inout GraphicsContext, size sz: CGSize) {
@@ -700,19 +773,21 @@ struct DNIItalyView: View {
     var watermark: Watermark? = nil
 
     var body: some View {
-        Canvas { context, sz in
-            draw(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width, height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                draw(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
+                    let rect = CGRect(
+                        x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width, height: r.rect.height * sz.height
+                    )
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func draw(context: inout GraphicsContext, size sz: CGSize) {
@@ -807,19 +882,21 @@ struct GenericIDView: View {
     var watermark: Watermark? = nil
 
     var body: some View {
-        Canvas { context, sz in
-            draw(context: &context, size: sz)
-            if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
-            for r in redactions {
-                let rect = CGRect(
-                    x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
-                    width: r.rect.width * sz.width, height: r.rect.height * sz.height
-                )
-                drawMask(context: &context, rect: rect, style: r.style)
+        VectorDocBlurWrapper(redactions: redactions, size: size) {
+            Canvas { context, sz in
+                draw(context: &context, size: sz)
+                if let wm = watermark { drawWatermark(context: &context, size: sz, watermark: wm) }
+                for r in redactions where !r.style.isBlur {
+                    let rect = CGRect(
+                        x: r.rect.origin.x * sz.width, y: r.rect.origin.y * sz.height,
+                        width: r.rect.width * sz.width, height: r.rect.height * sz.height
+                    )
+                    drawMask(context: &context, rect: rect, style: r.style)
+                }
             }
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func draw(context: inout GraphicsContext, size sz: CGSize) {

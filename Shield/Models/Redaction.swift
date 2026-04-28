@@ -22,6 +22,8 @@ enum MaskStyle: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    var isBlur: Bool { self == .blurStrong || self == .blurSoft }
+
     func label(lang: AppLanguage) -> String {
         switch self {
         case .block:        return lang == .es ? "Negro" : "Black"

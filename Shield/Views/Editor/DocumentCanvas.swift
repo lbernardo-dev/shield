@@ -158,9 +158,7 @@ struct DocumentCanvas: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
-                    if vm.tool == .rect {
-                        vm.activeRedactionID = nil
-                    }
+                    vm.activeRedactionID = nil
                 }
         )
     }

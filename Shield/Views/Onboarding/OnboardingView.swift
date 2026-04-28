@@ -209,110 +209,239 @@ private struct BulletRow: View {
 struct LockScreenView: View {
     @EnvironmentObject var appState: AppState
     @State private var isAuthenticating = false
-    @State private var verified: Bool = false
+    @State private var verified = false
     @State private var authError: String? = nil
+    @State private var showPINEntry = false
+
+    private var biometricEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "shield.biometric")
+    }
+
+    private var hasBiometrics: Bool {
+        let ctx = LAContext()
+        var err: NSError?
+        return ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
+    }
 
     var body: some View {
         ZStack {
+            // Background
+            Color(hex: "0a0a0f").ignoresSafeArea()
+
+            // Subtle radial glow behind icon
             RadialGradient(
-                colors: [Color(hex: "15151b"), Color(hex: "0a0a0b")],
+                colors: [Color(hex: "FFD60A").opacity(0.07), Color.clear],
                 center: .center,
-                startRadius: 0,
-                endRadius: 400
+                startRadius: 60,
+                endRadius: 300
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 32) {
-                // Shield icon container
-                ZStack {
-                    RoundedRectangle(cornerRadius: 36)
-                        .fill(Color(hex: "FFD60A").opacity(0.08))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 36)
-                                .stroke(Color(hex: "FFD60A").opacity(0.3), lineWidth: 1.5)
-                        )
-                        .frame(width: 140, height: 140)
+            VStack(spacing: 0) {
+                Spacer()
 
-                    Image(systemName: "faceid")
-                        .font(.system(size: 64, weight: .light))
-                        .foregroundColor(verified ? ShieldTheme.success : ShieldTheme.accent)
-                        .symbolEffect(.pulse, isActive: isAuthenticating)
-                }
-                .clipped()
+                // App icon area
+                VStack(spacing: 20) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 32)
+                            .fill(Color(hex: "FFD60A").opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 32)
+                                    .stroke(Color(hex: "FFD60A").opacity(0.25), lineWidth: 1)
+                            )
+                            .frame(width: 120, height: 120)
 
-                VStack(spacing: 6) {
-                    Text("Shield")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(ShieldTheme.textPrimary)
-                    Text(verified
-                         ? "✓ \(appState.language == .es ? "Verificado" : "Verified")"
-                         : (isAuthenticating
-                            ? (appState.language == .es ? "Verificando…" : "Verifying…")
-                            : appState.str(.useFaceId)))
-                        .font(.system(size: 14))
-                        .foregroundColor(ShieldTheme.textSecondary)
+                        Image(systemName: verified ? "checkmark.shield.fill" : "shield.fill")
+                            .font(.system(size: 54, weight: .medium))
+                            .foregroundColor(verified ? ShieldTheme.success : ShieldTheme.accent)
+                            .symbolEffect(.pulse, isActive: isAuthenticating)
+                            .contentTransition(.symbolEffect(.replace))
+                    }
 
-                    if let authError {
-                        Text(authError)
+                    VStack(spacing: 6) {
+                        Text("Shield")
+                            .font(.system(size: 28, weight: .heavy, design: .default))
+                            .foregroundColor(ShieldTheme.textPrimary)
+                            .tracking(-0.5)
+
+                        Text(appState.language == .es
+                             ? "Tus documentos protegidos"
+                             : "Your documents protected")
                             .font(.system(size: 13))
-                            .foregroundColor(ShieldTheme.danger)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 28)
+                            .foregroundColor(ShieldTheme.textTertiary)
                     }
                 }
 
-                Button {
-                    authenticate()
-                } label: {
-                    Text(appState.str(.unlock))
-                        .font(.system(size: 16, weight: .bold))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(ShieldTheme.accent)
-                        .foregroundColor(ShieldTheme.accentText)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                Spacer().frame(height: 60)
+
+                // Status / error
+                Group {
+                    if let err = authError {
+                        HStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .font(.system(size: 13))
+                            Text(err)
+                                .font(.system(size: 13))
+                        }
+                        .foregroundColor(ShieldTheme.danger)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                    } else {
+                        Text(isAuthenticating
+                             ? (appState.language == .es ? "Verificando…" : "Verifying…")
+                             : (appState.language == .es ? "Desbloquea para continuar" : "Unlock to continue"))
+                            .font(.system(size: 13))
+                            .foregroundColor(ShieldTheme.textTertiary)
+                    }
                 }
-                .buttonStyle(ScaleButtonStyle())
+                .frame(minHeight: 36)
+
+                Spacer().frame(height: 24)
+
+                // Buttons
+                VStack(spacing: 12) {
+                    // Primary unlock button
+                    if biometricEnabled && hasBiometrics {
+                        Button { authenticate() } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "faceid")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text(appState.language == .es ? "Desbloquear con Face ID" : "Unlock with Face ID")
+                                    .font(.system(size: 16, weight: .bold))
+                            }
+                            .frame(maxWidth: .infinity).frame(height: 54)
+                            .background(ShieldTheme.accent)
+                            .foregroundColor(ShieldTheme.accentText)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .disabled(isAuthenticating)
+                    } else if PINManager.hasPIN {
+                        Button { showPINEntry = true } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "lock.circle.fill")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text(appState.language == .es ? "Desbloquear con PIN" : "Unlock with PIN")
+                                    .font(.system(size: 16, weight: .bold))
+                            }
+                            .frame(maxWidth: .infinity).frame(height: 54)
+                            .background(ShieldTheme.accent)
+                            .foregroundColor(ShieldTheme.accentText)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    } else {
+                        Button { authenticatePasscode() } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "lock.circle.fill")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text(appState.language == .es ? "Desbloquear" : "Unlock")
+                                    .font(.system(size: 16, weight: .bold))
+                            }
+                            .frame(maxWidth: .infinity).frame(height: 54)
+                            .background(ShieldTheme.accent)
+                            .foregroundColor(ShieldTheme.accentText)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .disabled(isAuthenticating)
+                    }
+
+                    // Secondary fallbacks
+                    if biometricEnabled && hasBiometrics {
+                        if PINManager.hasPIN {
+                            Button { showPINEntry = true } label: {
+                                Text(appState.language == .es ? "Usar PIN" : "Use PIN")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.textSecondary)
+                                    .frame(height: 44)
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        } else if authError != nil {
+                            // Face ID failed — offer passcode fallback
+                            Button { authenticatePasscode() } label: {
+                                Text(appState.language == .es ? "Usar código del iPhone" : "Use iPhone Passcode")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.textSecondary)
+                                    .frame(height: 44)
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
+                }
                 .padding(.horizontal, 28)
-                .disabled(isAuthenticating)
+
+                Spacer().frame(height: 60)
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear { authenticate() }
+        .sheet(isPresented: $showPINEntry) {
+            PINEntryView(isPresented: $showPINEntry) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    appState.isAuthenticated = true
+                }
+            }
+        }
+        .task {
+            // Wait for SwiftUI background to fully render before triggering any auth
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            // Only auto-trigger Face ID — it shows a subtle overlay, not the gray system passcode screen.
+            // Passcode and PIN are always user-initiated via the button.
+            if biometricEnabled && hasBiometrics {
+                authenticate()
+            }
+        }
     }
 
     private func authenticate() {
         guard !isAuthenticating else { return }
-
-        let context = LAContext()
-        var error: NSError?
-
-        guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-            authError = error?.localizedDescription ?? (appState.language == .es
-                ? "No se pudo activar la autenticación del dispositivo."
-                : "Device authentication is unavailable.")
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+            authError = appState.language == .es
+                ? "Face ID no disponible en este dispositivo."
+                : "Face ID is not available on this device."
             return
         }
-
         isAuthenticating = true
         authError = nil
-
-        context.evaluatePolicy(
-            .deviceOwnerAuthentication,
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
             localizedReason: appState.language == .es ? "Desbloquea Shield" : "Unlock Shield"
-        ) { success, evaluateError in
+        ) { success, evalErr in
             DispatchQueue.main.async {
                 isAuthenticating = false
                 if success {
                     verified = true
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        appState.isAuthenticated = true
-                    }
+                    withAnimation(.easeInOut(duration: 0.2)) { appState.isAuthenticated = true }
                 } else {
-                    verified = false
-                    authError = evaluateError?.localizedDescription ?? (appState.language == .es
-                        ? "No se pudo verificar tu identidad."
-                        : "Your identity could not be verified.")
+                    authError = evalErr?.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func authenticatePasscode() {
+        guard !isAuthenticating else { return }
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &err) else {
+            withAnimation { appState.isAuthenticated = true }
+            return
+        }
+        isAuthenticating = true
+        authError = nil
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthentication,
+            localizedReason: appState.language == .es ? "Desbloquea Shield" : "Unlock Shield"
+        ) { success, evalErr in
+            DispatchQueue.main.async {
+                isAuthenticating = false
+                if success {
+                    verified = true
+                    withAnimation(.easeInOut(duration: 0.2)) { appState.isAuthenticated = true }
+                } else {
+                    authError = evalErr?.localizedDescription
                 }
             }
         }

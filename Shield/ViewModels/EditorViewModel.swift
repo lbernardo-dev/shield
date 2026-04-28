@@ -48,6 +48,7 @@ final class EditorViewModel: ObservableObject {
     @Published var showOCRSheet: Bool = false
     @Published var showExportSheet: Bool = false
     @Published var currentPage: Int = 0
+    @Published var activeMode: RedactionMode? = nil
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
@@ -161,6 +162,12 @@ final class EditorViewModel: ObservableObject {
     }
 
     func applyMode(_ mode: RedactionMode) {
+        if activeMode == mode {
+            // Deselect: clear redactions and reset
+            push([])
+            activeMode = nil
+            return
+        }
         var suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
         switch mode {
         case .travel:
@@ -176,6 +183,7 @@ final class EditorViewModel: ObservableObject {
         default: break
         }
         push(suggested)
+        activeMode = mode
         showSensitiveBanner = false
     }
 
@@ -212,6 +220,11 @@ final class EditorViewModel: ObservableObject {
         } else {
             watermark = Watermark(text: text, opacity: 0.18, isRepeating: true)
         }
+        persistCurrentPageState()
+    }
+
+    func setWatermark(_ watermark: Watermark?) {
+        self.watermark = watermark
         persistCurrentPageState()
     }
 

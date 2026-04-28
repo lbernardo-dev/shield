@@ -19,6 +19,7 @@
 		A010 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* OnboardingView.swift */; };
 		A011 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* HomeView.swift */; };
 		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
+		A027 /* WatermarkConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F027 /* WatermarkConfigView.swift */; };
 		A012 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* CaptureView.swift */; };
 		A013 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* EditorView.swift */; };
 		A014 /* DocumentCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* DocumentCanvas.swift */; };
@@ -53,6 +54,7 @@
 		F010 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		F011 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F026 /* AllDocumentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDocumentsView.swift; sourceTree = "<group>"; };
+		F027 /* WatermarkConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkConfigView.swift; sourceTree = "<group>"; };
 		F012 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		F013 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		F014 /* DocumentCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCanvas.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				F015 /* MaskStylePicker.swift */,
 				F016 /* OCRSheetView.swift */,
 				F017 /* ExportSheetView.swift */,
+				F027 /* WatermarkConfigView.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -378,6 +381,7 @@
 				A015 /* MaskStylePicker.swift in Sources */,
 				A016 /* OCRSheetView.swift in Sources */,
 				A017 /* ExportSheetView.swift in Sources */,
+				A027 /* WatermarkConfigView.swift in Sources */,
 				A018 /* PremiumManager.swift in Sources */,
 				A019 /* PaywallView.swift in Sources */,
 				A020 /* VaultView.swift in Sources */,

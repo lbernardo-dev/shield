@@ -17,6 +17,9 @@ struct SettingsView: View {
     @State private var hapticEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.haptic") || true
     @State private var exportFormatIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportFormat")
     @State private var exportQualityIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportQuality")
+    @State private var showPINSetup = false
+    @State private var showPINEntry = false
+    @State private var showBiometricAlert = false
 
     @State private var expandedRow: ExpandedRow? = nil
 
@@ -102,6 +105,7 @@ struct SettingsView: View {
                                         var err: NSError?
                                         guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
                                             biometricEnabled = false
+                                            showBiometricAlert = true
                                             return
                                         }
                                         ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
@@ -111,12 +115,28 @@ struct SettingsView: View {
                                             DispatchQueue.main.async {
                                                 biometricEnabled = ok
                                                 UserDefaults.standard.set(ok, forKey: "shield.biometric")
+                                                if !ok { showBiometricAlert = true }
                                             }
                                         }
                                     } else {
                                         UserDefaults.standard.set(false, forKey: "shield.biometric")
                                     }
                                 }
+                        }
+                        ShieldDivider().padding(.leading, 54)
+
+                        settingsRowButton(
+                            icon: "lock.circle.fill",
+                            iconColor: "BF5AF2",
+                            title: appState.language == .es
+                                ? (PINManager.hasPIN ? "Cambiar PIN" : "Configurar PIN")
+                                : (PINManager.hasPIN ? "Change PIN" : "Set up PIN")
+                        ) {
+                            if PINManager.hasPIN {
+                                showPINEntry = true
+                            } else {
+                                showPINSetup = true
+                            }
                         }
                         ShieldDivider().padding(.leading, 54)
 
@@ -268,6 +288,24 @@ struct SettingsView: View {
                     Spacer().frame(height: 100)
                 }
             }
+        }
+        .sheet(isPresented: $showPINSetup) {
+            PINSetupView(isPresented: $showPINSetup) {}
+        }
+        .sheet(isPresented: $showPINEntry) {
+            PINEntryView(isPresented: $showPINEntry) {
+                showPINSetup = true
+            }
+        }
+        .alert(
+            appState.language == .es ? "Biometría no disponible" : "Biometrics unavailable",
+            isPresented: $showBiometricAlert
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(appState.language == .es
+                 ? "Face ID / Touch ID no está configurado en este dispositivo."
+                 : "Face ID / Touch ID is not set up on this device.")
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall)

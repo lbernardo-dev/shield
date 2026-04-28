@@ -316,60 +316,59 @@ enum ExportEngine {
                 return pdfURL
             }
 
-            let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
-            try renderer.writePDF(to: tempURL) { ctx in
-                let pageFiles = doc.pageFileNames ?? [doc.imageFileName].compactMap { $0 }
+            // Build each page as a flat UIImage (supports real blur), then embed in PDF
+            let pageFiles = doc.pageFileNames ?? [doc.imageFileName].compactMap { $0 }
+            var pageImages: [(UIImage, CGRect)] = []
 
-                if !pageFiles.isEmpty {
-                    for (pageIndex, fileName) in pageFiles.enumerated() {
-                        guard let sourceImage = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else {
-                            continue
-                        }
+            if !pageFiles.isEmpty {
+                for (pageIndex, fileName) in pageFiles.enumerated() {
+                    guard let sourceImage = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else { continue }
+                    let pageW: CGFloat = 595
+                    let pageH = pageW / (sourceImage.size.width / sourceImage.size.height)
+                    let pageRect = CGRect(x: 0, y: 0, width: pageW, height: pageH)
+                    let redactions = pageRedactions[pageIndex] ?? []
+                    let flat = await compositePageImage(
+                        sourceImage: sourceImage, vectorDoc: nil,
+                        redactions: redactions, watermark: watermark,
+                        pageSize: pageRect.size
+                    )
+                    if let flat { pageImages.append((flat, pageRect)) }
+                }
+            } else if doc.sourceType == .pdf,
+                      let sourceFileName = doc.sourceFileName,
+                      let pdfData = AppState.loadSourceData(fileName: sourceFileName, isVaulted: doc.isVaulted),
+                      let pdfDocument = PDFDocument(data: pdfData) {
+                // PDF source with blur — rasterize each PDF page then composite
+                for pageIndex in 0..<pdfDocument.pageCount {
+                    guard let page = pdfDocument.page(at: pageIndex) else { continue }
+                    let bounds = page.bounds(for: .mediaBox).standardized
+                    let pageSize = bounds.size == .zero ? CGSize(width: 595, height: 842) : bounds.size
+                    let pdfPageImage = renderPDFPage(page: page, size: pageSize)
+                    let flat = await compositePageImage(
+                        sourceImage: pdfPageImage, vectorDoc: nil,
+                        redactions: pageRedactions[pageIndex] ?? [], watermark: watermark,
+                        pageSize: pageSize
+                    )
+                    if let flat { pageImages.append((flat, CGRect(origin: .zero, size: pageSize))) }
+                }
+            } else {
+                let pageRect = CGRect(x: 0, y: 0, width: 595, height: 595 / 1.6)
+                let vectorImg = await MainActor.run { renderVectorDoc(doc: doc, size: pageRect.size) }
+                let flat = await compositePageImage(
+                    sourceImage: nil, vectorDoc: vectorImg,
+                    redactions: pageRedactions[0] ?? [], watermark: watermark,
+                    pageSize: pageRect.size
+                )
+                if let flat { pageImages.append((flat, pageRect)) }
+            }
 
-                        let pageW: CGFloat = 595
-                        let pageH = pageW / (sourceImage.size.width / sourceImage.size.height)
-                        let pageRect = CGRect(x: 0, y: 0, width: pageW, height: pageH)
-                        ctx.beginPage(withBounds: pageRect, pageInfo: [:])
+            guard !pageImages.isEmpty else { return nil }
 
-                        let cgCtx = ctx.cgContext
-                        sourceImage.draw(in: pageRect)
-
-                        for redaction in pageRedactions[pageIndex] ?? [] {
-                            let rect = CGRect(
-                                x: redaction.rect.origin.x * pageW,
-                                y: redaction.rect.origin.y * pageH,
-                                width: redaction.rect.width * pageW,
-                                height: redaction.rect.height * pageH
-                            )
-                            drawRedactionCG(context: cgCtx, rect: rect, style: redaction.style)
-                        }
-
-                        if let wm = watermark {
-                            drawWatermarkCG(context: cgCtx, in: pageRect, watermark: wm)
-                        }
-                    }
-                } else {
-                    let pageRect = CGRect(x: 0, y: 0, width: 595, height: 595 / 1.6)
-                    ctx.beginPage(withBounds: pageRect, pageInfo: [:])
-                    let cgCtx = ctx.cgContext
-
-                    if let image = renderVectorDoc(doc: doc, size: pageRect.size) {
-                        image.draw(in: pageRect)
-                    }
-
-                    for redaction in pageRedactions[0] ?? [] {
-                        let rect = CGRect(
-                            x: redaction.rect.origin.x * pageRect.width,
-                            y: redaction.rect.origin.y * pageRect.height,
-                            width: redaction.rect.width * pageRect.width,
-                            height: redaction.rect.height * pageRect.height
-                        )
-                        drawRedactionCG(context: cgCtx, rect: rect, style: redaction.style)
-                    }
-
-                    if let wm = watermark {
-                        drawWatermarkCG(context: cgCtx, in: pageRect, watermark: wm)
-                    }
+            let pdfRenderer = UIGraphicsPDFRenderer(bounds: pageImages[0].1)
+            try pdfRenderer.writePDF(to: tempURL) { ctx in
+                for (image, rect) in pageImages {
+                    ctx.beginPage(withBounds: rect, pageInfo: [:])
+                    image.draw(in: rect)
                 }
             }
             return tempURL
@@ -378,36 +377,97 @@ enum ExportEngine {
         }
     }
 
+    // Composite a single page: source + non-blur redactions + blur via CIFilter + watermark
+    private static func compositePageImage(
+        sourceImage: UIImage?,
+        vectorDoc: UIImage?,
+        redactions: [Redaction],
+        watermark: Watermark?,
+        pageSize: CGSize
+    ) async -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: pageSize, format: format)
+
+        var base = renderer.image { ctx in
+            let rect = CGRect(origin: .zero, size: pageSize)
+            if let img = sourceImage {
+                img.draw(in: rect)
+            } else if let img = vectorDoc {
+                img.draw(in: rect)
+            }
+            for r in redactions where !r.style.isBlur {
+                let rRect = CGRect(
+                    x: r.rect.origin.x * pageSize.width, y: r.rect.origin.y * pageSize.height,
+                    width: r.rect.width * pageSize.width, height: r.rect.height * pageSize.height
+                )
+                drawRedactionCG(context: ctx.cgContext, rect: rRect, style: r.style)
+            }
+        }
+
+        let blurReds = redactions.filter { $0.style.isBlur }
+        if !blurReds.isEmpty, let cgBase = base.cgImage {
+            base = renderer.image { ctx in
+                base.draw(in: CGRect(origin: .zero, size: pageSize))
+                for r in blurReds {
+                    let rRect = CGRect(
+                        x: r.rect.origin.x * pageSize.width, y: r.rect.origin.y * pageSize.height,
+                        width: r.rect.width * pageSize.width, height: r.rect.height * pageSize.height
+                    )
+                    let radius: CGFloat = r.style == .blurStrong ? 20 : 10
+                    if let blurred = applyBlurToCrop(sourceImage: cgBase, rect: rRect, radius: radius) {
+                        blurred.draw(in: rRect)
+                    } else {
+                        drawRedactionCG(context: ctx.cgContext, rect: rRect, style: r.style)
+                    }
+                }
+            }
+        }
+
+        if let wm = watermark {
+            base = renderer.image { ctx in
+                base.draw(in: CGRect(origin: .zero, size: pageSize))
+                drawWatermarkCG(context: ctx.cgContext, in: CGRect(origin: .zero, size: pageSize), watermark: wm)
+            }
+        }
+        return base
+    }
+
     static func exportAsImage(doc: DocumentItem, imageFileName: String?, redactions: [Redaction], watermark: Watermark?, scale: CGFloat) async -> UIImage? {
         let sourceImage = imageFileName.flatMap {
             AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted)
         }
 
-        let size: CGSize
+        let baseSize: CGSize
         if let img = sourceImage {
-            size = img.size
+            baseSize = img.size
         } else {
-            size = CGSize(width: 800, height: 500)   // ID card ratio
+            baseSize = CGSize(width: 800, height: 500)
         }
+        let scaledSize = CGSize(width: baseSize.width * scale, height: baseSize.height * scale)
 
+        // Render vector doc on MainActor if needed
+        let vectorImage: UIImage? = sourceImage == nil ? await MainActor.run {
+            renderVectorDoc(doc: doc, size: scaledSize)
+        } : nil
+
+        // Build base image (source or vector) without blur redactions
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size.width * scale, height: size.height * scale), format: format)
+        let renderer = UIGraphicsImageRenderer(size: scaledSize, format: format)
 
-        return renderer.image { ctx in
-            let scaledSize = CGSize(width: size.width * scale, height: size.height * scale)
+        var baseImage = renderer.image { ctx in
             let rect = CGRect(origin: .zero, size: scaledSize)
             let cgCtx = ctx.cgContext
 
-            // Draw source
             if let img = sourceImage {
-                img.draw(in: rect)
-            } else if let img = renderVectorDoc(doc: doc, size: scaledSize) {
+                img.draw(in: CGRect(origin: .zero, size: scaledSize))
+            } else if let img = vectorImage {
                 img.draw(in: rect)
             }
 
-            // Draw redactions
-            for r in redactions {
+            // Draw non-blur redactions
+            for r in redactions where !r.style.isBlur {
                 let redactRect = CGRect(
                     x: r.rect.origin.x * scaledSize.width,
                     y: r.rect.origin.y * scaledSize.height,
@@ -416,28 +476,92 @@ enum ExportEngine {
                 )
                 drawRedactionCG(context: cgCtx, rect: redactRect, style: r.style)
             }
-
-            if let wm = watermark {
-                drawWatermarkCG(context: cgCtx, in: rect, watermark: wm)
-            }
         }
+
+        // Apply blur redactions using CIGaussianBlur
+        let blurRedactions = redactions.filter { $0.style.isBlur }
+        if !blurRedactions.isEmpty, let cgBase = baseImage.cgImage {
+            let blurResult = renderer.image { ctx in
+                baseImage.draw(in: CGRect(origin: .zero, size: scaledSize))
+                let cgCtx = ctx.cgContext
+                for r in blurRedactions {
+                    let redactRect = CGRect(
+                        x: r.rect.origin.x * scaledSize.width,
+                        y: r.rect.origin.y * scaledSize.height,
+                        width: r.rect.width * scaledSize.width,
+                        height: r.rect.height * scaledSize.height
+                    )
+                    let radius: CGFloat = r.style == .blurStrong ? 20 : 10
+                    if let blurred = applyBlurToCrop(sourceImage: cgBase, rect: redactRect, radius: radius) {
+                        blurred.draw(in: redactRect)
+                    } else {
+                        drawRedactionCG(context: cgCtx, rect: redactRect, style: r.style)
+                    }
+                }
+            }
+            baseImage = blurResult
+        }
+
+        // Watermark pass
+        if let wm = watermark {
+            let withWatermark = renderer.image { ctx in
+                baseImage.draw(in: CGRect(origin: .zero, size: scaledSize))
+                drawWatermarkCG(context: ctx.cgContext, in: CGRect(origin: .zero, size: scaledSize), watermark: wm)
+            }
+            return withWatermark
+        }
+
+        return baseImage
     }
 
-    // Render vector doc to UIImage
-    private static func renderVectorDoc(doc: DocumentItem, size: CGSize) -> UIImage? {
+    // Render vector doc to UIImage using ImageRenderer (iOS 16+)
+    @MainActor
+    static func renderVectorDoc(doc: DocumentItem, size: CGSize) -> UIImage? {
+        let view = DocumentView(
+            kind: doc.kind,
+            size: size,
+            fields: doc.fields,
+            redactions: [],
+            watermark: nil,
+            imageFileName: doc.imageFileName,
+            isVaulted: doc.isVaulted
+        )
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 3.0
+        return renderer.uiImage
+    }
+
+    // Rasterize a PDFPage to UIImage
+    private static func renderPDFPage(page: PDFPage, size: CGSize) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        return renderer.image { _ in
-            // Placeholder: white background with doc title
-            UIColor(Color(hex: "E8E4D8")).setFill()
-            UIBezierPath(rect: CGRect(origin: .zero, size: size)).fill()
-            let attrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: min(size.height * 0.08, 24), weight: .bold),
-                .foregroundColor: UIColor.black
-            ]
-            (doc.title as NSString).draw(at: CGPoint(x: 12, y: 12), withAttributes: attrs)
+        return renderer.image { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            let cgCtx = ctx.cgContext
+            cgCtx.saveGState()
+            cgCtx.translateBy(x: 0, y: size.height)
+            cgCtx.scaleBy(x: 1, y: -1)
+            page.draw(with: .mediaBox, to: cgCtx)
+            cgCtx.restoreGState()
         }
+    }
+
+    // Apply CIGaussianBlur to a rect within an existing CGImage
+    private static func applyBlurToCrop(
+        sourceImage: CGImage,
+        rect: CGRect,
+        radius: CGFloat
+    ) -> UIImage? {
+        let ciSource = CIImage(cgImage: sourceImage)
+        let blurred = ciSource
+            .cropped(to: rect)
+            .clampedToExtent()
+            .applyingFilter("CIGaussianBlur", parameters: ["inputRadius": radius])
+            .cropped(to: rect)
+        guard let cgResult = CIContext().createCGImage(blurred, from: rect) else { return nil }
+        return UIImage(cgImage: cgResult)
     }
 
     private static func exportOriginalPDFIfAvailable(
@@ -453,6 +577,10 @@ enum ExportEngine {
               pdfDocument.pageCount > 0 else {
             return nil
         }
+
+        // Check if any page has blur redactions — if so, defer to compositePageImage pipeline
+        let hasBlur = pageRedactions.values.flatMap { $0 }.contains { $0.style.isBlur }
+        if hasBlur { return nil }
 
         let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
         try renderer.writePDF(to: url) { ctx in
@@ -492,12 +620,24 @@ enum ExportEngine {
         switch style {
         case .blockWhite:
             context.setFillColor(UIColor.white.cgColor)
+            context.fill(rect)
         case .semi:
             context.setFillColor(UIColor.black.withAlphaComponent(0.55).cgColor)
+            context.fill(rect)
+        case .blurStrong:
+            context.setFillColor(UIColor.white.withAlphaComponent(0.80).cgColor)
+            context.fill(rect)
+            context.setFillColor(UIColor.gray.withAlphaComponent(0.30).cgColor)
+            context.fill(rect)
+        case .blurSoft:
+            context.setFillColor(UIColor.white.withAlphaComponent(0.55).cgColor)
+            context.fill(rect)
+            context.setFillColor(UIColor.white.withAlphaComponent(0.15).cgColor)
+            context.fill(rect)
         default:
             context.setFillColor(UIColor.black.cgColor)
+            context.fill(rect)
         }
-        context.fill(rect)
 
         if style == .redactedTag {
             let attrs: [NSAttributedString.Key: Any] = [
@@ -535,7 +675,7 @@ enum ExportEngine {
         let fontSize = rect.width * 0.07
         let attrs: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: fontSize, weight: .heavy),
-            .foregroundColor: UIColor.white.withAlphaComponent(CGFloat(watermark.opacity))
+            .foregroundColor: UIColor(watermark.color).withAlphaComponent(CGFloat(watermark.opacity))
         ]
         let text = watermark.text as NSString
 

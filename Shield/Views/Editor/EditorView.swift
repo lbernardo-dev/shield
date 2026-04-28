@@ -7,6 +7,8 @@ struct EditorView: View {
     @StateObject private var pm = PremiumManager.shared
     @StateObject private var vm: EditorViewModel
     @State private var showPaywall = false
+    @State private var showCancelConfirm = false
+    @State private var showWatermarkConfig = false
 
     init(doc: DocumentItem) {
         _vm = StateObject(wrappedValue: EditorViewModel(doc: doc))
@@ -63,6 +65,18 @@ struct EditorView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall).environmentObject(appState)
         }
+        .sheet(isPresented: $showWatermarkConfig) {
+            SheetContainer(heightFraction: 0.52) {
+                WatermarkConfigView(
+                    watermark: vm.watermark,
+                    lang: appState.language,
+                    defaultText: appState.str(.forVerificationOnly),
+                    isPresented: $showWatermarkConfig
+                ) { newWatermark in
+                    vm.setWatermark(newWatermark)
+                }
+            }
+        }
         .onReceive(vm.$doc.dropFirst()) { updated in
             appState.updateDocument(updated)
         }
@@ -76,10 +90,28 @@ struct EditorView: View {
     private var topBar: some View {
         HStack {
             Button(appState.str(.cancel)) {
-                appState.selectedDoc = nil
+                if vm.redactions.isEmpty {
+                    appState.selectedDoc = nil
+                } else {
+                    showCancelConfirm = true
+                }
             }
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(ShieldTheme.accent)
+            .confirmationDialog(
+                appState.language == .es ? "¿Salir sin guardar?" : "Exit without saving?",
+                isPresented: $showCancelConfirm,
+                titleVisibility: .visible
+            ) {
+                Button(appState.language == .es ? "Salir" : "Exit", role: .destructive) {
+                    appState.selectedDoc = nil
+                }
+                Button(appState.language == .es ? "Continuar editando" : "Keep editing", role: .cancel) {}
+            } message: {
+                Text(appState.language == .es
+                     ? "Se perderán las redacciones no exportadas."
+                     : "Unexported redactions will be lost.")
+            }
 
             Spacer()
 
@@ -266,6 +298,7 @@ struct EditorView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(RedactionMode.allCases) { mode in
+                    let isActive = vm.activeMode == mode
                     Button {
                         vm.applyMode(mode)
                     } label: {
@@ -275,13 +308,13 @@ struct EditorView: View {
                             Text(mode.label(lang: appState.language))
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(ShieldTheme.textPrimary)
+                        .foregroundColor(isActive ? .black : ShieldTheme.textPrimary)
                         .padding(.horizontal, 10)
                         .frame(height: 28)
-                        .background(ShieldTheme.surface2)
+                        .background(isActive ? mode.color : ShieldTheme.surface2)
                         .overlay(
                             Capsule()
-                                .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                                .stroke(isActive ? mode.color : ShieldTheme.surfaceLine, lineWidth: isActive ? 0 : 0.5)
                         )
                         .clipShape(Capsule())
                     }
@@ -349,15 +382,25 @@ struct EditorView: View {
             HStack(spacing: 4) {
                 ForEach(EditorTool.allCases) { tool in
                     let isSelected = vm.tool == tool
+                    let watermarkActive = tool == .watermark && vm.watermark != nil
                     Button {
                         handleToolTap(tool)
                     } label: {
-                        Image(systemName: tool.icon)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(isSelected ? ShieldTheme.accentText : ShieldTheme.textPrimary)
-                            .frame(width: 38, height: 38)
-                            .background(isSelected ? ShieldTheme.accent : Color.clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: tool.icon)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(isSelected ? ShieldTheme.accentText : ShieldTheme.textPrimary)
+                                .frame(width: 38, height: 38)
+                                .background(isSelected ? ShieldTheme.accent : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                            if watermarkActive {
+                                Circle()
+                                    .fill(ShieldTheme.success)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 2, y: -2)
+                            }
+                        }
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
@@ -377,10 +420,12 @@ struct EditorView: View {
         switch tool {
         case .auto:
             vm.applyAutoDetect()
+            withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }
         case .text:
             vm.showOCRSheet = true
         case .watermark:
-            vm.toggleWatermark(text: appState.str(.forVerificationOnly))
+            showWatermarkConfig = true
+            withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }
         case .fields:
             vm.showFieldOverlays = !vm.showFieldOverlays
         default:
