@@ -145,7 +145,10 @@ final class AppState: ObservableObject {
     func deleteDocument(_ doc: DocumentItem) {
         let fileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
         for fileName in fileNames {
-            SecureFileStore.shared.removeFile(at: AppState.imagesDir.appendingPathComponent(fileName))
+            SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
+        }
+        if let sourceFileName = doc.sourceFileName {
+            SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
         }
         documents.removeAll { $0.id == doc.id }
         persistDocuments()
@@ -159,6 +162,7 @@ final class AppState: ObservableObject {
 
     func toggleVault(_ doc: DocumentItem) {
         var d = doc
+        moveAssets(for: &d, toVault: !doc.isVaulted)
         d.isVaulted.toggle()
         updateDocument(d)
     }
@@ -167,7 +171,10 @@ final class AppState: ObservableObject {
         for doc in documents {
             let fileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
             for fileName in fileNames {
-                SecureFileStore.shared.removeFile(at: AppState.imagesDir.appendingPathComponent(fileName))
+                SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
+            }
+            if let sourceFileName = doc.sourceFileName {
+                SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
             }
         }
         documents.removeAll()
@@ -179,7 +186,7 @@ final class AppState: ObservableObject {
     @discardableResult
     func saveImage(_ image: UIImage, id: String) -> String? {
         let fileName = "\(id).jpg"
-        let url = AppState.imagesDir.appendingPathComponent(fileName)
+        let url = AppState.libraryImagesDir.appendingPathComponent(fileName)
         guard let data = image.jpegData(compressionQuality: 0.85) else { return nil }
         do {
             try SecureFileStore.shared.write(data, to: url)
@@ -189,8 +196,25 @@ final class AppState: ObservableObject {
         }
     }
 
-    func loadImage(fileName: String) -> UIImage? {
-        SecureFileStore.shared.loadImage(from: AppState.imagesDir.appendingPathComponent(fileName))
+    func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
+        AppState.loadImage(fileName: fileName, isVaulted: isVaulted)
+    }
+
+    @discardableResult
+    func saveSourceFile(_ data: Data, id: String, fileExtension: String) -> String? {
+        let ext = fileExtension.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        let fileName = "\(id).\(ext)"
+        let url = AppState.librarySourcesDir.appendingPathComponent(fileName)
+        do {
+            try SecureFileStore.shared.write(data, to: url)
+            return fileName
+        } catch {
+            return nil
+        }
+    }
+
+    func loadSourceData(fileName: String, isVaulted: Bool) -> Data? {
+        AppState.loadSourceData(fileName: fileName, isVaulted: isVaulted)
     }
 
     // MARK: - Category CRUD
@@ -225,7 +249,29 @@ final class AppState: ObservableObject {
     }
 
     static var imagesDir: URL {
+        libraryImagesDir
+    }
+
+    static var libraryImagesDir: URL {
         let dir = appSupportDir.appendingPathComponent("images", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    static var vaultImagesDir: URL {
+        let dir = appSupportDir.appendingPathComponent("vault-images", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    static var librarySourcesDir: URL {
+        let dir = appSupportDir.appendingPathComponent("sources", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    static var vaultSourcesDir: URL {
+        let dir = appSupportDir.appendingPathComponent("vault-sources", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -236,6 +282,40 @@ final class AppState: ObservableObject {
 
     private static var categoriesURL: URL {
         appSupportDir.appendingPathComponent("categories.json")
+    }
+
+    static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+        switch isVaulted {
+        case true:
+            return vaultImagesDir.appendingPathComponent(fileName)
+        case false:
+            return libraryImagesDir.appendingPathComponent(fileName)
+        case nil:
+            let vaultURL = vaultImagesDir.appendingPathComponent(fileName)
+            if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
+            return libraryImagesDir.appendingPathComponent(fileName)
+        }
+    }
+
+    static func resolveSourceURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+        switch isVaulted {
+        case true:
+            return vaultSourcesDir.appendingPathComponent(fileName)
+        case false:
+            return librarySourcesDir.appendingPathComponent(fileName)
+        case nil:
+            let vaultURL = vaultSourcesDir.appendingPathComponent(fileName)
+            if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
+            return librarySourcesDir.appendingPathComponent(fileName)
+        }
+    }
+
+    static func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
+        SecureFileStore.shared.loadImage(from: resolveImageURL(fileName: fileName, isVaulted: isVaulted))
+    }
+
+    static func loadSourceData(fileName: String, isVaulted: Bool? = nil) -> Data? {
+        try? SecureFileStore.shared.read(from: resolveSourceURL(fileName: fileName, isVaulted: isVaulted))
     }
 
     private func persistDocuments() {
@@ -268,6 +348,20 @@ final class AppState: ObservableObject {
             return []
         }
         return cats
+    }
+
+    private func moveAssets(for doc: inout DocumentItem, toVault: Bool) {
+        let imageFileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
+        for fileName in imageFileNames {
+            let from = AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted)
+            let to = AppState.resolveImageURL(fileName: fileName, isVaulted: toVault)
+            try? SecureFileStore.shared.moveFile(from: from, to: to)
+        }
+        if let sourceFileName = doc.sourceFileName {
+            let from = AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted)
+            let to = AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: toVault)
+            try? SecureFileStore.shared.moveFile(from: from, to: to)
+        }
     }
 }
 
@@ -314,6 +408,22 @@ final class SecureFileStore {
 
     func removeFile(at url: URL) {
         try? FileManager.default.removeItem(at: url)
+    }
+
+    func moveFile(from sourceURL: URL, to destinationURL: URL) throws {
+        guard sourceURL != destinationURL else { return }
+        let dir = destinationURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+        if FileManager.default.fileExists(atPath: sourceURL.path) {
+            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: destinationURL.path
+            )
+        }
     }
 
     private func encrypt(_ data: Data) throws -> Data {

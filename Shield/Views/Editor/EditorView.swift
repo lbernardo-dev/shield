@@ -127,13 +127,13 @@ struct EditorView: View {
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(appState.language == .es
-                         ? "12 datos sensibles detectados"
-                         : "12 sensitive items detected")
+                         ? "\(vm.suggestedRedactionCount) zonas sensibles sugeridas"
+                         : "\(vm.suggestedRedactionCount) sensitive areas suggested")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
                     Text(appState.language == .es
-                         ? "Foto, MRZ, nº doc, dirección, fechas…"
-                         : "Photo, MRZ, doc №, address, dates…")
+                         ? "Basado en la plantilla del documento actual."
+                         : "Based on the current document template.")
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textSecondary)
                 }
@@ -180,7 +180,7 @@ struct EditorView: View {
             return CGSize(width: w, height: w / 1.6)
         }
         let img = vm.currentImageFileName.flatMap {
-            AppState.imagesDir.appendingPathComponent($0).loadImage()
+            AppState.loadImage(fileName: $0, isVaulted: vm.doc.isVaulted)
         }
         guard let img = img else { return CGSize(width: w, height: h) }
         let aspect = img.size.width / img.size.height

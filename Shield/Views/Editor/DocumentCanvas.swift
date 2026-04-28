@@ -17,7 +17,8 @@ struct DocumentCanvas: View {
                 redactions: vm.redactions,
                 watermark: vm.watermark,
                 showFieldOverlays: vm.tool == .fields || vm.showFieldOverlays,
-                imageFileName: vm.currentImageFileName
+                imageFileName: vm.currentImageFileName,
+                isVaulted: vm.doc.isVaulted
             )
 
             // Active drawing rect

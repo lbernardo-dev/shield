@@ -43,7 +43,7 @@ final class EditorViewModel: ObservableObject {
     @Published var redactions: [Redaction] = []
     @Published var activeRedactionID: UUID? = nil
     @Published var watermark: Watermark? = nil
-    @Published var showSensitiveBanner: Bool = true
+    @Published var showSensitiveBanner: Bool = false
     @Published var showFieldOverlays: Bool = false
     @Published var showOCRSheet: Bool = false
     @Published var showExportSheet: Bool = false
@@ -51,6 +51,7 @@ final class EditorViewModel: ObservableObject {
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
+    var suggestedRedactionCount: Int { AutoRedactions.suggested(for: doc.kind).count }
     var allPageRedactions: [Int: [Redaction]] {
         Dictionary(uniqueKeysWithValues: doc.pageRedactions.map { ($0.pageIndex, $0.redactions) })
     }
@@ -85,6 +86,7 @@ final class EditorViewModel: ObservableObject {
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
         self.history = [self.redactions]
+        self.showSensitiveBanner = !AutoRedactions.suggested(for: doc.kind).isEmpty
     }
 
     // MARK: - History

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import PDFKit
 
 // MARK: - ExportSheetView
 
@@ -67,7 +68,8 @@ struct ExportSheetView: View {
                             fields: doc.fields,
                             redactions: redactions,
                             watermark: watermark,
-                            imageFileName: currentImageFileName
+                            imageFileName: currentImageFileName,
+                            isVaulted: doc.isVaulted
                         )
                         .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
                         Spacer()
@@ -254,7 +256,9 @@ struct ExportSheetView: View {
     }
 
     private var redactionsCountLabel: String {
-        let n = redactions.count
+        let n = format == .pdf
+            ? pageRedactions.values.reduce(0) { $0 + $1.count }
+            : redactions.count
         if lang == .es {
             return "\(n) \(n == 1 ? "redacción" : "redacciones")"
         } else {
@@ -304,17 +308,21 @@ struct ExportSheetView: View {
 
 enum ExportEngine {
     static func exportAsPDF(doc: DocumentItem, pageRedactions: [Int: [Redaction]], watermark: Watermark?, scale: CGFloat) async -> URL? {
-        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("shield_\(doc.id)_\(Int(Date().timeIntervalSince1970)).pdf")
 
         do {
+            if let pdfURL = try exportOriginalPDFIfAvailable(doc: doc, pageRedactions: pageRedactions, watermark: watermark, to: tempURL) {
+                return pdfURL
+            }
+
+            let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
             try renderer.writePDF(to: tempURL) { ctx in
                 let pageFiles = doc.pageFileNames ?? [doc.imageFileName].compactMap { $0 }
 
                 if !pageFiles.isEmpty {
                     for (pageIndex, fileName) in pageFiles.enumerated() {
-                        guard let sourceImage = AppState.imagesDir.appendingPathComponent(fileName).loadImage() else {
+                        guard let sourceImage = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else {
                             continue
                         }
 
@@ -372,7 +380,7 @@ enum ExportEngine {
 
     static func exportAsImage(doc: DocumentItem, imageFileName: String?, redactions: [Redaction], watermark: Watermark?, scale: CGFloat) async -> UIImage? {
         let sourceImage = imageFileName.flatMap {
-            AppState.imagesDir.appendingPathComponent($0).loadImage()
+            AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted)
         }
 
         let size: CGSize
@@ -430,6 +438,54 @@ enum ExportEngine {
             ]
             (doc.title as NSString).draw(at: CGPoint(x: 12, y: 12), withAttributes: attrs)
         }
+    }
+
+    private static func exportOriginalPDFIfAvailable(
+        doc: DocumentItem,
+        pageRedactions: [Int: [Redaction]],
+        watermark: Watermark?,
+        to url: URL
+    ) throws -> URL? {
+        guard doc.sourceType == .pdf,
+              let sourceFileName = doc.sourceFileName,
+              let pdfData = AppState.loadSourceData(fileName: sourceFileName, isVaulted: doc.isVaulted),
+              let pdfDocument = PDFDocument(data: pdfData),
+              pdfDocument.pageCount > 0 else {
+            return nil
+        }
+
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
+        try renderer.writePDF(to: url) { ctx in
+            for pageIndex in 0..<pdfDocument.pageCount {
+                guard let page = pdfDocument.page(at: pageIndex) else { continue }
+                let bounds = page.bounds(for: .mediaBox).standardized
+                let pageRect = CGRect(origin: .zero, size: bounds.size == .zero ? CGSize(width: 595, height: 842) : bounds.size)
+                ctx.beginPage(withBounds: pageRect, pageInfo: [:])
+
+                let cgCtx = ctx.cgContext
+                cgCtx.saveGState()
+                cgCtx.translateBy(x: 0, y: pageRect.height)
+                cgCtx.scaleBy(x: 1, y: -1)
+                cgCtx.translateBy(x: -bounds.minX, y: -bounds.minY)
+                page.draw(with: .mediaBox, to: cgCtx)
+                cgCtx.restoreGState()
+
+                for redaction in pageRedactions[pageIndex] ?? [] {
+                    let rect = CGRect(
+                        x: redaction.rect.origin.x * pageRect.width,
+                        y: redaction.rect.origin.y * pageRect.height,
+                        width: redaction.rect.width * pageRect.width,
+                        height: redaction.rect.height * pageRect.height
+                    )
+                    drawRedactionCG(context: cgCtx, rect: rect, style: redaction.style)
+                }
+
+                if let watermark {
+                    drawWatermarkCG(context: cgCtx, in: pageRect, watermark: watermark)
+                }
+            }
+        }
+        return url
     }
 
     private static func drawRedactionCG(context: CGContext, rect: CGRect, style: MaskStyle) {

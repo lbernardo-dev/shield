@@ -643,7 +643,7 @@ struct DocumentRow: View {
             HStack(spacing: 12) {
                 ZStack {
                     DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
-                                 fields: doc.fields, imageFileName: doc.imageFileName)
+                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: doc.isVaulted)
                         .frame(width: 64, height: 44)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
 

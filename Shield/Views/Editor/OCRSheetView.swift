@@ -204,7 +204,7 @@ struct OCRSheetView: View {
 
     private func runOCR() {
         guard let fileName = doc.imageFileName,
-              let image = AppState.imagesDir.appendingPathComponent(fileName).loadImage() else {
+              let image = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else {
             ocrError = lang == .es ? "No hay imagen disponible" : "No image available"
             return
         }

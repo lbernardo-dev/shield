@@ -73,6 +73,11 @@ enum DocumentKind: String, Codable {
     case genericID
 }
 
+enum ImportedDocumentSource: String, Codable {
+    case image
+    case pdf
+}
+
 // MARK: - DocumentFields
 
 struct DocumentFields: Codable {
@@ -123,12 +128,34 @@ struct DocumentItem: Identifiable, Codable {
     var isVaulted: Bool
     var imageFileName: String?      // filename inside shield_images/ dir (page 0 or single image)
     var pageFileNames: [String]?    // all pages for multi-page PDFs; nil = single page
+    var sourceType: ImportedDocumentSource
+    var sourceFileName: String?
     var fields: DocumentFields
     var pageRedactions: [DocumentPageRedactions]
     var watermark: Watermark?
 
     var pageCount: Int { pageFileNames?.count ?? (imageFileName != nil ? 1 : 0) }
     var totalRedactionCount: Int { pageRedactions.reduce(0) { $0 + $1.redactions.count } }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case kind
+        case title
+        case category
+        case customCategoryID
+        case date
+        case redactionCount
+        case isFavorite
+        case isLocked
+        case isVaulted
+        case imageFileName
+        case pageFileNames
+        case sourceType
+        case sourceFileName
+        case fields
+        case pageRedactions
+        case watermark
+    }
 
     func imageFileName(for page: Int) -> String? {
         if let pages = pageFileNames {
@@ -153,6 +180,8 @@ struct DocumentItem: Identifiable, Codable {
          isVaulted: Bool = false,
          imageFileName: String? = nil,
          pageFileNames: [String]? = nil,
+         sourceType: ImportedDocumentSource = .image,
+         sourceFileName: String? = nil,
          fields: DocumentFields = .empty,
          pageRedactions: [DocumentPageRedactions] = [],
          watermark: Watermark? = nil) {
@@ -168,12 +197,39 @@ struct DocumentItem: Identifiable, Codable {
         self.isVaulted = isVaulted
         self.imageFileName = imageFileName
         self.pageFileNames = pageFileNames
+        self.sourceType = sourceType
+        self.sourceFileName = sourceFileName
         self.fields = fields
         self.pageRedactions = pageRedactions
         self.watermark = watermark
         self.redactionCount = pageRedactions.isEmpty
             ? redactionCount
             : pageRedactions.reduce(0) { $0 + $1.redactions.count }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        kind = try container.decode(DocumentKind.self, forKey: .kind)
+        title = try container.decode(String.self, forKey: .title)
+        category = try container.decodeIfPresent(DocumentCategory.self, forKey: .category) ?? .identity
+        customCategoryID = try container.decodeIfPresent(String.self, forKey: .customCategoryID)
+        date = try container.decodeIfPresent(Date.self, forKey: .date) ?? Date()
+        redactionCount = try container.decodeIfPresent(Int.self, forKey: .redactionCount) ?? 0
+        isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
+        isLocked = try container.decodeIfPresent(Bool.self, forKey: .isLocked) ?? false
+        isVaulted = try container.decodeIfPresent(Bool.self, forKey: .isVaulted) ?? false
+        imageFileName = try container.decodeIfPresent(String.self, forKey: .imageFileName)
+        pageFileNames = try container.decodeIfPresent([String].self, forKey: .pageFileNames)
+        sourceType = try container.decodeIfPresent(ImportedDocumentSource.self, forKey: .sourceType) ?? .image
+        sourceFileName = try container.decodeIfPresent(String.self, forKey: .sourceFileName)
+        fields = try container.decodeIfPresent(DocumentFields.self, forKey: .fields) ?? .empty
+        pageRedactions = try container.decodeIfPresent([DocumentPageRedactions].self, forKey: .pageRedactions) ?? []
+        watermark = try container.decodeIfPresent(Watermark.self, forKey: .watermark)
+
+        if !pageRedactions.isEmpty {
+            redactionCount = pageRedactions.reduce(0) { $0 + $1.redactions.count }
+        }
     }
 
     mutating func setRedactions(_ redactions: [Redaction], for page: Int) {

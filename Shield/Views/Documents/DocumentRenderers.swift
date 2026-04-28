@@ -10,7 +10,8 @@ func DocumentView(
     redactions: [Redaction] = [],
     watermark: Watermark? = nil,
     showFieldOverlays: Bool = false,
-    imageFileName: String? = nil
+    imageFileName: String? = nil,
+    isVaulted: Bool = false
 ) -> some View {
     switch kind {
     case .photo:
@@ -18,7 +19,8 @@ func DocumentView(
             imageFileName: imageFileName,
             size: size,
             redactions: redactions,
-            watermark: watermark
+            watermark: watermark,
+            isVaulted: isVaulted
         )
     case .dniESP:
         DNISpainView(
@@ -75,13 +77,12 @@ struct PhotoDocumentView: View {
     let size: CGSize
     var redactions: [Redaction] = []
     var watermark: Watermark? = nil
+    var isVaulted: Bool = false
 
     var body: some View {
         ZStack {
             if let fileName = imageFileName,
-               let uiImage = AppState.imagesDir
-                   .appendingPathComponent(fileName)
-                   .loadImage() {
+               let uiImage = AppState.loadImage(fileName: fileName, isVaulted: isVaulted) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()

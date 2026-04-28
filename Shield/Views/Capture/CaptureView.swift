@@ -4,6 +4,7 @@ import PhotosUI
 import Vision
 import UIKit
 import UniformTypeIdentifiers
+import PDFKit
 
 // MARK: - CaptureView
 
@@ -243,6 +244,7 @@ struct CaptureView: View {
                 isLocked: false,
                 isVaulted: false,
                 imageFileName: fileName,
+                sourceType: .image,
                 fields: fields,
                 pageRedactions: [],
                 watermark: nil
@@ -278,14 +280,18 @@ struct CaptureView: View {
 
             // Try to render all PDF pages
             let pdfTitle = url.deletingPathExtension().lastPathComponent
-            if let pages = renderPDFAllPages(url: url), !pages.isEmpty {
-                if pages.count == 1 {
-                    await MainActor.run { isProcessing = false }
-                    processImage(pages[0], title: pdfTitle)
-                } else {
-                    await MainActor.run { isProcessing = false }
-                    processPDFPages(pages, title: pdfTitle)
-                }
+            if let (pdfDocument, pdfData) = loadPDFDocument(from: url),
+               let pages = renderPDFAllPages(document: pdfDocument),
+               !pages.isEmpty {
+                let docID = UUID().uuidString
+                let sourceFileName = appState.saveSourceFile(pdfData, id: docID, fileExtension: "pdf")
+                await MainActor.run { isProcessing = false }
+                processPDFPages(
+                    pages,
+                    title: pdfTitle,
+                    docID: docID,
+                    sourceFileName: sourceFileName
+                )
                 return
             }
 
@@ -297,24 +303,16 @@ struct CaptureView: View {
         }
     }
 
-    private func processPDFPages(_ pages: [UIImage], title: String) {
+    private func processPDFPages(_ pages: [UIImage], title: String, docID: String, sourceFileName: String?) {
         isProcessing = true
         processingMessage = appState.language == .es ? "Procesando páginas…" : "Processing pages…"
 
         Task {
-            let docID = UUID().uuidString
             var pageFileNames: [String] = []
 
             for (idx, page) in pages.enumerated() {
-                let fileName = "\(docID)_p\(idx).jpg"
-                let fileURL = AppState.imagesDir.appendingPathComponent(fileName)
-                if let data = page.jpegData(compressionQuality: 0.85) {
-                    do {
-                        try SecureFileStore.shared.write(data, to: fileURL)
-                        pageFileNames.append(fileName)
-                    } catch {
-                        continue
-                    }
+                if let fileName = appState.saveImage(page, id: "\(docID)_p\(idx)") {
+                    pageFileNames.append(fileName)
                 }
             }
 
@@ -342,7 +340,9 @@ struct CaptureView: View {
                 isLocked: false,
                 isVaulted: false,
                 imageFileName: pageFileNames[0],
-                pageFileNames: pageFileNames,
+                pageFileNames: pageFileNames.count > 1 ? pageFileNames : nil,
+                sourceType: .pdf,
+                sourceFileName: sourceFileName,
                 fields: fields,
                 pageRedactions: [],
                 watermark: nil
@@ -357,25 +357,24 @@ struct CaptureView: View {
         }
     }
 
-    private func renderPDFAllPages(url: URL) -> [UIImage]? {
-        guard let pdfDoc = CGPDFDocument(url as CFURL), pdfDoc.numberOfPages > 0 else { return nil }
+    private func loadPDFDocument(from url: URL) -> (PDFDocument, Data)? {
+        guard let data = try? Data(contentsOf: url),
+              let document = PDFDocument(data: data),
+              document.pageCount > 0 else {
+            return nil
+        }
+        return (document, data)
+    }
 
+    private func renderPDFAllPages(document: PDFDocument) -> [UIImage]? {
         let scale: CGFloat = 2.0
         var images: [UIImage] = []
 
-        for pageNum in 1...pdfDoc.numberOfPages {
-            guard let page = pdfDoc.page(at: pageNum) else { continue }
-            let pageRect = page.getBoxRect(.mediaBox)
-            let size = CGSize(width: pageRect.width * scale, height: pageRect.height * scale)
-            let renderer = UIGraphicsImageRenderer(size: size)
-            let img = renderer.image { ctx in
-                UIColor.white.setFill()
-                ctx.fill(CGRect(origin: .zero, size: size))
-                ctx.cgContext.translateBy(x: 0, y: size.height)
-                ctx.cgContext.scaleBy(x: scale, y: -scale)
-                ctx.cgContext.drawPDFPage(page)
-            }
-            images.append(img)
+        for pageIndex in 0..<document.pageCount {
+            guard let page = document.page(at: pageIndex) else { continue }
+            let pageRect = page.bounds(for: .mediaBox)
+            let size = CGSize(width: max(pageRect.width * scale, 1), height: max(pageRect.height * scale, 1))
+            images.append(page.thumbnail(of: size, for: .mediaBox))
         }
 
         return images.isEmpty ? nil : images
