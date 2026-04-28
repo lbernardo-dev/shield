@@ -1,0 +1,290 @@
+import SwiftUI
+
+// MARK: - AppLanguage
+
+enum AppLanguage: String, CaseIterable, Codable {
+    case es, en
+    var displayName: String { rawValue.uppercased() }
+}
+
+// MARK: - DocumentCategory (built-in)
+
+enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
+    case all
+    case identity
+    case travel
+    case driving
+    case work
+    case health
+    case finance
+
+    var id: String { rawValue }
+
+    func label(lang: AppLanguage) -> String {
+        switch self {
+        case .all:      return lang == .es ? "Todos" : "All"
+        case .identity: return lang == .es ? "Identidad" : "ID"
+        case .travel:   return lang == .es ? "Viaje" : "Travel"
+        case .driving:  return lang == .es ? "Conducción" : "Driving"
+        case .work:     return lang == .es ? "Trabajo" : "Work"
+        case .health:   return lang == .es ? "Salud" : "Health"
+        case .finance:  return lang == .es ? "Financiero" : "Finance"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .all:      return "doc.fill"
+        case .identity: return "shield.fill"
+        case .travel:   return "airplane"
+        case .driving:  return "car.fill"
+        case .work:     return "briefcase.fill"
+        case .health:   return "heart.fill"
+        case .finance:  return "dollarsign.circle.fill"
+        }
+    }
+}
+
+// MARK: - UserCategory (user-created)
+
+struct UserCategory: Identifiable, Codable, Equatable {
+    let id: String
+    var name: String
+    var icon: String
+    var colorHex: String
+
+    init(id: String = UUID().uuidString, name: String, icon: String, colorHex: String = "FFD60A") {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.colorHex = colorHex
+    }
+}
+
+// MARK: - DocumentRenderer kind
+
+enum DocumentKind: String, Codable {
+    case dniESP
+    case passportUSA
+    case drivingUK
+    case photo        // imported photo/scan – rendered from imageFileName
+    case passportMEX
+    case dniITA
+    case genericID
+}
+
+// MARK: - DocumentFields
+
+struct DocumentFields: Codable {
+    var documentNumber: String
+    var fullName: String
+    var dateOfBirth: String
+    var nationality: String
+    var expires: String
+    var sex: String
+    var address: String
+    var issued: String?
+    var mrz: String?
+
+    static var empty: DocumentFields {
+        DocumentFields(documentNumber: "", fullName: "", dateOfBirth: "",
+                       nationality: "", expires: "", sex: "", address: "",
+                       issued: nil, mrz: nil)
+    }
+}
+
+// MARK: - FieldBox
+
+struct FieldBox: Identifiable {
+    let id = UUID()
+    let rect: CGRect   // normalized 0..1
+    let label: String
+}
+
+// MARK: - Per-page redactions
+
+struct DocumentPageRedactions: Codable, Equatable {
+    var pageIndex: Int
+    var redactions: [Redaction]
+}
+
+// MARK: - DocumentItem
+
+struct DocumentItem: Identifiable, Codable {
+    let id: String
+    var kind: DocumentKind
+    var title: String
+    var category: DocumentCategory
+    var customCategoryID: String?   // non-nil = user category overrides `category`
+    var date: Date
+    var redactionCount: Int
+    var isFavorite: Bool
+    var isLocked: Bool
+    var isVaulted: Bool
+    var imageFileName: String?      // filename inside shield_images/ dir (page 0 or single image)
+    var pageFileNames: [String]?    // all pages for multi-page PDFs; nil = single page
+    var fields: DocumentFields
+    var pageRedactions: [DocumentPageRedactions]
+    var watermark: Watermark?
+
+    var pageCount: Int { pageFileNames?.count ?? (imageFileName != nil ? 1 : 0) }
+    var totalRedactionCount: Int { pageRedactions.reduce(0) { $0 + $1.redactions.count } }
+
+    func imageFileName(for page: Int) -> String? {
+        if let pages = pageFileNames {
+            return pages.indices.contains(page) ? pages[page] : nil
+        }
+        return page == 0 ? imageFileName : nil
+    }
+
+    func redactions(for page: Int) -> [Redaction] {
+        pageRedactions.first(where: { $0.pageIndex == page })?.redactions ?? []
+    }
+
+    init(id: String = UUID().uuidString,
+         kind: DocumentKind,
+         title: String,
+         category: DocumentCategory = .identity,
+         customCategoryID: String? = nil,
+         date: Date = Date(),
+         redactionCount: Int = 0,
+         isFavorite: Bool = false,
+         isLocked: Bool = false,
+         isVaulted: Bool = false,
+         imageFileName: String? = nil,
+         pageFileNames: [String]? = nil,
+         fields: DocumentFields = .empty,
+         pageRedactions: [DocumentPageRedactions] = [],
+         watermark: Watermark? = nil) {
+        self.id = id
+        self.kind = kind
+        self.title = title
+        self.category = category
+        self.customCategoryID = customCategoryID
+        self.date = date
+        self.redactionCount = redactionCount
+        self.isFavorite = isFavorite
+        self.isLocked = isLocked
+        self.isVaulted = isVaulted
+        self.imageFileName = imageFileName
+        self.pageFileNames = pageFileNames
+        self.fields = fields
+        self.pageRedactions = pageRedactions
+        self.watermark = watermark
+        self.redactionCount = pageRedactions.isEmpty
+            ? redactionCount
+            : pageRedactions.reduce(0) { $0 + $1.redactions.count }
+    }
+
+    mutating func setRedactions(_ redactions: [Redaction], for page: Int) {
+        if let index = pageRedactions.firstIndex(where: { $0.pageIndex == page }) {
+            if redactions.isEmpty {
+                pageRedactions.remove(at: index)
+            } else {
+                pageRedactions[index].redactions = redactions
+            }
+        } else if !redactions.isEmpty {
+            pageRedactions.append(DocumentPageRedactions(pageIndex: page, redactions: redactions))
+            pageRedactions.sort { $0.pageIndex < $1.pageIndex }
+        }
+        redactionCount = totalRedactionCount
+    }
+
+    func dateLabelLocalized(lang: AppLanguage) -> String {
+        let cal = Calendar.current
+        if cal.isDateInToday(date) {
+            let fmt = DateFormatter()
+            if lang == .es {
+                fmt.dateFormat = "HH:mm"
+                return "Hoy, \(fmt.string(from: date))"
+            } else {
+                fmt.dateFormat = "h:mm a"
+                return "Today, \(fmt.string(from: date))"
+            }
+        } else if cal.isDateInYesterday(date) {
+            return lang == .es ? "Ayer" : "Yesterday"
+        } else {
+            let fmt = DateFormatter()
+            fmt.dateFormat = "d MMM"
+            return fmt.string(from: date)
+        }
+    }
+}
+
+// MARK: - Field boxes (normalized 0..1)
+
+enum DocumentFieldBoxes {
+    static let dniESP: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Surname 1"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Surname 2"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.50, width: 0.18, height: 0.07), label: "Name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "Doc №"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07), label: "DOB"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.78, width: 0.22, height: 0.07), label: "Expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+    ]
+
+    static let passportUSA: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07), label: "Passport №"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.36, width: 0.30, height: 0.07), label: "Surname"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.50, width: 0.30, height: 0.07), label: "Given names"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07), label: "DOB"),
+        FieldBox(rect: CGRect(x: 0.70, y: 0.74, width: 0.24, height: 0.07), label: "Expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15), label: "MRZ"),
+    ]
+
+    static let drivingUK: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.36, y: 0.24, width: 0.22, height: 0.07), label: "Surname"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.36, width: 0.22, height: 0.07), label: "Names"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.48, width: 0.22, height: 0.07), label: "DOB"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07), label: "Driver №"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07), label: "Address"),
+        FieldBox(rect: CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55), label: "Photo"),
+    ]
+
+    static let photo: [FieldBox] = []  // no predefined boxes for photo docs
+
+    static func boxes(for kind: DocumentKind) -> [FieldBox] {
+        switch kind {
+        case .dniESP:       return dniESP
+        case .passportUSA:  return passportUSA
+        case .drivingUK:    return drivingUK
+        case .photo, .passportMEX, .dniITA, .genericID: return photo
+        }
+    }
+}
+
+// MARK: - Auto-suggested redactions
+
+enum AutoRedactions {
+    static func suggested(for kind: DocumentKind, style: MaskStyle = .block) -> [Redaction] {
+        let rects: [CGRect]
+        switch kind {
+        case .dniESP:
+            rects = [
+                CGRect(x: 0.30, y: 0.78, width: 0.20, height: 0.07),
+                CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07),
+                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+            ]
+        case .passportUSA:
+            rects = [
+                CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07),
+                CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07),
+                CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15),
+                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55),
+            ]
+        case .drivingUK:
+            rects = [
+                CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07),
+                CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07),
+                CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55),
+            ]
+        case .photo, .passportMEX, .dniITA, .genericID:
+            rects = []
+        }
+        return rects.map { Redaction(rect: $0, style: style) }
+    }
+}

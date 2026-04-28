@@ -1,0 +1,584 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
+		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
+		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
+		A004 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Document.swift */; };
+		A005 /* Redaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005 /* Redaction.swift */; };
+		A006 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006 /* AppState.swift */; };
+		A007 /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F007 /* EditorViewModel.swift */; };
+		A008 /* DocumentRenderers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F008 /* DocumentRenderers.swift */; };
+		A009 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009 /* Components.swift */; };
+		A010 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* OnboardingView.swift */; };
+		A011 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* HomeView.swift */; };
+		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
+		A012 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* CaptureView.swift */; };
+		A013 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* EditorView.swift */; };
+		A014 /* DocumentCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* DocumentCanvas.swift */; };
+		A015 /* MaskStylePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F015 /* MaskStylePicker.swift */; };
+		A016 /* OCRSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016 /* OCRSheetView.swift */; };
+		A017 /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017 /* ExportSheetView.swift */; };
+		A018 /* PremiumManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F018 /* PremiumManager.swift */; };
+		A019 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F019 /* PaywallView.swift */; };
+		A020 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* VaultView.swift */; };
+		A021 /* StyleGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* StyleGalleryView.swift */; };
+		A022 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F022 /* SettingsView.swift */; };
+		A023 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* TabBar.swift */; };
+		A024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F024 /* Assets.xcassets */; };
+		A025 /* Shield.storekit in Resources */ = {isa = PBXBuildFile; fileRef = F025 /* Shield.storekit */; };
+		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
+		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
+		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
+		A102 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F102 /* VisionKit.framework */; };
+		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
+		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
+		F004 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		F005 /* Redaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Redaction.swift; sourceTree = "<group>"; };
+		F006 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F007 /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
+		F008 /* DocumentRenderers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentRenderers.swift; sourceTree = "<group>"; };
+		F009 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		F010 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		F011 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		F026 /* AllDocumentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDocumentsView.swift; sourceTree = "<group>"; };
+		F012 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		F013 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		F014 /* DocumentCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCanvas.swift; sourceTree = "<group>"; };
+		F015 /* MaskStylePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskStylePicker.swift; sourceTree = "<group>"; };
+		F016 /* OCRSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRSheetView.swift; sourceTree = "<group>"; };
+		F017 /* ExportSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheetView.swift; sourceTree = "<group>"; };
+		F018 /* PremiumManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumManager.swift; sourceTree = "<group>"; };
+		F019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		F020 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
+		F021 /* StyleGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGalleryView.swift; sourceTree = "<group>"; };
+		F022 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F023 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
+		F024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F025 /* Shield.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shield.storekit; sourceTree = "<group>"; };
+		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
+		F102 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
+		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
+		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		PH_FRAMEWORKS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A099 /* StoreKit.framework in Frameworks */,
+				A100 /* Vision.framework in Frameworks */,
+				A101 /* PhotosUI.framework in Frameworks */,
+				A102 /* VisionKit.framework in Frameworks */,
+				A103 /* PDFKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		GRP_APP /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F001 /* ShieldApp.swift */,
+				F002 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		GRP_CAPTURE /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				F012 /* CaptureView.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		GRP_COMPONENTS /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F009 /* Components.swift */,
+				F023 /* TabBar.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		GRP_DOCUMENTS /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				F008 /* DocumentRenderers.swift */,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
+		GRP_EDITOR /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				F013 /* EditorView.swift */,
+				F014 /* DocumentCanvas.swift */,
+				F015 /* MaskStylePicker.swift */,
+				F016 /* OCRSheetView.swift */,
+				F017 /* ExportSheetView.swift */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		GRP_FRAMEWORKS /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F099 /* StoreKit.framework */,
+				F100 /* Vision.framework */,
+				F101 /* PhotosUI.framework */,
+				F102 /* VisionKit.framework */,
+				F103 /* PDFKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		GRP_GALLERY /* Gallery */ = {
+			isa = PBXGroup;
+			children = (
+				F021 /* StyleGalleryView.swift */,
+			);
+			path = Gallery;
+			sourceTree = "<group>";
+		};
+		GRP_HOME /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				F011 /* HomeView.swift */,
+				F026 /* AllDocumentsView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		GRP_MODELS /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F004 /* Document.swift */,
+				F005 /* Redaction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		GRP_ONBOARDING /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				F010 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		GRP_PAYWALL /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				F019 /* PaywallView.swift */,
+			);
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		GRP_PREMIUM /* Premium */ = {
+			isa = PBXGroup;
+			children = (
+				F018 /* PremiumManager.swift */,
+			);
+			path = Premium;
+			sourceTree = "<group>";
+		};
+		GRP_PRODUCTS /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FAPP /* Shield.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		GRP_RESOURCES /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F024 /* Assets.xcassets */,
+				F025 /* Shield.storekit */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		GRP_ROOT = {
+			isa = PBXGroup;
+			children = (
+				GRP_SHIELD /* Shield */,
+				GRP_FRAMEWORKS /* Frameworks */,
+				GRP_PRODUCTS /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		GRP_SETTINGS /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F022 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		GRP_SHIELD /* Shield */ = {
+			isa = PBXGroup;
+			children = (
+				GRP_APP /* App */,
+				GRP_THEME /* Theme */,
+				GRP_MODELS /* Models */,
+				GRP_VIEWMODELS /* ViewModels */,
+				GRP_VIEWS /* Views */,
+				GRP_PREMIUM /* Premium */,
+				GRP_RESOURCES /* Resources */,
+			);
+			path = Shield;
+			sourceTree = "<group>";
+		};
+		GRP_THEME /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				F003 /* ShieldTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		GRP_VAULT /* Vault */ = {
+			isa = PBXGroup;
+			children = (
+				F020 /* VaultView.swift */,
+			);
+			path = Vault;
+			sourceTree = "<group>";
+		};
+		GRP_VIEWMODELS /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F006 /* AppState.swift */,
+				F007 /* EditorViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		GRP_VIEWS /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				GRP_ONBOARDING /* Onboarding */,
+				GRP_HOME /* Home */,
+				GRP_CAPTURE /* Capture */,
+				GRP_EDITOR /* Editor */,
+				GRP_DOCUMENTS /* Documents */,
+				GRP_COMPONENTS /* Components */,
+				GRP_PAYWALL /* Paywall */,
+				GRP_VAULT /* Vault */,
+				GRP_GALLERY /* Gallery */,
+				GRP_SETTINGS /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TARGET_SHIELD /* Shield */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCLST_TARGET /* Build configuration list for PBXNativeTarget "Shield" */;
+			buildPhases = (
+				PH_SOURCES /* Sources */,
+				PH_FRAMEWORKS /* Frameworks */,
+				PH_RESOURCES /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Shield;
+			productName = Shield;
+			productReference = FAPP /* Shield.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PROJ /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					TARGET_SHIELD = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = BCLST_PROJECT /* Build configuration list for PBXProject "Shield" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				es,
+				Base,
+			);
+			mainGroup = GRP_ROOT;
+			productRefGroup = GRP_PRODUCTS /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TARGET_SHIELD /* Shield */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		PH_RESOURCES /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A024 /* Assets.xcassets in Resources */,
+				A025 /* Shield.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		PH_SOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001 /* ShieldApp.swift in Sources */,
+				A002 /* ContentView.swift in Sources */,
+				A003 /* ShieldTheme.swift in Sources */,
+				A004 /* Document.swift in Sources */,
+				A005 /* Redaction.swift in Sources */,
+				A006 /* AppState.swift in Sources */,
+				A007 /* EditorViewModel.swift in Sources */,
+				A008 /* DocumentRenderers.swift in Sources */,
+				A009 /* Components.swift in Sources */,
+				A010 /* OnboardingView.swift in Sources */,
+				A011 /* HomeView.swift in Sources */,
+				A026 /* AllDocumentsView.swift in Sources */,
+				A012 /* CaptureView.swift in Sources */,
+				A013 /* EditorView.swift in Sources */,
+				A014 /* DocumentCanvas.swift in Sources */,
+				A015 /* MaskStylePicker.swift in Sources */,
+				A016 /* OCRSheetView.swift in Sources */,
+				A017 /* ExportSheetView.swift in Sources */,
+				A018 /* PremiumManager.swift in Sources */,
+				A019 /* PaywallView.swift in Sources */,
+				A020 /* VaultView.swift in Sources */,
+				A021 /* StyleGalleryView.swift in Sources */,
+				A022 /* SettingsView.swift in Sources */,
+				A023 /* TabBar.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BC_PROJECT_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BC_PROJECT_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BC_TARGET_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shield.redact;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BC_TARGET_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shield.redact;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BCLST_PROJECT /* Build configuration list for PBXProject "Shield" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC_PROJECT_DEBUG /* Debug */,
+				BC_PROJECT_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCLST_TARGET /* Build configuration list for PBXNativeTarget "Shield" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC_TARGET_DEBUG /* Debug */,
+				BC_TARGET_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = PROJ /* Project object */;
+}

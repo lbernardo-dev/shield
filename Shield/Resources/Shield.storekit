@@ -1,0 +1,100 @@
+{
+  "identifier" : "Shield",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "lifetime_001",
+      "localizations" : [
+        {
+          "description" : "Acceso de por vida a Shield Pro",
+          "displayName" : "Shield Pro Lifetime",
+          "locale" : "es_ES"
+        },
+        {
+          "description" : "Lifetime access to Shield Pro",
+          "displayName" : "Shield Pro Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.shield.redact.pro.lifetime",
+      "referenceName" : "Shield Pro Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_developerModeEnabled" : true,
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+      { "current" : null, "enabled" : false, "name" : "Load Products" },
+      { "current" : null, "enabled" : false, "name" : "Purchase" },
+      { "current" : null, "enabled" : false, "name" : "Verification" }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "shield_pro_group",
+      "localizations" : [],
+      "name" : "Shield Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "gracePeriod" : null,
+          "internalID" : "monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Acceso mensual a Shield Pro",
+              "displayName" : "Shield Pro Monthly",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "Monthly access to Shield Pro",
+              "displayName" : "Shield Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.shield.redact.pro.monthly",
+          "referenceName" : "Shield Pro Monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "subscriptionGroupID" : "shield_pro_group",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "19.99",
+          "familyShareable" : true,
+          "gracePeriod" : null,
+          "internalID" : "annual_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Acceso anual a Shield Pro",
+              "displayName" : "Shield Pro Annual",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "Annual access to Shield Pro",
+              "displayName" : "Shield Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.shield.redact.pro.annual",
+          "referenceName" : "Shield Pro Annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "subscriptionGroupID" : "shield_pro_group",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}
