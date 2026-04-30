@@ -90,11 +90,23 @@ struct DocumentFields: Codable {
     var address: String
     var issued: String?
     var mrz: String?
+    var ocrDocumentType: String?
+    var ocrFullText: String?
+    var ocrPageTexts: [String]?
+    var ocrMRZValid: Bool?
+    var ocrMRZFormat: String?
+    var ocrFieldConfidence: [String: Double]?
+    var ocrDetectedCountry: String?
+    var ocrRiskLevel: String?
+    var ocrLowConfidenceFields: [String]?
 
     static var empty: DocumentFields {
         DocumentFields(documentNumber: "", fullName: "", dateOfBirth: "",
                        nationality: "", expires: "", sex: "", address: "",
-                       issued: nil, mrz: nil)
+                       issued: nil, mrz: nil,
+                       ocrDocumentType: nil, ocrFullText: nil, ocrPageTexts: nil,
+                       ocrMRZValid: nil, ocrMRZFormat: nil, ocrFieldConfidence: nil,
+                       ocrDetectedCountry: nil, ocrRiskLevel: nil, ocrLowConfidenceFields: nil)
     }
 }
 

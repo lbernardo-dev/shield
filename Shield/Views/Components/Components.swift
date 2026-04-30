@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - ShieldButton
 
@@ -57,6 +58,24 @@ struct ScaleButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                guard isPressed else { return }
+                AppState.markUserActivity()
+                ShieldHaptics.impactLight()
+            }
+    }
+}
+
+enum ShieldHaptics {
+    static var isEnabled: Bool {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: "shield.haptic") == nil { return true }
+        return defaults.bool(forKey: "shield.haptic")
+    }
+
+    static func impactLight() {
+        guard isEnabled else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 }
 

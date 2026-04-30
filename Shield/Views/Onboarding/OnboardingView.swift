@@ -208,10 +208,13 @@ private struct BulletRow: View {
 
 struct LockScreenView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isAuthenticating = false
     @State private var verified = false
     @State private var authError: String? = nil
     @State private var showPINEntry = false
+    @State private var showPINSetup = false
+    @State private var didTriggerAutoBiometric = false
 
     private var biometricEnabled: Bool {
         UserDefaults.standard.bool(forKey: "shield.biometric")
@@ -302,20 +305,36 @@ struct LockScreenView: View {
                 VStack(spacing: 12) {
                     // Primary unlock button
                     if biometricEnabled && hasBiometrics {
-                        Button { authenticate() } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: "faceid")
-                                    .font(.system(size: 18, weight: .medium))
-                                Text(appState.language == .es ? "Desbloquear con Face ID" : "Unlock with Face ID")
-                                    .font(.system(size: 16, weight: .bold))
+                        if PINManager.hasPIN {
+                            Button { authenticate() } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "faceid")
+                                        .font(.system(size: 18, weight: .medium))
+                                    Text(appState.language == .es ? "Desbloquear con Face ID" : "Unlock with Face ID")
+                                        .font(.system(size: 16, weight: .bold))
+                                }
+                                .frame(maxWidth: .infinity).frame(height: 54)
+                                .background(ShieldTheme.accent)
+                                .foregroundColor(ShieldTheme.accentText)
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
                             }
-                            .frame(maxWidth: .infinity).frame(height: 54)
-                            .background(ShieldTheme.accent)
-                            .foregroundColor(ShieldTheme.accentText)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .buttonStyle(ScaleButtonStyle())
+                            .disabled(isAuthenticating)
+                        } else {
+                            Button { showPINSetup = true } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "number.circle.fill")
+                                        .font(.system(size: 18, weight: .medium))
+                                    Text(appState.language == .es ? "Configurar código para continuar" : "Set PIN code to continue")
+                                        .font(.system(size: 16, weight: .bold))
+                                }
+                                .frame(maxWidth: .infinity).frame(height: 54)
+                                .background(ShieldTheme.accent)
+                                .foregroundColor(ShieldTheme.accentText)
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                            }
+                            .buttonStyle(ScaleButtonStyle())
                         }
-                        .buttonStyle(ScaleButtonStyle())
-                        .disabled(isAuthenticating)
                     } else if PINManager.hasPIN {
                         Button { showPINEntry = true } label: {
                             HStack(spacing: 10) {
@@ -347,26 +366,33 @@ struct LockScreenView: View {
                         .disabled(isAuthenticating)
                     }
 
-                    // Secondary fallbacks
-                    if biometricEnabled && hasBiometrics {
-                        if PINManager.hasPIN {
-                            Button { showPINEntry = true } label: {
-                                Text(appState.language == .es ? "Usar PIN" : "Use PIN")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(ShieldTheme.textSecondary)
-                                    .frame(height: 44)
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                        } else if authError != nil {
-                            // Face ID failed — offer passcode fallback
-                            Button { authenticatePasscode() } label: {
-                                Text(appState.language == .es ? "Usar código del iPhone" : "Use iPhone Passcode")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(ShieldTheme.textSecondary)
-                                    .frame(height: 44)
-                            }
-                            .buttonStyle(ScaleButtonStyle())
+                    // Always-visible code option in the same lock screen
+                    if PINManager.hasPIN {
+                        Button { showPINEntry = true } label: {
+                            Text(appState.language == .es ? "Usar código (PIN)" : "Use code (PIN)")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(ShieldTheme.textSecondary)
+                                .frame(height: 44)
                         }
+                        .buttonStyle(ScaleButtonStyle())
+                    } else {
+                        Button { showPINSetup = true } label: {
+                            Text(appState.language == .es ? "Configurar código (PIN)" : "Set up code (PIN)")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(ShieldTheme.textSecondary)
+                                .frame(height: 44)
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+
+                    if biometricEnabled && hasBiometrics && authError != nil {
+                        Button { authenticatePasscode() } label: {
+                            Text(appState.language == .es ? "Usar código del iPhone" : "Use iPhone Passcode")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(ShieldTheme.textTertiary)
+                                .frame(height: 36)
+                        }
+                        .buttonStyle(ScaleButtonStyle())
                     }
                 }
                 .padding(.horizontal, 28)
@@ -375,26 +401,32 @@ struct LockScreenView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showPINEntry) {
+        .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    appState.isAuthenticated = true
+                    appState.completeSuccessfulUnlock()
                 }
             }
         }
-        .task {
-            // Wait for SwiftUI background to fully render before triggering any auth
-            try? await Task.sleep(nanoseconds: 400_000_000)
-            // Only auto-trigger Face ID — it shows a subtle overlay, not the gray system passcode screen.
-            // Passcode and PIN are always user-initiated via the button.
-            if biometricEnabled && hasBiometrics {
-                authenticate()
+        .fullScreenCover(isPresented: $showPINSetup) {
+            PINSetupView(isPresented: $showPINSetup) {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    appState.completeSuccessfulUnlock()
+                }
+            }
+        }
+        .onAppear {
+            autoPromptIfNeeded()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                autoPromptIfNeeded()
             }
         }
     }
 
     private func authenticate() {
-        guard !isAuthenticating else { return }
+        guard !isAuthenticating, !appState.isAuthenticated else { return }
         let ctx = LAContext()
         var err: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
@@ -413,7 +445,9 @@ struct LockScreenView: View {
                 isAuthenticating = false
                 if success {
                     verified = true
-                    withAnimation(.easeInOut(duration: 0.2)) { appState.isAuthenticated = true }
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        appState.completeSuccessfulUnlock()
+                    }
                 } else {
                     authError = evalErr?.localizedDescription
                 }
@@ -422,11 +456,17 @@ struct LockScreenView: View {
     }
 
     private func authenticatePasscode() {
-        guard !isAuthenticating else { return }
+        guard !isAuthenticating, !appState.isAuthenticated else { return }
         let ctx = LAContext()
         var err: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &err) else {
-            withAnimation { appState.isAuthenticated = true }
+            if PINManager.hasPIN {
+                showPINEntry = true
+            } else {
+                authError = appState.language == .es
+                    ? "Este dispositivo no tiene autenticación del sistema disponible. Configura un PIN de Shield."
+                    : "System authentication is unavailable on this device. Set up a Shield PIN."
+            }
             return
         }
         isAuthenticating = true
@@ -439,10 +479,29 @@ struct LockScreenView: View {
                 isAuthenticating = false
                 if success {
                     verified = true
-                    withAnimation(.easeInOut(duration: 0.2)) { appState.isAuthenticated = true }
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        appState.completeSuccessfulUnlock()
+                    }
                 } else {
                     authError = evalErr?.localizedDescription
                 }
+            }
+        }
+    }
+
+    private func autoPromptIfNeeded() {
+        guard !didTriggerAutoBiometric else { return }
+        guard !appState.isAuthenticated else { return }
+        guard scenePhase == .active else { return }
+        guard biometricEnabled, hasBiometrics, PINManager.hasPIN else { return }
+        guard !showPINEntry, !showPINSetup, !isAuthenticating else { return }
+
+        didTriggerAutoBiometric = true
+        Task {
+            // Give the lock UI time to settle before presenting Face ID.
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            if !appState.isAuthenticated, scenePhase == .active, !isAuthenticating {
+                authenticate()
             }
         }
     }

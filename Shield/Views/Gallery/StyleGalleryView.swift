@@ -8,7 +8,9 @@ struct StyleGalleryView: View {
     @Environment(\.colorScheme) var scheme
     @State private var selectedKind: DocumentKind = .dniESP
     @State private var showPaywall = false
+    @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var styleToApply: MaskStyle? = nil
+    @State private var contentWidth: CGFloat = 0
 
     private func sampleRedaction(style: MaskStyle) -> [Redaction] {
         [Redaction(rect: CGRect(x: 0.30, y: 0.75, width: 0.25, height: 0.10), style: style)]
@@ -52,10 +54,13 @@ struct StyleGalleryView: View {
                     .padding(.top, 4)
                     .padding(.bottom, 100)
                 }
+                .onPreferenceChange(WidthKey.self) { width in
+                    contentWidth = width
+                }
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall)
+            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
                 .environmentObject(appState)
         }
         .sheet(item: $styleToApply) { (style: MaskStyle) in
@@ -185,7 +190,10 @@ struct StyleGalleryView: View {
                             isPremium: style.isPremium,
                             isUnlocked: unlocked,
                             lang: appState.language,
-                            onTapLock: { showPaywall = true },
+                            onTapLock: {
+                                paywallTrigger = .styleLocked
+                                showPaywall = true
+                            },
                             onSelect: {
                                 styleToApply = style
                             }
@@ -199,8 +207,8 @@ struct StyleGalleryView: View {
 
     private func sectionHeight(count: Int) -> CGFloat {
         let rows = CGFloat((count + 1) / 2)
-        let screenW = UIScreen.main.bounds.width - 32
-        let cardW = (screenW - 12) / 2
+        let gridWidth = max((contentWidth > 0 ? contentWidth : 375) - 32, 220)
+        let cardW = (gridWidth - 12) / 2
         let docH = (cardW - 20) * 0.628
         let cardH = docH + 20 + 28
         return rows * cardH + (rows - 1) * 12

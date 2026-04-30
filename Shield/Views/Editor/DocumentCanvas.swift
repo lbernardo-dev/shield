@@ -140,6 +140,7 @@ struct DocumentCanvas: View {
         .gesture(
             DragGesture(minimumDistance: 2)
                 .onChanged { value in
+                    AppState.markUserActivity()
                     let loc = value.location
                     let norm = CGPoint(
                         x: loc.x / canvasSize.width,
@@ -158,6 +159,7 @@ struct DocumentCanvas: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
+                    AppState.markUserActivity()
                     vm.activeRedactionID = nil
                 }
         )

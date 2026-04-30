@@ -34,6 +34,7 @@
 		A023 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* TabBar.swift */; };
 		A024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F024 /* Assets.xcassets */; };
 		A025 /* Shield.storekit in Resources */ = {isa = PBXBuildFile; fileRef = F025 /* Shield.storekit */; };
+		A028 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F028 /* PrivacyInfo.xcprivacy */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -69,6 +70,7 @@
 		F023 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		F024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F025 /* Shield.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shield.storekit; sourceTree = "<group>"; };
+		F028 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -215,6 +217,7 @@
 			children = (
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
+				F028 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 			files = (
 				A024 /* Assets.xcassets in Resources */,
 				A025 /* Shield.storekit in Resources */,
+				A028 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

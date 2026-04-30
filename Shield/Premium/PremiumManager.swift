@@ -17,6 +17,15 @@ enum ShieldProduct: String, CaseIterable {
     }
 }
 
+enum PaywallTrigger: String {
+    case manual
+    case docLimitReached
+    case exportLimitReached
+    case styleLocked
+    case vaultUpgrade
+    case settingsUpgrade
+}
+
 // MARK: - PremiumManager
 
 @MainActor
@@ -77,6 +86,7 @@ final class PremiumManager: ObservableObject {
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
+        AppState.trackEvent("purchase_started", properties: ["product_id": product.id])
 
         do {
             let result = try await product.purchase()
@@ -84,16 +94,23 @@ final class PremiumManager: ObservableObject {
             case .success(let verification):
                 let transaction = try checkVerified(verification)
                 await updateProStatus()
+                AppState.trackEvent("purchase_success", properties: ["product_id": product.id])
                 await transaction.finish()
             case .pending:
+                AppState.trackEvent("purchase_pending", properties: ["product_id": product.id])
                 break
             case .userCancelled:
+                AppState.trackEvent("purchase_cancelled", properties: ["product_id": product.id])
                 break
             @unknown default:
                 break
             }
         } catch {
             purchaseError = error.localizedDescription
+            AppState.trackEvent("purchase_failed", properties: [
+                "product_id": product.id,
+                "error": error.localizedDescription
+            ])
         }
     }
 
@@ -105,8 +122,10 @@ final class PremiumManager: ObservableObject {
         do {
             try await AppStore.sync()
             await updateProStatus()
+            AppState.trackEvent("restore_success")
         } catch {
             purchaseError = error.localizedDescription
+            AppState.trackEvent("restore_failed", properties: ["error": error.localizedDescription])
         }
     }
 
@@ -169,6 +188,8 @@ final class PremiumManager: ObservableObject {
 
     /// Max documents in free tier
     static let freeDocumentLimit = 3
+    static let freeWeeklyExportLimit = 3
+    private static let exportHistoryKey = "shield.free.exportHistoryTimestamps"
 
     func canAddDocument(currentCount: Int) -> Bool {
         isPro || currentCount < PremiumManager.freeDocumentLimit
@@ -176,6 +197,33 @@ final class PremiumManager: ObservableObject {
 
     func canUseStyle(_ style: MaskStyle) -> Bool {
         isPro || !style.isPremium
+    }
+
+    func canExportNow() -> Bool {
+        if isPro { return true }
+        return freeExportsUsedThisWeek() < PremiumManager.freeWeeklyExportLimit
+    }
+
+    func freeExportsUsedThisWeek() -> Int {
+        let now = Date().timeIntervalSince1970
+        let weekAgo = now - (7 * 24 * 60 * 60)
+        let history = UserDefaults.standard.array(forKey: PremiumManager.exportHistoryKey) as? [Double] ?? []
+        let pruned = history.filter { $0 >= weekAgo }
+        if pruned.count != history.count {
+            UserDefaults.standard.set(pruned, forKey: PremiumManager.exportHistoryKey)
+        }
+        return pruned.count
+    }
+
+    func remainingFreeExportsThisWeek() -> Int {
+        max(0, PremiumManager.freeWeeklyExportLimit - freeExportsUsedThisWeek())
+    }
+
+    func recordExport() {
+        if isPro { return }
+        var history = UserDefaults.standard.array(forKey: PremiumManager.exportHistoryKey) as? [Double] ?? []
+        history.append(Date().timeIntervalSince1970)
+        UserDefaults.standard.set(history, forKey: PremiumManager.exportHistoryKey)
     }
 
     // MARK: - Helpers for display

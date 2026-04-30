@@ -41,12 +41,23 @@ enum SortOption: String, CaseIterable, Identifiable {
 // MARK: - AppState
 
 final class AppState: ObservableObject {
+    private let autoLockTimestampKey = "shield.autoLock.backgroundTimestamp"
+    private static let userActivityTimestampKey = "shield.autoLock.lastActivity"
+    private static var lastActivityWrite: TimeInterval = 0
+    private var inactivityCheckCancellable: AnyCancellable?
+    private var currentScenePhase: ScenePhase = .active
 
     // MARK: - Onboarding (persisted)
     @Published var isOnboarded: Bool {
         didSet { UserDefaults.standard.set(isOnboarded, forKey: "shield.onboarded") }
     }
-    @Published var isAuthenticated: Bool = false
+    @Published var isAuthenticated: Bool = false {
+        didSet {
+            if isAuthenticated {
+                AppState.markUserActivity(force: true)
+            }
+        }
+    }
 
     // MARK: - Preferences (persisted)
     @Published var language: AppLanguage {
@@ -89,6 +100,12 @@ final class AppState: ObservableObject {
 
         documents = AppState.loadDocuments()
         customCategories = AppState.loadCustomCategories()
+        AppState.markUserActivity(force: true)
+        startInactivityMonitoring()
+    }
+
+    deinit {
+        inactivityCheckCancellable?.cancel()
     }
 
     // MARK: - Computed
@@ -231,11 +248,141 @@ final class AppState: ObservableObject {
 
     func str(_ key: L10nKey) -> String { key.string(lang: language) }
 
+    static func markUserActivity(force: Bool = false) {
+        let now = Date().timeIntervalSince1970
+        if !force && now - lastActivityWrite < 1.0 {
+            return
+        }
+        lastActivityWrite = now
+        UserDefaults.standard.set(now, forKey: userActivityTimestampKey)
+    }
+
+    func completeSuccessfulUnlock() {
+        isAuthenticated = true
+        let now = Date().timeIntervalSince1970
+        let defaults = UserDefaults.standard
+        defaults.set(now, forKey: autoLockTimestampKey)
+        Self.markUserActivity(force: true)
+    }
+
+    static func trackEvent(_ name: String, properties: [String: String] = [:]) {
+        var payload: [String: Any] = properties
+        payload["event"] = name
+        payload["timestamp"] = ISO8601DateFormatter().string(from: Date())
+        payload["build"] = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+
+        guard JSONSerialization.isValidJSONObject(payload),
+              let line = try? JSONSerialization.data(withJSONObject: payload, options: []),
+              let handle = FileHandle(forWritingAtPath: telemetryURL.path) ?? createTelemetryFile(at: telemetryURL)
+        else {
+            return
+        }
+
+        do {
+            try handle.seekToEnd()
+            handle.write(line)
+            handle.write(Data([0x0A]))
+            try handle.close()
+        } catch {
+            try? handle.close()
+        }
+
+        #if DEBUG
+        print("ShieldTelemetry:", name, properties)
+        #endif
+    }
+
     func redactionsCount(_ n: Int) -> String {
         if language == .es {
             return "\(n) \(n == 1 ? "redacción" : "redacciones")"
         } else {
             return "\(n) \(n == 1 ? "redaction" : "redactions")"
+        }
+    }
+
+    // MARK: - App lifecycle / auto-lock
+
+    func handleScenePhaseChange(_ phase: ScenePhase) {
+        currentScenePhase = phase
+        switch phase {
+        case .active:
+            applyAutoLockIfNeededOnResume()
+            AppState.markUserActivity(force: true)
+        case .background:
+            markBackgroundTimestampAndLockIfImmediate()
+        case .inactive:
+            break
+        @unknown default:
+            break
+        }
+    }
+
+    private func markBackgroundTimestampAndLockIfImmediate() {
+        let defaults = UserDefaults.standard
+        defaults.set(Date().timeIntervalSince1970, forKey: autoLockTimestampKey)
+
+        guard isOnboarded, isAuthenticated else { return }
+        if autoLockDelaySeconds == 0 {
+            isAuthenticated = false
+        }
+    }
+
+    private func applyAutoLockIfNeededOnResume() {
+        guard isOnboarded, isAuthenticated else { return }
+        guard let delay = autoLockDelaySeconds else { return }
+        // Immediate auto-lock is already enforced on background transition.
+        // Avoid re-locking on transient active callbacks (e.g. Face ID prompt dismissal).
+        guard delay > 0 else {
+            AppState.markUserActivity(force: true)
+            return
+        }
+
+        let defaults = UserDefaults.standard
+        let backgroundTimestamp = defaults.double(forKey: autoLockTimestampKey)
+        guard backgroundTimestamp > 0 else { return }
+
+        let elapsed = Date().timeIntervalSince1970 - backgroundTimestamp
+        if elapsed >= delay {
+            isAuthenticated = false
+        } else {
+            AppState.markUserActivity(force: true)
+        }
+    }
+
+    private var autoLockDelaySeconds: TimeInterval? {
+        let idx = UserDefaults.standard.integer(forKey: "shield.autoLock")
+        switch idx {
+        case 0: return 0
+        case 1: return 60
+        case 2: return 5 * 60
+        case 3: return 15 * 60
+        case 4: return nil
+        default: return 0
+        }
+    }
+
+    private func startInactivityMonitoring() {
+        inactivityCheckCancellable = Timer.publish(every: 15, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.applyForegroundInactivityLockIfNeeded()
+            }
+    }
+
+    private func applyForegroundInactivityLockIfNeeded() {
+        guard currentScenePhase == .active else { return }
+        guard isOnboarded, isAuthenticated else { return }
+        guard let delay = autoLockDelaySeconds, delay > 0 else { return }
+
+        let lastActivity = UserDefaults.standard.double(forKey: Self.userActivityTimestampKey)
+        guard lastActivity > 0 else {
+            Self.markUserActivity(force: true)
+            return
+        }
+
+        let idleSeconds = Date().timeIntervalSince1970 - lastActivity
+        if idleSeconds >= delay {
+            isAuthenticated = false
         }
     }
 
@@ -282,6 +429,15 @@ final class AppState: ObservableObject {
 
     private static var categoriesURL: URL {
         appSupportDir.appendingPathComponent("categories.json")
+    }
+
+    private static var telemetryURL: URL {
+        appSupportDir.appendingPathComponent("telemetry.ndjson")
+    }
+
+    private static func createTelemetryFile(at url: URL) -> FileHandle? {
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+        return FileHandle(forWritingAtPath: url.path)
     }
 
     static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {

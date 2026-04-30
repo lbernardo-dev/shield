@@ -5,9 +5,14 @@ import StoreKit
 
 struct PaywallView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.openURL) private var openURL
     @StateObject private var pm = PremiumManager.shared
     @Binding var isPresented: Bool
+    var trigger: PaywallTrigger = .manual
     @State private var selectedProduct: ShieldProduct = .annual
+    @State private var didStartCheckout = false
+    private let privacyURL = URL(string: "https://shieldapp.io/privacy")
+    private let termsURL = URL(string: "https://shieldapp.io/terms")
 
     private let features: [(icon: String, color: String, title: String, subtitle: String)] = [
         ("doc.stack.fill",         "64D2FF", "Documentos ilimitados",   "Sin límite de 3 docs"),
@@ -48,6 +53,9 @@ struct PaywallView: View {
                         // Hero
                         heroSection
 
+                        // Context banner
+                        contextBanner
+
                         // Features grid
                         featuresGrid
 
@@ -66,7 +74,18 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .task { await pm.loadProducts() }
+        .task {
+            AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
+            await pm.loadProducts()
+        }
+        .onDisappear {
+            if !pm.isPro {
+                AppState.trackEvent("paywall_dismissed", properties: [
+                    "trigger": trigger.rawValue,
+                    "started_checkout": didStartCheckout ? "true" : "false"
+                ])
+            }
+        }
     }
 
     // MARK: - Hero
@@ -93,6 +112,47 @@ struct PaywallView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(.top, 8)
+    }
+
+    private var contextBanner: some View {
+        let msgES: String
+        let msgEN: String
+
+        switch trigger {
+        case .docLimitReached:
+            msgES = "Has alcanzado el límite gratuito de documentos."
+            msgEN = "You reached the free document limit."
+        case .exportLimitReached:
+            msgES = "Has agotado tus exportaciones semanales en Free."
+            msgEN = "You used all weekly exports on Free."
+        case .styleLocked:
+            msgES = "Ese estilo de redacción está incluido en Pro."
+            msgEN = "That redaction style is included in Pro."
+        case .vaultUpgrade:
+            msgES = "La bóveda cifrada está disponible con Shield Pro."
+            msgEN = "Encrypted vault is available with Shield Pro."
+        case .settingsUpgrade:
+            msgES = "Desbloquea todas las funciones avanzadas."
+            msgEN = "Unlock all advanced features."
+        case .manual:
+            msgES = "Elige un plan para protección profesional."
+            msgEN = "Choose a plan for professional-grade protection."
+        }
+
+        return HStack(spacing: 8) {
+            Image(systemName: "info.circle.fill")
+                .font(.system(size: 14))
+                .foregroundColor(ShieldTheme.accent)
+            Text(appState.language == .es ? msgES : msgEN)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(ShieldTheme.textSecondary)
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(ShieldTheme.accentDim)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.accent.opacity(0.35), lineWidth: 0.8))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     // MARK: - Features
@@ -175,6 +235,7 @@ struct PaywallView: View {
                 Task {
                     guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue })
                     else { return }
+                    didStartCheckout = true
                     await pm.purchase(product)
                     if pm.isPro { isPresented = false }
                 }
@@ -229,7 +290,9 @@ struct PaywallView: View {
 
             Text("·").foregroundColor(ShieldTheme.textQuaternary)
 
-            Button {} label: {
+            Button {
+                if let privacyURL { openURL(privacyURL) }
+            } label: {
                 Text(appState.language == .es ? "Privacidad" : "Privacy")
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)
@@ -237,7 +300,9 @@ struct PaywallView: View {
 
             Text("·").foregroundColor(ShieldTheme.textQuaternary)
 
-            Button {} label: {
+            Button {
+                if let termsURL { openURL(termsURL) }
+            } label: {
                 Text(appState.language == .es ? "Términos" : "Terms")
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)

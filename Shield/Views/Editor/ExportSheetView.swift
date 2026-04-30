@@ -5,6 +5,9 @@ import PDFKit
 // MARK: - ExportSheetView
 
 struct ExportSheetView: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject private var pm = PremiumManager.shared
+
     let doc: DocumentItem
     let redactions: [Redaction]
     let pageRedactions: [Int: [Redaction]]
@@ -25,7 +28,11 @@ struct ExportSheetView: View {
     @State private var exportedURL: URL? = nil
     @State private var exportedImage: UIImage? = nil
     @State private var showShareSheet: Bool = false
+    @State private var showPaywall: Bool = false
     @State private var shareItem: Any? = nil
+    @State private var hasLoadedDefaults = false
+    @State private var exportErrorMessage: String? = nil
+    @State private var acknowledgeHighRiskExport = false
 
     var body: some View {
         if isExported {
@@ -132,6 +139,56 @@ struct ExportSheetView: View {
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if let exportErrorMessage {
+                        Text(exportErrorMessage)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(ShieldTheme.danger)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    if shouldWarnForHighRiskExport {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 12, weight: .semibold))
+                                Text(lang == .es
+                                     ? "Riesgo OCR alto detectado. Revisa campos críticos antes de exportar."
+                                     : "High OCR risk detected. Review critical fields before exporting.")
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundColor(ShieldTheme.warning)
+
+                            Button {
+                                acknowledgeHighRiskExport.toggle()
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: acknowledgeHighRiskExport ? "checkmark.square.fill" : "square")
+                                        .foregroundColor(acknowledgeHighRiskExport ? ShieldTheme.accent : ShieldTheme.textTertiary)
+                                    Text(lang == .es
+                                         ? "Entiendo el riesgo y quiero exportar"
+                                         : "I understand the risk and want to export")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(ShieldTheme.textSecondary)
+                                }
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                        .padding(10)
+                        .background(ShieldTheme.surface3)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+
+                    if !pm.isPro {
+                        Text(
+                            lang == .es
+                                ? "Exportaciones Free restantes esta semana: \(pm.remainingFreeExportsThisWeek())"
+                                : "Free exports remaining this week: \(pm.remainingFreeExportsThisWeek())"
+                        )
+                        .font(.system(size: 12))
+                        .foregroundColor(ShieldTheme.textTertiary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .padding(.horizontal, ShieldTheme.s5)
                 .padding(.bottom, 16)
@@ -173,12 +230,19 @@ struct ExportSheetView: View {
                 ShareSheetView(items: [item])
             }
         }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall, trigger: .exportLimitReached)
+                .environmentObject(appState)
+        }
+        .onAppear {
+            applyExportDefaultsIfNeeded()
+        }
     }
 
     // MARK: - Exported state
 
     private var exportedState: some View {
-        VStack(spacing: 16) {
+        return VStack(spacing: 16) {
             Spacer()
             ZStack {
                 RoundedRectangle(cornerRadius: 22)
@@ -192,9 +256,16 @@ struct ExportSheetView: View {
                 Text(lang == .es ? "Exportado" : "Exported")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
-                Text("\(redactionsCountLabel)\(watermark != nil ? " · \(lang == .es ? "con marca de agua" : "with watermark")" : "")")
+                Text("\(redactionsCountLabel)\(watermarkApplied ? " · \(lang == .es ? "con marca de agua" : "with watermark")" : "")")
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.textSecondary)
+                if !pm.isPro {
+                    Text(lang == .es
+                         ? "Incluye marca de agua en Shield Free"
+                         : "Includes watermark on Shield Free")
+                        .font(.system(size: 12))
+                        .foregroundColor(ShieldTheme.textTertiary)
+                }
             }
             Spacer()
             HStack(spacing: 8) {
@@ -266,9 +337,56 @@ struct ExportSheetView: View {
         }
     }
 
+    private var watermarkApplied: Bool {
+        pm.isPro ? (watermark != nil) : true
+    }
+
+    private var shouldWarnForHighRiskExport: Bool {
+        guard doc.fields.ocrRiskLevel == "high" else { return false }
+        return UserDefaults.standard.object(forKey: "shield.ocr.warnLowConfidence") == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: "shield.ocr.warnLowConfidence")
+    }
+
     // MARK: - Real export
 
     private func doExport() {
+        exportErrorMessage = nil
+        guard pm.canExportNow() else {
+            exportErrorMessage = lang == .es
+                ? "Has agotado tus exportaciones semanales. Actualiza a Pro para exportar sin límite."
+                : "You used all weekly exports. Upgrade to Pro for unlimited exports."
+            AppState.trackEvent("export_blocked_free_limit")
+            showPaywall = true
+            return
+        }
+
+        if shouldWarnForHighRiskExport && !acknowledgeHighRiskExport {
+            exportErrorMessage = lang == .es
+                ? "Debes confirmar el riesgo OCR alto antes de exportar."
+                : "You must acknowledge high OCR risk before exporting."
+            AppState.trackEvent("export_blocked_risk", properties: ["risk": "high"])
+            return
+        }
+
+        let effectiveWatermark = pm.isPro
+            ? watermark
+            : (watermark ?? Watermark(
+                text: lang == .es ? "Protegido con Shield Free" : "Protected with Shield Free",
+                opacity: 0.18,
+                isRepeating: true
+            ))
+
+        let formatName = format == .pdf ? "pdf" : "image"
+        let pageCount = String(max(doc.pageCount, 1))
+        let redactionCount = String(format == .pdf
+            ? pageRedactions.values.reduce(0) { $0 + $1.count }
+            : redactions.count)
+        AppState.trackEvent("export_attempted", properties: [
+            "format": formatName,
+            "pages": pageCount,
+            "redactions": redactionCount
+        ])
         withAnimation { isExporting = true }
 
         Task {
@@ -278,28 +396,62 @@ struct ExportSheetView: View {
                 let url = await ExportEngine.exportAsPDF(
                     doc: doc,
                     pageRedactions: pageRedactions,
-                    watermark: watermark,
+                    watermark: effectiveWatermark,
                     scale: scale
                 )
                 await MainActor.run {
                     isExporting = false
-                    exportedURL = url
-                    isExported = true
+                    if let url {
+                        exportedURL = url
+                        isExported = true
+                        pm.recordExport()
+                        AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
+                    } else {
+                        exportErrorMessage = lang == .es
+                            ? "No se pudo exportar el PDF. Inténtalo de nuevo."
+                            : "Could not export PDF. Please try again."
+                        AppState.trackEvent("export_failed", properties: ["format": "pdf"])
+                    }
                 }
             } else {
                 let image = await ExportEngine.exportAsImage(
                     doc: doc,
                     imageFileName: currentImageFileName,
                     redactions: redactions,
-                    watermark: watermark,
+                    watermark: effectiveWatermark,
                     scale: scale
                 )
                 await MainActor.run {
                     isExporting = false
-                    exportedImage = image
-                    isExported = true
+                    if let image {
+                        exportedImage = image
+                        isExported = true
+                        pm.recordExport()
+                        AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
+                    } else {
+                        exportErrorMessage = lang == .es
+                            ? "No se pudo exportar la imagen. Inténtalo de nuevo."
+                            : "Could not export image. Please try again."
+                        AppState.trackEvent("export_failed", properties: ["format": "image"])
+                    }
                 }
             }
+        }
+    }
+
+    private func applyExportDefaultsIfNeeded() {
+        guard !hasLoadedDefaults else { return }
+        hasLoadedDefaults = true
+
+        let defaults = UserDefaults.standard
+        let savedFormat = defaults.integer(forKey: "shield.exportFormat")
+        let savedQuality = defaults.integer(forKey: "shield.exportQuality")
+
+        format = savedFormat == 1 ? .image : .pdf
+        switch savedQuality {
+        case 1: quality = .medium
+        case 2: quality = .low
+        default: quality = .high
         }
     }
 }

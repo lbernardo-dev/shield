@@ -7,6 +7,7 @@ struct EditorView: View {
     @StateObject private var pm = PremiumManager.shared
     @StateObject private var vm: EditorViewModel
     @State private var showPaywall = false
+    @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
     @State private var showWatermarkConfig = false
 
@@ -63,7 +64,7 @@ struct EditorView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall).environmentObject(appState)
+            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
         .sheet(isPresented: $showWatermarkConfig) {
             SheetContainer(heightFraction: 0.52) {
@@ -336,6 +337,7 @@ struct EditorView: View {
                 pm.canUseStyle(style)
             },
             onLockedSelect: { _ in
+                paywallTrigger = .styleLocked
                 showPaywall = true
             }
         ) { newStyle in

@@ -87,7 +87,14 @@ final class EditorViewModel: ObservableObject {
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
         self.history = [self.redactions]
-        self.showSensitiveBanner = !AutoRedactions.suggested(for: doc.kind).isEmpty
+        let suggestions = AutoRedactions.suggested(for: doc.kind)
+        self.showSensitiveBanner = !suggestions.isEmpty
+        if !suggestions.isEmpty {
+            AppState.trackEvent("risk_detected", properties: [
+                "kind": doc.kind.rawValue,
+                "suggested_count": String(suggestions.count)
+            ])
+        }
     }
 
     // MARK: - History
@@ -140,6 +147,7 @@ final class EditorViewModel: ObservableObject {
 
         let r = Redaction(rect: CGRect(x: x, y: y, width: w, height: h), style: maskStyle)
         push(redactions + [r])
+        AppState.trackEvent("redaction_applied", properties: ["source": "manual_draw"])
     }
 
     var drawingRect: CGRect? {
@@ -157,6 +165,10 @@ final class EditorViewModel: ObservableObject {
     func applyAutoDetect() {
         let suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
         push(suggested)
+        AppState.trackEvent("redaction_applied", properties: [
+            "source": "auto_detect",
+            "count": String(suggested.count)
+        ])
         showSensitiveBanner = false
         showFieldOverlays = false
     }
@@ -183,6 +195,11 @@ final class EditorViewModel: ObservableObject {
         default: break
         }
         push(suggested)
+        AppState.trackEvent("redaction_applied", properties: [
+            "source": "mode",
+            "mode": mode.rawValue,
+            "count": String(suggested.count)
+        ])
         activeMode = mode
         showSensitiveBanner = false
     }
@@ -196,6 +213,7 @@ final class EditorViewModel: ObservableObject {
             push(redactions.filter { $0.id != e.id })
         } else {
             push(redactions + [Redaction(rect: box.rect, style: maskStyle)])
+            AppState.trackEvent("redaction_applied", properties: ["source": "field_overlay"])
         }
     }
 
@@ -206,12 +224,16 @@ final class EditorViewModel: ObservableObject {
 
     func changeStyle(of id: UUID, to style: MaskStyle) {
         push(redactions.map { r in
-            r.id == id ? Redaction(rect: r.rect, style: style) : r
+            guard r.id == id else { return r }
+            var updated = r
+            updated.style = style
+            return updated
         })
     }
 
     func addFromOCR(rect: CGRect) {
         push(redactions + [Redaction(rect: rect, style: maskStyle)])
+        AppState.trackEvent("redaction_applied", properties: ["source": "ocr_field"])
     }
 
     func toggleWatermark(text: String) {

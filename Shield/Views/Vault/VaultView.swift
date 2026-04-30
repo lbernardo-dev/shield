@@ -11,6 +11,7 @@ struct VaultView: View {
     @State private var isUnlocked = false
     @State private var authError: String? = nil
     @State private var showPaywall = false
+    @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var selectedDoc: DocumentItem? = nil
     @State private var showPINSetup = false
     @State private var showPINEntry = false
@@ -29,14 +30,14 @@ struct VaultView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall).environmentObject(appState)
+            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
-        .sheet(isPresented: $showPINSetup) {
+        .fullScreenCover(isPresented: $showPINSetup) {
             PINSetupView(isPresented: $showPINSetup) {
                 isUnlocked = true
             }
         }
-        .sheet(isPresented: $showPINEntry) {
+        .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 isUnlocked = true
             }
@@ -63,7 +64,10 @@ struct VaultView: View {
                      : "Face ID encrypted storage.\nAvailable in Shield Pro.")
                     .font(.system(size: 15)).foregroundColor(ShieldTheme.secondary(scheme)).multilineTextAlignment(.center)
             }
-            Button { showPaywall = true } label: {
+            Button {
+                paywallTrigger = .vaultUpgrade
+                showPaywall = true
+            } label: {
                 Label(appState.language == .es ? "Activar Shield Pro" : "Get Shield Pro", systemImage: "crown.fill")
                     .font(.system(size: 16, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 52)
@@ -235,12 +239,7 @@ struct VaultView: View {
         let ctx = LAContext()
         var error: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            // Simulator / no biometrics fallback
-            if PINManager.hasPIN {
-                showPINEntry = true
-            } else {
-                withAnimation { isUnlocked = true }
-            }
+            authenticateWithDevicePasscodeOrPIN()
             return
         }
         ctx.evaluatePolicy(
@@ -257,6 +256,40 @@ struct VaultView: View {
                 }
             }
         }
+    }
+
+    private func authenticateWithDevicePasscodeOrPIN() {
+        let ctx = LAContext()
+        var error: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            presentPINFallback()
+            return
+        }
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthentication,
+            localizedReason: appState.language == .es
+                ? "Accede a tu Bóveda de Shield"
+                : "Access your Shield Vault"
+        ) { success, err in
+            DispatchQueue.main.async {
+                if success {
+                    withAnimation { isUnlocked = true; authError = nil }
+                } else {
+                    authError = err?.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func presentPINFallback() {
+        if PINManager.hasPIN {
+            showPINEntry = true
+            return
+        }
+        showPINSetup = true
+        authError = appState.language == .es
+            ? "Configura un PIN para desbloquear la bóveda en este dispositivo."
+            : "Set up a PIN to unlock the vault on this device."
     }
 }
 
@@ -338,9 +371,18 @@ struct AddToVaultSheet: View {
 enum PINManager {
     private static let service = "com.shield.redact.vault"
     private static let account = "vault-pin"
+    private static let failedAttemptsKey = "shield.pin.failedAttempts"
+    private static let lockoutUntilKey = "shield.pin.lockoutUntil"
+    private static let lockoutBaseSeconds = 30
+    private static let lockoutStartAttempt = 3
+    private static let maxBackoffExponent = 6
 
     static var hasPIN: Bool {
         (try? KeychainStore.read(service: service, account: account)) != nil
+    }
+
+    static var isLockedOut: Bool {
+        lockoutRemainingSeconds() > 0
     }
 
     static func save(pin: String) {
@@ -353,17 +395,59 @@ enum PINManager {
             account: account,
             accessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
         )
+        resetLockout()
     }
 
     static func verify(pin: String) -> Bool {
+        guard !isLockedOut else { return false }
         guard let stored = try? KeychainStore.read(service: service, account: account),
               let data = pin.data(using: .utf8) else { return false }
         let digest = Data(SHA256.hash(data: data))
-        return stored == digest
+        let isValid = stored == digest
+        if isValid {
+            resetLockout()
+        } else {
+            registerFailure()
+        }
+        return isValid
     }
 
     static func clear() {
         KeychainStore.delete(service: service, account: account)
+        resetLockout()
+    }
+
+    static func lockoutRemainingSeconds() -> Int {
+        let until = UserDefaults.standard.double(forKey: lockoutUntilKey)
+        guard until > 0 else { return 0 }
+        let remaining = Int(ceil(until - Date().timeIntervalSince1970))
+        if remaining <= 0 {
+            resetLockout()
+            return 0
+        }
+        return remaining
+    }
+
+    private static func registerFailure() {
+        let defaults = UserDefaults.standard
+        let attempts = defaults.integer(forKey: failedAttemptsKey) + 1
+        defaults.set(attempts, forKey: failedAttemptsKey)
+
+        guard attempts >= lockoutStartAttempt else {
+            defaults.removeObject(forKey: lockoutUntilKey)
+            return
+        }
+
+        let exponent = min(attempts - lockoutStartAttempt, maxBackoffExponent)
+        let delay = lockoutBaseSeconds * Int(pow(2.0, Double(exponent)))
+        let until = Date().addingTimeInterval(TimeInterval(delay)).timeIntervalSince1970
+        defaults.set(until, forKey: lockoutUntilKey)
+    }
+
+    private static func resetLockout() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: failedAttemptsKey)
+        defaults.removeObject(forKey: lockoutUntilKey)
     }
 }
 
@@ -417,6 +501,7 @@ struct PINSetupView: View {
             }
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.surface0.ignoresSafeArea())
         .preferredColorScheme(.dark)
     }
@@ -461,7 +546,8 @@ struct PINEntryView: View {
 
     @State private var pin = ""
     @State private var errorMsg = ""
-    @State private var attempts = 0
+    @State private var lockoutRemaining = 0
+    @State private var lockoutTimer: Timer?
 
     var body: some View {
         VStack(spacing: 32) {
@@ -489,7 +575,13 @@ struct PINEntryView: View {
                     .foregroundColor(ShieldTheme.danger)
             }
 
-            PINNumpad(onDigit: handleDigit, onDelete: handleDelete)
+            if lockoutRemaining > 0 {
+                Text("Vuelve a intentarlo en \(lockoutRemaining)s")
+                    .font(.system(size: 13))
+                    .foregroundColor(ShieldTheme.textTertiary)
+            }
+
+            PINNumpad(onDigit: handleDigit, onDelete: handleDelete, isDisabled: lockoutRemaining > 0)
 
             Button { isPresented = false } label: {
                 Text("Cancelar")
@@ -498,11 +590,21 @@ struct PINEntryView: View {
             }
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.surface0.ignoresSafeArea())
         .preferredColorScheme(.dark)
+        .onAppear {
+            refreshLockoutState()
+            startLockoutTimer()
+        }
+        .onDisappear {
+            lockoutTimer?.invalidate()
+            lockoutTimer = nil
+        }
     }
 
     private func handleDigit(_ d: String) {
+        guard lockoutRemaining == 0 else { return }
         guard pin.count < 6 else { return }
         errorMsg = ""
         pin += d
@@ -516,15 +618,35 @@ struct PINEntryView: View {
     }
 
     private func verify() {
+        guard lockoutRemaining == 0 else { return }
         if PINManager.verify(pin: pin) {
             isPresented = false
             onSuccess()
         } else {
-            attempts += 1
-            errorMsg = attempts >= 3
-                ? "Demasiados intentos fallidos"
-                : "PIN incorrecto. Inténtalo de nuevo."
+            refreshLockoutState()
+            if lockoutRemaining > 0 {
+                errorMsg = "Demasiados intentos fallidos. Espera \(lockoutRemaining)s."
+            } else {
+                errorMsg = "PIN incorrecto. Inténtalo de nuevo."
+            }
             pin = ""
+        }
+    }
+
+    private func refreshLockoutState() {
+        lockoutRemaining = PINManager.lockoutRemainingSeconds()
+    }
+
+    private func startLockoutTimer() {
+        lockoutTimer?.invalidate()
+        lockoutTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            DispatchQueue.main.async {
+                let remaining = PINManager.lockoutRemainingSeconds()
+                lockoutRemaining = remaining
+                if remaining == 0, errorMsg.contains("Espera") {
+                    errorMsg = ""
+                }
+            }
         }
     }
 }
@@ -534,6 +656,7 @@ struct PINEntryView: View {
 struct PINNumpad: View {
     var onDigit: (String) -> Void
     var onDelete: () -> Void
+    var isDisabled: Bool = false
 
     private let digits = [["1","2","3"],["4","5","6"],["7","8","9"],["","0","⌫"]]
 
@@ -562,7 +685,8 @@ struct PINNumpad: View {
                             }
                         }
                         .buttonStyle(ScaleButtonStyle())
-                        .disabled(key.isEmpty)
+                        .disabled(key.isEmpty || isDisabled)
+                        .opacity(isDisabled && !key.isEmpty ? 0.45 : 1)
                     }
                 }
             }

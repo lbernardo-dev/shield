@@ -9,21 +9,34 @@ struct SettingsView: View {
     @StateObject private var pm = PremiumManager.shared
     @Environment(\.colorScheme) var scheme
     @State private var showPaywall = false
+    @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showAbout = false
     @State private var showDeleteConfirm = false
     @State private var showMailCompose = false
     @State private var biometricEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.biometric")
     @State private var autoLockIndex: Int = UserDefaults.standard.integer(forKey: "shield.autoLock")
-    @State private var hapticEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.haptic") || true
+    @State private var hapticEnabled: Bool = UserDefaults.standard.object(forKey: "shield.haptic") == nil
+        ? true
+        : UserDefaults.standard.bool(forKey: "shield.haptic")
+    @State private var strictKYCEnabled: Bool = UserDefaults.standard.object(forKey: "shield.ocr.strictKYC") == nil
+        ? false
+        : UserDefaults.standard.bool(forKey: "shield.ocr.strictKYC")
+    @State private var warnLowConfidenceEnabled: Bool = UserDefaults.standard.object(forKey: "shield.ocr.warnLowConfidence") == nil
+        ? true
+        : UserDefaults.standard.bool(forKey: "shield.ocr.warnLowConfidence")
+    @State private var ocrConfidenceIndex: Int = UserDefaults.standard.object(forKey: "shield.ocr.minConfidence") == nil
+        ? 1
+        : UserDefaults.standard.integer(forKey: "shield.ocr.minConfidence")
     @State private var exportFormatIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportFormat")
     @State private var exportQualityIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportQuality")
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showBiometricAlert = false
+    @State private var pendingBiometricEnable = false
 
     @State private var expandedRow: ExpandedRow? = nil
 
-    enum ExpandedRow: Equatable { case autoLock, exportFormat, exportQuality }
+    enum ExpandedRow: Equatable { case autoLock, exportFormat, exportQuality, ocrConfidence }
 
     private let autoLockOptions   = ["Inmediato", "1 minuto", "5 minutos", "15 minutos", "Nunca"]
     private let autoLockOptionsEN = ["Immediately", "1 minute", "5 minutes", "15 minutes", "Never"]
@@ -31,6 +44,8 @@ struct SettingsView: View {
     private let exportFormatsEN   = ["PDF", "Image"]
     private let exportQualities   = ["Alta", "Media", "Baja"]
     private let exportQualitiesEN = ["High", "Medium", "Low"]
+    private let ocrConfidenceOptions = ["70%", "80%", "90%"]
+    private let ocrConfidenceOptionsEN = ["70%", "80%", "90%"]
 
     var body: some View {
         ZStack {
@@ -101,24 +116,16 @@ struct SettingsView: View {
                             ShieldToggle(isOn: $biometricEnabled)
                                 .onChange(of: biometricEnabled) { _, v in
                                     if v {
-                                        let ctx = LAContext()
-                                        var err: NSError?
-                                        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+                                        guard PINManager.hasPIN else {
+                                            pendingBiometricEnable = true
                                             biometricEnabled = false
-                                            showBiometricAlert = true
+                                            UserDefaults.standard.set(false, forKey: "shield.biometric")
+                                            showPINSetup = true
                                             return
                                         }
-                                        ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                                           localizedReason: appState.language == .es
-                                                               ? "Verifica tu identidad para activar Face ID"
-                                                               : "Verify your identity to enable Face ID") { ok, _ in
-                                            DispatchQueue.main.async {
-                                                biometricEnabled = ok
-                                                UserDefaults.standard.set(ok, forKey: "shield.biometric")
-                                                if !ok { showBiometricAlert = true }
-                                            }
-                                        }
+                                        requestBiometricEnable()
                                     } else {
+                                        pendingBiometricEnable = false
                                         UserDefaults.standard.set(false, forKey: "shield.biometric")
                                     }
                                 }
@@ -173,6 +180,56 @@ struct SettingsView: View {
                                 .onChange(of: hapticEnabled) { _, v in
                                     UserDefaults.standard.set(v, forKey: "shield.haptic")
                                 }
+                        }
+
+                        ShieldDivider().padding(.leading, 54)
+
+                        settingsRow(
+                            icon: "checkmark.shield.fill",
+                            iconColor: "0A84FF",
+                            title: appState.language == .es ? "OCR KYC estricto (MRZ)" : "Strict KYC OCR (MRZ)"
+                        ) {
+                            ShieldToggle(isOn: $strictKYCEnabled)
+                                .onChange(of: strictKYCEnabled) { _, v in
+                                    UserDefaults.standard.set(v, forKey: "shield.ocr.strictKYC")
+                                }
+                        }
+
+                        ShieldDivider().padding(.leading, 54)
+
+                        settingsRow(
+                            icon: "exclamationmark.triangle.fill",
+                            iconColor: "FF9F0A",
+                            title: appState.language == .es ? "Alerta OCR baja confianza" : "Low-confidence OCR alert"
+                        ) {
+                            ShieldToggle(isOn: $warnLowConfidenceEnabled)
+                                .onChange(of: warnLowConfidenceEnabled) { _, v in
+                                    UserDefaults.standard.set(v, forKey: "shield.ocr.warnLowConfidence")
+                                }
+                        }
+
+                        ShieldDivider().padding(.leading, 54)
+
+                        expandableRow(
+                            icon: "slider.horizontal.3",
+                            iconColor: "64D2FF",
+                            title: appState.language == .es ? "Umbral mínimo OCR" : "OCR minimum threshold",
+                            value: appState.language == .es
+                                ? ocrConfidenceOptions[ocrConfidenceIndex]
+                                : ocrConfidenceOptionsEN[ocrConfidenceIndex],
+                            row: .ocrConfidence
+                        ) {
+                            Picker("", selection: $ocrConfidenceIndex) {
+                                ForEach(0..<ocrConfidenceOptions.count, id: \.self) { i in
+                                    Text(appState.language == .es
+                                         ? ocrConfidenceOptions[i]
+                                         : ocrConfidenceOptionsEN[i]).tag(i)
+                                }
+                            }
+                            .pickerStyle(.inline)
+                            .onChange(of: ocrConfidenceIndex) { _, v in
+                                UserDefaults.standard.set(v, forKey: "shield.ocr.minConfidence")
+                            }
                         }
                     }
 
@@ -289,10 +346,15 @@ struct SettingsView: View {
                 }
             }
         }
-        .sheet(isPresented: $showPINSetup) {
-            PINSetupView(isPresented: $showPINSetup) {}
+        .fullScreenCover(isPresented: $showPINSetup) {
+            PINSetupView(isPresented: $showPINSetup) {
+                if pendingBiometricEnable {
+                    pendingBiometricEnable = false
+                    requestBiometricEnable()
+                }
+            }
         }
-        .sheet(isPresented: $showPINEntry) {
+        .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 showPINSetup = true
             }
@@ -308,7 +370,7 @@ struct SettingsView: View {
                  : "Face ID / Touch ID is not set up on this device.")
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall)
+            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
                 .environmentObject(appState)
         }
         .sheet(isPresented: $showMailCompose) {
@@ -331,6 +393,9 @@ struct SettingsView: View {
             Text(appState.language == .es
                  ? "Esta acción no se puede deshacer."
                  : "This action cannot be undone.")
+        }
+        .onAppear {
+            sanitizePreferences()
         }
     }
 
@@ -356,7 +421,10 @@ struct SettingsView: View {
     // MARK: - Pro banners
 
     private var proBanner: some View {
-        Button { showPaywall = true } label: {
+        Button {
+            paywallTrigger = .settingsUpgrade
+            showPaywall = true
+        } label: {
             HStack(spacing: 14) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
@@ -534,6 +602,55 @@ struct SettingsView: View {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white)
+        }
+    }
+
+    private func sanitizePreferences() {
+        let clampedAutoLock = max(0, min(autoLockIndex, autoLockOptions.count - 1))
+        if clampedAutoLock != autoLockIndex {
+            autoLockIndex = clampedAutoLock
+            UserDefaults.standard.set(clampedAutoLock, forKey: "shield.autoLock")
+        }
+
+        let clampedFormat = max(0, min(exportFormatIndex, exportFormats.count - 1))
+        if clampedFormat != exportFormatIndex {
+            exportFormatIndex = clampedFormat
+            UserDefaults.standard.set(clampedFormat, forKey: "shield.exportFormat")
+        }
+
+        let clampedQuality = max(0, min(exportQualityIndex, exportQualities.count - 1))
+        if clampedQuality != exportQualityIndex {
+            exportQualityIndex = clampedQuality
+            UserDefaults.standard.set(clampedQuality, forKey: "shield.exportQuality")
+        }
+
+        let clampedOCR = max(0, min(ocrConfidenceIndex, ocrConfidenceOptions.count - 1))
+        if clampedOCR != ocrConfidenceIndex {
+            ocrConfidenceIndex = clampedOCR
+            UserDefaults.standard.set(clampedOCR, forKey: "shield.ocr.minConfidence")
+        }
+    }
+
+    private func requestBiometricEnable() {
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+            biometricEnabled = false
+            UserDefaults.standard.set(false, forKey: "shield.biometric")
+            showBiometricAlert = true
+            return
+        }
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: appState.language == .es
+                ? "Verifica tu identidad para activar Face ID"
+                : "Verify your identity to enable Face ID"
+        ) { ok, _ in
+            DispatchQueue.main.async {
+                biometricEnabled = ok
+                UserDefaults.standard.set(ok, forKey: "shield.biometric")
+                if !ok { showBiometricAlert = true }
+            }
         }
     }
 }
