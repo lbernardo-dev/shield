@@ -464,17 +464,24 @@ enum ExportEngine {
             .appendingPathComponent("shield_\(doc.id)_\(Int(Date().timeIntervalSince1970)).pdf")
 
         do {
-            if let pdfURL = try exportOriginalPDFIfAvailable(doc: doc, pageRedactions: pageRedactions, watermark: watermark, to: tempURL) {
-                return pdfURL
+            // Only use original-PDF fast-path when there are no image adjustments
+            if doc.imageAdjustment == nil {
+                if let pdfURL = try exportOriginalPDFIfAvailable(doc: doc, pageRedactions: pageRedactions, watermark: watermark, to: tempURL) {
+                    return pdfURL
+                }
             }
 
-            // Build each page as a flat UIImage (supports real blur), then embed in PDF
+            // Build each page as a flat UIImage (supports real blur + image adjustments), then embed in PDF
             let pageFiles = doc.pageFileNames ?? [doc.imageFileName].compactMap { $0 }
             var pageImages: [(UIImage, CGRect)] = []
 
             if !pageFiles.isEmpty {
                 for (pageIndex, fileName) in pageFiles.enumerated() {
-                    guard let sourceImage = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else { continue }
+                    guard var sourceImage = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) else { continue }
+                    // Apply image adjustments before compositing redactions
+                    if let adj = doc.imageAdjustment {
+                        sourceImage = applyImageAdjustment(sourceImage, store: adj) ?? sourceImage
+                    }
                     let pageW: CGFloat = 595
                     let pageH = pageW / (sourceImage.size.width / sourceImage.size.height)
                     let pageRect = CGRect(x: 0, y: 0, width: pageW, height: pageH)
@@ -495,7 +502,10 @@ enum ExportEngine {
                     guard let page = pdfDocument.page(at: pageIndex) else { continue }
                     let bounds = page.bounds(for: .mediaBox).standardized
                     let pageSize = bounds.size == .zero ? CGSize(width: 595, height: 842) : bounds.size
-                    let pdfPageImage = renderPDFPage(page: page, size: pageSize)
+                    var pdfPageImage = renderPDFPage(page: page, size: pageSize)
+                    if let adj = doc.imageAdjustment {
+                        pdfPageImage = applyImageAdjustment(pdfPageImage, store: adj) ?? pdfPageImage
+                    }
                     let flat = await compositePageImage(
                         sourceImage: pdfPageImage, vectorDoc: nil,
                         redactions: pageRedactions[pageIndex] ?? [], watermark: watermark,
@@ -586,8 +596,12 @@ enum ExportEngine {
     }
 
     static func exportAsImage(doc: DocumentItem, imageFileName: String?, redactions: [Redaction], watermark: Watermark?, scale: CGFloat) async -> UIImage? {
-        let sourceImage = imageFileName.flatMap {
+        var sourceImage = imageFileName.flatMap {
             AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted)
+        }
+        // Apply image adjustments before scaling/compositing
+        if let adj = doc.imageAdjustment, let img = sourceImage {
+            sourceImage = applyImageAdjustment(img, store: adj) ?? img
         }
 
         let baseSize: CGSize
@@ -681,6 +695,85 @@ enum ExportEngine {
         let renderer = ImageRenderer(content: view)
         renderer.scale = 3.0
         return renderer.uiImage
+    }
+
+    // Apply ImageAdjustmentStore to a UIImage using CIFilters (same pipeline as ScanImageProcessor)
+    static func applyImageAdjustment(_ image: UIImage, store: ImageAdjustmentStore) -> UIImage? {
+        guard let cg = image.cgImage else { return image }
+        var ci = CIImage(cgImage: cg)
+        let ctx = CIContext(options: [.useSoftwareRenderer: false])
+
+        // Crop
+        let ext = ci.extent
+        let cropLeft   = ext.width  * CGFloat(store.cropLeft)
+        let cropRight  = ext.width  * CGFloat(store.cropRight)
+        let cropTop    = ext.height * CGFloat(store.cropTop)
+        let cropBottom = ext.height * CGFloat(store.cropBottom)
+        let cropRect = CGRect(
+            x: ext.minX + cropLeft,
+            y: ext.minY + cropBottom,
+            width: max(20, ext.width  - cropLeft - cropRight),
+            height: max(20, ext.height - cropTop  - cropBottom)
+        )
+        ci = ci.cropped(to: cropRect)
+
+        // Color controls
+        let colorFilter = CIFilter.colorControls()
+        colorFilter.inputImage = ci
+        colorFilter.brightness = Float(store.brightness)
+        colorFilter.contrast   = Float(store.contrast)
+        colorFilter.saturation = Float(store.saturation)
+        ci = colorFilter.outputImage ?? ci
+
+        // Sharpness
+        if store.sharpness > 0.001 {
+            let sharpen = CIFilter.sharpenLuminance()
+            sharpen.inputImage = ci
+            sharpen.sharpness  = Float(store.sharpness)
+            sharpen.radius     = 0.8
+            ci = sharpen.outputImage ?? ci
+        }
+
+        guard let outCG = ctx.createCGImage(ci, from: ci.extent) else { return image }
+        var result = UIImage(cgImage: outCG)
+
+        // Hard rotation (90° steps)
+        if abs(store.rotation) > 0.001 {
+            result = rotateUIImage(result, degrees: store.rotation) ?? result
+        }
+
+        // Flip
+        if store.flipHorizontal || store.flipVertical {
+            result = flipUIImage(result, h: store.flipHorizontal, v: store.flipVertical) ?? result
+        }
+
+        return result
+    }
+
+    private static func rotateUIImage(_ image: UIImage, degrees: Double) -> UIImage? {
+        let radians = CGFloat(degrees * .pi / 180)
+        let rotatedRect = CGRect(origin: .zero, size: image.size)
+            .applying(CGAffineTransform(rotationAngle: radians)).integral
+        UIGraphicsBeginImageContextWithOptions(rotatedRect.size, false, image.scale)
+        defer { UIGraphicsEndImageContext() }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return nil }
+        ctx.translateBy(x: rotatedRect.midX, y: rotatedRect.midY)
+        ctx.rotate(by: radians)
+        image.draw(in: CGRect(
+            x: -image.size.width / 2, y: -image.size.height / 2,
+            width: image.size.width, height: image.size.height
+        ))
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+
+    private static func flipUIImage(_ image: UIImage, h: Bool, v: Bool) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        defer { UIGraphicsEndImageContext() }
+        guard let ctx = UIGraphicsGetCurrentContext() else { return nil }
+        ctx.translateBy(x: h ? image.size.width : 0, y: v ? image.size.height : 0)
+        ctx.scaleBy(x: h ? -1 : 1, y: v ? -1 : 1)
+        image.draw(at: .zero)
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
 
     // Rasterize a PDFPage to UIImage

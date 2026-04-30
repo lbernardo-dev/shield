@@ -20,6 +20,14 @@ struct EditorView: View {
             topBar
             sensitiveBanner
             canvasArea
+            // Image adjust panel (shown when tool == .adjust)
+            if vm.showAdjustPanel {
+                ImageAdjustToolbar(vm: vm, lang: appState.language, isPro: pm.isPro) {
+                    paywallTrigger = .styleLocked
+                    showPaywall = true
+                }
+                .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+            }
             modeChips
             maskStylePicker
             bottomBar
@@ -385,20 +393,24 @@ struct EditorView: View {
                 ForEach(EditorTool.allCases) { tool in
                     let isSelected = vm.tool == tool
                     let watermarkActive = tool == .watermark && vm.watermark != nil
+                    let adjustActive = tool == .adjust && vm.showAdjustPanel
+                    let adjustDirty  = tool == .adjust && !vm.imageAdjustment.isDefault
                     Button {
                         handleToolTap(tool)
                     } label: {
                         ZStack(alignment: .topTrailing) {
                             Image(systemName: tool.icon)
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(isSelected ? ShieldTheme.accentText : ShieldTheme.textPrimary)
+                                .foregroundColor(
+                                    (isSelected || adjustActive) ? ShieldTheme.accentText : ShieldTheme.textPrimary
+                                )
                                 .frame(width: 38, height: 38)
-                                .background(isSelected ? ShieldTheme.accent : Color.clear)
+                                .background((isSelected || adjustActive) ? ShieldTheme.accent : Color.clear)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                            if watermarkActive {
+                            if watermarkActive || adjustDirty {
                                 Circle()
-                                    .fill(ShieldTheme.success)
+                                    .fill(adjustDirty ? ShieldTheme.info : ShieldTheme.success)
                                     .frame(width: 8, height: 8)
                                     .offset(x: 2, y: -2)
                             }
@@ -430,6 +442,13 @@ struct EditorView: View {
             withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }
         case .fields:
             vm.showFieldOverlays = !vm.showFieldOverlays
+        case .adjust:
+            withAnimation(.easeInOut(duration: 0.2)) {
+                vm.showAdjustPanel.toggle()
+            }
+            if vm.showAdjustPanel {
+                withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }
+            }
         default:
             break
         }

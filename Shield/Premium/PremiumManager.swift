@@ -228,12 +228,13 @@ final class PremiumManager: ObservableObject {
 
     // MARK: - Helpers for display
 
-    func annualSavings(monthly: Product, annual: Product) -> String? {
+    func annualSavings(monthly: Product, annual: Product, lang: AppLanguage = .en) -> String? {
         let m = monthly.price * 12
         let a = annual.price
         guard m > 0 else { return nil }
         let ratio = NSDecimalNumber(decimal: (m - a) / m).doubleValue
         let pct = Int((ratio * 100).rounded())
-        return "Save \(pct)%"
+        guard pct > 0 else { return nil }
+        return lang == .es ? "Ahorra \(pct)%" : "Save \(pct)%"
     }
 }

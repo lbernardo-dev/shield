@@ -14,14 +14,35 @@ struct PaywallView: View {
     private let privacyURL = URL(string: "https://shieldapp.io/privacy")
     private let termsURL = URL(string: "https://shieldapp.io/terms")
 
-    private let features: [(icon: String, color: String, title: String, subtitle: String)] = [
-        ("doc.stack.fill",         "64D2FF", "Documentos ilimitados",   "Sin límite de 3 docs"),
-        ("eye.slash.fill",         "FFD60A", "9 estilos de redacción",  "Pixelado, blur, diagonal…"),
-        ("lock.rectangle.stack",   "30D158", "Bóveda cifrada",          "Face ID + AES-256"),
-        ("doc.fill",               "FF9F0A", "Export PDF real",          "PDFKit + aplanar"),
-        ("drop.halffull",          "5E5CE6", "Marca de agua custom",    "Texto, posición, opacidad"),
-        ("wand.and.stars",         "FF453A", "Auto-redacción IA",       "Detección de campos OCR"),
-    ]
+    private func features(lang: AppLanguage) -> [(icon: String, color: String, title: String, subtitle: String)] {
+        let es = lang == .es
+        return [
+            ("doc.stack.fill",       "64D2FF",
+             es ? "Documentos ilimitados"   : "Unlimited documents",
+             es ? "Sin límite de 3 docs"    : "No 3-doc limit"),
+            ("eye.slash.fill",       "FFD60A",
+             es ? "9 estilos de redacción"  : "9 redaction styles",
+             es ? "Pixelado, blur, diagonal…" : "Pixelate, blur, diagonal…"),
+            ("lock.rectangle.stack", "30D158",
+             es ? "Bóveda cifrada"          : "Encrypted vault",
+             "Face ID + AES-256"),
+            ("doc.fill",             "FF9F0A",
+             es ? "Export PDF real"         : "Real PDF export",
+             es ? "PDFKit + aplanar"        : "PDFKit + flatten"),
+            ("drop.halffull",        "5E5CE6",
+             es ? "Marca de agua custom"    : "Custom watermark",
+             es ? "Texto, posición, opacidad" : "Text, position, opacity"),
+            ("slider.horizontal.3",  "FF453A",
+             es ? "Ajustes de imagen"       : "Image adjustments",
+             es ? "Brillo, contraste, recorte" : "Brightness, contrast, crop"),
+            ("wand.and.stars",       "BF5AF2",
+             es ? "Auto-redacción IA"       : "AI auto-redaction",
+             es ? "Detección de campos OCR" : "OCR field detection"),
+            ("icloud",               "30D158",
+             es ? "Sincronización iCloud"   : "iCloud sync",
+             es ? "Accede en todos tus dispositivos" : "Access across all your devices"),
+        ]
+    }
 
     var body: some View {
         ZStack {
@@ -159,7 +180,7 @@ struct PaywallView: View {
 
     private var featuresGrid: some View {
         VStack(spacing: 10) {
-            ForEach(Array(features.enumerated()), id: \.offset) { _, f in
+            ForEach(Array(features(lang: appState.language).enumerated()), id: \.offset) { _, f in
                 HStack(spacing: 14) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
@@ -224,7 +245,7 @@ struct PaywallView: View {
         guard product.id == ShieldProduct.annual.rawValue,
               let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
         else { return nil }
-        return pm.annualSavings(monthly: monthly, annual: product)
+        return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
     }
 
     // MARK: - CTA

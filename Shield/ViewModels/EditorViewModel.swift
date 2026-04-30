@@ -9,6 +9,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
     case auto
     case text
     case watermark
+    case adjust   // image adjustment (brightness, contrast, rotation, crop, flip)
 
     var id: String { rawValue }
 
@@ -19,6 +20,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .auto:      return "Auto"
         case .text:      return "Texto"
         case .watermark: return lang == .es ? "Marca agua" : "WM"
+        case .adjust:    return lang == .es ? "Ajustar" : "Adjust"
         }
     }
 
@@ -29,8 +31,34 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .auto:      return "checkmark.shield"
         case .text:      return "text.alignleft"
         case .watermark: return "drop.halffull"
+        case .adjust:    return "slider.horizontal.3"
         }
     }
+}
+
+// MARK: - ImageAdjustment
+
+struct ImageAdjustment: Equatable {
+    var brightness: Double = 0       // -1...1
+    var contrast: Double = 1.0       // 0.5...2.0
+    var saturation: Double = 1.0     // 0...2
+    var sharpness: Double = 0        // 0...1
+    var rotation: Double = 0         // 0, 90, 180, 270
+    var flipHorizontal: Bool = false
+    var flipVertical: Bool = false
+    var cropLeft: Double = 0
+    var cropRight: Double = 0
+    var cropTop: Double = 0
+    var cropBottom: Double = 0
+
+    var isDefault: Bool {
+        brightness == 0 && abs(contrast - 1.0) < 0.001 &&
+        abs(saturation - 1.0) < 0.001 && sharpness == 0 &&
+        rotation == 0 && !flipHorizontal && !flipVertical &&
+        cropLeft == 0 && cropRight == 0 && cropTop == 0 && cropBottom == 0
+    }
+
+    static let `default` = ImageAdjustment()
 }
 
 // MARK: - EditorViewModel
@@ -47,8 +75,12 @@ final class EditorViewModel: ObservableObject {
     @Published var showFieldOverlays: Bool = false
     @Published var showOCRSheet: Bool = false
     @Published var showExportSheet: Bool = false
+    @Published var showAdjustPanel: Bool = false
     @Published var currentPage: Int = 0
     @Published var activeMode: RedactionMode? = nil
+    @Published var imageAdjustment: ImageAdjustment = .default
+    @Published var isDraggingRedaction: Bool = false
+    @Published var isResizingRedaction: Bool = false
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
@@ -87,6 +119,21 @@ final class EditorViewModel: ObservableObject {
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
         self.history = [self.redactions]
+        if let stored = doc.imageAdjustment {
+            self.imageAdjustment = ImageAdjustment(
+                brightness: stored.brightness,
+                contrast: stored.contrast,
+                saturation: stored.saturation,
+                sharpness: stored.sharpness,
+                rotation: stored.rotation,
+                flipHorizontal: stored.flipHorizontal,
+                flipVertical: stored.flipVertical,
+                cropLeft: stored.cropLeft,
+                cropRight: stored.cropRight,
+                cropTop: stored.cropTop,
+                cropBottom: stored.cropBottom
+            )
+        }
         let suggestions = AutoRedactions.suggested(for: doc.kind)
         self.showSensitiveBanner = !suggestions.isEmpty
         if !suggestions.isEmpty {
@@ -175,33 +222,120 @@ final class EditorViewModel: ObservableObject {
 
     func applyMode(_ mode: RedactionMode) {
         if activeMode == mode {
-            // Deselect: clear redactions and reset
             push([])
             activeMode = nil
             return
         }
-        var suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
-        switch mode {
-        case .travel:
-            suggested = suggested.filter { $0.rect.origin.x != 0.04 && $0.rect.width != 1.0 }
-        case .job:
-            suggested = suggested.filter { r in
-                r.rect.origin.y > 0.6 && r.rect.origin.y < 0.85
+
+        // For structured doc kinds, use the template-based approach
+        if doc.kind != .photo && doc.kind != .genericID {
+            var suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
+            switch mode {
+            case .rental:
+                // Rental: hide photo + all PII except name
+                suggested = suggested.filter { r in
+                    // keep: photo area and bottom MRZ/address zones
+                    r.rect.width >= 0.9 || r.rect.width <= 0.25 || r.rect.origin.y > 0.75
+                }
+            case .travel:
+                // Travel: hide passport number and MRZ, keep name/photo
+                suggested = suggested.filter { r in
+                    r.rect.width >= 0.9 || (r.rect.origin.y > 0.55 && r.rect.width > 0.18)
+                }
+            case .job:
+                // Job: hide DOB, address, doc number; keep name
+                suggested = suggested.filter { r in
+                    r.rect.origin.y > 0.58 && r.rect.origin.y < 0.86
+                }
+            case .verify:
+                // Verify: only hide doc number + MRZ, show everything else
+                suggested = suggested.filter { r in
+                    r.rect.origin.y > 0.72 || r.rect.width >= 0.9
+                }
             }
-        case .verify:
-            suggested = suggested.filter { r in
-                r.rect.origin.y > 0.6
-            }
-        default: break
+            push(suggested)
+        } else {
+            // For photo/generic docs: build mode redactions from OCR field boxes
+            let modeRects = AutoRedactions.ocrModeRects(for: mode, fields: doc.fields)
+            let modeRedactions = modeRects.map { Redaction(rect: $0, style: maskStyle) }
+            push(modeRedactions)
         }
-        push(suggested)
+
         AppState.trackEvent("redaction_applied", properties: [
             "source": "mode",
-            "mode": mode.rawValue,
-            "count": String(suggested.count)
+            "mode": mode.rawValue
         ])
         activeMode = mode
         showSensitiveBanner = false
+    }
+
+    // MARK: - Image adjustment
+
+    func updateAdjustment(_ adjustment: ImageAdjustment) {
+        imageAdjustment = adjustment
+        persistCurrentPageState()
+    }
+
+    func resetAdjustment() {
+        imageAdjustment = .default
+        persistCurrentPageState()
+    }
+
+    func rotateImage90CW() {
+        var adj = imageAdjustment
+        adj.rotation = ((adj.rotation + 90).truncatingRemainder(dividingBy: 360))
+        imageAdjustment = adj
+        persistCurrentPageState()
+    }
+
+    func flipImageHorizontal() {
+        var adj = imageAdjustment
+        adj.flipHorizontal.toggle()
+        imageAdjustment = adj
+        persistCurrentPageState()
+    }
+
+    func flipImageVertical() {
+        var adj = imageAdjustment
+        adj.flipVertical.toggle()
+        imageAdjustment = adj
+        persistCurrentPageState()
+    }
+
+    // MARK: - Redaction drag & resize
+
+    func moveRedaction(id: UUID, by delta: CGSize, canvasSize: CGSize) {
+        guard canvasSize.width > 0, canvasSize.height > 0 else { return }
+        let dx = delta.width / canvasSize.width
+        let dy = delta.height / canvasSize.height
+        let updated = redactions.map { r -> Redaction in
+            guard r.id == id else { return r }
+            var moved = r
+            let newX = max(0, min(1 - r.rect.width, r.rect.origin.x + dx))
+            let newY = max(0, min(1 - r.rect.height, r.rect.origin.y + dy))
+            moved.rect = CGRect(x: newX, y: newY, width: r.rect.width, height: r.rect.height)
+            return moved
+        }
+        redactions = updated
+        persistCurrentPageState()
+    }
+
+    func resizeRedaction(id: UUID, newRect: CGRect) {
+        let minSize: CGFloat = 0.02
+        let safeRect = CGRect(
+            x: max(0, min(0.98, newRect.origin.x)),
+            y: max(0, min(0.98, newRect.origin.y)),
+            width: max(minSize, min(1 - newRect.origin.x, newRect.width)),
+            height: max(minSize, min(1 - newRect.origin.y, newRect.height))
+        )
+        let updated = redactions.map { r -> Redaction in
+            guard r.id == id else { return r }
+            var resized = r
+            resized.rect = safeRect
+            return resized
+        }
+        redactions = updated
+        persistCurrentPageState()
     }
 
     func toggleField(_ box: FieldBox) {
@@ -254,6 +388,23 @@ final class EditorViewModel: ObservableObject {
         var snapshot = doc
         snapshot.setRedactions(redactions, for: currentPage)
         snapshot.watermark = watermark
+        if !imageAdjustment.isDefault {
+            snapshot.imageAdjustment = ImageAdjustmentStore(
+                brightness: imageAdjustment.brightness,
+                contrast: imageAdjustment.contrast,
+                saturation: imageAdjustment.saturation,
+                sharpness: imageAdjustment.sharpness,
+                rotation: imageAdjustment.rotation,
+                flipHorizontal: imageAdjustment.flipHorizontal,
+                flipVertical: imageAdjustment.flipVertical,
+                cropLeft: imageAdjustment.cropLeft,
+                cropRight: imageAdjustment.cropRight,
+                cropTop: imageAdjustment.cropTop,
+                cropBottom: imageAdjustment.cropBottom
+            )
+        } else {
+            snapshot.imageAdjustment = nil
+        }
         doc = snapshot
     }
 }

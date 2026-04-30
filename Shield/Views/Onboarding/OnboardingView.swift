@@ -6,6 +6,8 @@ import SwiftUI
 struct OnboardingView: View {
     @EnvironmentObject var appState: AppState
     @State private var step: Int = 0
+    @State private var showPINSetup = false
+    @State private var authError: String? = nil
 
     struct Slide {
         let icon: String
@@ -112,7 +114,7 @@ struct OnboardingView: View {
                 if slide.isAuth {
                     VStack(spacing: 10) {
                         Button {
-                            finishOnboarding()
+                            setupFaceID()
                         } label: {
                             Label(appState.str(.enableFaceId), systemImage: "faceid")
                                 .font(.system(size: 16, weight: .bold))
@@ -124,14 +126,33 @@ struct OnboardingView: View {
                         }
                         .buttonStyle(ScaleButtonStyle())
 
+                        if let err = authError {
+                            Text(err)
+                                .font(.system(size: 12))
+                                .foregroundColor(ShieldTheme.danger)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 8)
+                        }
+
                         Button {
-                            finishOnboarding()
+                            showPINSetup = true
                         } label: {
                             Text(appState.str(.setPin))
                                 .font(.system(size: 15))
                                 .foregroundColor(ShieldTheme.textSecondary)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
+                        }
+
+                        Button {
+                            // Skip auth entirely — user can set up security later
+                            completeOnboarding()
+                        } label: {
+                            Text(appState.language == .es ? "Configurar después" : "Set up later")
+                                .font(.system(size: 13))
+                                .foregroundColor(ShieldTheme.textTertiary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 36)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -162,15 +183,48 @@ struct OnboardingView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .fullScreenCover(isPresented: $showPINSetup) {
+            PINSetupView(isPresented: $showPINSetup) {
+                completeOnboarding()
+            }.environmentObject(appState)
+        }
     }
 
-    private func finishOnboarding() {
+    private func setupFaceID() {
+        let ctx = LAContext()
+        var error: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            authError = appState.language == .es
+                ? "Face ID no está disponible. Configura un PIN."
+                : "Face ID is not available. Set up a PIN instead."
+            return
+        }
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: appState.language == .es
+                ? "Activa Face ID para Shield"
+                : "Enable Face ID for Shield"
+        ) { success, evalError in
+            DispatchQueue.main.async {
+                if success {
+                    UserDefaults.standard.set(true, forKey: "shield.biometric")
+                    authError = nil
+                    completeOnboarding()
+                } else {
+                    authError = evalError?.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func completeOnboarding() {
         withAnimation {
             appState.isOnboarded = true
             appState.isAuthenticated = true
         }
     }
 }
+
 
 // MARK: - BulletRow
 
@@ -406,14 +460,14 @@ struct LockScreenView: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     appState.completeSuccessfulUnlock()
                 }
-            }
+            }.environmentObject(appState)
         }
         .fullScreenCover(isPresented: $showPINSetup) {
             PINSetupView(isPresented: $showPINSetup) {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     appState.completeSuccessfulUnlock()
                 }
-            }
+            }.environmentObject(appState)
         }
         .onAppear {
             autoPromptIfNeeded()

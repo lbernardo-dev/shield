@@ -8,6 +8,77 @@ import PDFKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
+// MARK: - ScanDocumentType (frame guide during scanning)
+
+enum ScanDocumentType: String, CaseIterable, Identifiable {
+    case identity
+    case passport
+    case drivingLicense
+    case a4Document
+    case freeform
+
+    var id: String { rawValue }
+
+    func label(lang: AppLanguage) -> String {
+        switch self {
+        case .identity:       return lang == .es ? "DNI / ID" : "ID Card"
+        case .passport:       return lang == .es ? "Pasaporte" : "Passport"
+        case .drivingLicense: return lang == .es ? "Carnet conducir" : "Driver's Lic."
+        case .a4Document:     return lang == .es ? "Documento A4" : "A4 Document"
+        case .freeform:       return lang == .es ? "Libre" : "Freeform"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .identity:       return "creditcard"
+        case .passport:       return "book.closed"
+        case .drivingLicense: return "car"
+        case .a4Document:     return "doc.text"
+        case .freeform:       return "crop"
+        }
+    }
+
+    // Aspect ratio width:height for the guide frame
+    var aspectRatio: CGFloat {
+        switch self {
+        case .identity:       return 85.6 / 54.0   // ISO/IEC 7810 ID-1
+        case .passport:       return 125.0 / 88.0  // ICAO 9303 booklet
+        case .drivingLicense: return 85.6 / 54.0
+        case .a4Document:     return 210.0 / 297.0
+        case .freeform:       return 1.0
+        }
+    }
+
+    // Corner hint labels for OCR field zones
+    var fieldHints: [(label: String, normRect: CGRect)] {
+        switch self {
+        case .identity:
+            return [
+                (label: "Nombre",    normRect: CGRect(x: 0.30, y: 0.22, width: 0.65, height: 0.18)),
+                (label: "Foto",      normRect: CGRect(x: 0.02, y: 0.12, width: 0.26, height: 0.65)),
+                (label: "DOB",       normRect: CGRect(x: 0.60, y: 0.60, width: 0.36, height: 0.12)),
+                (label: "MRZ",       normRect: CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16)),
+            ]
+        case .passport:
+            return [
+                (label: "Foto",      normRect: CGRect(x: 0.02, y: 0.12, width: 0.26, height: 0.60)),
+                (label: "Nombre",    normRect: CGRect(x: 0.30, y: 0.20, width: 0.66, height: 0.20)),
+                (label: "Nº Pasap.", normRect: CGRect(x: 0.60, y: 0.18, width: 0.36, height: 0.10)),
+                (label: "MRZ",       normRect: CGRect(x: 0.00, y: 0.82, width: 1.00, height: 0.18)),
+            ]
+        case .drivingLicense:
+            return [
+                (label: "Foto",      normRect: CGRect(x: 0.10, y: 0.18, width: 0.24, height: 0.56)),
+                (label: "Nombre",    normRect: CGRect(x: 0.38, y: 0.22, width: 0.58, height: 0.18)),
+                (label: "Nº Carnet", normRect: CGRect(x: 0.38, y: 0.68, width: 0.56, height: 0.10)),
+            ]
+        case .a4Document, .freeform:
+            return []
+        }
+    }
+}
+
 // MARK: - CaptureView
 
 struct CaptureView: View {
@@ -27,6 +98,9 @@ struct CaptureView: View {
     @State private var stagedSourceType: ImportedDocumentSource = .image
     @State private var stagedSourceFileName: String? = nil
     @State private var stagedDocID: String = UUID().uuidString
+    @State private var selectedScanType: ScanDocumentType = .identity
+    @State private var showScanTypeGuide: Bool = true
+    @State private var showCloudPicker: Bool = false
 
     var body: some View {
         ZStack {
@@ -40,13 +114,14 @@ struct CaptureView: View {
         }
         .preferredColorScheme(.dark)
         .fullScreenCover(isPresented: $showScanner) {
-            DocumentScannerView { images in
+            DocumentScannerOverlayView(
+                documentType: selectedScanType,
+                showGuide: showScanTypeGuide,
+                lang: appState.language
+            ) { images in
                 showScanner = false
-                if images.count <= 1, let image = images.first {
-                    stageScanPages([image], title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
-                } else if !images.isEmpty {
-                    stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
-                }
+                guard !images.isEmpty else { return }
+                stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
             } onCancel: {
                 showScanner = false
             }
@@ -87,6 +162,11 @@ struct CaptureView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
+        .sheet(isPresented: $showCloudPicker) {
+            ExternalStoragePickerSheet(isPresented: $showCloudPicker) { url in
+                processFile(url)
+            }.environmentObject(appState)
+        }
     }
 
     // MARK: - Capture menu
@@ -113,6 +193,11 @@ struct CaptureView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
 
+            // Document type selector
+            documentTypeSelector
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+
             Spacer()
 
             // Options
@@ -120,7 +205,9 @@ struct CaptureView: View {
                 captureOption(
                     icon: "camera.viewfinder",
                     title: appState.language == .es ? "Escanear documento" : "Scan document",
-                    subtitle: appState.language == .es ? "Usa la cámara para escanear" : "Use camera to scan",
+                    subtitle: appState.language == .es
+                        ? "Marco guía: \(selectedScanType.label(lang: appState.language))"
+                        : "Guide frame: \(selectedScanType.label(lang: appState.language))",
                     primary: true
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -150,6 +237,18 @@ struct CaptureView: View {
                     guard ensureCanImportMoreDocuments() else { return }
                     showFilePicker = true
                 }
+
+                captureOption(
+                    icon: "icloud.and.arrow.down",
+                    title: appState.language == .es ? "Desde la nube" : "From Cloud",
+                    subtitle: appState.language == .es
+                        ? "Google Drive, Dropbox, OneDrive…"
+                        : "Google Drive, Dropbox, OneDrive…",
+                    primary: false
+                ) {
+                    guard ensureCanImportMoreDocuments() else { return }
+                    showCloudPicker = true
+                }
             }
             .padding(.horizontal, 24)
 
@@ -167,6 +266,63 @@ struct CaptureView: View {
                     .foregroundColor(Color(hex: "666666"))
             }
             .padding(.bottom, 24)
+        }
+    }
+
+    // MARK: - Document type selector
+
+    @ViewBuilder
+    private var documentTypeSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(appState.language == .es ? "Tipo de documento" : "Document type")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color(hex: "888888"))
+                Spacer()
+                Button {
+                    withAnimation { showScanTypeGuide.toggle() }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: showScanTypeGuide ? "eye.slash" : "eye")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text(showScanTypeGuide
+                             ? (appState.language == .es ? "Ocultar guía" : "Hide guide")
+                             : (appState.language == .es ? "Mostrar guía" : "Show guide"))
+                            .font(.system(size: 11, weight: .semibold))
+                    }
+                    .foregroundColor(ShieldTheme.accent)
+                }
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(ScanDocumentType.allCases) { type in
+                        let isSelected = selectedScanType == type
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.18)) { selectedScanType = type }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: type.icon)
+                                    .font(.system(size: 12, weight: .semibold))
+                                Text(type.label(lang: appState.language))
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            .foregroundColor(isSelected ? .black : Color(hex: "aaaaaa"))
+                            .padding(.horizontal, 12)
+                            .frame(height: 32)
+                            .background(isSelected ? ShieldTheme.accent : Color(hex: "1c1c1e"))
+                            .overlay(
+                                Capsule().stroke(
+                                    isSelected ? ShieldTheme.accent : Color(hex: "333333"),
+                                    lineWidth: 1
+                                )
+                            )
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+                }
+            }
         }
     }
 
@@ -1825,6 +1981,158 @@ struct DocumentScannerView: UIViewControllerRepresentable {
         func documentCameraViewController(_ controller: VNDocumentCameraViewController,
                                           didFailWithError error: Error) {
             parent.onCancel()
+        }
+    }
+}
+
+// MARK: - DocumentScannerOverlayView
+// Wraps VisionKit scanner with an optional guide-frame overlay for the selected document type.
+
+struct DocumentScannerOverlayView: View {
+    let documentType: ScanDocumentType
+    let showGuide: Bool
+    let lang: AppLanguage
+    var onScan: ([UIImage]) -> Void
+    var onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            DocumentScannerView(onScan: onScan, onCancel: onCancel)
+                .ignoresSafeArea()
+
+            if showGuide && documentType != .freeform {
+                GeometryReader { geo in
+                    let frameW = geo.size.width * 0.84
+                    let frameH = frameW / documentType.aspectRatio
+                    let offsetX = (geo.size.width - frameW) / 2
+                    let offsetY = (geo.size.height - frameH) / 2
+
+                    ZStack {
+                        // Dimming overlay with cutout
+                        GuideFrameCutout(
+                            frameRect: CGRect(x: offsetX, y: offsetY, width: frameW, height: frameH)
+                        )
+                        .fill(Color.black.opacity(0.45))
+                        .ignoresSafeArea()
+
+                        // Guide frame border with corner handles
+                        GuideFrameBorder(
+                            x: offsetX, y: offsetY, w: frameW, h: frameH
+                        )
+
+                        // Field zone hints inside the frame
+                        if !documentType.fieldHints.isEmpty {
+                            ForEach(Array(documentType.fieldHints.enumerated()), id: \.offset) { _, hint in
+                                let hx = offsetX + hint.normRect.origin.x * frameW
+                                let hy = offsetY + hint.normRect.origin.y * frameH
+                                let hw = hint.normRect.width * frameW
+                                let hh = hint.normRect.height * frameH
+
+                                ZStack(alignment: .topLeading) {
+                                    Rectangle()
+                                        .strokeBorder(
+                                            Color.white.opacity(0.45),
+                                            style: StrokeStyle(lineWidth: 1, dash: [4, 3])
+                                        )
+                                        .frame(width: hw, height: hh)
+
+                                    Text(hint.label)
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.white.opacity(0.85))
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 2)
+                                        .background(Color.black.opacity(0.55))
+                                        .clipShape(RoundedRectangle(cornerRadius: 3))
+                                        .offset(y: -16)
+                                }
+                                .position(x: hx + hw / 2, y: hy + hh / 2)
+                            }
+                        }
+
+                        // Label
+                        VStack(spacing: 4) {
+                            Text(documentType.label(lang: lang))
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 5)
+                                .background(ShieldTheme.accent.opacity(0.85))
+                                .clipShape(Capsule())
+
+                            Text(lang == .es ? "Ajusta el documento dentro del marco" : "Align document within the frame")
+                                .font(.system(size: 12))
+                                .foregroundColor(.white.opacity(0.75))
+                        }
+                        .position(x: geo.size.width / 2, y: offsetY - 44)
+                    }
+                }
+                .allowsHitTesting(false)
+            }
+        }
+    }
+}
+
+private struct GuideFrameCutout: Shape {
+    let frameRect: CGRect
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.addRect(rect)
+        path.addRoundedRect(in: frameRect, cornerSize: CGSize(width: 12, height: 12))
+        return path
+    }
+
+    // even-odd fill rule creates the cutout
+    var fillStyle: FillStyle { FillStyle(eoFill: true) }
+}
+
+extension GuideFrameCutout {
+    func fill(_ content: some ShapeStyle) -> some View {
+        self.fill(content, style: FillStyle(eoFill: true))
+    }
+}
+
+private struct GuideFrameBorder: View {
+    let x, y, w, h: CGFloat
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ShieldTheme.accent, lineWidth: 2)
+                .frame(width: w, height: h)
+                .position(x: x + w / 2, y: y + h / 2)
+
+            // Corner tick marks
+            ForEach(corners, id: \.self) { corner in
+                cornerTick(at: corner)
+            }
+        }
+    }
+
+    private var corners: [String] { ["tl", "tr", "bl", "br"] }
+
+    private func cornerTick(at corner: String) -> some View {
+        let len: CGFloat = 22
+        let tl = corner == "tl"
+        let tr = corner == "tr"
+        let bl = corner == "bl"
+        let cx: CGFloat = (tl || bl) ? x : x + w
+        let cy: CGFloat = (tl || tr) ? y : y + h
+        let hDir: CGFloat = (tl || bl) ? 1 : -1
+        let vDir: CGFloat = (tl || tr) ? 1 : -1
+
+        return ZStack {
+            Path { p in
+                p.move(to: CGPoint(x: cx, y: cy))
+                p.addLine(to: CGPoint(x: cx + hDir * len, y: cy))
+            }
+            .stroke(ShieldTheme.accent, lineWidth: 3)
+
+            Path { p in
+                p.move(to: CGPoint(x: cx, y: cy))
+                p.addLine(to: CGPoint(x: cx, y: cy + vDir * len))
+            }
+            .stroke(ShieldTheme.accent, lineWidth: 3)
         }
     }
 }

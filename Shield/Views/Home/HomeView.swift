@@ -4,10 +4,12 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
+    @StateObject private var pm = PremiumManager.shared
     @Environment(\.colorScheme) var scheme
 
     @State private var showAllDocs = false
     @State private var showFilters = false
+    @State private var showPaywall = false
     @FocusState private var searchFocused: Bool
 
     var body: some View {
@@ -48,6 +50,10 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showFilters) {
             FilterSheet(isPresented: $showFilters)
+                .environmentObject(appState)
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall, trigger: .docLimitReached)
                 .environmentObject(appState)
         }
     }
@@ -137,11 +143,66 @@ struct HomeView: View {
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
             }
+
+            // Free tier usage bar
+            if !pm.isPro {
+                freeUsageBadge
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 20)
         .padding(.bottom, 16)
+    }
+
+    private var freeUsageBadge: some View {
+        let used = appState.documents.count
+        let limit = PremiumManager.freeDocumentLimit
+        let fraction = min(1.0, Double(used) / Double(limit))
+        let atLimit = used >= limit
+        let lang = appState.language
+        let es = lang == .es
+
+        return Button {
+            if atLimit { showPaywall = true }
+        } label: {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text(es ? "Plan Free · \(used)/\(limit) documentos" : "Free plan · \(used)/\(limit) documents")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(atLimit ? ShieldTheme.danger : ShieldTheme.textSecondary)
+                    Spacer()
+                    if atLimit {
+                        Text(es ? "Actualizar →" : "Upgrade →")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(ShieldTheme.accent)
+                    }
+                }
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(ShieldTheme.surface3)
+                            .frame(height: 5)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(atLimit ? ShieldTheme.danger : ShieldTheme.accent)
+                            .frame(width: geo.size.width * fraction, height: 5)
+                            .animation(.easeInOut(duration: 0.4), value: fraction)
+                    }
+                }
+                .frame(height: 5)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(atLimit ? ShieldTheme.dangerDim : ShieldTheme.surface2)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(atLimit ? ShieldTheme.danger.opacity(0.4) : ShieldTheme.surfaceLine, lineWidth: 0.5)
+            )
+        }
+        .buttonStyle(ScaleButtonStyle())
     }
 
     // MARK: - Search

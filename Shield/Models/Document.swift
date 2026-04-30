@@ -145,6 +145,7 @@ struct DocumentItem: Identifiable, Codable {
     var fields: DocumentFields
     var pageRedactions: [DocumentPageRedactions]
     var watermark: Watermark?
+    var imageAdjustment: ImageAdjustmentStore?
 
     var pageCount: Int { pageFileNames?.count ?? (imageFileName != nil ? 1 : 0) }
     var totalRedactionCount: Int { pageRedactions.reduce(0) { $0 + $1.redactions.count } }
@@ -167,6 +168,7 @@ struct DocumentItem: Identifiable, Codable {
         case fields
         case pageRedactions
         case watermark
+        case imageAdjustment
     }
 
     func imageFileName(for page: Int) -> String? {
@@ -196,7 +198,8 @@ struct DocumentItem: Identifiable, Codable {
          sourceFileName: String? = nil,
          fields: DocumentFields = .empty,
          pageRedactions: [DocumentPageRedactions] = [],
-         watermark: Watermark? = nil) {
+         watermark: Watermark? = nil,
+         imageAdjustment: ImageAdjustmentStore? = nil) {
         self.id = id
         self.kind = kind
         self.title = title
@@ -214,6 +217,7 @@ struct DocumentItem: Identifiable, Codable {
         self.fields = fields
         self.pageRedactions = pageRedactions
         self.watermark = watermark
+        self.imageAdjustment = imageAdjustment
         self.redactionCount = pageRedactions.isEmpty
             ? redactionCount
             : pageRedactions.reduce(0) { $0 + $1.redactions.count }
@@ -238,6 +242,7 @@ struct DocumentItem: Identifiable, Codable {
         fields = try container.decodeIfPresent(DocumentFields.self, forKey: .fields) ?? .empty
         pageRedactions = try container.decodeIfPresent([DocumentPageRedactions].self, forKey: .pageRedactions) ?? []
         watermark = try container.decodeIfPresent(Watermark.self, forKey: .watermark)
+        imageAdjustment = try container.decodeIfPresent(ImageAdjustmentStore.self, forKey: .imageAdjustment)
 
         if !pageRedactions.isEmpty {
             redactionCount = pageRedactions.reduce(0) { $0 + $1.redactions.count }
@@ -277,6 +282,22 @@ struct DocumentItem: Identifiable, Codable {
             return fmt.string(from: date)
         }
     }
+}
+
+// MARK: - ImageAdjustmentStore (Codable persistence companion to ImageAdjustment)
+
+struct ImageAdjustmentStore: Codable, Equatable {
+    var brightness: Double
+    var contrast: Double
+    var saturation: Double
+    var sharpness: Double
+    var rotation: Double
+    var flipHorizontal: Bool
+    var flipVertical: Bool
+    var cropLeft: Double
+    var cropRight: Double
+    var cropTop: Double
+    var cropBottom: Double
 }
 
 // MARK: - Field boxes (normalized 0..1)
@@ -332,27 +353,82 @@ enum AutoRedactions {
         switch kind {
         case .dniESP:
             rects = [
-                CGRect(x: 0.30, y: 0.78, width: 0.20, height: 0.07),
-                CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07),
-                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.30, y: 0.78, width: 0.20, height: 0.07),   // Doc number
+                CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),   // MRZ
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // Photo
             ]
         case .passportUSA:
             rects = [
-                CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07),
-                CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07),
-                CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15),
-                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55),
+                CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07),   // Passport №
+                CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15),   // MRZ
+                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55),   // Photo
+            ]
+        case .passportMEX:
+            rects = [
+                CGRect(x: 0.60, y: 0.22, width: 0.24, height: 0.07),
+                CGRect(x: 0.28, y: 0.72, width: 0.24, height: 0.07),
+                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+            ]
+        case .dniITA:
+            rects = [
+                CGRect(x: 0.30, y: 0.78, width: 0.22, height: 0.07),
+                CGRect(x: 0.62, y: 0.62, width: 0.24, height: 0.07),
+                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
             ]
         case .drivingUK:
             rects = [
-                CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07),
-                CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07),
-                CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55),
+                CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07),   // Driver №
+                CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07),   // Address
+                CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55),   // Photo
             ]
-        case .photo, .passportMEX, .dniITA, .genericID:
+        case .genericID:
+            rects = [
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // Photo area
+                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),   // Bottom strip
+            ]
+        case .photo:
             rects = []
         }
         return rects.map { Redaction(rect: $0, style: style) }
+    }
+
+    // Builds redaction rects for photo/generic docs using OCR detected fields.
+    // Each mode hides a different subset of personal data.
+    static func ocrModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
+        // For photo docs we use approximate grid positions based on common document layouts.
+        // These are normalized 0..1 rectangles that cover likely field positions.
+        switch mode {
+        case .rental:
+            // Rental: hide photo zone, address, DOB, doc number — keep name visible
+            return [
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.82, width: 1.00, height: 0.18),   // bottom (address/MRZ)
+            ]
+        case .travel:
+            // Travel: hide doc/passport number and MRZ only
+            return [
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ / barcode
+            ]
+        case .job:
+            // Job application: hide DOB, doc number, photo
+            return [
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
+            ]
+        case .verify:
+            // Verification only: hide doc number + MRZ, show name+photo
+            return [
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ
+            ]
+        }
     }
 }

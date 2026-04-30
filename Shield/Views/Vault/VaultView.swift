@@ -35,12 +35,12 @@ struct VaultView: View {
         .fullScreenCover(isPresented: $showPINSetup) {
             PINSetupView(isPresented: $showPINSetup) {
                 isUnlocked = true
-            }
+            }.environmentObject(appState)
         }
         .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 isUnlocked = true
-            }
+            }.environmentObject(appState)
         }
         .fullScreenCover(item: $selectedDoc) { doc in
             EditorView(doc: doc).environmentObject(appState)
@@ -456,11 +456,14 @@ enum PINManager {
 struct PINSetupView: View {
     @Binding var isPresented: Bool
     var onSuccess: () -> Void
+    @EnvironmentObject var appState: AppState
 
     @State private var pin = ""
     @State private var confirmPin = ""
     @State private var step = 0  // 0=enter, 1=confirm
     @State private var errorMsg = ""
+
+    private var l: Bool { appState.language == .es }
 
     var body: some View {
         VStack(spacing: 32) {
@@ -470,8 +473,8 @@ struct PINSetupView: View {
                 .foregroundColor(ShieldTheme.accent)
 
             Text(step == 0
-                 ? "Elige un PIN de 6 dígitos"
-                 : "Confirma tu PIN")
+                 ? (l ? "Elige un PIN de 6 dígitos" : "Choose a 6-digit PIN")
+                 : (l ? "Confirma tu PIN" : "Confirm your PIN"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -495,7 +498,7 @@ struct PINSetupView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete)
 
             Button { isPresented = false } label: {
-                Text("Cancelar")
+                Text(l ? "Cancelar" : "Cancel")
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -531,7 +534,7 @@ struct PINSetupView: View {
                 isPresented = false
                 onSuccess()
             } else {
-                errorMsg = "Los PINs no coinciden. Inténtalo de nuevo."
+                errorMsg = l ? "Los PINs no coinciden. Inténtalo de nuevo." : "PINs do not match. Try again."
                 pin = ""; confirmPin = ""; step = 0
             }
         }
@@ -543,11 +546,14 @@ struct PINSetupView: View {
 struct PINEntryView: View {
     @Binding var isPresented: Bool
     var onSuccess: () -> Void
+    @EnvironmentObject var appState: AppState
 
     @State private var pin = ""
     @State private var errorMsg = ""
     @State private var lockoutRemaining = 0
     @State private var lockoutTimer: Timer?
+
+    private var l: Bool { appState.language == .es }
 
     var body: some View {
         VStack(spacing: 32) {
@@ -556,7 +562,7 @@ struct PINEntryView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.accent)
 
-            Text("Introduce tu PIN")
+            Text(l ? "Introduce tu PIN" : "Enter your PIN")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -576,7 +582,7 @@ struct PINEntryView: View {
             }
 
             if lockoutRemaining > 0 {
-                Text("Vuelve a intentarlo en \(lockoutRemaining)s")
+                Text(l ? "Vuelve a intentarlo en \(lockoutRemaining)s" : "Try again in \(lockoutRemaining)s")
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -584,7 +590,7 @@ struct PINEntryView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete, isDisabled: lockoutRemaining > 0)
 
             Button { isPresented = false } label: {
-                Text("Cancelar")
+                Text(l ? "Cancelar" : "Cancel")
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -625,9 +631,11 @@ struct PINEntryView: View {
         } else {
             refreshLockoutState()
             if lockoutRemaining > 0 {
-                errorMsg = "Demasiados intentos fallidos. Espera \(lockoutRemaining)s."
+                errorMsg = l
+                    ? "Demasiados intentos fallidos. Espera \(lockoutRemaining)s."
+                    : "Too many failed attempts. Wait \(lockoutRemaining)s."
             } else {
-                errorMsg = "PIN incorrecto. Inténtalo de nuevo."
+                errorMsg = l ? "PIN incorrecto. Inténtalo de nuevo." : "Incorrect PIN. Try again."
             }
             pin = ""
         }
@@ -643,7 +651,7 @@ struct PINEntryView: View {
             DispatchQueue.main.async {
                 let remaining = PINManager.lockoutRemainingSeconds()
                 lockoutRemaining = remaining
-                if remaining == 0, errorMsg.contains("Espera") {
+                if remaining == 0, !errorMsg.isEmpty, errorMsg.contains("Wait") || errorMsg.contains("Espera") {
                     errorMsg = ""
                 }
             }

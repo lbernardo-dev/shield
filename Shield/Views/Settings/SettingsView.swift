@@ -7,6 +7,7 @@ import MessageUI
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
+    @ObservedObject private var cloud = CloudSyncManager.shared
     @Environment(\.colorScheme) var scheme
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
@@ -29,6 +30,7 @@ struct SettingsView: View {
         : UserDefaults.standard.integer(forKey: "shield.ocr.minConfidence")
     @State private var exportFormatIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportFormat")
     @State private var exportQualityIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportQuality")
+    @State private var iCloudEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showBiometricAlert = false
@@ -233,6 +235,9 @@ struct SettingsView: View {
                         }
                     }
 
+                    // iCloud sync (Pro only)
+                    iCloudSection
+
                     // Export defaults
                     settingsSection(title: appState.language == .es ? "Exportación" : "Export") {
                         expandableRow(
@@ -352,12 +357,12 @@ struct SettingsView: View {
                     pendingBiometricEnable = false
                     requestBiometricEnable()
                 }
-            }
+            }.environmentObject(appState)
         }
         .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 showPINSetup = true
-            }
+            }.environmentObject(appState)
         }
         .alert(
             appState.language == .es ? "Biometría no disponible" : "Biometrics unavailable",
@@ -418,6 +423,91 @@ struct SettingsView: View {
     }
     #endif
 
+    // MARK: - iCloud section
+
+    @ViewBuilder
+    private var iCloudSection: some View {
+        settingsSection(title: appState.language == .es ? "iCloud" : "iCloud") {
+            if !pm.isPro {
+                settingsRow(icon: "icloud", iconColor: "5E5CE6",
+                            title: appState.language == .es ? "Sincronización iCloud" : "iCloud sync") {
+                    Button {
+                        paywallTrigger = .settingsUpgrade
+                        showPaywall = true
+                    } label: {
+                        Text("Pro")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(ShieldTheme.accentText)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(ShieldTheme.accent)
+                            .clipShape(Capsule())
+                    }
+                }
+            } else {
+                settingsRow(icon: "icloud", iconColor: "5E5CE6",
+                            title: appState.language == .es ? "Sincronizar con iCloud" : "Sync with iCloud") {
+                    ShieldToggle(isOn: $iCloudEnabled)
+                        .onChange(of: iCloudEnabled) { _, v in
+                            cloud.setSyncEnabled(v)
+                            if v {
+                                Task { await cloud.pushDocuments(appState.documents) }
+                            }
+                        }
+                }
+
+                if iCloudEnabled {
+                    ShieldDivider().padding(.leading, 54)
+                    settingsRow(icon: "arrow.clockwise.icloud", iconColor: "64D2FF",
+                                title: appState.language == .es ? "Sincronizar ahora" : "Sync now") {
+                        Button {
+                            Task { await cloud.pushDocuments(appState.documents) }
+                        } label: {
+                            if case .syncing = cloud.syncStatus {
+                                ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.accent)
+                            }
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+
+                    if let lastSync = cloud.lastSyncFormatted {
+                        ShieldDivider().padding(.leading, 54)
+                        settingsRow(icon: "checkmark.icloud", iconColor: "30D158",
+                                    title: appState.language == .es ? "Última sincronización" : "Last synced") {
+                            Text(lastSync)
+                                .font(.system(size: 12))
+                                .foregroundColor(ShieldTheme.tertiary(scheme))
+                        }
+                    }
+
+                    if case .error(let msg) = cloud.syncStatus {
+                        ShieldDivider().padding(.leading, 54)
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.icloud")
+                                .font(.system(size: 14)).foregroundColor(ShieldTheme.danger)
+                            Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(ShieldTheme.danger)
+                                .lineLimit(2)
+                        }
+                        .padding(.horizontal, 14).padding(.vertical, 10)
+                    }
+
+                    if !cloud.isAvailable {
+                        ShieldDivider().padding(.leading, 54)
+                        settingsRow(icon: "xmark.icloud", iconColor: "FF453A",
+                                    title: appState.language == .es ? "iCloud no disponible" : "iCloud unavailable") {
+                            EmptyView()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - Pro banners
 
     private var proBanner: some View {
@@ -471,7 +561,7 @@ struct SettingsView: View {
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text("Shield Pro — Activo")
+                Text(appState.language == .es ? "Shield Pro — Activo" : "Shield Pro — Active")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Text(appState.language == .es

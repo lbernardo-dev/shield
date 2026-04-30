@@ -40,6 +40,11 @@
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
 		A102 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F102 /* VisionKit.framework */; };
 		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
+		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
+		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
+		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
+		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
+		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,6 +81,11 @@
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
 		F102 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
 		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
+		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
+		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
+		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
 		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -89,6 +99,8 @@
 				A101 /* PhotosUI.framework in Frameworks */,
 				A102 /* VisionKit.framework in Frameworks */,
 				A103 /* PDFKit.framework in Frameworks */,
+				A104 /* CloudKit.framework in Frameworks */,
+				A105 /* AuthenticationServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,8 +150,18 @@
 				F016 /* OCRSheetView.swift */,
 				F017 /* ExportSheetView.swift */,
 				F027 /* WatermarkConfigView.swift */,
+				F032 /* ImageAdjustToolbar.swift */,
 			);
 			path = Editor;
+			sourceTree = "<group>";
+		};
+		GRP_CLOUD /* Cloud */ = {
+			isa = PBXGroup;
+			children = (
+				F030 /* CloudSyncManager.swift */,
+				F031 /* ExternalStorageManager.swift */,
+			);
+			path = Cloud;
 			sourceTree = "<group>";
 		};
 		GRP_FRAMEWORKS /* Frameworks */ = {
@@ -150,6 +172,8 @@
 				F101 /* PhotosUI.framework */,
 				F102 /* VisionKit.framework */,
 				F103 /* PDFKit.framework */,
+				F104 /* CloudKit.framework */,
+				F105 /* AuthenticationServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -247,6 +271,7 @@
 				GRP_MODELS /* Models */,
 				GRP_VIEWMODELS /* ViewModels */,
 				GRP_VIEWS /* Views */,
+				GRP_CLOUD /* Cloud */,
 				GRP_PREMIUM /* Premium */,
 				GRP_RESOURCES /* Resources */,
 			);
@@ -386,12 +411,15 @@
 				A016 /* OCRSheetView.swift in Sources */,
 				A017 /* ExportSheetView.swift in Sources */,
 				A027 /* WatermarkConfigView.swift in Sources */,
+				A032 /* ImageAdjustToolbar.swift in Sources */,
 				A018 /* PremiumManager.swift in Sources */,
 				A019 /* PaywallView.swift in Sources */,
 				A020 /* VaultView.swift in Sources */,
 				A021 /* StyleGalleryView.swift in Sources */,
 				A022 /* SettingsView.swift in Sources */,
 				A023 /* TabBar.swift in Sources */,
+				A030 /* CloudSyncManager.swift in Sources */,
+				A031 /* ExternalStorageManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

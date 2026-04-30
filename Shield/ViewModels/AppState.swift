@@ -482,7 +482,7 @@ final class AppState: ObservableObject {
 
     private func persistCustomCategories() {
         if let data = try? JSONEncoder().encode(customCategories) {
-            try? data.write(to: AppState.categoriesURL, options: .atomic)
+            try? SecureFileStore.shared.write(data, to: AppState.categoriesURL)
         }
     }
 
@@ -499,11 +499,16 @@ final class AppState: ObservableObject {
     }
 
     private static func loadCustomCategories() -> [UserCategory] {
-        guard let data = try? Data(contentsOf: categoriesURL),
-              let cats = try? JSONDecoder().decode([UserCategory].self, from: data) else {
-            return []
+        // Try encrypted first, fall back to plain (migration path)
+        if let data = try? SecureFileStore.shared.read(from: categoriesURL),
+           let cats = try? JSONDecoder().decode([UserCategory].self, from: data) {
+            return cats
         }
-        return cats
+        if let data = try? Data(contentsOf: categoriesURL),
+           let cats = try? JSONDecoder().decode([UserCategory].self, from: data) {
+            return cats
+        }
+        return []
     }
 
     private func moveAssets(for doc: inout DocumentItem, toVault: Bool) {

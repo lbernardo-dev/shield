@@ -1,226 +1,543 @@
-# Shield — Pasos manuales para compilar y publicar
+# Shield — Pasos manuales completos
 
-## 1. Abrir el proyecto en Xcode
+> Documento actualizado: 30 de abril de 2026  
+> Todo lo que requiere intervención humana (Xcode, portales externos, dominios).  
+> Lo que Claude puede hacer por código ya está hecho. Este doc es solo para ti.
 
+---
+
+## ESTADO RÁPIDO
+
+| # | Tarea | Tiempo est. | Bloqueante |
+|---|-------|-------------|-----------|
+| 1 | Añadir `PrivacyInfo.xcprivacy` al target | 1 min | **Sí — App Store** |
+| 2 | Configurar firma de código (Team) | 2 min | Sí — compilar en device |
+| 3 | Añadir capability **iCloud + CloudKit** | 3 min | Sí — sync iCloud |
+| 4 | Añadir capability **In-App Purchase** | 1 min | Sí — monetización |
+| 5 | Añadir URL scheme `shield` en Info.plist | 2 min | Sí — OAuth nube |
+| 6 | Crear productos IAP en App Store Connect | 15 min | Sí — monetización |
+| 7 | Activar Privacy Policy y Terms of Use | 30 min | **Sí — App Store** |
+| 8 | Registrar Client IDs OAuth (Google/Dropbox/OneDrive) | 30 min | No* — opcional |
+| 9 | Añadir ícono de app | 5 min | Sí — subir a Store |
+| 10 | Crear app en App Store Connect | 10 min | Sí — publicar |
+| 11 | Preparar screenshots | 30 min | Sí — publicar |
+| 12 | Archive + Upload + Submit | 15 min | Sí — publicar |
+
+\* El selector nativo de archivos iOS ya incluye Google Drive/Dropbox/OneDrive sin OAuth si las apps están instaladas.
+
+---
+
+## 1. Añadir `PrivacyInfo.xcprivacy` al target del build
+
+**Por qué es obligatorio:** Apple rechaza builds desde iOS 17.4+ que usen "Required Reason APIs" (como `UserDefaults`) sin un privacy manifest declarado en el target.
+
+**Pasos:**
+1. Abre `Shield.xcodeproj` en Xcode.
+2. En el Project Navigator (panel izquierdo), localiza:
+   ```
+   Shield/Resources/PrivacyInfo.xcprivacy
+   ```
+3. Haz click en el archivo para seleccionarlo.
+4. En el panel derecho (File Inspector), sección **Target Membership**:
+   - Marca la casilla junto a **Shield** (el target de la app, no el de tests).
+5. Verifica: `Cmd+B` debe compilar sin warning de privacy manifest.
+
+> Si no ves la sección "Target Membership", asegúrate de que estás en el File Inspector (icono de documento, primer tab del panel derecho).
+
+---
+
+## 2. Configurar firma de código (Signing)
+
+**Pasos:**
+1. En Xcode, click en el proyecto raíz (`Shield`) en el Navigator.
+2. Selecciona el target **Shield**.
+3. Tab **Signing & Capabilities**.
+4. En **Team**: selecciona tu cuenta de Apple Developer.
+   - Si no aparece: Xcode → Settings → Accounts → añade tu Apple ID.
+5. Bundle ID: `com.shield.redact`
+   - Si ya existe en tu cuenta otro proyecto con ese ID, cámbialo a `com.tuapellido.shield`.
+6. Activar **"Automatically manage signing"** (recomendado).
+
+---
+
+## 3. Añadir capability: iCloud + CloudKit
+
+**Por qué es necesario:** `CloudSyncManager` usa el container `iCloud.com.shield.redact`. Sin el entitlement activo, las llamadas a CloudKit fallan silenciosamente.
+
+**Pasos en Xcode:**
+1. Target **Shield** → **Signing & Capabilities**.
+2. Click en **+ Capability**.
+3. Busca y añade **iCloud**.
+4. En la sección iCloud que aparece:
+   - Marca **CloudKit** (no solo "iCloud Documents").
+   - En **Containers**: click en **+** → añade `iCloud.com.shield.redact`.
+   - Si prefieres un ID distinto: usa `iCloud.com.tuapellido.shield` y actualiza la línea en `CloudSyncManager.swift`:
+     ```swift
+     private let container = CKContainer(identifier: "iCloud.com.tuapellido.shield")
+     ```
+5. Xcode añade automáticamente `Shield.entitlements` con:
+   ```xml
+   <key>com.apple.developer.icloud-container-identifiers</key>
+   <array><string>iCloud.com.shield.redact</string></array>
+   <key>com.apple.developer.icloud-services</key>
+   <array><string>CloudKit</string></array>
+   ```
+
+**En App Store Connect** (necesario para producción):
+1. Ve a [developer.apple.com/account](https://developer.apple.com/account) → Certificates, IDs & Profiles → Identifiers.
+2. Selecciona el App ID `com.shield.redact`.
+3. En **Capabilities**: activa **iCloud** → marca **Include CloudKit support**.
+4. Save.
+
+---
+
+## 4. Añadir capability: In-App Purchase
+
+**Pasos en Xcode:**
+1. Target **Shield** → **Signing & Capabilities**.
+2. Click **+ Capability** → busca **In-App Purchase** → Add.
+3. Xcode añade el entitlement automáticamente. No hay configuración adicional.
+
+---
+
+## 5. Añadir URL scheme `shield` en Info.plist
+
+**Por qué:** El flujo OAuth de Google Drive, Dropbox y OneDrive redirige a `shield://oauth/<provider>`. Sin el URL scheme registrado, iOS no abre la app después del login.
+
+**Pasos en Xcode:**
+1. En el Navigator, selecciona `Shield/Info.plist`.
+2. Haz click derecho → **Open As → Source Code**.
+3. Añade dentro de `<dict>` (al final, antes del `</dict>` cierre):
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.shield.redact.oauth</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>shield</string>
+        </array>
+    </dict>
+</array>
 ```
-Abre Shield.xcodeproj (doble clic o desde Xcode → Open)
-```
 
-> Si Xcode pregunta "Trust and Open": acepta.
+4. Guarda (`Cmd+S`).
+5. Verifica: en Xcode → Target → Info tab → URL Types, debe aparecer `shield`.
 
----
-
-## 2. Configurar el Team (firma de código)
-
-1. Click en el proyecto raíz en el Navigator → Target **Shield**
-2. Tab **Signing & Capabilities**
-3. En **Team**: selecciona tu Apple Developer account
-4. El Bundle ID ya está configurado: `com.shield.redact`
-   - Si ya existe en tu cuenta cambia a uno único, p.ej. `com.tuapellido.shield`
+> También añade `NSFaceIDUsageDescription` si no existe ya:
+> ```xml
+> <key>NSFaceIDUsageDescription</key>
+> <string>Shield usa Face ID para proteger tu bóveda de documentos.</string>
+> ```
 
 ---
 
-## 3. Añadir el ícono de app
+## 6. Crear productos IAP en App Store Connect
 
-El asset catalog está en `Shield/Resources/Assets.xcassets`.
+**URL:** [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Tu app → In-App Purchases
 
-**Opción A — Icono rápido (requerido para compilar en device):**
-1. En Xcode → Assets.xcassets → AppIcon
-2. Arrastra una imagen PNG de 1024×1024px al slot "App Icon"
-3. Diseño sugerido: fondo negro `#0A0A0B`, escudo `⬡` en amarillo `#FFD60A`
-   - Puedes generarlo en Figma, Canva, o con IA (Midjourney, DALL-E)
+### 6a. Crear Subscription Group
+1. Sección **Subscriptions** → **+ Create Subscription Group**.
+2. Nombre del grupo: `Shield Pro`
+3. Reference Name: `shield_pro_group`
 
-**Opción B — Herramienta automática:**
-```
-Instala: brew install makeicns  (o usa https://www.appicon.co)
-Sube tu PNG 1024×1024 → descarga el set → arrastra a Xcode
-```
+### 6b. Crear los 3 productos
 
----
+**Producto 1 — Mensual:**
+| Campo | Valor |
+|-------|-------|
+| Type | Auto-Renewable Subscription |
+| Reference Name | Shield Pro Monthly |
+| Product ID | `com.shield.redact.pro.monthly` |
+| Subscription Group | Shield Pro |
+| Duration | 1 Month |
+| Price | Tier 3 (~4,99 USD / 4,99 EUR) |
+| Display Name (ES) | Shield Pro Mensual |
+| Display Name (EN) | Shield Pro Monthly |
+| Description (ES) | Acceso completo a todas las funciones de Shield Pro. |
+| Description (EN) | Full access to all Shield Pro features. |
 
-## 4. Configurar StoreKit (In-App Purchases)
+**Producto 2 — Anual:**
+| Campo | Valor |
+|-------|-------|
+| Type | Auto-Renewable Subscription |
+| Reference Name | Shield Pro Annual |
+| Product ID | `com.shield.redact.pro.annual` |
+| Subscription Group | Shield Pro |
+| Duration | 1 Year |
+| Price | Tier 23 (~34,99 USD / 34,99 EUR) |
+| Display Name (ES) | Shield Pro Anual |
+| Display Name (EN) | Shield Pro Annual |
+| Description (ES) | La mejor oferta — acceso completo durante 1 año. |
+| Description (EN) | Best value — full access for 1 year. |
+| Introductory Offer | 7-day free trial (recomendado) |
 
-### 4a. Para TESTING en simulador (ya incluido)
-El archivo `Shield/Resources/Shield.storekit` ya tiene los 3 productos configurados.
+**Producto 3 — Lifetime:**
+| Campo | Valor |
+|-------|-------|
+| Type | Non-Consumable |
+| Reference Name | Shield Pro Lifetime |
+| Product ID | `com.shield.redact.pro.lifetime` |
+| Price | Tier 16 (~79,99 USD / 79,99 EUR) |
+| Display Name (ES) | Shield Pro — Pago único |
+| Display Name (EN) | Shield Pro — Lifetime |
+| Description (ES) | Acceso de por vida a Shield Pro. Un pago, para siempre. |
+| Description (EN) | Lifetime access to Shield Pro. Pay once, own forever. |
 
-En Xcode:
-1. **Product → Scheme → Edit Scheme**
-2. Tab **Run** → **Options**
-3. **StoreKit Configuration**: selecciona `Shield.storekit`
-4. Ya puedes comprar en el simulador sin cuenta real
+### 6c. Configurar StoreKit local para testing
 
-### 4b. Para producción real (App Store)
-1. Ve a [appstoreconnect.apple.com](https://appstoreconnect.apple.com)
-2. Tu app → **In-App Purchases** → Create
-3. Crea exactamente estos 3 productos:
-
-| Product ID | Tipo | Precio sugerido |
-|---|---|---|
-| `com.shield.redact.pro.monthly` | Auto-Renewable Subscription | 2,99 € |
-| `com.shield.redact.pro.annual` | Auto-Renewable Subscription | 19,99 € |
-| `com.shield.redact.pro.lifetime` | Non-Consumable | 9,99 € |
-
-4. Subscription Group name: **"Shield Pro"**
-5. Añade localización ES + EN para cada producto
-6. Espera a que pasen a estado **"Ready to Submit"**
-
----
-
-## 5. Añadir capability: In-App Purchase
-
-1. Xcode → Target Shield → **Signing & Capabilities**
-2. **+ Capability** → busca "In-App Purchase" → Add
-3. Xcode añade automáticamente el entitlement
-
----
-
-## 6. Añadir capability: Face ID (para la Bóveda)
-
-1. Signing & Capabilities → **+ Capability** → "App Transport Security" no, busca directamente
-2. Face ID no requiere capability propia — la clave `NSFaceIDUsageDescription` ya está en el build setting del proyecto ✅
-3. En device real: la primera vez que el usuario toque "Bóveda" aparecerá el permiso
-
----
-
-## 7. Compilar y probar en simulador
-
-```
-Cmd + R  (simulador iPhone 15 Pro recomendado, iOS 17+)
-```
-
-**Flujo de prueba:**
-1. Onboarding → 3 pasos → Face ID (simulador lo acepta automáticamente)
-2. Home → tap en "DNI · María García" → abre Editor
-3. Editor → dibuja rectángulo sobre el doc → aparece redacción negra
-4. Editor → botón "Auto" → aplica 4 redacciones automáticas
-5. Editor → strip inferior → cambia estilo (Pixelado, Diagonal, etc.)
-6. Editor → Exportar → PDF → confirma flow
-7. Tab "Estilos" → galería de 9 estilos (primeros 2 libres, resto muestra paywall)
-8. Tab "Bóveda" → muestra paywall (pro)
-9. Tab "Ajustes" → banner pro → tap → PaywallView
-
-**Para probar compra en simulador:**
-- Asegúrate de haber configurado `Shield.storekit` en el scheme (paso 4a)
-- Los precios serán los del `.storekit` file, no App Store Connect
+Para probar compras en el simulador sin cuenta real:
+1. Xcode → **Product → Scheme → Edit Scheme**.
+2. Tab **Run → Options**.
+3. **StoreKit Configuration**: selecciona `Shield/Resources/Shield.storekit`.
+4. Los precios y productos del `.storekit` file se usan en el simulador.
 
 ---
 
-## 8. Probar en dispositivo físico
+## 7. Activar Privacy Policy y Terms of Use
 
-1. Conecta iPhone (iOS 17+)
-2. En Xcode → selecciona tu device en el selector
-3. `Cmd + R`
-4. Primera vez pedirá confiar en el developer en iPhone: Ajustes → General → VPN y gestión de dispositivos → Confiar
+**Por qué es obligatorio:** App Store Review Guideline 5.1.1 exige URL de Privacy Policy funcional en el paywall y en App Store Connect. Sin ella, la app es rechazada automáticamente.
+
+### 7a. Crear los documentos legales
+
+**Opción rápida — Generadores gratuitos:**
+- [app-privacy-policy.com](https://app-privacy-policy.com) — genera política en ES + EN
+- [privacypolicies.com](https://www.privacypolicies.com) — incluye GDPR/CCPA
+- [termly.io](https://termly.io) — Privacy Policy + Terms en minutos
+
+**Puntos clave a declarar:**
+- La app NO recopila datos personales.
+- La app NO envía datos a servidores externos.
+- Los documentos se procesan y almacenan localmente en el dispositivo.
+- Los documentos cifrados pueden sincronizarse a iCloud (privado, solo para el usuario).
+- Los conectores de nube (Google Drive, Dropbox, OneDrive) transfieren archivos al dispositivo para procesarlos localmente.
+- Los In-App Purchases son gestionados por Apple.
+
+### 7b. Publicar las URLs
+
+Las URLs que espera la app son exactamente:
+- `https://shieldapp.io/privacy`
+- `https://shieldapp.io/terms`
+
+**Opciones para hospedarlas:**
+
+**Opción A — Dominio propio (recomendado):**
+1. Compra `shieldapp.io` en Namecheap, GoDaddy, etc.
+2. Crea dos páginas estáticas con el contenido de los docs.
+3. Apunta el DNS a tu hosting (GitHub Pages, Netlify, Vercel — gratis).
+
+**Opción B — GitHub Pages (gratuito, sin dominio):**
+1. Crea un repositorio público en GitHub: `shield-legal`.
+2. Añade `privacy.html` y `terms.html` con el contenido.
+3. Activa GitHub Pages en la configuración del repositorio.
+4. URL resultante: `https://tunombre.github.io/shield-legal/privacy.html`
+5. Actualiza las URLs en `PaywallView.swift` líneas 14-15:
+   ```swift
+   private let privacyURL = URL(string: "https://tunombre.github.io/shield-legal/privacy.html")
+   private let termsURL   = URL(string: "https://tunombre.github.io/shield-legal/terms.html")
+   ```
+
+**Opción C — Notion (más rápido, no recomendado a largo plazo):**
+1. Crea dos páginas en Notion con el contenido.
+2. Publícalas como páginas web (Share → Publish to web).
+3. Usa las URLs de Notion en `PaywallView.swift`.
+
+### 7c. Registrar en App Store Connect
+1. App Store Connect → Tu app → App Information.
+2. Campo **Privacy Policy URL**: pega la URL de tu política.
+3. Save.
 
 ---
 
-## 9. Preparar para App Store
+## 8. Registrar Client IDs OAuth (opcional pero recomendado)
 
-### 9a. Crear el app en App Store Connect
-1. [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → My Apps → **+**
-2. Platform: iOS | Name: **Shield — Redactar Documentos** | Bundle ID: `com.shield.redact`
-3. Idiomas principales: Español + Inglés
+> **Nota:** Sin OAuth los usuarios igualmente pueden importar desde Google Drive, Dropbox y OneDrive si tienen las apps instaladas — el selector nativo de iOS las incluye. El OAuth añade autenticación directa sin necesidad de la app instalada.
 
-### 9b. Metadatos necesarios
-Rellena en App Store Connect:
-- **Descripción corta (30 chars):** `Protege lo que compartes`
-- **Descripción larga:** ver plantilla abajo
-- **Keywords:** redactar, documentos, privacidad, ocultar, DNI, pasaporte, PDF
-- **Categoría:** Productivity | Subcategoría: Utilities
-- **Privacy Policy URL:** obligatorio — puedes generar en [app-privacy-policy.com](https://app-privacy-policy.com)
+### 8a. Google Drive — Google Cloud Console
 
-**Descripción sugerida:**
+1. Ve a [console.cloud.google.com](https://console.cloud.google.com).
+2. Crea un nuevo proyecto: `Shield App`.
+3. APIs & Services → **Enable APIs** → busca y activa **Google Drive API**.
+4. APIs & Services → **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**.
+5. Application type: **iOS**.
+6. Bundle ID: `com.shield.redact`.
+7. Copia el **Client ID** generado (formato: `XXXXX.apps.googleusercontent.com`).
+8. En la app, guárdalo con:
+   ```swift
+   UserDefaults.standard.set("TU_CLIENT_ID", forKey: "shield.oauth.google.clientID")
+   ```
+   O mejor: añádelo en un archivo `Config.plist` no versionado.
+
+### 8b. Dropbox — Dropbox Developer Console
+
+1. Ve a [www.dropbox.com/developers/apps](https://www.dropbox.com/developers/apps).
+2. **Create app** → **Scoped access** → **Full Dropbox** (o App folder).
+3. App name: `Shield`.
+4. Settings → **Redirect URIs**: añade `shield://oauth/dropbox`.
+5. Permissions tab: activa `files.content.read`.
+6. Copia el **App key** (no el App secret — no se necesita en flujo implícito).
+7. Guárdalo:
+   ```swift
+   UserDefaults.standard.set("TU_APP_KEY", forKey: "shield.oauth.dropbox.appKey")
+   ```
+
+### 8c. OneDrive — Azure Portal
+
+1. Ve a [portal.azure.com](https://portal.azure.com) → **Azure Active Directory** → **App registrations**.
+2. **New registration**:
+   - Name: `Shield`
+   - Supported account types: **Accounts in any organizational directory and personal Microsoft accounts**
+   - Redirect URI: **Public client/native** → `shield://oauth/oneDrive`
+3. API Permissions → Add a permission → **Microsoft Graph** → Delegated:
+   - `Files.Read`
+   - `offline_access`
+4. Copia el **Application (client) ID**.
+5. Guárdalo:
+   ```swift
+   UserDefaults.standard.set("TU_CLIENT_ID", forKey: "shield.oauth.onedrive.clientID")
+   ```
+
+---
+
+## 9. Añadir ícono de app
+
+**Requisito:** PNG 1024×1024 px, sin transparencia, sin esquinas redondeadas (iOS las aplica solo).
+
+**Diseño sugerido:**
+- Fondo: negro `#0A0A0B`
+- Icono: escudo en amarillo `#FFD60A` con trazo fino blanco
+- Herramientas: Figma, Canva, SF Symbols Pro, Midjourney
+
+**Pasos en Xcode:**
+1. Navigator → `Shield/Resources/Assets.xcassets` → `AppIcon`.
+2. Arrastra el PNG 1024×1024 al slot **"App Icon"** (1024 pt, @1x, "All" platform).
+3. Xcode genera todos los tamaños automáticamente (desde iOS 13 solo se necesita 1 imagen).
+
+**Generadores automáticos gratuitos:**
+- [appicon.co](https://www.appicon.co) — sube 1024×1024, descarga el `.xcassets`
+- [makeappicon.com](https://makeappicon.com)
+
+---
+
+## 10. Crear la app en App Store Connect
+
+1. Ve a [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → **My Apps** → **+**.
+2. Rellena:
+   - **Platform:** iOS
+   - **Name:** `Shield — Redact & Protect Docs`
+   - **Primary Language:** Español
+   - **Bundle ID:** `com.shield.redact` (debe aparecer tras registrar en Xcode con tu Team)
+   - **SKU:** `shield-redact-2026`
+3. Tras crear, ve a **App Information**:
+   - **Subtitle:** `Protege lo que compartes`
+   - **Privacy Policy URL:** (del paso 7)
+   - **Category:** Productivity / Utilities
+4. Ve a **Pricing and Availability**:
+   - Price: Free (los ingresos vienen de los IAPs).
+   - Territories: All.
+
+### Metadatos de localización (ES)
+
+**Nombre:** `Shield — Redactar Documentos`  
+**Subtítulo:** `Protege lo que compartes`  
+**Descripción:**
 ```
 Shield oculta datos sensibles de tus documentos antes de compartirlos.
 Redacta fotos, DNIs, pasaportes o contratos con un gesto.
 Sin servidores. Sin nube. Todo en tu iPhone.
 
-FUNCIONES:
+FUNCIONES GRATUITAS:
 • Importa PDFs, fotos o escanea con la cámara
-• 9 estilos de redacción: negro, pixelado, blur, diagonal…
-• Detección automática de campos sensibles (MRZ, número, fecha)
+• Marco guía por tipo de documento (DNI, pasaporte, A4…)
+• 2 estilos de redacción esenciales
+• OCR local — detecta campos sensibles automáticamente
 • Modos rápidos: Alquiler, Viaje, Empleo, Verificación
-• Marca de agua personalizable
-• Exporta como PDF o imagen en alta calidad
-• Bóveda cifrada protegida con Face ID
+• Ajuste de imagen: brillo y contraste
+• Exporta hasta 3 veces por semana
 
 SHIELD PRO:
-• Documentos ilimitados
-• Todos los estilos premium
-• Bóveda cifrada AES-256
-• Export PDF real
+• Documentos y exportaciones ilimitadas
+• 9 estilos: pixelado, blur, diagonal, etiqueta…
+• Bóveda cifrada AES-256 con Face ID
+• Ajuste completo: saturación, nitidez, recorte, volteo, rotación
+• Marca de agua personalizable
+• Sincronización iCloud entre dispositivos
+• Importar desde Google Drive, Dropbox y OneDrive
+• Sin marca de agua en las exportaciones
 ```
 
-### 9c. Screenshots (OBLIGATORIO)
-Necesitas screenshots para cada tamaño:
-- **6.9" (iPhone 16 Pro Max):** 1320 × 2868 px — obligatorio
-- **6.5" (iPhone 11 Pro Max):** 1242 × 2688 px
-- **5.5" (iPhone 8 Plus):** 1242 × 2208 px
+**Palabras clave:** `redactar,documentos,privacidad,ocultar,DNI,pasaporte,PDF,datos,proteger,tachar`
 
-**Cómo capturar:**
-1. En simulador iPhone 15 Pro → `Cmd + S` (screenshot)
-2. O usa el skill `/asc-shots-pipeline` si quieres automatizarlo
+### Metadatos de localización (EN)
 
-**Pantallas a capturar (mínimo 3, recomendado 6):**
-1. Home con documentos (dark mode)
-2. Editor con redacciones aplicadas
-3. Galería de estilos
-4. Paywall / Shield Pro
-5. Onboarding slide 1
-6. Export sheet
+**Name:** `Shield — Redact & Protect Docs`  
+**Subtitle:** `Protect what you share`  
+**Description:**
+```
+Shield hides sensitive data from your documents before you share them.
+Redact photos, IDs, passports or contracts with a gesture.
+No servers. No cloud. Everything stays on your iPhone.
+
+FREE FEATURES:
+• Import PDFs, photos or scan with camera
+• Document type guide frame (ID, passport, A4…)
+• 2 essential redaction styles
+• On-device OCR — auto-detects sensitive fields
+• Quick modes: Rental, Travel, Job, Verification
+• Image adjustments: brightness & contrast
+• Export up to 3 times per week
+
+SHIELD PRO:
+• Unlimited documents and exports
+• 9 styles: pixelate, blur, diagonal, label…
+• AES-256 encrypted vault with Face ID
+• Full adjustments: saturation, sharpness, crop, flip, rotate
+• Custom watermark
+• iCloud sync across devices
+• Import from Google Drive, Dropbox and OneDrive
+• No watermark on exports
+```
+
+**Keywords:** `redact,documents,privacy,hide,ID,passport,PDF,data,protect,black out`
 
 ---
 
-## 10. Archive y subida
+## 11. Preparar screenshots
 
-```
-Xcode → Product → Archive
-```
+**Tamaños requeridos:**
+| Dispositivo | Resolución |
+|------------|-----------|
+| 6.9" iPhone 16 Pro Max | 1320 × 2868 px (**obligatorio**) |
+| 6.5" iPhone 11 Pro Max | 1242 × 2688 px |
+| 5.5" iPhone 8 Plus | 1242 × 2208 px |
 
-1. Selecciona el archive → **Distribute App**
-2. **App Store Connect** → Upload
-3. Espera a que pase la validación (5-10 min)
-4. En App Store Connect → selecciona el build → Submit for Review
+**Cómo capturar en simulador:**
+1. Xcode → ejecutar en simulador **iPhone 16 Pro Max**.
+2. Navega a cada pantalla.
+3. `Cmd + S` en el simulador para guardar screenshot en el Escritorio.
 
----
+**Pantallas recomendadas (en este orden):**
+1. **Editor con redacciones aplicadas** — muestra el valor principal
+2. **Home / Biblioteca** con documentos y badge Free
+3. **Scanner con marco guía** (tipo DNI activo)
+4. **Galería de estilos** (dark mode)
+5. **Paywall / Shield Pro** 
+6. **Ajustes de imagen** (toolbar abierto con sliders)
 
-## 11. Qué NO está implementado (trabajo pendiente)
-
-| Feature | Qué falta |
-|---|---|
-| **Cámara real** | Integrar `AVFoundation` + `VisionKit` para captura + detección de bordes real |
-| **OCR real** | Usar `Vision.VNRecognizeTextRequest` sobre la imagen capturada |
-| **Export PDF real** | `PDFKit` + `UIGraphicsPDFRenderer` para generar PDF con redacciones aplanadas |
-| **Persistencia docs** | Guardar documentos en `FileManager` (JSON + imagen) — hoy reset al relanzar |
-| **Imagen del doc** | El editor trabaja sobre SVG/Canvas mock, no sobre foto real del documento |
-| **Compartir PDF** | `UIActivityViewController` para compartir el PDF exportado |
-| **Ícono de app** | Diseñar y añadir PNG 1024×1024 (ver paso 3) |
-| **Privacy Policy** | Generar y hospedar — obligatorio para App Store |
-| **Onboarding biométrico real** | `LocalAuthentication` ya está en `VaultView`, falta en el flow inicial |
-| **Notificaciones** | Recordatorio "tienes docs sin redactar" — opcional |
-
----
-
-## 12. Dependencias externas — ninguna
-
-El proyecto usa **solo frameworks de Apple**:
-- `SwiftUI` — UI
-- `StoreKit` — In-App Purchases
-- `LocalAuthentication` — Face ID / Touch ID
-- No hay CocoaPods, SPM packages, ni Carthage
-
-No necesitas `pod install` ni `swift package resolve`.
+**Herramientas de diseño de screenshots:**
+- [AppLaunchpad](https://theapplaunchpad.com) — plantillas iOS gratis
+- [Screenshots.pro](https://screenshots.pro)
+- Figma con plantillas de iPhone
 
 ---
 
-## Resumen rápido
+## 12. Archive, Upload y Submit
+
+### 12a. Compilar en Release
+
+1. En Xcode, selector de destino (izquierda arriba): cambia de simulador a **Any iOS Device (arm64)**.
+2. Product → **Archive**.
+3. Espera a que compile (~2-3 min). Se abre el **Organizer**.
+
+### 12b. Distribuir
+
+1. En el Organizer, selecciona el archive.
+2. Click **Distribute App**.
+3. Selecciona **App Store Connect** → **Upload**.
+4. Opciones: deja todo por defecto (Include bitcode: desactivado en Xcode 14+).
+5. Click **Upload**.
+6. Espera validación (~5-10 min).
+
+### 12c. Enviar a Review
+
+1. App Store Connect → Tu app → **TestFlight** o directamente **App Store**.
+2. Selecciona el build subido.
+3. Rellena:
+   - **What's New in This Version:** 
+     ```
+     Versión 1.0 — Lanzamiento inicial
+     • Escaneo con marco guía por tipo de documento
+     • Editor con redacciones arrastrables y redimensionables
+     • Ajustes de imagen profesionales
+     • iCloud sync (Pro)
+     • Importar desde Google Drive, Dropbox, OneDrive (Pro)
+     ```
+   - **App Review Information:** añade una cuenta de demo si el reviewer necesita acceso
+4. Click **Submit for Review**.
+
+---
+
+## 13. Configuración de StoreKit .storekit para testing local
+
+El archivo `Shield/Resources/Shield.storekit` ya existe. Verifica que contiene los 3 productos con los IDs correctos:
+
+```json
+{
+  "identifier": "com.shield.redact.pro.monthly",
+  "type": "autoRenewable",
+  "referenceName": "Shield Pro Monthly"
+},
+{
+  "identifier": "com.shield.redact.pro.annual", 
+  "type": "autoRenewable",
+  "referenceName": "Shield Pro Annual"
+},
+{
+  "identifier": "com.shield.redact.pro.lifetime",
+  "type": "nonConsumable",
+  "referenceName": "Shield Pro Lifetime"
+}
+```
+
+Para activarlo en el scheme:
+1. Xcode → Product → **Scheme → Edit Scheme**.
+2. Tab **Run → Options**.
+3. **StoreKit Configuration** → selecciona `Shield.storekit`.
+
+---
+
+## 14. Checklist final antes de submit
 
 ```
-1. Abre Shield.xcodeproj en Xcode
-2. Signing: añade tu Team
-3. Añade ícono 1024×1024 en Assets.xcassets
-4. Edit Scheme → StoreKit Config → Shield.storekit
-5. Cmd+R → simulador iPhone 15 Pro
-6. Para producción: crea productos IAP en App Store Connect
-7. Archive → Upload → Submit
+[ ] PrivacyInfo.xcprivacy está marcado en Target Membership (paso 1)
+[ ] Team configurado en Signing & Capabilities (paso 2)
+[ ] Capability iCloud + CloudKit activa (paso 3)
+[ ] Container iCloud.com.shield.redact creado en developer.apple.com (paso 3)
+[ ] Capability In-App Purchase activa (paso 4)
+[ ] URL scheme "shield" en Info.plist (paso 5)
+[ ] 3 productos IAP creados en App Store Connect (paso 6)
+[ ] Privacy Policy URL activa y accesible (paso 7)
+[ ] Terms of Use URL activa y accesible (paso 7)
+[ ] URLs en PaywallView.swift apuntan a dominios reales (paso 7b)
+[ ] Ícono 1024×1024 en Assets.xcassets (paso 9)
+[ ] App creada en App Store Connect con Bundle ID correcto (paso 10)
+[ ] Screenshots preparados para 6.9" y 6.5" (paso 11)
+[ ] Build compila sin warnings en Release (paso 12a)
+[ ] Build subido a App Store Connect (paso 12b)
+[ ] Enviado a Review (paso 12c)
 ```
+
+---
+
+## 15. Frameworks usados — sin dependencias externas
+
+El proyecto usa solo frameworks de Apple (no hay CocoaPods, SPM, ni Carthage):
+
+| Framework | Uso |
+|-----------|-----|
+| SwiftUI | UI completa |
+| StoreKit 2 | In-App Purchases |
+| LocalAuthentication | Face ID / Touch ID |
+| VisionKit | Scanner de documentos |
+| Vision | OCR (VNRecognizeTextRequest) |
+| CloudKit | Sync iCloud |
+| AuthenticationServices | OAuth (ASWebAuthenticationSession) |
+| PDFKit | Render y export PDF |
+| CoreImage | Filtros de imagen, perspectiva, blur |
+| CryptoKit | AES-256 GCM para cifrado local |
+| Security | Keychain para claves de cifrado y PIN |
+
+**No necesitas** `pod install`, `swift package resolve` ni nada similar.  
+Solo `Cmd+B` en Xcode.
