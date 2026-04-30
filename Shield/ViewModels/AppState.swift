@@ -82,6 +82,11 @@ final class AppState: ObservableObject {
     @Published var activeCategory: DocumentCategory = .all
     @Published var activeCategoryID: String = DocumentCategory.all.rawValue  // supports custom too
     @Published var sortOption: SortOption = .dateDesc
+    @Published var recentDocsPage: Int = 0
+    static let recentDocsPageSize = 5
+
+    // Triggered when a vaulted doc is closed from the editor — fires the 60s auto-lock countdown
+    @Published var vaultedDocJustClosed: DocumentItem? = nil
 
     // MARK: - User categories (persisted)
     @Published var customCategories: [UserCategory] = [] {
@@ -114,11 +119,15 @@ final class AppState: ObservableObject {
         activeCategoryID != DocumentCategory.all.rawValue || !searchQuery.isEmpty
     }
 
+    // All documents including vaulted — used for the Home recents list.
+    // Vaulted docs appear masked in the UI; tapping them triggers vault auth.
     var filteredDocuments: [DocumentItem] {
-        var docs = documents.filter { !$0.isVaulted }
+        var docs = documents  // include vaulted
 
         if activeCategoryID != DocumentCategory.all.rawValue {
             docs = docs.filter { doc in
+                // Vaulted docs always appear regardless of category filter
+                if doc.isVaulted { return true }
                 if let cid = doc.customCategoryID {
                     return cid == activeCategoryID
                 }
@@ -128,17 +137,30 @@ final class AppState: ObservableObject {
 
         if !searchQuery.isEmpty {
             let q = searchQuery.lowercased()
-            docs = docs.filter { $0.title.lowercased().contains(q) }
+            // Vaulted docs are always visible (title is hidden in UI anyway)
+            docs = docs.filter { $0.isVaulted || $0.title.lowercased().contains(q) }
         }
 
         switch sortOption {
-        case .dateDesc: break
-        case .dateAsc:  docs = docs.reversed()
+        case .dateDesc: docs = docs.sorted { $0.date > $1.date }
+        case .dateAsc:  docs = docs.sorted { $0.date < $1.date }
         case .nameAsc:  docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedAscending }
         case .nameDesc: docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedDescending }
         }
 
         return docs
+    }
+
+    var filteredDocumentsPage: [DocumentItem] {
+        let all = filteredDocuments
+        let pageSize = AppState.recentDocsPageSize
+        let end = min((recentDocsPage + 1) * pageSize, all.count)
+        let start = min(recentDocsPage * pageSize, end)
+        return Array(all[start..<end])
+    }
+
+    var recentDocsTotalPages: Int {
+        max(1, Int(ceil(Double(filteredDocuments.count) / Double(AppState.recentDocsPageSize))))
     }
 
     var vaultDocuments: [DocumentItem] {

@@ -162,6 +162,11 @@ struct CaptureView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("shield.importFileURL"))) { note in
+            if let url = note.object as? URL {
+                processFile(url)
+            }
+        }
         .sheet(isPresented: $showCloudPicker) {
             ExternalStoragePickerSheet(isPresented: $showCloudPicker) { url in
                 processFile(url)

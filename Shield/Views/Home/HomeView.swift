@@ -1,16 +1,27 @@
 import SwiftUI
+import LocalAuthentication
 
 // MARK: - HomeView
 
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
+    @ObservedObject private var ext = ExternalStorageManager.shared
+    @ObservedObject private var cloud = CloudSyncManager.shared
     @Environment(\.colorScheme) var scheme
 
     @State private var showAllDocs = false
     @State private var showFilters = false
     @State private var showPaywall = false
+    @State private var showCloudImport = false
     @FocusState private var searchFocused: Bool
+
+    // Vault auth flow from recents
+    @State private var showVaultAuthForDoc: DocumentItem? = nil
+    @State private var showVaultPINEntry = false
+    @State private var vaultAuthDoc: DocumentItem? = nil
+    @State private var showVaultAutoLock = false
+    @State private var vaultAutoLockDoc: DocumentItem? = nil
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -18,10 +29,8 @@ struct HomeView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Sticky header — never scrolls
                 stickyHeader
 
-                // Scrollable content
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         titleSection
@@ -38,6 +47,7 @@ struct HomeView: View {
                             .padding(.top, 8)
                         recentsSection
                         vaultSection
+                        cloudStorageSection
                             .padding(.bottom, 110)
                     }
                 }
@@ -45,16 +55,67 @@ struct HomeView: View {
         }
         .colorScheme(appState.preferredScheme)
         .sheet(isPresented: $showAllDocs) {
-            AllDocumentsView()
-                .environmentObject(appState)
+            AllDocumentsView().environmentObject(appState)
         }
         .sheet(isPresented: $showFilters) {
-            FilterSheet(isPresented: $showFilters)
-                .environmentObject(appState)
+            FilterSheet(isPresented: $showFilters).environmentObject(appState)
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, trigger: .docLimitReached)
+            PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade).environmentObject(appState)
+        }
+        .sheet(isPresented: $showCloudImport) {
+            ExternalStoragePickerSheet(isPresented: $showCloudImport) { url in
+                appState.showCapture = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("shield.importFileURL"),
+                        object: url
+                    )
+                }
+            }.environmentObject(appState)
+        }
+        // Vault-authenticated editor for vaulted docs opened from the recents list
+        .fullScreenCover(item: $showVaultAuthForDoc) { doc in
+            EditorView(doc: doc)
                 .environmentObject(appState)
+                .onDisappear {
+                    if doc.isVaulted {
+                        vaultAutoLockDoc = doc
+                        showVaultAutoLock = true
+                    }
+                }
+        }
+        .fullScreenCover(isPresented: $showVaultPINEntry) {
+            if let doc = vaultAuthDoc {
+                PINEntryView(isPresented: $showVaultPINEntry) {
+                    showVaultAuthForDoc = doc
+                }
+                .environmentObject(appState)
+            }
+        }
+        // Auto-lock countdown overlay (covers the whole Home)
+        .overlay {
+            if showVaultAutoLock, let doc = vaultAutoLockDoc {
+                VaultAutoLockOverlay(
+                    doc: doc,
+                    lang: appState.language,
+                    scheme: appState.preferredScheme,
+                    onKeepEditing: {
+                        showVaultAutoLock = false
+                        vaultAutoLockDoc = nil
+                        showVaultAuthForDoc = doc
+                    },
+                    onLockNow: {
+                        showVaultAutoLock = false
+                        vaultAutoLockDoc = nil
+                    },
+                    onTimerExpired: {
+                        showVaultAutoLock = false
+                        vaultAutoLockDoc = nil
+                    }
+                )
+                .zIndex(100)
+            }
         }
     }
 
@@ -349,25 +410,37 @@ struct HomeView: View {
                 emptyLibraryState
             } else {
                 VStack(spacing: 10) {
-                    ForEach(appState.filteredDocuments) { doc in
+                    ForEach(appState.filteredDocumentsPage) { doc in
                         DocumentRow(doc: doc, lang: appState.language) {
                             guard !doc.isLocked else { return }
-                            appState.selectedDoc = doc
+                            if doc.isVaulted {
+                                vaultAuthDoc = doc
+                                authenticateForVaultDoc(doc)
+                            } else {
+                                appState.selectedDoc = doc
+                            }
                         }
                         .contextMenu {
-                            Button {
-                                appState.toggleFavorite(doc)
-                            } label: {
-                                Label(doc.isFavorite
-                                      ? (appState.language == .es ? "Quitar favorito" : "Remove favorite")
-                                      : (appState.language == .es ? "Marcar favorito" : "Mark favorite"),
-                                      systemImage: doc.isFavorite ? "star.slash" : "star.fill")
+                            if !doc.isVaulted {
+                                Button {
+                                    appState.toggleFavorite(doc)
+                                } label: {
+                                    Label(doc.isFavorite
+                                          ? (appState.language == .es ? "Quitar favorito" : "Remove favorite")
+                                          : (appState.language == .es ? "Marcar favorito" : "Mark favorite"),
+                                          systemImage: doc.isFavorite ? "star.slash" : "star.fill")
+                                }
                             }
                             Button {
-                                appState.toggleVault(doc)
+                                if doc.isVaulted {
+                                    vaultAuthDoc = doc
+                                    authenticateForVaultDoc(doc)
+                                } else {
+                                    appState.toggleVault(doc)
+                                }
                             } label: {
                                 Label(doc.isVaulted
-                                      ? (appState.language == .es ? "Sacar de bóveda" : "Remove from vault")
+                                      ? (appState.language == .es ? "Abrir de bóveda" : "Open from vault")
                                       : (appState.language == .es ? "Mover a bóveda" : "Move to vault"),
                                       systemImage: doc.isVaulted ? "lock.open" : "lock.fill")
                             }
@@ -381,10 +454,103 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal, ShieldTheme.s4)
+
+                // Pagination controls
+                if appState.recentDocsTotalPages > 1 {
+                    paginationControls
+                }
             }
         }
         .padding(.top, 20)
         .padding(.bottom, 8)
+    }
+
+    private var paginationControls: some View {
+        HStack(spacing: 12) {
+            Button {
+                withAnimation { appState.recentDocsPage = max(0, appState.recentDocsPage - 1) }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(appState.recentDocsPage > 0
+                        ? ShieldTheme.accent
+                        : ShieldTheme.tertiary(appState.preferredScheme))
+                    .frame(width: 32, height: 32)
+                    .background(ShieldTheme.cardBackground(appState.preferredScheme))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .disabled(appState.recentDocsPage == 0)
+
+            Spacer()
+
+            Text("\(appState.recentDocsPage + 1) / \(appState.recentDocsTotalPages)")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+
+            Spacer()
+
+            Button {
+                withAnimation { appState.recentDocsPage = min(appState.recentDocsTotalPages - 1, appState.recentDocsPage + 1) }
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(appState.recentDocsPage < appState.recentDocsTotalPages - 1
+                        ? ShieldTheme.accent
+                        : ShieldTheme.tertiary(appState.preferredScheme))
+                    .frame(width: 32, height: 32)
+                    .background(ShieldTheme.cardBackground(appState.preferredScheme))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .disabled(appState.recentDocsPage >= appState.recentDocsTotalPages - 1)
+        }
+        .padding(.horizontal, ShieldTheme.s4)
+        .padding(.top, 4)
+    }
+
+    private func authenticateForVaultDoc(_ doc: DocumentItem) {
+        let ctx = LAContext()
+        var error: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            if PINManager.hasPIN {
+                showVaultPINEntry = true
+            } else {
+                authenticateVaultWithDeviceOwner(doc)
+            }
+            return
+        }
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: appState.language == .es
+                ? "Accede a tu documento protegido"
+                : "Access your protected document"
+        ) { success, _ in
+            DispatchQueue.main.async {
+                if success { showVaultAuthForDoc = doc }
+                else if PINManager.hasPIN { showVaultPINEntry = true }
+                else { authenticateVaultWithDeviceOwner(doc) }
+            }
+        }
+    }
+
+    private func authenticateVaultWithDeviceOwner(_ doc: DocumentItem) {
+        let ctx = LAContext()
+        var error: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
+            showVaultPINEntry = true
+            return
+        }
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthentication,
+            localizedReason: appState.language == .es
+                ? "Accede a tu documento protegido"
+                : "Access your protected document"
+        ) { success, _ in
+            DispatchQueue.main.async {
+                if success { showVaultAuthForDoc = doc }
+            }
+        }
     }
 
     private var emptyLibraryState: some View {
@@ -407,6 +573,208 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s4)
+    }
+
+    // MARK: - Cloud Storage
+
+    private var cloudStorageSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(
+                title: appState.language == .es ? "Almacenamiento en nube" : "Cloud storage",
+                action: pm.isPro ? nil : { showPaywall = true },
+                actionLabel: appState.language == .es ? "Pro →" : "Pro →"
+            )
+
+            VStack(spacing: 0) {
+                // iCloud row
+                cloudRow(
+                    icon: "icloud.fill",
+                    colorHex: "5E5CE6",
+                    name: "iCloud",
+                    statusText: iCloudStatusText,
+                    statusColor: iCloudStatusColor,
+                    isPro: true,
+                    isConnected: cloud.isAvailable,
+                    onTap: {
+                        if !pm.isPro { showPaywall = true; return }
+                        withAnimation { appState.activeTab = .settings }
+                    }
+                )
+
+                ShieldDivider().padding(.leading, 58)
+
+                // External providers
+                ForEach(Array(ExternalStorageProvider.allCases.enumerated()), id: \.element.id) { idx, provider in
+                    cloudRow(
+                        icon: provider.icon,
+                        colorHex: provider.iconColor,
+                        name: provider.displayName,
+                        statusText: providerStatusText(provider),
+                        statusColor: providerStatusColor(provider),
+                        isPro: true,
+                        isConnected: ext.isConnected(provider),
+                        isAuthenticating: ext.isAuthenticating == provider,
+                        onTap: {
+                            if !pm.isPro { showPaywall = true; return }
+                            if ext.isConnected(provider) {
+                                showCloudImport = true
+                            } else {
+                                ext.connect(provider)
+                            }
+                        }
+                    )
+
+                    .contextMenu {
+                        if pm.isPro && ext.isConnected(provider) {
+                            Button(role: .destructive) {
+                                ext.disconnect(provider)
+                            } label: {
+                                Label(
+                                    appState.language == .es ? "Desconectar \(provider.displayName)" : "Disconnect \(provider.displayName)",
+                                    systemImage: "link.badge.minus"
+                                )
+                            }
+                        }
+                    }
+
+                    if idx < ExternalStorageProvider.allCases.count - 1 {
+                        ShieldDivider().padding(.leading, 58)
+                    }
+                }
+            }
+            .background(ShieldTheme.cardBackground(appState.preferredScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .padding(.horizontal, ShieldTheme.s4)
+
+            if !pm.isPro {
+                HStack(spacing: 6) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(ShieldTheme.accent)
+                    Text(appState.language == .es
+                         ? "Conecta tu nube con Shield Pro. Tus archivos se procesan localmente."
+                         : "Connect your cloud with Shield Pro. Files are processed on-device.")
+                        .font(.system(size: 12))
+                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                }
+                .padding(.horizontal, ShieldTheme.s4)
+                .padding(.top, 2)
+            }
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    private func cloudRow(
+        icon: String,
+        colorHex: String,
+        name: String,
+        statusText: String,
+        statusColor: Color,
+        isPro: Bool,
+        isConnected: Bool,
+        isAuthenticating: Bool = false,
+        onTap: @escaping () -> Void
+    ) -> some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                // Icon badge
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9)
+                        .fill(Color(hex: colorHex))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                .opacity(pm.isPro ? 1 : 0.45)
+
+                // Name + status
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(name)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                        if !pm.isPro {
+                            Text("Pro")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(ShieldTheme.accentText)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(ShieldTheme.accent)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
+                            .frame(width: 6, height: 6)
+                        Text(pm.isPro ? statusText : (appState.language == .es ? "Requiere Pro" : "Requires Pro"))
+                            .font(.system(size: 12))
+                            .foregroundColor(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
+                    }
+                }
+
+                Spacer()
+
+                // Action indicator
+                if !pm.isPro {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(ShieldTheme.accent)
+                } else if isAuthenticating {
+                    ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
+                } else {
+                    Image(systemName: isConnected ? "chevron.right" : "plus.circle.fill")
+                        .font(.system(size: 14, weight: isConnected ? .medium : .semibold))
+                        .foregroundColor(isConnected ? ShieldTheme.tertiary(appState.preferredScheme) : ShieldTheme.accent)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    // MARK: - Cloud status helpers
+
+    private var iCloudStatusText: String {
+        let enabled = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
+        guard enabled else {
+            return appState.language == .es ? "No activado" : "Not enabled"
+        }
+        if cloud.isAvailable {
+            if let last = cloud.lastSyncFormatted {
+                return appState.language == .es ? "Sincronizado · \(last)" : "Synced · \(last)"
+            }
+            return appState.language == .es ? "Listo" : "Ready"
+        }
+        return appState.language == .es ? "No disponible" : "Unavailable"
+    }
+
+    private var iCloudStatusColor: Color {
+        let enabled = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
+        guard enabled else { return ShieldTheme.textTertiary }
+        return cloud.isAvailable ? ShieldTheme.success : ShieldTheme.warning
+    }
+
+    private func providerStatusText(_ provider: ExternalStorageProvider) -> String {
+        guard ext.isConnected(provider) else {
+            return appState.language == .es ? "No conectado" : "Not connected"
+        }
+        if let email = ext.connectedEmail(provider) {
+            return email
+        }
+        return appState.language == .es ? "Conectado" : "Connected"
+    }
+
+    private func providerStatusColor(_ provider: ExternalStorageProvider) -> Color {
+        ext.isConnected(provider) ? ShieldTheme.success : ShieldTheme.textTertiary
     }
 
     // MARK: - Vault
@@ -702,16 +1070,17 @@ struct DocumentRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
+                // Thumbnail
                 ZStack {
                     DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
                                  fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: doc.isVaulted)
                         .frame(width: 64, height: 44)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .blur(radius: doc.isVaulted ? 4 : 0)
 
                     if doc.isLocked {
                         RoundedRectangle(cornerRadius: 6)
                             .fill(Color.black.opacity(0.7))
-                            .blur(radius: 6)
                         Image(systemName: "lock.fill")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white)
@@ -720,57 +1089,106 @@ struct DocumentRow: View {
                 .frame(width: 64, height: 44)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
+                // Content
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
-                        Text(doc.title)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
-                            .lineLimit(1)
-                        if doc.isFavorite {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 11))
-                                .foregroundColor(ShieldTheme.accent)
+                        if doc.isVaulted {
+                            Text(lang == .es ? "Documento protegido" : "Protected document")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                                .lineLimit(1)
+                                .redacted(reason: .placeholder)
+                        } else {
+                            Text(doc.title)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                                .lineLimit(1)
+                            if doc.isFavorite {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(ShieldTheme.accent)
+                            }
                         }
                     }
                     HStack(spacing: 6) {
-                        Text(doc.category.label(lang: lang))
-                            .font(.system(size: 11, weight: .semibold))
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 2)
-                            .background(ShieldTheme.rowBackground(appState.preferredScheme))
-                            .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
-
-                        Text("·")
-                            .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                            .font(.system(size: 12))
-
-                        Text(doc.dateLabelLocalized(lang: lang))
-                            .font(.system(size: 12))
-                            .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-
-                        if doc.redactionCount > 0 {
+                        if doc.isVaulted {
+                            Text("••••••")
+                                .font(.system(size: 11, weight: .semibold))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 2)
+                                .background(ShieldTheme.accentDim)
+                                .foregroundColor(ShieldTheme.accent)
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
                             Text("·")
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                                 .font(.system(size: 12))
-                            Text(appState.redactionsCount(doc.redactionCount))
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(ShieldTheme.accent)
+                            Text(doc.dateLabelLocalized(lang: lang))
+                                .font(.system(size: 12))
+                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                        } else {
+                            Text(doc.category.label(lang: lang))
+                                .font(.system(size: 11, weight: .semibold))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 2)
+                                .background(ShieldTheme.rowBackground(appState.preferredScheme))
+                                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
+
+                            Text("·")
+                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .font(.system(size: 12))
+
+                            Text(doc.dateLabelLocalized(lang: lang))
+                                .font(.system(size: 12))
+                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+
+                            if doc.redactionCount > 0 {
+                                Text("·")
+                                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                    .font(.system(size: 12))
+                                Text(appState.redactionsCount(doc.redactionCount))
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.accent)
+                            }
                         }
                     }
                 }
+
                 Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+
+                // Vault badge or chevron
+                if doc.isVaulted {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(ShieldTheme.accent)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                }
             }
             .padding(12)
             .background(ShieldTheme.cardBackground(appState.preferredScheme))
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5)
+                    .stroke(doc.isVaulted
+                        ? ShieldTheme.accent.opacity(0.35)
+                        : ShieldTheme.line(appState.preferredScheme),
+                            lineWidth: doc.isVaulted ? 1 : 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(alignment: .trailing) {
+                // Gradient overlay de izquierda a derecha para docs vaulted
+                if doc.isVaulted {
+                    LinearGradient(
+                        colors: [Color.clear, ShieldTheme.accent.opacity(0.08)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .allowsHitTesting(false)
+                }
+            }
         }
         .buttonStyle(ScaleButtonStyle())
         .disabled(doc.isLocked)
@@ -866,5 +1284,135 @@ struct NewCategorySheet: View {
         .background(ShieldTheme.surface2.ignoresSafeArea())
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+    }
+}
+
+// MARK: - VaultAutoLockOverlay
+
+struct VaultAutoLockOverlay: View {
+    let doc: DocumentItem
+    let lang: AppLanguage
+    let scheme: ColorScheme
+    let onKeepEditing: () -> Void
+    let onLockNow: () -> Void
+    let onTimerExpired: () -> Void
+
+    private static let countdownSeconds = 60
+
+    @State private var remaining = VaultAutoLockOverlay.countdownSeconds
+    @State private var timer: Timer? = nil
+
+    private var es: Bool { lang == .es }
+
+    var body: some View {
+        ZStack {
+            // Backdrop
+            Color.black.opacity(0.72)
+                .ignoresSafeArea()
+                .transition(.opacity)
+
+            // Card
+            VStack(spacing: 24) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(ShieldTheme.accentDim)
+                        .frame(width: 72, height: 72)
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 32, weight: .semibold))
+                        .foregroundColor(ShieldTheme.accent)
+                }
+
+                VStack(spacing: 8) {
+                    Text(es ? "Modo bóveda" : "Vault mode")
+                        .font(.system(size: 20, weight: .heavy))
+                        .foregroundColor(ShieldTheme.textPrimary)
+                        .tracking(-0.4)
+
+                    Text(es
+                         ? "El documento se protegerá automáticamente en la bóveda en:"
+                         : "The document will be automatically secured in the vault in:")
+                        .font(.system(size: 14))
+                        .foregroundColor(ShieldTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                }
+
+                // Countdown ring
+                ZStack {
+                    Circle()
+                        .stroke(ShieldTheme.surface3, lineWidth: 5)
+                        .frame(width: 80, height: 80)
+                    Circle()
+                        .trim(from: 0, to: CGFloat(remaining) / CGFloat(VaultAutoLockOverlay.countdownSeconds))
+                        .stroke(ShieldTheme.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                        .frame(width: 80, height: 80)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.linear(duration: 1), value: remaining)
+                    Text("\(remaining)")
+                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .foregroundColor(ShieldTheme.textPrimary)
+                }
+
+                // Actions
+                VStack(spacing: 10) {
+                    Button {
+                        stopTimer()
+                        onLockNow()
+                    } label: {
+                        Label(es ? "Bloquear ahora" : "Lock now", systemImage: "lock.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(ShieldTheme.accent)
+                            .foregroundColor(ShieldTheme.accentText)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+
+                    Button {
+                        stopTimer()
+                        onKeepEditing()
+                    } label: {
+                        Text(es ? "Seguir editando" : "Keep editing")
+                            .font(.system(size: 15, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 48)
+                            .background(ShieldTheme.surface3)
+                            .foregroundColor(ShieldTheme.textPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+            }
+            .padding(28)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(ShieldTheme.surface1)
+                    .shadow(color: .black.opacity(0.4), radius: 24, y: 8)
+            )
+            .padding(.horizontal, 32)
+        }
+        .onAppear { startTimer() }
+        .onDisappear { stopTimer() }
+    }
+
+    private func startTimer() {
+        remaining = VaultAutoLockOverlay.countdownSeconds
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            DispatchQueue.main.async {
+                if remaining > 0 {
+                    remaining -= 1
+                } else {
+                    stopTimer()
+                    onTimerExpired()
+                }
+            }
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }
