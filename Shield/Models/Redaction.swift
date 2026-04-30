@@ -94,42 +94,65 @@ enum RedactionMode: String, CaseIterable, Identifiable {
     case travel
     case job
     case verify
+    case legal
+    case health
+    case banking
 
     var id: String { rawValue }
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .rental: return lang == .es ? "Alquiler" : "Rental"
-        case .travel: return lang == .es ? "Viaje" : "Travel"
-        case .job:    return lang == .es ? "Empleo" : "Job"
-        case .verify: return lang == .es ? "Verificación" : "Verify"
+        case .rental:  return lang == .es ? "Alquiler" : "Rental"
+        case .travel:  return lang == .es ? "Viaje" : "Travel"
+        case .job:     return lang == .es ? "Empleo" : "Job"
+        case .verify:  return lang == .es ? "Verificación" : "Verify"
+        case .legal:   return lang == .es ? "Legal" : "Legal"
+        case .health:  return lang == .es ? "Salud" : "Health"
+        case .banking: return lang == .es ? "Banca" : "Banking"
         }
     }
 
     var icon: String {
         switch self {
-        case .rental: return "house.fill"
-        case .travel: return "airplane"
-        case .job:    return "briefcase.fill"
-        case .verify: return "checkmark.shield.fill"
+        case .rental:  return "house.fill"
+        case .travel:  return "airplane"
+        case .job:     return "briefcase.fill"
+        case .verify:  return "checkmark.shield.fill"
+        case .legal:   return "scalemass.fill"
+        case .health:  return "heart.fill"
+        case .banking: return "building.columns.fill"
         }
     }
 
     var color: Color {
         switch self {
-        case .rental: return Color(hex: "5E5CE6")
-        case .travel: return Color(hex: "64D2FF")
-        case .job:    return Color(hex: "FF9F0A")
-        case .verify: return Color(hex: "30D158")
+        case .rental:  return Color(hex: "5E5CE6")
+        case .travel:  return Color(hex: "64D2FF")
+        case .job:     return Color(hex: "FF9F0A")
+        case .verify:  return Color(hex: "30D158")
+        case .legal:   return Color(hex: "BF5AF2")
+        case .health:  return Color(hex: "FF375F")
+        case .banking: return Color(hex: "34C759")
         }
     }
 
     func subtitle(lang: AppLanguage) -> String {
         switch self {
-        case .rental: return lang == .es ? "Oculta foto, dirección, MRZ" : "Hides photo, address, MRZ"
-        case .travel: return lang == .es ? "Oculta nº pasaporte" : "Hides passport №"
-        case .job:    return lang == .es ? "Oculta DOB, firma" : "Hides DOB, signature"
-        case .verify: return lang == .es ? "Solo nombre + foto" : "Only name + photo"
+        case .rental:  return lang == .es ? "Oculta foto, dirección, MRZ" : "Hides photo, address, MRZ"
+        case .travel:  return lang == .es ? "Oculta nº pasaporte" : "Hides passport №"
+        case .job:     return lang == .es ? "Oculta DOB, firma" : "Hides DOB, signature"
+        case .verify:  return lang == .es ? "Solo nombre + foto" : "Only name + photo"
+        case .legal:   return lang == .es ? "Oculta DOB, dirección, firma" : "Hides DOB, address, signature"
+        case .health:  return lang == .es ? "Oculta DOB, nº SS, dirección" : "Hides DOB, SS №, address"
+        case .banking: return lang == .es ? "Oculta IBAN, nº cuenta, firma" : "Hides IBAN, account №, signature"
+        }
+    }
+
+    /// Whether this mode is a Pro-only preset
+    var requiresPro: Bool {
+        switch self {
+        case .legal, .health, .banking: return true
+        default: return false
         }
     }
 }

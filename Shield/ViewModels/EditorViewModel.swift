@@ -234,7 +234,6 @@ final class EditorViewModel: ObservableObject {
             case .rental:
                 // Rental: hide photo + all PII except name
                 suggested = suggested.filter { r in
-                    // keep: photo area and bottom MRZ/address zones
                     r.rect.width >= 0.9 || r.rect.width <= 0.25 || r.rect.origin.y > 0.75
                 }
             case .travel:
@@ -251,6 +250,21 @@ final class EditorViewModel: ObservableObject {
                 // Verify: only hide doc number + MRZ, show everything else
                 suggested = suggested.filter { r in
                     r.rect.origin.y > 0.72 || r.rect.width >= 0.9
+                }
+            case .legal:
+                // Legal: hide DOB, address, document number, signature area
+                suggested = suggested.filter { r in
+                    r.rect.origin.y > 0.52 && r.rect.origin.y < 0.92
+                }
+            case .health:
+                // Health: hide DOB, nationality, document number, MRZ
+                suggested = suggested.filter { r in
+                    (r.rect.origin.y > 0.45 && r.rect.origin.y < 0.78) || r.rect.width >= 0.9
+                }
+            case .banking:
+                // Banking: hide everything except name — maximally protective
+                suggested = suggested.filter { r in
+                    r.rect.origin.y > 0.38
                 }
             }
             push(suggested)
@@ -368,6 +382,62 @@ final class EditorViewModel: ObservableObject {
     func addFromOCR(rect: CGRect) {
         push(redactions + [Redaction(rect: rect, style: maskStyle)])
         AppState.trackEvent("redaction_applied", properties: ["source": "ocr_field"])
+    }
+
+    // MARK: - Find All / Propagation
+
+    /// Copies all redactions from the current page to every other page.
+    /// Existing redactions on other pages are preserved — this only adds.
+    func propagateCurrentPageToAllPages() {
+        guard pageCount > 1, !redactions.isEmpty else { return }
+        persistCurrentPageState()
+        for pageIdx in 0..<pageCount {
+            guard pageIdx != currentPage else { continue }
+            let existing = doc.redactions(for: pageIdx)
+            let existingRects = existing.map { $0.rect }
+            let toAdd = redactions.filter { r in
+                !existingRects.contains(where: { abs($0.origin.x - r.rect.origin.x) < 0.01 && abs($0.origin.y - r.rect.origin.y) < 0.01 })
+            }.map { Redaction(rect: $0.rect, style: $0.style) }
+            let merged = existing + toAdd
+            doc.setRedactions(merged, for: pageIdx)
+        }
+        AppState.trackEvent("redaction_applied", properties: ["source": "propagate_all_pages", "pages": String(pageCount)])
+    }
+
+    /// Applies the currently selected redaction (if any) to all pages at the same position.
+    func propagateSelectedRedactionToAllPages() {
+        guard let id = activeRedactionID,
+              let red = redactions.first(where: { $0.id == id }),
+              pageCount > 1 else { return }
+        persistCurrentPageState()
+        for pageIdx in 0..<pageCount {
+            guard pageIdx != currentPage else { continue }
+            var existing = doc.redactions(for: pageIdx)
+            let alreadyExists = existing.contains {
+                abs($0.rect.origin.x - red.rect.origin.x) < 0.01 &&
+                abs($0.rect.origin.y - red.rect.origin.y) < 0.01
+            }
+            if !alreadyExists {
+                existing.append(Redaction(rect: red.rect, style: red.style))
+                doc.setRedactions(existing, for: pageIdx)
+            }
+        }
+        AppState.trackEvent("redaction_applied", properties: ["source": "propagate_selected", "pages": String(pageCount)])
+    }
+
+    /// Returns the count of pages (other than current) that contain a redaction at the same position as the selected one.
+    func matchingPagesCount(for redactionID: UUID) -> Int {
+        guard let red = redactions.first(where: { $0.id == redactionID }) else { return 0 }
+        var count = 0
+        for pageIdx in 0..<pageCount {
+            guard pageIdx != currentPage else { continue }
+            let existing = doc.redactions(for: pageIdx)
+            if existing.contains(where: {
+                abs($0.rect.origin.x - red.rect.origin.x) < 0.01 &&
+                abs($0.rect.origin.y - red.rect.origin.y) < 0.01
+            }) { count += 1 }
+        }
+        return count
     }
 
     func toggleWatermark(text: String) {

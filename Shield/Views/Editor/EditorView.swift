@@ -19,6 +19,7 @@ struct EditorView: View {
         VStack(spacing: 0) {
             topBar
             sensitiveBanner
+            propagateBanner
             canvasArea
             // Image adjust panel (shown when tool == .adjust)
             if vm.showAdjustPanel {
@@ -212,6 +213,53 @@ struct EditorView: View {
         }
     }
 
+    // MARK: - Propagate banner
+
+    @ViewBuilder
+    private var propagateBanner: some View {
+        if vm.pageCount > 1 && !vm.redactions.isEmpty {
+            HStack(spacing: 10) {
+                Image(systemName: "square.stack.3d.up.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(ShieldTheme.accent)
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(appState.language == .es
+                         ? "\(vm.redactions.count) redacción(es) en esta página"
+                         : "\(vm.redactions.count) redaction(s) on this page")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(ShieldTheme.textPrimary)
+                    Text(appState.language == .es
+                         ? "Aplicar a todas las páginas"
+                         : "Apply to all pages")
+                        .font(.system(size: 11))
+                        .foregroundColor(ShieldTheme.textSecondary)
+                }
+                Spacer()
+
+                Button {
+                    vm.propagateCurrentPageToAllPages()
+                } label: {
+                    Text(appState.language == .es ? "Find All" : "Find All")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 12)
+                        .frame(height: 28)
+                        .background(ShieldTheme.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+            .padding(.horizontal, ShieldTheme.s4)
+            .padding(.vertical, 10)
+            .background(ShieldTheme.accentDim)
+            .overlay(
+                Rectangle()
+                    .stroke(ShieldTheme.accent.opacity(0.3), lineWidth: 0.5)
+            )
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
     // MARK: - Canvas area
 
     private func canvasSize(available: CGSize) -> CGSize {
@@ -308,22 +356,28 @@ struct EditorView: View {
             HStack(spacing: 6) {
                 ForEach(RedactionMode.allCases) { mode in
                     let isActive = vm.activeMode == mode
+                    let locked = mode.requiresPro && !pm.isPro
                     Button {
-                        vm.applyMode(mode)
+                        if locked {
+                            paywallTrigger = .manual
+                            showPaywall = true
+                        } else {
+                            vm.applyMode(mode)
+                        }
                     } label: {
                         HStack(spacing: 5) {
-                            Image(systemName: mode.icon)
+                            Image(systemName: locked ? "lock.fill" : mode.icon)
                                 .font(.system(size: 11, weight: .semibold))
                             Text(mode.label(lang: appState.language))
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(isActive ? .black : ShieldTheme.textPrimary)
+                        .foregroundColor(locked ? ShieldTheme.textTertiary : (isActive ? .black : ShieldTheme.textPrimary))
                         .padding(.horizontal, 10)
                         .frame(height: 28)
-                        .background(isActive ? mode.color : ShieldTheme.surface2)
+                        .background(locked ? ShieldTheme.surface2 : (isActive ? mode.color : ShieldTheme.surface2))
                         .overlay(
                             Capsule()
-                                .stroke(isActive ? mode.color : ShieldTheme.surfaceLine, lineWidth: isActive ? 0 : 0.5)
+                                .stroke(locked ? ShieldTheme.surfaceLine.opacity(0.5) : (isActive ? mode.color : ShieldTheme.surfaceLine), lineWidth: isActive ? 0 : 0.5)
                         )
                         .clipShape(Capsule())
                     }

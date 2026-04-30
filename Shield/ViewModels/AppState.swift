@@ -103,6 +103,11 @@ final class AppState: ObservableObject {
             ? .dark
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
 
+        // Default auto-lock to "1 minute" (index 1) for new installs
+        if ud.object(forKey: "shield.autoLock") == nil {
+            ud.set(1, forKey: "shield.autoLock")
+        }
+
         documents = AppState.loadDocuments()
         customCategories = AppState.loadCustomCategories()
         AppState.markUserActivity(force: true)

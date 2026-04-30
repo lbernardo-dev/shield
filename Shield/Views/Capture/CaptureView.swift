@@ -521,13 +521,23 @@ struct CaptureView: View {
                 return
             }
 
-            // OCR all pages and classify scan type (DNI / Passport / Document)
+            // OCR all pages with per-page context, then merge fields prioritising the highest-confidence page
             let pageLines = await OCRService.recognizeTextByPage(in: pages)
+            let pageTexts = pageLines.map { $0.joined(separator: "\n") }
+            // Extract fields per page so multi-page docs don't bleed fields across pages
+            let perPageFields = pageLines.map { OCRService.extractFields(from: $0) }
+            // Merge: use page with highest aggregate confidence (MRZ page wins if valid)
+            let bestPageFields = perPageFields.max(by: { a, b in
+                let scoreA = (a.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+                let scoreB = (b.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+                let mrzA = (a.ocrMRZValid == true) ? 10.0 : 0.0
+                let mrzB = (b.ocrMRZValid == true) ? 10.0 : 0.0
+                return (scoreA + mrzA) < (scoreB + mrzB)
+            })
             let lines = pageLines.flatMap { $0 }
-            var fields = OCRService.extractFields(from: lines)
+            var fields = bestPageFields ?? OCRService.extractFields(from: lines)
             let detectedType = OCRService.detectDocumentType(from: lines)
             fields.ocrDocumentType = detectedType.rawValue
-            let pageTexts = pageLines.map { $0.joined(separator: "\n") }
             fields.ocrPageTexts = pageTexts
             fields.ocrFullText = pageTexts.joined(separator: "\n\n")
             fields.ocrDetectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
@@ -740,6 +750,9 @@ struct ScanPageAdjustment: Equatable {
     var perspectiveSkew: Double = 0
     var perspectiveTopYOffset: Double = 0
     var perspectiveBottomYOffset: Double = 0
+    // 4-point perspective handles (normalized 0..1, CIImage coordinate system: origin bottom-left)
+    // nil = not set (sliders govern); non-nil overrides sliders
+    var quad: ScanQuad? = nil
     var cropLeft: Double = 0
     var cropRight: Double = 0
     var cropTop: Double = 0
@@ -754,6 +767,21 @@ struct ScanPageAdjustment: Equatable {
     var hasAdjustments: Bool {
         self != .default
     }
+}
+
+/// Normalized quad for 4-point perspective correction (0..1, origin top-left in UIKit coords).
+struct ScanQuad: Equatable {
+    var topLeft: CGPoint
+    var topRight: CGPoint
+    var bottomLeft: CGPoint
+    var bottomRight: CGPoint
+
+    static let identity = ScanQuad(
+        topLeft: CGPoint(x: 0.05, y: 0.05),
+        topRight: CGPoint(x: 0.95, y: 0.05),
+        bottomLeft: CGPoint(x: 0.05, y: 0.95),
+        bottomRight: CGPoint(x: 0.95, y: 0.95)
+    )
 }
 
 enum ScanImageProcessor {
@@ -852,6 +880,7 @@ enum ScanImageProcessor {
     }
 
     private static func hasPerspectiveAdjustments(_ adjustment: ScanPageAdjustment) -> Bool {
+        adjustment.quad != nil ||
         abs(adjustment.perspectiveTopInset) > 0.0001 ||
         abs(adjustment.perspectiveBottomInset) > 0.0001 ||
         abs(adjustment.perspectiveSkew) > 0.0001 ||
@@ -862,6 +891,19 @@ enum ScanImageProcessor {
     private static func applyPerspective(_ image: CIImage, adjustment: ScanPageAdjustment) -> CIImage {
         let extent = image.extent
         guard extent.width > 10, extent.height > 10 else { return image }
+
+        // 4-point quad takes priority over sliders
+        if let quad = adjustment.quad {
+            let w = extent.width, h = extent.height
+            let filter = CIFilter.perspectiveCorrection()
+            filter.inputImage = image
+            // UIKit coords (origin top-left) → CIImage coords (origin bottom-left)
+            filter.topLeft     = CGPoint(x: extent.minX + quad.topLeft.x * w,     y: extent.minY + (1 - quad.topLeft.y) * h)
+            filter.topRight    = CGPoint(x: extent.minX + quad.topRight.x * w,    y: extent.minY + (1 - quad.topRight.y) * h)
+            filter.bottomLeft  = CGPoint(x: extent.minX + quad.bottomLeft.x * w,  y: extent.minY + (1 - quad.bottomLeft.y) * h)
+            filter.bottomRight = CGPoint(x: extent.minX + quad.bottomRight.x * w, y: extent.minY + (1 - quad.bottomRight.y) * h)
+            return filter.outputImage ?? image
+        }
 
         let width = extent.width
         let height = extent.height
@@ -922,6 +964,81 @@ enum ScanImageProcessor {
     }
 }
 
+// MARK: - FourPointPerspectiveEditor
+
+struct FourPointPerspectiveEditor: View {
+    @Binding var quad: ScanQuad
+    let imageSize: CGSize
+
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+
+            ZStack {
+                // Quadrilateral outline
+                Path { path in
+                    let tl = point(quad.topLeft, in: geo.size)
+                    let tr = point(quad.topRight, in: geo.size)
+                    let bl = point(quad.bottomLeft, in: geo.size)
+                    let br = point(quad.bottomRight, in: geo.size)
+                    path.move(to: tl)
+                    path.addLine(to: tr)
+                    path.addLine(to: br)
+                    path.addLine(to: bl)
+                    path.closeSubpath()
+                }
+                .stroke(ShieldTheme.accent.opacity(0.8), style: StrokeStyle(lineWidth: 1.5, dash: [6, 3]))
+
+                // Corner handles
+                handle(position: point(quad.topLeft, in: geo.size), label: "↖") { delta in
+                    quad.topLeft = clampPoint(CGPoint(x: quad.topLeft.x + delta.x / w, y: quad.topLeft.y + delta.y / h))
+                }
+                handle(position: point(quad.topRight, in: geo.size), label: "↗") { delta in
+                    quad.topRight = clampPoint(CGPoint(x: quad.topRight.x + delta.x / w, y: quad.topRight.y + delta.y / h))
+                }
+                handle(position: point(quad.bottomLeft, in: geo.size), label: "↙") { delta in
+                    quad.bottomLeft = clampPoint(CGPoint(x: quad.bottomLeft.x + delta.x / w, y: quad.bottomLeft.y + delta.y / h))
+                }
+                handle(position: point(quad.bottomRight, in: geo.size), label: "↘") { delta in
+                    quad.bottomRight = clampPoint(CGPoint(x: quad.bottomRight.x + delta.x / w, y: quad.bottomRight.y + delta.y / h))
+                }
+            }
+            .frame(width: w, height: h)
+        }
+    }
+
+    private func point(_ normalized: CGPoint, in size: CGSize) -> CGPoint {
+        CGPoint(x: normalized.x * size.width, y: normalized.y * size.height)
+    }
+
+    private func clampPoint(_ p: CGPoint) -> CGPoint {
+        CGPoint(x: max(0, min(1, p.x)), y: max(0, min(1, p.y)))
+    }
+
+    @ViewBuilder
+    private func handle(position: CGPoint, label: String, onDrag: @escaping (CGPoint) -> Void) -> some View {
+        ZStack {
+            Circle()
+                .fill(ShieldTheme.accent)
+                .frame(width: 26, height: 26)
+                .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 1)
+            Text(label)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.black)
+        }
+        .position(position)
+        .gesture(
+            DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                .onChanged { value in
+                    onDrag(CGPoint(x: value.translation.width, y: value.translation.height))
+                }
+        )
+    }
+}
+
+// MARK: - ScanReviewView
+
 struct ScanReviewView: View {
     let pages: [UIImage]
     let lang: AppLanguage
@@ -932,6 +1049,7 @@ struct ScanReviewView: View {
     @State private var adjustments: [ScanPageAdjustment] = []
     @State private var applying = false
     @State private var selectedPreset: ScanAdjustmentPreset = .document
+    @State private var showQuadEditor = false
 
     var body: some View {
         ZStack {
@@ -981,25 +1099,69 @@ struct ScanReviewView: View {
     private var previewArea: some View {
         let image = pages[safe: selectedPage] ?? pages.first ?? UIImage()
         let adjustment = adjustments[safe: selectedPage] ?? .default
-        let preview = ScanImageProcessor.apply(image, adjustment: adjustment) ?? image
+        // In quad-edit mode show original; otherwise show processed preview
+        let preview: UIImage = showQuadEditor ? image : (ScanImageProcessor.apply(image, adjustment: adjustment) ?? image)
 
         return ZStack(alignment: .topTrailing) {
-            Image(uiImage: preview)
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-                .frame(height: 260)
-                .background(ShieldTheme.surface2)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            GeometryReader { geo in
+                let maxH: CGFloat = 260
+                let aspect = preview.size.width / max(preview.size.height, 1)
+                let frameW = min(geo.size.width, maxH * aspect)
+                let frameH = frameW / aspect
 
-            Text("\(selectedPage + 1)/\(max(1, pages.count))")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(ShieldTheme.textPrimary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(ShieldTheme.surface3)
-                .clipShape(Capsule())
-                .padding(10)
+                ZStack {
+                    Image(uiImage: preview)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: frameW, height: frameH)
+                        .background(ShieldTheme.surface2)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                    // 4-point perspective overlay
+                    if showQuadEditor {
+                        let currentQuad = Binding<ScanQuad>(
+                            get: { adjustments[safe: selectedPage]?.quad ?? .identity },
+                            set: { newQuad in
+                                if selectedPage < adjustments.count {
+                                    adjustments[selectedPage].quad = newQuad
+                                }
+                            }
+                        )
+                        FourPointPerspectiveEditor(quad: currentQuad, imageSize: preview.size)
+                            .frame(width: frameW, height: frameH)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: maxH, alignment: .center)
+            }
+            .frame(height: 260)
+
+            VStack(alignment: .trailing, spacing: 6) {
+                Text("\(selectedPage + 1)/\(max(1, pages.count))")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(ShieldTheme.textPrimary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(ShieldTheme.surface3)
+                    .clipShape(Capsule())
+
+                // Quad editor toggle
+                Button {
+                    if !showQuadEditor, adjustments[safe: selectedPage]?.quad == nil,
+                       selectedPage < adjustments.count {
+                        adjustments[selectedPage].quad = .identity
+                    }
+                    withAnimation(.spring(response: 0.25)) { showQuadEditor.toggle() }
+                } label: {
+                    Image(systemName: showQuadEditor ? "perspective" : "skew")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(showQuadEditor ? .black : ShieldTheme.textPrimary)
+                        .frame(width: 28, height: 28)
+                        .background(showQuadEditor ? ShieldTheme.accent : ShieldTheme.surface3)
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                }
+            }
+            .padding(10)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 10)
@@ -1136,6 +1298,33 @@ struct ScanReviewView: View {
             Text(lang == .es ? "Geometría" : "Geometry")
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
+
+            // 4-point perspective hint when active
+            if showQuadEditor {
+                HStack(spacing: 8) {
+                    Image(systemName: "hand.draw.fill")
+                        .font(.system(size: 11))
+                        .foregroundColor(ShieldTheme.accent)
+                    Text(lang == .es
+                         ? "Arrastra las esquinas para corregir perspectiva"
+                         : "Drag corner handles to correct perspective")
+                        .font(.system(size: 11))
+                        .foregroundColor(ShieldTheme.textSecondary)
+                    Spacer()
+                    Button {
+                        if selectedPage < adjustments.count {
+                            adjustments[selectedPage].quad = .identity
+                        }
+                    } label: {
+                        Text(lang == .es ? "Reset" : "Reset")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(ShieldTheme.danger)
+                    }
+                }
+                .padding(8)
+                .background(ShieldTheme.accentDim)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
 
             sliderRow(
                 title: lang == .es ? "Enderezar" : "Straighten",

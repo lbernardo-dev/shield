@@ -230,6 +230,7 @@ struct PaywallView: View {
                         product: product,
                         isSelected: selectedProduct.rawValue == product.id,
                         savingsLabel: savingsLabel(for: product),
+                        lang: appState.language,
                         onTap: {
                             if let sp = ShieldProduct(rawValue: product.id) {
                                 withAnimation { selectedProduct = sp }
@@ -339,6 +340,7 @@ private struct PlanRow: View {
     let product: Product
     let isSelected: Bool
     let savingsLabel: String?
+    let lang: AppLanguage
     let onTap: () -> Void
 
     var body: some View {
@@ -361,6 +363,16 @@ private struct PlanRow: View {
                         Text(planName)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(ShieldTheme.textPrimary)
+                        // Trial badge for annual plan
+                        if ShieldProduct(rawValue: product.id) == .annual {
+                            Text(lang == .es ? "7 días gratis" : "7-day free trial")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 2)
+                                .background(Color(hex: "30D158"))
+                                .clipShape(Capsule())
+                        }
                         if let s = savingsLabel {
                             Text(s)
                                 .font(.system(size: 10, weight: .bold))
@@ -401,28 +413,31 @@ private struct PlanRow: View {
     }
 
     private var planName: String {
+        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return "Mensual"
-        case .annual:   return "Anual"
-        case .lifetime: return "De por vida"
+        case .monthly:  return es ? "Mensual" : "Monthly"
+        case .annual:   return es ? "Anual" : "Annual"
+        case .lifetime: return es ? "De por vida" : "Lifetime"
         case nil:       return product.displayName
         }
     }
 
     private var planSubtitle: String {
+        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return "Facturación mensual"
-        case .annual:   return "Facturación anual"
-        case .lifetime: return "Pago único"
+        case .monthly:  return es ? "Facturación mensual" : "Billed monthly"
+        case .annual:   return es ? "Facturación anual" : "Billed annually"
+        case .lifetime: return es ? "Pago único" : "One-time payment"
         case nil:       return ""
         }
     }
 
     private var periodLabel: String {
+        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return "/mes"
-        case .annual:   return "/año"
-        case .lifetime: return "una vez"
+        case .monthly:  return es ? "/mes" : "/mo"
+        case .annual:   return es ? "/año" : "/yr"
+        case .lifetime: return es ? "una vez" : "once"
         case nil:       return ""
         }
     }

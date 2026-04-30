@@ -429,6 +429,33 @@ enum AutoRedactions {
                 CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
                 CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ
             ]
+        case .legal:
+            // Legal: hide DOB, address, signature, doc number — keep name visible
+            return [
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.10),   // address/issuer
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ / signature
+            ]
+        case .health:
+            // Health: hide DOB, SS/insurance number, address, nationality, MRZ
+            return [
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // insurance/SS number
+                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),   // nationality
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ
+            ]
+        case .banking:
+            // Banking: maximum protection — hide everything except name
+            return [
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // account/IBAN
+                CGRect(x: 0.28, y: 0.52, width: 0.68, height: 0.08),   // expiry/issue date
+                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),   // nationality
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
+                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.20),   // address/MRZ/signature
+            ]
         }
     }
 }

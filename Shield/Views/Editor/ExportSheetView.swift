@@ -1,6 +1,8 @@
 import SwiftUI
 import UIKit
 import PDFKit
+import ImageIO
+import UniformTypeIdentifiers
 
 // MARK: - ExportSheetView
 
@@ -33,6 +35,7 @@ struct ExportSheetView: View {
     @State private var hasLoadedDefaults = false
     @State private var exportErrorMessage: String? = nil
     @State private var acknowledgeHighRiskExport = false
+    @State private var showPrivacyScore = false
 
     var body: some View {
         if isExported {
@@ -139,6 +142,9 @@ struct ExportSheetView: View {
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // Privacy Score panel
+                    privacyScorePanel
 
                     if let exportErrorMessage {
                         Text(exportErrorMessage)
@@ -305,6 +311,122 @@ struct ExportSheetView: View {
                 ShareSheetView(items: [item])
             }
         }
+    }
+
+    // MARK: - Privacy Score
+
+    private var privacyScorePanel: some View {
+        let score = computePrivacyScore()
+        let color: Color = score >= 80 ? ShieldTheme.success : (score >= 50 ? ShieldTheme.warning : ShieldTheme.danger)
+        let label: String = score >= 80
+            ? (lang == .es ? "Seguro para compartir" : "Safe to share")
+            : (score >= 50
+               ? (lang == .es ? "Riesgo moderado" : "Moderate risk")
+               : (lang == .es ? "Riesgo alto" : "High risk"))
+
+        return Button {
+            withAnimation(.spring(response: 0.3)) { showPrivacyScore.toggle() }
+        } label: {
+            VStack(alignment: .leading, spacing: showPrivacyScore ? 10 : 0) {
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle().fill(color.opacity(0.18)).frame(width: 36, height: 36)
+                        Text("\(score)")
+                            .font(.system(size: 13, weight: .black))
+                            .foregroundColor(color)
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lang == .es ? "Privacy Score" : "Privacy Score")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(ShieldTheme.textPrimary)
+                        Text(label)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(color)
+                    }
+                    Spacer()
+                    Image(systemName: showPrivacyScore ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(ShieldTheme.textTertiary)
+                }
+
+                if showPrivacyScore {
+                    VStack(alignment: .leading, spacing: 6) {
+                        privacyScoreRow(
+                            icon: "scissors",
+                            label: lang == .es ? "Redacciones aplicadas" : "Redactions applied",
+                            value: totalRedactionCount > 0
+                                ? "\(totalRedactionCount)"
+                                : (lang == .es ? "Ninguna" : "None"),
+                            ok: totalRedactionCount > 0
+                        )
+                        privacyScoreRow(
+                            icon: "doc.badge.minus",
+                            label: lang == .es ? "Metadatos EXIF/GPS eliminados" : "EXIF/GPS metadata stripped",
+                            value: lang == .es ? "Siempre" : "Always",
+                            ok: true
+                        )
+                        privacyScoreRow(
+                            icon: "text.magnifyingglass",
+                            label: lang == .es ? "Riesgo OCR" : "OCR risk",
+                            value: (doc.fields.ocrRiskLevel ?? "").capitalized,
+                            ok: doc.fields.ocrRiskLevel != "high"
+                        )
+                        privacyScoreRow(
+                            icon: pm.isPro ? "drop.slash" : "drop.fill",
+                            label: lang == .es ? "Sin marca de agua" : "No watermark",
+                            value: pm.isPro
+                                ? (lang == .es ? "Sí (Pro)" : "Yes (Pro)")
+                                : (lang == .es ? "No (Free)" : "No (Free)"),
+                            ok: pm.isPro
+                        )
+                    }
+                    .padding(.top, 2)
+                }
+            }
+            .padding(12)
+            .background(ShieldTheme.surface3)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    @ViewBuilder
+    private func privacyScoreRow(icon: String, label: String, value: String, ok: Bool) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
+                .frame(width: 16)
+            Text(label)
+                .font(.system(size: 12))
+                .foregroundColor(ShieldTheme.textSecondary)
+            Spacer()
+            Text(value)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
+        }
+    }
+
+    private var totalRedactionCount: Int {
+        format == .pdf
+            ? pageRedactions.values.reduce(0) { $0 + $1.count }
+            : redactions.count
+    }
+
+    private func computePrivacyScore() -> Int {
+        var score = 40
+        // Redactions applied
+        if totalRedactionCount > 0 { score += 25 }
+        if totalRedactionCount >= 3 { score += 5 }
+        // Metadata always stripped (guaranteed by ExportEngine)
+        score += 15
+        // OCR risk
+        if doc.fields.ocrRiskLevel != "high" { score += 10 }
+        if doc.fields.ocrRiskLevel == "low" || doc.fields.ocrRiskLevel == "" { score += 5 }
+        // No watermark (Pro)
+        if pm.isPro { score += 5 }
+        // Cap
+        return min(score, 100)
     }
 
     // MARK: - Helpers
@@ -595,6 +717,17 @@ enum ExportEngine {
         return base
     }
 
+    // Strip all EXIF/XMP/GPS metadata from a JPEG UIImage by re-encoding via ImageIO with empty metadata
+    static func imageStrippingMetadata(_ image: UIImage, compressionQuality: CGFloat = 0.92) -> UIImage? {
+        guard let cgImage = image.cgImage else { return image }
+        let mutableData = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(mutableData, UTType.jpeg.identifier as CFString, 1, nil) else { return image }
+        // Empty properties = no EXIF, no GPS, no IPTC
+        CGImageDestinationAddImage(dest, cgImage, [kCGImageDestinationLossyCompressionQuality as String: compressionQuality] as CFDictionary)
+        guard CGImageDestinationFinalize(dest) else { return image }
+        return UIImage(data: mutableData as Data)
+    }
+
     static func exportAsImage(doc: DocumentItem, imageFileName: String?, redactions: [Redaction], watermark: Watermark?, scale: CGFloat) async -> UIImage? {
         var sourceImage = imageFileName.flatMap {
             AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted)
@@ -670,14 +803,14 @@ enum ExportEngine {
 
         // Watermark pass
         if let wm = watermark {
-            let withWatermark = renderer.image { ctx in
+            baseImage = renderer.image { ctx in
                 baseImage.draw(in: CGRect(origin: .zero, size: scaledSize))
                 drawWatermarkCG(context: ctx.cgContext, in: CGRect(origin: .zero, size: scaledSize), watermark: wm)
             }
-            return withWatermark
         }
 
-        return baseImage
+        // Strip EXIF/GPS — re-encode via ImageIO with no metadata properties
+        return imageStrippingMetadata(baseImage) ?? baseImage
     }
 
     // Render vector doc to UIImage using ImageRenderer (iOS 16+)

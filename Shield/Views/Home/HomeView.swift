@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var showFilters = false
     @State private var showPaywall = false
     @State private var showCloudImport = false
+    @State private var showBatchRedact = false
     @FocusState private var searchFocused: Bool
 
     // Vault auth flow from recents
@@ -73,6 +74,10 @@ struct HomeView: View {
                     )
                 }
             }.environmentObject(appState)
+        }
+        .sheet(isPresented: $showBatchRedact) {
+            BatchRedactView(isPresented: $showBatchRedact)
+                .environmentObject(appState)
         }
         // Vault-authenticated editor for vaulted docs opened from the recents list
         .fullScreenCover(item: $showVaultAuthForDoc) { doc in
@@ -378,7 +383,33 @@ struct HomeView: View {
 
     private var modesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: appState.language == .es ? "Modos rápidos" : "Quick modes")
+            HStack {
+                SectionHeader(title: appState.language == .es ? "Modos rápidos" : "Quick modes")
+                Spacer()
+                // Batch Pro button
+                Button {
+                    if pm.isPro {
+                        showBatchRedact = true
+                    } else {
+                        showPaywall = true
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: pm.isPro ? "square.stack.3d.up.fill" : "lock.fill")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text(appState.language == .es ? "Batch Pro" : "Batch Pro")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(pm.isPro ? .black : ShieldTheme.textTertiary)
+                    .padding(.horizontal, 12)
+                    .frame(height: 28)
+                    .background(pm.isPro ? ShieldTheme.accent : ShieldTheme.surface3)
+                    .overlay(Capsule().stroke(ShieldTheme.surfaceLine.opacity(0.5), lineWidth: pm.isPro ? 0 : 0.5))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .padding(.trailing, ShieldTheme.s5)
+            }
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
@@ -1414,5 +1445,262 @@ struct VaultAutoLockOverlay: View {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+}
+
+// MARK: - BatchRedactView
+
+struct BatchRedactView: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject private var pm = PremiumManager.shared
+    @Binding var isPresented: Bool
+
+    @State private var selectedIDs: Set<String> = []
+    @State private var selectedMode: RedactionMode = .rental
+    @State private var isProcessing = false
+    @State private var processed = 0
+    @State private var showDone = false
+
+    private var selectableDocs: [DocumentItem] {
+        appState.documents.filter { !$0.isVaulted }
+    }
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                if showDone {
+                    doneState
+                } else {
+                    form
+                }
+            }
+            .navigationTitle(appState.language == .es ? "Batch Pro" : "Batch Pro")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(appState.language == .es ? "Cancelar" : "Cancel") {
+                        isPresented = false
+                    }
+                    .foregroundColor(ShieldTheme.accent)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    private var form: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 20) {
+                // Mode picker
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(appState.language == .es ? "MODO DE REDACCIÓN" : "REDACTION MODE")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(ShieldTheme.textTertiary)
+                        .tracking(0.5)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                        ForEach(RedactionMode.allCases) { mode in
+                            let isSelected = selectedMode == mode
+                            Button { selectedMode = mode } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: mode.icon)
+                                        .font(.system(size: 12, weight: .semibold))
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(mode.label(lang: appState.language))
+                                            .font(.system(size: 12, weight: .bold))
+                                        Text(mode.subtitle(lang: appState.language))
+                                            .font(.system(size: 10))
+                                            .lineLimit(1)
+                                    }
+                                    Spacer()
+                                }
+                                .foregroundColor(isSelected ? .black : ShieldTheme.textSecondary)
+                                .padding(10)
+                                .background(isSelected ? mode.color : ShieldTheme.surface2)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(isSelected ? mode.color : ShieldTheme.surfaceLine, lineWidth: isSelected ? 0 : 0.5)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
+                }
+
+                // Document picker
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(appState.language == .es ? "DOCUMENTOS (\(selectedIDs.count) seleccionados)" : "DOCUMENTS (\(selectedIDs.count) selected)")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(ShieldTheme.textTertiary)
+                            .tracking(0.5)
+                        Spacer()
+                        Button {
+                            if selectedIDs.count == selectableDocs.count {
+                                selectedIDs = []
+                            } else {
+                                selectedIDs = Set(selectableDocs.map { $0.id })
+                            }
+                        } label: {
+                            Text(selectedIDs.count == selectableDocs.count
+                                 ? (appState.language == .es ? "Deseleccionar todo" : "Deselect all")
+                                 : (appState.language == .es ? "Seleccionar todo" : "Select all"))
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(ShieldTheme.accent)
+                        }
+                    }
+
+                    ForEach(selectableDocs) { doc in
+                        let isSelected = selectedIDs.contains(doc.id)
+                        Button {
+                            if isSelected { selectedIDs.remove(doc.id) } else { selectedIDs.insert(doc.id) }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(doc.title)
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(ShieldTheme.textPrimary)
+                                        .lineLimit(1)
+                                    Text("\(doc.pageCount) \(appState.language == .es ? "página(s)" : "page(s)") · \(doc.dateLabelLocalized(lang: appState.language))")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(ShieldTheme.textTertiary)
+                                }
+                                Spacer()
+                            }
+                            .padding(12)
+                            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isSelected ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.surfaceLine, lineWidth: 0.5)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+                }
+
+                // Apply button
+                Button {
+                    applyBatch()
+                } label: {
+                    HStack(spacing: 8) {
+                        if isProcessing {
+                            ProgressView().tint(.black).scaleEffect(0.9)
+                            Text(appState.language == .es ? "Procesando \(processed)/\(selectedIDs.count)…" : "Processing \(processed)/\(selectedIDs.count)…")
+                                .font(.system(size: 15, weight: .bold))
+                        } else {
+                            Image(systemName: "square.stack.3d.up.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                            Text(appState.language == .es
+                                 ? "Aplicar a \(selectedIDs.count) documento(s)"
+                                 : "Apply to \(selectedIDs.count) document(s)")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(selectedIDs.isEmpty ? ShieldTheme.surface3 : ShieldTheme.accent)
+                    .foregroundColor(selectedIDs.isEmpty ? ShieldTheme.textTertiary : .black)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .disabled(selectedIDs.isEmpty || isProcessing)
+
+                Text(appState.language == .es
+                     ? "Las redacciones se añaden a los documentos seleccionados según el modo elegido. Los documentos originales no se modifican — las redacciones se almacenan como una capa separada."
+                     : "Redactions are added to selected documents based on the chosen mode. Original documents are not modified — redactions are stored as a separate layer.")
+                    .font(.system(size: 11))
+                    .foregroundColor(ShieldTheme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 20)
+        }
+    }
+
+    private var doneState: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            ZStack {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(ShieldTheme.successDim)
+                    .frame(width: 90, height: 90)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 44, weight: .semibold))
+                    .foregroundColor(ShieldTheme.success)
+            }
+            VStack(spacing: 6) {
+                Text(appState.language == .es ? "Batch completado" : "Batch complete")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(ShieldTheme.textPrimary)
+                Text(appState.language == .es
+                     ? "Modo \(selectedMode.label(lang: appState.language)) aplicado a \(processed) documento(s)."
+                     : "\(selectedMode.label(lang: appState.language)) mode applied to \(processed) document(s).")
+                    .font(.system(size: 14))
+                    .foregroundColor(ShieldTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            Spacer()
+            Button { isPresented = false } label: {
+                Text(appState.language == .es ? "Listo" : "Done")
+                    .font(.system(size: 16, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(ShieldTheme.accent)
+                    .foregroundColor(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
+        }
+    }
+
+    private func applyBatch() {
+        guard !selectedIDs.isEmpty else { return }
+        isProcessing = true
+        processed = 0
+
+        Task {
+            for docID in selectedIDs {
+                guard var doc = appState.documents.first(where: { $0.id == docID }) else { continue }
+                let suggested = AutoRedactions.suggested(for: doc.kind, style: .block)
+                let modeRects = AutoRedactions.ocrModeRects(for: selectedMode, fields: doc.fields)
+                let toAdd: [Redaction] = suggested.isEmpty
+                    ? modeRects.map { Redaction(rect: $0, style: .block) }
+                    : suggested
+
+                for pageIdx in 0..<max(doc.pageCount, 1) {
+                    var existing = doc.redactions(for: pageIdx)
+                    let newOnes = toAdd.filter { r in
+                        !existing.contains(where: {
+                            abs($0.rect.origin.x - r.rect.origin.x) < 0.01 &&
+                            abs($0.rect.origin.y - r.rect.origin.y) < 0.01
+                        })
+                    }.map { Redaction(rect: $0.rect, style: $0.style) }
+                    existing.append(contentsOf: newOnes)
+                    doc.setRedactions(existing, for: pageIdx)
+                }
+
+                await MainActor.run {
+                    appState.updateDocument(doc)
+                    processed += 1
+                }
+            }
+
+            AppState.trackEvent("batch_applied", properties: [
+                "mode": selectedMode.rawValue,
+                "docs": String(selectedIDs.count)
+            ])
+
+            await MainActor.run {
+                isProcessing = false
+                withAnimation { showDone = true }
+            }
+        }
     }
 }

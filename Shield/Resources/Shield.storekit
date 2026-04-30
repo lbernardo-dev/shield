@@ -71,7 +71,12 @@
           "familyShareable" : true,
           "gracePeriod" : null,
           "internalID" : "annual_001",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "id" : "annual_trial_7d",
+            "offerType" : "FreeTrial",
+            "period" : "P7D",
+            "periodCount" : 1
+          },
           "localizations" : [
             {
               "description" : "Acceso anual a Shield Pro",
