@@ -52,7 +52,7 @@ documentados en auditorías anteriores.
 ### iCloud Sync (CloudSyncManager)
 - **Privacidad:** Solo sincroniza metadatos (título, fecha, categoría, conteo de redacciones). Los archivos de imagen/PDF nunca salen del dispositivo.
 - **Implementación:** CloudKit Private Database → record type `ShieldDocument` → `CKModifyRecordsOperation` con `savePolicy: .changedKeys`.
-- **Configuración requerida:** Añadir capability "CloudKit" en Xcode → target → Signing & Capabilities. Container ID: `iCloud.com.shield.redact`.
+- **Configuración requerida:** Añadir capability "CloudKit" en Xcode → target → Signing & Capabilities. Container ID: `iCloud.com.romerodev.shield`.
 - **Pro-only:** El toggle solo aparece si `pm.isPro`.
 
 ### External Storage (ExternalStorageManager)
@@ -90,7 +90,7 @@ documentados en auditorías anteriores.
 | A | `PrivacyInfo.xcprivacy` no está en el build target | En Xcode: seleccionar `PrivacyInfo.xcprivacy` → Target Membership → marcar `Shield` |
 | B | URLs `shieldapp.io/privacy` y `shieldapp.io/terms` sin verificar | Crear o activar dominio con los documentos legales. Mínimo: redirect a Notion/GitHub Pages |
 | C | URL schemes OAuth no registrados en Info.plist | Añadir `shield` como URL scheme en Info.plist para callback OAuth |
-| D | CloudKit container no configurado | Añadir capability CloudKit en Xcode con container `iCloud.com.shield.redact` |
+| D | CloudKit container no configurado | Añadir capability CloudKit en Xcode con container `iCloud.com.romerodev.shield` |
 | E | Client IDs OAuth vacíos | Registrar apps en Google Cloud, Dropbox Dev, Azure y hardcodear o cargar desde config |
 
 ### P1 — Funcional

@@ -1095,8 +1095,11 @@ struct ModeCard: View {
 struct DocumentRow: View {
     let doc: DocumentItem
     let lang: AppLanguage
+    var vaultUnlocked: Bool = false
     let action: () -> Void
     @EnvironmentObject var appState: AppState
+
+    private var shouldMask: Bool { doc.isVaulted && !vaultUnlocked }
 
     var body: some View {
         Button(action: action) {
@@ -1104,10 +1107,10 @@ struct DocumentRow: View {
                 // Thumbnail
                 ZStack {
                     DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
-                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: doc.isVaulted)
+                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: shouldMask)
                         .frame(width: 64, height: 44)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .blur(radius: doc.isVaulted ? 4 : 0)
+                        .blur(radius: shouldMask ? 4 : 0)
 
                     if doc.isLocked {
                         RoundedRectangle(cornerRadius: 6)
@@ -1123,7 +1126,7 @@ struct DocumentRow: View {
                 // Content
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
-                        if doc.isVaulted {
+                        if shouldMask {
                             Text(lang == .es ? "Documento protegido" : "Protected document")
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
@@ -1142,7 +1145,7 @@ struct DocumentRow: View {
                         }
                     }
                     HStack(spacing: 6) {
-                        if doc.isVaulted {
+                        if shouldMask {
                             Text("••••••")
                                 .font(.system(size: 11, weight: .semibold))
                                 .padding(.horizontal, 7)
@@ -1209,7 +1212,6 @@ struct DocumentRow: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(alignment: .trailing) {
-                // Gradient overlay de izquierda a derecha para docs vaulted
                 if doc.isVaulted {
                     LinearGradient(
                         colors: [Color.clear, ShieldTheme.accent.opacity(0.08)],

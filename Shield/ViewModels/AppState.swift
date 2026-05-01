@@ -98,7 +98,12 @@ final class AppState: ObservableObject {
     init() {
         let ud = UserDefaults.standard
         isOnboarded     = ud.bool(forKey: "shield.onboarded")
-        language        = AppLanguage(rawValue: ud.string(forKey: "shield.language") ?? "es") ?? .es
+        if let saved = ud.string(forKey: "shield.language") {
+            language = AppLanguage(rawValue: saved) ?? .es
+        } else {
+            let pref = Locale.preferredLanguages.first ?? ""
+            language = pref.hasPrefix("es") ? .es : .en
+        }
         preferredScheme = ud.object(forKey: "shield.darkMode") == nil
             ? .dark
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
@@ -563,7 +568,7 @@ enum SecureFileStoreError: Error {
 final class SecureFileStore {
     static let shared = SecureFileStore()
 
-    private let service = "com.shield.redact.secure-store"
+    private let service = "com.romerodev.shield.secure-store"
     private let account = "master-key"
     private let magicHeader = "SHLD1".data(using: .utf8)!
 

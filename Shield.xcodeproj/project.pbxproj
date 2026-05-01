@@ -18,8 +18,6 @@
 		A009 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009 /* Components.swift */; };
 		A010 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* OnboardingView.swift */; };
 		A011 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* HomeView.swift */; };
-		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
-		A027 /* WatermarkConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F027 /* WatermarkConfigView.swift */; };
 		A012 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* CaptureView.swift */; };
 		A013 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* EditorView.swift */; };
 		A014 /* DocumentCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* DocumentCanvas.swift */; };
@@ -34,7 +32,16 @@
 		A023 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* TabBar.swift */; };
 		A024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F024 /* Assets.xcassets */; };
 		A025 /* Shield.storekit in Resources */ = {isa = PBXBuildFile; fileRef = F025 /* Shield.storekit */; };
+		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
+		A027 /* WatermarkConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F027 /* WatermarkConfigView.swift */; };
 		A028 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F028 /* PrivacyInfo.xcprivacy */; };
+		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
+		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
+		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
+		A033 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* OnboardingFlowView.swift */; };
+		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
+		A035 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F035 /* OnboardingState.swift */; };
+		A036 /* OnboardingL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* OnboardingL10n.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -42,12 +49,10 @@
 		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
 		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
 		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
-		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
-		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
-		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
@@ -59,8 +64,6 @@
 		F009 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		F010 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		F011 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		F026 /* AllDocumentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDocumentsView.swift; sourceTree = "<group>"; };
-		F027 /* WatermarkConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkConfigView.swift; sourceTree = "<group>"; };
 		F012 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		F013 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		F014 /* DocumentCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCanvas.swift; sourceTree = "<group>"; };
@@ -75,7 +78,16 @@
 		F023 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		F024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F025 /* Shield.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shield.storekit; sourceTree = "<group>"; };
+		F026 /* AllDocumentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDocumentsView.swift; sourceTree = "<group>"; };
+		F027 /* WatermarkConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkConfigView.swift; sourceTree = "<group>"; };
 		F028 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
+		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
+		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
+		F033 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
+		F035 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
+		F036 /* OnboardingL10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingL10n.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -83,9 +95,6 @@
 		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
 		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
-		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
-		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
-		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
 		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -124,6 +133,15 @@
 			path = Capture;
 			sourceTree = "<group>";
 		};
+		GRP_CLOUD /* Cloud */ = {
+			isa = PBXGroup;
+			children = (
+				F030 /* CloudSyncManager.swift */,
+				F031 /* ExternalStorageManager.swift */,
+			);
+			path = Cloud;
+			sourceTree = "<group>";
+		};
 		GRP_COMPONENTS /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -153,15 +171,6 @@
 				F032 /* ImageAdjustToolbar.swift */,
 			);
 			path = Editor;
-			sourceTree = "<group>";
-		};
-		GRP_CLOUD /* Cloud */ = {
-			isa = PBXGroup;
-			children = (
-				F030 /* CloudSyncManager.swift */,
-				F031 /* ExternalStorageManager.swift */,
-			);
-			path = Cloud;
 			sourceTree = "<group>";
 		};
 		GRP_FRAMEWORKS /* Frameworks */ = {
@@ -208,6 +217,8 @@
 			isa = PBXGroup;
 			children = (
 				F010 /* OnboardingView.swift */,
+				F033 /* OnboardingFlowView.swift */,
+				F034 /* OnboardingSteps.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -242,6 +253,7 @@
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
 				F028 /* PrivacyInfo.xcprivacy */,
+				F036 /* OnboardingL10n.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -266,6 +278,7 @@
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
+				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
 				GRP_APP /* App */,
 				GRP_THEME /* Theme */,
 				GRP_MODELS /* Models */,
@@ -299,6 +312,7 @@
 			children = (
 				F006 /* AppState.swift */,
 				F007 /* EditorViewModel.swift */,
+				F035 /* OnboardingState.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -420,6 +434,10 @@
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
+				A033 /* OnboardingFlowView.swift in Sources */,
+				A034 /* OnboardingSteps.swift in Sources */,
+				A035 /* OnboardingState.swift in Sources */,
+				A036 /* OnboardingL10n.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +548,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -549,7 +568,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.shield.redact;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -564,6 +583,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -583,7 +603,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.shield.redact;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

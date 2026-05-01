@@ -8,7 +8,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if !appState.isOnboarded {
-                OnboardingView()
+                OnboardingFlowView()
                     .transition(.opacity)
             } else if !appState.isAuthenticated {
                 LockScreenView()
@@ -57,6 +57,10 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.28), value: appState.showCapture)
         .animation(.spring(response: 0.35, dampingFraction: 0.88), value: appState.selectedDoc?.id)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in AppState.markUserActivity() }
+        )
     }
 
     @ViewBuilder

@@ -40,7 +40,7 @@ Shield es una app iOS de privacidad de documentos: permite importar, escanear, r
 **Patrón arquitectónico:** MVVM + singletons de servicios  
 **UI framework:** SwiftUI (iOS 17+)  
 **Sin dependencias externas:** solo frameworks de Apple  
-**Bundle ID:** `com.shield.redact`
+**Bundle ID:** `com.romerodev.shield`
 
 ### Principios de diseño
 
@@ -517,7 +517,7 @@ Auto-disparo biométrico controlado por `didTriggerAutoBiometric` — un solo in
 
 Sincroniza el **índice de documentos** (metadatos) vía CloudKit Private Database. Los archivos de imagen/PDF nunca salen del dispositivo.
 
-**Container:** `iCloud.com.shield.redact`  
+**Container:** `iCloud.com.romerodev.shield`  
 **Record type:** `ShieldDocument`
 
 Campos sincronizados:
@@ -544,7 +544,7 @@ func deleteRemoteDocument(id: String) async
 func setSyncEnabled(_ enabled: Bool)
 ```
 
-**Requisito:** Capability "iCloud + CloudKit" en Xcode, container `iCloud.com.shield.redact` activo en developer.apple.com.
+**Requisito:** Capability "iCloud + CloudKit" en Xcode, container `iCloud.com.romerodev.shield` activo en developer.apple.com.
 
 ### `ExternalStorageManager`
 **Archivo:** [Cloud/ExternalStorageManager.swift](../Shield/Cloud/ExternalStorageManager.swift)  
@@ -596,7 +596,7 @@ El prefijo `SHLD1` permite detectar archivos no cifrados (migración) al leer.
 
 **Clave maestra:**
 - Generada en primer uso: `SymmetricKey(size: .bits256)`
-- Almacenada en Keychain: service `com.shield.redact.secure-store`, account `master-key`
+- Almacenada en Keychain: service `com.romerodev.shield.secure-store`, account `master-key`
 - Accesible: `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`
 - Una sola clave compartida por toda la app (no por-documento)
 
@@ -774,9 +774,9 @@ final class PremiumManager: ObservableObject {
 
 | Product ID | Tipo | Precio sugerido |
 |------------|------|----------------|
-| `com.shield.redact.pro.monthly` | Auto-Renewable | 4,99 USD/mes |
-| `com.shield.redact.pro.annual` | Auto-Renewable | 34,99 USD/año |
-| `com.shield.redact.pro.lifetime` | Non-Consumable | 79,99 USD |
+| `com.romerodev.shield.pro.monthly` | Auto-Renewable | 4,99 USD/mes |
+| `com.romerodev.shield.pro.annual` | Auto-Renewable | 34,99 USD/año |
+| `com.romerodev.shield.pro.lifetime` | Non-Consumable | 79,99 USD |
 
 **Verificación de entitlements:** `Transaction.currentEntitlements` async stream. El status de `isPro` se persiste en `UserDefaults["shield.isPro"]` como cache para el arranque de la app.
 

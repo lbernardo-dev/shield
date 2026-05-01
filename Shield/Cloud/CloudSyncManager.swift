@@ -23,7 +23,7 @@ final class CloudSyncManager: ObservableObject {
         case error(String)
     }
 
-    private let containerID = "iCloud.com.shield.redact"
+    private let containerID = "iCloud.com.romerodev.shield"
     private let recordType = "ShieldDocument"
     private var isSyncEnabled: Bool {
         UserDefaults.standard.bool(forKey: "shield.icloud.enabled")

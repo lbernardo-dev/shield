@@ -231,11 +231,15 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
     // MARK: - ASWebAuthenticationPresentationContextProviding
 
     nonisolated func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        // ASWebAuthenticationPresentationContextProviding is always called on main thread
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first(where: { $0.isKeyWindow }) ?? ASPresentationAnchor()
+        MainActor.assumeIsolated {
+            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+            if let window = activeScene?.keyWindow { return window }
+            // Last-resort: any visible window (UIApplication.windows deprecated but functional)
+            return UIApplication.shared.windows.first(where: { $0.isKeyWindow })
+                ?? UIApplication.shared.windows.first
+                ?? ASPresentationAnchor()
+        }
     }
 }
 

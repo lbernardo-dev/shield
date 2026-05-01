@@ -18,7 +18,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.shield.redact.pro.lifetime",
+      "productID" : "com.romerodev.shield.pro.lifetime",
       "referenceName" : "Shield Pro Lifetime",
       "type" : "NonConsumable"
     }
@@ -58,7 +58,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.shield.redact.pro.monthly",
+          "productID" : "com.romerodev.shield.pro.monthly",
           "referenceName" : "Shield Pro Monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "subscriptionGroupID" : "shield_pro_group",
@@ -89,7 +89,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.shield.redact.pro.annual",
+          "productID" : "com.romerodev.shield.pro.annual",
           "referenceName" : "Shield Pro Annual",
           "recurringSubscriptionPeriod" : "P1Y",
           "subscriptionGroupID" : "shield_pro_group",

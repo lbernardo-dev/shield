@@ -6,6 +6,7 @@ struct EditorView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
     @StateObject private var vm: EditorViewModel
+    @Environment(\.dismiss) private var dismiss
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
@@ -68,6 +69,7 @@ struct EditorView: View {
                     onDone: {
                         vm.showExportSheet = false
                         appState.selectedDoc = nil
+                        dismiss()
                     }
                 )
             }
@@ -102,6 +104,7 @@ struct EditorView: View {
             Button(appState.str(.cancel)) {
                 if vm.redactions.isEmpty {
                     appState.selectedDoc = nil
+                    dismiss()
                 } else {
                     showCancelConfirm = true
                 }
@@ -115,6 +118,7 @@ struct EditorView: View {
             ) {
                 Button(appState.language == .es ? "Salir" : "Exit", role: .destructive) {
                     appState.selectedDoc = nil
+                    dismiss()
                 }
                 Button(appState.language == .es ? "Continuar editando" : "Keep editing", role: .cancel) {}
             } message: {

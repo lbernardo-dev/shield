@@ -172,7 +172,7 @@ struct VaultView: View {
                         emptyVaultState
                     } else {
                         ForEach(appState.vaultDocuments) { doc in
-                            DocumentRow(doc: doc, lang: appState.language) {
+                            DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
                                 selectedDoc = doc
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -369,7 +369,7 @@ struct AddToVaultSheet: View {
 // MARK: - PINManager
 
 enum PINManager {
-    private static let service = "com.shield.redact.vault"
+    private static let service = "com.romerodev.shield.vault"
     private static let account = "vault-pin"
     private static let failedAttemptsKey = "shield.pin.failedAttempts"
     private static let lockoutUntilKey = "shield.pin.lockoutUntil"

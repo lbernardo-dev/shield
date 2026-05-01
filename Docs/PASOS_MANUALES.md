@@ -52,7 +52,7 @@ El manifest actual declara:
 3. Selecciona el target **Shield** → tab **Signing & Capabilities**.
 4. En **Team**: selecciona tu cuenta de Apple Developer.
    - Si no aparece: Xcode → Settings → Accounts → añade tu Apple ID.
-5. Bundle ID: `com.shield.redact`
+5. Bundle ID: `com.romerodev.shield`
    - Si ya existe otro proyecto con ese ID en tu cuenta, cámbialo a `com.tuapellido.shield` y actualiza también en `CloudSyncManager.swift` la línea del container de CloudKit.
 6. Activa **"Automatically manage signing"** — Xcode gestiona los certificados y provisioning profiles automáticamente.
 
@@ -64,25 +64,25 @@ El manifest actual declara:
 
 **Por qué importa:** `CloudSyncManager` sincroniza los metadatos de la biblioteca del usuario entre dispositivos usando CloudKit Private Database. Sin el entitlement activo en el build, todas las llamadas a CloudKit fallan silenciosamente — el usuario activa la opción en Ajustes, la app no muestra error, pero nunca sincroniza. Esto destruye la confianza en una función que es ancla de valor Pro.
 
-**El container que espera el código:** `iCloud.com.shield.redact` (definido en `CloudSyncManager.swift`).
+**El container que espera el código:** `iCloud.com.romerodev.shield` (definido en `CloudSyncManager.swift`).
 
 **Pasos en Xcode:**
 1. Target **Shield** → **Signing & Capabilities**.
 2. Click **+ Capability** → busca **iCloud** → Add.
 3. En la sección iCloud que aparece:
    - Marca **CloudKit** (no solo "iCloud Documents" — son distintos).
-   - En **Containers**: click en **+** → introduce `iCloud.com.shield.redact`.
+   - En **Containers**: click en **+** → introduce `iCloud.com.romerodev.shield`.
 4. Xcode añade `Shield.entitlements` con:
    ```xml
    <key>com.apple.developer.icloud-container-identifiers</key>
-   <array><string>iCloud.com.shield.redact</string></array>
+   <array><string>iCloud.com.romerodev.shield</string></array>
    <key>com.apple.developer.icloud-services</key>
    <array><string>CloudKit</string></array>
    ```
 
 **Pasos en el Apple Developer Portal** (necesario para producción):
 1. Ve a [developer.apple.com](https://developer.apple.com) → Certificates, IDs & Profiles → Identifiers.
-2. Selecciona el App ID `com.shield.redact`.
+2. Selecciona el App ID `com.romerodev.shield`.
 3. Capabilities → activa **iCloud** → marca **Include CloudKit support**.
 4. Save.
 
@@ -122,7 +122,7 @@ Y usa ese mismo ID en Xcode.
 <array>
     <dict>
         <key>CFBundleURLName</key>
-        <string>com.shield.redact.oauth</string>
+        <string>com.romerodev.shield.oauth</string>
         <key>CFBundleURLSchemes</key>
         <array>
             <string>shield</string>
@@ -132,7 +132,7 @@ Y usa ese mismo ID en Xcode.
 ```
 
 4. Guarda (`Cmd+S`).
-5. Verificación: Target → Info tab → URL Types → debe aparecer `shield` con Identifier `com.shield.redact.oauth`.
+5. Verificación: Target → Info tab → URL Types → debe aparecer `shield` con Identifier `com.romerodev.shield.oauth`.
 
 **Comprobación adicional — NSFaceIDUsageDescription:**
 Si no existe ya en el plist, añade:
@@ -149,9 +149,9 @@ Sin este string, la app se cuelga al solicitar Face ID por primera vez en un dis
 **Por qué importa:** StoreKit 2 carga los productos desde los servidores de Apple usando los Product IDs definidos en `PremiumManager.swift`. Si esos IDs no existen en App Store Connect, `pm.products` queda vacío, el paywall no muestra precios, y ningún usuario puede comprar. Los product IDs son la conexión entre el código y la tienda — deben coincidir exactamente.
 
 **IDs que espera el código** (en `PremiumManager.swift`):
-- `com.shield.redact.pro.monthly`
-- `com.shield.redact.pro.annual`
-- `com.shield.redact.pro.lifetime`
+- `com.romerodev.shield.pro.monthly`
+- `com.romerodev.shield.pro.annual`
+- `com.romerodev.shield.pro.lifetime`
 
 **URL:** [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Tu app → Monetization → In-App Purchases / Subscriptions
 
@@ -166,7 +166,7 @@ Sin este string, la app se cuelga al solicitar Face ID por primera vez en un dis
 | Campo | Valor | Argumento |
 |-------|-------|-----------|
 | Type | Auto-Renewable Subscription | Ingresos recurrentes predecibles |
-| Product ID | `com.shield.redact.pro.monthly` | Debe coincidir exactamente con el código |
+| Product ID | `com.romerodev.shield.pro.monthly` | Debe coincidir exactamente con el código |
 | Duration | 1 Month | Barrera de entrada baja para usuarios indecisos |
 | Price | Tier 3 (~4,99 USD) | Por debajo de ShareWipe ($X/mes), accesible |
 | Display Name (ES) | Shield Pro Mensual | |
@@ -178,7 +178,7 @@ Sin este string, la app se cuelga al solicitar Face ID por primera vez en un dis
 | Campo | Valor | Argumento |
 |-------|-------|-----------|
 | Type | Auto-Renewable Subscription | |
-| Product ID | `com.shield.redact.pro.annual` | Debe coincidir exactamente con el código |
+| Product ID | `com.romerodev.shield.pro.annual` | Debe coincidir exactamente con el código |
 | Duration | 1 Year | Mejor LTV, menor churn que mensual |
 | Price | Tier 23 (~34,99 USD) | Equivale a ~2,91/mes — el "ahorro" es el argumento de conversión |
 | Display Name (ES) | Shield Pro Anual | |
@@ -192,7 +192,7 @@ Sin este string, la app se cuelga al solicitar Face ID por primera vez en un dis
 | Campo | Valor | Argumento |
 |-------|-------|-----------|
 | Type | Non-Consumable | Pago único, sin renovación |
-| Product ID | `com.shield.redact.pro.lifetime` | Debe coincidir exactamente con el código |
+| Product ID | `com.romerodev.shield.pro.lifetime` | Debe coincidir exactamente con el código |
 | Price | Tier 16 (~79,99 USD) | El precio alto hace que el anual parezca razonable (efecto ancla) |
 | Display Name (ES) | Shield Pro — Pago único | |
 | Display Name (EN) | Shield Pro — Lifetime | |
@@ -311,7 +311,7 @@ Funciona para una primera revisión de Apple, pero la URL de Notion tiene el rie
 3. APIs & Services → **Enable APIs** → activa **Google Drive API**.
 4. Credentials → **Create Credentials** → **OAuth 2.0 Client ID**.
    - Application type: **iOS**.
-   - Bundle ID: `com.shield.redact`.
+   - Bundle ID: `com.romerodev.shield`.
 5. Copia el **Client ID** (formato `XXXXXX.apps.googleusercontent.com`).
 6. En `ExternalStorageManager.swift`, busca la línea del Client ID de Google y reemplaza el placeholder:
    ```swift
@@ -381,7 +381,7 @@ Funciona para una primera revisión de Apple, pero la URL de Notion tiene el rie
    - **Platform:** iOS
    - **Name:** `Shield — Redact & Protect Docs`
    - **Primary Language:** English (o Spanish, según tu mercado principal)
-   - **Bundle ID:** `com.shield.redact`
+   - **Bundle ID:** `com.romerodev.shield`
    - **SKU:** `shield-redact-2026`
 3. Tras crear, completa **App Information**:
    - **Subtitle:** `Protect what you share`
@@ -544,7 +544,7 @@ SHIELD PRO — 7-day free trial:
 ```
 Seguridad y compliance
 [ ] Capability iCloud + CloudKit activa (paso 3)
-[ ] Container iCloud.com.shield.redact creado en developer.apple.com (paso 3)
+[ ] Container iCloud.com.romerodev.shield creado en developer.apple.com (paso 3)
 [ ] Capability In-App Purchase activa (paso 4)
 [ ] URL scheme "shield" registrado en Info.plist (paso 5)
 [ ] NSFaceIDUsageDescription en Info.plist (paso 5)
@@ -566,7 +566,7 @@ Assets
 [ ] Screenshots para 6.9" iPhone 16 Pro Max (paso 12)
 
 App Store Connect
-[ ] App creada con Bundle ID com.shield.redact (paso 11)
+[ ] App creada con Bundle ID com.romerodev.shield (paso 11)
 [ ] Metadatos ES y EN completados (paso 11)
 [ ] Build compilado en Release sin warnings (paso 13a)
 [ ] Build subido y validado por Apple (paso 13b)

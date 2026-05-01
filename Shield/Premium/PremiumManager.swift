@@ -4,9 +4,9 @@ import SwiftUI
 // MARK: - Product IDs  (match exactly what you register in App Store Connect)
 
 enum ShieldProduct: String, CaseIterable {
-    case monthly   = "com.shield.redact.pro.monthly"
-    case annual    = "com.shield.redact.pro.annual"
-    case lifetime  = "com.shield.redact.pro.lifetime"
+    case monthly   = "com.romerodev.shield.pro.monthly"
+    case annual    = "com.romerodev.shield.pro.annual"
+    case lifetime  = "com.romerodev.shield.pro.lifetime"
 
     var displayName: String {
         switch self {
