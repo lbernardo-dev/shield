@@ -24,18 +24,22 @@ enum MaskStyle: String, CaseIterable, Identifiable, Codable {
 
     var isBlur: Bool { self == .blurStrong || self == .blurSoft }
 
-    func label(lang: AppLanguage) -> String {
+    var localizedLabel: String {
         switch self {
-        case .block:        return lang == .es ? "Negro" : "Black"
-        case .blockWhite:   return lang == .es ? "Blanco" : "White"
-        case .pixelate:     return lang == .es ? "Pixelado" : "Pixelate"
-        case .blurStrong:   return lang == .es ? "Blur fuerte" : "Strong blur"
-        case .blurSoft:     return lang == .es ? "Blur suave" : "Soft blur"
-        case .diagonal:     return "Diagonal"
-        case .secure:       return lang == .es ? "Alta seg." : "High-sec."
-        case .redactedTag:  return lang == .es ? "Etiqueta" : "Label"
-        case .semi:         return "Semi"
+        case .block:        return LanguageManager.shared.model("model_mask_style_block")
+        case .blockWhite:   return LanguageManager.shared.model("model_mask_style_block_white")
+        case .pixelate:     return LanguageManager.shared.model("model_mask_style_pixelate")
+        case .blurStrong:   return LanguageManager.shared.model("model_mask_style_blur_strong")
+        case .blurSoft:     return LanguageManager.shared.model("model_mask_style_blur_soft")
+        case .diagonal:     return LanguageManager.shared.model("model_mask_style_diagonal")
+        case .secure:       return LanguageManager.shared.model("model_mask_style_secure")
+        case .redactedTag:  return LanguageManager.shared.model("model_mask_style_redacted_tag")
+        case .semi:         return LanguageManager.shared.model("model_mask_style_semi")
         }
+    }
+
+    func label(lang: AppLanguage) -> String {
+        localizedLabel
     }
 }
 
@@ -100,15 +104,15 @@ enum RedactionMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func label(lang: AppLanguage) -> String {
+    var localizedLabel: String {
         switch self {
-        case .rental:  return lang == .es ? "Alquiler" : "Rental"
-        case .travel:  return lang == .es ? "Viaje" : "Travel"
-        case .job:     return lang == .es ? "Empleo" : "Job"
-        case .verify:  return lang == .es ? "Verificación" : "Verify"
-        case .legal:   return lang == .es ? "Legal" : "Legal"
-        case .health:  return lang == .es ? "Salud" : "Health"
-        case .banking: return lang == .es ? "Banca" : "Banking"
+        case .rental:  return LanguageManager.shared.model("model_redaction_mode_rental")
+        case .travel:  return LanguageManager.shared.model("model_redaction_mode_travel")
+        case .job:     return LanguageManager.shared.model("model_redaction_mode_job")
+        case .verify:  return LanguageManager.shared.model("model_redaction_mode_verify")
+        case .legal:   return LanguageManager.shared.model("model_redaction_mode_legal")
+        case .health:  return LanguageManager.shared.model("model_redaction_mode_health")
+        case .banking: return LanguageManager.shared.model("model_redaction_mode_banking")
         }
     }
 
@@ -136,15 +140,15 @@ enum RedactionMode: String, CaseIterable, Identifiable {
         }
     }
 
-    func subtitle(lang: AppLanguage) -> String {
+    var localizedSubtitle: String {
         switch self {
-        case .rental:  return lang == .es ? "Oculta foto, dirección, MRZ" : "Hides photo, address, MRZ"
-        case .travel:  return lang == .es ? "Oculta nº pasaporte" : "Hides passport №"
-        case .job:     return lang == .es ? "Oculta DOB, firma" : "Hides DOB, signature"
-        case .verify:  return lang == .es ? "Solo nombre + foto" : "Only name + photo"
-        case .legal:   return lang == .es ? "Oculta DOB, dirección, firma" : "Hides DOB, address, signature"
-        case .health:  return lang == .es ? "Oculta DOB, nº SS, dirección" : "Hides DOB, SS №, address"
-        case .banking: return lang == .es ? "Oculta IBAN, nº cuenta, firma" : "Hides IBAN, account №, signature"
+        case .rental:  return LanguageManager.shared.model("model_redaction_mode_rental_sub")
+        case .travel:  return LanguageManager.shared.model("model_redaction_mode_travel_sub")
+        case .job:     return LanguageManager.shared.model("model_redaction_mode_job_sub")
+        case .verify:  return LanguageManager.shared.model("model_redaction_mode_verify_sub")
+        case .legal:   return LanguageManager.shared.model("model_redaction_mode_legal_sub")
+        case .health:  return LanguageManager.shared.model("model_redaction_mode_health_sub")
+        case .banking: return LanguageManager.shared.model("model_redaction_mode_banking_sub")
         }
     }
 
@@ -154,5 +158,13 @@ enum RedactionMode: String, CaseIterable, Identifiable {
         case .legal, .health, .banking: return true
         default: return false
         }
+    }
+
+    func label(lang: AppLanguage) -> String {
+        localizedLabel
+    }
+
+    func subtitle(lang: AppLanguage) -> String {
+        localizedSubtitle
     }
 }

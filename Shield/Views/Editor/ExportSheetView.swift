@@ -50,7 +50,7 @@ struct ExportSheetView: View {
     private var exportForm: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(lang == .es ? "Exportar" : "Export")
+                Text(LanguageManager.shared.editor("editor_export"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -90,7 +90,7 @@ struct ExportSheetView: View {
 
                     // Format picker
                     VStack(alignment: .leading, spacing: 8) {
-                        sectionLabel(lang == .es ? "Formato" : "Format")
+                        sectionLabel(LanguageManager.shared.editor("editor_export_format"))
                         HStack(spacing: 8) {
                             ForEach([ExportFormat.pdf, .image], id: \.self) { f in
                                 Button { format = f } label: {
@@ -98,7 +98,7 @@ struct ExportSheetView: View {
                                         Image(systemName: f == .pdf ? "doc.fill" : "photo.fill")
                                             .font(.system(size: 16, weight: .semibold))
                                             .foregroundColor(format == f ? ShieldTheme.accent : ShieldTheme.textPrimary)
-                                        Text(f == .pdf ? "PDF" : (lang == .es ? "Imagen" : "Image"))
+                                        Text(f == .pdf ? "PDF" : LanguageManager.shared.editor("editor_export_image"))
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(ShieldTheme.textPrimary)
                                     }
@@ -119,7 +119,7 @@ struct ExportSheetView: View {
 
                     // Quality picker
                     VStack(alignment: .leading, spacing: 8) {
-                        sectionLabel(L10nKey.quality.string(lang: lang))
+                        sectionLabel(LanguageManager.shared.editor("editor_export_quality"))
                         HStack(spacing: 6) {
                             ForEach(ExportQuality.allCases, id: \.self) { q in
                                 Button { quality = q } label: {
@@ -136,9 +136,7 @@ struct ExportSheetView: View {
                         }
                     }
 
-                    Text(lang == .es
-                         ? "Las redacciones se integran directamente en el archivo exportado."
-                         : "Redactions are baked directly into the exported file.")
+                    Text(LanguageManager.shared.editor("editor_export_baked_note"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,9 +156,7 @@ struct ExportSheetView: View {
                             HStack(alignment: .top, spacing: 8) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.system(size: 12, weight: .semibold))
-                                Text(lang == .es
-                                     ? "Riesgo OCR alto detectado. Revisa campos críticos antes de exportar."
-                                     : "High OCR risk detected. Review critical fields before exporting.")
+                                Text(LanguageManager.shared.editor("editor_ocr_risk_warning"))
                                     .font(.system(size: 12, weight: .semibold))
                             }
                             .foregroundColor(ShieldTheme.warning)
@@ -171,9 +167,7 @@ struct ExportSheetView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: acknowledgeHighRiskExport ? "checkmark.square.fill" : "square")
                                         .foregroundColor(acknowledgeHighRiskExport ? ShieldTheme.accent : ShieldTheme.textTertiary)
-                                    Text(lang == .es
-                                         ? "Entiendo el riesgo y quiero exportar"
-                                         : "I understand the risk and want to export")
+                                    Text(LanguageManager.shared.editor("editor_ocr_risk_acknowledge"))
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundColor(ShieldTheme.textSecondary)
                                 }
@@ -186,11 +180,7 @@ struct ExportSheetView: View {
                     }
 
                     if !pm.isPro {
-                        Text(
-                            lang == .es
-                                ? "Exportaciones Free restantes esta semana: \(pm.remainingFreeExportsThisWeek())"
-                                : "Free exports remaining this week: \(pm.remainingFreeExportsThisWeek())"
-                        )
+                        Text(String(format: LanguageManager.shared.paywall("paywall_remaining_free"), pm.remainingFreeExportsThisWeek()))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -207,14 +197,14 @@ struct ExportSheetView: View {
                     HStack(spacing: 8) {
                         if isExporting {
                             ProgressView().tint(ShieldTheme.accentText).scaleEffect(0.8)
-                            Text(lang == .es ? "Exportando…" : "Exporting…")
+                            Text(LanguageManager.shared.editor("editor_exporting"))
                                 .font(.system(size: 15, weight: .bold))
                         } else {
                             Image(systemName: "square.and.arrow.down")
                                 .font(.system(size: 16, weight: .semibold))
                             Text(format == .pdf
-                                 ? L10nKey.exportPDF.string(lang: lang)
-                                 : L10nKey.exportImage.string(lang: lang))
+                                 ? LanguageManager.shared.model("model_export_pdf")
+                                 : LanguageManager.shared.model("model_export_image"))
                                 .font(.system(size: 15, weight: .bold))
                         }
                     }
@@ -259,16 +249,14 @@ struct ExportSheetView: View {
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(spacing: 4) {
-                Text(lang == .es ? "Exportado" : "Exported")
+                Text(LanguageManager.shared.editor("editor_exported"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
-                Text("\(redactionsCountLabel)\(watermarkApplied ? " · \(lang == .es ? "con marca de agua" : "with watermark")" : "")")
+                Text("\(redactionsCountLabel)\(watermarkApplied ? " · \(LanguageManager.shared.editor("editor_wm_applied_note"))" : "")")
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.textSecondary)
                 if !pm.isPro {
-                    Text(lang == .es
-                         ? "Incluye marca de agua en Shield Free"
-                         : "Includes watermark on Shield Free")
+                    Text(LanguageManager.shared.editor("editor_include_wm_free"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
@@ -276,7 +264,7 @@ struct ExportSheetView: View {
             Spacer()
             HStack(spacing: 8) {
                 Button { onDone() } label: {
-                    Text(L10nKey.done.string(lang: lang))
+                    Text(LanguageManager.shared.common("common_done"))
                         .font(.system(size: 14, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
@@ -292,7 +280,7 @@ struct ExportSheetView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")
-                        Text(L10nKey.share.string(lang: lang))
+                        Text(LanguageManager.shared.common("common_share"))
                     }
                     .font(.system(size: 14, weight: .bold))
                     .frame(maxWidth: .infinity)
@@ -318,11 +306,10 @@ struct ExportSheetView: View {
     private var privacyScorePanel: some View {
         let score = computePrivacyScore()
         let color: Color = score >= 80 ? ShieldTheme.success : (score >= 50 ? ShieldTheme.warning : ShieldTheme.danger)
-        let label: String = score >= 80
-            ? (lang == .es ? "Seguro para compartir" : "Safe to share")
-            : (score >= 50
-               ? (lang == .es ? "Riesgo moderado" : "Moderate risk")
-               : (lang == .es ? "Riesgo alto" : "High risk"))
+        let labelKey: String = score >= 80
+            ? "editor_export_safe_to_share"
+            : (score >= 50 ? "editor_export_moderate_risk" : "editor_export_high_risk")
+        let label = LanguageManager.shared.str(labelKey, table: "Editor")
 
         return Button {
             withAnimation(.spring(response: 0.3)) { showPrivacyScore.toggle() }
@@ -336,7 +323,7 @@ struct ExportSheetView: View {
                             .foregroundColor(color)
                     }
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(lang == .es ? "Privacy Score" : "Privacy Score")
+                        Text("Privacy Score")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(ShieldTheme.textPrimary)
                         Text(label)
@@ -353,30 +340,30 @@ struct ExportSheetView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         privacyScoreRow(
                             icon: "scissors",
-                            label: lang == .es ? "Redacciones aplicadas" : "Redactions applied",
+                            label: LanguageManager.shared.str("editor_export_redactions_applied", table: "Editor"),
                             value: totalRedactionCount > 0
                                 ? "\(totalRedactionCount)"
-                                : (lang == .es ? "Ninguna" : "None"),
+                                : LanguageManager.shared.str("editor_export_none", table: "Editor"),
                             ok: totalRedactionCount > 0
                         )
                         privacyScoreRow(
                             icon: "doc.badge.minus",
-                            label: lang == .es ? "Metadatos EXIF/GPS eliminados" : "EXIF/GPS metadata stripped",
-                            value: lang == .es ? "Siempre" : "Always",
+                            label: LanguageManager.shared.str("editor_export_metadata_stripped", table: "Editor"),
+                            value: LanguageManager.shared.str("editor_export_always", table: "Editor"),
                             ok: true
                         )
                         privacyScoreRow(
                             icon: "text.magnifyingglass",
-                            label: lang == .es ? "Riesgo OCR" : "OCR risk",
+                            label: LanguageManager.shared.str("editor_export_ocr_risk", table: "Editor"),
                             value: (doc.fields.ocrRiskLevel ?? "").capitalized,
                             ok: doc.fields.ocrRiskLevel != "high"
                         )
                         privacyScoreRow(
                             icon: pm.isPro ? "drop.slash" : "drop.fill",
-                            label: lang == .es ? "Sin marca de agua" : "No watermark",
+                            label: LanguageManager.shared.str("editor_export_no_watermark", table: "Editor"),
                             value: pm.isPro
-                                ? (lang == .es ? "Sí (Pro)" : "Yes (Pro)")
-                                : (lang == .es ? "No (Free)" : "No (Free)"),
+                                ? LanguageManager.shared.str("editor_export_yes_pro", table: "Editor")
+                                : LanguageManager.shared.str("editor_export_no_free", table: "Editor"),
                             ok: pm.isPro
                         )
                     }
@@ -442,9 +429,9 @@ struct ExportSheetView: View {
 
     private func qualityLabel(_ q: ExportQuality) -> String {
         switch q {
-        case .high:   return L10nKey.high.string(lang: lang)
-        case .medium: return L10nKey.medium.string(lang: lang)
-        case .low:    return L10nKey.low.string(lang: lang)
+        case .high:   return LanguageManager.shared.model("model_quality_high")
+        case .medium: return LanguageManager.shared.model("model_quality_medium")
+        case .low:    return LanguageManager.shared.model("model_quality_low")
         }
     }
 
@@ -452,11 +439,7 @@ struct ExportSheetView: View {
         let n = format == .pdf
             ? pageRedactions.values.reduce(0) { $0 + $1.count }
             : redactions.count
-        if lang == .es {
-            return "\(n) \(n == 1 ? "redacción" : "redacciones")"
-        } else {
-            return "\(n) \(n == 1 ? "redaction" : "redactions")"
-        }
+        return LanguageManager.shared.str("editor_export_count_label", table: "Editor", args: n)
     }
 
     private var watermarkApplied: Bool {
@@ -475,18 +458,14 @@ struct ExportSheetView: View {
     private func doExport() {
         exportErrorMessage = nil
         guard pm.canExportNow() else {
-            exportErrorMessage = lang == .es
-                ? "Has agotado tus exportaciones semanales. Actualiza a Pro para exportar sin límite."
-                : "You used all weekly exports. Upgrade to Pro for unlimited exports."
+            exportErrorMessage = LanguageManager.shared.str("editor_export_free_limit_reached", table: "Editor")
             AppState.trackEvent("export_blocked_free_limit")
             showPaywall = true
             return
         }
 
         if shouldWarnForHighRiskExport && !acknowledgeHighRiskExport {
-            exportErrorMessage = lang == .es
-                ? "Debes confirmar el riesgo OCR alto antes de exportar."
-                : "You must acknowledge high OCR risk before exporting."
+            exportErrorMessage = LanguageManager.shared.str("editor_export_risk_acknowledge_error", table: "Editor")
             AppState.trackEvent("export_blocked_risk", properties: ["risk": "high"])
             return
         }
@@ -494,7 +473,7 @@ struct ExportSheetView: View {
         let effectiveWatermark = pm.isPro
             ? watermark
             : (watermark ?? Watermark(
-                text: lang == .es ? "Protegido con Shield Free" : "Protected with Shield Free",
+                text: LanguageManager.shared.str("editor_export_protected_free", table: "Editor"),
                 opacity: 0.18,
                 isRepeating: true
             ))
@@ -529,9 +508,7 @@ struct ExportSheetView: View {
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
                     } else {
-                        exportErrorMessage = lang == .es
-                            ? "No se pudo exportar el PDF. Inténtalo de nuevo."
-                            : "Could not export PDF. Please try again."
+                        exportErrorMessage = LanguageManager.shared.str("editor_export_error_pdf_retry", table: "Editor")
                         AppState.trackEvent("export_failed", properties: ["format": "pdf"])
                     }
                 }
@@ -551,9 +528,7 @@ struct ExportSheetView: View {
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
                     } else {
-                        exportErrorMessage = lang == .es
-                            ? "No se pudo exportar la imagen. Inténtalo de nuevo."
-                            : "Could not export image. Please try again."
+                        exportErrorMessage = LanguageManager.shared.str("editor_export_error_image_retry", table: "Editor")
                         AppState.trackEvent("export_failed", properties: ["format": "image"])
                     }
                 }

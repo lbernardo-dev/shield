@@ -19,13 +19,15 @@ struct ImageAdjustToolbar: View {
         var id: String { rawValue }
 
         func label(lang: AppLanguage) -> String {
+            let key: String
             switch self {
-            case .brightness:  return lang == .es ? "Brillo" : "Brightness"
-            case .contrast:    return lang == .es ? "Contraste" : "Contrast"
-            case .saturation:  return lang == .es ? "Saturación" : "Saturation"
-            case .sharpness:   return lang == .es ? "Nitidez" : "Sharpness"
-            case .crop:        return lang == .es ? "Recorte" : "Crop"
+            case .brightness:  key = "editor_adjust_brightness"
+            case .contrast:    key = "editor_adjust_contrast"
+            case .saturation:  key = "editor_adjust_saturation"
+            case .sharpness:   key = "editor_adjust_sharpness"
+            case .crop:        key = "editor_adjust_crop"
             }
+            return LanguageManager.shared.str(key, table: "Editor")
         }
 
         var icon: String {
@@ -46,13 +48,11 @@ struct ImageAdjustToolbar: View {
         }
     }
 
-    private var l: Bool { lang == .es }
-
     var body: some View {
         VStack(spacing: 0) {
             // Header row
             HStack {
-                Text(l ? "Ajuste de imagen" : "Image adjust")
+                Text(LanguageManager.shared.str("editor_adjust_title", table: "Editor"))
                     .font(.system(size: 14, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -60,7 +60,7 @@ struct ImageAdjustToolbar: View {
                     Button {
                         withAnimation { vm.resetAdjustment() }
                     } label: {
-                        Text(l ? "Restablecer" : "Reset")
+                        Text(LanguageManager.shared.str("common_reset", table: "Common"))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(ShieldTheme.danger)
                     }
@@ -84,13 +84,13 @@ struct ImageAdjustToolbar: View {
 
             // Quick action row: rotate + flip
             HStack(spacing: 8) {
-                quickActionButton(icon: "rotate.right", label: l ? "Girar 90°" : "Rotate 90°") {
+                quickActionButton(icon: "rotate.right", label: LanguageManager.shared.str("editor_adjust_rotate_90", table: "Editor")) {
                     vm.rotateImage90CW()
                 }
-                quickActionButton(icon: "arrow.left.and.right.righttriangle.left.righttriangle.right", label: l ? "Voltear H" : "Flip H") {
+                quickActionButton(icon: "arrow.left.and.right.righttriangle.left.righttriangle.right", label: LanguageManager.shared.str("editor_adjust_flip_h", table: "Editor")) {
                     vm.flipImageHorizontal()
                 }
-                quickActionButton(icon: "arrow.up.and.down.righttriangle.up.righttriangle.down", label: l ? "Voltear V" : "Flip V") {
+                quickActionButton(icon: "arrow.up.and.down.righttriangle.up.righttriangle.down", label: LanguageManager.shared.str("editor_adjust_flip_v", table: "Editor")) {
                     vm.flipImageVertical()
                 }
             }
@@ -133,28 +133,28 @@ struct ImageAdjustToolbar: View {
                 switch activeTool {
                 case .brightness:
                     adjustSlider(
-                        label: l ? "Brillo" : "Brightness",
+                        label: LanguageManager.shared.str("editor_adjust_brightness", table: "Editor"),
                         value: Binding(get: { vm.imageAdjustment.brightness },
                                        set: { var a = vm.imageAdjustment; a.brightness = $0; vm.updateAdjustment(a) }),
                         range: -0.5...0.5, defaultValue: 0, format: "%.2f"
                     )
                 case .contrast:
                     adjustSlider(
-                        label: l ? "Contraste" : "Contrast",
+                        label: LanguageManager.shared.str("editor_adjust_contrast", table: "Editor"),
                         value: Binding(get: { vm.imageAdjustment.contrast },
                                        set: { var a = vm.imageAdjustment; a.contrast = $0; vm.updateAdjustment(a) }),
                         range: 0.5...2.0, defaultValue: 1.0, format: "%.2f"
                     )
                 case .saturation:
                     adjustSlider(
-                        label: l ? "Saturación" : "Saturation",
+                        label: LanguageManager.shared.str("editor_adjust_saturation", table: "Editor"),
                         value: Binding(get: { vm.imageAdjustment.saturation },
                                        set: { var a = vm.imageAdjustment; a.saturation = $0; vm.updateAdjustment(a) }),
                         range: 0...2.0, defaultValue: 1.0, format: "%.2f"
                     )
                 case .sharpness:
                     adjustSlider(
-                        label: l ? "Nitidez" : "Sharpness",
+                        label: LanguageManager.shared.str("editor_adjust_sharpness", table: "Editor"),
                         value: Binding(get: { vm.imageAdjustment.sharpness },
                                        set: { var a = vm.imageAdjustment; a.sharpness = $0; vm.updateAdjustment(a) }),
                         range: 0...1.0, defaultValue: 0, format: "%.2f"
@@ -237,22 +237,22 @@ struct ImageAdjustToolbar: View {
     @ViewBuilder
     private var cropSliders: some View {
         VStack(spacing: 10) {
-            Text(l ? "Recorte por lado (0–40%)" : "Crop per side (0–40%)")
+            Text(LanguageManager.shared.str("editor_adjust_crop_desc", table: "Editor"))
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(ShieldTheme.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
 
-            cropSide(l ? "Superior" : "Top",
+            cropSide(LanguageManager.shared.str("editor_adjust_top", table: "Editor"),
                      binding: Binding(get: { vm.imageAdjustment.cropTop },
                                       set: { var a = vm.imageAdjustment; a.cropTop = $0; vm.updateAdjustment(a) }))
-            cropSide(l ? "Inferior" : "Bottom",
+            cropSide(LanguageManager.shared.str("editor_adjust_bottom", table: "Editor"),
                      binding: Binding(get: { vm.imageAdjustment.cropBottom },
                                       set: { var a = vm.imageAdjustment; a.cropBottom = $0; vm.updateAdjustment(a) }))
-            cropSide(l ? "Izquierda" : "Left",
+            cropSide(LanguageManager.shared.str("editor_adjust_left", table: "Editor"),
                      binding: Binding(get: { vm.imageAdjustment.cropLeft },
                                       set: { var a = vm.imageAdjustment; a.cropLeft = $0; vm.updateAdjustment(a) }))
-            cropSide(l ? "Derecha" : "Right",
+            cropSide(LanguageManager.shared.str("editor_adjust_right", table: "Editor"),
                      binding: Binding(get: { vm.imageAdjustment.cropRight },
                                       set: { var a = vm.imageAdjustment; a.cropRight = $0; vm.updateAdjustment(a) }))
         }

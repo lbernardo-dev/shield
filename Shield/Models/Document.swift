@@ -1,12 +1,5 @@
 import SwiftUI
 
-// MARK: - AppLanguage
-
-enum AppLanguage: String, CaseIterable, Codable {
-    case es, en
-    var displayName: String { rawValue.uppercased() }
-}
-
 // MARK: - DocumentCategory (built-in)
 
 enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
@@ -20,15 +13,15 @@ enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
 
     var id: String { rawValue }
 
-    func label(lang: AppLanguage) -> String {
+    var localizedLabel: String {
         switch self {
-        case .all:      return lang == .es ? "Todos" : "All"
-        case .identity: return lang == .es ? "Identidad" : "ID"
-        case .travel:   return lang == .es ? "Viaje" : "Travel"
-        case .driving:  return lang == .es ? "Conducción" : "Driving"
-        case .work:     return lang == .es ? "Trabajo" : "Work"
-        case .health:   return lang == .es ? "Salud" : "Health"
-        case .finance:  return lang == .es ? "Financiero" : "Finance"
+        case .all:      return LanguageManager.shared.model("model_category_all")
+        case .identity: return LanguageManager.shared.model("model_category_identity")
+        case .travel:   return LanguageManager.shared.model("model_category_travel")
+        case .driving:  return LanguageManager.shared.model("model_category_driving")
+        case .work:     return LanguageManager.shared.model("model_category_work")
+        case .health:   return LanguageManager.shared.model("model_category_health")
+        case .finance:  return LanguageManager.shared.model("model_category_finance")
         }
     }
 
@@ -42,6 +35,10 @@ enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
         case .health:   return "heart.fill"
         case .finance:  return "dollarsign.circle.fill"
         }
+    }
+
+    func label(lang: AppLanguage) -> String {
+        localizedLabel
     }
 }
 
@@ -182,6 +179,14 @@ struct DocumentItem: Identifiable, Codable {
         pageRedactions.first(where: { $0.pageIndex == page })?.redactions ?? []
     }
 
+    func dateLabelLocalized(lang: AppLanguage) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.locale = Locale(identifier: lang.rawValue)
+        return formatter.string(from: date)
+    }
+
     init(id: String = UUID().uuidString,
          kind: DocumentKind,
          title: String,
@@ -263,19 +268,17 @@ struct DocumentItem: Identifiable, Codable {
         redactionCount = totalRedactionCount
     }
 
-    func dateLabelLocalized(lang: AppLanguage) -> String {
+    var localizedDateLabel: String {
         let cal = Calendar.current
+        let lang = LanguageManager.shared.current
         if cal.isDateInToday(date) {
             let fmt = DateFormatter()
-            if lang == .es {
-                fmt.dateFormat = "HH:mm"
-                return "Hoy, \(fmt.string(from: date))"
-            } else {
-                fmt.dateFormat = "h:mm a"
-                return "Today, \(fmt.string(from: date))"
-            }
+            fmt.locale = Locale(identifier: lang.rawValue)
+            fmt.dateStyle = .none
+            fmt.timeStyle = .short
+            return LanguageManager.shared.t("common_today_at", table: "Common", args: fmt.string(from: date))
         } else if cal.isDateInYesterday(date) {
-            return lang == .es ? "Ayer" : "Yesterday"
+            return LanguageManager.shared.common("common_yesterday")
         } else {
             let fmt = DateFormatter()
             fmt.dateFormat = "d MMM"

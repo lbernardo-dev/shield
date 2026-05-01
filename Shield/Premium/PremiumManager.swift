@@ -8,22 +8,35 @@ enum ShieldProduct: String, CaseIterable {
     case annual    = "com.romerodev.shield.pro.annual"
     case lifetime  = "com.romerodev.shield.pro.lifetime"
 
-    var displayName: String {
+    func label(lang: AppLanguage) -> String {
+        let key: String
         switch self {
-        case .monthly:  return "Shield Pro Monthly"
-        case .annual:   return "Shield Pro Annual"
-        case .lifetime: return "Shield Pro Lifetime"
+        case .monthly:  key = "paywall_plan_monthly"
+        case .annual:   key = "paywall_plan_annual"
+        case .lifetime: key = "paywall_plan_lifetime"
         }
+        return LanguageManager.shared.str(key, table: "Paywall")
     }
 }
-
-enum PaywallTrigger: String {
+// MARK: - PaywallTrigger (why are we showing the paywall)
+enum PaywallTrigger: String, CaseIterable {
     case manual
     case docLimitReached
     case exportLimitReached
     case styleLocked
     case vaultUpgrade
     case settingsUpgrade
+
+    var localizationKey: String {
+        switch self {
+        case .manual:           return "paywall_trigger_manual"
+        case .docLimitReached:  return "paywall_trigger_doc_limit"
+        case .exportLimitReached: return "paywall_trigger_export_limit"
+        case .styleLocked:      return "paywall_trigger_style_locked"
+        case .vaultUpgrade:     return "paywall_trigger_vault"
+        case .settingsUpgrade:  return "paywall_trigger_generic"
+        }
+    }
 }
 
 // MARK: - PremiumManager
@@ -235,6 +248,6 @@ final class PremiumManager: ObservableObject {
         let ratio = NSDecimalNumber(decimal: (m - a) / m).doubleValue
         let pct = Int((ratio * 100).rounded())
         guard pct > 0 else { return nil }
-        return lang == .es ? "Ahorra \(pct)%" : "Save \(pct)%"
+        return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: pct)
     }
 }

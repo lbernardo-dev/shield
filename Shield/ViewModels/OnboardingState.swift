@@ -17,12 +17,12 @@ enum OBGoal: String, CaseIterable, Identifiable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .rental:  return OnboardingKey.goalRental.string(lang: lang)
-        case .work:    return OnboardingKey.goalWork.string(lang: lang)
-        case .vehicle: return OnboardingKey.goalVehicle.string(lang: lang)
-        case .banking: return OnboardingKey.goalBanking.string(lang: lang)
-        case .travel:  return OnboardingKey.goalTravel.string(lang: lang)
-        case .other:   return OnboardingKey.goalOther.string(lang: lang)
+        case .rental:  return LanguageManager.shared.onboarding("onboarding_goal_rental")
+        case .work:    return LanguageManager.shared.onboarding("onboarding_goal_work")
+        case .vehicle: return LanguageManager.shared.onboarding("onboarding_goal_vehicle")
+        case .banking: return LanguageManager.shared.onboarding("onboarding_goal_banking")
+        case .travel:  return LanguageManager.shared.onboarding("onboarding_goal_travel")
+        case .other:   return LanguageManager.shared.onboarding("onboarding_goal_other")
         }
     }
 }
@@ -44,22 +44,22 @@ enum OBPainPoint: String, CaseIterable, Identifiable, Hashable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .photo:     return OnboardingKey.painPhoto.string(lang: lang)
-        case .dob:       return OnboardingKey.painDOB.string(lang: lang)
-        case .docNumber: return OnboardingKey.painDocNum.string(lang: lang)
-        case .address:   return OnboardingKey.painAddress.string(lang: lang)
-        case .bank:      return OnboardingKey.painBank.string(lang: lang)
-        case .notSure:   return OnboardingKey.painNotSure.string(lang: lang)
+        case .photo:     return LanguageManager.shared.onboarding("onboarding_pain_photo")
+        case .dob:       return LanguageManager.shared.onboarding("onboarding_pain_dob")
+        case .docNumber: return LanguageManager.shared.onboarding("onboarding_pain_doc_num")
+        case .address:   return LanguageManager.shared.onboarding("onboarding_pain_address")
+        case .bank:      return LanguageManager.shared.onboarding("onboarding_pain_bank")
+        case .notSure:   return LanguageManager.shared.onboarding("onboarding_pain_not_sure")
         }
     }
-    var solutionKeys: (title: OnboardingKey, fix: OnboardingKey) {
+    var solutionKeys: (title: String, fix: String) {
         switch self {
-        case .photo:     return (.solutionPhotoTitle, .solutionPhotoFix)
-        case .dob:       return (.solutionDOBTitle, .solutionDOBFix)
-        case .docNumber: return (.solutionDocNumTitle, .solutionDocNumFix)
-        case .address:   return (.solutionAddressTitle, .solutionAddressFix)
-        case .bank:      return (.solutionBankTitle, .solutionBankFix)
-        case .notSure:   return (.solutionNotSureTitle, .solutionNotSureFix)
+        case .photo:     return ("onboarding_solution_photo_title", "onboarding_solution_photo_fix")
+        case .dob:       return ("onboarding_solution_dob_title", "onboarding_solution_dob_fix")
+        case .docNumber: return ("onboarding_solution_doc_num_title", "onboarding_solution_doc_num_fix")
+        case .address:   return ("onboarding_solution_address_title", "onboarding_solution_address_fix")
+        case .bank:      return ("onboarding_solution_bank_title", "onboarding_solution_bank_fix")
+        case .notSure:   return ("onboarding_solution_not_sure_title", "onboarding_solution_not_sure_fix")
         }
     }
 }
@@ -81,12 +81,12 @@ enum OBDocType: String, CaseIterable, Identifiable, Hashable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .dni:      return OnboardingKey.prefDNI.string(lang: lang)
-        case .passport: return OnboardingKey.prefPassport.string(lang: lang)
-        case .license:  return OnboardingKey.prefLicense.string(lang: lang)
-        case .payslip:  return OnboardingKey.prefPayslip.string(lang: lang)
-        case .bank:     return OnboardingKey.prefBank.string(lang: lang)
-        case .medical:  return OnboardingKey.prefMedical.string(lang: lang)
+        case .dni:      return LanguageManager.shared.onboarding("onboarding_pref_dni")
+        case .passport: return LanguageManager.shared.onboarding("onboarding_pref_passport")
+        case .license:  return LanguageManager.shared.onboarding("onboarding_pref_license")
+        case .payslip:  return LanguageManager.shared.onboarding("onboarding_pref_payslip")
+        case .bank:     return LanguageManager.shared.onboarding("onboarding_pref_bank")
+        case .medical:  return LanguageManager.shared.onboarding("onboarding_pref_medical")
         }
     }
 }

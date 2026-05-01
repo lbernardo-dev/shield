@@ -57,18 +57,16 @@ struct VaultView: View {
                 Image(systemName: "lock.rectangle.stack.fill").font(.system(size: 44)).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 8) {
-                Text(appState.language == .es ? "Bóveda — Shield Pro" : "Vault — Shield Pro")
+                Text(appState.str("vault_title_pro"))
                     .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
-                Text(appState.language == .es
-                     ? "Almacenamiento cifrado con Face ID.\nDisponible en Shield Pro."
-                     : "Face ID encrypted storage.\nAvailable in Shield Pro.")
+                Text(appState.str("vault_pro_desc"))
                     .font(.system(size: 15)).foregroundColor(ShieldTheme.secondary(scheme)).multilineTextAlignment(.center)
             }
             Button {
                 paywallTrigger = .vaultUpgrade
                 showPaywall = true
             } label: {
-                Label(appState.language == .es ? "Activar Shield Pro" : "Get Shield Pro", systemImage: "crown.fill")
+                Label(appState.str("paywall_unlock_pro"), systemImage: "crown.fill")
                     .font(.system(size: 16, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 52)
                     .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
@@ -92,9 +90,9 @@ struct VaultView: View {
                 Image(systemName: "faceid").font(.system(size: 54, weight: .light)).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 6) {
-                Text(appState.language == .es ? "Bóveda bloqueada" : "Vault locked")
+                Text(appState.str("vault_locked_title"))
                     .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
-                Text(appState.language == .es ? "Usa Face ID o PIN para acceder" : "Use Face ID or PIN to access")
+                Text(appState.str("vault_locked_desc"))
                     .font(.system(size: 14)).foregroundColor(ShieldTheme.secondary(scheme))
             }
             if let err = authError {
@@ -103,7 +101,7 @@ struct VaultView: View {
 
             VStack(spacing: 10) {
                 Button { authenticate() } label: {
-                    Label(appState.language == .es ? "Desbloquear con Face ID" : "Unlock with Face ID", systemImage: "faceid")
+                    Label(appState.str("vault_unlock_faceid"), systemImage: "faceid")
                         .font(.system(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity).frame(height: 52)
                         .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
@@ -113,13 +111,13 @@ struct VaultView: View {
 
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
-                        Text(appState.language == .es ? "Usar PIN" : "Use PIN")
+                        Text(appState.str("vault_use_pin"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.accent)
                     }
                 } else {
                     Button { showPINSetup = true } label: {
-                        Text(appState.language == .es ? "Configurar PIN de respaldo" : "Set up backup PIN")
+                        Text(appState.str("vault_setup_pin"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.textTertiary)
                     }
@@ -141,14 +139,12 @@ struct VaultView: View {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.success)
-                        Text(appState.language == .es ? "Bóveda" : "Vault")
+                        Text(appState.str("vault_title"))
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
                             .tracking(-0.5)
                     }
-                    Text(appState.language == .es
-                         ? "\(appState.vaultDocuments.count) documentos · AES-256 · Face ID"
-                         : "\(appState.vaultDocuments.count) documents · AES-256 · Face ID")
+                    Text(appState.str("vault_status_count", appState.vaultDocuments.count))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.success)
                 }
@@ -156,7 +152,7 @@ struct VaultView: View {
                 Button {
                     withAnimation { isUnlocked = false }
                 } label: {
-                    Label(appState.language == .es ? "Bloquear" : "Lock", systemImage: "lock.fill")
+                    Label(appState.str("vault_lock_button"), systemImage: "lock.fill")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(ShieldTheme.danger)
                         .padding(.horizontal, 12).frame(height: 32)
@@ -179,12 +175,12 @@ struct VaultView: View {
                                 Button(role: .destructive) {
                                     appState.deleteDocument(doc)
                                 } label: {
-                                    Label(appState.language == .es ? "Eliminar" : "Delete", systemImage: "trash")
+                                    Label(appState.str("common_delete"), systemImage: "trash")
                                 }
                                 Button {
                                     appState.toggleVault(doc)
                                 } label: {
-                                    Label(appState.language == .es ? "Mover" : "Move out", systemImage: "lock.open")
+                                    Label(appState.str("vault_move_out"), systemImage: "lock.open")
                                 }
                                 .tint(.orange)
                             }
@@ -195,7 +191,7 @@ struct VaultView: View {
                     Button { showAddToVault = true } label: {
                         HStack(spacing: 10) {
                             Image(systemName: "plus.circle.fill").font(.system(size: 18)).foregroundColor(ShieldTheme.accent)
-                            Text(appState.language == .es ? "Añadir a Bóveda" : "Add to Vault")
+                            Text(appState.str("vault_add_to_vault"))
                                 .font(.system(size: 14, weight: .semibold)).foregroundColor(ShieldTheme.accent)
                         }
                         .frame(maxWidth: .infinity).frame(height: 52)
@@ -220,12 +216,10 @@ struct VaultView: View {
                 .font(.system(size: 48, weight: .light))
                 .foregroundColor(ShieldTheme.textTertiary)
                 .padding(.top, 40)
-            Text(appState.language == .es ? "Bóveda vacía" : "Empty vault")
+            Text(appState.str("vault_empty_title"))
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(ShieldTheme.secondary(scheme))
-            Text(appState.language == .es
-                 ? "Mueve documentos a la bóveda para protegerlos con Face ID"
-                 : "Move documents to vault to protect them with Face ID")
+            Text(appState.str("vault_empty_desc"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .multilineTextAlignment(.center)
@@ -244,9 +238,7 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.language == .es
-                ? "Accede a tu Bóveda de Shield"
-                : "Access your Shield Vault"
+            localizedReason: appState.str("vault_biometric_reason")
         ) { success, err in
             DispatchQueue.main.async {
                 if success {
@@ -267,9 +259,7 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthentication,
-            localizedReason: appState.language == .es
-                ? "Accede a tu Bóveda de Shield"
-                : "Access your Shield Vault"
+            localizedReason: appState.str("vault_biometric_reason")
         ) { success, err in
             DispatchQueue.main.async {
                 if success {
@@ -287,9 +277,7 @@ struct VaultView: View {
             return
         }
         showPINSetup = true
-        authError = appState.language == .es
-            ? "Configura un PIN para desbloquear la bóveda en este dispositivo."
-            : "Set up a PIN to unlock the vault on this device."
+        authError = appState.str("vault_pin_setup_help")
     }
 }
 
@@ -306,7 +294,7 @@ struct AddToVaultSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(appState.language == .es ? "Mover a Bóveda" : "Move to Vault")
+                Text(appState.str("vault_move_to_vault"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -323,7 +311,7 @@ struct AddToVaultSheet: View {
 
             if libraryDocs.isEmpty {
                 Spacer()
-                Text(appState.language == .es ? "No hay documentos en la biblioteca" : "No documents in library")
+                Text(appState.str("vault_no_docs_library"))
                     .foregroundColor(ShieldTheme.textTertiary)
                     .font(.system(size: 14))
                 Spacer()
@@ -463,8 +451,6 @@ struct PINSetupView: View {
     @State private var step = 0  // 0=enter, 1=confirm
     @State private var errorMsg = ""
 
-    private var l: Bool { appState.language == .es }
-
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -473,8 +459,8 @@ struct PINSetupView: View {
                 .foregroundColor(ShieldTheme.accent)
 
             Text(step == 0
-                 ? (l ? "Elige un PIN de 6 dígitos" : "Choose a 6-digit PIN")
-                 : (l ? "Confirma tu PIN" : "Confirm your PIN"))
+                 ? appState.str("vault_pin_setup_choose")
+                 : appState.str("vault_pin_setup_confirm"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -498,7 +484,7 @@ struct PINSetupView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete)
 
             Button { isPresented = false } label: {
-                Text(l ? "Cancelar" : "Cancel")
+                Text(appState.str("capture_cancel"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -534,7 +520,7 @@ struct PINSetupView: View {
                 isPresented = false
                 onSuccess()
             } else {
-                errorMsg = l ? "Los PINs no coinciden. Inténtalo de nuevo." : "PINs do not match. Try again."
+                errorMsg = appState.str("vault_pin_mismatch")
                 pin = ""; confirmPin = ""; step = 0
             }
         }
@@ -553,8 +539,6 @@ struct PINEntryView: View {
     @State private var lockoutRemaining = 0
     @State private var lockoutTimer: Timer?
 
-    private var l: Bool { appState.language == .es }
-
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
@@ -562,7 +546,7 @@ struct PINEntryView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.accent)
 
-            Text(l ? "Introduce tu PIN" : "Enter your PIN")
+            Text(appState.str("vault_pin_entry_prompt"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -582,7 +566,7 @@ struct PINEntryView: View {
             }
 
             if lockoutRemaining > 0 {
-                Text(l ? "Vuelve a intentarlo en \(lockoutRemaining)s" : "Try again in \(lockoutRemaining)s")
+                Text(appState.str("vault_pin_try_again_in", lockoutRemaining))
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -590,7 +574,7 @@ struct PINEntryView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete, isDisabled: lockoutRemaining > 0)
 
             Button { isPresented = false } label: {
-                Text(l ? "Cancelar" : "Cancel")
+                Text(appState.str("capture_cancel"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -631,11 +615,9 @@ struct PINEntryView: View {
         } else {
             refreshLockoutState()
             if lockoutRemaining > 0 {
-                errorMsg = l
-                    ? "Demasiados intentos fallidos. Espera \(lockoutRemaining)s."
-                    : "Too many failed attempts. Wait \(lockoutRemaining)s."
+                errorMsg = appState.str("vault_pin_too_many_attempts", lockoutRemaining)
             } else {
-                errorMsg = l ? "PIN incorrecto. Inténtalo de nuevo." : "Incorrect PIN. Try again."
+                errorMsg = appState.str("vault_pin_incorrect")
             }
             pin = ""
         }

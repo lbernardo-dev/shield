@@ -20,20 +20,11 @@ enum SortOption: String, CaseIterable, Identifiable {
     }
 
     func label(lang: AppLanguage) -> String {
-        if lang == .es {
-            switch self {
-            case .dateDesc: return "Más reciente primero"
-            case .dateAsc:  return "Más antiguo primero"
-            case .nameAsc:  return "Nombre A→Z"
-            case .nameDesc: return "Nombre Z→A"
-            }
-        } else {
-            switch self {
-            case .dateDesc: return "Newest first"
-            case .dateAsc:  return "Oldest first"
-            case .nameAsc:  return "Name A→Z"
-            case .nameDesc: return "Name Z→A"
-            }
+        switch self {
+        case .dateDesc: return LanguageManager.shared.model("model_sort_date_desc")
+        case .dateAsc:  return LanguageManager.shared.model("model_sort_date_asc")
+        case .nameAsc:  return LanguageManager.shared.model("model_sort_name_asc")
+        case .nameDesc: return LanguageManager.shared.model("model_sort_name_desc")
         }
     }
 }
@@ -60,8 +51,12 @@ final class AppState: ObservableObject {
     }
 
     // MARK: - Preferences (persisted)
-    @Published var language: AppLanguage {
-        didSet { UserDefaults.standard.set(language.rawValue, forKey: "shield.language") }
+    var language: AppLanguage {
+        get { LanguageManager.shared.current }
+        set {
+            objectWillChange.send()
+            LanguageManager.shared.current = newValue
+        }
     }
     @Published var preferredScheme: ColorScheme {
         didSet { UserDefaults.standard.set(preferredScheme == .dark, forKey: "shield.darkMode") }
@@ -98,12 +93,7 @@ final class AppState: ObservableObject {
     init() {
         let ud = UserDefaults.standard
         isOnboarded     = ud.bool(forKey: "shield.onboarded")
-        if let saved = ud.string(forKey: "shield.language") {
-            language = AppLanguage(rawValue: saved) ?? .es
-        } else {
-            let pref = Locale.preferredLanguages.first ?? ""
-            language = pref.hasPrefix("es") ? .es : .en
-        }
+        // Language is handled by LanguageManager.shared
         preferredScheme = ud.object(forKey: "shield.darkMode") == nil
             ? .dark
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
@@ -278,7 +268,19 @@ final class AppState: ObservableObject {
 
     // MARK: - Helpers
 
-    func str(_ key: L10nKey) -> String { key.string(lang: language) }
+    func str(_ key: String) -> String {
+        LanguageManager.shared.localize(key: key)
+    }
+
+    func str(_ key: String, _ args: CVarArg...) -> String {
+        let format = LanguageManager.shared.localize(key: key)
+        return String(format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue), arguments: args)
+    }
+
+    func str(_ key: String, args: CVarArg..., table: String) -> String {
+        let format = LanguageManager.shared.t(key, table: table)
+        return String(format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue), arguments: args)
+    }
 
     static func markUserActivity(force: Bool = false) {
         let now = Date().timeIntervalSince1970
@@ -325,11 +327,7 @@ final class AppState: ObservableObject {
     }
 
     func redactionsCount(_ n: Int) -> String {
-        if language == .es {
-            return "\(n) \(n == 1 ? "redacción" : "redacciones")"
-        } else {
-            return "\(n) \(n == 1 ? "redaction" : "redactions")"
-        }
+        LanguageManager.shared.t("common_redactions_count", table: "Common", args: n)
     }
 
     // MARK: - App lifecycle / auto-lock
@@ -707,172 +705,5 @@ enum KeychainStore {
             kSecAttrAccount as String: account
         ]
         SecItemDelete(query as CFDictionary)
-    }
-}
-
-// MARK: - Localization keys
-
-enum L10nKey {
-    case appName, tagline
-    case welcome, welcomeSub, continueBtn, skip
-    case setupSecurity, setupSecuritySub
-    case enableFaceId, setPin
-    case privacyTitle, privacySub
-    case onDevice
-    case unlock, enterPin, useFaceId
-    case library, recents, vault, documents, search, all
-    case scan, importDoc, newDocument
-    case detectingEdges, holdSteady
-    case redact, style, auto, manual, fields, text, watermark
-    case done, cancel, apply, save, export, share, undo, redo
-    case forVerificationOnly
-    case extractedText, fieldsLabel
-    case documentNumber, fullName, dateOfBirth, nationality, expires
-    case address, issued, sex, mrz, copy, copied
-    case exportPDF, exportImage, quality, high, medium, low, keepOriginal
-    case locked, autoDetect
-
-    func string(lang: AppLanguage) -> String {
-        lang == .es ? esString : enString
-    }
-
-    private var esString: String {
-        switch self {
-        case .appName:           return "Shield"
-        case .tagline:           return "Protege lo que compartes."
-        case .welcome:           return "Bienvenido a Shield"
-        case .welcomeSub:        return "Oculta datos sensibles antes de compartir cualquier documento."
-        case .continueBtn:       return "Continuar"
-        case .skip:              return "Omitir"
-        case .setupSecurity:     return "Configura tu seguridad"
-        case .setupSecuritySub:  return "Solo tú podrás abrir Shield."
-        case .enableFaceId:      return "Activar Face ID"
-        case .setPin:            return "Establecer PIN"
-        case .privacyTitle:      return "Todo se queda en tu iPhone"
-        case .privacySub:        return "Sin servidores. Sin nube. Sin telemetría. Tus documentos nunca salen del dispositivo a menos que tú los compartas."
-        case .onDevice:          return "Procesado en el dispositivo"
-        case .unlock:            return "Desbloquear"
-        case .enterPin:          return "Introduce tu PIN"
-        case .useFaceId:         return "Usar Face ID"
-        case .library:           return "Biblioteca"
-        case .recents:           return "Recientes"
-        case .vault:             return "Bóveda"
-        case .documents:         return "Documentos"
-        case .search:            return "Buscar"
-        case .all:               return "Todos"
-        case .scan:              return "Escanear"
-        case .importDoc:         return "Importar"
-        case .newDocument:       return "Nuevo documento"
-        case .detectingEdges:    return "Detectando bordes…"
-        case .holdSteady:        return "Mantén firme"
-        case .redact:            return "Redactar"
-        case .style:             return "Estilo"
-        case .auto:              return "Auto"
-        case .manual:            return "Manual"
-        case .fields:            return "Campos"
-        case .text:              return "Texto"
-        case .watermark:         return "Marca agua"
-        case .done:              return "Hecho"
-        case .cancel:            return "Cancelar"
-        case .apply:             return "Aplicar"
-        case .save:              return "Guardar"
-        case .export:            return "Exportar"
-        case .share:             return "Compartir"
-        case .undo:              return "Deshacer"
-        case .redo:              return "Rehacer"
-        case .forVerificationOnly: return "Solo para verificación"
-        case .extractedText:     return "Texto extraído"
-        case .fieldsLabel:       return "Campos detectados"
-        case .documentNumber:    return "Número de documento"
-        case .fullName:          return "Nombre completo"
-        case .dateOfBirth:       return "Fecha de nacimiento"
-        case .nationality:       return "Nacionalidad"
-        case .expires:           return "Caducidad"
-        case .address:           return "Dirección"
-        case .issued:            return "Expedido"
-        case .sex:               return "Sexo"
-        case .mrz:               return "MRZ"
-        case .copy:              return "Copiar"
-        case .copied:            return "Copiado"
-        case .exportPDF:         return "Exportar como PDF"
-        case .exportImage:       return "Exportar como imagen"
-        case .quality:           return "Calidad"
-        case .high:              return "Alta"
-        case .medium:            return "Media"
-        case .low:               return "Baja"
-        case .keepOriginal:      return "Mantener original"
-        case .locked:            return "Bloqueado"
-        case .autoDetect:        return "Detección automática"
-        }
-    }
-
-    private var enString: String {
-        switch self {
-        case .appName:           return "Shield"
-        case .tagline:           return "Protect what you share."
-        case .welcome:           return "Welcome to Shield"
-        case .welcomeSub:        return "Hide sensitive data before you share any document."
-        case .continueBtn:       return "Continue"
-        case .skip:              return "Skip"
-        case .setupSecurity:     return "Set up security"
-        case .setupSecuritySub:  return "Only you can open Shield."
-        case .enableFaceId:      return "Enable Face ID"
-        case .setPin:            return "Set a PIN"
-        case .privacyTitle:      return "Everything stays on your iPhone"
-        case .privacySub:        return "No servers. No cloud. No telemetry. Your documents never leave the device unless you share them."
-        case .onDevice:          return "Processed on-device"
-        case .unlock:            return "Unlock"
-        case .enterPin:          return "Enter PIN"
-        case .useFaceId:         return "Use Face ID"
-        case .library:           return "Library"
-        case .recents:           return "Recents"
-        case .vault:             return "Vault"
-        case .documents:         return "Documents"
-        case .search:            return "Search"
-        case .all:               return "All"
-        case .scan:              return "Scan"
-        case .importDoc:         return "Import"
-        case .newDocument:       return "New document"
-        case .detectingEdges:    return "Detecting edges…"
-        case .holdSteady:        return "Hold steady"
-        case .redact:            return "Redact"
-        case .style:             return "Style"
-        case .auto:              return "Auto"
-        case .manual:            return "Manual"
-        case .fields:            return "Fields"
-        case .text:              return "Text"
-        case .watermark:         return "WM"
-        case .done:              return "Done"
-        case .cancel:            return "Cancel"
-        case .apply:             return "Apply"
-        case .save:              return "Save"
-        case .export:            return "Export"
-        case .share:             return "Share"
-        case .undo:              return "Undo"
-        case .redo:              return "Redo"
-        case .forVerificationOnly: return "Verification only"
-        case .extractedText:     return "Extracted text"
-        case .fieldsLabel:       return "Detected fields"
-        case .documentNumber:    return "Document number"
-        case .fullName:          return "Full name"
-        case .dateOfBirth:       return "Date of birth"
-        case .nationality:       return "Nationality"
-        case .expires:           return "Expires"
-        case .address:           return "Address"
-        case .issued:            return "Issued"
-        case .sex:               return "Sex"
-        case .mrz:               return "MRZ"
-        case .copy:              return "Copy"
-        case .copied:            return "Copied"
-        case .exportPDF:         return "Export as PDF"
-        case .exportImage:       return "Export as image"
-        case .quality:           return "Quality"
-        case .high:              return "High"
-        case .medium:            return "Medium"
-        case .low:               return "Low"
-        case .keepOriginal:      return "Keep original"
-        case .locked:            return "Locked"
-        case .autoDetect:        return "Auto-detect"
-        }
     }
 }

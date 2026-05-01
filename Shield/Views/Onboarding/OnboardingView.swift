@@ -64,9 +64,7 @@ struct LockScreenView: View {
                             .foregroundColor(ShieldTheme.textPrimary)
                             .tracking(-0.5)
 
-                        Text(appState.language == .es
-                             ? "Tus documentos protegidos"
-                             : "Your documents protected")
+                        Text(LanguageManager.shared.auth("lock_subtitle"))
                             .font(.system(size: 13))
                             .foregroundColor(ShieldTheme.textTertiary)
                     }
@@ -88,8 +86,8 @@ struct LockScreenView: View {
                         .padding(.horizontal, 32)
                     } else {
                         Text(isAuthenticating
-                             ? (appState.language == .es ? "Verificando…" : "Verifying…")
-                             : (appState.language == .es ? "Desbloquea para continuar" : "Unlock to continue"))
+                             ? LanguageManager.shared.auth("lock_verifying")
+                             : LanguageManager.shared.auth("lock_unlock_to_continue"))
                             .font(.system(size: 13))
                             .foregroundColor(ShieldTheme.textTertiary)
                     }
@@ -107,7 +105,7 @@ struct LockScreenView: View {
                                 HStack(spacing: 10) {
                                     Image(systemName: "faceid")
                                         .font(.system(size: 18, weight: .medium))
-                                    Text(appState.language == .es ? "Desbloquear con Face ID" : "Unlock with Face ID")
+                                    Text(LanguageManager.shared.auth("lock_unlock_faceid"))
                                         .font(.system(size: 16, weight: .bold))
                                 }
                                 .frame(maxWidth: .infinity).frame(height: 54)
@@ -122,7 +120,7 @@ struct LockScreenView: View {
                                 HStack(spacing: 10) {
                                     Image(systemName: "number.circle.fill")
                                         .font(.system(size: 18, weight: .medium))
-                                    Text(appState.language == .es ? "Configurar código para continuar" : "Set PIN code to continue")
+                                    Text(LanguageManager.shared.auth("lock_set_pin_continue"))
                                         .font(.system(size: 16, weight: .bold))
                                 }
                                 .frame(maxWidth: .infinity).frame(height: 54)
@@ -137,7 +135,7 @@ struct LockScreenView: View {
                             HStack(spacing: 10) {
                                 Image(systemName: "lock.circle.fill")
                                     .font(.system(size: 18, weight: .medium))
-                                Text(appState.language == .es ? "Desbloquear con PIN" : "Unlock with PIN")
+                                Text(LanguageManager.shared.auth("lock_unlock_pin"))
                                     .font(.system(size: 16, weight: .bold))
                             }
                             .frame(maxWidth: .infinity).frame(height: 54)
@@ -151,7 +149,7 @@ struct LockScreenView: View {
                             HStack(spacing: 10) {
                                 Image(systemName: "lock.circle.fill")
                                     .font(.system(size: 18, weight: .medium))
-                                Text(appState.language == .es ? "Desbloquear" : "Unlock")
+                                Text(LanguageManager.shared.auth("lock_unlock_generic"))
                                     .font(.system(size: 16, weight: .bold))
                             }
                             .frame(maxWidth: .infinity).frame(height: 54)
@@ -166,7 +164,7 @@ struct LockScreenView: View {
                     // Always-visible code option in the same lock screen
                     if PINManager.hasPIN {
                         Button { showPINEntry = true } label: {
-                            Text(appState.language == .es ? "Usar código (PIN)" : "Use code (PIN)")
+                            Text(LanguageManager.shared.auth("lock_use_pin"))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(ShieldTheme.textSecondary)
                                 .frame(height: 44)
@@ -174,7 +172,7 @@ struct LockScreenView: View {
                         .buttonStyle(ScaleButtonStyle())
                     } else {
                         Button { showPINSetup = true } label: {
-                            Text(appState.language == .es ? "Configurar código (PIN)" : "Set up code (PIN)")
+                            Text(LanguageManager.shared.auth("lock_setup_pin"))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(ShieldTheme.textSecondary)
                                 .frame(height: 44)
@@ -184,7 +182,7 @@ struct LockScreenView: View {
 
                     if biometricEnabled && hasBiometrics && authError != nil {
                         Button { authenticatePasscode() } label: {
-                            Text(appState.language == .es ? "Usar código del iPhone" : "Use iPhone Passcode")
+                            Text(LanguageManager.shared.auth("lock_use_passcode"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(ShieldTheme.textTertiary)
                                 .frame(height: 36)
@@ -227,16 +225,14 @@ struct LockScreenView: View {
         let ctx = LAContext()
         var err: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
-            authError = appState.language == .es
-                ? "Face ID no disponible en este dispositivo."
-                : "Face ID is not available on this device."
+            authError = LanguageManager.shared.auth("lock_faceid_unavailable")
             return
         }
         isAuthenticating = true
         authError = nil
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.language == .es ? "Desbloquea Shield" : "Unlock Shield"
+            localizedReason: LanguageManager.shared.auth("lock_reason")
         ) { success, evalErr in
             DispatchQueue.main.async {
                 isAuthenticating = false
@@ -260,9 +256,7 @@ struct LockScreenView: View {
             if PINManager.hasPIN {
                 showPINEntry = true
             } else {
-                authError = appState.language == .es
-                    ? "Este dispositivo no tiene autenticación del sistema disponible. Configura un PIN de Shield."
-                    : "System authentication is unavailable on this device. Set up a Shield PIN."
+                authError = LanguageManager.shared.auth("lock_system_auth_unavailable")
             }
             return
         }
@@ -270,7 +264,7 @@ struct LockScreenView: View {
         authError = nil
         ctx.evaluatePolicy(
             .deviceOwnerAuthentication,
-            localizedReason: appState.language == .es ? "Desbloquea Shield" : "Unlock Shield"
+            localizedReason: LanguageManager.shared.auth("lock_reason")
         ) { success, evalErr in
             DispatchQueue.main.async {
                 isAuthenticating = false

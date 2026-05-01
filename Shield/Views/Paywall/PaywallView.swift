@@ -14,33 +14,32 @@ struct PaywallView: View {
     private let privacyURL = URL(string: "https://shieldapp.io/privacy")
     private let termsURL = URL(string: "https://shieldapp.io/terms")
 
-    private func features(lang: AppLanguage) -> [(icon: String, color: String, title: String, subtitle: String)] {
-        let es = lang == .es
+    private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
         return [
             ("doc.stack.fill",       "64D2FF",
-             es ? "Documentos ilimitados"   : "Unlimited documents",
-             es ? "Sin límite de 3 docs"    : "No 3-doc limit"),
+             appState.str("paywall_feature_unlimited_docs", table: "Paywall"),
+             appState.str("paywall_feature_unlimited_desc", table: "Paywall")),
             ("eye.slash.fill",       "FFD60A",
-             es ? "9 estilos de redacción"  : "9 redaction styles",
-             es ? "Pixelado, blur, diagonal…" : "Pixelate, blur, diagonal…"),
+             appState.str("paywall_feature_all_styles", table: "Paywall"),
+             appState.str("paywall_feature_styles_desc", table: "Paywall")),
             ("lock.rectangle.stack", "30D158",
-             es ? "Bóveda cifrada"          : "Encrypted vault",
-             "Face ID + AES-256"),
+             appState.str("paywall_feature_vault", table: "Paywall"),
+             appState.str("paywall_feature_vault_desc", table: "Paywall")),
             ("doc.fill",             "FF9F0A",
-             es ? "Export PDF real"         : "Real PDF export",
-             es ? "PDFKit + aplanar"        : "PDFKit + flatten"),
+             appState.str("paywall_feature_pdf_title", table: "Paywall"),
+             appState.str("paywall_feature_pdf_desc", table: "Paywall")),
             ("drop.halffull",        "5E5CE6",
-             es ? "Marca de agua custom"    : "Custom watermark",
-             es ? "Texto, posición, opacidad" : "Text, position, opacity"),
+             appState.str("paywall_feature_watermark", table: "Paywall"),
+             appState.str("paywall_feature_watermark_desc", table: "Paywall")),
             ("slider.horizontal.3",  "FF453A",
-             es ? "Ajustes de imagen"       : "Image adjustments",
-             es ? "Brillo, contraste, recorte" : "Brightness, contrast, crop"),
+             appState.str("paywall_feature_adjust_title", table: "Paywall"),
+             appState.str("paywall_feature_adjust_desc", table: "Paywall")),
             ("wand.and.stars",       "BF5AF2",
-             es ? "Auto-redacción IA"       : "AI auto-redaction",
-             es ? "Detección de campos OCR" : "OCR field detection"),
+             appState.str("paywall_feature_auto_title", table: "Paywall"),
+             appState.str("paywall_feature_auto_desc", table: "Paywall")),
             ("icloud",               "30D158",
-             es ? "Sincronización iCloud"   : "iCloud sync",
-             es ? "Accede en todos tus dispositivos" : "Access across all your devices"),
+             appState.str("paywall_feature_icloud", table: "Paywall"),
+             appState.str("paywall_feature_icloud_desc", table: "Paywall")),
         ]
     }
 
@@ -125,9 +124,7 @@ struct PaywallView: View {
                 .font(.system(size: 30, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .tracking(-0.6)
-            Text(appState.language == .es
-                 ? "Protege sin límites. Comparte con confianza."
-                 : "Protect without limits. Share with confidence.")
+            Text(appState.str("paywall_hero_subtitle", table: "Paywall"))
                 .font(.system(size: 15))
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -136,35 +133,11 @@ struct PaywallView: View {
     }
 
     private var contextBanner: some View {
-        let msgES: String
-        let msgEN: String
-
-        switch trigger {
-        case .docLimitReached:
-            msgES = "Has alcanzado el límite gratuito de documentos."
-            msgEN = "You reached the free document limit."
-        case .exportLimitReached:
-            msgES = "Has agotado tus exportaciones semanales en Free."
-            msgEN = "You used all weekly exports on Free."
-        case .styleLocked:
-            msgES = "Ese estilo de redacción está incluido en Pro."
-            msgEN = "That redaction style is included in Pro."
-        case .vaultUpgrade:
-            msgES = "La bóveda cifrada está disponible con Shield Pro."
-            msgEN = "Encrypted vault is available with Shield Pro."
-        case .settingsUpgrade:
-            msgES = "Desbloquea todas las funciones avanzadas."
-            msgEN = "Unlock all advanced features."
-        case .manual:
-            msgES = "Elige un plan para protección profesional."
-            msgEN = "Choose a plan for professional-grade protection."
-        }
-
         return HStack(spacing: 8) {
             Image(systemName: "info.circle.fill")
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.accent)
-            Text(appState.language == .es ? msgES : msgEN)
+            Text(appState.str(trigger.localizationKey, table: "Paywall"))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(ShieldTheme.textSecondary)
             Spacer()
@@ -180,7 +153,7 @@ struct PaywallView: View {
 
     private var featuresGrid: some View {
         VStack(spacing: 10) {
-            ForEach(Array(features(lang: appState.language).enumerated()), id: \.offset) { _, f in
+            ForEach(Array(features().enumerated()), id: \.offset) { _, f in
                 HStack(spacing: 14) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
@@ -267,7 +240,7 @@ struct PaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "crown.fill")
-                        Text(appState.language == .es ? "Activar Shield Pro" : "Get Shield Pro")
+                        Text(appState.str("paywall_get_pro", table: "Paywall"))
                             .font(.system(size: 16, weight: .bold))
                     }
                 }
@@ -303,7 +276,7 @@ struct PaywallView: View {
                     if pm.isRestoring {
                         ProgressView().tint(ShieldTheme.textTertiary).scaleEffect(0.7)
                     } else {
-                        Text(appState.language == .es ? "Restaurar compra" : "Restore purchase")
+                        Text(appState.str("paywall_restore", table: "Paywall"))
                     }
                 }
                 .font(.system(size: 12))
@@ -315,7 +288,7 @@ struct PaywallView: View {
             Button {
                 if let privacyURL { openURL(privacyURL) }
             } label: {
-                Text(appState.language == .es ? "Privacidad" : "Privacy")
+                Text(appState.str("paywall_privacy", table: "Paywall"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -325,7 +298,7 @@ struct PaywallView: View {
             Button {
                 if let termsURL { openURL(termsURL) }
             } label: {
-                Text(appState.language == .es ? "Términos" : "Terms")
+                Text(appState.str("paywall_terms", table: "Paywall"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -337,6 +310,7 @@ struct PaywallView: View {
 // MARK: - PlanRow
 
 private struct PlanRow: View {
+    @EnvironmentObject var appState: AppState
     let product: Product
     let isSelected: Bool
     let savingsLabel: String?
@@ -365,7 +339,7 @@ private struct PlanRow: View {
                             .foregroundColor(ShieldTheme.textPrimary)
                         // Trial badge for annual plan
                         if ShieldProduct(rawValue: product.id) == .annual {
-                            Text(lang == .es ? "7 días gratis" : "7-day free trial")
+                            Text(appState.str("paywall_trial_days", args: 7, table: "Paywall"))
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.black)
                                 .padding(.horizontal, 7)
@@ -413,31 +387,28 @@ private struct PlanRow: View {
     }
 
     private var planName: String {
-        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return es ? "Mensual" : "Monthly"
-        case .annual:   return es ? "Anual" : "Annual"
-        case .lifetime: return es ? "De por vida" : "Lifetime"
+        case .monthly:  return appState.str("paywall_plan_monthly", table: "Paywall")
+        case .annual:   return appState.str("paywall_plan_annual", table: "Paywall")
+        case .lifetime: return appState.str("paywall_plan_lifetime", table: "Paywall")
         case nil:       return product.displayName
         }
     }
 
     private var planSubtitle: String {
-        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return es ? "Facturación mensual" : "Billed monthly"
-        case .annual:   return es ? "Facturación anual" : "Billed annually"
-        case .lifetime: return es ? "Pago único" : "One-time payment"
+        case .monthly:  return appState.str("paywall_billed_monthly", table: "Paywall")
+        case .annual:   return appState.str("paywall_billed_annually", table: "Paywall")
+        case .lifetime: return appState.str("paywall_one_time", table: "Paywall")
         case nil:       return ""
         }
     }
 
     private var periodLabel: String {
-        let es = lang == .es
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return es ? "/mes" : "/mo"
-        case .annual:   return es ? "/año" : "/yr"
-        case .lifetime: return es ? "una vez" : "once"
+        case .monthly:  return appState.str("paywall_per_mo_short", table: "Paywall")
+        case .annual:   return appState.str("paywall_per_yr_short", table: "Paywall")
+        case .lifetime: return appState.str("paywall_once_short", table: "Paywall")
         case nil:       return ""
         }
     }

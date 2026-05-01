@@ -12,10 +12,10 @@ enum AppTab: Int, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .library:  return lang == .es ? "Docs" : "Docs"
-        case .gallery:  return lang == .es ? "Estilos" : "Styles"
-        case .vault:    return lang == .es ? "Bóveda" : "Vault"
-        case .settings: return lang == .es ? "Ajustes" : "Settings"
+        case .library:  return LanguageManager.shared.common("common_tab_docs")
+        case .gallery:  return LanguageManager.shared.common("common_tab_styles")
+        case .vault:    return LanguageManager.shared.common("common_tab_vault")
+        case .settings: return LanguageManager.shared.common("common_tab_settings")
         }
     }
 

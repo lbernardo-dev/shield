@@ -234,11 +234,30 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
         MainActor.assumeIsolated {
             let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+            
+            // 1. Try to return the key window of the active scene
             if let window = activeScene?.keyWindow { return window }
-            // Last-resort: any visible window (UIApplication.windows deprecated but functional)
-            return UIApplication.shared.windows.first(where: { $0.isKeyWindow })
-                ?? UIApplication.shared.windows.first
-                ?? ASPresentationAnchor()
+            
+            // 2. Try to find any existing window in any scene
+            let allWindows = scenes.flatMap { $0.windows }
+            if let window = allWindows.first(where: { $0.isKeyWindow }) ?? allWindows.first {
+                return window
+            }
+            
+            // 3. If no window exists, create a new one using the active window scene
+            // to avoid 'init()' deprecation warnings.
+            if let scene = activeScene {
+                return UIWindow(windowScene: scene)
+            }
+            
+            // 4. Absolute last resort: find any window scene to associate with
+            if let fallbackScene = UIApplication.shared.connectedScenes.first(where: { $0 is UIWindowScene }) as? UIWindowScene {
+                return UIWindow(windowScene: fallbackScene)
+            }
+            
+            // 5. If there is literally no scene, we cannot create a window.
+            // This is unreachable in a running iOS app with a UI.
+            fatalError("No UIWindowScene found for presentationAnchor")
         }
     }
 }
@@ -265,7 +284,7 @@ struct ExternalStoragePickerSheet: View {
                 .padding(.top, 10)
 
             HStack {
-                Text(appState.language == .es ? "Importar desde nube" : "Import from cloud")
+                Text(appState.str("cloud_import_title"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -313,9 +332,7 @@ struct ExternalStoragePickerSheet: View {
             Image(systemName: "icloud.and.arrow.down")
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.textTertiary)
-            Text(appState.language == .es
-                 ? "Importar desde Google Drive, Dropbox y OneDrive está disponible en Shield Pro."
-                 : "Importing from Google Drive, Dropbox and OneDrive is available in Shield Pro.")
+            Text(appState.str("cloud_pro_desc"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -323,7 +340,7 @@ struct ExternalStoragePickerSheet: View {
             Button {
                 showPaywall = true
             } label: {
-                Label(appState.language == .es ? "Activar Shield Pro" : "Get Shield Pro",
+                Label(appState.str("paywall_unlock_pro"),
                       systemImage: "crown.fill")
                     .font(.system(size: 15, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 50)
@@ -343,8 +360,8 @@ struct ExternalStoragePickerSheet: View {
             providerRow(
                 icon: "folder.fill",
                 color: "FFD60A",
-                name: appState.language == .es ? "Archivos (iCloud, Google Drive, Dropbox…)" : "Files (iCloud, Google Drive, Dropbox…)",
-                subtitle: appState.language == .es ? "Todos tus proveedores de nube" : "All your cloud providers",
+                name: appState.str("cloud_files_title"),
+                subtitle: appState.str("cloud_files_subtitle"),
                 isConnected: true
             ) {
                 showDocPicker = true
@@ -360,8 +377,8 @@ struct ExternalStoragePickerSheet: View {
                     color: provider.iconColor,
                     name: provider.displayName,
                     subtitle: connected
-                        ? (ext.connectedEmail(provider) ?? (appState.language == .es ? "Conectado" : "Connected"))
-                        : (appState.language == .es ? "Toca para conectar" : "Tap to connect"),
+                        ? (ext.connectedEmail(provider) ?? appState.str("cloud_connected"))
+                        : appState.str("cloud_tap_to_connect"),
                     isConnected: connected
                 ) {
                     if connected {
@@ -429,7 +446,7 @@ struct ExternalStoragePickerSheet: View {
                     if ext.isAuthenticating == ExternalStorageProvider.allCases.first(where: { $0.displayName == name }) {
                         ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
                     } else {
-                        Text(appState.language == .es ? "Conectar" : "Connect")
+                        Text(appState.str("cloud_connect"))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(ShieldTheme.accent)
                     }

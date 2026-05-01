@@ -30,23 +30,23 @@ struct StyleGalleryView: View {
 
                     LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
                         styleSection(
-                            title: appState.language == .es ? "Esenciales" : "Essentials",
-                            subtitle: appState.language == .es ? "Compatibles con todos los documentos" : "Compatible with all document types",
+                            title: appState.str("gallery_group_essentials"),
+                            subtitle: appState.str("gallery_group_essentials_sub"),
                             styles: [.block, .blockWhite]
                         )
                         styleSection(
-                            title: appState.language == .es ? "Difuminados" : "Blur",
-                            subtitle: appState.language == .es ? "Ocultación suave y natural" : "Soft and natural concealment",
+                            title: appState.str("gallery_group_blur"),
+                            subtitle: appState.str("gallery_group_blur_sub"),
                             styles: [.blurStrong, .blurSoft, .pixelate]
                         )
                         styleSection(
-                            title: appState.language == .es ? "Patrones" : "Patterns",
-                            subtitle: appState.language == .es ? "Mayor visibilidad de redacción" : "High-visibility redaction marks",
+                            title: appState.str("gallery_group_patterns"),
+                            subtitle: appState.str("gallery_group_patterns_sub"),
                             styles: [.diagonal, .secure, .redactedTag]
                         )
                         styleSection(
-                            title: appState.language == .es ? "Especiales" : "Special",
-                            subtitle: appState.language == .es ? "Efectos únicos" : "Unique effects",
+                            title: appState.str("gallery_group_special"),
+                            subtitle: appState.str("gallery_group_special_sub"),
                             styles: [.semi]
                         )
                     }
@@ -85,13 +85,11 @@ struct StyleGalleryView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
-                Text(appState.language == .es ? "Galería de estilos" : "Style gallery")
+                Text(appState.str("gallery_title"))
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .tracking(-0.5)
-                Text(appState.language == .es
-                     ? "Toca un estilo para aplicarlo a un documento"
-                     : "Tap a style to apply it to a document")
+                Text(appState.str("gallery_subtitle"))
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
@@ -107,17 +105,17 @@ struct StyleGalleryView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
                 docPickerGroup(
-                    label: appState.language == .es ? "Europa" : "Europe",
+                    label: appState.str("gallery_region_europe"),
                     kinds: [.dniESP, .drivingUK, .dniITA]
                 )
                 pickerDivider
                 docPickerGroup(
-                    label: appState.language == .es ? "América" : "Americas",
+                    label: appState.str("gallery_region_americas"),
                     kinds: [.passportUSA, .passportMEX]
                 )
                 pickerDivider
                 docPickerGroup(
-                    label: appState.language == .es ? "Genérico" : "Generic",
+                    label: appState.str("gallery_region_generic"),
                     kinds: [.genericID]
                 )
             }
@@ -216,13 +214,13 @@ struct StyleGalleryView: View {
 
     private func kindLabel(_ kind: DocumentKind) -> String {
         switch kind {
-        case .dniESP:      return appState.language == .es ? "DNI España" : "Spanish ID"
-        case .passportUSA: return appState.language == .es ? "Pasaporte USA" : "US Passport"
-        case .drivingUK:   return appState.language == .es ? "Licencia UK" : "UK Licence"
-        case .photo:       return appState.language == .es ? "Foto" : "Photo"
-        case .passportMEX: return appState.language == .es ? "Pasaporte MX" : "MX Passport"
-        case .dniITA:      return appState.language == .es ? "CI Italia" : "Italian ID"
-        case .genericID:   return appState.language == .es ? "Genérico" : "Generic"
+        case .dniESP:      return appState.str("gallery_doc_dni_esp")
+        case .passportUSA: return appState.str("gallery_doc_passport_usa")
+        case .drivingUK:   return appState.str("gallery_doc_driving_uk")
+        case .photo:       return appState.str("gallery_doc_photo")
+        case .passportMEX: return appState.str("gallery_doc_passport_mex")
+        case .dniITA:      return appState.str("gallery_doc_dni_ita")
+        case .genericID:   return appState.str("gallery_doc_generic_id")
         }
     }
 }
@@ -244,6 +242,7 @@ private struct StyleCard: View {
     let lang: AppLanguage
     let onTapLock: () -> Void
     let onSelect: () -> Void
+    @EnvironmentObject var appState: AppState
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
@@ -264,7 +263,7 @@ private struct StyleCard: View {
                             Image(systemName: "crown.fill")
                                 .font(.system(size: 18))
                                 .foregroundColor(ShieldTheme.accent)
-                            Text("Pro")
+                            Text(appState.str("common_pro"))
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(ShieldTheme.accent)
                         }
@@ -292,7 +291,7 @@ private struct StyleCard: View {
                         .lineLimit(1)
                     Spacer()
                     if isPremium && isUnlocked {
-                        Text("Pro")
+                        Text(appState.str("common_pro"))
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(.horizontal, 5)
@@ -315,6 +314,7 @@ private struct StyleCard: View {
 // MARK: - StyleSourceSheet
 
 struct StyleSourceSheet: View {
+    @EnvironmentObject var appState: AppState
     let style: MaskStyle
     let kind: DocumentKind
     let lang: AppLanguage
@@ -350,7 +350,7 @@ struct StyleSourceSheet: View {
             .padding(.top, 10)
 
             VStack(spacing: 4) {
-                Text(lang == .es ? "ESTILO SELECCIONADO" : "SELECTED STYLE")
+                Text(appState.str("gallery_selected_style_header"))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .tracking(0.6)
@@ -370,9 +370,7 @@ struct StyleSourceSheet: View {
                 .padding(.top, 16)
                 .padding(.bottom, 20)
 
-            Text(lang == .es
-                 ? "¿Desde dónde quieres cargar el documento?"
-                 : "Where do you want to load the document from?")
+            Text(appState.str("gallery_load_source_title"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
@@ -383,7 +381,7 @@ struct StyleSourceSheet: View {
                 HStack(spacing: 10) {
                     Image(systemName: "camera.viewfinder")
                         .font(.system(size: 17, weight: .semibold))
-                    Text(lang == .es ? "Escanear o importar documento" : "Scan or import document")
+                Text(appState.str("gallery_load_source_button"))
                         .font(.system(size: 15, weight: .bold))
                 }
                 .frame(maxWidth: .infinity)

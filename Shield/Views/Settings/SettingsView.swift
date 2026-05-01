@@ -40,14 +40,22 @@ struct SettingsView: View {
 
     enum ExpandedRow: Equatable { case autoLock, exportFormat, exportQuality, ocrConfidence }
 
-    private let autoLockOptions   = ["Inmediato", "1 minuto", "5 minutos", "15 minutos", "Nunca"]
-    private let autoLockOptionsEN = ["Immediately", "1 minute", "5 minutes", "15 minutes", "Never"]
-    private let exportFormats     = ["PDF", "Imagen"]
-    private let exportFormatsEN   = ["PDF", "Image"]
-    private let exportQualities   = ["Alta", "Media", "Baja"]
-    private let exportQualitiesEN = ["High", "Medium", "Low"]
+    private var autoLockOptions: [String] {
+        [
+            appState.str("settings_autolock_immediately"),
+            appState.str("settings_autolock_1_minute"),
+            appState.str("settings_autolock_5_minutes"),
+            appState.str("settings_autolock_15_minutes"),
+            appState.str("settings_autolock_never")
+        ]
+    }
+    private var exportFormats: [String] {
+        [appState.str("settings_format_pdf"), appState.str("settings_format_image")]
+    }
+    private var exportQualities: [String] {
+        [appState.str("settings_quality_high"), appState.str("settings_quality_medium"), appState.str("settings_quality_low")]
+    }
     private let ocrConfidenceOptions = ["70%", "80%", "90%"]
-    private let ocrConfidenceOptionsEN = ["70%", "80%", "90%"]
 
     var body: some View {
         ZStack {
@@ -57,7 +65,7 @@ struct SettingsView: View {
                 VStack(spacing: 0) {
                     // Title
                     HStack {
-                        Text(appState.language == .es ? "Ajustes" : "Settings")
+                        Text(appState.str("settings_title"))
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
                             .tracking(-0.5)
@@ -79,12 +87,12 @@ struct SettingsView: View {
                     }
 
                     // Appearance
-                    settingsSection(title: appState.language == .es ? "Apariencia" : "Appearance") {
+                    settingsSection(title: appState.str("settings_appearance")) {
                         // Theme
                         settingsRow(
                             icon: "moon.fill",
                             iconColor: "5E5CE6",
-                            title: appState.language == .es ? "Modo oscuro" : "Dark mode"
+                            title: appState.str("settings_dark_mode")
                         ) {
                             ShieldToggle(isOn: Binding(
                                 get: { appState.preferredScheme == .dark },
@@ -97,7 +105,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "globe",
                             iconColor: "64D2FF",
-                            title: appState.language == .es ? "Idioma" : "Language"
+                            title: appState.str("settings_language")
                         ) {
                             Picker("", selection: $appState.language) {
                                 Text("Español").tag(AppLanguage.es)
@@ -109,11 +117,11 @@ struct SettingsView: View {
                     }
 
                     // Security
-                    settingsSection(title: appState.language == .es ? "Seguridad" : "Security") {
+                    settingsSection(title: appState.str("settings_security")) {
                         settingsRow(
                             icon: "faceid",
                             iconColor: "30D158",
-                            title: appState.language == .es ? "Face ID / Touch ID" : "Face ID / Touch ID"
+                            title: appState.str("settings_face_id")
                         ) {
                             ShieldToggle(isOn: $biometricEnabled)
                                 .onChange(of: biometricEnabled) { _, v in
@@ -137,9 +145,7 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "lock.circle.fill",
                             iconColor: "BF5AF2",
-                            title: appState.language == .es
-                                ? (PINManager.hasPIN ? "Cambiar PIN" : "Configurar PIN")
-                                : (PINManager.hasPIN ? "Change PIN" : "Set up PIN")
+                            title: PINManager.hasPIN ? appState.str("settings_change_pin") : appState.str("settings_setup_pin")
                         ) {
                             if PINManager.hasPIN {
                                 showPINEntry = true
@@ -152,17 +158,13 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "lock.rotation",
                             iconColor: "FF9F0A",
-                            title: appState.language == .es ? "Bloqueo automático" : "Auto-lock",
-                            value: appState.language == .es
-                                ? autoLockOptions[autoLockIndex]
-                                : autoLockOptionsEN[autoLockIndex],
+                            title: appState.str("settings_auto_lock"),
+                            value: autoLockOptions[autoLockIndex],
                             row: .autoLock
                         ) {
                             Picker("", selection: $autoLockIndex) {
                                 ForEach(0..<autoLockOptions.count, id: \.self) { i in
-                                    Text(appState.language == .es
-                                         ? autoLockOptions[i]
-                                         : autoLockOptionsEN[i]).tag(i)
+                                    Text(autoLockOptions[i]).tag(i)
                                 }
                             }
                             .pickerStyle(.inline)
@@ -176,7 +178,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "hand.tap.fill",
                             iconColor: "FF453A",
-                            title: appState.language == .es ? "Vibración háptica" : "Haptic feedback"
+                            title: appState.str("settings_haptic_feedback")
                         ) {
                             ShieldToggle(isOn: $hapticEnabled)
                                 .onChange(of: hapticEnabled) { _, v in
@@ -189,7 +191,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "checkmark.shield.fill",
                             iconColor: "0A84FF",
-                            title: appState.language == .es ? "OCR KYC estricto (MRZ)" : "Strict KYC OCR (MRZ)"
+                            title: appState.str("settings_strict_kyc")
                         ) {
                             ShieldToggle(isOn: $strictKYCEnabled)
                                 .onChange(of: strictKYCEnabled) { _, v in
@@ -202,7 +204,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "exclamationmark.triangle.fill",
                             iconColor: "FF9F0A",
-                            title: appState.language == .es ? "Alerta OCR baja confianza" : "Low-confidence OCR alert"
+                            title: appState.str("settings_low_confidence_alert")
                         ) {
                             ShieldToggle(isOn: $warnLowConfidenceEnabled)
                                 .onChange(of: warnLowConfidenceEnabled) { _, v in
@@ -215,17 +217,13 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "slider.horizontal.3",
                             iconColor: "64D2FF",
-                            title: appState.language == .es ? "Umbral mínimo OCR" : "OCR minimum threshold",
-                            value: appState.language == .es
-                                ? ocrConfidenceOptions[ocrConfidenceIndex]
-                                : ocrConfidenceOptionsEN[ocrConfidenceIndex],
+                            title: appState.str("settings_ocr_threshold"),
+                            value: ocrConfidenceOptions[ocrConfidenceIndex],
                             row: .ocrConfidence
                         ) {
                             Picker("", selection: $ocrConfidenceIndex) {
                                 ForEach(0..<ocrConfidenceOptions.count, id: \.self) { i in
-                                    Text(appState.language == .es
-                                         ? ocrConfidenceOptions[i]
-                                         : ocrConfidenceOptionsEN[i]).tag(i)
+                                    Text(ocrConfidenceOptions[i]).tag(i)
                                 }
                             }
                             .pickerStyle(.inline)
@@ -239,21 +237,17 @@ struct SettingsView: View {
                     iCloudSection
 
                     // Export defaults
-                    settingsSection(title: appState.language == .es ? "Exportación" : "Export") {
+                    settingsSection(title: appState.str("settings_export")) {
                         expandableRow(
                             icon: "doc.fill",
                             iconColor: "FFD60A",
-                            title: appState.language == .es ? "Formato por defecto" : "Default format",
-                            value: appState.language == .es
-                                ? exportFormats[exportFormatIndex]
-                                : exportFormatsEN[exportFormatIndex],
+                            title: appState.str("settings_default_format"),
+                            value: exportFormats[exportFormatIndex],
                             row: .exportFormat
                         ) {
                             Picker("", selection: $exportFormatIndex) {
                                 ForEach(0..<exportFormats.count, id: \.self) { i in
-                                    Text(appState.language == .es
-                                         ? exportFormats[i]
-                                         : exportFormatsEN[i]).tag(i)
+                                    Text(exportFormats[i]).tag(i)
                                 }
                             }
                             .pickerStyle(.inline)
@@ -267,17 +261,13 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "photo.fill",
                             iconColor: "64D2FF",
-                            title: appState.language == .es ? "Calidad de imagen" : "Image quality",
-                            value: appState.language == .es
-                                ? exportQualities[exportQualityIndex]
-                                : exportQualitiesEN[exportQualityIndex],
+                            title: appState.str("settings_image_quality"),
+                            value: exportQualities[exportQualityIndex],
                             row: .exportQuality
                         ) {
                             Picker("", selection: $exportQualityIndex) {
                                 ForEach(0..<exportQualities.count, id: \.self) { i in
-                                    Text(appState.language == .es
-                                         ? exportQualities[i]
-                                         : exportQualitiesEN[i]).tag(i)
+                                    Text(exportQualities[i]).tag(i)
                                 }
                             }
                             .pickerStyle(.inline)
@@ -288,11 +278,11 @@ struct SettingsView: View {
                     }
 
                     // About
-                    settingsSection(title: appState.language == .es ? "Acerca de" : "About") {
+                    settingsSection(title: appState.str("settings_about")) {
                         settingsRow(
                             icon: "info.circle.fill",
                             iconColor: "5E5CE6",
-                            title: appState.language == .es ? "Versión" : "Version"
+                            title: appState.str("settings_version")
                         ) {
                             Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
                                 .font(.system(size: 14))
@@ -304,7 +294,7 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "star.fill",
                             iconColor: "FFD60A",
-                            title: appState.language == .es ? "Valorar la app" : "Rate the app"
+                            title: appState.str("settings_rate_app")
                         ) {
                             if let url = URL(string: "itms-apps://itunes.apple.com/app/id6745955196?action=write-review") {
                                 UIApplication.shared.open(url)
@@ -316,12 +306,12 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "envelope.fill",
                             iconColor: "30D158",
-                            title: appState.language == .es ? "Contacto y soporte" : "Contact & support"
+                            title: appState.str("settings_contact")
                         ) {
                             if MFMailComposeViewController.canSendMail() {
                                 showMailCompose = true
                             } else {
-                                let subject = (appState.language == .es ? "Soporte Shield" : "Shield Support")
+                                let subject = appState.str("settings_support_subject")
                                     .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                                 if let url = URL(string: "mailto:support@shieldapp.io?subject=\(subject)") {
                                     UIApplication.shared.open(url)
@@ -336,11 +326,11 @@ struct SettingsView: View {
                     #endif
 
                     // Danger zone
-                    settingsSection(title: appState.language == .es ? "Privacidad" : "Privacy") {
+                    settingsSection(title: appState.str("settings_privacy")) {
                         settingsRowButton(
                             icon: "trash.fill",
                             iconColor: "FF453A",
-                            title: appState.language == .es ? "Borrar todos los documentos" : "Delete all documents",
+                            title: appState.str("settings_delete_all_documents"),
                             titleColor: ShieldTheme.danger
                         ) {
                             showDeleteConfirm = true
@@ -365,14 +355,12 @@ struct SettingsView: View {
             }.environmentObject(appState)
         }
         .alert(
-            appState.language == .es ? "Biometría no disponible" : "Biometrics unavailable",
+            appState.str("settings_biometric_unavailable"),
             isPresented: $showBiometricAlert
         ) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(appState.language == .es
-                 ? "Face ID / Touch ID no está configurado en este dispositivo."
-                 : "Face ID / Touch ID is not set up on this device.")
+            Text(appState.str("settings_biometric_unavailable_message"))
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
@@ -381,23 +369,21 @@ struct SettingsView: View {
         .sheet(isPresented: $showMailCompose) {
             MailComposeView(
                 recipient: "support@shieldapp.io",
-                subject: appState.language == .es ? "Soporte Shield" : "Shield Support",
-                body: appState.language == .es ? "Hola, necesito ayuda con..." : "Hi, I need help with..."
+                subject: appState.str("settings_support_subject"),
+                body: appState.str("settings_support_body")
             )
         }
         .confirmationDialog(
-            appState.language == .es ? "¿Borrar todos los documentos?" : "Delete all documents?",
+            appState.str("settings_delete_all_confirm_title"),
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button(appState.language == .es ? "Borrar todo" : "Delete all", role: .destructive) {
+            Button(appState.str("settings_delete_all_button"), role: .destructive) {
                 appState.deleteAllDocuments()
             }
-            Button(appState.language == .es ? "Cancelar" : "Cancel", role: .cancel) {}
+            Button(appState.str("common_cancel"), role: .cancel) {}
         } message: {
-            Text(appState.language == .es
-                 ? "Esta acción no se puede deshacer."
-                 : "This action cannot be undone.")
+            Text(appState.str("settings_delete_all_confirm_message"))
         }
         .onAppear {
             sanitizePreferences()
@@ -408,11 +394,11 @@ struct SettingsView: View {
 
     #if DEBUG
     private var developerSection: some View {
-        settingsSection(title: "Developer") {
+        settingsSection(title: appState.str("settings_developer")) {
             settingsRow(
                 icon: "hammer.fill",
                 iconColor: "FF6B35",
-                title: appState.language == .es ? "Modo Premium (prueba)" : "Premium override"
+                title: appState.str("settings_premium_override")
             ) {
                 ShieldToggle(isOn: Binding(
                     get: { pm.isDebugProOverride },
@@ -427,15 +413,15 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var iCloudSection: some View {
-        settingsSection(title: appState.language == .es ? "iCloud" : "iCloud") {
+        settingsSection(title: appState.str("settings_icloud")) {
             if !pm.isPro {
                 settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: appState.language == .es ? "Sincronización iCloud" : "iCloud sync") {
+                            title: appState.str("settings_icloud_sync")) {
                     Button {
                         paywallTrigger = .settingsUpgrade
                         showPaywall = true
                     } label: {
-                        Text("Pro")
+                        Text(appState.str("common_pro"))
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(.horizontal, 8).padding(.vertical, 3)
@@ -445,7 +431,7 @@ struct SettingsView: View {
                 }
             } else {
                 settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: appState.language == .es ? "Sincronizar con iCloud" : "Sync with iCloud") {
+                            title: appState.str("settings_icloud_sync_with")) {
                     ShieldToggle(isOn: $iCloudEnabled)
                         .onChange(of: iCloudEnabled) { _, v in
                             cloud.setSyncEnabled(v)
@@ -458,7 +444,7 @@ struct SettingsView: View {
                 if iCloudEnabled {
                     ShieldDivider().padding(.leading, 54)
                     settingsRow(icon: "arrow.clockwise.icloud", iconColor: "64D2FF",
-                                title: appState.language == .es ? "Sincronizar ahora" : "Sync now") {
+                                title: appState.str("settings_icloud_sync_now")) {
                         Button {
                             Task { await cloud.pushDocuments(appState.documents) }
                         } label: {
@@ -476,7 +462,7 @@ struct SettingsView: View {
                     if let lastSync = cloud.lastSyncFormatted {
                         ShieldDivider().padding(.leading, 54)
                         settingsRow(icon: "checkmark.icloud", iconColor: "30D158",
-                                    title: appState.language == .es ? "Última sincronización" : "Last synced") {
+                                    title: appState.str("settings_icloud_last_sync")) {
                             Text(lastSync)
                                 .font(.system(size: 12))
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
@@ -499,7 +485,7 @@ struct SettingsView: View {
                     if !cloud.isAvailable {
                         ShieldDivider().padding(.leading, 54)
                         settingsRow(icon: "xmark.icloud", iconColor: "FF453A",
-                                    title: appState.language == .es ? "iCloud no disponible" : "iCloud unavailable") {
+                                    title: appState.str("settings_icloud_unavailable")) {
                             EmptyView()
                         }
                     }
@@ -528,9 +514,7 @@ struct SettingsView: View {
                     Text("Shield Pro")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
-                    Text(appState.language == .es
-                         ? "Activa todas las funciones premium"
-                         : "Unlock all premium features")
+                    Text(appState.str("settings_pro_unlock_features"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
@@ -561,12 +545,10 @@ struct SettingsView: View {
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(appState.language == .es ? "Shield Pro — Activo" : "Shield Pro — Active")
+                Text(appState.str("settings_pro_active"))
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
-                Text(appState.language == .es
-                     ? "Todas las funciones desbloqueadas"
-                     : "All features unlocked")
+                Text(appState.str("settings_pro_unlocked"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.success)
             }
@@ -732,9 +714,7 @@ struct SettingsView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.language == .es
-                ? "Verifica tu identidad para activar Face ID"
-                : "Verify your identity to enable Face ID"
+            localizedReason: appState.str("settings_biometric_reason")
         ) { ok, _ in
             DispatchQueue.main.async {
                 biometricEnabled = ok

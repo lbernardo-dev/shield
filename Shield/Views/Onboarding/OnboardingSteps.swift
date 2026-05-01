@@ -24,7 +24,7 @@ struct OBWelcomeView: View {
             .symbolEffect(.pulse, isActive: true)
             .padding(.bottom, 36)
 
-            Text(OnboardingKey.welcomeTitle.string(lang: appState.language))
+            Text(LanguageManager.shared.onboarding("onboarding_welcome_title"))
                 .font(.system(size: 32, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .multilineTextAlignment(.center)
@@ -33,7 +33,7 @@ struct OBWelcomeView: View {
 
             Spacer().frame(height: 16)
 
-            Text(OnboardingKey.welcomeSubtitle.string(lang: appState.language))
+            Text(LanguageManager.shared.onboarding("onboarding_welcome_subtitle"))
                 .font(.system(size: 15))
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -43,7 +43,7 @@ struct OBWelcomeView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.welcomeCTA.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_welcome_cta"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -68,13 +68,13 @@ struct OBGoalView: View {
             Spacer().frame(height: 24)
 
             VStack(spacing: 10) {
-                Text(OnboardingKey.goalTitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_goal_title"))
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
                     .padding(.horizontal, 24)
-                Text(OnboardingKey.goalSubtitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_goal_subtitle"))
                     .font(.system(size: 14))
                     .foregroundColor(ShieldTheme.textSecondary)
             }
@@ -98,7 +98,7 @@ struct OBGoalView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.continueBtn.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_continue"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(state.selectedGoal != nil ? ShieldTheme.accent : ShieldTheme.surface2)
@@ -124,13 +124,13 @@ struct OBPainPointsView: View {
             Spacer().frame(height: 24)
 
             VStack(spacing: 10) {
-                Text(OnboardingKey.painTitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_pain_title"))
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
                     .padding(.horizontal, 24)
-                Text(OnboardingKey.painSubtitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_pain_subtitle"))
                     .font(.system(size: 14))
                     .foregroundColor(ShieldTheme.textSecondary)
             }
@@ -160,7 +160,7 @@ struct OBPainPointsView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.continueBtn.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_continue"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -180,18 +180,18 @@ struct OBSocialProofView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var state: OnboardingState
 
-    private struct T { let name: OnboardingKey; let tag: OnboardingKey; let text: OnboardingKey }
+    private struct T { let name: String; let tag: String; let text: String }
     private let testimonials: [T] = [
-        T(name: .social1Name, tag: .social1Tag, text: .social1Text),
-        T(name: .social2Name, tag: .social2Tag, text: .social2Text),
-        T(name: .social3Name, tag: .social3Tag, text: .social3Text),
+        T(name: "onboarding_social_1_name", tag: "onboarding_social_1_tag", text: "onboarding_social_1_text"),
+        T(name: "onboarding_social_2_name", tag: "onboarding_social_2_tag", text: "onboarding_social_2_text"),
+        T(name: "onboarding_social_3_name", tag: "onboarding_social_3_tag", text: "onboarding_social_3_text"),
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 24)
 
-            Text(OnboardingKey.socialTitle.string(lang: appState.language))
+            Text(LanguageManager.shared.onboarding("onboarding_social_title"))
                 .font(.system(size: 26, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .multilineTextAlignment(.center)
@@ -204,12 +204,12 @@ struct OBSocialProofView: View {
                 VStack(spacing: 14) {
                     ForEach(Array(testimonials.enumerated()), id: \.offset) { _, t in
                         OBTestimonialCard(
-                            name: t.name.string(lang: appState.language),
-                            tag: t.tag.string(lang: appState.language),
-                            text: t.text.string(lang: appState.language)
+                            name: LanguageManager.shared.onboarding(t.name),
+                            tag: LanguageManager.shared.onboarding(t.tag),
+                            text: LanguageManager.shared.onboarding(t.text)
                         )
                     }
-                    Text(OnboardingKey.socialNote.string(lang: appState.language))
+                    Text(LanguageManager.shared.onboarding("onboarding_social_note"))
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .multilineTextAlignment(.center)
@@ -221,7 +221,7 @@ struct OBSocialProofView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.continueBtn.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_continue"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -242,17 +242,16 @@ struct OBSolutionView: View {
     @ObservedObject var state: OnboardingState
 
     private var items: [(title: String, fix: String)] {
-        let lang = appState.language
         let pains = state.selectedPainPoints.isEmpty
-            ? [OBPainPoint.photo, .docNumber, .notSure]
+            ? [OBPainPoint.photo, .dob, .docNumber]
             : Array(state.selectedPainPoints.prefix(3))
         var result = pains.map { p -> (String, String) in
             let k = p.solutionKeys
-            return (k.title.string(lang: lang), k.fix.string(lang: lang))
+            return (LanguageManager.shared.onboarding(k.title), LanguageManager.shared.onboarding(k.fix))
         }
         result.append((
-            OnboardingKey.solutionDefaultTitle.string(lang: lang),
-            OnboardingKey.solutionDefaultFix.string(lang: lang)
+            LanguageManager.shared.onboarding("onboarding_solution_default_title"),
+            LanguageManager.shared.onboarding("onboarding_solution_default_fix")
         ))
         return result
     }
@@ -261,7 +260,7 @@ struct OBSolutionView: View {
         VStack(spacing: 0) {
             Spacer().frame(height: 24)
 
-            Text(OnboardingKey.solutionTitle.string(lang: appState.language))
+            Text(LanguageManager.shared.onboarding("onboarding_solution_title"))
                 .font(.system(size: 26, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .multilineTextAlignment(.center)
@@ -282,7 +281,7 @@ struct OBSolutionView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.continueBtn.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_continue"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -308,13 +307,13 @@ struct OBPreferencesView: View {
             Spacer().frame(height: 24)
 
             VStack(spacing: 10) {
-                Text(OnboardingKey.prefsTitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_prefs_title"))
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
                     .padding(.horizontal, 24)
-                Text(OnboardingKey.prefsSubtitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_prefs_subtitle"))
                     .font(.system(size: 14))
                     .foregroundColor(ShieldTheme.textSecondary)
             }
@@ -343,7 +342,7 @@ struct OBPreferencesView: View {
             Spacer()
 
             Button(action: state.next) {
-                Text(OnboardingKey.continueBtn.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_continue"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -367,15 +366,15 @@ struct OBCameraPermView: View {
         OBPermissionLayout(
             sfSymbol: "camera.fill",
             accentHex: "64D2FF",
-            title: OnboardingKey.cameraTitle.string(lang: appState.language),
-            subtitle: OnboardingKey.cameraSubtitle.string(lang: appState.language),
+            title: LanguageManager.shared.onboarding("onboarding_camera_title"),
+            subtitle: LanguageManager.shared.onboarding("onboarding_camera_subtitle"),
             bullets: [
-                OnboardingKey.cameraBullet1.string(lang: appState.language),
-                OnboardingKey.cameraBullet2.string(lang: appState.language),
-                OnboardingKey.cameraBullet3.string(lang: appState.language),
+                LanguageManager.shared.onboarding("onboarding_camera_bullet_1"),
+                LanguageManager.shared.onboarding("onboarding_camera_bullet_2"),
+                LanguageManager.shared.onboarding("onboarding_camera_bullet_3"),
             ],
-            enableLabel: OnboardingKey.cameraEnable.string(lang: appState.language),
-            notNowLabel: OnboardingKey.notNow.string(lang: appState.language),
+            enableLabel: LanguageManager.shared.onboarding("onboarding_camera_enable"),
+            notNowLabel: LanguageManager.shared.onboarding("onboarding_not_now"),
             onEnable: {
                 AVCaptureDevice.requestAccess(for: .video) { _ in
                     DispatchQueue.main.async { state.next() }
@@ -393,19 +392,19 @@ struct OBFaceIDPermView: View {
     @ObservedObject var state: OnboardingState
 
     var body: some View {
-        let reason = OnboardingKey.faceIDEnable.string(lang: appState.language)
+        let reason = LanguageManager.shared.onboarding("onboarding_face_id_enable")
         OBPermissionLayout(
             sfSymbol: "faceid",
             accentHex: "30D158",
-            title: OnboardingKey.faceIDTitle.string(lang: appState.language),
-            subtitle: OnboardingKey.faceIDSubtitle.string(lang: appState.language),
+            title: LanguageManager.shared.onboarding("onboarding_face_id_title"),
+            subtitle: LanguageManager.shared.onboarding("onboarding_face_id_subtitle"),
             bullets: [
-                OnboardingKey.faceIDBullet1.string(lang: appState.language),
-                OnboardingKey.faceIDBullet2.string(lang: appState.language),
-                OnboardingKey.faceIDBullet3.string(lang: appState.language),
+                LanguageManager.shared.onboarding("onboarding_face_id_bullet_1"),
+                LanguageManager.shared.onboarding("onboarding_face_id_bullet_2"),
+                LanguageManager.shared.onboarding("onboarding_face_id_bullet_3"),
             ],
             enableLabel: reason,
-            notNowLabel: OnboardingKey.notNow.string(lang: appState.language),
+            notNowLabel: LanguageManager.shared.onboarding("onboarding_not_now"),
             onEnable: {
                 let ctx = LAContext()
                 var err: NSError?
@@ -446,7 +445,7 @@ struct OBProcessingView: View {
                     .rotationEffect(.degrees(angle))
             }
 
-            Text(OnboardingKey.processingText.string(lang: appState.language))
+            Text(LanguageManager.shared.onboarding("onboarding_processing_text"))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -482,13 +481,13 @@ struct OBDemoView: View {
             Spacer().frame(height: 20)
 
             VStack(spacing: 8) {
-                Text(OnboardingKey.demoTitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_title"))
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
                     .padding(.horizontal, 24)
-                Text(OnboardingKey.demoSubtitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_subtitle"))
                     .font(.system(size: 14))
                     .foregroundColor(ShieldTheme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -500,7 +499,7 @@ struct OBDemoView: View {
             // Sample document
             VStack(spacing: 0) {
                 HStack {
-                    Text(OnboardingKey.demoSampleCountry.string(lang: appState.language))
+                    Text(LanguageManager.shared.onboarding("onboarding_demo_sample_country"))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(ShieldTheme.textSecondary)
                     Spacer()
@@ -532,13 +531,13 @@ struct OBDemoView: View {
                         // Name (not redactable)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("NOMBRE").font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
-                            Text(OnboardingKey.demoSampleName.string(lang: appState.language))
+                            Text(LanguageManager.shared.onboarding("onboarding_demo_sample_name"))
                                 .font(.system(size: 13, weight: .semibold)).foregroundColor(ShieldTheme.textPrimary)
                         }
                         Divider().background(ShieldTheme.surfaceLine)
-                        demoField(id: "dob", labelKey: .demoFieldDOB, value: "12/05/1988")
+                        demoField(id: "dob", labelKey: "onboarding_demo_field_dob", value: "12/05/1988")
                         Divider().background(ShieldTheme.surfaceLine)
-                        demoField(id: "docnum", labelKey: .demoFieldDocNum, value: "47821634-X")
+                        demoField(id: "docnum", labelKey: "onboarding_demo_field_doc_num", value: "47821634-X")
                     }
                 }
                 .padding(16)
@@ -549,7 +548,7 @@ struct OBDemoView: View {
                 Button { withAnimation(.easeInOut(duration: 0.15)) { toggle("address") } } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(OnboardingKey.demoFieldAddress.string(lang: appState.language).uppercased())
+                            Text(LanguageManager.shared.onboarding("onboarding_demo_field_address").uppercased())
                                 .font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
                             if redacted.contains("address") {
                                 RoundedRectangle(cornerRadius: 3).fill(Color.black)
@@ -584,7 +583,7 @@ struct OBDemoView: View {
             Spacer()
 
             Button { withAnimation { showResult = true } } label: {
-                Text(OnboardingKey.demoSeeResult.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_see_result"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(redacted.count >= minRequired ? ShieldTheme.accent : ShieldTheme.surface2)
@@ -599,11 +598,11 @@ struct OBDemoView: View {
     }
 
     @ViewBuilder
-    private func demoField(id: String, labelKey: OnboardingKey, value: String) -> some View {
+    private func demoField(id: String, labelKey: String, value: String) -> some View {
         Button { withAnimation(.easeInOut(duration: 0.15)) { toggle(id) } } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(labelKey.string(lang: appState.language).uppercased())
+                    Text(LanguageManager.shared.onboarding(labelKey).uppercased())
                         .font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
                     if redacted.contains(id) {
                         RoundedRectangle(cornerRadius: 3).fill(Color.black).frame(width: 90, height: 14)
@@ -621,11 +620,10 @@ struct OBDemoView: View {
     }
 
     private var instructionText: String {
-        let lang = appState.language
         let remaining = max(0, minRequired - redacted.count)
-        if redacted.count >= minRequired { return OnboardingKey.demoInstructionDone.string(lang: lang) }
-        if remaining == 1 { return OnboardingKey.demoInstructionSingular.string(lang: lang) }
-        return OnboardingKey.demoInstructionPlural.string(lang: lang)
+        if redacted.count >= minRequired { return LanguageManager.shared.onboarding("onboarding_demo_instruction_done") }
+        if remaining == 1 { return LanguageManager.shared.onboarding("onboarding_demo_instruction_singular") }
+        return LanguageManager.shared.onboarding("onboarding_demo_instruction_plural")
     }
 
     private var resultView: some View {
@@ -640,12 +638,12 @@ struct OBDemoView: View {
                         .font(.system(size: 44, weight: .semibold))
                         .foregroundColor(Color(hex: "30D158"))
                 }
-                Text(OnboardingKey.demoResultTitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_result_title"))
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
-                Text(OnboardingKey.demoResultSubtitle.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_result_subtitle"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -653,7 +651,7 @@ struct OBDemoView: View {
             }
             Spacer()
             Button(action: state.next) {
-                Text(OnboardingKey.demoResultCTA.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_demo_result_cta"))
                     .font(.system(size: 17, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
@@ -677,12 +675,12 @@ struct OBPaywallView: View {
     @StateObject private var pm = PremiumManager.shared
     var onComplete: () -> Void
 
-    private let features: [(icon: String, hex: String, key: OnboardingKey)] = [
-        ("doc.stack.fill",       "64D2FF", .paywallFeat1),
-        ("eye.slash.fill",       "FFD60A", .paywallFeat2),
-        ("lock.rectangle.stack", "30D158", .paywallFeat3),
-        ("wand.and.stars",       "BF5AF2", .paywallFeat4),
-        ("icloud",               "30D158", .paywallFeat5),
+    private let features: [(icon: String, hex: String, key: String)] = [
+        ("doc.stack.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
+        ("eye.slash.fill",       "FFD60A", "paywall_feature_all_styles"),
+        ("lock.rectangle.stack", "30D158", "paywall_feature_vault"),
+        ("wand.and.stars",       "BF5AF2", "paywall_feature_auto_title"),
+        ("icloud",               "30D158", "paywall_feature_icloud"),
     ]
 
     var body: some View {
@@ -695,13 +693,13 @@ struct OBPaywallView: View {
                         .font(.system(size: 40))
                         .foregroundColor(ShieldTheme.accent)
                         .padding(.bottom, 8)
-                    Text(OnboardingKey.paywallTitle.string(lang: appState.language))
+                    Text(LanguageManager.shared.paywall("paywall_title"))
                         .font(.system(size: 30, weight: .heavy))
                         .foregroundColor(ShieldTheme.textPrimary)
                         .multilineTextAlignment(.center)
                         .tracking(-0.7)
                         .padding(.horizontal, 24)
-                    Text(OnboardingKey.paywallSubtitle.string(lang: appState.language))
+                    Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
                         .font(.system(size: 14))
                         .foregroundColor(ShieldTheme.textSecondary)
                 }
@@ -715,10 +713,10 @@ struct OBPaywallView: View {
                             Image(systemName: "star.fill").font(.system(size: 12)).foregroundColor(ShieldTheme.accent)
                         }
                     }
-                    Text(OnboardingKey.paywallTestimonial.string(lang: appState.language))
+                    Text(LanguageManager.shared.paywall("paywall_testimonial"))
                         .font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
                         .multilineTextAlignment(.center).italic()
-                    Text(OnboardingKey.paywallTestimonialAuthor.string(lang: appState.language))
+                    Text(LanguageManager.shared.paywall("paywall_testimonial_author"))
                         .font(.system(size: 12)).foregroundColor(ShieldTheme.textSecondary)
                 }
                 .padding(16)
@@ -741,7 +739,7 @@ struct OBPaywallView: View {
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(Color(hex: f.hex))
                             }
-                            Text(f.key.string(lang: appState.language))
+                            Text(LanguageManager.shared.paywall(f.key))
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(ShieldTheme.textPrimary)
                             Spacer()
@@ -767,7 +765,7 @@ struct OBPaywallView: View {
                             if pm.isPurchasing {
                                 ProgressView().tint(ShieldTheme.accentText)
                             } else {
-                                Text(OnboardingKey.paywallCTA.string(lang: appState.language))
+                                Text(LanguageManager.shared.paywall("paywall_get_pro"))
                                     .font(.system(size: 17, weight: .bold))
                                     .foregroundColor(ShieldTheme.accentText)
                             }
@@ -782,16 +780,16 @@ struct OBPaywallView: View {
                     Button {
                         Task { await pm.restore(); if pm.isPro { onComplete() } }
                     } label: {
-                        Text(OnboardingKey.paywallRestore.string(lang: appState.language))
+                        Text(LanguageManager.shared.paywall("paywall_restore"))
                             .font(.system(size: 14)).foregroundColor(ShieldTheme.textSecondary).frame(height: 40)
                     }
 
                     Button(action: onComplete) {
-                        Text(OnboardingKey.paywallSkip.string(lang: appState.language))
+                        Text(LanguageManager.shared.paywall("paywall_skip"))
                             .font(.system(size: 13)).foregroundColor(ShieldTheme.textTertiary).frame(height: 36)
                     }
 
-                    Text(OnboardingKey.paywallLegal.string(lang: appState.language))
+                    Text(LanguageManager.shared.paywall("paywall_legal"))
                         .font(.system(size: 10)).foregroundColor(ShieldTheme.textTertiary)
                         .multilineTextAlignment(.center).padding(.horizontal, 40)
                 }

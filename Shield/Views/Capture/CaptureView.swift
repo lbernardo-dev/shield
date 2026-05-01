@@ -21,11 +21,11 @@ enum ScanDocumentType: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .identity:       return lang == .es ? "DNI / ID" : "ID Card"
-        case .passport:       return lang == .es ? "Pasaporte" : "Passport"
-        case .drivingLicense: return lang == .es ? "Carnet conducir" : "Driver's Lic."
-        case .a4Document:     return lang == .es ? "Documento A4" : "A4 Document"
-        case .freeform:       return lang == .es ? "Libre" : "Freeform"
+        case .identity:       return LanguageManager.shared.t("capture_kind_id_card", table: "Capture")
+        case .passport:       return LanguageManager.shared.t("capture_kind_passport", table: "Capture")
+        case .drivingLicense: return LanguageManager.shared.t("capture_kind_driving_license", table: "Capture")
+        case .a4Document:     return LanguageManager.shared.t("capture_kind_a4", table: "Capture")
+        case .freeform:       return LanguageManager.shared.t("capture_kind_freeform", table: "Capture")
         }
     }
 
@@ -130,7 +130,6 @@ struct CaptureView: View {
         .fullScreenCover(isPresented: $showScanReview) {
             ScanReviewView(
                 pages: stagedPages,
-                lang: appState.language,
                 onCancel: {
                     showScanReview = false
                     stagedPages = []
@@ -189,7 +188,7 @@ struct CaptureView: View {
                         .frame(width: 44, height: 44)
                 }
                 Spacer()
-                Text(appState.language == .es ? "Añadir documento" : "Add document")
+                Text(appState.str("capture_add_document"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -209,10 +208,8 @@ struct CaptureView: View {
             VStack(spacing: 12) {
                 captureOption(
                     icon: "camera.viewfinder",
-                    title: appState.language == .es ? "Escanear documento" : "Scan document",
-                    subtitle: appState.language == .es
-                        ? "Marco guía: \(selectedScanType.label(lang: appState.language))"
-                        : "Guide frame: \(selectedScanType.label(lang: appState.language))",
+                    title: appState.str("capture_scan_document"),
+                    subtitle: appState.str("capture_guide_frame", selectedScanType.label(lang: appState.language)),
                     primary: true
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -225,8 +222,8 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "photo.on.rectangle",
-                    title: appState.language == .es ? "Desde fotos" : "From Photos",
-                    subtitle: appState.language == .es ? "Selecciona una o varias imágenes" : "Pick one or multiple images",
+                    title: appState.str("capture_from_photos"),
+                    subtitle: appState.str("capture_pick_images"),
                     primary: false
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -235,8 +232,8 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "folder",
-                    title: appState.language == .es ? "Desde archivos" : "From Files",
-                    subtitle: appState.language == .es ? "PDF, imágenes y más" : "PDF, images and more",
+                    title: appState.str("capture_from_files"),
+                    subtitle: appState.str("capture_files_subtitle"),
                     primary: false
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -245,10 +242,8 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "icloud.and.arrow.down",
-                    title: appState.language == .es ? "Desde la nube" : "From Cloud",
-                    subtitle: appState.language == .es
-                        ? "Google Drive, Dropbox, OneDrive…"
-                        : "Google Drive, Dropbox, OneDrive…",
+                    title: appState.str("capture_from_cloud"),
+                    subtitle: "Google Drive, Dropbox, OneDrive…",
                     primary: false
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -264,9 +259,7 @@ struct CaptureView: View {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "666666"))
-                Text(appState.language == .es
-                     ? "Todo se procesa en el dispositivo. Sin servidores."
-                     : "Processed on-device. No servers.")
+                Text(appState.str("capture_on_device_privacy"))
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "666666"))
             }
@@ -280,7 +273,7 @@ struct CaptureView: View {
     private var documentTypeSelector: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(appState.language == .es ? "Tipo de documento" : "Document type")
+                Text(appState.str("capture_document_type"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(Color(hex: "888888"))
                 Spacer()
@@ -291,8 +284,8 @@ struct CaptureView: View {
                         Image(systemName: showScanTypeGuide ? "eye.slash" : "eye")
                             .font(.system(size: 11, weight: .semibold))
                         Text(showScanTypeGuide
-                             ? (appState.language == .es ? "Ocultar guía" : "Hide guide")
-                             : (appState.language == .es ? "Mostrar guía" : "Show guide"))
+                             ? appState.str("capture_hide_guide")
+                             : appState.str("capture_show_guide"))
                             .font(.system(size: 11, weight: .semibold))
                     }
                     .foregroundColor(ShieldTheme.accent)
@@ -401,7 +394,7 @@ struct CaptureView: View {
         }
         AppState.trackEvent("import_started", properties: ["source": "file"])
         isProcessing = true
-        processingMessage = appState.language == .es ? "Importando archivo…" : "Importing file…"
+        processingMessage = appState.str("capture_importing_file")
 
         Task {
             _ = url.startAccessingSecurityScopedResource()
@@ -502,7 +495,7 @@ struct CaptureView: View {
         sourceFileName: String?
     ) {
         isProcessing = true
-        processingMessage = appState.language == .es ? "Procesando páginas…" : "Processing pages…"
+        processingMessage = appState.str("capture_processing_pages")
 
         Task {
             var pageFileNames: [String] = []
@@ -549,7 +542,7 @@ struct CaptureView: View {
                 if !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return title }
                 let fmt = DateFormatter()
                 fmt.dateFormat = "d MMM HH:mm"
-                return appState.language == .es ? "Escaneo \(fmt.string(from: Date()))" : "Scan \(fmt.string(from: Date()))"
+                return appState.str("capture_scan_fallback_title", fmt.string(from: Date()))
             }()
             let docTitle = !fields.fullName.isEmpty ? fields.fullName : fallbackTitle
             let detectedCategory: DocumentCategory = {
@@ -655,10 +648,10 @@ enum ScanFilterPreset: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .original: return lang == .es ? "Original" : "Original"
+        case .original: return "Original"
         case .auto: return "Auto"
-        case .blackWhite: return lang == .es ? "B/N" : "B/W"
-        case .highContrast: return lang == .es ? "Contraste+" : "Contrast+"
+        case .blackWhite: return LanguageManager.shared.str("capture_black_white", table: "Capture")
+        case .highContrast: return LanguageManager.shared.str("capture_high_contrast", table: "Capture")
         }
     }
 }
@@ -672,9 +665,9 @@ enum ScanAdjustmentPreset: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .document: return lang == .es ? "Documento" : "Document"
-        case .photo: return lang == .es ? "Foto" : "Photo"
-        case .grayscale: return lang == .es ? "B/N fuerte" : "Strong B/W"
+        case .document: return LanguageManager.shared.str("capture_document", table: "Capture")
+        case .photo: return LanguageManager.shared.str("capture_photo", table: "Capture")
+        case .grayscale: return LanguageManager.shared.str("capture_grayscale_strong", table: "Capture")
         }
     }
 
@@ -1040,8 +1033,8 @@ struct FourPointPerspectiveEditor: View {
 // MARK: - ScanReviewView
 
 struct ScanReviewView: View {
+    @EnvironmentObject var appState: AppState
     let pages: [UIImage]
-    let lang: AppLanguage
     var onCancel: () -> Void
     var onConfirm: ([UIImage], Bool) -> Void
 
@@ -1072,19 +1065,19 @@ struct ScanReviewView: View {
 
     private var header: some View {
         HStack {
-            Button(lang == .es ? "Cancelar" : "Cancel") {
+            Button(appState.str("capture_cancel")) {
                 onCancel()
             }
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(ShieldTheme.textSecondary)
 
             Spacer()
-            Text(lang == .es ? "Mejorar escaneo" : "Enhance scan")
+            Text(appState.str("capture_enhance_title"))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
             Spacer()
 
-            Button(applying ? (lang == .es ? "Procesando…" : "Processing…") : (lang == .es ? "Guardar" : "Save")) {
+            Button(applying ? appState.str("capture_processing") : appState.str("capture_save")) {
                 applyAndContinue()
             }
             .disabled(applying)
@@ -1207,7 +1200,7 @@ struct ScanReviewView: View {
                     Button {
                         resetCurrentPage()
                     } label: {
-                        Text(lang == .es ? "Restablecer página" : "Reset page")
+                        Text(appState.language == .es ? "Restablecer página" : "Reset page")
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1220,7 +1213,7 @@ struct ScanReviewView: View {
                     Button {
                         resetAllPages()
                     } label: {
-                        Text(lang == .es ? "Restablecer todo" : "Reset all")
+                        Text(appState.language == .es ? "Restablecer todo" : "Reset all")
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1236,7 +1229,7 @@ struct ScanReviewView: View {
                     adjustments = Array(repeating: current, count: pages.count)
                     AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
                 } label: {
-                    Text(lang == .es ? "Aplicar ajustes a todas las páginas" : "Apply to all pages")
+                    Text(appState.language == .es ? "Aplicar ajustes a todas las páginas" : "Apply to all pages")
                         .font(.system(size: 14, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
@@ -1253,13 +1246,13 @@ struct ScanReviewView: View {
 
     private var presetSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(lang == .es ? "Presets rápidos" : "Quick presets")
+            Text(appState.str("capture_quick_presets"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
             Picker("", selection: $selectedPreset) {
                 ForEach(ScanAdjustmentPreset.allCases) { preset in
-                    Text(preset.label(lang: lang)).tag(preset)
+                    Text(preset.label(lang: appState.language)).tag(preset)
                 }
             }
             .pickerStyle(.segmented)
@@ -1267,7 +1260,7 @@ struct ScanReviewView: View {
             Button {
                 applyPresetToCurrentPage(selectedPreset)
             } label: {
-                Text(lang == .es ? "Aplicar preset a esta página" : "Apply preset to this page")
+                Text(appState.str("capture_apply_preset"))
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -1281,12 +1274,12 @@ struct ScanReviewView: View {
 
     private var filterSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(lang == .es ? "Filtros" : "Filters")
+            Text(appState.str("capture_filters"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
             Picker("", selection: binding(\.filterPreset)) {
                 ForEach(ScanFilterPreset.allCases) { preset in
-                    Text(preset.label(lang: lang)).tag(preset)
+                    Text(preset.label(lang: appState.language)).tag(preset)
                 }
             }
             .pickerStyle(.segmented)
@@ -1295,7 +1288,7 @@ struct ScanReviewView: View {
 
     private var geometrySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(lang == .es ? "Geometría" : "Geometry")
+            Text(appState.str("capture_geometry"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
@@ -1305,9 +1298,7 @@ struct ScanReviewView: View {
                     Image(systemName: "hand.draw.fill")
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.accent)
-                    Text(lang == .es
-                         ? "Arrastra las esquinas para corregir perspectiva"
-                         : "Drag corner handles to correct perspective")
+                    Text(appState.str("capture_drag_perspective_hint"))
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textSecondary)
                     Spacer()
@@ -1316,7 +1307,7 @@ struct ScanReviewView: View {
                             adjustments[selectedPage].quad = .identity
                         }
                     } label: {
-                        Text(lang == .es ? "Reset" : "Reset")
+                        Text(appState.str("capture_reset"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(ShieldTheme.danger)
                     }
@@ -1327,7 +1318,7 @@ struct ScanReviewView: View {
             }
 
             sliderRow(
-                title: lang == .es ? "Enderezar" : "Straighten",
+                title: appState.str("capture_straighten"),
                 valueText: "\(Int(binding(\.straightenDegrees).wrappedValue))°"
             ) {
                 Slider(value: binding(\.straightenDegrees), in: -25...25, step: 1)
@@ -1336,7 +1327,7 @@ struct ScanReviewView: View {
             Button {
                 detectPerspectiveForCurrentPage()
             } label: {
-                Text(lang == .es ? "Detectar perspectiva automática" : "Auto-detect perspective")
+                Text(appState.str("capture_auto_perspective"))
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -1347,35 +1338,35 @@ struct ScanReviewView: View {
             .buttonStyle(ScaleButtonStyle())
 
             sliderRow(
-                title: lang == .es ? "Perspectiva superior" : "Top perspective",
+                title: appState.str("capture_top_perspective"),
                 valueText: percent(binding(\.perspectiveTopInset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveTopInset), in: 0...0.3, step: 0.01)
             }
 
             sliderRow(
-                title: lang == .es ? "Perspectiva inferior" : "Bottom perspective",
+                title: appState.str("capture_bottom_perspective"),
                 valueText: percent(binding(\.perspectiveBottomInset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveBottomInset), in: 0...0.3, step: 0.01)
             }
 
             sliderRow(
-                title: lang == .es ? "Sesgo horizontal" : "Horizontal skew",
+                title: appState.str("capture_horizontal_skew"),
                 valueText: signed(binding(\.perspectiveSkew).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveSkew), in: -0.16...0.16, step: 0.005)
             }
 
             sliderRow(
-                title: lang == .es ? "Ajuste vertical sup." : "Top vertical trim",
+                title: appState.str("capture_top_vertical_trim"),
                 valueText: percent(binding(\.perspectiveTopYOffset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveTopYOffset), in: 0...0.25, step: 0.01)
             }
 
             sliderRow(
-                title: lang == .es ? "Ajuste vertical inf." : "Bottom vertical trim",
+                title: appState.str("capture_bottom_vertical_trim"),
                 valueText: percent(binding(\.perspectiveBottomYOffset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveBottomYOffset), in: 0...0.25, step: 0.01)
@@ -1387,7 +1378,7 @@ struct ScanReviewView: View {
                     a.rotationDegrees -= 90
                     adjustments[selectedPage] = a
                 } label: {
-                    Text(lang == .es ? "Girar -90°" : "Rotate -90°")
+                    Text(appState.str("capture_rotate_left"))
                         .font(.system(size: 12, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
@@ -1402,7 +1393,7 @@ struct ScanReviewView: View {
                     a.rotationDegrees += 90
                     adjustments[selectedPage] = a
                 } label: {
-                    Text(lang == .es ? "Girar +90°" : "Rotate +90°")
+                    Text(appState.str("capture_rotate_right"))
                         .font(.system(size: 12, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
@@ -1417,20 +1408,20 @@ struct ScanReviewView: View {
 
     private var cropSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(lang == .es ? "Recorte" : "Crop")
+            Text(appState.str("capture_crop"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
-            sliderRow(title: lang == .es ? "Izquierda" : "Left", valueText: percent(binding(\.cropLeft).wrappedValue)) {
+            sliderRow(title: appState.str("capture_left"), valueText: percent(binding(\.cropLeft).wrappedValue)) {
                 Slider(value: binding(\.cropLeft), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Derecha" : "Right", valueText: percent(binding(\.cropRight).wrappedValue)) {
+            sliderRow(title: appState.str("capture_right"), valueText: percent(binding(\.cropRight).wrappedValue)) {
                 Slider(value: binding(\.cropRight), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Arriba" : "Top", valueText: percent(binding(\.cropTop).wrappedValue)) {
+            sliderRow(title: appState.str("capture_top"), valueText: percent(binding(\.cropTop).wrappedValue)) {
                 Slider(value: binding(\.cropTop), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Abajo" : "Bottom", valueText: percent(binding(\.cropBottom).wrappedValue)) {
+            sliderRow(title: appState.str("capture_bottom"), valueText: percent(binding(\.cropBottom).wrappedValue)) {
                 Slider(value: binding(\.cropBottom), in: 0...0.35, step: 0.01)
             }
         }
@@ -1438,20 +1429,20 @@ struct ScanReviewView: View {
 
     private var imageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(lang == .es ? "Correctores de imagen" : "Image adjustments")
+            Text(appState.str("capture_adjustments"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
-            sliderRow(title: lang == .es ? "Brillo" : "Brightness", valueText: signed(binding(\.brightness).wrappedValue)) {
+            sliderRow(title: appState.str("capture_brightness"), valueText: signed(binding(\.brightness).wrappedValue)) {
                 Slider(value: binding(\.brightness), in: -0.3...0.3, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Contraste" : "Contrast", valueText: String(format: "%.2f", binding(\.contrast).wrappedValue)) {
+            sliderRow(title: appState.str("capture_contrast"), valueText: String(format: "%.2f", binding(\.contrast).wrappedValue)) {
                 Slider(value: binding(\.contrast), in: 0.7...1.8, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Nitidez" : "Sharpness", valueText: String(format: "%.2f", binding(\.sharpness).wrappedValue)) {
+            sliderRow(title: appState.str("capture_sharpness"), valueText: String(format: "%.2f", binding(\.sharpness).wrappedValue)) {
                 Slider(value: binding(\.sharpness), in: 0...1.5, step: 0.01)
             }
-            sliderRow(title: lang == .es ? "Ruido" : "Noise reduction", valueText: String(format: "%.2f", binding(\.noiseReduction).wrappedValue)) {
+            sliderRow(title: appState.str("capture_noise_reduction"), valueText: String(format: "%.2f", binding(\.noiseReduction).wrappedValue)) {
                 Slider(value: binding(\.noiseReduction), in: 0...0.08, step: 0.005)
             }
         }

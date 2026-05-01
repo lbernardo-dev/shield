@@ -41,7 +41,18 @@
 		A033 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* OnboardingFlowView.swift */; };
 		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
 		A035 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F035 /* OnboardingState.swift */; };
-		A036 /* OnboardingL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* OnboardingL10n.swift */; };
+		A036 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* LanguageManager.swift */; };
+		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
+		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
+		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
+		B004 /* Editor.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L004 /* Editor.xcstrings */; };
+		B005 /* Gallery.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L005 /* Gallery.xcstrings */; };
+		B006 /* Home.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L006 /* Home.xcstrings */; };
+		B007 /* Model.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L007 /* Model.xcstrings */; };
+		B008 /* Onboarding.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L008 /* Onboarding.xcstrings */; };
+		B009 /* Paywall.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L009 /* Paywall.xcstrings */; };
+		B010 /* Settings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L010 /* Settings.xcstrings */; };
+		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -87,7 +98,18 @@
 		F033 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
 		F035 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
-		F036 /* OnboardingL10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingL10n.swift; sourceTree = "<group>"; };
+		F036 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
+		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
+		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
+		L004 /* Editor.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Editor.xcstrings; sourceTree = "<group>"; };
+		L005 /* Gallery.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Gallery.xcstrings; sourceTree = "<group>"; };
+		L006 /* Home.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Home.xcstrings; sourceTree = "<group>"; };
+		L007 /* Model.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Model.xcstrings; sourceTree = "<group>"; };
+		L008 /* Onboarding.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Onboarding.xcstrings; sourceTree = "<group>"; };
+		L009 /* Paywall.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Paywall.xcstrings; sourceTree = "<group>"; };
+		L010 /* Settings.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Settings.xcstrings; sourceTree = "<group>"; };
+		L011 /* Vault.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Vault.xcstrings; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -253,7 +275,6 @@
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
 				F028 /* PrivacyInfo.xcprivacy */,
-				F036 /* OnboardingL10n.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -275,6 +296,33 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		GRP_LOCALIZATION /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				F036 /* LanguageManager.swift */,
+				GRP_STRINGS /* Strings */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		GRP_STRINGS /* Strings */ = {
+			isa = PBXGroup;
+			children = (
+				L001 /* Auth.xcstrings */,
+				L002 /* Capture.xcstrings */,
+				L003 /* Common.xcstrings */,
+				L004 /* Editor.xcstrings */,
+				L005 /* Gallery.xcstrings */,
+				L006 /* Home.xcstrings */,
+				L007 /* Model.xcstrings */,
+				L008 /* Onboarding.xcstrings */,
+				L009 /* Paywall.xcstrings */,
+				L010 /* Settings.xcstrings */,
+				L011 /* Vault.xcstrings */,
+			);
+			path = Strings;
+			sourceTree = "<group>";
+		};
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
@@ -286,6 +334,7 @@
 				GRP_VIEWS /* Views */,
 				GRP_CLOUD /* Cloud */,
 				GRP_PREMIUM /* Premium */,
+				GRP_LOCALIZATION /* Localization */,
 				GRP_RESOURCES /* Resources */,
 			);
 			path = Shield;
@@ -396,6 +445,17 @@
 				A024 /* Assets.xcassets in Resources */,
 				A025 /* Shield.storekit in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
+				B001 /* Auth.xcstrings in Resources */,
+				B002 /* Capture.xcstrings in Resources */,
+				B003 /* Common.xcstrings in Resources */,
+				B004 /* Editor.xcstrings in Resources */,
+				B005 /* Gallery.xcstrings in Resources */,
+				B006 /* Home.xcstrings in Resources */,
+				B007 /* Model.xcstrings in Resources */,
+				B008 /* Onboarding.xcstrings in Resources */,
+				B009 /* Paywall.xcstrings in Resources */,
+				B010 /* Settings.xcstrings in Resources */,
+				B011 /* Vault.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,7 +497,7 @@
 				A033 /* OnboardingFlowView.swift in Sources */,
 				A034 /* OnboardingSteps.swift in Sources */,
 				A035 /* OnboardingState.swift in Sources */,
-				A036 /* OnboardingL10n.swift in Sources */,
+				A036 /* LanguageManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

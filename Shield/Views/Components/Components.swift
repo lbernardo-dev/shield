@@ -276,7 +276,7 @@ struct OnDeviceBadge: View {
             Image(systemName: "lock.fill")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(ShieldTheme.success)
-            Text("Procesado en el dispositivo")
+            Text(LanguageManager.shared.common("common_on_device"))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(ShieldTheme.success)
         }

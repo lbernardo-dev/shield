@@ -23,12 +23,12 @@ struct OCRSheetView: View {
     private var items: [(key: String, label: String, value: String, boxIndex: Int)] {
         let f = resolvedFields
         return [
-            ("docNum",  L10nKey.documentNumber.string(lang: lang), f.documentNumber, 0),
-            ("name",    L10nKey.fullName.string(lang: lang),       f.fullName, 1),
-            ("dob",     L10nKey.dateOfBirth.string(lang: lang),    f.dateOfBirth, 4),
-            ("expires", L10nKey.expires.string(lang: lang),        f.expires, 5),
-            ("nat",     L10nKey.nationality.string(lang: lang),    f.nationality, 2),
-            ("addr",    L10nKey.address.string(lang: lang),        f.address, 3),
+            ("docNum",  LanguageManager.shared.model("model_field_document_number"), f.documentNumber, 0),
+            ("name",    LanguageManager.shared.model("model_field_full_name"),       f.fullName, 1),
+            ("dob",     LanguageManager.shared.model("model_field_date_of_birth"),    f.dateOfBirth, 4),
+            ("expires", LanguageManager.shared.model("model_field_expires"),        f.expires, 5),
+            ("nat",     LanguageManager.shared.model("model_field_nationality"),    f.nationality, 2),
+            ("addr",    LanguageManager.shared.model("model_field_address"),        f.address, 3),
         ]
     }
 
@@ -53,14 +53,14 @@ struct OCRSheetView: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(L10nKey.fieldsLabel.string(lang: lang))
+                    Text(LanguageManager.shared.model("model_detected_fields"))
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
                     HStack(spacing: 5) {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 11))
                             .foregroundColor(ShieldTheme.success)
-                        Text(L10nKey.onDevice.string(lang: lang))
+                        Text(LanguageManager.shared.common("common_on_device"))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(ShieldTheme.success)
                     }
@@ -71,7 +71,7 @@ struct OCRSheetView: View {
                         HStack(spacing: 5) {
                             Image(systemName: "text.viewfinder")
                                 .font(.system(size: 12, weight: .semibold))
-                            Text(lang == .es ? "Releer" : "Reread")
+                            Text(LanguageManager.shared.editor("editor_ocr_reread"))
                                 .font(.system(size: 12, weight: .semibold))
                         }
                         .foregroundColor(ShieldTheme.accent)
@@ -98,7 +98,7 @@ struct OCRSheetView: View {
             if isRunningOCR {
                 HStack(spacing: 10) {
                     ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
-                    Text(lang == .es ? "Analizando imagen…" : "Analyzing image…")
+                    Text(LanguageManager.shared.str("editor_ocr_analyzing", table: "Editor"))
                         .font(.system(size: 13))
                         .foregroundColor(ShieldTheme.textSecondary)
                 }
@@ -115,7 +115,7 @@ struct OCRSheetView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "doc.text.viewfinder")
                         .font(.system(size: 11, weight: .semibold))
-                    Text(lang == .es ? "Tipo detectado: \(detectedTypeLabel(detectedType))" : "Detected type: \(detectedTypeLabel(detectedType))")
+                    Text(LanguageManager.shared.str("editor_ocr_type_detected", table: "Editor", args: detectedTypeLabel(detectedType)))
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .foregroundColor(ShieldTheme.accent)
@@ -141,7 +141,7 @@ struct OCRSheetView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "globe")
                         .font(.system(size: 11, weight: .semibold))
-                    Text(lang == .es ? "País detectado: \(country)" : "Detected country: \(country)")
+                    Text(LanguageManager.shared.str("editor_ocr_country_detected", table: "Editor", args: country))
                         .font(.system(size: 12, weight: .semibold))
                 }
                 .foregroundColor(ShieldTheme.textSecondary)
@@ -199,7 +199,7 @@ struct OCRSheetView: View {
                     // MRZ block
                     if let mrz = resolvedFields.mrz {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(L10nKey.mrz.string(lang: lang))
+                            Text(LanguageManager.shared.model("model_field_mrz"))
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(ShieldTheme.textTertiary)
                                 .textCase(.uppercase)
@@ -225,7 +225,7 @@ struct OCRSheetView: View {
                                 withAnimation { showFullText.toggle() }
                             } label: {
                                 HStack {
-                                    Text(lang == .es ? "Documento completo (OCR)" : "Full document (OCR)")
+                                    Text(LanguageManager.shared.str("editor_ocr_full_doc", table: "Editor"))
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundColor(ShieldTheme.textTertiary)
                                     Spacer()
@@ -268,7 +268,7 @@ struct OCRSheetView: View {
                 withAnimation { showRawOCR.toggle() }
             } label: {
                 HStack {
-                    Text(lang == .es ? "Texto extraído (\(ocrLines.count) líneas)" : "Extracted text (\(ocrLines.count) lines)")
+                    Text(LanguageManager.shared.str("editor_ocr_extracted_lines", table: "Editor", args: ocrLines.count))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(ShieldTheme.textTertiary)
                     Spacer()
@@ -299,7 +299,7 @@ struct OCRSheetView: View {
     private func runOCR() {
         let images = loadSourceImages()
         guard !images.isEmpty else {
-            ocrError = lang == .es ? "No hay imagen disponible" : "No image available"
+            ocrError = LanguageManager.shared.str("editor_ocr_error_no_image", table: "Editor")
             return
         }
 
@@ -330,17 +330,15 @@ struct OCRSheetView: View {
     private func detectedTypeLabel(_ raw: String) -> String {
         switch raw.lowercased() {
         case "dni": return "DNI"
-        case "passport": return lang == .es ? "Pasaporte" : "Passport"
-        default: return lang == .es ? "Documento" : "Document"
+        case "passport": return LanguageManager.shared.str("editor_ocr_passport", table: "Editor")
+        default: return LanguageManager.shared.str("editor_ocr_doc", table: "Editor")
         }
     }
 
     private func mrzValidationLabel(isValid: Bool, format: String?) -> String {
         let formatSuffix = format.map { " (\($0))" } ?? ""
-        if lang == .es {
-            return isValid ? "MRZ validada\(formatSuffix)" : "MRZ no validada\(formatSuffix)"
-        }
-        return isValid ? "MRZ validated\(formatSuffix)" : "MRZ not validated\(formatSuffix)"
+        let key = isValid ? "editor_ocr_mrz_validated" : "editor_ocr_mrz_not_validated"
+        return LanguageManager.shared.str(key, table: "Editor", args: formatSuffix)
     }
 
     private func loadSourceImages() -> [UIImage] {
@@ -375,26 +373,23 @@ struct OCRSheetView: View {
         let lowFields = (resolvedFields.ocrLowConfidenceFields ?? [])
             .map(localizedFieldLabel)
             .joined(separator: ", ")
-        if lang == .es {
-            if lowFields.isEmpty {
-                return "Riesgo OCR \(level.uppercased()). Revisa antes de compartir."
-            }
-            return "Riesgo OCR \(level.uppercased()). Campos débiles: \(lowFields)."
-        }
+        
+        let key = lowFields.isEmpty ? "editor_ocr_risk_msg" : "editor_ocr_risk_weak_fields"
         if lowFields.isEmpty {
-            return "OCR risk \(level.uppercased()). Review before sharing."
+            return LanguageManager.shared.str(key, table: "Editor", args: level.uppercased())
+        } else {
+            return LanguageManager.shared.str(key, table: "Editor", args: level.uppercased(), lowFields)
         }
-        return "OCR risk \(level.uppercased()). Weak fields: \(lowFields)."
     }
 
     private func localizedFieldLabel(_ key: String) -> String {
         switch key {
-        case "documentNumber": return L10nKey.documentNumber.string(lang: lang)
-        case "fullName": return L10nKey.fullName.string(lang: lang)
-        case "dateOfBirth": return L10nKey.dateOfBirth.string(lang: lang)
-        case "expires": return L10nKey.expires.string(lang: lang)
-        case "nationality": return L10nKey.nationality.string(lang: lang)
-        case "address": return L10nKey.address.string(lang: lang)
+        case "documentNumber": return LanguageManager.shared.model("model_field_document_number")
+        case "fullName": return LanguageManager.shared.model("model_field_full_name")
+        case "dateOfBirth": return LanguageManager.shared.model("model_field_date_of_birth")
+        case "expires": return LanguageManager.shared.model("model_field_expires")
+        case "nationality": return LanguageManager.shared.model("model_field_nationality")
+        case "address": return LanguageManager.shared.model("model_field_address")
         default: return key
         }
     }
@@ -424,9 +419,12 @@ private struct FieldRow: View {
                     .foregroundColor(ShieldTheme.textPrimary)
                     .lineLimit(1)
                 if confidence > 0 {
-                    Text((lang == .es ? "Confianza: " : "Confidence: ") + "\(Int((confidence * 100).rounded()))%")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                    HStack(spacing: 0) {
+                        Text(LanguageManager.shared.str("editor_ocr_confidence", table: "Editor"))
+                        Text("\(Int((confidence * 100).rounded()))%")
+                    }
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(ShieldTheme.textTertiary)
                 }
             }
             Spacer()
@@ -444,7 +442,7 @@ private struct FieldRow: View {
                 HStack(spacing: 4) {
                     Image(systemName: "eye.slash")
                         .font(.system(size: 11, weight: .semibold))
-                    Text(lang == .es ? "Ocultar" : "Mask")
+                    Text(LanguageManager.shared.str("editor_ocr_mask", table: "Editor"))
                         .font(.system(size: 12, weight: .bold))
                 }
                 .foregroundColor(ShieldTheme.accent)

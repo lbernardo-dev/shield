@@ -49,7 +49,7 @@ struct OnboardingFlowView: View {
             .frame(height: 3)
 
             Button(action: completeOnboarding) {
-                Text(OnboardingKey.skipAll.string(lang: appState.language))
+                Text(LanguageManager.shared.onboarding("onboarding_skip"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
