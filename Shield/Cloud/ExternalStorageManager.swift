@@ -295,14 +295,8 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
                 return UIWindow(windowScene: fallbackScene)
             }
 
-            // Last resort: find any available scene to avoid deprecated init()
-            if let fallbackScene = scenes.first {
-                return UIWindow(windowScene: fallbackScene)
-            }
-            
-            // If truly no scenes exist, we use the deprecated init as absolute last resort
-            // though on iOS/iPadOS this case is virtually impossible in a running app.
-            return UIWindow()
+            // All scene-based paths exhausted — no scenes exist, which cannot happen in a running app.
+            fatalError("No UIWindowScene available")
         }
     }
 }

@@ -11,7 +11,8 @@ func DocumentView(
     watermark: Watermark? = nil,
     showFieldOverlays: Bool = false,
     imageFileName: String? = nil,
-    isVaulted: Bool = false
+    isVaulted: Bool = false,
+    imageAdjustment: ImageAdjustmentStore? = nil
 ) -> some View {
     switch kind {
     case .photo:
@@ -20,7 +21,8 @@ func DocumentView(
             size: size,
             redactions: redactions,
             watermark: watermark,
-            isVaulted: isVaulted
+            isVaulted: isVaulted,
+            imageAdjustment: imageAdjustment
         )
     case .dniESP:
         DNISpainView(
@@ -120,12 +122,14 @@ struct PhotoDocumentView: View {
     var redactions: [Redaction] = []
     var watermark: Watermark? = nil
     var isVaulted: Bool = false
+    var imageAdjustment: ImageAdjustmentStore? = nil
 
     var body: some View {
         ZStack {
             if let fileName = imageFileName,
                let uiImage = AppState.loadImage(fileName: fileName, isVaulted: isVaulted) {
-                Image(uiImage: uiImage)
+                let renderedImage = imageAdjustment.flatMap { ExportEngine.applyImageAdjustment(uiImage, store: $0) } ?? uiImage
+                Image(uiImage: renderedImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: size.width, height: size.height)
@@ -163,6 +167,7 @@ struct PhotoDocumentView: View {
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .allowsHitTesting(false)
     }
 }
 

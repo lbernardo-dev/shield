@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 import PDFKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import FoundationModels
 
 // MARK: - ScanDocumentType (frame guide during scanning)
 
@@ -98,20 +99,26 @@ struct CaptureView: View {
     @State private var stagedSourceType: ImportedDocumentSource = .image
     @State private var stagedSourceFileName: String? = nil
     @State private var stagedDocID: String = UUID().uuidString
+    /// Non-nil when ScanReviewView was opened for re-adjustment of an existing document.
+    /// In this mode, confirmed pages overwrite the doc's files instead of creating a new doc.
+    @State private var docToReadjust: DocumentItem? = nil
     @State private var selectedScanType: ScanDocumentType = .identity
     @State private var showScanTypeGuide: Bool = true
     @State private var showCloudPicker: Bool = false
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack {
+                Color.black
 
-            if isProcessing {
-                processingView
-            } else {
-                captureMenu
+                if isProcessing {
+                    processingView
+                } else {
+                    captureMenu(topInset: geo.safeAreaInsets.top, bottomInset: geo.safeAreaInsets.bottom)
+                }
             }
         }
+        .ignoresSafeArea()
         .preferredColorScheme(.dark)
         .fullScreenCover(isPresented: $showScanner) {
             DocumentScannerOverlayView(
@@ -134,10 +141,30 @@ struct CaptureView: View {
                     showScanReview = false
                     stagedPages = []
                     stagedSourceFileName = nil
+                    docToReadjust = nil
                 },
                 onConfirm: { adjustedPages, hasAdjustments in
                     showScanReview = false
-                    handleReviewedPages(adjustedPages, hasAdjustments: hasAdjustments)
+                    if let doc = docToReadjust {
+                        // Edit mode: overwrite existing files in-place
+                        let fileNames: [String]
+                        if let all = doc.pageFileNames, !all.isEmpty {
+                            fileNames = all
+                        } else if let first = doc.imageFileName {
+                            fileNames = [first]
+                        } else {
+                            fileNames = []
+                        }
+                        for (index, image) in adjustedPages.enumerated() {
+                            guard index < fileNames.count else { break }
+                            let id = (fileNames[index] as NSString).deletingPathExtension
+                            appState.saveImage(image, id: id)
+                        }
+                        docToReadjust = nil
+                    } else {
+                        // New document flow
+                        handleReviewedPages(adjustedPages, hasAdjustments: hasAdjustments)
+                    }
                 }
             )
         }
@@ -171,13 +198,23 @@ struct CaptureView: View {
                 processFile(url)
             }.environmentObject(appState)
         }
+        // Re-adjust scan from EditorView: present at THIS level so safe-area works correctly.
+        .onChange(of: appState.showScanReviewForEdit) {
+            guard appState.showScanReviewForEdit else { return }
+            docToReadjust = appState.selectedDoc
+            stagedPages = appState.scanReviewPagesForEdit
+            showScanReview = true
+            appState.showScanReviewForEdit = false
+            appState.scanReviewPagesForEdit = []
+        }
     }
 
     // MARK: - Capture menu
 
-    private var captureMenu: some View {
+    @ViewBuilder
+    private func captureMenu(topInset: CGFloat, bottomInset: CGFloat) -> some View {
         VStack(spacing: 0) {
-            // Header
+            // Header — pushed below Dynamic Island / notch
             HStack {
                 Button {
                     appState.showCapture = false
@@ -196,6 +233,7 @@ struct CaptureView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
+            .padding(.top, topInset)
 
             // Document type selector
             documentTypeSelector
@@ -263,7 +301,7 @@ struct CaptureView: View {
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "666666"))
             }
-            .padding(.bottom, 24)
+            .padding(.bottom, max(24, bottomInset))
         }
     }
 
@@ -402,14 +440,15 @@ struct CaptureView: View {
 
             // Try to load as UIImage first (JPEG/PNG)
             if let image = UIImage(contentsOfFile: url.path) {
-                await MainActor.run { isProcessing = false }
-                stageScanPages(
-                    [image],
-                    title: url.deletingPathExtension().lastPathComponent,
-                    sourceType: .image,
-                    sourceFileName: nil,
-                    docID: UUID().uuidString
-                )
+                await MainActor.run {
+                    stageScanPages(
+                        [image],
+                        title: url.deletingPathExtension().lastPathComponent,
+                        sourceType: .image,
+                        sourceFileName: nil,
+                        docID: UUID().uuidString
+                    )
+                }
                 return
             }
 
@@ -420,14 +459,15 @@ struct CaptureView: View {
                !pages.isEmpty {
                 let docID = UUID().uuidString
                 let sourceFileName = appState.saveSourceFile(pdfData, id: docID, fileExtension: "pdf")
-                await MainActor.run { isProcessing = false }
-                stageScanPages(
-                    pages,
-                    title: pdfTitle,
-                    sourceType: .pdf,
-                    sourceFileName: sourceFileName,
-                    docID: docID
-                )
+                await MainActor.run {
+                    stageScanPages(
+                        pages,
+                        title: pdfTitle,
+                        sourceType: .pdf,
+                        sourceFileName: sourceFileName,
+                        docID: docID
+                    )
+                }
                 return
             }
 
@@ -449,22 +489,37 @@ struct CaptureView: View {
     ) {
         guard !pages.isEmpty else { return }
         
-        // Normalize images to prevent orientation/EXIF mismatches from breaking geometry filters and producing black images
-        let normalizedPages = pages.map { $0.normalizedForShield() }
+        isProcessing = true
+        processingMessage = LanguageManager.shared.capture("capture_processing_pages")
         
-        if sourceType == .image {
-            AppState.trackEvent("import_started", properties: ["source": "image"])
+        Task {
+            // Normalize images to prevent orientation/EXIF mismatches from breaking geometry filters and producing black images
+            // Done in the background to avoid freezing the UI
+            let normalizedPages = await Task.detached(priority: .userInitiated) {
+                pages.map { $0.normalizedForShield() }
+            }.value
+            
+            // Wait for any previous sheet (like the photo picker or scanner) to fully dismiss
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            
+            await MainActor.run {
+                isProcessing = false
+                
+                if sourceType == .image {
+                    AppState.trackEvent("import_started", properties: ["source": "image"])
+                }
+                stagedPages = normalizedPages
+                stagedTitle = title
+                stagedSourceType = sourceType
+                stagedSourceFileName = sourceFileName
+                stagedDocID = docID
+                showScanReview = true
+                AppState.trackEvent("scan_adjustment_opened", properties: [
+                    "pages": String(normalizedPages.count),
+                    "source": sourceType.rawValue
+                ])
+            }
         }
-        stagedPages = normalizedPages
-        stagedTitle = title
-        stagedSourceType = sourceType
-        stagedSourceFileName = sourceFileName
-        stagedDocID = docID
-        showScanReview = true
-        AppState.trackEvent("scan_adjustment_opened", properties: [
-            "pages": String(normalizedPages.count),
-            "source": sourceType.rawValue
-        ])
     }
 
     private func handleReviewedPages(_ pages: [UIImage], hasAdjustments: Bool) {
@@ -538,11 +593,18 @@ struct CaptureView: View {
             let detectedType = OCRService.detectDocumentType(from: lines)
             fields.ocrDocumentType = detectedType.rawValue
             fields.ocrPageTexts = pageTexts
-            fields.ocrFullText = pageTexts.joined(separator: "\n\n")
+            let fullText = pageTexts.joined(separator: "\n\n")
+            fields.ocrFullText = fullText
             // Store bounding boxes from page 0 for precision redaction in the editor
             if let page0 = pageObservations.first {
                 fields.ocrBoundingTexts = page0.map(\.text)
                 fields.ocrBoundingRects = page0.map(\.boundingRect)
+            }
+            // Smart enrichment: fill any empty fields using on-device Foundation Model
+            if SmartFieldExtractor.isAvailable() {
+                if let enriched = await SmartFieldExtractor.enrich(fields: fields, ocrText: fullText) {
+                    fields = enriched
+                }
             }
             let detectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
             fields.ocrDetectedCountry = detectedCountry
@@ -616,35 +678,17 @@ struct CaptureView: View {
         }
     }
 
-    /// Maps OCR-detected type + country to the richest available DocumentKind.
-    /// Falls back to .photo so the image is still rendered correctly when no
-    /// structured template exists for the detected combination.
+    /// Always returns .photo so the actual scanned/imported image is rendered
+    /// in the editor. Vector templates (dniESP, passportUSA, etc.) are
+    /// display-only demo assets — they must never replace a real scan.
+    /// OCR-detected metadata (fields, kind label, category) is still stored on
+    /// the DocumentItem for smart-field overlays and mode-chip suggestions.
     private func resolveDocumentKind(
         detectedType: OCRService.DetectedDocumentType,
         country: String?,
         mrzFormat: String?
     ) -> DocumentKind {
-        switch detectedType {
-        case .passport:
-            switch country {
-            case "USA": return .passportUSA
-            case "MEX": return .passportMEX
-            default:    return .photo   // render from image; no vector template for others
-            }
-        case .dni:
-            switch country {
-            case "ESP": return .dniESP
-            case "ITA": return .dniITA
-            default:    return .genericID
-            }
-        case .drivingLicense:
-            switch country {
-            case "GBR": return .drivingUK
-            default:    return .photo
-            }
-        case .visa, .residencePermit, .healthCard, .document:
-            return .photo
-        }
+        return .photo
     }
 
     private func loadPDFDocument(from url: URL) -> (PDFDocument, Data)? {
@@ -1117,28 +1161,30 @@ struct ScanReviewView: View {
     @State private var applying = false
     @State private var selectedPreset: ScanAdjustmentPreset = .document
     @State private var showQuadEditor = false
+    @State private var showAdvancedControls = false
 
     var body: some View {
-        ZStack {
-            ShieldTheme.pageBackground(.dark).ignoresSafeArea()
+        VStack(spacing: 0) {
+            header
+            previewArea
 
             VStack(spacing: 0) {
-                header
-                previewArea
-                
-                VStack(spacing: 0) {
-                    pageStrip
-                    controls
-                }
-                .frame(maxHeight: 280)
-                .background(ShieldTheme.pageBackground(.dark))
+                pageStrip
+                controls
             }
+            .frame(maxHeight: 380)
+            .background(ShieldTheme.pageBackground(.dark))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(ShieldTheme.pageBackground(.dark).ignoresSafeArea())
         .preferredColorScheme(.dark)
         .onAppear {
-            if adjustments.count != pages.count {
-                adjustments = Array(repeating: .default, count: pages.count)
-            }
+            // Always reset editing state to avoid stale adjustments from previous sessions
+            // causing blank/fully-cropped previews.
+            selectedPage = 0
+            showQuadEditor = false
+            showAdvancedControls = false
+            adjustments = Array(repeating: .default, count: pages.count)
         }
     }
 
@@ -1156,7 +1202,7 @@ struct ScanReviewView: View {
                 .foregroundColor(ShieldTheme.textPrimary)
             Spacer()
 
-            Button(applying ? LanguageManager.shared.capture("capture_processing") : LanguageManager.shared.capture("capture_save")) {
+            Button(applying ? LanguageManager.shared.capture("capture_processing") : LanguageManager.shared.common("common_continue")) {
                 applyAndContinue()
             }
             .disabled(applying)
@@ -1164,8 +1210,14 @@ struct ScanReviewView: View {
             .foregroundColor(ShieldTheme.accent)
         }
         .padding(.horizontal, 16)
-        .padding(.top, 10)
         .padding(.bottom, 12)
+        .padding(.top, 10)
+        .frame(maxWidth: .infinity)
+        .background(ShieldTheme.pageBackground(.dark).ignoresSafeArea(edges: .top))
+        .padding(.top, UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first(where: \.isKeyWindow)?
+            .safeAreaInsets.top ?? 59)
     }
 
     private var previewArea: some View {
@@ -1186,12 +1238,10 @@ struct ScanReviewView: View {
                         let aspect = imgW / imgH
                         let geoAspect = w / h
 
-                        if aspect > 0 && aspect.isFinite && geoAspect > 0 && geoAspect.isFinite {
-                            if aspect > geoAspect {
-                                return (w, w / aspect)
-                            } else {
-                                return (h * aspect, h)
-                            }
+                        if aspect > geoAspect {
+                            return (w, w / aspect)
+                        } else {
+                            return (h * aspect, h)
                         }
                     }
                     return (0, 0)
@@ -1290,9 +1340,13 @@ struct ScanReviewView: View {
             VStack(spacing: 14) {
                 presetSection
                 filterSection
-                geometrySection
-                cropSection
-                imageSection
+                quickGeometrySection
+                advancedControlsToggle
+                if showAdvancedControls {
+                    geometrySection
+                    cropSection
+                    imageSection
+                }
 
                 HStack(spacing: 8) {
                     Button {
@@ -1354,19 +1408,9 @@ struct ScanReviewView: View {
                 }
             }
             .pickerStyle(.segmented)
-
-            Button {
+            .onChange(of: selectedPreset) {
                 applyPresetToCurrentPage(selectedPreset)
-            } label: {
-                Text(LanguageManager.shared.capture("capture_apply_preset"))
-                    .font(.system(size: 13, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 38)
-                    .background(ShieldTheme.surface3)
-                    .foregroundColor(ShieldTheme.textPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .buttonStyle(ScaleButtonStyle())
         }
     }
 
@@ -1502,6 +1546,118 @@ struct ScanReviewView: View {
                 .buttonStyle(ScaleButtonStyle())
             }
         }
+    }
+
+    private var quickGeometrySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LanguageManager.shared.capture("capture_geometry"))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(ShieldTheme.textSecondary)
+
+            sliderRow(
+                title: LanguageManager.shared.capture("capture_straighten"),
+                valueText: "\(Int(binding(\.straightenDegrees).wrappedValue))°"
+            ) {
+                Slider(value: binding(\.straightenDegrees), in: -25...25, step: 1)
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    detectPerspectiveForCurrentPage()
+                } label: {
+                    Text(LanguageManager.shared.capture("capture_auto_perspective"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 38)
+                        .background(ShieldTheme.surface3)
+                        .foregroundColor(ShieldTheme.textPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
+
+                Button {
+                    if !showQuadEditor, adjustments[safe: selectedPage]?.quad == nil,
+                       selectedPage < adjustments.count {
+                        adjustments[selectedPage].quad = .identity
+                    }
+                    withAnimation(.spring(response: 0.25)) { showQuadEditor.toggle() }
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: showQuadEditor ? "perspective" : "skew")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text(showQuadEditor
+                             ? (appState.language == .es ? "Perspectiva" : "Perspective")
+                             : (appState.language == .es ? "Perspectiva manual" : "Manual perspective"))
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 38)
+                    .background(showQuadEditor ? ShieldTheme.accentDim : ShieldTheme.surface3)
+                    .foregroundColor(showQuadEditor ? ShieldTheme.accent : ShieldTheme.textPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    var a = adjustments[selectedPage]
+                    a.rotationDegrees -= 90
+                    adjustments[selectedPage] = a
+                } label: {
+                    Text(LanguageManager.shared.capture("capture_rotate_left"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 38)
+                        .background(ShieldTheme.surface3)
+                        .foregroundColor(ShieldTheme.textPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
+
+                Button {
+                    var a = adjustments[selectedPage]
+                    a.rotationDegrees += 90
+                    adjustments[selectedPage] = a
+                } label: {
+                    Text(LanguageManager.shared.capture("capture_rotate_right"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 38)
+                        .background(ShieldTheme.surface3)
+                        .foregroundColor(ShieldTheme.textPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+        }
+    }
+
+    private var advancedControlsToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showAdvancedControls.toggle()
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: showAdvancedControls ? "slider.horizontal.3" : "slider.horizontal.below.square.and.square.filled")
+                    .font(.system(size: 12, weight: .semibold))
+                Text(showAdvancedControls
+                     ? (appState.language == .es ? "Ocultar ajustes avanzados" : "Hide advanced controls")
+                     : (appState.language == .es ? "Mostrar ajustes avanzados" : "Show advanced controls"))
+                    .font(.system(size: 12, weight: .semibold))
+                Spacer()
+                Image(systemName: showAdvancedControls ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 38)
+            .frame(maxWidth: .infinity)
+            .background(ShieldTheme.surface3)
+            .foregroundColor(ShieldTheme.textSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(ScaleButtonStyle())
     }
 
     private var cropSection: some View {
@@ -1925,6 +2081,7 @@ enum OCRService {
         var fieldConfidence: [String: Double] = [:]
 
         var docNum = ""
+        var supportNum: String? = nil
         var fullName = ""
         var dob = ""
         var expires = ""
@@ -1937,6 +2094,7 @@ enum OCRService {
 
         if let parsedMRZ {
             docNum = parsedMRZ.documentNumber
+            supportNum = parsedMRZ.supportNumber
             fullName = parsedMRZ.fullName
             dob = parsedMRZ.dateOfBirth
             expires = parsedMRZ.expires
@@ -1952,11 +2110,12 @@ enum OCRService {
             fieldConfidence["expires"] = baseConfidence
             fieldConfidence["nationality"] = baseConfidence
             fieldConfidence["sex"] = baseConfidence
+            if parsedMRZ.supportNumber != nil { fieldConfidence["supportNumber"] = baseConfidence }
         }
 
-        // Date patterns: dd/mm/yyyy, dd.mm.yyyy, dd MMM yyyy
+        // Date patterns: dd/mm/yyyy, dd.mm.yyyy, dd-mm-yyyy, dd mm yyyy, dd MMM yyyy
         if dob.isEmpty || expires.isEmpty {
-            let datePattern = "\\b(\\d{1,2}[/.]\\d{1,2}[/.]\\d{2,4}|\\d{1,2}\\s+[A-Za-z]{3}\\s+\\d{2,4})\\b"
+            let datePattern = "\\b(\\d{1,2}[/._-]\\d{1,2}[/._-]\\d{2,4}|\\d{1,2}\\s+\\d{1,2}\\s+\\d{4}|\\d{1,2}\\s+[A-Za-z]{3}\\s+\\d{2,4})\\b"
             let dateRegex = try? NSRegularExpression(pattern: datePattern, options: .caseInsensitive)
             var dates: [String] = []
             for line in lines {
@@ -1976,49 +2135,141 @@ enum OCRService {
 
         // Name: all-caps lines, no digits, length 5-60
         if fullName.isEmpty {
+            let issuingKeywords = ["REINO", "REPUBLIC", "REPUBLICA", "KINGDOM", "NATIONAL",
+                                   "DOCUMENT", "DOCUMENTO", "IDENTITY", "IDENTIDAD", "PASSPORT",
+                                   "PASAPORTE", "LICENSE", "LICENCIA", "MINISTRY", "MINISTERIO",
+                                   "GOVERNMENT", "GOBIERNO", "ESTADO", "STATE", "UNION"]
             let nameLines = lines.filter { l in
                 let stripped = l.trimmingCharacters(in: .whitespaces)
-                guard stripped.count >= 5, stripped.count <= 60 else { return false }
+                guard stripped.count >= 3, stripped.count <= 60 else { return false }
                 guard !stripped.contains("<"), !stripped.contains("/") else { return false }
                 let upper = stripped.uppercased()
-                return upper == stripped && stripped.rangeOfCharacter(from: .decimalDigits) == nil
+                guard upper == stripped, stripped.rangeOfCharacter(from: .decimalDigits) == nil else { return false }
+                return !issuingKeywords.contains(where: { upper.contains($0) })
             }
-            if let first = nameLines.first { fullName = first }
+            // Some documents split surname across consecutive lines (e.g. Spanish DNI shows
+            // "ROMERO" then "BERNARDO" then "LESTER"). Merge up to 3 consecutive name lines.
+            if !nameLines.isEmpty {
+                let merged = nameLines.prefix(3).joined(separator: " ")
+                fullName = merged.count <= 80 ? merged : nameLines[0]
+            }
             if fieldConfidence["fullName"] == nil, !fullName.isEmpty { fieldConfidence["fullName"] = 0.58 }
         }
 
-        // Doc number: 8-16 alphanumeric chars
+        // Doc number: prioritize labeled values and robustly handle OCR spacing
+        // (e.g. "1234 5678 A" -> "12345678A"), while avoiding NUM SOPORTE values.
         if docNum.isEmpty {
-            let docPattern = "\\b([A-Z0-9]{7,16})\\b"
-            let docRegex = try? NSRegularExpression(pattern: docPattern)
+            let labelPattern = "(?:DNI|N[IÍ]D|DOC(?:UMENTO)?\\s*(?:N(?:[ÚU])?M(?:ERO)?)?|N(?:[ÚU])?M(?:ERO)?\\s*DOC(?:UMENTO)?|IDENT(?:ITY)?\\s*(?:NO|NUMBER)?)\\s*[:#-]?\\s*([A-Z0-9\\s-]{6,20})"
+            let labelRegex = try? NSRegularExpression(pattern: labelPattern, options: .caseInsensitive)
             for line in lines {
-                let range = NSRange(line.startIndex..., in: line)
-                if let match = docRegex?.firstMatch(in: line, range: range),
-                   let r = Range(match.range, in: line) {
-                    let candidate = String(line[r])
-                    // Must contain both letters and digits to be likely doc number
-                    let hasLetters = candidate.rangeOfCharacter(from: .letters) != nil
-                    let hasDigits = candidate.rangeOfCharacter(from: .decimalDigits) != nil
-                    if hasLetters && hasDigits && candidate.count >= 8 {
-                        docNum = candidate
+                let upper = line.uppercased()
+                guard !upper.contains("SOPORT") else { continue }
+                let range = NSRange(upper.startIndex..., in: upper)
+                guard let match = labelRegex?.firstMatch(in: upper, range: range),
+                      let r = Range(match.range(at: 1), in: upper) else { continue }
+
+                let raw = String(upper[r])
+                let compact = raw.replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+                guard compact.count >= 7 else { continue }
+                if let spanish = validateSpanishID(compact) {
+                    docNum = spanish.value
+                    fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.95)
+                    break
+                }
+                let hasLetters = compact.rangeOfCharacter(from: .letters) != nil
+                let hasDigits = compact.rangeOfCharacter(from: .decimalDigits) != nil
+                if hasLetters && hasDigits && compact.count >= 8 {
+                    docNum = compact
+                    fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.83)
+                    break
+                }
+            }
+        }
+
+        if docNum.isEmpty {
+            let docPattern = "\\b([A-Z0-9][A-Z0-9\\s-]{6,20})\\b"
+            let docRegex = try? NSRegularExpression(pattern: docPattern)
+            var best: (value: String, score: Double)? = nil
+            for line in lines {
+                let upper = line.uppercased()
+                let range = NSRange(upper.startIndex..., in: upper)
+                let matches = docRegex?.matches(in: upper, range: range) ?? []
+
+                for match in matches {
+                    guard let r = Range(match.range(at: 1), in: upper) else { continue }
+                    let raw = String(upper[r]).trimmingCharacters(in: .whitespacesAndNewlines)
+                    let compact = raw.replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+                    guard compact.count >= 7, compact.count <= 16 else { continue }
+                    guard !compact.contains("REINODE"), !compact.contains("DOCUMENTO"), !compact.contains("IDENTIDAD") else { continue }
+
+                    if let spanish = validateSpanishID(compact) {
+                        best = (spanish.value, max(best?.score ?? 0, 0.94))
+                        continue
+                    }
+
+                    let hasLetters = compact.rangeOfCharacter(from: .letters) != nil
+                    let hasDigits = compact.rangeOfCharacter(from: .decimalDigits) != nil
+                    guard hasLetters && hasDigits else { continue }
+
+                    var score = 0.60
+                    if upper.contains("DNI") || upper.contains("DOC") || upper.contains("IDENT") { score += 0.18 }
+                    if upper.contains("SOPORT") { score -= 0.15 } // likely support/serial number, not personal doc number
+                    if compact.count == 9 { score += 0.05 }
+                    if let current = best {
+                        if score > current.score { best = (compact, score) }
+                    } else {
+                        best = (compact, score)
+                    }
+                }
+            }
+            if let best {
+                docNum = best.value
+                fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, best.score)
+            }
+        }
+
+        if fieldConfidence["documentNumber"] == nil, !docNum.isEmpty {
+            fieldConfidence["documentNumber"] = 0.6
+        }
+
+        // Address: try "DOMICILIO" label pattern first (Spanish DNI back face)
+        // The address appears on the line immediately after "DOMICILIO / DOMICILI" or "DOMICILIO".
+        if address.isEmpty {
+            let upperLines = lines.map { $0.uppercased() }
+            for (i, line) in upperLines.enumerated() {
+                if (line.contains("DOMICILIO") || line.contains("DOMICILI")) && i + 1 < upperLines.count {
+                    // Collect non-empty lines after the label as address parts (street + city)
+                    var parts: [String] = []
+                    for j in (i + 1)..<min(i + 4, lines.count) {
+                        let part = lines[j].trimmingCharacters(in: .whitespaces)
+                        let up = part.uppercased()
+                        // Stop at another section header keyword
+                        if up.contains("LUGAR") || up.contains("HIJOA") || up.contains("HIJO") ||
+                           up.contains("NACIMIENTO") || up.contains("MRZ") || part.isEmpty { break }
+                        parts.append(part)
+                    }
+                    if !parts.isEmpty {
+                        address = parts.joined(separator: ", ")
+                        fieldConfidence["address"] = 0.82
                         break
                     }
                 }
             }
-            if fieldConfidence["documentNumber"] == nil, !docNum.isEmpty { fieldConfidence["documentNumber"] = 0.6 }
         }
 
-        // Address: lines with digits + street keywords
-        let addrPattern = "\\d+.*\\b(CALLE|C/|AVE|AVENUE|ROAD|RD|STREET|ST|LANE|LN|DR|DRIVE|BLVD|C\\.|CL\\.)\\b"
-        let addrRegex = try? NSRegularExpression(pattern: addrPattern, options: .caseInsensitive)
-        for line in lines {
-            let range = NSRange(line.startIndex..., in: line)
-            if addrRegex?.firstMatch(in: line, range: range) != nil {
-                address = line
-                break
+        // Fallback: lines with digits + street keywords
+        if address.isEmpty {
+            let addrPattern = "\\d+.*\\b(CALLE|C/|AVE|AVENUE|ROAD|RD|STREET|ST|LANE|LN|DR|DRIVE|BLVD|C\\.|CL\\.)\\b"
+            let addrRegex = try? NSRegularExpression(pattern: addrPattern, options: .caseInsensitive)
+            for line in lines {
+                let range = NSRange(line.startIndex..., in: line)
+                if addrRegex?.firstMatch(in: line, range: range) != nil {
+                    address = line
+                    fieldConfidence["address"] = 0.52
+                    break
+                }
             }
         }
-        if !address.isEmpty { fieldConfidence["address"] = 0.52 }
 
         // Country-specific normalization (ES DNI/NIE, MX CURP)
         if let normalizedSpanish = normalizeSpanishID(from: lines), !normalizedSpanish.value.isEmpty {
@@ -2115,8 +2366,43 @@ enum OCRService {
             if !address.isEmpty { fieldConfidence["address"] = 0.52 }
         }
 
+        // NUM SOPORTE (Spanish DNI): look for the support/serial number in plain OCR text.
+        // It appears labelled as "NUM SOPORTE" or "NÚM SUPORT" followed by a code like CJU127354.
+        // Also catches "NUM SOPORT" without the final E (OCR variation) and standalone CJU/BJK patterns.
+        if supportNum == nil {
+            let upperLines = lines.map { $0.uppercased() }
+            // Pattern 1: label on same line as value — "NUM SOPORTE CJU127354"
+            let labelPattern = try? NSRegularExpression(
+                pattern: "NUM\\s+SOPORT[EO]?[\\s:/]*([A-Z]{2,3}[0-9]{5,8})",
+                options: .caseInsensitive)
+            for line in upperLines {
+                if let m = labelPattern?.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)),
+                   let r = Range(m.range(at: 1), in: line) {
+                    supportNum = String(line[r])
+                    fieldConfidence["supportNumber"] = 0.88
+                    break
+                }
+            }
+            // Pattern 2: label on one line, value on next
+            if supportNum == nil {
+                for (i, line) in upperLines.enumerated() where i + 1 < upperLines.count {
+                    if line.contains("NUM SOPORT") || line.contains("NÚM SUPORT") || line.contains("NUM SUPORT") {
+                        let next = upperLines[i + 1].trimmingCharacters(in: .whitespaces)
+                        let valuePattern = try? NSRegularExpression(pattern: "^([A-Z]{2,3}[0-9]{5,8})$")
+                        if let m = valuePattern?.firstMatch(in: next, range: NSRange(next.startIndex..., in: next)),
+                           let r = Range(m.range(at: 1), in: next) {
+                            supportNum = String(next[r])
+                            fieldConfidence["supportNumber"] = 0.85
+                            break
+                        }
+                    }
+                }
+            }
+        }
+
         return DocumentFields(
             documentNumber: docNum,
+            supportNumber: supportNum,
             fullName: fullName,
             dateOfBirth: dob,
             nationality: nationality,
@@ -2416,6 +2702,7 @@ enum OCRService {
         let format: String
         let documentCode: String
         let documentNumber: String
+        let supportNumber: String?  // TD1 serial/soporte (e.g. CJU127354 for Spanish DNI)
         let fullName: String
         let dateOfBirth: String
         let expires: String
@@ -2472,6 +2759,7 @@ enum OCRService {
                 format: "TD2",
                 documentCode: documentCode,
                 documentNumber: docNumber,
+                supportNumber: nil,
                 fullName: fullName,
                 dateOfBirth: normalizeMRZDate(dob),
                 expires: normalizeMRZDate(expires),
@@ -2514,6 +2802,7 @@ enum OCRService {
                 format: "MRV-A",
                 documentCode: "V",
                 documentNumber: docNumber,
+                supportNumber: nil,
                 fullName: fullName,
                 dateOfBirth: normalizeMRZDate(dob),
                 expires: normalizeMRZDate(expires),
@@ -2557,6 +2846,7 @@ enum OCRService {
                 format: "MRV-B",
                 documentCode: "V",
                 documentNumber: docNumber,
+                supportNumber: nil,
                 fullName: fullName,
                 dateOfBirth: normalizeMRZDate(dob),
                 expires: normalizeMRZDate(expires),
@@ -2572,13 +2862,18 @@ enum OCRService {
     private static func normalizedMRZLines(_ lines: [String]) -> [String] {
         lines
             .map { raw in
-                raw
+                var s = raw
                     .uppercased()
-                    .replacingOccurrences(of: " ", with: "")
                     .replacingOccurrences(of: "\t", with: "")
-                    .filter { $0 == "<" || $0.isNumber || ($0 >= "A" && $0 <= "Z") }
+                // OCR sometimes reads '<' as ' ' — collapse multiple spaces to single '<'
+                // then remove remaining spaces so the MRZ is a compact string.
+                s = s.replacingOccurrences(of: "  +", with: "<", options: .regularExpression)
+                s = s.replacingOccurrences(of: " ", with: "")
+                return String(s.filter { $0 == "<" || $0.isNumber || ($0 >= "A" && $0 <= "Z") })
             }
-            .filter { $0.count >= 20 && $0.contains("<") }
+            // Accept lines that either contain '<' (standard) or look like pure MRZ
+            // (≥20 uppercase/digit chars) — Vision sometimes drops '<' entirely.
+            .filter { $0.count >= 20 && ($0.contains("<") || $0.allSatisfy { $0.isNumber || ($0 >= "A" && $0 <= "Z") }) }
     }
 
     private static func parseTD3(lines: [String], strictKYC: Bool) -> ParsedMRZ? {
@@ -2613,6 +2908,7 @@ enum OCRService {
                 format: "TD3",
                 documentCode: "P",
                 documentNumber: docNumber,
+                supportNumber: nil,
                 fullName: fullName,
                 dateOfBirth: normalizeMRZDate(dob),
                 expires: normalizeMRZDate(expires),
@@ -2638,7 +2934,11 @@ enum OCRService {
             line3 = String(line3.prefix(30))
 
             let documentCode = cleanField(mrzSlice(line1, 0, 2))
-            let docNumber = cleanField(mrzSlice(line1, 5, 9))
+            // TD1 positions 5-13: primary document number (support/serial number for Spanish DNI)
+            let serialDocNumber = cleanField(mrzSlice(line1, 5, 9))
+            // TD1 positions 15-29 of line 1: optional data field — Spanish DNI stores
+            // the real personal number (DNI/NIE) here (e.g. "60679024X<<<<<<")
+            let optionalField1 = cleanField(mrzSlice(line1, 15, 14))
             let dob = mrzSlice(line2, 0, 6)
             let sex = cleanField(mrzSlice(line2, 7, 1))
             let expires = mrzSlice(line2, 8, 6)
@@ -2653,10 +2953,19 @@ enum OCRService {
             let allValid = checkDoc && checkDob && checkExp && checkFinal
             if strictKYC && !allValid { continue }
 
+            // For Spanish DNI the optional data field (positions 15-28 of line 1) holds
+            // the real DNI/NIE number (e.g. "60679024X"). Prefer it when it looks like a
+            // valid Spanish ID (validated by validateSpanishID), else use the serial number.
+            let isSpanishDNI = validateSpanishID(optionalField1) != nil
+            let preferredDocNumber: String = isSpanishDNI ? validateSpanishID(optionalField1)!.value : serialDocNumber
+            // When the real DNI comes from the optional field, the serial number is the NUM SOPORTE (CJU…)
+            let resolvedSupportNumber: String? = isSpanishDNI && !serialDocNumber.isEmpty ? serialDocNumber : nil
+
             return ParsedMRZ(
                 format: "TD1",
                 documentCode: documentCode,
-                documentNumber: docNumber,
+                documentNumber: preferredDocNumber,
+                supportNumber: resolvedSupportNumber,
                 fullName: fullName,
                 dateOfBirth: normalizeMRZDate(dob),
                 expires: normalizeMRZDate(expires),
@@ -2733,6 +3042,20 @@ enum OCRService {
             let candidate = String(joined[r])
             if let normalized = validateSpanishID(candidate) {
                 return normalized
+            }
+        }
+        // OCR often splits DNI/NIE into chunks ("1234 5678 A").
+        // Retry against compacted text with separators removed.
+        let compact = joined.replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+        let compactPattern = "([XYZ]?\\d{7,8}[A-Z])"
+        if let compactRegex = try? NSRegularExpression(pattern: compactPattern) {
+            let compactRange = NSRange(compact.startIndex..., in: compact)
+            for match in compactRegex.matches(in: compact, range: compactRange) {
+                guard let r = Range(match.range(at: 1), in: compact) else { continue }
+                let candidate = String(compact[r])
+                if let normalized = validateSpanishID(candidate) {
+                    return normalized
+                }
             }
         }
         return nil
@@ -2926,6 +3249,124 @@ enum OCRService {
             }
         }
         return nil
+    }
+}
+
+// MARK: - SmartFieldExtractor (on-device Foundation Model enrichment)
+
+/// Uses the on-device Apple Foundation Model to extract structured fields from
+/// raw OCR text that regex-based parsing may miss (unstructured layouts, non-standard
+/// formats, mixed languages, etc.). Results are merged back into DocumentFields,
+/// only filling in fields that the regex pipeline left empty.
+enum SmartFieldExtractor {
+
+    // Structured response the model must produce
+    @Generable
+    struct ExtractedFields {
+        @Guide(description: "Document or ID number visible in the text. Empty string if not found.")
+        var documentNumber: String
+        @Guide(description: "Full name of the person. Empty string if not found.")
+        var fullName: String
+        @Guide(description: "Date of birth in DD/MM/YYYY format. Empty string if not found.")
+        var dateOfBirth: String
+        @Guide(description: "Expiry/validity date in DD/MM/YYYY format. Empty string if not found.")
+        var expires: String
+        @Guide(description: "Nationality or country code (3-letter ISO if possible). Empty string if not found.")
+        var nationality: String
+        @Guide(description: "Full postal address including street, number, city. Empty string if not found.")
+        var address: String
+        @Guide(description: "Sex/gender (M or F). Empty string if not found.")
+        var sex: String
+        @Guide(description: "Document type: dni, passport, drivinglicense, residencepermit, healthcard, or document.")
+        var documentType: String
+    }
+
+    static func isAvailable() -> Bool {
+        if #available(iOS 26.0, *) {
+            return SystemLanguageModel.default.isAvailable
+        }
+        return false
+    }
+
+    /// Enriches an existing DocumentFields by running the on-device LLM over `ocrText`.
+    /// Only overwrites fields that are currently empty. Returns nil if the model is not
+    /// available or the extraction fails.
+    static func enrich(fields: DocumentFields, ocrText: String) async -> DocumentFields? {
+        guard #available(iOS 26.0, *) else { return nil }
+        guard SystemLanguageModel.default.isAvailable else { return nil }
+        guard !ocrText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+
+        let prompt = """
+        You are a document data extraction engine. Extract the structured fields below from the OCR text of an identity document. The text may be in any language, have OCR errors, or use non-standard layouts.
+
+        Rules:
+        - Return ONLY the JSON with the requested fields. No explanation.
+        - For dates always use DD/MM/YYYY format.
+        - For documentNumber: extract the main identifier (DNI, passport number, ID number, etc).
+        - For fullName: combine surname(s) and given name(s) if they appear on separate lines.
+        - For address: capture street + number + city, joining separate lines with ", ".
+        - If a field is not present, return empty string "".
+
+        OCR text:
+        \(ocrText.prefix(2000))
+        """
+
+        do {
+            let session = LanguageModelSession()
+            let response = try await session.respond(
+                to: prompt,
+                generating: ExtractedFields.self
+            )
+            let extracted = response.content
+            var updated = fields
+
+            if fields.documentNumber.isEmpty, !extracted.documentNumber.isEmpty {
+                updated.documentNumber = extracted.documentNumber
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["documentNumber"] = max(conf["documentNumber"] ?? 0, 0.72)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.fullName.isEmpty, !extracted.fullName.isEmpty {
+                updated.fullName = extracted.fullName
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["fullName"] = max(conf["fullName"] ?? 0, 0.70)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.dateOfBirth.isEmpty, !extracted.dateOfBirth.isEmpty {
+                updated.dateOfBirth = extracted.dateOfBirth
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["dateOfBirth"] = max(conf["dateOfBirth"] ?? 0, 0.70)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.expires.isEmpty, !extracted.expires.isEmpty {
+                updated.expires = extracted.expires
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["expires"] = max(conf["expires"] ?? 0, 0.70)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.nationality.isEmpty, !extracted.nationality.isEmpty {
+                updated.nationality = extracted.nationality
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["nationality"] = max(conf["nationality"] ?? 0, 0.68)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.address.isEmpty, !extracted.address.isEmpty {
+                updated.address = extracted.address
+                var conf = updated.ocrFieldConfidence ?? [:]
+                conf["address"] = max(conf["address"] ?? 0, 0.72)
+                updated.ocrFieldConfidence = conf
+            }
+            if fields.sex.isEmpty, !extracted.sex.isEmpty {
+                updated.sex = extracted.sex
+            }
+            if (fields.ocrDocumentType == nil || fields.ocrDocumentType == "document"),
+               !extracted.documentType.isEmpty {
+                updated.ocrDocumentType = extracted.documentType
+            }
+            return updated
+        } catch {
+            return nil
+        }
     }
 }
 
@@ -3136,6 +3577,7 @@ struct PhotoPickerView: UIViewControllerRepresentable {
         var config = PHPickerConfiguration()
         config.filter = .images
         config.selectionLimit = 0
+        config.preferredAssetRepresentationMode = .compatible
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = context.coordinator
         return picker
@@ -3158,24 +3600,41 @@ struct PhotoPickerView: UIViewControllerRepresentable {
             var imagesByIndex: [Int: UIImage] = [:]
             let lock = NSLock()
             let group = DispatchGroup()
-            var loadedAny = false
 
             for (index, result) in results.enumerated() {
-                guard result.itemProvider.canLoadObject(ofClass: UIImage.self) else { continue }
-                loadedAny = true
+                let itemProvider = result.itemProvider
                 group.enter()
-                result.itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
-                    defer { group.leave() }
-                    guard let image = object as? UIImage else { return }
-                    lock.lock()
-                    imagesByIndex[index] = image
-                    lock.unlock()
-                }
-            }
 
-            guard loadedAny else {
-                parent.onCancel()
-                return
+                let fallbackLoad: () -> Void = {
+                    let typeIdentifier = UTType.image.identifier
+                    if itemProvider.hasItemConformingToTypeIdentifier(typeIdentifier) {
+                        itemProvider.loadDataRepresentation(forTypeIdentifier: typeIdentifier) { data, _ in
+                            defer { group.leave() }
+                            if let data = data, let image = UIImage(data: data) {
+                                lock.lock()
+                                imagesByIndex[index] = image
+                                lock.unlock()
+                            }
+                        }
+                    } else {
+                        group.leave()
+                    }
+                }
+
+                if itemProvider.canLoadObject(ofClass: UIImage.self) {
+                    itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
+                        if let image = object as? UIImage {
+                            lock.lock()
+                            imagesByIndex[index] = image
+                            lock.unlock()
+                            group.leave()
+                        } else {
+                            fallbackLoad()
+                        }
+                    }
+                } else {
+                    fallbackLoad()
+                }
             }
 
             group.notify(queue: .main) { [weak self] in

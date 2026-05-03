@@ -65,6 +65,8 @@ struct ImageAdjustment: Equatable {
 
 final class EditorViewModel: ObservableObject {
     @Published private(set) var doc: DocumentItem
+    private var baselineDoc: DocumentItem
+    private var ocrBootstrapTask: Task<Void, Never>? = nil
 
     @Published var tool: EditorTool = .rect
     @Published var maskStyle: MaskStyle = .block
@@ -81,10 +83,25 @@ final class EditorViewModel: ObservableObject {
     @Published var imageAdjustment: ImageAdjustment = .default
     @Published var isDraggingRedaction: Bool = false
     @Published var isResizingRedaction: Bool = false
+    @Published var isAnalyzingOCRSuggestions: Bool = false
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
-    var suggestedRedactionCount: Int { AutoRedactions.suggested(for: doc.kind).count }
+    var suggestedRedactionCount: Int { Self.suggestedRectsForBanner(in: doc).count }
+    var hasUnsavedChanges: Bool { normalizedSignature(for: doc) != normalizedSignature(for: baselineDoc) }
+    var changeCount: Int {
+        guard hasUnsavedChanges else { return 0 }
+
+        let baselineMap = Dictionary(uniqueKeysWithValues: baselineDoc.pageRedactions.map { ($0.pageIndex, $0.redactions) })
+        let currentMap = Dictionary(uniqueKeysWithValues: doc.pageRedactions.map { ($0.pageIndex, $0.redactions) })
+        let allPages = Set(baselineMap.keys).union(currentMap.keys)
+        let changedPages = allPages.reduce(0) { partial, page in
+            (baselineMap[page] ?? []) == (currentMap[page] ?? []) ? partial : (partial + 1)
+        }
+        let watermarkChanged = watermarkSignature(baselineDoc.watermark) == watermarkSignature(doc.watermark) ? 0 : 1
+        let adjustmentChanged = baselineDoc.imageAdjustment == doc.imageAdjustment ? 0 : 1
+        return max(1, changedPages + watermarkChanged + adjustmentChanged)
+    }
     var allPageRedactions: [Int: [Redaction]] {
         Dictionary(uniqueKeysWithValues: doc.pageRedactions.map { ($0.pageIndex, $0.redactions) })
     }
@@ -116,6 +133,7 @@ final class EditorViewModel: ObservableObject {
 
     init(doc: DocumentItem) {
         self.doc = doc
+        self.baselineDoc = doc
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
         self.history = [self.redactions]
@@ -134,9 +152,12 @@ final class EditorViewModel: ObservableObject {
                 cropBottom: stored.cropBottom
             )
         }
-        let suggestions = AutoRedactions.suggested(for: doc.kind)
-        self.showSensitiveBanner = !suggestions.isEmpty
-        if !suggestions.isEmpty {
+        let suggestions = Self.suggestedRectsForBanner(in: doc)
+        let hasOCRFields = doc.kind == .photo || doc.kind == .genericID
+            ? !doc.fields.documentNumber.isEmpty || !doc.fields.fullName.isEmpty
+            : false
+        self.showSensitiveBanner = !suggestions.isEmpty || hasOCRFields
+        if showSensitiveBanner {
             AppState.trackEvent("risk_detected", properties: [
                 "kind": doc.kind.rawValue,
                 "suggested_count": String(suggestions.count)
@@ -210,7 +231,9 @@ final class EditorViewModel: ObservableObject {
     // MARK: - Redaction ops
 
     func applyAutoDetect() {
-        let suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
+        let suggestedRects = Self.suggestedRectsForBanner(in: doc)
+        guard !suggestedRects.isEmpty else { return }
+        let suggested = suggestedRects.map { Redaction(rect: $0, style: maskStyle) }
         push(suggested)
         AppState.trackEvent("redaction_applied", properties: [
             "source": "auto_detect",
@@ -384,6 +407,70 @@ final class EditorViewModel: ObservableObject {
         AppState.trackEvent("redaction_applied", properties: ["source": "ocr_field"])
     }
 
+    func removeOCRRedaction(rect: CGRect) {
+        let threshold: CGFloat = 0.06
+        let filtered = redactions.filter { r in
+            abs(r.rect.midX - rect.midX) > threshold || abs(r.rect.midY - rect.midY) > threshold
+        }
+        if filtered.count != redactions.count {
+            push(filtered)
+        }
+    }
+
+    /// Persists OCR-extracted fields (including bounding boxes) into the document.
+    /// Called after the OCR sheet finishes analysis so mode-based masking works.
+    func updateOCRFields(_ fields: DocumentFields) {
+        var snapshot = doc
+        snapshot.fields = fields
+        doc = snapshot
+        baselineDoc.fields = fields
+        // Show sensitive banner if OCR found any identifiable fields
+        let hasFields = !fields.documentNumber.isEmpty || !fields.fullName.isEmpty
+        if hasFields && !showSensitiveBanner {
+            showSensitiveBanner = true
+        }
+    }
+
+    /// Best-effort background OCR so the sensitive banner doesn't show 0 suggestions
+    /// for photo/generic docs when fields are still empty.
+    func bootstrapOCRSuggestionsIfNeeded() {
+        guard doc.kind == .photo || doc.kind == .genericID else { return }
+        guard !isAnalyzingOCRSuggestions else { return }
+        let hasFields = !doc.fields.documentNumber.isEmpty || !doc.fields.fullName.isEmpty
+        let hasBoxes = !(doc.fields.ocrBoundingTexts ?? []).isEmpty
+        guard !hasFields && !hasBoxes else { return }
+
+        let images = loadSourceImagesForOCR()
+        guard !images.isEmpty else { return }
+
+        isAnalyzingOCRSuggestions = true
+        ocrBootstrapTask?.cancel()
+        ocrBootstrapTask = Task { [weak self] in
+            guard let self else { return }
+            let pageObs = await OCRService.recognizeObservationsByPageAdaptive(in: images)
+            if Task.isCancelled { return }
+            let lines = pageObs.flatMap { $0.map(\.text) }
+            var fields = OCRService.extractFields(from: lines)
+            fields.ocrDocumentType = OCRService.detectDocumentType(from: lines).rawValue
+            if let page0 = pageObs.first {
+                fields.ocrBoundingTexts = page0.map(\.text)
+                fields.ocrBoundingRects = page0.map(\.boundingRect)
+            }
+
+            let resolvedFields = fields
+            await MainActor.run {
+                var snapshot = self.doc
+                snapshot.fields = resolvedFields
+                self.doc = snapshot
+                // OCR bootstrap is automatic metadata enrichment, not a user edit.
+                self.baselineDoc.fields = resolvedFields
+                self.showSensitiveBanner = !Self.suggestedRectsForBanner(in: snapshot).isEmpty ||
+                    !resolvedFields.documentNumber.isEmpty || !resolvedFields.fullName.isEmpty
+                self.isAnalyzingOCRSuggestions = false
+            }
+        }
+    }
+
     // MARK: - Find All / Propagation
 
     /// Copies all redactions from the current page to every other page.
@@ -452,6 +539,61 @@ final class EditorViewModel: ObservableObject {
     func setWatermark(_ watermark: Watermark?) {
         self.watermark = watermark
         persistCurrentPageState()
+    }
+
+    func markSaved() {
+        persistCurrentPageState()
+        baselineDoc = doc
+    }
+
+    private static func suggestedRectsForBanner(in doc: DocumentItem) -> [CGRect] {
+        if doc.kind == .photo || doc.kind == .genericID {
+            let ocrRects = AutoRedactions.ocrModeRects(for: .banking, fields: doc.fields)
+            if !ocrRects.isEmpty {
+                return ocrRects
+            }
+        }
+        return AutoRedactions.suggested(for: doc.kind).map { $0.rect }
+    }
+
+    private func normalizedSignature(for source: DocumentItem) -> String {
+        var snapshot = source
+        // Date/title/category changes are not editor changes for "Guardar".
+        snapshot.date = baselineDoc.date
+        snapshot.title = baselineDoc.title
+        snapshot.category = baselineDoc.category
+        snapshot.customCategoryID = baselineDoc.customCategoryID
+        // OCR metadata enrichment should not mark the document as "unsaved edit".
+        snapshot.fields = baselineDoc.fields
+        let data = (try? JSONEncoder().encode(snapshot)) ?? Data()
+        return data.base64EncodedString()
+    }
+
+    private func watermarkSignature(_ watermark: Watermark?) -> String {
+        guard let watermark else { return "nil" }
+        let data = (try? JSONEncoder().encode(watermark)) ?? Data()
+        return data.base64EncodedString()
+    }
+
+    private func loadSourceImagesForOCR() -> [UIImage] {
+        let rawImages: [UIImage]
+        if let pages = doc.pageFileNames, !pages.isEmpty {
+            rawImages = pages.compactMap { AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted) }
+        } else if let fileName = doc.imageFileName,
+                  let image = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) {
+            rawImages = [image]
+        } else {
+            rawImages = []
+        }
+        guard let adjustment = doc.imageAdjustment else { return rawImages }
+        return rawImages.map { ExportEngine.applyImageAdjustment($0, store: adjustment) ?? $0 }
+    }
+
+    /// Forces a UI refresh after source image files are overwritten in place.
+    func refreshAfterImageOverwrite() {
+        var snapshot = doc
+        snapshot.date = Date()
+        doc = snapshot
     }
 
     private func persistCurrentPageState() {

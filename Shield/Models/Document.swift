@@ -79,6 +79,7 @@ enum ImportedDocumentSource: String, Codable {
 
 struct DocumentFields: Codable {
     var documentNumber: String
+    var supportNumber: String?   // NUM SOPORTE (Spanish DNI serial, e.g. CJU127354)
     var fullName: String
     var dateOfBirth: String
     var nationality: String
@@ -442,11 +443,16 @@ enum AutoRedactions {
     // When Vision bounding boxes are stored in `fields`, uses precise per-word positions.
     // Falls back to calibrated grid estimates when boxes are unavailable.
     static func ocrModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
+        let fallbackRects = gridRects(for: mode)
         // Try precision mode first: match stored OCR observations against sensitive field values.
         if let preciseRects = precisionRects(for: mode, fields: fields), !preciseRects.isEmpty {
-            return preciseRects
+            // If OCR found too few zones, blend with fallback so obvious PII is still covered.
+            if preciseRects.count < max(2, fallbackRects.count / 2) {
+                return mergeRects(preciseRects + fallbackRects)
+            }
+            return mergeRects(preciseRects)
         }
-        return gridRects(for: mode)
+        return fallbackRects
     }
 
     // Precision: locate actual field text in Vision bounding boxes and expand slightly for coverage.
@@ -456,78 +462,148 @@ enum AutoRedactions {
               texts.count == rects.count,
               !texts.isEmpty else { return nil }
 
-        // Build a lookup: canonical text (uppercased, trimmed) → bounding rect
-        var textToRect: [String: CGRect] = [:]
-        for (text, rect) in zip(texts, rects) {
-            textToRect[text.uppercased().trimmingCharacters(in: .whitespaces)] = rect
+        struct OCRToken {
+            let raw: String
+            let normalized: String
+            let compact: String
+            let rect: CGRect
+        }
+
+        func normalize(_ value: String) -> String {
+            let folded = value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            let filtered = folded.replacingOccurrences(of: "[^A-Za-z0-9 ]+", with: " ", options: .regularExpression)
+            return filtered
+                .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .uppercased()
+        }
+
+        let tokens: [OCRToken] = zip(texts, rects).map { text, rect in
+            let normalized = normalize(text)
+            return OCRToken(
+                raw: text,
+                normalized: normalized,
+                compact: normalized.replacingOccurrences(of: " ", with: ""),
+                rect: rect
+            )
         }
 
         // Sensitive field values to search for, keyed by semantic name
         var sensitiveValues: [String: String] = [:]
-        if !fields.documentNumber.isEmpty { sensitiveValues["docNumber"] = fields.documentNumber.uppercased() }
-        if !fields.dateOfBirth.isEmpty    { sensitiveValues["dob"]       = fields.dateOfBirth.uppercased() }
-        if !fields.expires.isEmpty        { sensitiveValues["expires"]   = fields.expires.uppercased() }
-        if !fields.fullName.isEmpty       { sensitiveValues["name"]      = fields.fullName.uppercased() }
-        if !fields.nationality.isEmpty    { sensitiveValues["nat"]       = fields.nationality.uppercased() }
+        if !fields.documentNumber.isEmpty { sensitiveValues["docNumber"]     = fields.documentNumber.uppercased() }
+        if let sn = fields.supportNumber, !sn.isEmpty { sensitiveValues["supportNumber"] = sn.uppercased() }
+        if !fields.dateOfBirth.isEmpty    { sensitiveValues["dob"]           = fields.dateOfBirth.uppercased() }
+        if !fields.expires.isEmpty        { sensitiveValues["expires"]       = fields.expires.uppercased() }
+        if !fields.fullName.isEmpty       { sensitiveValues["name"]          = fields.fullName.uppercased() }
+        if !fields.nationality.isEmpty    { sensitiveValues["nat"]           = fields.nationality.uppercased() }
         if let mrz = fields.mrz, !mrz.isEmpty {
             sensitiveValues["mrz"] = mrz.uppercased().components(separatedBy: "\n").first ?? ""
         }
-        if !fields.address.isEmpty        { sensitiveValues["address"]   = fields.address.uppercased() }
-
-        // Find bounding rects for each value via substring match in the stored texts
-        func findRect(for value: String) -> CGRect? {
-            // Exact match first
-            if let r = textToRect[value] { return r }
-            // Substring: scan all stored texts
-            for (stored, rect) in textToRect {
-                if stored.contains(value) || value.contains(stored) { return rect }
-            }
-            return nil
-        }
+        if !fields.address.isEmpty        { sensitiveValues["address"]       = fields.address.uppercased() }
 
         // Pad a rect slightly so it fully covers the glyph
         func pad(_ r: CGRect) -> CGRect {
             let dx = max(0.005, r.width  * 0.08)
-            let dy = max(0.004, r.height * 0.15)
+            let dy = max(0.004, r.height * 0.20)
             return r.insetBy(dx: -dx, dy: -dy).intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+
+        func mergeForMultiline(_ rects: [CGRect]) -> [CGRect] {
+            guard !rects.isEmpty else { return [] }
+            if rects.count == 1 { return rects }
+            let union = rects.dropFirst().reduce(rects[0]) { $0.union($1) }
+            return [union]
+        }
+
+        // Finds matching OCR rectangles for a field value.
+        // Uses compact comparison so values like "12345678A" match OCR "1234 5678 A".
+        func findRects(for value: String, mergeMultiline: Bool = false) -> [CGRect] {
+            let normalizedValue = normalize(value)
+            let compactValue = normalizedValue.replacingOccurrences(of: " ", with: "")
+            guard !compactValue.isEmpty else { return [] }
+
+            var matches: [CGRect] = []
+            for token in tokens {
+                guard !token.compact.isEmpty else { continue }
+                let exact = token.compact == compactValue
+                let included = token.compact.count >= 4 && compactValue.contains(token.compact)
+                if exact || included {
+                    matches.append(token.rect)
+                }
+            }
+
+            if mergeMultiline {
+                return mergeForMultiline(matches)
+            }
+            return matches
         }
 
         // Which semantic fields each mode needs to hide
         let hideKeys: [String]
         switch mode {
-        case .rental:  hideKeys = ["docNumber", "dob", "expires", "address", "mrz"]
-        case .travel:  hideKeys = ["docNumber", "expires", "mrz"]
-        case .job:     hideKeys = ["docNumber", "dob", "nat"]
-        case .verify:  hideKeys = ["docNumber", "dob", "mrz"]
-        case .legal:   hideKeys = ["docNumber", "dob", "address", "mrz"]
-        case .health:  hideKeys = ["docNumber", "dob", "nat", "address", "mrz"]
-        case .banking: hideKeys = ["docNumber", "dob", "expires", "nat", "address", "mrz"]
+        case .rental:  hideKeys = ["docNumber", "supportNumber", "dob", "expires", "address", "mrz"]
+        case .travel:  hideKeys = ["docNumber", "supportNumber", "expires", "mrz"]
+        case .job:     hideKeys = ["docNumber", "supportNumber", "dob", "nat"]
+        case .verify:  hideKeys = ["docNumber", "supportNumber", "dob", "mrz"]
+        case .legal:   hideKeys = ["docNumber", "supportNumber", "dob", "address", "mrz"]
+        case .health:  hideKeys = ["docNumber", "supportNumber", "dob", "nat", "address", "mrz"]
+        case .banking: hideKeys = ["docNumber", "supportNumber", "dob", "expires", "nat", "address", "mrz"]
         }
 
         var result: [CGRect] = []
+        var seenCenters: [CGPoint] = []
+
+        func appendUnique(_ rect: CGRect) {
+            let c = CGPoint(x: rect.midX, y: rect.midY)
+            if seenCenters.contains(where: { abs($0.x - c.x) < 0.015 && abs($0.y - c.y) < 0.015 }) {
+                return
+            }
+            seenCenters.append(c)
+            result.append(pad(rect))
+        }
+
         for key in hideKeys {
-            if let value = sensitiveValues[key], let r = findRect(for: value) {
-                result.append(pad(r))
+            guard let value = sensitiveValues[key] else { continue }
+            let multiline = key == "address" || key == "name"
+            let matches = findRects(for: value, mergeMultiline: multiline)
+            for rect in matches {
+                appendUnique(rect)
             }
         }
 
-        // For MRZ specifically: if stored, cover the entire bottom band
+        // For MRZ: cover the entire bottom band as a single wide rect
         if hideKeys.contains("mrz"), let mrz = fields.mrz, !mrz.isEmpty {
             let mrzLines = mrz.components(separatedBy: "\n").filter { !$0.isEmpty }
             var mrzRects: [CGRect] = []
             for line in mrzLines {
                 let key = String(line.prefix(8)).uppercased()
-                if let r = textToRect.first(where: { $0.key.hasPrefix(key) })?.value {
-                    mrzRects.append(r)
-                }
+                let normalizedKey = normalize(key).replacingOccurrences(of: " ", with: "")
+                let lineMatches = tokens.filter { $0.compact.hasPrefix(normalizedKey) || normalizedKey.hasPrefix($0.compact) }
+                mrzRects.append(contentsOf: lineMatches.map(\.rect))
             }
             if !mrzRects.isEmpty {
                 let union = mrzRects.dropFirst().reduce(mrzRects[0]) { $0.union($1) }
-                result.append(pad(union))
+                appendUnique(union)
             }
         }
 
         return result.isEmpty ? nil : result
+    }
+
+    private static func mergeRects(_ rects: [CGRect]) -> [CGRect] {
+        var merged: [CGRect] = []
+        for rect in rects {
+            if merged.contains(where: {
+                abs($0.midX - rect.midX) < 0.015 &&
+                abs($0.midY - rect.midY) < 0.015 &&
+                abs($0.width - rect.width) < 0.03 &&
+                abs($0.height - rect.height) < 0.03
+            }) {
+                continue
+            }
+            merged.append(rect)
+        }
+        return merged
     }
 
     // Calibrated grid fallback — used when bounding boxes are unavailable.

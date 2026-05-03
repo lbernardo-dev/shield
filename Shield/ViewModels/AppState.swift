@@ -71,6 +71,13 @@ final class AppState: ObservableObject {
     // Style pre-selected from gallery — applied to editor when next doc is opened
     @Published var pendingMaskStyle: MaskStyle? = nil
 
+    // Redaction mode pre-selected from the Home quick-actions — auto-applied when the editor opens
+    @Published var pendingRedactionMode: RedactionMode? = nil
+
+    // Pages to re-adjust from EditorView — CaptureView opens its ScanReviewView at the correct level
+    @Published var scanReviewPagesForEdit: [UIImage] = []
+    @Published var showScanReviewForEdit: Bool = false
+
     // MARK: - Library
     @Published var documents: [DocumentItem] = []
     @Published var searchQuery: String = ""
@@ -402,18 +409,9 @@ final class AppState: ObservableObject {
     private func applyForegroundInactivityLockIfNeeded() {
         guard currentScenePhase == .active else { return }
         guard isOnboarded, isAuthenticated else { return }
-        guard let delay = autoLockDelaySeconds, delay > 0 else { return }
-
-        let lastActivity = UserDefaults.standard.double(forKey: Self.userActivityTimestampKey)
-        guard lastActivity > 0 else {
-            Self.markUserActivity(force: true)
-            return
-        }
-
-        let idleSeconds = Date().timeIntervalSince1970 - lastActivity
-        if idleSeconds >= delay {
-            isAuthenticated = false
-        }
+        // Keep foreground sessions uninterrupted. Auto-lock is enforced on background/resume.
+        // This prevents lock-screen interruptions while actively reviewing or editing documents.
+        Self.markUserActivity(force: true)
     }
 
     // MARK: - Persistence (private)

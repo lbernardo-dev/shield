@@ -28,6 +28,16 @@ struct ContentView: View {
                 cloud.syncOnForeground(documents: appState.documents)
             }
         }
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                AppState.markUserActivity()
+            }
+        )
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.2).onEnded { _ in
+                AppState.markUserActivity()
+            }
+        )
     }
 
     // MARK: - Main interface with tab bar

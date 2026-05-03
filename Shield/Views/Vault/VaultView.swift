@@ -243,6 +243,7 @@ struct VaultView: View {
             DispatchQueue.main.async {
                 if success {
                     withAnimation { isUnlocked = true; authError = nil }
+                    AppState.trackEvent("vault_unlocked", properties: ["method": "biometric"])
                 } else {
                     authError = err?.localizedDescription
                 }
@@ -264,6 +265,7 @@ struct VaultView: View {
             DispatchQueue.main.async {
                 if success {
                     withAnimation { isUnlocked = true; authError = nil }
+                    AppState.trackEvent("vault_unlocked", properties: ["method": "passcode"])
                 } else {
                     authError = err?.localizedDescription
                 }
@@ -518,6 +520,7 @@ struct PINSetupView: View {
             if pin == confirmPin {
                 PINManager.save(pin: pin)
                 isPresented = false
+                AppState.trackEvent("vault_unlocked", properties: ["method": "pin_setup"])
                 onSuccess()
             } else {
                 errorMsg = LanguageManager.shared.vault("vault_pin_mismatch")
@@ -611,6 +614,7 @@ struct PINEntryView: View {
         guard lockoutRemaining == 0 else { return }
         if PINManager.verify(pin: pin) {
             isPresented = false
+            AppState.trackEvent("vault_unlocked", properties: ["method": "pin_entry"])
             onSuccess()
         } else {
             refreshLockoutState()

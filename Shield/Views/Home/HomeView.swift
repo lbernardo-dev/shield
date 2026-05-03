@@ -413,6 +413,9 @@ struct HomeView: View {
                 HStack(spacing: 10) {
                     ForEach(RedactionMode.allCases, id: \.self) { mode in
                         ModeCard(mode: mode, lang: appState.language) {
+                            // Store the chosen mode so the editor auto-applies it
+                            // once the newly imported document is opened.
+                            appState.pendingRedactionMode = mode
                             appState.showCapture = true
                         }
                     }
@@ -1097,7 +1100,8 @@ struct DocumentRow: View {
                 // Thumbnail
                 ZStack {
                     DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
-                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: shouldMask)
+                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: shouldMask,
+                                 imageAdjustment: doc.imageAdjustment)
                         .frame(width: 64, height: 44)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                         .blur(radius: shouldMask ? 4 : 0)
