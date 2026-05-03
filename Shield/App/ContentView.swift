@@ -4,6 +4,8 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.scenePhase) private var scenePhase
+    @ObservedObject private var cloud = CloudSyncManager.shared
 
     var body: some View {
         Group {
@@ -21,6 +23,11 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: appState.isOnboarded)
         .animation(.easeInOut(duration: 0.3), value: appState.isAuthenticated)
         .colorScheme(appState.preferredScheme)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                cloud.syncOnForeground(documents: appState.documents)
+            }
+        }
     }
 
     // MARK: - Main interface with tab bar

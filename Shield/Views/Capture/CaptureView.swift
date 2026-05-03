@@ -514,8 +514,10 @@ struct CaptureView: View {
                 return
             }
 
-            // OCR all pages with per-page context, then merge fields prioritising the highest-confidence page
-            let pageLines = await OCRService.recognizeTextByPage(in: pages)
+            // OCR all pages: two-pass adaptive — second pass adds country-specific languages if detected.
+            // Also capture bounding boxes for page 0 to enable precision auto-redaction.
+            let pageObservations = await OCRService.recognizeObservationsByPageAdaptive(in: pages)
+            let pageLines = pageObservations.map { $0.map(\.text) }
             let pageTexts = pageLines.map { $0.joined(separator: "\n") }
             // Extract fields per page so multi-page docs don't bleed fields across pages
             let perPageFields = pageLines.map { OCRService.extractFields(from: $0) }
@@ -533,7 +535,13 @@ struct CaptureView: View {
             fields.ocrDocumentType = detectedType.rawValue
             fields.ocrPageTexts = pageTexts
             fields.ocrFullText = pageTexts.joined(separator: "\n\n")
-            fields.ocrDetectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
+            // Store bounding boxes from page 0 for precision redaction in the editor
+            if let page0 = pageObservations.first {
+                fields.ocrBoundingTexts = page0.map(\.text)
+                fields.ocrBoundingRects = page0.map(\.boundingRect)
+            }
+            let detectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
+            fields.ocrDetectedCountry = detectedCountry
             let risk = OCRService.assessRisk(fields: fields, detectedType: detectedType, threshold: OCRService.minimumConfidenceThreshold())
             fields.ocrRiskLevel = risk.level.rawValue
             fields.ocrLowConfidenceFields = risk.lowFields
@@ -545,16 +553,27 @@ struct CaptureView: View {
                 return appState.str("capture_scan_fallback_title", fmt.string(from: Date()))
             }()
             let docTitle = !fields.fullName.isEmpty ? fields.fullName : fallbackTitle
+
+            // Resolve the richest DocumentKind from OCR signals
+            let resolvedKind = resolveDocumentKind(
+                detectedType: detectedType,
+                country: detectedCountry,
+                mrzFormat: fields.ocrMRZFormat
+            )
             let detectedCategory: DocumentCategory = {
                 switch detectedType {
-                case .passport: return .travel
-                case .dni: return .identity
-                case .document: return .work
+                case .passport:        return .travel
+                case .visa:            return .travel
+                case .residencePermit: return .identity
+                case .drivingLicense:  return .driving
+                case .healthCard:      return .health
+                case .dni:             return .identity
+                case .document:        return .work
                 }
             }()
             let doc = DocumentItem(
                 id: docID,
-                kind: .photo,
+                kind: resolvedKind,
                 title: docTitle,
                 category: detectedCategory,
                 date: Date(),
@@ -593,6 +612,37 @@ struct CaptureView: View {
         }
     }
 
+    /// Maps OCR-detected type + country to the richest available DocumentKind.
+    /// Falls back to .photo so the image is still rendered correctly when no
+    /// structured template exists for the detected combination.
+    private func resolveDocumentKind(
+        detectedType: OCRService.DetectedDocumentType,
+        country: String?,
+        mrzFormat: String?
+    ) -> DocumentKind {
+        switch detectedType {
+        case .passport:
+            switch country {
+            case "USA": return .passportUSA
+            case "MEX": return .passportMEX
+            default:    return .photo   // render from image; no vector template for others
+            }
+        case .dni:
+            switch country {
+            case "ESP": return .dniESP
+            case "ITA": return .dniITA
+            default:    return .genericID
+            }
+        case .drivingLicense:
+            switch country {
+            case "GBR": return .drivingUK
+            default:    return .photo
+            }
+        case .visa, .residencePermit, .healthCard, .document:
+            return .photo
+        }
+    }
+
     private func loadPDFDocument(from url: URL) -> (PDFDocument, Data)? {
         guard let data = try? Data(contentsOf: url),
               let document = PDFDocument(data: data),
@@ -617,22 +667,42 @@ struct CaptureView: View {
     }
 
     private func normalizedCountryCode(from fields: DocumentFields, detectedType: OCRService.DetectedDocumentType) -> String? {
+        // MRZ nationality is the most reliable source
         let nat = fields.nationality.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         if nat.count == 3, nat.allSatisfy({ $0 >= "A" && $0 <= "Z" }) {
             return nat
         }
 
-        let docNum = fields.documentNumber.uppercased()
-        if !docNum.isEmpty {
-            if docNum.hasPrefix("X") || docNum.hasPrefix("Y") || docNum.hasPrefix("Z") { return "ESP" }
-            if docNum.count == 9, docNum.first?.isNumber == true { return "ESP" }
-            if docNum.count == 18 { return "MEX" }
+        let docNum = fields.documentNumber.uppercased().replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+
+        // Spanish NIE (X/Y/Z + 7 digits + letter) or DNI (8 digits + letter)
+        if docNum.hasPrefix("X") || docNum.hasPrefix("Y") || docNum.hasPrefix("Z") { return "ESP" }
+        if docNum.count == 9, docNum.first?.isNumber == true, docNum.last?.isLetter == true { return "ESP" }
+
+        // Mexican CURP (18 alphanumeric with specific structure — already extracted)
+        // Chinese Resident ID is 18 digits — differentiate by country hint from OCR text
+        if docNum.count == 18 {
+            // Check if we have a country hint from the text that disambiguates
+            let fullText = (fields.ocrFullText ?? "").uppercased()
+            if fullText.contains("CHINA") || fullText.contains("中国") || fullText.contains("中华") { return "CHN" }
+            if fullText.contains("MEXICO") || fullText.contains("MÉXICO") || fullText.contains("CURP") { return "MEX" }
+            // Without other signals we cannot determine CHN vs MEX from length alone
+            return nil
         }
 
-        switch detectedType {
-        case .dni: return "ESP"
-        default: return nil
+        // Brazilian CPF: 11 digits
+        if docNum.count == 11, docNum.allSatisfy(\.isNumber) {
+            let fullText = (fields.ocrFullText ?? "").uppercased()
+            if fullText.contains("BRASIL") || fullText.contains("CPF") { return "BRA" }
         }
+
+        // Argentine DNI: 7–8 digits
+        if (docNum.count == 7 || docNum.count == 8), docNum.allSatisfy(\.isNumber) {
+            let fullText = (fields.ocrFullText ?? "").uppercased()
+            if fullText.contains("ARGENTINA") || fullText.contains("DNI") { return "ARG" }
+        }
+
+        return nil
     }
 }
 
@@ -1200,7 +1270,7 @@ struct ScanReviewView: View {
                     Button {
                         resetCurrentPage()
                     } label: {
-                        Text(appState.language == .es ? "Restablecer página" : "Reset page")
+                        Text(appState.str("capture_reset_page", table: "Capture"))
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1213,7 +1283,7 @@ struct ScanReviewView: View {
                     Button {
                         resetAllPages()
                     } label: {
-                        Text(appState.language == .es ? "Restablecer todo" : "Reset all")
+                        Text(appState.str("capture_reset_all", table: "Capture"))
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1229,7 +1299,7 @@ struct ScanReviewView: View {
                     adjustments = Array(repeating: current, count: pages.count)
                     AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
                 } label: {
-                    Text(appState.language == .es ? "Aplicar ajustes a todas las páginas" : "Apply to all pages")
+                    Text(appState.str("capture_apply_all_pages", table: "Capture"))
                         .font(.system(size: 14, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
@@ -1512,15 +1582,19 @@ struct ScanReviewView: View {
         guard let image = pages[safe: selectedPage], let cg = image.cgImage else { return }
 
         Task {
-            guard let detected = detectPerspectiveParameters(from: cg) else { return }
+            guard let detected = detectPerspectiveRect(from: cg) else { return }
             await MainActor.run {
                 guard adjustments.indices.contains(selectedPage) else { return }
                 var adj = adjustments[selectedPage]
+                // Populate slider-based fields
                 adj.perspectiveTopInset = detected.topInset
                 adj.perspectiveBottomInset = detected.bottomInset
                 adj.perspectiveSkew = detected.skew
                 adj.perspectiveTopYOffset = detected.topYOffset
                 adj.perspectiveBottomYOffset = detected.bottomYOffset
+                // Seed the quad editor with the Vision-detected corners so both
+                // the sliders and the drag handles start from the same detected rectangle.
+                adj.quad = detected.quad
                 adjustments[selectedPage] = sanitizedCrop(adj)
                 AppState.trackEvent("scan_adjustment_applied", properties: [
                     "mode": "auto_perspective"
@@ -1529,7 +1603,16 @@ struct ScanReviewView: View {
         }
     }
 
-    private func detectPerspectiveParameters(from cgImage: CGImage) -> (topInset: Double, bottomInset: Double, skew: Double, topYOffset: Double, bottomYOffset: Double)? {
+    private struct DetectedPerspective {
+        let topInset: Double
+        let bottomInset: Double
+        let skew: Double
+        let topYOffset: Double
+        let bottomYOffset: Double
+        let quad: ScanQuad
+    }
+
+    private func detectPerspectiveRect(from cgImage: CGImage) -> DetectedPerspective? {
         let request = VNDetectRectanglesRequest()
         request.maximumObservations = 1
         request.minimumConfidence = 0.45
@@ -1549,6 +1632,7 @@ struct ScanReviewView: View {
         let height = CGFloat(cgImage.height)
         guard width > 10, height > 10 else { return nil }
 
+        // VNImagePointForNormalizedPoint uses Vision coords (origin bottom-left, Y flipped)
         let tl = VNImagePointForNormalizedPoint(rect.topLeft, Int(width), Int(height))
         let tr = VNImagePointForNormalizedPoint(rect.topRight, Int(width), Int(height))
         let bl = VNImagePointForNormalizedPoint(rect.bottomLeft, Int(width), Int(height))
@@ -1571,7 +1655,23 @@ struct ScanReviewView: View {
         let topYOffset = clamp((height - topY) / height, min: 0, max: 0.25)
         let bottomYOffset = clamp(bottomY / height, min: 0, max: 0.25)
 
-        return (topInset, bottomInset, skew, topYOffset, bottomYOffset)
+        // Convert Vision image-space points to UIKit normalized (origin top-left, Y down)
+        // Vision's VNImagePointForNormalizedPoint returns points with Y measured from bottom
+        let quad = ScanQuad(
+            topLeft:     CGPoint(x: clamp(tl.x / width, min: 0, max: 1), y: clamp(1.0 - tl.y / height, min: 0, max: 1)),
+            topRight:    CGPoint(x: clamp(tr.x / width, min: 0, max: 1), y: clamp(1.0 - tr.y / height, min: 0, max: 1)),
+            bottomLeft:  CGPoint(x: clamp(bl.x / width, min: 0, max: 1), y: clamp(1.0 - bl.y / height, min: 0, max: 1)),
+            bottomRight: CGPoint(x: clamp(br.x / width, min: 0, max: 1), y: clamp(1.0 - br.y / height, min: 0, max: 1))
+        )
+
+        return DetectedPerspective(
+            topInset: topInset,
+            bottomInset: bottomInset,
+            skew: skew,
+            topYOffset: topYOffset,
+            bottomYOffset: bottomYOffset,
+            quad: quad
+        )
     }
 
     private func clamp(_ value: CGFloat, min: CGFloat, max: CGFloat) -> Double {
@@ -1627,9 +1727,13 @@ private extension Array {
 
 enum OCRService {
     enum DetectedDocumentType: String {
-        case dni
-        case passport
-        case document
+        case dni              // National ID cards (all countries)
+        case passport         // Passport booklets (all countries)
+        case drivingLicense   // Driver licenses
+        case visa             // Visa labels / stickers
+        case residencePermit  // Residence permits, NIE, etc.
+        case healthCard       // Health / insurance cards
+        case document         // Generic fallback
     }
 
     enum OCRRiskLevel: String {
@@ -1638,18 +1742,149 @@ enum OCRService {
         case high
     }
 
-    static func recognizeText(in image: UIImage) async -> [String] {
+    // Base language set used for initial pass (covers ~60 % of world documents).
+    private static let baseLanguages = ["es-ES", "en-US", "fr-FR", "de-DE", "it-IT", "pt-PT"]
+
+    // Extended languages added on second pass when country is identified.
+    // Vision-supported locale identifiers as of iOS 17.
+    private static func languagesForCountry(_ country: String?) -> [String] {
+        switch country?.uppercased() {
+        // Already in base — no second pass needed
+        case "ESP", "MEX", "ARG", "COL", "CHL", "PER", "ECU", "VEN", "BOL", "PRY", "URY",
+             "USA", "GBR", "CAN", "AUS", "NZL", "IRL", "ZAF",
+             "FRA", "BEL", "CHE", "LUX", "MCO",
+             "DEU", "AUT", "LIE",
+             "ITA", "SMR", "VAT",
+             "PRT", "BRA", "AGO", "MOZ", "CPV":
+            return []
+        // Dutch
+        case "NLD", "SUR":
+            return ["nl-NL"]
+        // Polish
+        case "POL":
+            return ["pl-PL"]
+        // Russian / Cyrillic
+        case "RUS", "BLR", "KAZ", "KGZ", "TJK", "UZB":
+            return ["ru-RU"]
+        // Ukrainian
+        case "UKR":
+            return ["uk-UA"]
+        // Turkish
+        case "TUR":
+            return ["tr-TR"]
+        // Greek
+        case "GRC", "CYP":
+            return ["el-GR"]
+        // Swedish
+        case "SWE":
+            return ["sv-SE"]
+        // Norwegian
+        case "NOR":
+            return ["nb-NO"]
+        // Danish
+        case "DNK":
+            return ["da-DK"]
+        // Finnish
+        case "FIN":
+            return ["fi-FI"]
+        // Czech
+        case "CZE":
+            return ["cs-CZ"]
+        // Slovak
+        case "SVK":
+            return ["sk-SK"]
+        // Hungarian
+        case "HUN":
+            return ["hu-HU"]
+        // Romanian
+        case "ROU":
+            return ["ro-RO"]
+        // Bulgarian
+        case "BGR":
+            return ["bg-BG"]
+        // Croatian / Serbian / Bosnian (Latin)
+        case "HRV", "SRB", "BIH":
+            return ["hr-HR"]
+        // Simplified Chinese
+        case "CHN", "SGP":
+            return ["zh-Hans"]
+        // Traditional Chinese
+        case "TWN", "HKG", "MAC":
+            return ["zh-Hant"]
+        // Japanese
+        case "JPN":
+            return ["ja-JP"]
+        // Korean
+        case "KOR":
+            return ["ko-KR"]
+        // Arabic
+        case "SAU", "ARE", "QAT", "KWT", "BHR", "OMN", "JOR", "LBN", "SYR", "IRQ",
+             "EGY", "LBY", "TUN", "DZA", "MAR", "SDN", "YEM":
+            return ["ar-SA"]
+        // Hebrew
+        case "ISR":
+            return ["he-IL"]
+        // Hindi / Devanagari
+        case "IND", "NPL":
+            return ["hi-IN"]
+        // Thai
+        case "THA":
+            return ["th-TH"]
+        // Vietnamese
+        case "VNM":
+            return ["vi-VN"]
+        // Indonesian / Malay
+        case "IDN", "MYS", "BRN":
+            return ["id-ID"]
+        // Filipino / Tagalog (use English as best available)
+        case "PHL":
+            return ["en-PH"]
+        default:
+            return []
+        }
+    }
+
+    struct TextObservation {
+        let text: String
+        /// Normalized rect in UIKit coordinates (origin top-left, 0..1).
+        let boundingRect: CGRect
+    }
+
+    static func recognizeText(in image: UIImage, extraLanguages: [String] = []) async -> [String] {
+        await recognizeTextWithObservations(in: image, extraLanguages: extraLanguages).map(\.text)
+    }
+
+    static func recognizeTextWithObservations(
+        in image: UIImage,
+        extraLanguages: [String] = []
+    ) async -> [TextObservation] {
         guard let cgImage = image.cgImage else { return [] }
+        let languages: [String] = {
+            var langs = baseLanguages
+            for lang in extraLanguages where !langs.contains(lang) {
+                langs.insert(lang, at: 0)
+            }
+            return langs
+        }()
 
         return await withCheckedContinuation { continuation in
             let request = VNRecognizeTextRequest { req, _ in
                 let obs = req.results as? [VNRecognizedTextObservation] ?? []
-                let texts = obs.compactMap { $0.topCandidates(1).first?.string }
-                continuation.resume(returning: texts)
+                let results: [TextObservation] = obs.compactMap { ob in
+                    guard let text = ob.topCandidates(1).first?.string else { return nil }
+                    // Vision: origin bottom-left, Y up → convert to UIKit top-left, Y down
+                    let vb = ob.boundingBox
+                    let uiRect = CGRect(x: vb.origin.x,
+                                       y: 1.0 - vb.origin.y - vb.height,
+                                       width: vb.width,
+                                       height: vb.height)
+                    return TextObservation(text: text, boundingRect: uiRect)
+                }
+                continuation.resume(returning: results)
             }
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
-            request.recognitionLanguages = ["es-ES", "en-US", "fr-FR", "de-DE"]
+            request.recognitionLanguages = languages
 
             let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
             try? handler.perform([request])
@@ -1766,12 +2001,90 @@ enum OCRService {
         }
 
         if let curp = extractCURP(from: lines), !curp.isEmpty {
-            if docNum.isEmpty {
-                docNum = curp
-            }
+            if docNum.isEmpty { docNum = curp }
             fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.84)
             if nationality.isEmpty { nationality = "MEX" }
             fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.84)
+        }
+
+        // --- International extractors (run after MRZ/Spanish/CURP) ---
+
+        // Brazilian CPF: 000.000.000-00 or 00000000000 (11 digits)
+        if let cpf = extractBrazilianCPF(from: lines), !cpf.isEmpty {
+            if docNum.isEmpty { docNum = cpf }
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.88)
+            if nationality.isEmpty { nationality = "BRA" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.88)
+        }
+
+        // Chilean RUT: 12.345.678-9 or 12345678-9
+        if let rut = extractChileanRUT(from: lines), !rut.isEmpty {
+            if docNum.isEmpty { docNum = rut }
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.86)
+            if nationality.isEmpty { nationality = "CHL" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.86)
+        }
+
+        // Indian Aadhaar: 12-digit XXXX XXXX XXXX
+        if let aadhaar = extractAadhaar(from: lines), !aadhaar.isEmpty {
+            if docNum.isEmpty { docNum = aadhaar }
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.90)
+            if nationality.isEmpty { nationality = "IND" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.90)
+        }
+
+        // Indian PAN: AAAAA9999A (10-char alphanumeric with specific structure)
+        if docNum.isEmpty, let pan = extractIndianPAN(from: lines), !pan.isEmpty {
+            docNum = pan
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.88)
+            if nationality.isEmpty { nationality = "IND" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.88)
+        }
+
+        // UK National Insurance Number: AA 99 99 99 A
+        if docNum.isEmpty, let nino = extractUKNINO(from: lines), !nino.isEmpty {
+            docNum = nino
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.87)
+            if nationality.isEmpty { nationality = "GBR" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.87)
+        }
+
+        // German Personalausweis: T22000129 (1 letter + 8 alphanumeric)
+        if docNum.isEmpty, let deId = extractGermanID(from: lines), !deId.isEmpty {
+            docNum = deId
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.82)
+            if nationality.isEmpty { nationality = "DEU" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.82)
+        }
+
+        // French NIR (Numéro INSEE): 1 85 12 75 108 111 88
+        if docNum.isEmpty, let nir = extractFrenchNIR(from: lines), !nir.isEmpty {
+            docNum = nir
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.82)
+            if nationality.isEmpty { nationality = "FRA" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.82)
+        }
+
+        // Argentine DNI: 8-digit number (all numeric — must not clash with other patterns)
+        if docNum.isEmpty, let argDNI = extractArgentineDNI(from: lines), !argDNI.isEmpty {
+            docNum = argDNI
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.78)
+            if nationality.isEmpty { nationality = "ARG" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.78)
+        }
+
+        // Colombian cédula: 6–10 digits preceded by "CC" or cedula keyword
+        if docNum.isEmpty, let cc = extractColombianCC(from: lines), !cc.isEmpty {
+            docNum = cc
+            fieldConfidence["documentNumber"] = max(fieldConfidence["documentNumber"] ?? 0, 0.80)
+            if nationality.isEmpty { nationality = "COL" }
+            fieldConfidence["nationality"] = max(fieldConfidence["nationality"] ?? 0, 0.80)
+        }
+
+        // Multilingual address keywords (French, German, Italian, Portuguese, Arabic)
+        if address.isEmpty {
+            address = extractInternationalAddress(from: lines) ?? ""
+            if !address.isEmpty { fieldConfidence["address"] = 0.52 }
         }
 
         return DocumentFields(
@@ -1796,35 +2109,159 @@ enum OCRService {
         )
     }
 
-    static func recognizeText(in images: [UIImage]) async -> [String] {
+    static func recognizeText(in images: [UIImage], extraLanguages: [String] = []) async -> [String] {
         guard !images.isEmpty else { return [] }
         var merged: [String] = []
         for image in images {
-            let pageLines = await recognizeText(in: image)
+            let pageLines = await recognizeText(in: image, extraLanguages: extraLanguages)
             merged.append(contentsOf: pageLines)
         }
         return merged
     }
 
-    static func recognizeTextByPage(in images: [UIImage]) async -> [[String]] {
+    static func recognizeTextByPage(in images: [UIImage], extraLanguages: [String] = []) async -> [[String]] {
         guard !images.isEmpty else { return [] }
-        var pages: [[String]] = []
-        pages.reserveCapacity(images.count)
-        for image in images {
-            pages.append(await recognizeText(in: image))
+        // Run pages concurrently for large multi-page documents.
+        return await withTaskGroup(of: (Int, [String]).self) { group in
+            for (index, image) in images.enumerated() {
+                group.addTask {
+                    let lines = await recognizeText(in: image, extraLanguages: extraLanguages)
+                    return (index, lines)
+                }
+            }
+            var results = [(Int, [String])]()
+            results.reserveCapacity(images.count)
+            for await result in group {
+                results.append(result)
+            }
+            return results.sorted { $0.0 < $1.0 }.map { $0.1 }
         }
-        return pages
+    }
+
+    // Two-pass OCR returning full observations (text + bounding box).
+    static func recognizeObservationsByPageAdaptive(in images: [UIImage]) async -> [[TextObservation]] {
+        let firstPass = await recognizeObservationsByPage(in: images)
+        let allLines = firstPass.flatMap { $0 }.map(\.text)
+        let country = detectCountryHint(from: allLines)
+        let extra = languagesForCountry(country)
+        guard !extra.isEmpty else { return firstPass }
+        return await recognizeObservationsByPage(in: images, extraLanguages: extra)
+    }
+
+    // Two-pass OCR returning text strings only.
+    static func recognizeTextByPageAdaptive(in images: [UIImage]) async -> [[String]] {
+        let obs = await recognizeObservationsByPageAdaptive(in: images)
+        return obs.map { $0.map(\.text) }
+    }
+
+    static func recognizeObservationsByPage(
+        in images: [UIImage],
+        extraLanguages: [String] = []
+    ) async -> [[TextObservation]] {
+        guard !images.isEmpty else { return [] }
+        return await withTaskGroup(of: (Int, [TextObservation]).self) { group in
+            for (index, image) in images.enumerated() {
+                group.addTask {
+                    let obs = await recognizeTextWithObservations(in: image, extraLanguages: extraLanguages)
+                    return (index, obs)
+                }
+            }
+            var results = [(Int, [TextObservation])]()
+            results.reserveCapacity(images.count)
+            for await result in group { results.append(result) }
+            return results.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
+
+    private static func detectCountryHint(from lines: [String]) -> String? {
+        let combined = lines.joined(separator: " ").uppercased()
+        // Ordered: most specific patterns first to avoid false matches.
+        let patterns: [(pattern: String, country: String)] = [
+            // East Asia (non-Latin scripts first — unambiguous)
+            ("中华人民共和国|中华人民|居民身份证", "CHN"),
+            ("中華民國|臺灣|台湾", "TWN"),
+            ("日本国|日本国旅券|JAPAN", "JPN"),
+            ("대한민국|REPUBLIC OF KOREA", "KOR"),
+            // South / Southeast Asia
+            ("INDIA|AADHAAR|आधार|ELECTION COMMISSION OF INDIA|REPUBLIC OF INDIA", "IND"),
+            ("THAILAND|ราชอาณาจักรไทย", "THA"),
+            ("VIET NAM|VIỆT NAM|CỘNG HÒA XÃ HỘI", "VNM"),
+            ("INDONESIA|REPUBLIK INDONESIA|KTP", "IDN"),
+            ("MALAYSIA|MYKAD|MYKID", "MYS"),
+            ("PHILIPPINES|PILIPINAS|REPUBLIKA NG", "PHL"),
+            // Middle East / North Africa
+            ("المملكة العربية السعودية|KINGDOM OF SAUDI|SAUDI ARABIA", "SAU"),
+            ("UNITED ARAB EMIRATES|الإمارات العربية|EMIRATES", "ARE"),
+            ("دولة قطر|STATE OF QATAR|QATAR", "QAT"),
+            ("مملكة البحرين|KINGDOM OF BAHRAIN|BAHRAIN", "BHR"),
+            ("سلطنة عُمان|SULTANATE OF OMAN|OMAN", "OMN"),
+            ("دولة الكويت|STATE OF KUWAIT|KUWAIT", "KWT"),
+            ("المملكة المغربية|KINGDOM OF MOROCCO|MAROC|MOROCCO", "MAR"),
+            ("الجمهورية التونسية|TUNISIE|TUNISIA", "TUN"),
+            ("الجمهورية الجزائرية|ALGERIE|ALGERIA", "DZA"),
+            ("جمهورية مصر العربية|EGYPT|EGYPTE", "EGY"),
+            ("إسرائيל|ISRAEL|מדינת ישראל", "ISR"),
+            ("جمهورية العراق|IRAQ", "IRQ"),
+            ("الجمهورية اللبنانية|LIBAN|LEBANON", "LBN"),
+            ("تركيا|TÜRKIYE|TURKEY|TÜRK", "TUR"),
+            // Eastern Europe / CIS
+            ("РОССИЙСКАЯ ФЕДЕРАЦИЯ|РОССИЯ|RUSSIAN FEDERATION", "RUS"),
+            ("УКРАЇНА|UKRAINE", "UKR"),
+            ("БЕЛАРУСЬ|REPUBLIC OF BELARUS|BELARUS", "BLR"),
+            ("КАЗАХСТАН|KAZAKHSTAN|ҚАЗАҚСТАН", "KAZ"),
+            // Central / Eastern Europe
+            ("RZECZPOSPOLITA POLSKA|POLSKA|POLAND", "POL"),
+            ("ČESKÁ REPUBLIKA|CZECH REPUBLIC|CZECHIA", "CZE"),
+            ("SLOVENSKÁ REPUBLIKA|SLOVAK REPUBLIC|SLOVAKIA", "SVK"),
+            ("MAGYARORSZÁG|HUNGARY", "HUN"),
+            ("ROMÂNIA|ROMANIA", "ROU"),
+            ("БЪЛГАРИЯ|REPUBLIC OF BULGARIA|BULGARIA", "BGR"),
+            ("HRVATSKA|REPUBLIC OF CROATIA|CROATIA", "HRV"),
+            ("SRBIJA|REPUBLIC OF SERBIA|SERBIA", "SRB"),
+            // Northern Europe
+            ("SVERIGE|SWEDEN|KUNGARIKET SVERIGE", "SWE"),
+            ("NOREG|NORGE|NORWAY|KINGDOM OF NORWAY", "NOR"),
+            ("DANMARK|DENMARK|KONGERIGET", "DNK"),
+            ("SUOMI|FINLAND", "FIN"),
+            // Western Europe
+            ("NEDERLAND|KONINKRIJK|NETHERLANDS", "NLD"),
+            ("BELGIQUE|BELGIË|BELGIUM|BELGIEN", "BEL"),
+            ("SCHWEIZ|SUISSE|SVIZZERA|SWITZERLAND", "CHE"),
+            ("ÖSTERREICH|AUSTRIA|REPUBLIC OF AUSTRIA", "AUT"),
+            // Latin America
+            ("REPÚBLICA ARGENTINA|ARGENTINA", "ARG"),
+            ("REPÚBLICA DE COLOMBIA|COLOMBIA", "COL"),
+            ("REPÚBLICA DE CHILE|CHILE", "CHL"),
+            ("REPÚBLICA DEL PERÚ|PERÚ|PERU", "PER"),
+            ("REPÚBLICA FEDERATIVA DO BRASIL|BRASIL|BRAZIL", "BRA"),
+            ("REPÚBLICA PORTUGUESA|PORTUGAL", "PRT"),
+            // Already in base — still emit for normalizedCountryCode
+            ("REINO DE ESPAÑA|ESPAÑA|SPAIN|DNI|DOCUMENTO NACIONAL DE IDENTIDAD", "ESP"),
+            ("ITALIA|ITALIANA|CARTA D.IDENTIT|REPUBBLICA ITALIANA", "ITA"),
+            ("REPUBLIQUE FRANÇAISE|FRANCE|FRANCAISE", "FRA"),
+            ("BUNDESREPUBLIK DEUTSCHLAND|GERMANY|DEUTSCHLAND", "DEU"),
+            ("UNITED KINGDOM|GREAT BRITAIN|UK PASSPORT|DRIVING LICENCE|DRIVER", "GBR"),
+            ("UNITED STATES|USA|UNITED STATES OF AMERICA", "USA"),
+            ("CANADA|CANADIEN|CANADIENNE", "CAN"),
+            ("AUSTRALIA|COMMONWEALTH OF AUSTRALIA", "AUS"),
+        ]
+        for entry in patterns {
+            if combined.range(of: entry.pattern, options: [.regularExpression]) != nil {
+                return entry.country
+            }
+        }
+        return nil
     }
 
     static func detectDocumentType(from lines: [String]) -> DetectedDocumentType {
-        if let parsed = parseMRZ(from: lines, strictKYC: UserDefaults.standard.bool(forKey: "shield.ocr.strictKYC")) {
+        let strictKYC = UserDefaults.standard.bool(forKey: "shield.ocr.strictKYC")
+        if let parsed = parseMRZ(from: lines, strictKYC: strictKYC) {
             switch parsed.documentCode {
-            case "P":
-                return .passport
-            case "I", "ID", "A", "C":
-                return .dni
-            default:
-                break
+            case "P", "PM", "PN":             return .passport
+            case "V", "VF", "VE", "VI", "VT": return .visa
+            case "I", "ID", "A", "C", "AC":   return .dni
+            case "R", "RI":                    return .residencePermit
+            default: break
             }
         }
 
@@ -1833,17 +2270,76 @@ enum OCRService {
         let combined = compact.joined(separator: "\n")
         let mrzLines = compact.filter { $0.contains("<") && $0.count >= 20 }
 
-        if mrzLines.contains(where: { $0.hasPrefix("P<") }) ||
-            combined.contains("PASSPORT") ||
-            combined.contains("PASAPORTE") {
+        // Visa
+        if mrzLines.contains(where: { $0.hasPrefix("V<") || $0.hasPrefix("V ") }) ||
+            combined.contains("VISA") || combined.contains("VISUM") || combined.contains("VISAS") {
+            return .visa
+        }
+
+        // Passport
+        if mrzLines.contains(where: { $0.hasPrefix("P<") || $0.hasPrefix("PM<") || $0.hasPrefix("PN<") }) ||
+            combined.contains("PASSPORT") || combined.contains("PASSEPORT") ||
+            combined.contains("PASAPORTE") || combined.contains("REISEPASS") ||
+            combined.contains("PASSAPORTO") || combined.contains("PASPOORT") ||
+            combined.contains("PASAPORT") || combined.contains("ПАСПОРТ") ||
+            combined.contains("护照") || combined.contains("旅券") || combined.contains("여권") ||
+            combined.contains("पासपोर्ट") {
             return .passport
         }
 
-        if mrzLines.contains(where: { $0.hasPrefix("ID") || $0.hasPrefix("I<") }) ||
-            combined.contains("DOCUMENTO NACIONAL") ||
-            combined.contains("NATIONAL IDENTITY") ||
-            combined.contains("IDENTITY CARD") ||
-            combined.contains("DNI") {
+        // Driving license — checked before generic ID
+        if combined.contains("DRIVING LICENCE") || combined.contains("DRIVER") ||
+            combined.contains("PERMIS DE CONDUIRE") || combined.contains("FÜHRERSCHEIN") ||
+            combined.contains("PATENTE") || combined.contains("LICENCIA DE CONDUCIR") ||
+            combined.contains("RIJBEWIJS") || combined.contains("PRAWO JAZDY") ||
+            combined.contains("CARTA DE CONDUÇÃO") || combined.contains("CARTEIRA DE HABILITAÇÃO") ||
+            combined.contains("ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ") || combined.contains("AJOKORTTI") ||
+            combined.contains("KØREKORT") || combined.contains("KÖRKORT") ||
+            combined.contains("FØRERBEVIS") || combined.contains("PRAVOVOŽNJE") ||
+            combined.contains("运动驾驶证") || combined.contains("驾驶证") ||
+            combined.contains("DRIVER'S LICENSE") || combined.contains("OPERATOR LICENSE") {
+            return .drivingLicense
+        }
+
+        // Residence permit / NIE / long-stay visa
+        if combined.contains("RESIDENCE PERMIT") || combined.contains("PERMIS DE RÉSIDENCE") ||
+            combined.contains("AUFENTHALTSTITEL") || combined.contains("PERMESSO DI SOGGIORNO") ||
+            combined.contains("VERBLIJFSVERGUNNING") || combined.contains("PERMISO DE RESIDENCIA") ||
+            combined.contains("AUTORIZACIÓN DE RESIDENCIA") ||
+            combined.contains("NIE") || combined.contains("NÚMERO DE IDENTIDAD DE EXTRANJERO") ||
+            combined.contains("TITRE DE SÉJOUR") || combined.contains("CARTA DI SOGGIORNO") ||
+            combined.contains("BIOMETRIC RESIDENCE") || combined.contains("BRP") ||
+            combined.contains("GREEN CARD") || combined.contains("PERMANENT RESIDENT") ||
+            combined.contains("ЗЕЛЕНАЯ КАРТА") || combined.contains("ВНЖ") {
+            return .residencePermit
+        }
+
+        // Health / insurance cards
+        if combined.contains("HEALTH CARD") || combined.contains("INSURANCE CARD") ||
+            combined.contains("CARTE VITALE") || combined.contains("CARTE D'ASSURANCE") ||
+            combined.contains("KRANKENVERSICHERUNG") || combined.contains("GESUNDHEITSKARTE") ||
+            combined.contains("EHIC") || combined.contains("GHIC") ||
+            combined.contains("EUROPEAN HEALTH INSURANCE") ||
+            combined.contains("TARJETA SANITARIA") || combined.contains("SIP") ||
+            combined.contains("TESSERA SANITARIA") || combined.contains("CARTÃO DE SAÚDE") {
+            return .healthCard
+        }
+
+        // National identity cards
+        if mrzLines.contains(where: { $0.hasPrefix("ID") || $0.hasPrefix("I<") || $0.hasPrefix("A<") || $0.hasPrefix("C<") }) ||
+            combined.contains("NATIONAL IDENTITY") || combined.contains("IDENTITY CARD") ||
+            combined.contains("DOCUMENTO NACIONAL") || combined.contains("CARTA D'IDENTIT") ||
+            combined.contains("PERSONALAUSWEIS") || combined.contains("CARTE NATIONALE D'IDENTIT") ||
+            combined.contains("IDENTITEITSKAART") || combined.contains("DOWÓD OSOBISTY") ||
+            combined.contains("SZEMÉLYIGAZOLVÁNY") || combined.contains("BULETIN DE IDENTITATE") ||
+            combined.contains("CEDULA") || combined.contains("CÉDULA") ||
+            combined.contains("DOCUMENTO DE IDENTIDAD") || combined.contains("TARJETA DE IDENTIDAD") ||
+            combined.contains("CARTÃO DE CIDADÃO") || combined.contains("BILHETE DE IDENTIDADE") ||
+            combined.contains("DNI") || combined.contains("NIF") ||
+            combined.contains("NATIONAL ID") || combined.contains("NATL ID") ||
+            combined.contains("身份证") || combined.contains("주민등록증") ||
+            combined.contains("AADHAR") || combined.contains("AADHAAR") ||
+            combined.contains("VOTER ID") || combined.contains("ELECTION COMMISSION") {
             return .dni
         }
 
@@ -1864,9 +2360,13 @@ enum OCRService {
         let confidence = fields.ocrFieldConfidence ?? [:]
         let criticalKeys: [String]
         switch detectedType {
-        case .passport, .dni:
+        case .passport, .visa:
             criticalKeys = ["documentNumber", "fullName", "dateOfBirth", "expires"]
-        case .document:
+        case .dni, .residencePermit:
+            criticalKeys = ["documentNumber", "fullName", "dateOfBirth", "expires"]
+        case .drivingLicense:
+            criticalKeys = ["documentNumber", "fullName", "dateOfBirth"]
+        case .healthCard, .document:
             criticalKeys = ["documentNumber", "fullName"]
         }
 
@@ -1901,11 +2401,142 @@ enum OCRService {
         let candidates = normalizedMRZLines(lines)
         guard !candidates.isEmpty else { return nil }
 
-        if let parsed = parseTD3(lines: candidates, strictKYC: strictKYC) {
-            return parsed
+        if let parsed = parseTD3(lines: candidates, strictKYC: strictKYC)   { return parsed }
+        if let parsed = parseTD1(lines: candidates, strictKYC: strictKYC)   { return parsed }
+        if let parsed = parseTD2(lines: candidates, strictKYC: strictKYC)   { return parsed }
+        if let parsed = parseMRVA(lines: candidates, strictKYC: strictKYC)  { return parsed }
+        if let parsed = parseMRVB(lines: candidates, strictKYC: strictKYC)  { return parsed }
+        return nil
+    }
+
+    // TD2 — 2 lines × 36 chars (some official travel docs, older EU IDs)
+    private static func parseTD2(lines: [String], strictKYC: Bool) -> ParsedMRZ? {
+        guard lines.count >= 2 else { return nil }
+        for i in 0..<(lines.count - 1) {
+            var line1 = lines[i]
+            var line2 = lines[i + 1]
+            guard line1.count >= 36, line2.count >= 36 else { continue }
+            // Accepted document codes for TD2: I, A, C (ID cards in TD2 format) or P (some states)
+            guard let firstTwo = line1.first.map(String.init), firstTwo != "V" else { continue }
+            guard !line1.hasPrefix("P<") else { continue } // TD3 handles P<
+            line1 = String(line1.prefix(36))
+            line2 = String(line2.prefix(36))
+
+            let documentCode = cleanField(mrzSlice(line1, 0, 2))
+            let docNumber = cleanField(mrzSlice(line2, 0, 9))
+            let nationality = cleanField(mrzSlice(line2, 10, 3))
+            let dob = mrzSlice(line2, 13, 6)
+            let sex = cleanField(mrzSlice(line2, 20, 1))
+            let expires = mrzSlice(line2, 21, 6)
+            let nameField = mrzSlice(line1, 5, 31)
+            let fullName = parseMRZName(nameField)
+
+            let checkDoc = validateMRZCheckDigit(data: mrzSlice(line2, 0, 9), checkDigit: mrzSlice(line2, 9, 1))
+            let checkDob = validateMRZCheckDigit(data: mrzSlice(line2, 13, 6), checkDigit: mrzSlice(line2, 19, 1))
+            let checkExp = validateMRZCheckDigit(data: mrzSlice(line2, 21, 6), checkDigit: mrzSlice(line2, 27, 1))
+            let allValid = checkDoc && checkDob && checkExp
+
+            if strictKYC && !allValid { continue }
+            // Require at least one valid check digit to avoid false TD2 matches on garbled lines
+            guard checkDoc || checkDob else { continue }
+
+            return ParsedMRZ(
+                format: "TD2",
+                documentCode: documentCode,
+                documentNumber: docNumber,
+                fullName: fullName,
+                dateOfBirth: normalizeMRZDate(dob),
+                expires: normalizeMRZDate(expires),
+                nationality: nationality,
+                sex: sex,
+                rawMRZ: line1 + "\n" + line2,
+                isCheckDigitValid: allValid
+            )
         }
-        if let parsed = parseTD1(lines: candidates, strictKYC: strictKYC) {
-            return parsed
+        return nil
+    }
+
+    // MRV-A — 2 lines × 44 chars, visa label format A (large visa sticker)
+    private static func parseMRVA(lines: [String], strictKYC: Bool) -> ParsedMRZ? {
+        guard lines.count >= 2 else { return nil }
+        for i in 0..<(lines.count - 1) {
+            var line1 = lines[i]
+            var line2 = lines[i + 1]
+            guard line1.hasPrefix("V<") || line1.hasPrefix("V ") else { continue }
+            guard line1.count >= 44, line2.count >= 44 else { continue }
+            line1 = String(line1.prefix(44))
+            line2 = String(line2.prefix(44))
+
+            let docNumber = cleanField(mrzSlice(line2, 0, 9))
+            let nationality = cleanField(mrzSlice(line2, 10, 3))
+            let dob = mrzSlice(line2, 13, 6)
+            let sex = cleanField(mrzSlice(line2, 20, 1))
+            let expires = mrzSlice(line2, 21, 6)
+            let nameField = mrzSlice(line1, 5, 39)
+            let fullName = parseMRZName(nameField)
+
+            let checkDoc = validateMRZCheckDigit(data: mrzSlice(line2, 0, 9), checkDigit: mrzSlice(line2, 9, 1))
+            let checkDob = validateMRZCheckDigit(data: mrzSlice(line2, 13, 6), checkDigit: mrzSlice(line2, 19, 1))
+            let checkExp = validateMRZCheckDigit(data: mrzSlice(line2, 21, 6), checkDigit: mrzSlice(line2, 27, 1))
+            let allValid = checkDoc && checkDob && checkExp
+            if strictKYC && !allValid { continue }
+            guard checkDoc else { continue }
+
+            return ParsedMRZ(
+                format: "MRV-A",
+                documentCode: "V",
+                documentNumber: docNumber,
+                fullName: fullName,
+                dateOfBirth: normalizeMRZDate(dob),
+                expires: normalizeMRZDate(expires),
+                nationality: nationality,
+                sex: sex,
+                rawMRZ: line1 + "\n" + line2,
+                isCheckDigitValid: allValid
+            )
+        }
+        return nil
+    }
+
+    // MRV-B — 2 lines × 36 chars, visa label format B (small visa sticker)
+    private static func parseMRVB(lines: [String], strictKYC: Bool) -> ParsedMRZ? {
+        guard lines.count >= 2 else { return nil }
+        for i in 0..<(lines.count - 1) {
+            var line1 = lines[i]
+            var line2 = lines[i + 1]
+            guard line1.hasPrefix("V<") || line1.hasPrefix("V ") else { continue }
+            guard line1.count >= 36, line1.count < 44 else { continue } // MRV-B is 36, not 44
+            guard line2.count >= 36 else { continue }
+            line1 = String(line1.prefix(36))
+            line2 = String(line2.prefix(36))
+
+            let docNumber = cleanField(mrzSlice(line2, 0, 9))
+            let nationality = cleanField(mrzSlice(line2, 10, 3))
+            let dob = mrzSlice(line2, 13, 6)
+            let sex = cleanField(mrzSlice(line2, 20, 1))
+            let expires = mrzSlice(line2, 21, 6)
+            let nameField = mrzSlice(line1, 5, 31)
+            let fullName = parseMRZName(nameField)
+
+            let checkDoc = validateMRZCheckDigit(data: mrzSlice(line2, 0, 9), checkDigit: mrzSlice(line2, 9, 1))
+            let checkDob = validateMRZCheckDigit(data: mrzSlice(line2, 13, 6), checkDigit: mrzSlice(line2, 19, 1))
+            let checkExp = validateMRZCheckDigit(data: mrzSlice(line2, 21, 6), checkDigit: mrzSlice(line2, 27, 1))
+            let allValid = checkDoc && checkDob && checkExp
+            if strictKYC && !allValid { continue }
+            guard checkDoc else { continue }
+
+            return ParsedMRZ(
+                format: "MRV-B",
+                documentCode: "V",
+                documentNumber: docNumber,
+                fullName: fullName,
+                dateOfBirth: normalizeMRZDate(dob),
+                expires: normalizeMRZDate(expires),
+                nationality: nationality,
+                sex: sex,
+                rawMRZ: line1 + "\n" + line2,
+                isCheckDigitValid: allValid
+            )
         }
         return nil
     }
@@ -2118,10 +2749,155 @@ enum OCRService {
         let regex = try? NSRegularExpression(pattern: pattern)
         let range = NSRange(joined.startIndex..., in: joined)
         guard let match = regex?.firstMatch(in: joined, range: range),
-              let r = Range(match.range(at: 1), in: joined) else {
-            return nil
-        }
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
         return String(joined[r])
+    }
+
+    // Brazilian CPF: 000.000.000-00 or 00000000000
+    private static func extractBrazilianCPF(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ")
+        let pattern = "\\b(\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}|\\d{11})\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        let candidate = String(joined[r]).replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+        // Validate CPF check digits
+        guard candidate.count == 11, !candidate.allSatisfy({ $0 == candidate.first }) else { return nil }
+        return String(joined[r])
+    }
+
+    // Chilean RUT: 12.345.678-9 or 12345678-9 (digits + optional letter K)
+    private static func extractChileanRUT(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        let pattern = "\\b(\\d{1,2}\\.\\d{3}\\.\\d{3}-[0-9K]|\\d{7,8}-[0-9K])\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        return String(joined[r])
+    }
+
+    // Indian Aadhaar: 12 digits, often written as XXXX XXXX XXXX
+    private static func extractAadhaar(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ")
+        // Match 12-digit grouped patterns
+        let pattern = "\\b(\\d{4}\\s\\d{4}\\s\\d{4}|\\d{12})\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(joined.startIndex..., in: joined)
+        // Aadhaar cannot start with 0 or 1
+        for match in regex.matches(in: joined, range: range) {
+            guard let r = Range(match.range(at: 1), in: joined) else { continue }
+            let candidate = String(joined[r]).replacingOccurrences(of: " ", with: "")
+            if candidate.count == 12, candidate.first != "0", candidate.first != "1" {
+                return String(joined[r])
+            }
+        }
+        return nil
+    }
+
+    // Indian PAN: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)
+    private static func extractIndianPAN(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        let pattern = "\\b([A-Z]{5}[0-9]{4}[A-Z])\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        return String(joined[r])
+    }
+
+    // UK NINO: AA 99 99 99 A (two letters, six digits in groups, one letter suffix)
+    private static func extractUKNINO(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        let pattern = "\\b([A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1}\\s?\\d{2}\\s?\\d{2}\\s?\\d{2}\\s?[A-D])\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        return String(joined[r])
+    }
+
+    // German Personalausweis number: 1 letter + 8 alphanumeric (e.g. T22000129)
+    private static func extractGermanID(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        // Must appear near "AUSWEISNUMMER", "SERIENNR", or be on a labeled line
+        let pattern = "\\b([A-Z][A-Z0-9]{8})\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(joined.startIndex..., in: joined)
+        for match in regex.matches(in: joined, range: range) {
+            guard let r = Range(match.range(at: 1), in: joined) else { continue }
+            let candidate = String(joined[r])
+            // Require mix of letter and digit
+            let hasLetter = candidate.dropFirst().contains(where: { $0.isLetter })
+            let hasDigit  = candidate.contains(where: { $0.isNumber })
+            if hasLetter && hasDigit { return candidate }
+        }
+        return nil
+    }
+
+    // French NIR (Numéro de Sécurité Sociale): 13 digits + 2-digit key
+    private static func extractFrenchNIR(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").replacingOccurrences(of: " ", with: "")
+        let pattern = "(\\d{13}\\d{2})"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        let candidate = String(joined[r])
+        // First digit: 1 (male) or 2 (female)
+        guard candidate.first == "1" || candidate.first == "2" else { return nil }
+        return candidate
+    }
+
+    // Argentine DNI: 7–8 digit number, often labeled "DNI" or "DOCUMENTO"
+    private static func extractArgentineDNI(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        // Only extract if a DNI keyword is nearby
+        guard joined.contains("DNI") || joined.contains("DOCUMENTO NACIONAL") || joined.contains("ARGENTINA") else { return nil }
+        let pattern = "\\b(\\d{7,8})\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        return String(joined[r])
+    }
+
+    // Colombian cédula: 6–10 digits, preceded by "CC" or "CEDULA"
+    private static func extractColombianCC(from lines: [String]) -> String? {
+        let joined = lines.joined(separator: " ").uppercased()
+        guard joined.contains("CC") || joined.contains("CEDULA") || joined.contains("CÉDULA") ||
+              joined.contains("COLOMBIA") || joined.contains("COLOMBIANA") else { return nil }
+        let pattern = "\\b(\\d{6,10})\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: joined, range: NSRange(joined.startIndex..., in: joined)),
+              let r = Range(match.range(at: 1), in: joined) else { return nil }
+        return String(joined[r])
+    }
+
+    // Multilingual address keyword extraction
+    private static func extractInternationalAddress(from lines: [String]) -> String? {
+        let keywords = [
+            // Spanish/Portuguese
+            "CALLE", "C/", "AVENIDA", "AV.", "PASEO", "PLAZA", "CARRER", "RUA", "RUA ", "TRAVESSA",
+            // French
+            "RUE", "AVENUE", "BOULEVARD", "BD ", "BD.", "IMPASSE", "ALLÉE", "PLACE",
+            // German/Austrian/Swiss
+            "STRASSE", "STR.", "WEG", "PLATZ", "GASSE", "ALLEE",
+            // Italian
+            "VIA", "CORSO", "PIAZZA", "VIALE", "VICOLO",
+            // Dutch
+            "STRAAT", "LAAN", "PLEIN", "WEG ", "GRACHT",
+            // Polish
+            "ULICA", "UL.", "ALEJA", "AL.",
+            // English
+            "STREET", "ST ", "AVENUE", "AVE", "ROAD", "RD ", "LANE", "LN ", "DRIVE", "BLVD", "COURT", "CT ",
+            // Arabic transliterated
+            "SHARIA", "SHAR3", "SHAREI",
+        ]
+        let upperLines = lines.map { $0.uppercased() }
+        for line in upperLines {
+            for kw in keywords {
+                if line.contains(kw) && line.rangeOfCharacter(from: .decimalDigits) != nil {
+                    return line.trimmingCharacters(in: .whitespaces)
+                }
+            }
+        }
+        return nil
     }
 }
 
@@ -2244,7 +3020,7 @@ struct DocumentScannerOverlayView: View {
                                 .background(ShieldTheme.accent.opacity(0.85))
                                 .clipShape(Capsule())
 
-                            Text(lang == .es ? "Ajusta el documento dentro del marco" : "Align document within the frame")
+                            Text(LanguageManager.shared.t("capture_align_hint", table: "Capture"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.75))
                         }

@@ -23,7 +23,7 @@ struct AllDocumentsView: View {
                     } else {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 8) {
-                                ForEach(appState.documents.sorted { $0.date > $1.date }) { doc in
+                                ForEach(appState.filteredDocuments) { doc in
                                     DocumentRow(doc: doc, lang: appState.language) {
                                         guard !doc.isLocked else { return }
                                         appState.selectedDoc = doc

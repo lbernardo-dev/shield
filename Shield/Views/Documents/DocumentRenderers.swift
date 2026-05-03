@@ -857,19 +857,19 @@ struct DNIItalyView: View {
             context.draw(valueT, at: CGPoint(x: w * fx, y: h * fy + h * 0.036), anchor: .topLeading)
         }
 
-        // MRZ
+        // MRZ — use actual OCR-extracted MRZ if available; omit placeholder if not.
         context.fill(Path(CGRect(x: 0, y: h * 0.87, width: w, height: h * 0.13)),
                      with: .color(Color(hex: "d8e4f4")))
-        let mrzRaw = f?.mrz ?? "IDITAFERRARI<<MARCO<<<<<<<<<<<<<<<<\nFRRMRC91D23H501Z2ITA9104238M3104234"
-        let mrzLines = mrzRaw.components(separatedBy: "\n")
-        let mrz1 = Text(mrzLines.count > 0 ? mrzLines[0] : "")
-            .font(.system(size: h * 0.030, weight: .bold, design: .monospaced))
-            .foregroundColor(Color(hex: "0a0a0a"))
-        context.draw(mrz1, at: CGPoint(x: w * 0.04, y: h * 0.878), anchor: .topLeading)
-        let mrz2 = Text(mrzLines.count > 1 ? mrzLines[1] : "")
-            .font(.system(size: h * 0.030, weight: .bold, design: .monospaced))
-            .foregroundColor(Color(hex: "0a0a0a"))
-        context.draw(mrz2, at: CGPoint(x: w * 0.04, y: h * 0.924), anchor: .topLeading)
+        if let mrzRaw = f?.mrz, !mrzRaw.isEmpty {
+            let mrzLines = mrzRaw.components(separatedBy: "\n")
+            let offsets: [CGFloat] = [0.878, 0.906, 0.934]
+            for (i, line) in mrzLines.prefix(3).enumerated() {
+                let mrzT = Text(line)
+                    .font(.system(size: h * 0.028, weight: .bold, design: .monospaced))
+                    .foregroundColor(Color(hex: "0a0a0a"))
+                context.draw(mrzT, at: CGPoint(x: w * 0.04, y: h * offsets[i]), anchor: .topLeading)
+            }
+        }
     }
 }
 
@@ -961,12 +961,18 @@ struct GenericIDView: View {
             context.draw(valueT, at: CGPoint(x: w * fx, y: h * fy + h * 0.036), anchor: .topLeading)
         }
 
-        // Bottom strip
+        // Bottom strip — show actual OCR MRZ if available; leave blank otherwise.
         context.fill(Path(CGRect(x: 0, y: h * 0.87, width: w, height: h * 0.13)),
                      with: .color(Color(hex: "e0e0d8")))
-        let mrz = Text("ID<<SAMPLE<<FIRST<M<<<<<<<<<<<<<<<<<<ID0000000009900101M3001014<<<<<<<<<<<<<<00")
-            .font(.system(size: h * 0.028, weight: .bold, design: .monospaced))
-            .foregroundColor(Color(hex: "3a3a3a"))
-        context.draw(mrz, at: CGPoint(x: w * 0.04, y: h * 0.892), anchor: .topLeading)
+        if let mrzRaw = f?.mrz, !mrzRaw.isEmpty {
+            let mrzLines = mrzRaw.components(separatedBy: "\n")
+            let offsets: [CGFloat] = [0.882, 0.910, 0.938]
+            for (i, line) in mrzLines.prefix(3).enumerated() {
+                let mrzT = Text(line)
+                    .font(.system(size: h * 0.028, weight: .bold, design: .monospaced))
+                    .foregroundColor(Color(hex: "3a3a3a"))
+                context.draw(mrzT, at: CGPoint(x: w * 0.04, y: h * offsets[i]), anchor: .topLeading)
+            }
+        }
     }
 }

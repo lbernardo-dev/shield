@@ -96,6 +96,10 @@ struct DocumentFields: Codable {
     var ocrDetectedCountry: String?
     var ocrRiskLevel: String?
     var ocrLowConfidenceFields: [String]?
+    /// Vision-detected text observations on page 0: [text: normalizedBoundingRect]
+    /// Stored as parallel arrays (text[i] corresponds to rect[i]) for Codable simplicity.
+    var ocrBoundingTexts: [String]?
+    var ocrBoundingRects: [CGRect]?
 
     static var empty: DocumentFields {
         DocumentFields(documentNumber: "", fullName: "", dateOfBirth: "",
@@ -103,7 +107,8 @@ struct DocumentFields: Codable {
                        issued: nil, mrz: nil,
                        ocrDocumentType: nil, ocrFullText: nil, ocrPageTexts: nil,
                        ocrMRZValid: nil, ocrMRZFormat: nil, ocrFieldConfidence: nil,
-                       ocrDetectedCountry: nil, ocrRiskLevel: nil, ocrLowConfidenceFields: nil)
+                       ocrDetectedCountry: nil, ocrRiskLevel: nil, ocrLowConfidenceFields: nil,
+                       ocrBoundingTexts: nil, ocrBoundingRects: nil)
     }
 }
 
@@ -338,12 +343,46 @@ enum DocumentFieldBoxes {
 
     static let photo: [FieldBox] = []  // no predefined boxes for photo docs
 
+    static let passportMEX: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.60, y: 0.22, width: 0.24, height: 0.07), label: "Passport №"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.36, width: 0.30, height: 0.07), label: "Apellido(s)"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.50, width: 0.30, height: 0.07), label: "Nombre(s)"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.64, width: 0.22, height: 0.07), label: "Nacimiento"),
+        FieldBox(rect: CGRect(x: 0.70, y: 0.72, width: 0.24, height: 0.07), label: "Vence"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Foto"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+    ]
+
+    static let dniITA: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Cognome"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Nome"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.50, width: 0.18, height: 0.07), label: "Comune"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "N° documento"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.62, width: 0.24, height: 0.07), label: "Nascita"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.76, width: 0.22, height: 0.07), label: "Scadenza"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Foto"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+    ]
+
+    static let genericID: [FieldBox] = [
+        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Surname"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "Doc №"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07), label: "DOB"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.78, width: 0.22, height: 0.07), label: "Expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+    ]
+
     static func boxes(for kind: DocumentKind) -> [FieldBox] {
         switch kind {
-        case .dniESP:       return dniESP
-        case .passportUSA:  return passportUSA
-        case .drivingUK:    return drivingUK
-        case .photo, .passportMEX, .dniITA, .genericID: return photo
+        case .dniESP:      return dniESP
+        case .passportUSA: return passportUSA
+        case .drivingUK:   return drivingUK
+        case .passportMEX: return passportMEX
+        case .dniITA:      return dniITA
+        case .genericID:   return genericID
+        case .photo:       return photo
         }
     }
 }
@@ -399,65 +438,147 @@ enum AutoRedactions {
         return rects.map { Redaction(rect: $0, style: style) }
     }
 
-    // Builds redaction rects for photo/generic docs using OCR detected fields.
-    // Each mode hides a different subset of personal data.
+    // Builds redaction rects for photo/generic docs.
+    // When Vision bounding boxes are stored in `fields`, uses precise per-word positions.
+    // Falls back to calibrated grid estimates when boxes are unavailable.
     static func ocrModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
-        // For photo docs we use approximate grid positions based on common document layouts.
-        // These are normalized 0..1 rectangles that cover likely field positions.
+        // Try precision mode first: match stored OCR observations against sensitive field values.
+        if let preciseRects = precisionRects(for: mode, fields: fields), !preciseRects.isEmpty {
+            return preciseRects
+        }
+        return gridRects(for: mode)
+    }
+
+    // Precision: locate actual field text in Vision bounding boxes and expand slightly for coverage.
+    private static func precisionRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect]? {
+        guard let texts = fields.ocrBoundingTexts,
+              let rects = fields.ocrBoundingRects,
+              texts.count == rects.count,
+              !texts.isEmpty else { return nil }
+
+        // Build a lookup: canonical text (uppercased, trimmed) → bounding rect
+        var textToRect: [String: CGRect] = [:]
+        for (text, rect) in zip(texts, rects) {
+            textToRect[text.uppercased().trimmingCharacters(in: .whitespaces)] = rect
+        }
+
+        // Sensitive field values to search for, keyed by semantic name
+        var sensitiveValues: [String: String] = [:]
+        if !fields.documentNumber.isEmpty { sensitiveValues["docNumber"] = fields.documentNumber.uppercased() }
+        if !fields.dateOfBirth.isEmpty    { sensitiveValues["dob"]       = fields.dateOfBirth.uppercased() }
+        if !fields.expires.isEmpty        { sensitiveValues["expires"]   = fields.expires.uppercased() }
+        if !fields.fullName.isEmpty       { sensitiveValues["name"]      = fields.fullName.uppercased() }
+        if !fields.nationality.isEmpty    { sensitiveValues["nat"]       = fields.nationality.uppercased() }
+        if let mrz = fields.mrz, !mrz.isEmpty {
+            sensitiveValues["mrz"] = mrz.uppercased().components(separatedBy: "\n").first ?? ""
+        }
+        if !fields.address.isEmpty        { sensitiveValues["address"]   = fields.address.uppercased() }
+
+        // Find bounding rects for each value via substring match in the stored texts
+        func findRect(for value: String) -> CGRect? {
+            // Exact match first
+            if let r = textToRect[value] { return r }
+            // Substring: scan all stored texts
+            for (stored, rect) in textToRect {
+                if stored.contains(value) || value.contains(stored) { return rect }
+            }
+            return nil
+        }
+
+        // Pad a rect slightly so it fully covers the glyph
+        func pad(_ r: CGRect) -> CGRect {
+            let dx = max(0.005, r.width  * 0.08)
+            let dy = max(0.004, r.height * 0.15)
+            return r.insetBy(dx: -dx, dy: -dy).intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+
+        // Which semantic fields each mode needs to hide
+        let hideKeys: [String]
+        switch mode {
+        case .rental:  hideKeys = ["docNumber", "dob", "expires", "address", "mrz"]
+        case .travel:  hideKeys = ["docNumber", "expires", "mrz"]
+        case .job:     hideKeys = ["docNumber", "dob", "nat"]
+        case .verify:  hideKeys = ["docNumber", "dob", "mrz"]
+        case .legal:   hideKeys = ["docNumber", "dob", "address", "mrz"]
+        case .health:  hideKeys = ["docNumber", "dob", "nat", "address", "mrz"]
+        case .banking: hideKeys = ["docNumber", "dob", "expires", "nat", "address", "mrz"]
+        }
+
+        var result: [CGRect] = []
+        for key in hideKeys {
+            if let value = sensitiveValues[key], let r = findRect(for: value) {
+                result.append(pad(r))
+            }
+        }
+
+        // For MRZ specifically: if stored, cover the entire bottom band
+        if hideKeys.contains("mrz"), let mrz = fields.mrz, !mrz.isEmpty {
+            let mrzLines = mrz.components(separatedBy: "\n").filter { !$0.isEmpty }
+            var mrzRects: [CGRect] = []
+            for line in mrzLines {
+                let key = String(line.prefix(8)).uppercased()
+                if let r = textToRect.first(where: { $0.key.hasPrefix(key) })?.value {
+                    mrzRects.append(r)
+                }
+            }
+            if !mrzRects.isEmpty {
+                let union = mrzRects.dropFirst().reduce(mrzRects[0]) { $0.union($1) }
+                result.append(pad(union))
+            }
+        }
+
+        return result.isEmpty ? nil : result
+    }
+
+    // Calibrated grid fallback — used when bounding boxes are unavailable.
+    private static func gridRects(for mode: RedactionMode) -> [CGRect] {
         switch mode {
         case .rental:
-            // Rental: hide photo zone, address, DOB, doc number — keep name visible
             return [
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.00, y: 0.82, width: 1.00, height: 0.18),   // bottom (address/MRZ)
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.00, y: 0.82, width: 1.00, height: 0.18),
             ]
         case .travel:
-            // Travel: hide doc/passport number and MRZ only
             return [
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
-                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ / barcode
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),
             ]
         case .job:
-            // Job application: hide DOB, doc number, photo
             return [
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
             ]
         case .verify:
-            // Verification only: hide doc number + MRZ, show name+photo
             return [
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),
             ]
         case .legal:
-            // Legal: hide DOB, address, signature, doc number — keep name visible
             return [
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // doc number
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.10),   // address/issuer
-                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ / signature
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.10),
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),
             ]
         case .health:
-            // Health: hide DOB, SS/insurance number, address, nationality, MRZ
             return [
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // insurance/SS number
-                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),   // nationality
-                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),   // MRZ
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
+                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),
+                CGRect(x: 0.00, y: 0.84, width: 1.00, height: 0.16),
             ]
         case .banking:
-            // Banking: maximum protection — hide everything except name
             return [
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // photo
-                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),   // account/IBAN
-                CGRect(x: 0.28, y: 0.52, width: 0.68, height: 0.08),   // expiry/issue date
-                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),   // nationality
-                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),   // DOB
-                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.20),   // address/MRZ/signature
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.60, y: 0.20, width: 0.34, height: 0.08),
+                CGRect(x: 0.28, y: 0.52, width: 0.68, height: 0.08),
+                CGRect(x: 0.28, y: 0.62, width: 0.68, height: 0.08),
+                CGRect(x: 0.28, y: 0.72, width: 0.45, height: 0.07),
+                CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.20),
             ]
         }
     }

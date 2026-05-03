@@ -1,6 +1,7 @@
 import SwiftUI
 import AuthenticationServices
 import UniformTypeIdentifiers
+import Security
 
 // MARK: - ExternalStorageProvider
 
@@ -61,9 +62,11 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         return "shield://oauth/\(rawValue)"
     }
 
-    // UserDefaults key for storing connection state
+    // UserDefaults key for storing connection state (non-sensitive)
     var connectedKey: String { "shield.cloud.\(rawValue).connected" }
-    var tokenKey: String     { "shield.cloud.\(rawValue).token" }
+    // Keychain service/account identifiers for sensitive token storage
+    var keychainService: String { "com.romerodev.shield.oauth" }
+    var keychainAccount: String { "shield.cloud.\(rawValue).token" }
     var emailKey: String     { "shield.cloud.\(rawValue).email" }
 }
 
@@ -88,6 +91,45 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
         loadConnectedState()
     }
 
+    // MARK: - Keychain helpers
+
+    private func saveToken(_ token: String, for provider: ExternalStorageProvider) {
+        guard let data = token.data(using: .utf8) else { return }
+        let query: [CFString: Any] = [
+            kSecClass:            kSecClassGenericPassword,
+            kSecAttrService:      provider.keychainService,
+            kSecAttrAccount:      provider.keychainAccount,
+            kSecValueData:        data,
+            kSecAttrAccessible:   kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ]
+        SecItemDelete(query as CFDictionary)
+        SecItemAdd(query as CFDictionary, nil)
+    }
+
+    private func loadToken(for provider: ExternalStorageProvider) -> String? {
+        let query: [CFString: Any] = [
+            kSecClass:       kSecClassGenericPassword,
+            kSecAttrService: provider.keychainService,
+            kSecAttrAccount: provider.keychainAccount,
+            kSecReturnData:  true,
+            kSecMatchLimit:  kSecMatchLimitOne
+        ]
+        var result: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+              let data = result as? Data,
+              let token = String(data: data, encoding: .utf8) else { return nil }
+        return token
+    }
+
+    private func deleteToken(for provider: ExternalStorageProvider) {
+        let query: [CFString: Any] = [
+            kSecClass:       kSecClassGenericPassword,
+            kSecAttrService: provider.keychainService,
+            kSecAttrAccount: provider.keychainAccount
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
     // MARK: - Connection state
 
     private func loadConnectedState() {
@@ -104,6 +146,10 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
 
     func connectedEmail(_ provider: ExternalStorageProvider) -> String? {
         UserDefaults.standard.string(forKey: provider.emailKey)
+    }
+
+    func token(for provider: ExternalStorageProvider) -> String? {
+        loadToken(for: provider)
     }
 
     // MARK: - Connect via OAuth
@@ -193,8 +239,8 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
             return
         }
 
-        // Store token securely (in production use Keychain, here UserDefaults for brevity)
-        UserDefaults.standard.set(token, forKey: provider.tokenKey)
+        // Store token in Keychain (encrypted at rest, not accessible in backups).
+        saveToken(token, for: provider)
         UserDefaults.standard.set(true, forKey: provider.connectedKey)
         connectedProviders.insert(provider)
         authError = nil
@@ -207,8 +253,8 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
 
     func disconnect(_ provider: ExternalStorageProvider) {
         UserDefaults.standard.removeObject(forKey: provider.connectedKey)
-        UserDefaults.standard.removeObject(forKey: provider.tokenKey)
         UserDefaults.standard.removeObject(forKey: provider.emailKey)
+        deleteToken(for: provider)
         connectedProviders.remove(provider)
     }
 
@@ -234,30 +280,25 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
         MainActor.assumeIsolated {
             let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
-            
-            // 1. Try to return the key window of the active scene
+
             if let window = activeScene?.keyWindow { return window }
-            
-            // 2. Try to find any existing window in any scene
+
             let allWindows = scenes.flatMap { $0.windows }
             if let window = allWindows.first(where: { $0.isKeyWindow }) ?? allWindows.first {
                 return window
             }
-            
-            // 3. If no window exists, create a new one using the active window scene
-            // to avoid 'init()' deprecation warnings.
-            if let scene = activeScene {
-                return UIWindow(windowScene: scene)
-            }
-            
-            // 4. Absolute last resort: find any window scene to associate with
-            if let fallbackScene = UIApplication.shared.connectedScenes.first(where: { $0 is UIWindowScene }) as? UIWindowScene {
+
+            if let scene = activeScene { return UIWindow(windowScene: scene) }
+
+            if let fallbackScene = UIApplication.shared.connectedScenes
+                .first(where: { $0 is UIWindowScene }) as? UIWindowScene {
                 return UIWindow(windowScene: fallbackScene)
             }
-            
-            // 5. If there is literally no scene, we cannot create a window.
-            // This is unreachable in a running iOS app with a UI.
-            fatalError("No UIWindowScene found for presentationAnchor")
+
+            // Last resort: no UIWindowScene available (e.g. Catalyst edge case).
+            // Create a temporary detached window — auth may not display but we avoid crashing.
+            let fallback = UIWindow()
+            return fallback
         }
     }
 }

@@ -160,6 +160,18 @@ final class CloudSyncManager: ObservableObject {
         }
     }
 
+    /// Called on app foreground to recheck account status and pull any remote changes.
+    func syncOnForeground(documents: [DocumentItem]) {
+        guard isSyncEnabled else { return }
+        Task {
+            await checkAvailabilityAsync()
+            guard isAvailable else { return }
+            // Push local index first, then reconcile remote deletions.
+            await pushDocuments(documents)
+            _ = await fetchRemoteIndex()
+        }
+    }
+
     var lastSyncFormatted: String? {
         guard let d = lastSyncDate else {
             let ts = UserDefaults.standard.double(forKey: "shield.icloud.lastSync")
