@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7C1D5E4E2FA7359600E171B4 /* GhostDocInFormal.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */; };
+		7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -42,6 +44,13 @@
 		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
 		A035 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F035 /* OnboardingState.swift */; };
 		A036 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* LanguageManager.swift */; };
+		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
+		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
+		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
+		A102 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F102 /* VisionKit.framework */; };
+		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
+		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
+		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -53,16 +62,11 @@
 		B009 /* Paywall.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L009 /* Paywall.xcstrings */; };
 		B010 /* Settings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L010 /* Settings.xcstrings */; };
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
-		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
-		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
-		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
-		A102 /* VisionKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F102 /* VisionKit.framework */; };
-		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
-		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
-		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDocInFormal.icon; sourceTree = "<group>"; };
+		7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDoc.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -99,6 +103,14 @@
 		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
 		F035 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		F036 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
+		F102 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
+		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
+		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -110,14 +122,6 @@
 		L009 /* Paywall.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Paywall.xcstrings; sourceTree = "<group>"; };
 		L010 /* Settings.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Settings.xcstrings; sourceTree = "<group>"; };
 		L011 /* Vault.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Vault.xcstrings; sourceTree = "<group>"; };
-		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
-		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
-		F102 /* VisionKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VisionKit.framework; path = System/Library/Frameworks/VisionKit.framework; sourceTree = SDKROOT; };
-		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
-		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
-		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
-		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +230,15 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
+		GRP_LOCALIZATION /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				F036 /* LanguageManager.swift */,
+				GRP_STRINGS /* Strings */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
 		GRP_MODELS /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -296,13 +309,23 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		GRP_LOCALIZATION /* Localization */ = {
+		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
-				F036 /* LanguageManager.swift */,
-				GRP_STRINGS /* Strings */,
+				7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */,
+				7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */,
+				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
+				GRP_APP /* App */,
+				GRP_THEME /* Theme */,
+				GRP_MODELS /* Models */,
+				GRP_VIEWMODELS /* ViewModels */,
+				GRP_VIEWS /* Views */,
+				GRP_CLOUD /* Cloud */,
+				GRP_PREMIUM /* Premium */,
+				GRP_LOCALIZATION /* Localization */,
+				GRP_RESOURCES /* Resources */,
 			);
-			path = Localization;
+			path = Shield;
 			sourceTree = "<group>";
 		};
 		GRP_STRINGS /* Strings */ = {
@@ -321,23 +344,6 @@
 				L011 /* Vault.xcstrings */,
 			);
 			path = Strings;
-			sourceTree = "<group>";
-		};
-		GRP_SHIELD /* Shield */ = {
-			isa = PBXGroup;
-			children = (
-				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
-				GRP_APP /* App */,
-				GRP_THEME /* Theme */,
-				GRP_MODELS /* Models */,
-				GRP_VIEWMODELS /* ViewModels */,
-				GRP_VIEWS /* Views */,
-				GRP_CLOUD /* Cloud */,
-				GRP_PREMIUM /* Premium */,
-				GRP_LOCALIZATION /* Localization */,
-				GRP_RESOURCES /* Resources */,
-			);
-			path = Shield;
 			sourceTree = "<group>";
 		};
 		GRP_THEME /* Theme */ = {
@@ -443,6 +449,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A024 /* Assets.xcassets in Resources */,
+				7C1D5E4E2FA7359600E171B4 /* GhostDocInFormal.icon in Resources */,
 				A025 /* Shield.storekit in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
@@ -456,6 +463,7 @@
 				B009 /* Paywall.xcstrings in Resources */,
 				B010 /* Settings.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
+				7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -606,14 +614,14 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_CFBundleDisplayName = GhostDoc;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
@@ -641,14 +649,14 @@
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_CFBundleDisplayName = GhostDoc;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
