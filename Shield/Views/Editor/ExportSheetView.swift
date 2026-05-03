@@ -9,6 +9,7 @@ import UniformTypeIdentifiers
 struct ExportSheetView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
+    @Environment(\.colorScheme) var scheme
 
     let doc: DocumentItem
     let redactions: [Redaction]
@@ -52,14 +53,14 @@ struct ExportSheetView: View {
             HStack {
                 Text(LanguageManager.shared.editor("editor_export"))
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -85,7 +86,7 @@ struct ExportSheetView: View {
                         Spacer()
                     }
                     .padding(12)
-                    .background(ShieldTheme.surface3)
+                    .background(ShieldTheme.rowBackground(scheme))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     // Format picker
@@ -97,17 +98,17 @@ struct ExportSheetView: View {
                                     HStack(spacing: 10) {
                                         Image(systemName: f == .pdf ? "doc.fill" : "photo.fill")
                                             .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(format == f ? ShieldTheme.accent : ShieldTheme.textPrimary)
+                                            .foregroundColor(format == f ? ShieldTheme.accent : ShieldTheme.primary(scheme))
                                         Text(f == .pdf ? LanguageManager.shared.editor("editor_export_pdf") : LanguageManager.shared.editor("editor_export_image"))
                                             .font(.system(size: 14, weight: .semibold))
-                                            .foregroundColor(ShieldTheme.textPrimary)
+                                            .foregroundColor(ShieldTheme.primary(scheme))
                                     }
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(format == f ? ShieldTheme.accentDim : ShieldTheme.surface3)
+                                    .background(format == f ? ShieldTheme.accentDim : ShieldTheme.rowBackground(scheme))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(format == f ? ShieldTheme.accent : ShieldTheme.surfaceLine,
+                                            .stroke(format == f ? ShieldTheme.accent : ShieldTheme.line(scheme),
                                                     lineWidth: format == f ? 1 : 0.5)
                                     )
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -127,8 +128,8 @@ struct ExportSheetView: View {
                                         .font(.system(size: 13, weight: .semibold))
                                         .frame(maxWidth: .infinity)
                                         .frame(height: 36)
-                                        .background(quality == q ? ShieldTheme.accent : ShieldTheme.surface3)
-                                        .foregroundColor(quality == q ? ShieldTheme.accentText : ShieldTheme.textPrimary)
+                                        .background(quality == q ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                                        .foregroundColor(quality == q ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                 }
                                 .buttonStyle(ScaleButtonStyle())
@@ -138,7 +139,7 @@ struct ExportSheetView: View {
 
                     Text(LanguageManager.shared.editor("editor_export_baked_note"))
                         .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Privacy Score panel
@@ -166,23 +167,23 @@ struct ExportSheetView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: acknowledgeHighRiskExport ? "checkmark.square.fill" : "square")
-                                        .foregroundColor(acknowledgeHighRiskExport ? ShieldTheme.accent : ShieldTheme.textTertiary)
+                                        .foregroundColor(acknowledgeHighRiskExport ? ShieldTheme.accent : ShieldTheme.tertiary(scheme))
                                     Text(LanguageManager.shared.editor("editor_ocr_risk_acknowledge"))
                                         .font(.system(size: 12, weight: .semibold))
-                                        .foregroundColor(ShieldTheme.textSecondary)
+                                        .foregroundColor(ShieldTheme.secondary(scheme))
                                 }
                             }
                             .buttonStyle(ScaleButtonStyle())
                         }
                         .padding(10)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
                     if !pm.isPro {
                         Text(String(format: LanguageManager.shared.paywall("paywall_remaining_free"), pm.remainingFreeExportsThisWeek()))
                         .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -251,14 +252,14 @@ struct ExportSheetView: View {
             VStack(spacing: 4) {
                 Text(LanguageManager.shared.editor("editor_exported"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Text("\(redactionsCountLabel)\(watermarkApplied ? " · \(LanguageManager.shared.editor("editor_wm_applied_note"))" : "")")
                     .font(.system(size: 13))
-                    .foregroundColor(ShieldTheme.textSecondary)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
                 if !pm.isPro {
                     Text(LanguageManager.shared.editor("editor_include_wm_free"))
                         .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
             }
             Spacer()
@@ -268,8 +269,8 @@ struct ExportSheetView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
-                        .background(ShieldTheme.surface3)
-                        .foregroundColor(ShieldTheme.textPrimary)
+                        .background(ShieldTheme.rowBackground(scheme))
+                        .foregroundColor(ShieldTheme.primary(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -325,7 +326,7 @@ struct ExportSheetView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(LanguageManager.shared.editor("editor_privacy_score"))
                             .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(ShieldTheme.textPrimary)
+                            .foregroundColor(ShieldTheme.primary(scheme))
                         Text(label)
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(color)
@@ -333,7 +334,7 @@ struct ExportSheetView: View {
                     Spacer()
                     Image(systemName: showPrivacyScore ? "chevron.up" : "chevron.down")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
 
                 if showPrivacyScore {
@@ -371,7 +372,7 @@ struct ExportSheetView: View {
                 }
             }
             .padding(12)
-            .background(ShieldTheme.surface3)
+            .background(ShieldTheme.rowBackground(scheme))
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(ScaleButtonStyle())
@@ -386,7 +387,7 @@ struct ExportSheetView: View {
                 .frame(width: 16)
             Text(label)
                 .font(.system(size: 12))
-                .foregroundColor(ShieldTheme.textSecondary)
+                .foregroundColor(ShieldTheme.secondary(scheme))
             Spacer()
             Text(value)
                 .font(.system(size: 12, weight: .semibold))
@@ -422,7 +423,7 @@ struct ExportSheetView: View {
     private func sectionLabel(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 11, weight: .bold))
-            .foregroundColor(ShieldTheme.textTertiary)
+            .foregroundColor(ShieldTheme.tertiary(scheme))
             .textCase(.uppercase)
             .tracking(0.4)
     }

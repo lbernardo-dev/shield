@@ -43,7 +43,7 @@ struct EditorView: View {
             bottomBar
         }
         .background(ShieldTheme.surface0.ignoresSafeArea())
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(appState.preferredScheme)
         .onAppear {
             if let style = appState.pendingMaskStyle {
                 vm.maskStyle = style
@@ -116,6 +116,29 @@ struct EditorView: View {
         .fullScreenCover(isPresented: $showReadjustReview) {
             ScanReviewView(
                 pages: readjustPages,
+                initialAdjustments: {
+                    let adj = vm.imageAdjustment
+                    let scanAdj = ScanPageAdjustment(
+                        filterPreset: .auto, // Default to auto for re-adjust
+                        straightenDegrees: 0,
+                        rotationDegrees: adj.rotation,
+                        perspectiveTopInset: 0,
+                        perspectiveBottomInset: 0,
+                        perspectiveSkew: 0,
+                        perspectiveTopYOffset: 0,
+                        perspectiveBottomYOffset: 0,
+                        quad: nil,
+                        cropLeft: adj.cropLeft,
+                        cropRight: adj.cropRight,
+                        cropTop: adj.cropTop,
+                        cropBottom: adj.cropBottom,
+                        brightness: adj.brightness,
+                        contrast: adj.contrast,
+                        sharpness: adj.sharpness,
+                        noiseReduction: 0
+                    )
+                    return Array(repeating: scanAdj, count: readjustPages.count)
+                }(),
                 onCancel: {
                     showReadjustReview = false
                     readjustPages = []
@@ -204,7 +227,9 @@ struct EditorView: View {
                 }
 
                 Button {
-                    shouldPersistOnDismiss = true
+                    appState.updateDocument(vm.documentSnapshot)
+                    vm.markSaved()
+                    shouldPersistOnDismiss = false
                     appState.selectedDoc = nil
                     dismiss()
                 } label: {
@@ -232,7 +257,7 @@ struct EditorView: View {
             } // HStack
         }
         .padding(.horizontal, ShieldTheme.s4)
-        .padding(.vertical, 10)
+        .padding(.vertical, 4) // Reduced from 6
         .background(ShieldTheme.surface0.ignoresSafeArea(edges: .top))
         .overlay(alignment: .bottom) { ShieldDivider() }
     }
@@ -258,8 +283,7 @@ struct EditorView: View {
                 .clipShape(Capsule())
         }
         .padding(.horizontal, ShieldTheme.s4)
-        .padding(.top, 4)
-        .padding(.bottom, 8)
+        .padding(.vertical, 3) // Reduced from 4
         .background(ShieldTheme.surface0)
     }
 
@@ -324,7 +348,7 @@ struct EditorView: View {
                 }
             }
             .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 10)
+            .padding(.vertical, 4) // Reduced from 6
             .background(ShieldTheme.warning.opacity(0.10))
             .overlay(
                 Rectangle()
@@ -367,7 +391,7 @@ struct EditorView: View {
                 }
             }
             .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 10)
+            .padding(.vertical, 6)
             .background(ShieldTheme.accentDim)
             .overlay(
                 Rectangle()
@@ -505,7 +529,7 @@ struct EditorView: View {
                 }
             }
             .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 6)
+            .padding(.vertical, 1) // Minimal padding
         }
     }
 
@@ -532,7 +556,7 @@ struct EditorView: View {
     // MARK: - Bottom toolbar
 
     private var bottomBar: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 2) { // Reduced spacing from 4
             HStack {
                 // Undo / Redo
                 HStack(spacing: 4) {
@@ -542,9 +566,9 @@ struct EditorView: View {
                         Image(systemName: "arrow.uturn.backward")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(vm.canUndo ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
-                            .frame(width: 38, height: 38)
+                            .frame(width: 32, height: 32)
                             .background(ShieldTheme.surface2)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .disabled(!vm.canUndo)
 
@@ -554,9 +578,9 @@ struct EditorView: View {
                         Image(systemName: "arrow.uturn.forward")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(vm.canRedo ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
-                            .frame(width: 38, height: 38)
+                            .frame(width: 32, height: 32)
                             .background(ShieldTheme.surface2)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .disabled(!vm.canRedo)
                 }
@@ -580,9 +604,9 @@ struct EditorView: View {
                                         .foregroundColor(
                                             (isSelected || adjustActive) ? ShieldTheme.accentText : ShieldTheme.textPrimary
                                         )
-                                        .frame(width: 38, height: 38)
+                                        .frame(width: 32, height: 32)
                                         .background((isSelected || adjustActive) ? ShieldTheme.accent : Color.clear)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
 
                                     if watermarkActive || adjustDirty {
                                         Circle()
@@ -592,7 +616,7 @@ struct EditorView: View {
                                     }
                                 }
                                 Text(tool.label(lang: appState.language))
-                                    .font(.system(size: 9, weight: .semibold))
+                                    .font(.system(size: 8, weight: .semibold))
                                     .foregroundColor((isSelected || adjustActive) ? ShieldTheme.accent : ShieldTheme.textTertiary)
                             }
                         }
@@ -611,13 +635,13 @@ struct EditorView: View {
                 Spacer()
             }
             .padding(.horizontal, 10)
-            .frame(height: 28)
+            .frame(height: 24)
             .background(ShieldTheme.surface3)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .padding(.horizontal, ShieldTheme.s4)
-        .padding(.top, 10)
-        .padding(.bottom, 10)
+        .padding(.top, 6)
+        .padding(.bottom, 0)
         .background(ShieldTheme.surface2.ignoresSafeArea(edges: .bottom))
         .overlay(alignment: .top) { ShieldDivider() }
     }
@@ -677,14 +701,15 @@ struct EditorView: View {
 struct SheetContainer<Content: View>: View {
     let heightFraction: CGFloat
     @ViewBuilder let content: () -> Content
+    @Environment(\.colorScheme) var scheme
 
     var body: some View {
         VStack(spacing: 0) {
             content()
         }
-        .background(ShieldTheme.surface2)
+        .background(ShieldTheme.cardBackground(scheme))
         .presentationDetents([.fraction(heightFraction)])
         .presentationDragIndicator(.visible)
-        .presentationBackground(ShieldTheme.surface2)
+        .presentationBackground(ShieldTheme.cardBackground(scheme))
     }
 }

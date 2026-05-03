@@ -231,6 +231,33 @@ final class EditorViewModel: ObservableObject {
     // MARK: - Redaction ops
 
     func applyAutoDetect() {
+        // For photo/genericID kinds, only apply rects that are backed by real OCR text.
+        // Never fall through to the grid-based fallback, which would produce fake zones
+        // on images that contain no actual text (e.g., a photo of a tree).
+        if doc.kind == .photo || doc.kind == .genericID {
+            let hasRealOCRText = Self.ocrHasRealText(in: doc)
+            guard hasRealOCRText else {
+                // No text found by Vision — nothing to redact automatically.
+                showSensitiveBanner = false
+                return
+            }
+            let preciseRects = AutoRedactions.ocrModeRects(for: .banking, fields: doc.fields)
+            guard !preciseRects.isEmpty else {
+                showSensitiveBanner = false
+                return
+            }
+            let suggested = preciseRects.map { Redaction(rect: $0, style: maskStyle) }
+            push(suggested)
+            AppState.trackEvent("redaction_applied", properties: [
+                "source": "auto_detect",
+                "count": String(suggested.count)
+            ])
+            showSensitiveBanner = false
+            showFieldOverlays = false
+            return
+        }
+
+        // Structured document kinds (DNI, passport, etc.) always have calibrated template zones.
         let suggestedRects = Self.suggestedRectsForBanner(in: doc)
         guard !suggestedRects.isEmpty else { return }
         let suggested = suggestedRects.map { Redaction(rect: $0, style: maskStyle) }
@@ -292,8 +319,21 @@ final class EditorViewModel: ObservableObject {
             }
             push(suggested)
         } else {
-            // For photo/generic docs: build mode redactions from OCR field boxes
-            let modeRects = AutoRedactions.ocrModeRects(for: mode, fields: doc.fields)
+            // For photo/generic docs: ONLY use bounding-box-precise OCR rects.
+            // NEVER fall back to the grid template — that generates fake zones on
+            // images that contain no text at all (e.g. a photo of a tree or landscape).
+            guard Self.ocrHasRealText(in: doc) else {
+                // No real OCR text found — do nothing, do not mark the mode as active.
+                return
+            }
+            let modeRects = AutoRedactions.ocrPrecisionModeRects(for: mode, fields: doc.fields)
+            guard !modeRects.isEmpty else {
+                // OCR ran but this mode's required fields were not present in the image
+                // (e.g. no DOB found for the job preset). Clear redactions and deselect mode.
+                push([])
+                activeMode = nil
+                return
+            }
             let modeRedactions = modeRects.map { Redaction(rect: $0, style: maskStyle) }
             push(modeRedactions)
         }
@@ -305,6 +345,10 @@ final class EditorViewModel: ObservableObject {
         activeMode = mode
         showSensitiveBanner = false
     }
+
+    /// Whether Vision OCR found real identifiable text in this document.
+    /// The UI can read this to show feedback when a preset has no data to act on.
+    var ocrHasRealText: Bool { Self.ocrHasRealText(in: doc) }
 
     // MARK: - Image adjustment
 
@@ -464,8 +508,21 @@ final class EditorViewModel: ObservableObject {
                 self.doc = snapshot
                 // OCR bootstrap is automatic metadata enrichment, not a user edit.
                 self.baselineDoc.fields = resolvedFields
-                self.showSensitiveBanner = !Self.suggestedRectsForBanner(in: snapshot).isEmpty ||
-                    !resolvedFields.documentNumber.isEmpty || !resolvedFields.fullName.isEmpty
+
+                // For photo/genericID: only show the banner when Vision actually found
+                // identifiable field text (name, doc number, etc.).
+                // An empty OCR result (e.g., a photo of a tree) must NOT trigger the banner.
+                let hasIdentifiableFields = !resolvedFields.documentNumber.isEmpty ||
+                    !resolvedFields.fullName.isEmpty
+                let hasOCRBoundingRects = !(resolvedFields.ocrBoundingTexts ?? []).isEmpty
+                let hasSuggestedRects = !Self.suggestedRectsForBanner(in: snapshot).isEmpty
+
+                if snapshot.kind == .photo || snapshot.kind == .genericID {
+                    // Only show banner when real text-backed zones exist, not grid fallback.
+                    self.showSensitiveBanner = hasIdentifiableFields && hasOCRBoundingRects && hasSuggestedRects
+                } else {
+                    self.showSensitiveBanner = hasSuggestedRects || hasIdentifiableFields
+                }
                 self.isAnalyzingOCRSuggestions = false
             }
         }
@@ -546,14 +603,36 @@ final class EditorViewModel: ObservableObject {
         baselineDoc = doc
     }
 
+    /// Returns suggested redaction rects for the sensitive-zones banner.
+    ///
+    /// For `photo`/`genericID` documents the result is grounded exclusively in
+    /// Vision OCR output: we only return rects when (a) Vision actually extracted
+    /// bounding-box text from the image, AND (b) those texts matched at least one
+    /// identifiable sensitive field (name, doc number, DOB, etc.).
+    /// This prevents the grid-based fallback from generating fake zones on images
+    /// that contain no readable text at all (e.g., a photo of a tree or landscape).
     private static func suggestedRectsForBanner(in doc: DocumentItem) -> [CGRect] {
         if doc.kind == .photo || doc.kind == .genericID {
+            // Only proceed if Vision produced real bounding-box observations.
+            guard ocrHasRealText(in: doc) else { return [] }
+            // Only return rects that are anchored to actual OCR tokens (precision mode).
+            // ocrModeRects falls back to gridRects when no bounding texts exist, but we
+            // already guard against that above, so here we know precision mode will run.
             let ocrRects = AutoRedactions.ocrModeRects(for: .banking, fields: doc.fields)
-            if !ocrRects.isEmpty {
-                return ocrRects
-            }
+            return ocrRects
         }
         return AutoRedactions.suggested(for: doc.kind).map { $0.rect }
+    }
+
+    /// Returns true when Vision's OCR has produced at least one real text token
+    /// AND the document has at least one identifiable sensitive field (name, doc number, etc.).
+    /// This is the authoritative check for "does this image contain text worth masking".
+    private static func ocrHasRealText(in doc: DocumentItem) -> Bool {
+        let hasTexts = !(doc.fields.ocrBoundingTexts ?? []).isEmpty
+        let hasFields = !doc.fields.documentNumber.isEmpty ||
+            !doc.fields.fullName.isEmpty ||
+            !doc.fields.dateOfBirth.isEmpty
+        return hasTexts && hasFields
     }
 
     private func normalizedSignature(for source: DocumentItem) -> String {

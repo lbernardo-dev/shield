@@ -139,7 +139,7 @@ struct HomeView: View {
                 }
                 Text(LanguageManager.shared.common("common_app_name"))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                     .tracking(-0.3)
             }
             Spacer()
@@ -195,7 +195,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(LanguageManager.shared.home("home_documents"))
                 .font(.system(size: 28, weight: .bold))
-                .foregroundColor(ShieldTheme.textPrimary)
+                .foregroundColor(ShieldTheme.primary(scheme))
                 .tracking(-0.7)
 
             HStack(spacing: 6) {
@@ -207,7 +207,7 @@ struct HomeView: View {
                     .foregroundColor(ShieldTheme.success)
                 Text("· \(appState.documents.count) \(LanguageManager.shared.home("home_documents").lowercased())")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
             }
 
             // Free tier usage bar
@@ -234,7 +234,7 @@ struct HomeView: View {
                 HStack {
                     Text(LanguageManager.shared.home("home_plan_status", LanguageManager.shared.home("home_free_plan"), used, limit))
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(atLimit ? ShieldTheme.danger : ShieldTheme.textSecondary)
+                        .foregroundColor(atLimit ? ShieldTheme.danger : ShieldTheme.secondary(scheme))
                     Spacer()
                     if atLimit {
                         Text(LanguageManager.shared.home("home_upgrade"))
@@ -245,7 +245,7 @@ struct HomeView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(ShieldTheme.surface3)
+                            .fill(ShieldTheme.rowBackground(scheme))
                             .frame(height: 5)
                         RoundedRectangle(cornerRadius: 3)
                             .fill(atLimit ? ShieldTheme.danger : ShieldTheme.accent)
@@ -259,11 +259,11 @@ struct HomeView: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(atLimit ? ShieldTheme.dangerDim : ShieldTheme.surface2)
+                    .fill(atLimit ? ShieldTheme.dangerDim : ShieldTheme.cardBackground(scheme))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(atLimit ? ShieldTheme.danger.opacity(0.4) : ShieldTheme.surfaceLine, lineWidth: 0.5)
+                    .stroke(atLimit ? ShieldTheme.danger.opacity(0.4) : ShieldTheme.line(scheme), lineWidth: 0.5)
             )
         }
         .buttonStyle(ScaleButtonStyle())
@@ -398,11 +398,11 @@ struct HomeView: View {
                         Text(LanguageManager.shared.home("home_batch_pro"))
                             .font(.system(size: 12, weight: .bold))
                     }
-                    .foregroundColor(pm.isPro ? .black : ShieldTheme.textTertiary)
+                    .foregroundColor(pm.isPro ? .black : ShieldTheme.tertiary(scheme))
                     .padding(.horizontal, 12)
                     .frame(height: 28)
-                    .background(pm.isPro ? ShieldTheme.accent : ShieldTheme.surface3)
-                    .overlay(Capsule().stroke(ShieldTheme.surfaceLine.opacity(0.5), lineWidth: pm.isPro ? 0 : 0.5))
+                    .background(pm.isPro ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                    .overlay(Capsule().stroke(ShieldTheme.line(scheme).opacity(0.5), lineWidth: pm.isPro ? 0 : 0.5))
                     .clipShape(Capsule())
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -783,7 +783,7 @@ struct HomeView: View {
 
     private var iCloudStatusColor: Color {
         let enabled = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
-        guard enabled else { return ShieldTheme.textTertiary }
+        guard enabled else { return ShieldTheme.tertiary(scheme) }
         return cloud.isAvailable ? ShieldTheme.success : ShieldTheme.warning
     }
 
@@ -798,7 +798,7 @@ struct HomeView: View {
     }
 
     private func providerStatusColor(_ provider: ExternalStorageProvider) -> Color {
-        ext.isConnected(provider) ? ShieldTheme.success : ShieldTheme.textTertiary
+        ext.isConnected(provider) ? ShieldTheme.success : ShieldTheme.tertiary(scheme)
     }
 
     // MARK: - Vault
@@ -1227,6 +1227,7 @@ struct DocumentRow: View {
 
 struct NewCategorySheet: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var scheme
     @Binding var isPresented: Bool
     @State private var name = ""
     @State private var selectedIcon = "folder.fill"
@@ -1243,14 +1244,14 @@ struct NewCategorySheet: View {
             HStack {
                 Text(LanguageManager.shared.home("home_new_category"))
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -1259,15 +1260,15 @@ struct NewCategorySheet: View {
             VStack(spacing: 16) {
                 TextField(LanguageManager.shared.home("home_category_name_placeholder"), text: $name)
                     .font(.system(size: 16))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                     .padding(12)
-                    .background(ShieldTheme.surface3)
+                    .background(ShieldTheme.rowBackground(scheme))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
 
                 Text(LanguageManager.shared.home("home_icon_uppercase"))
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
                     .textCase(.uppercase)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -1278,9 +1279,9 @@ struct NewCategorySheet: View {
                         } label: {
                             Image(systemName: icon)
                                 .font(.system(size: 18))
-                                .foregroundColor(selectedIcon == icon ? .black : ShieldTheme.textPrimary)
+                                .foregroundColor(selectedIcon == icon ? .black : ShieldTheme.primary(scheme))
                                 .frame(width: 40, height: 40)
-                                .background(selectedIcon == icon ? ShieldTheme.accent : ShieldTheme.surface3)
+                                .background(selectedIcon == icon ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(ScaleButtonStyle())
@@ -1297,8 +1298,8 @@ struct NewCategorySheet: View {
                         .font(.system(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(name.isEmpty ? ShieldTheme.surface3 : ShieldTheme.accent)
-                        .foregroundColor(name.isEmpty ? ShieldTheme.textTertiary : ShieldTheme.accentText)
+                        .background(name.isEmpty ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accent)
+                        .foregroundColor(name.isEmpty ? ShieldTheme.tertiary(scheme) : ShieldTheme.accentText)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -1308,7 +1309,7 @@ struct NewCategorySheet: View {
 
             Spacer()
         }
-        .background(ShieldTheme.surface2.ignoresSafeArea())
+        .background(ShieldTheme.cardBackground(scheme).ignoresSafeArea())
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
@@ -1352,12 +1353,12 @@ struct VaultAutoLockOverlay: View {
                 VStack(spacing: 8) {
                     Text(LanguageManager.shared.home("home_vault_mode"))
                         .font(.system(size: 20, weight: .heavy))
-                        .foregroundColor(ShieldTheme.textPrimary)
+                        .foregroundColor(ShieldTheme.primary(scheme))
                         .tracking(-0.4)
 
                     Text(LanguageManager.shared.home("home_vault_auto_lock_msg"))
                         .font(.system(size: 14))
-                        .foregroundColor(ShieldTheme.textSecondary)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
                 }
@@ -1365,7 +1366,7 @@ struct VaultAutoLockOverlay: View {
                 // Countdown ring
                 ZStack {
                     Circle()
-                        .stroke(ShieldTheme.surface3, lineWidth: 5)
+                        .stroke(ShieldTheme.rowBackground(scheme), lineWidth: 5)
                         .frame(width: 80, height: 80)
                     Circle()
                         .trim(from: 0, to: CGFloat(remaining) / CGFloat(VaultAutoLockOverlay.countdownSeconds))
@@ -1375,7 +1376,7 @@ struct VaultAutoLockOverlay: View {
                         .animation(.linear(duration: 1), value: remaining)
                     Text("\(remaining)")
                         .font(.system(size: 28, weight: .bold, design: .monospaced))
-                        .foregroundColor(ShieldTheme.textPrimary)
+                        .foregroundColor(ShieldTheme.primary(scheme))
                 }
 
                 // Actions
@@ -1402,8 +1403,8 @@ struct VaultAutoLockOverlay: View {
                             .font(.system(size: 15, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
-                            .background(ShieldTheme.surface3)
-                            .foregroundColor(ShieldTheme.textPrimary)
+                            .background(ShieldTheme.rowBackground(scheme))
+                            .foregroundColor(ShieldTheme.primary(scheme))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .buttonStyle(ScaleButtonStyle())
@@ -1412,7 +1413,7 @@ struct VaultAutoLockOverlay: View {
             .padding(28)
             .background(
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(ShieldTheme.surface1)
+                    .fill(ShieldTheme.cardBackground(scheme))
                     .shadow(color: .black.opacity(0.4), radius: 24, y: 8)
             )
             .padding(.horizontal, 32)
@@ -1446,6 +1447,7 @@ struct VaultAutoLockOverlay: View {
 struct BatchRedactView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
+    @Environment(\.colorScheme) var scheme
     @Binding var isPresented: Bool
 
     @State private var selectedIDs: Set<String> = []
@@ -1478,7 +1480,7 @@ struct BatchRedactView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(appState.preferredScheme)
     }
 
     private var form: some View {
@@ -1488,7 +1490,7 @@ struct BatchRedactView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(LanguageManager.shared.home("home_batch_redaction_mode"))
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .tracking(0.5)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
@@ -1507,12 +1509,12 @@ struct BatchRedactView: View {
                                     }
                                     Spacer()
                                 }
-                                .foregroundColor(isSelected ? .black : ShieldTheme.textSecondary)
+                                .foregroundColor(isSelected ? .black : ShieldTheme.secondary(scheme))
                                 .padding(10)
-                                .background(isSelected ? mode.color : ShieldTheme.surface2)
+                                .background(isSelected ? mode.color : ShieldTheme.cardBackground(scheme))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(isSelected ? mode.color : ShieldTheme.surfaceLine, lineWidth: isSelected ? 0 : 0.5)
+                                        .stroke(isSelected ? mode.color : ShieldTheme.line(scheme), lineWidth: isSelected ? 0 : 0.5)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
@@ -1526,7 +1528,7 @@ struct BatchRedactView: View {
                     HStack {
                         Text(LanguageManager.shared.home("home_batch_documents_count", selectedIDs.count))
                             .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(ShieldTheme.textTertiary)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
                             .tracking(0.5)
                         Spacer()
                         Button {
@@ -1552,23 +1554,23 @@ struct BatchRedactView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
+                                    .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.tertiary(scheme))
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(doc.title)
                                         .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(ShieldTheme.textPrimary)
+                                        .foregroundColor(ShieldTheme.primary(scheme))
                                         .lineLimit(1)
                                     Text("\(doc.pageCount) \(LanguageManager.shared.common("common_pages_count")) · \(doc.dateLabelLocalized(lang: appState.language))")
                                         .font(.system(size: 11))
-                                        .foregroundColor(ShieldTheme.textTertiary)
+                                        .foregroundColor(ShieldTheme.tertiary(scheme))
                                 }
                                 Spacer()
                             }
                             .padding(12)
-                            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
+                            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.cardBackground(scheme))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isSelected ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.surfaceLine, lineWidth: 0.5)
+                                    .stroke(isSelected ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.line(scheme), lineWidth: 0.5)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
@@ -1594,8 +1596,8 @@ struct BatchRedactView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
-                    .background(selectedIDs.isEmpty ? ShieldTheme.surface3 : ShieldTheme.accent)
-                    .foregroundColor(selectedIDs.isEmpty ? ShieldTheme.textTertiary : .black)
+                    .background(selectedIDs.isEmpty ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accent)
+                    .foregroundColor(selectedIDs.isEmpty ? ShieldTheme.tertiary(scheme) : .black)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -1603,7 +1605,7 @@ struct BatchRedactView: View {
 
                 Text(LanguageManager.shared.home("home_batch_description"))
                     .font(.system(size: 11))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 16)
@@ -1625,10 +1627,10 @@ struct BatchRedactView: View {
             VStack(spacing: 6) {
                 Text(LanguageManager.shared.home("home_batch_complete_title"))
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.home("home_batch_complete_desc", selectedMode.label(lang: appState.language), processed))
                     .font(.system(size: 14))
-                    .foregroundColor(ShieldTheme.textSecondary)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
                     .multilineTextAlignment(.center)
             }
             Spacer()

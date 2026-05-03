@@ -30,7 +30,7 @@ struct OnboardingFlowView: View {
                     .id(state.currentStep)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(appState.preferredScheme)
     }
 
     private var topBar: some View {

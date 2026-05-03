@@ -119,7 +119,7 @@ struct VaultView: View {
                     Button { showPINSetup = true } label: {
                         Text(LanguageManager.shared.vault("vault_setup_pin"))
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(ShieldTheme.textTertiary)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
                     }
                 }
             }
@@ -214,7 +214,7 @@ struct VaultView: View {
         VStack(spacing: 16) {
             Image(systemName: "lock.rectangle.stack")
                 .font(.system(size: 48, weight: .light))
-                .foregroundColor(ShieldTheme.textTertiary)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
                 .padding(.top, 40)
             Text(LanguageManager.shared.vault("vault_empty_title"))
                 .font(.system(size: 18, weight: .bold))
@@ -287,6 +287,7 @@ struct VaultView: View {
 
 struct AddToVaultSheet: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var scheme
     @Binding var isPresented: Bool
 
     var libraryDocs: [DocumentItem] {
@@ -298,14 +299,14 @@ struct AddToVaultSheet: View {
             HStack {
                 Text(LanguageManager.shared.vault("vault_move_to_vault"))
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -314,7 +315,7 @@ struct AddToVaultSheet: View {
             if libraryDocs.isEmpty {
                 Spacer()
                 Text(LanguageManager.shared.vault("vault_no_docs_library"))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
                     .font(.system(size: 14))
                 Spacer()
             } else {
@@ -329,17 +330,17 @@ struct AddToVaultSheet: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(doc.title)
                                             .font(.system(size: 14, weight: .semibold))
-                                            .foregroundColor(ShieldTheme.textPrimary)
+                                            .foregroundColor(ShieldTheme.primary(scheme))
                                         Text(doc.dateLabelLocalized(lang: appState.language))
                                             .font(.system(size: 12))
-                                            .foregroundColor(ShieldTheme.textTertiary)
+                                            .foregroundColor(ShieldTheme.tertiary(scheme))
                                     }
                                     Spacer()
                                     Image(systemName: "lock.fill")
                                         .foregroundColor(ShieldTheme.accent)
                                 }
                                 .padding(14)
-                                .background(ShieldTheme.surface3)
+                                .background(ShieldTheme.rowBackground(scheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             .buttonStyle(ScaleButtonStyle())
@@ -350,7 +351,7 @@ struct AddToVaultSheet: View {
                 }
             }
         }
-        .background(ShieldTheme.surface2)
+        .background(ShieldTheme.cardBackground(scheme))
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
@@ -447,6 +448,7 @@ struct PINSetupView: View {
     @Binding var isPresented: Bool
     var onSuccess: () -> Void
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var scheme
 
     @State private var pin = ""
     @State private var confirmPin = ""
@@ -464,15 +466,15 @@ struct PINSetupView: View {
                  ? LanguageManager.shared.vault("vault_pin_setup_choose")
                  : LanguageManager.shared.vault("vault_pin_setup_confirm"))
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(ShieldTheme.textPrimary)
+                .foregroundColor(ShieldTheme.primary(scheme))
 
             // PIN dots
             HStack(spacing: 16) {
                 ForEach(0..<6, id: \.self) { i in
                     Circle()
-                        .fill(i < currentPin.count ? ShieldTheme.accent : ShieldTheme.surface3)
+                        .fill(i < currentPin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
                         .frame(width: 16, height: 16)
-                        .overlay(Circle().stroke(ShieldTheme.surfaceLine, lineWidth: 1))
+                        .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
                 }
             }
 
@@ -488,13 +490,13 @@ struct PINSetupView: View {
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.capture("capture_cancel"))
                     .font(.system(size: 15))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ShieldTheme.surface0.ignoresSafeArea())
-        .preferredColorScheme(.dark)
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
+        .preferredColorScheme(appState.preferredScheme)
     }
 
     private var currentPin: String { step == 0 ? pin : confirmPin }
@@ -536,6 +538,7 @@ struct PINEntryView: View {
     @Binding var isPresented: Bool
     var onSuccess: () -> Void
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var scheme
 
     @State private var pin = ""
     @State private var errorMsg = ""
@@ -551,14 +554,14 @@ struct PINEntryView: View {
 
             Text(LanguageManager.shared.vault("vault_pin_entry_prompt"))
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(ShieldTheme.textPrimary)
+                .foregroundColor(ShieldTheme.primary(scheme))
 
             HStack(spacing: 16) {
                 ForEach(0..<6, id: \.self) { i in
                     Circle()
-                        .fill(i < pin.count ? ShieldTheme.accent : ShieldTheme.surface3)
+                        .fill(i < pin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
                         .frame(width: 16, height: 16)
-                        .overlay(Circle().stroke(ShieldTheme.surfaceLine, lineWidth: 1))
+                        .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
                 }
             }
 
@@ -571,7 +574,7 @@ struct PINEntryView: View {
             if lockoutRemaining > 0 {
                 Text(LanguageManager.shared.vault("vault_pin_try_again_in", lockoutRemaining))
                     .font(.system(size: 13))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
             }
 
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete, isDisabled: lockoutRemaining > 0)
@@ -579,13 +582,13 @@ struct PINEntryView: View {
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.capture("capture_cancel"))
                     .font(.system(size: 15))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ShieldTheme.surface0.ignoresSafeArea())
-        .preferredColorScheme(.dark)
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
+        .preferredColorScheme(appState.preferredScheme)
         .onAppear {
             refreshLockoutState()
             startLockoutTimer()
@@ -651,6 +654,7 @@ struct PINNumpad: View {
     var onDigit: (String) -> Void
     var onDelete: () -> Void
     var isDisabled: Bool = false
+    @Environment(\.colorScheme) var scheme
 
     private let digits = [["1","2","3"],["4","5","6"],["7","8","9"],["","0","⌫"]]
 
@@ -665,16 +669,16 @@ struct PINNumpad: View {
                         } label: {
                             ZStack {
                                 Circle()
-                                    .fill(key.isEmpty ? Color.clear : ShieldTheme.surface3)
+                                    .fill(key.isEmpty ? Color.clear : ShieldTheme.rowBackground(scheme))
                                     .frame(width: 72, height: 72)
                                 if key == "⌫" {
                                     Image(systemName: "delete.left")
                                         .font(.system(size: 20, weight: .medium))
-                                        .foregroundColor(ShieldTheme.textPrimary)
+                                        .foregroundColor(ShieldTheme.primary(scheme))
                                 } else if !key.isEmpty {
                                     Text(key)
                                         .font(.system(size: 26, weight: .medium))
-                                        .foregroundColor(ShieldTheme.textPrimary)
+                                        .foregroundColor(ShieldTheme.primary(scheme))
                                 }
                             }
                         }

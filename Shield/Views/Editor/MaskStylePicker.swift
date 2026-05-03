@@ -8,6 +8,7 @@ struct MaskStylePicker: View {
     var isUnlocked: (MaskStyle) -> Bool = { _ in true }
     var onLockedSelect: ((MaskStyle) -> Void)? = nil
     var onSelect: ((MaskStyle) -> Void)? = nil
+    @Environment(\.colorScheme) var scheme
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -30,9 +31,9 @@ struct MaskStylePicker: View {
                 }
             }
             .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 6)
+            .padding(.vertical, 2)
         }
-        .background(ShieldTheme.surface1)
+        .background(ShieldTheme.background(scheme))
         .overlay(alignment: .top) {
             ShieldDivider()
         }
@@ -47,10 +48,11 @@ private struct StyleCell: View {
     let isUnlocked: Bool
     let lang: AppLanguage
     let action: () -> Void
+    @Environment(\.colorScheme) var scheme
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 2) { // Reduced from 4
                 ZStack(alignment: .topTrailing) {
                     StylePreviewMini(style: style)
                         .frame(width: 56, height: 22)
@@ -69,14 +71,15 @@ private struct StyleCell: View {
 
                 Text(style.label(lang: lang))
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(isSelected ? ShieldTheme.accent : (isUnlocked ? ShieldTheme.textSecondary : ShieldTheme.textTertiary))
+                    .foregroundColor(isSelected ? ShieldTheme.accent : (isUnlocked ? ShieldTheme.secondary(scheme) : ShieldTheme.tertiary(scheme)))
                     .lineLimit(1)
             }
-            .padding(6)
-            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3) // Reduced from 6
+            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.cardBackground(scheme))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine, lineWidth: isSelected ? 1 : 0.5)
+                    .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.line(scheme), lineWidth: isSelected ? 1 : 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .frame(minWidth: 60)

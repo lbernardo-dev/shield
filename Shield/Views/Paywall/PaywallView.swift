@@ -93,7 +93,7 @@ struct PaywallView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(appState.preferredScheme)
         .task {
             AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
             await pm.loadProducts()

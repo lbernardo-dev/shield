@@ -117,20 +117,21 @@ struct PillButton: View {
 struct IconButton: View {
     let icon: String
     var size: CGFloat = 32
-    var color: Color = ShieldTheme.textPrimary
-    var background: Color = ShieldTheme.surface2
+    var color: Color? = nil
+    var background: Color? = nil
     var action: () -> Void
+    @Environment(\.colorScheme) var scheme
 
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: size * 0.45, weight: .medium))
-                .foregroundColor(color)
+                .foregroundColor(color ?? ShieldTheme.primary(scheme))
                 .frame(width: size, height: size)
-                .background(background)
+                .background(background ?? ShieldTheme.cardBackground(scheme))
                 .overlay(
                     RoundedRectangle(cornerRadius: ShieldTheme.rSM)
-                        .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rSM))
         }
@@ -196,13 +197,14 @@ struct SectionHeader: View {
 struct ShieldProgressDots: View {
     let count: Int
     let current: Int
+    @Environment(\.colorScheme) var scheme
 
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<count, id: \.self) { i in
                 Capsule()
                     .frame(width: i == current ? 22 : 6, height: 6)
-                    .foregroundColor(i == current ? ShieldTheme.accent : ShieldTheme.surface3)
+                    .foregroundColor(i == current ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
                     .animation(.spring(response: 0.3), value: current)
             }
         }

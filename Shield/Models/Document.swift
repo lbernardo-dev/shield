@@ -455,6 +455,16 @@ enum AutoRedactions {
         return fallbackRects
     }
 
+    /// Returns ONLY bounding-box-derived rects for `mode`, with no grid fallback.
+    /// Returns an empty array when Vision OCR did not detect the required fields.
+    /// Use this for photo/genericID documents where grid zones would be meaningless.
+    static func ocrPrecisionModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
+        guard let precise = precisionRects(for: mode, fields: fields), !precise.isEmpty else {
+            return []
+        }
+        return mergeRects(precise)
+    }
+
     // Precision: locate actual field text in Vision bounding boxes and expand slightly for coverage.
     private static func precisionRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect]? {
         guard let texts = fields.ocrBoundingTexts,

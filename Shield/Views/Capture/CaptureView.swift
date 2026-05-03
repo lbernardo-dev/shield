@@ -102,6 +102,7 @@ struct CaptureView: View {
     /// Non-nil when ScanReviewView was opened for re-adjustment of an existing document.
     /// In this mode, confirmed pages overwrite the doc's files instead of creating a new doc.
     @State private var docToReadjust: DocumentItem? = nil
+    @State private var stagedAdjustments: [ScanPageAdjustment]? = nil
     @State private var selectedScanType: ScanDocumentType = .identity
     @State private var showScanTypeGuide: Bool = true
     @State private var showCloudPicker: Bool = false
@@ -137,11 +138,13 @@ struct CaptureView: View {
         .fullScreenCover(isPresented: $showScanReview) {
             ScanReviewView(
                 pages: stagedPages,
+                initialAdjustments: stagedAdjustments,
                 onCancel: {
                     showScanReview = false
                     stagedPages = []
                     stagedSourceFileName = nil
                     docToReadjust = nil
+                    stagedAdjustments = nil
                 },
                 onConfirm: { adjustedPages, hasAdjustments in
                     showScanReview = false
@@ -201,8 +204,16 @@ struct CaptureView: View {
         // Re-adjust scan from EditorView: present at THIS level so safe-area works correctly.
         .onChange(of: appState.showScanReviewForEdit) {
             guard appState.showScanReviewForEdit else { return }
-            docToReadjust = appState.selectedDoc
-            stagedPages = appState.scanReviewPagesForEdit
+            let doc = appState.selectedDoc
+            docToReadjust = doc
+            stagedPages = appState.scanReviewPagesForEdit.map { $0.normalizedForShield() }
+            
+            // Map existing adjustments if available
+            if let doc = doc {
+                let count = appState.scanReviewPagesForEdit.count
+                stagedAdjustments = Array(repeating: .default, count: count)
+            }
+            
             showScanReview = true
             appState.showScanReviewForEdit = false
             appState.scanReviewPagesForEdit = []
@@ -1153,8 +1164,19 @@ struct FourPointPerspectiveEditor: View {
 struct ScanReviewView: View {
     @EnvironmentObject var appState: AppState
     let pages: [UIImage]
+    let initialAdjustments: [ScanPageAdjustment]?
     var onCancel: () -> Void
     var onConfirm: ([UIImage], Bool) -> Void
+
+    init(pages: [UIImage], 
+         initialAdjustments: [ScanPageAdjustment]? = nil, 
+         onCancel: @escaping () -> Void, 
+         onConfirm: @escaping ([UIImage], Bool) -> Void) {
+        self.pages = pages
+        self.initialAdjustments = initialAdjustments
+        self.onCancel = onCancel
+        self.onConfirm = onConfirm
+    }
 
     @State private var selectedPage = 0
     @State private var adjustments: [ScanPageAdjustment] = []
@@ -1162,30 +1184,82 @@ struct ScanReviewView: View {
     @State private var selectedPreset: ScanAdjustmentPreset = .document
     @State private var showQuadEditor = false
     @State private var showAdvancedControls = false
+    
+    // Async processing state
+    @State private var processedImage: UIImage? = nil
+    @State private var processingTask: Task<Void, Never>? = nil
+    @State private var isProcessingImage = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            previewArea
-
+        GeometryReader { geo in
             VStack(spacing: 0) {
-                pageStrip
-                controls
+                header
+
+                previewArea
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                VStack(spacing: 0) {
+                    pageStrip
+                    controls
+                }
+                .frame(width: geo.size.width, height: geo.size.height * 0.48)
+                .background(ShieldTheme.pageBackground(.dark))
             }
-            .frame(maxHeight: 380)
-            .background(ShieldTheme.pageBackground(.dark))
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.pageBackground(.dark).ignoresSafeArea())
         .preferredColorScheme(.dark)
         .onAppear {
-            // Always reset editing state to avoid stale adjustments from previous sessions
-            // causing blank/fully-cropped previews.
-            selectedPage = 0
-            showQuadEditor = false
-            showAdvancedControls = false
+            setupInitialState()
+        }
+        .onChange(of: selectedPage) { updateProcessedImage() }
+        .onChange(of: adjustments) { updateProcessedImage() }
+        .onChange(of: showQuadEditor) { updateProcessedImage() }
+    }
+
+    private func setupInitialState() {
+        selectedPage = 0
+        showQuadEditor = false
+        showAdvancedControls = false
+        
+        if let initial = initialAdjustments, initial.count == pages.count {
+            adjustments = initial
+        } else {
             adjustments = Array(repeating: .default, count: pages.count)
         }
+        
+        updateProcessedImage()
+    }
+
+    private func updateProcessedImage() {
+        processingTask?.cancel()
+
+        let image = pages[safe: selectedPage] ?? pages.first ?? UIImage()
+        let adjustment = adjustments[safe: selectedPage] ?? .default
+
+        // Always show the raw image immediately so the preview never stays blank
+        processedImage = image
+
+        if showQuadEditor {
+            return
+        }
+
+        isProcessingImage = true
+        let task = Task {
+            let result = await Task.detached(priority: .userInitiated) {
+                ScanImageProcessor.apply(image, adjustment: adjustment)
+            }.value
+
+            let wasCancelled = Task.isCancelled
+            await MainActor.run {
+                if !wasCancelled {
+                    processedImage = result ?? image
+                }
+                isProcessingImage = false
+            }
+        }
+        processingTask = task
     }
 
     private var header: some View {
@@ -1193,132 +1267,119 @@ struct ScanReviewView: View {
             Button(LanguageManager.shared.capture("capture_cancel")) {
                 onCancel()
             }
-            .font(.system(size: 15, weight: .semibold))
+            .font(.system(size: 14, weight: .medium))
             .foregroundColor(ShieldTheme.textSecondary)
+            .frame(width: 70, alignment: .leading)
 
             Spacer()
+            
             Text(LanguageManager.shared.capture("capture_enhance_title"))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
+            
             Spacer()
 
             Button(applying ? LanguageManager.shared.capture("capture_processing") : LanguageManager.shared.common("common_continue")) {
                 applyAndContinue()
             }
             .disabled(applying)
-            .font(.system(size: 15, weight: .bold))
+            .font(.system(size: 14, weight: .bold))
             .foregroundColor(ShieldTheme.accent)
+            .frame(width: 70, alignment: .trailing)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 12)
-        .padding(.top, 10)
-        .frame(maxWidth: .infinity)
-        .background(ShieldTheme.pageBackground(.dark).ignoresSafeArea(edges: .top))
-        .padding(.top, UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first(where: \.isKeyWindow)?
-            .safeAreaInsets.top ?? 59)
+        .padding(.vertical, 10)
+        .background(ShieldTheme.pageBackground(.dark))
     }
 
     private var previewArea: some View {
         let image = pages[safe: selectedPage] ?? pages.first ?? UIImage()
-        let adjustment = adjustments[safe: selectedPage] ?? .default
-        // In quad-edit mode show original; otherwise show processed preview
-        let preview: UIImage = showQuadEditor ? image : (ScanImageProcessor.apply(image, adjustment: adjustment) ?? image)
+        let preview = processedImage ?? image
 
-        return ZStack(alignment: .topTrailing) {
-            GeometryReader { geo in
-                let dimensions: (width: CGFloat, height: CGFloat) = {
-                    let w = geo.size.width
-                    let h = geo.size.height
-                    let imgW = preview.size.width
-                    let imgH = preview.size.height
-
-                    if imgW > 0 && imgH > 0 && w > 0 && h > 0 && w.isFinite && h.isFinite {
-                        let aspect = imgW / imgH
-                        let geoAspect = w / h
-
-                        if aspect > geoAspect {
-                            return (w, w / aspect)
-                        } else {
-                            return (h * aspect, h)
-                        }
-                    }
-                    return (0, 0)
-                }()
-
-                let frameW = dimensions.width
-                let frameH = dimensions.height
-
-                ZStack {
+        return ZStack {
+            // Main image container
+            Group {
+                if preview.size.width > 0 {
                     Image(uiImage: preview)
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: frameW, height: frameH)
+                        .aspectRatio(contentMode: .fit)
                         .background(ShieldTheme.surface2)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                    // 4-point perspective overlay
-                    if showQuadEditor {
-                        let currentQuad = Binding<ScanQuad>(
-                            get: { adjustments[safe: selectedPage]?.quad ?? .identity },
-                            set: { newQuad in
-                                if selectedPage < adjustments.count {
-                                    adjustments[selectedPage].quad = newQuad
+                        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                        .overlay(
+                            GeometryReader { innerGeo in
+                                Color.clear.onAppear {
+                                    // Could store size if needed for quad editor
+                                }
+                                
+                                if showQuadEditor {
+                                    let currentQuad = Binding<ScanQuad>(
+                                        get: { adjustments[safe: selectedPage]?.quad ?? .identity },
+                                        set: { newQuad in
+                                            if selectedPage < adjustments.count {
+                                                adjustments[selectedPage].quad = newQuad
+                                            }
+                                        }
+                                    )
+                                    FourPointPerspectiveEditor(quad: currentQuad, imageSize: preview.size)
+                                        .frame(width: innerGeo.size.width, height: innerGeo.size.height)
                                 }
                             }
                         )
-                        FourPointPerspectiveEditor(quad: currentQuad, imageSize: preview.size)
-                            .frame(width: frameW, height: frameH)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            }
-
-            VStack(alignment: .trailing, spacing: 6) {
-                Text("\(selectedPage + 1)/\(max(1, pages.count))")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(ShieldTheme.surface3)
-                    .clipShape(Capsule())
-
-                // Quad editor toggle
-                Button {
-                    if !showQuadEditor, adjustments[safe: selectedPage]?.quad == nil,
-                       selectedPage < adjustments.count {
-                        adjustments[selectedPage].quad = .identity
-                    }
-                    withAnimation(.spring(response: 0.25)) { showQuadEditor.toggle() }
-                } label: {
-                    Image(systemName: showQuadEditor ? "perspective" : "skew")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(showQuadEditor ? .black : ShieldTheme.textPrimary)
-                        .frame(width: 28, height: 28)
-                        .background(showQuadEditor ? ShieldTheme.accent : ShieldTheme.surface3)
-                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                } else {
+                    ProgressView()
+                        .tint(ShieldTheme.accent)
                 }
             }
-            .padding(10)
+            .padding(12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Overlays (Page counter and skewed button)
+            VStack {
+                HStack {
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text("\(selectedPage + 1)/\(max(1, pages.count))")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(ShieldTheme.textPrimary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(ShieldTheme.surface3.opacity(0.8))
+                            .clipShape(Capsule())
+
+                        Button {
+                            if !showQuadEditor, adjustments[safe: selectedPage]?.quad == nil,
+                               selectedPage < adjustments.count {
+                                adjustments[selectedPage].quad = .identity
+                            }
+                            withAnimation(.spring(response: 0.25)) { showQuadEditor.toggle() }
+                        } label: {
+                            Image(systemName: showQuadEditor ? "perspective" : "skew")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(showQuadEditor ? .black : ShieldTheme.textPrimary)
+                                .frame(width: 32, height: 32)
+                                .background(showQuadEditor ? ShieldTheme.accent : ShieldTheme.surface3.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                    .padding(12)
+                }
+                Spacer()
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 10)
     }
 
     private var pageStrip: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(Array(pages.enumerated()), id: \.offset) { idx, image in
-                    let preview = ScanImageProcessor.apply(image, adjustment: adjustments[safe: idx] ?? .default) ?? image
                     Button {
                         selectedPage = idx
                     } label: {
-                        Image(uiImage: preview)
+                        Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 50, height: 68) // Slightly smaller since the bottom area is more compact
+                            .frame(width: 50, height: 68)
                             .clipped()
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
@@ -1330,14 +1391,13 @@ struct ScanReviewView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 10)
-            .padding(.bottom, 10)
+            .padding(.vertical, 4) // Reduced
         }
     }
 
     private var controls: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 14) {
+            VStack(spacing: 10) { // Reduced from 14
                 presetSection
                 filterSection
                 quickGeometrySection
@@ -1392,7 +1452,7 @@ struct ScanReviewView: View {
                 .buttonStyle(ScaleButtonStyle())
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 26)
+            .padding(.bottom, 16) // Reduced from 26
         }
     }
 

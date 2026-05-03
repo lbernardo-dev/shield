@@ -7,6 +7,7 @@ struct WatermarkConfigView: View {
     let defaultText: String
     @Binding var isPresented: Bool
     let onSave: (Watermark?) -> Void
+    @Environment(\.colorScheme) var scheme
 
     @State private var text: String
     @State private var opacity: Double
@@ -30,7 +31,7 @@ struct WatermarkConfigView: View {
             HStack {
                 Text(LanguageManager.shared.editor("editor_watermark_title"))
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button {
                     onSave(nil)
@@ -45,9 +46,9 @@ struct WatermarkConfigView: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 28, height: 28)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -64,14 +65,14 @@ struct WatermarkConfigView: View {
                         label(LanguageManager.shared.editor("editor_watermark_text"))
                         TextField(LanguageManager.shared.editor("editor_watermark_placeholder"), text: $text)
                             .font(.system(size: 14))
-                            .foregroundColor(ShieldTheme.textPrimary)
+                            .foregroundColor(ShieldTheme.primary(scheme))
                             .padding(.horizontal, 12)
                             .frame(height: 40)
-                            .background(ShieldTheme.surface3)
+                            .background(ShieldTheme.rowBackground(scheme))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
                             )
                     }
 
@@ -82,7 +83,7 @@ struct WatermarkConfigView: View {
                             Spacer()
                             Text("\(Int(opacity * 100))%")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(ShieldTheme.textSecondary)
+                                .foregroundColor(ShieldTheme.secondary(scheme))
                         }
                         Slider(value: $opacity, in: 0.05...0.6, step: 0.01)
                             .tint(ShieldTheme.accent)
@@ -102,10 +103,10 @@ struct WatermarkConfigView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(LanguageManager.shared.editor("editor_watermark_tile_title"))
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(ShieldTheme.textPrimary)
+                                .foregroundColor(ShieldTheme.primary(scheme))
                             Text(LanguageManager.shared.editor("editor_watermark_tile_desc"))
                                 .font(.system(size: 11))
-                                .foregroundColor(ShieldTheme.textTertiary)
+                                .foregroundColor(ShieldTheme.tertiary(scheme))
                         }
                         Spacer()
                         Toggle("", isOn: $isRepeating)
@@ -129,7 +130,7 @@ struct WatermarkConfigView: View {
                             }
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
                     }
                 }
                 .padding(.horizontal, ShieldTheme.s5)
@@ -148,7 +149,7 @@ struct WatermarkConfigView: View {
                         .foregroundColor(ShieldTheme.accentText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(text.isEmpty ? ShieldTheme.surface3 : ShieldTheme.accent)
+                        .background(text.isEmpty ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accent)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(ScaleButtonStyle())
@@ -172,7 +173,7 @@ struct WatermarkConfigView: View {
     private func label(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 10, weight: .bold))
-            .foregroundColor(ShieldTheme.textTertiary)
+            .foregroundColor(ShieldTheme.tertiary(scheme))
             .tracking(0.5)
     }
 }

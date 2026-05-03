@@ -68,6 +68,7 @@ struct ContentView: View {
 
             if let doc = appState.selectedDoc {
                 EditorView(doc: doc)
+                    .id(doc.id)
                     .transition(.move(edge: .trailing))
                     .zIndex(60)
             }

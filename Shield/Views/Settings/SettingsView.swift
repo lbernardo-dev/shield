@@ -516,12 +516,12 @@ struct SettingsView: View {
                         .foregroundColor(ShieldTheme.textPrimary)
                     Text(LanguageManager.shared.settings("settings_pro_unlock_features"))
                         .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.textSecondary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.textSecondary)
             }
             .padding(16)
             .background(
@@ -547,7 +547,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(LanguageManager.shared.settings("settings_pro_active"))
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.settings("settings_pro_unlocked"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.success)

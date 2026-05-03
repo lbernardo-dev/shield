@@ -145,7 +145,7 @@ struct LockScreenView: View {
                         }
                         .buttonStyle(ScaleButtonStyle())
                     } else {
-                        Button { authenticatePasscode() } label: {
+                        Button { showPINSetup = true } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "lock.circle.fill")
                                     .font(.system(size: 18, weight: .medium))
@@ -158,7 +158,6 @@ struct LockScreenView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .buttonStyle(ScaleButtonStyle())
-                        .disabled(isAuthenticating)
                     }
 
                     // Always-visible code option in the same lock screen
@@ -195,7 +194,7 @@ struct LockScreenView: View {
                 Spacer().frame(height: 60)
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(appState.preferredScheme)
         .fullScreenCover(isPresented: $showPINEntry) {
             PINEntryView(isPresented: $showPINEntry) {
                 withAnimation(.easeInOut(duration: 0.2)) {
