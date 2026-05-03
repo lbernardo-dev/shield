@@ -15,7 +15,7 @@ struct AllDocumentsView: View {
                             Image(systemName: "doc.badge.plus")
                                 .font(.system(size: 44, weight: .light))
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                            Text(appState.str("home_no_documents", table: "Home"))
+                            Text(LanguageManager.shared.home("home_no_documents"))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
                         }
@@ -34,23 +34,23 @@ struct AllDocumentsView: View {
                                             appState.toggleFavorite(doc)
                                         } label: {
                                             Label(doc.isFavorite
-                                                  ? appState.str("home_remove_favorite", table: "Home")
-                                                  : appState.str("home_mark_favorite", table: "Home"),
+                                                  ? LanguageManager.shared.home("home_remove_favorite")
+                                                  : LanguageManager.shared.home("home_mark_favorite"),
                                                   systemImage: doc.isFavorite ? "star.slash" : "star.fill")
                                         }
                                         Button {
                                             appState.toggleVault(doc)
                                         } label: {
                                             Label(doc.isVaulted
-                                                  ? appState.str("vault_move_out", table: "Vault")
-                                                  : appState.str("vault_move_to_vault", table: "Vault"),
+                                                  ? LanguageManager.shared.vault("vault_move_out")
+                                                  : LanguageManager.shared.vault("vault_move_to_vault"),
                                                   systemImage: doc.isVaulted ? "lock.open" : "lock.fill")
                                         }
                                         Divider()
                                         Button(role: .destructive) {
                                             appState.deleteDocument(doc)
                                         } label: {
-                                            Label(appState.str("common_delete", table: "Common"), systemImage: "trash")
+                                            Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
                                         }
                                     }
                                 }
@@ -62,12 +62,12 @@ struct AllDocumentsView: View {
                     }
                 }
             }
-            .navigationTitle(appState.str("home_all_documents", table: "Home"))
+            .navigationTitle(LanguageManager.shared.home("home_all_documents"))
             .navigationBarTitleDisplayMode(.large)
             .colorScheme(appState.preferredScheme)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(appState.str("common_close", table: "Common")) { dismiss() }
+                    Button(LanguageManager.shared.common("common_close")) { dismiss() }
                         .foregroundColor(ShieldTheme.accent)
                 }
             }

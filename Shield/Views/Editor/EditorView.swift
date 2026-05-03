@@ -82,7 +82,7 @@ struct EditorView: View {
                 WatermarkConfigView(
                     watermark: vm.watermark,
                     lang: appState.language,
-                    defaultText: appState.str("model_for_verification_only"),
+                    defaultText: LanguageManager.shared.model("model_for_verification_only"),
                     isPresented: $showWatermarkConfig
                 ) { newWatermark in
                     vm.setWatermark(newWatermark)
@@ -101,7 +101,7 @@ struct EditorView: View {
 
     private var topBar: some View {
         HStack {
-            Button(appState.str("common_cancel")) {
+            Button(LanguageManager.shared.common("common_cancel")) {
                 if vm.redactions.isEmpty {
                     appState.selectedDoc = nil
                     dismiss()
@@ -112,17 +112,17 @@ struct EditorView: View {
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(ShieldTheme.accent)
             .confirmationDialog(
-                appState.str("editor_exit_confirm", table: "Editor"),
+                LanguageManager.shared.editor("editor_exit_confirm"),
                 isPresented: $showCancelConfirm,
                 titleVisibility: .visible
             ) {
-                Button(appState.str("editor_exit", table: "Editor"), role: .destructive) {
+                Button(LanguageManager.shared.editor("editor_exit"), role: .destructive) {
                     appState.selectedDoc = nil
                     dismiss()
                 }
-                Button(appState.str("editor_keep_editing", table: "Editor"), role: .cancel) {}
+                Button(LanguageManager.shared.editor("editor_keep_editing"), role: .cancel) {}
             } message: {
-                Text(appState.str("editor_exit_warning", table: "Editor"))
+                Text(LanguageManager.shared.editor("editor_exit_warning"))
             }
 
             Spacer()
@@ -133,7 +133,7 @@ struct EditorView: View {
                     .foregroundColor(ShieldTheme.textPrimary)
                     .lineLimit(1)
                 Text(vm.redactions.isEmpty
-                     ? appState.str("editor_no_redactions", table: "Editor")
+                     ? LanguageManager.shared.editor("editor_no_redactions")
                      : appState.redactionsCount(vm.redactions.count))
                     .font(.system(size: 11))
                     .foregroundColor(ShieldTheme.textTertiary)
@@ -144,7 +144,7 @@ struct EditorView: View {
             Button {
                 vm.showExportSheet = true
             } label: {
-                Text(appState.str("editor_export", table: "Editor"))
+                Text(LanguageManager.shared.editor("editor_export"))
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(ShieldTheme.accentText)
                     .padding(.horizontal, 14)
@@ -170,10 +170,10 @@ struct EditorView: View {
                     .foregroundColor(ShieldTheme.warning)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(appState.str("editor_sensitive_suggested", args: vm.suggestedRedactionCount, table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_sensitive_suggested", vm.suggestedRedactionCount))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
-                    Text(appState.str("editor_sensitive_based_on_template", table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_sensitive_based_on_template"))
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textSecondary)
                 }
@@ -182,7 +182,7 @@ struct EditorView: View {
                 Button {
                     vm.applyAutoDetect()
                 } label: {
-                    Text(appState.str("common_apply", table: "Common"))
+                    Text(LanguageManager.shared.common("common_apply"))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.horizontal, 12)
@@ -222,10 +222,10 @@ struct EditorView: View {
                     .foregroundColor(ShieldTheme.accent)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(appState.str("editor_redactions_on_page", args: vm.redactions.count, table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_redactions_on_page", vm.redactions.count))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
-                    Text(appState.str("editor_apply_to_all", table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_apply_to_all"))
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textSecondary)
                 }
@@ -234,7 +234,7 @@ struct EditorView: View {
                 Button {
                     vm.propagateCurrentPageToAllPages()
                 } label: {
-                    Text(appState.str("editor_find_all", table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_find_all"))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.horizontal, 12)
@@ -305,7 +305,7 @@ struct EditorView: View {
                         .disabled(currentPage == 0)
                     }
 
-                    Text(appState.str("editor_page_indicator", args: [currentPage + 1, max(totalPages, 1)], table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_page_indicator", currentPage + 1, max(totalPages, 1)))
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .padding(.horizontal, 8)

@@ -42,18 +42,18 @@ struct SettingsView: View {
 
     private var autoLockOptions: [String] {
         [
-            appState.str("settings_autolock_immediately"),
-            appState.str("settings_autolock_1_minute"),
-            appState.str("settings_autolock_5_minutes"),
-            appState.str("settings_autolock_15_minutes"),
-            appState.str("settings_autolock_never")
+            LanguageManager.shared.settings("settings_autolock_immediately"),
+            LanguageManager.shared.settings("settings_autolock_1_minute"),
+            LanguageManager.shared.settings("settings_autolock_5_minutes"),
+            LanguageManager.shared.settings("settings_autolock_15_minutes"),
+            LanguageManager.shared.settings("settings_autolock_never")
         ]
     }
     private var exportFormats: [String] {
-        [appState.str("settings_format_pdf"), appState.str("settings_format_image")]
+        [LanguageManager.shared.settings("settings_format_pdf"), LanguageManager.shared.settings("settings_format_image")]
     }
     private var exportQualities: [String] {
-        [appState.str("settings_quality_high"), appState.str("settings_quality_medium"), appState.str("settings_quality_low")]
+        [LanguageManager.shared.settings("settings_quality_high"), LanguageManager.shared.settings("settings_quality_medium"), LanguageManager.shared.settings("settings_quality_low")]
     }
     private let ocrConfidenceOptions = ["70%", "80%", "90%"]
 
@@ -65,7 +65,7 @@ struct SettingsView: View {
                 VStack(spacing: 0) {
                     // Title
                     HStack {
-                        Text(appState.str("settings_title"))
+                        Text(LanguageManager.shared.settings("settings_title"))
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
                             .tracking(-0.5)
@@ -87,12 +87,12 @@ struct SettingsView: View {
                     }
 
                     // Appearance
-                    settingsSection(title: appState.str("settings_appearance")) {
+                    settingsSection(title: LanguageManager.shared.settings("settings_appearance")) {
                         // Theme
                         settingsRow(
                             icon: "moon.fill",
                             iconColor: "5E5CE6",
-                            title: appState.str("settings_dark_mode")
+                            title: LanguageManager.shared.settings("settings_dark_mode")
                         ) {
                             ShieldToggle(isOn: Binding(
                                 get: { appState.preferredScheme == .dark },
@@ -105,11 +105,11 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "globe",
                             iconColor: "64D2FF",
-                            title: appState.str("settings_language")
+                            title: LanguageManager.shared.settings("settings_language")
                         ) {
                             Picker("", selection: $appState.language) {
-                                Text("Español").tag(AppLanguage.es)
-                                Text("English").tag(AppLanguage.en)
+                                Text(LanguageManager.shared.common("common_language_es")).tag(AppLanguage.es)
+                                Text(LanguageManager.shared.common("common_language_en")).tag(AppLanguage.en)
                             }
                             .pickerStyle(.segmented)
                             .frame(width: 130)
@@ -117,11 +117,11 @@ struct SettingsView: View {
                     }
 
                     // Security
-                    settingsSection(title: appState.str("settings_security")) {
+                    settingsSection(title: LanguageManager.shared.settings("settings_security")) {
                         settingsRow(
                             icon: "faceid",
                             iconColor: "30D158",
-                            title: appState.str("settings_face_id")
+                            title: LanguageManager.shared.settings("settings_face_id")
                         ) {
                             ShieldToggle(isOn: $biometricEnabled)
                                 .onChange(of: biometricEnabled) { _, v in
@@ -145,7 +145,7 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "lock.circle.fill",
                             iconColor: "BF5AF2",
-                            title: PINManager.hasPIN ? appState.str("settings_change_pin") : appState.str("settings_setup_pin")
+                            title: PINManager.hasPIN ? LanguageManager.shared.settings("settings_change_pin") : LanguageManager.shared.settings("settings_setup_pin")
                         ) {
                             if PINManager.hasPIN {
                                 showPINEntry = true
@@ -158,7 +158,7 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "lock.rotation",
                             iconColor: "FF9F0A",
-                            title: appState.str("settings_auto_lock"),
+                            title: LanguageManager.shared.settings("settings_auto_lock"),
                             value: autoLockOptions[autoLockIndex],
                             row: .autoLock
                         ) {
@@ -178,7 +178,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "hand.tap.fill",
                             iconColor: "FF453A",
-                            title: appState.str("settings_haptic_feedback")
+                            title: LanguageManager.shared.settings("settings_haptic_feedback")
                         ) {
                             ShieldToggle(isOn: $hapticEnabled)
                                 .onChange(of: hapticEnabled) { _, v in
@@ -191,7 +191,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "checkmark.shield.fill",
                             iconColor: "0A84FF",
-                            title: appState.str("settings_strict_kyc")
+                            title: LanguageManager.shared.settings("settings_strict_kyc")
                         ) {
                             ShieldToggle(isOn: $strictKYCEnabled)
                                 .onChange(of: strictKYCEnabled) { _, v in
@@ -204,7 +204,7 @@ struct SettingsView: View {
                         settingsRow(
                             icon: "exclamationmark.triangle.fill",
                             iconColor: "FF9F0A",
-                            title: appState.str("settings_low_confidence_alert")
+                            title: LanguageManager.shared.settings("settings_low_confidence_alert")
                         ) {
                             ShieldToggle(isOn: $warnLowConfidenceEnabled)
                                 .onChange(of: warnLowConfidenceEnabled) { _, v in
@@ -217,7 +217,7 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "slider.horizontal.3",
                             iconColor: "64D2FF",
-                            title: appState.str("settings_ocr_threshold"),
+                            title: LanguageManager.shared.settings("settings_ocr_threshold"),
                             value: ocrConfidenceOptions[ocrConfidenceIndex],
                             row: .ocrConfidence
                         ) {
@@ -237,11 +237,11 @@ struct SettingsView: View {
                     iCloudSection
 
                     // Export defaults
-                    settingsSection(title: appState.str("settings_export")) {
+                    settingsSection(title: LanguageManager.shared.settings("settings_export")) {
                         expandableRow(
                             icon: "doc.fill",
                             iconColor: "FFD60A",
-                            title: appState.str("settings_default_format"),
+                            title: LanguageManager.shared.settings("settings_default_format"),
                             value: exportFormats[exportFormatIndex],
                             row: .exportFormat
                         ) {
@@ -261,7 +261,7 @@ struct SettingsView: View {
                         expandableRow(
                             icon: "photo.fill",
                             iconColor: "64D2FF",
-                            title: appState.str("settings_image_quality"),
+                            title: LanguageManager.shared.settings("settings_image_quality"),
                             value: exportQualities[exportQualityIndex],
                             row: .exportQuality
                         ) {
@@ -278,11 +278,11 @@ struct SettingsView: View {
                     }
 
                     // About
-                    settingsSection(title: appState.str("settings_about")) {
+                    settingsSection(title: LanguageManager.shared.settings("settings_about")) {
                         settingsRow(
                             icon: "info.circle.fill",
                             iconColor: "5E5CE6",
-                            title: appState.str("settings_version")
+                            title: LanguageManager.shared.settings("settings_version")
                         ) {
                             Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
                                 .font(.system(size: 14))
@@ -294,7 +294,7 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "star.fill",
                             iconColor: "FFD60A",
-                            title: appState.str("settings_rate_app")
+                            title: LanguageManager.shared.settings("settings_rate_app")
                         ) {
                             if let url = URL(string: "itms-apps://itunes.apple.com/app/id6745955196?action=write-review") {
                                 UIApplication.shared.open(url)
@@ -306,12 +306,12 @@ struct SettingsView: View {
                         settingsRowButton(
                             icon: "envelope.fill",
                             iconColor: "30D158",
-                            title: appState.str("settings_contact")
+                            title: LanguageManager.shared.settings("settings_contact")
                         ) {
                             if MFMailComposeViewController.canSendMail() {
                                 showMailCompose = true
                             } else {
-                                let subject = appState.str("settings_support_subject")
+                                let subject = LanguageManager.shared.settings("settings_support_subject")
                                     .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                                 if let url = URL(string: "mailto:support@shieldapp.io?subject=\(subject)") {
                                     UIApplication.shared.open(url)
@@ -326,11 +326,11 @@ struct SettingsView: View {
                     #endif
 
                     // Danger zone
-                    settingsSection(title: appState.str("settings_privacy")) {
+                    settingsSection(title: LanguageManager.shared.settings("settings_privacy")) {
                         settingsRowButton(
                             icon: "trash.fill",
                             iconColor: "FF453A",
-                            title: appState.str("settings_delete_all_documents"),
+                            title: LanguageManager.shared.settings("settings_delete_all_documents"),
                             titleColor: ShieldTheme.danger
                         ) {
                             showDeleteConfirm = true
@@ -355,12 +355,12 @@ struct SettingsView: View {
             }.environmentObject(appState)
         }
         .alert(
-            appState.str("settings_biometric_unavailable"),
+            LanguageManager.shared.settings("settings_biometric_unavailable"),
             isPresented: $showBiometricAlert
         ) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(appState.str("settings_biometric_unavailable_message"))
+            Text(LanguageManager.shared.settings("settings_biometric_unavailable_message"))
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
@@ -369,21 +369,21 @@ struct SettingsView: View {
         .sheet(isPresented: $showMailCompose) {
             MailComposeView(
                 recipient: "support@shieldapp.io",
-                subject: appState.str("settings_support_subject"),
-                body: appState.str("settings_support_body")
+                subject: LanguageManager.shared.settings("settings_support_subject"),
+                body: LanguageManager.shared.settings("settings_support_body")
             )
         }
         .confirmationDialog(
-            appState.str("settings_delete_all_confirm_title"),
+            LanguageManager.shared.settings("settings_delete_all_confirm_title"),
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button(appState.str("settings_delete_all_button"), role: .destructive) {
+            Button(LanguageManager.shared.settings("settings_delete_all_button"), role: .destructive) {
                 appState.deleteAllDocuments()
             }
-            Button(appState.str("common_cancel"), role: .cancel) {}
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
         } message: {
-            Text(appState.str("settings_delete_all_confirm_message"))
+            Text(LanguageManager.shared.settings("settings_delete_all_confirm_message"))
         }
         .onAppear {
             sanitizePreferences()
@@ -394,11 +394,11 @@ struct SettingsView: View {
 
     #if DEBUG
     private var developerSection: some View {
-        settingsSection(title: appState.str("settings_developer")) {
+        settingsSection(title: LanguageManager.shared.settings("settings_developer")) {
             settingsRow(
                 icon: "hammer.fill",
                 iconColor: "FF6B35",
-                title: appState.str("settings_premium_override")
+                title: LanguageManager.shared.settings("settings_premium_override")
             ) {
                 ShieldToggle(isOn: Binding(
                     get: { pm.isDebugProOverride },
@@ -413,15 +413,15 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var iCloudSection: some View {
-        settingsSection(title: appState.str("settings_icloud")) {
+        settingsSection(title: LanguageManager.shared.settings("settings_icloud")) {
             if !pm.isPro {
                 settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: appState.str("settings_icloud_sync")) {
+                            title: LanguageManager.shared.settings("settings_icloud_sync")) {
                     Button {
                         paywallTrigger = .settingsUpgrade
                         showPaywall = true
                     } label: {
-                        Text(appState.str("common_pro"))
+                        Text(LanguageManager.shared.common("common_pro"))
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(.horizontal, 8).padding(.vertical, 3)
@@ -431,7 +431,7 @@ struct SettingsView: View {
                 }
             } else {
                 settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: appState.str("settings_icloud_sync_with")) {
+                            title: LanguageManager.shared.settings("settings_icloud_sync_with")) {
                     ShieldToggle(isOn: $iCloudEnabled)
                         .onChange(of: iCloudEnabled) { _, v in
                             cloud.setSyncEnabled(v)
@@ -444,7 +444,7 @@ struct SettingsView: View {
                 if iCloudEnabled {
                     ShieldDivider().padding(.leading, 54)
                     settingsRow(icon: "arrow.clockwise.icloud", iconColor: "64D2FF",
-                                title: appState.str("settings_icloud_sync_now")) {
+                                title: LanguageManager.shared.settings("settings_icloud_sync_now")) {
                         Button {
                             Task { await cloud.pushDocuments(appState.documents) }
                         } label: {
@@ -462,7 +462,7 @@ struct SettingsView: View {
                     if let lastSync = cloud.lastSyncFormatted {
                         ShieldDivider().padding(.leading, 54)
                         settingsRow(icon: "checkmark.icloud", iconColor: "30D158",
-                                    title: appState.str("settings_icloud_last_sync")) {
+                                    title: LanguageManager.shared.settings("settings_icloud_last_sync")) {
                             Text(lastSync)
                                 .font(.system(size: 12))
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
@@ -485,7 +485,7 @@ struct SettingsView: View {
                     if !cloud.isAvailable {
                         ShieldDivider().padding(.leading, 54)
                         settingsRow(icon: "xmark.icloud", iconColor: "FF453A",
-                                    title: appState.str("settings_icloud_unavailable")) {
+                                    title: LanguageManager.shared.settings("settings_icloud_unavailable")) {
                             EmptyView()
                         }
                     }
@@ -511,10 +511,10 @@ struct SettingsView: View {
                         .foregroundColor(ShieldTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Shield Pro")
+                    Text(LanguageManager.shared.common("common_pro_name"))
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
-                    Text(appState.str("settings_pro_unlock_features"))
+                    Text(LanguageManager.shared.settings("settings_pro_unlock_features"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
@@ -545,10 +545,10 @@ struct SettingsView: View {
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(appState.str("settings_pro_active"))
+                Text(LanguageManager.shared.settings("settings_pro_active"))
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
-                Text(appState.str("settings_pro_unlocked"))
+                Text(LanguageManager.shared.settings("settings_pro_unlocked"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.success)
             }
@@ -714,7 +714,7 @@ struct SettingsView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.str("settings_biometric_reason")
+            localizedReason: LanguageManager.shared.settings("settings_biometric_reason")
         ) { ok, _ in
             DispatchQueue.main.async {
                 biometricEnabled = ok

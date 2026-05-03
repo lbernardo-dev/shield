@@ -134,7 +134,7 @@ struct PhotoDocumentView: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color(hex: "2a2a2a"))
                     .overlay(
-                        Image(systemName: "doc.fill")
+                        Image(systemName: "doc.on.doc.fill")
                             .font(.system(size: size.height * 0.25))
                             .foregroundColor(Color(hex: "555555"))
                     )
@@ -265,7 +265,7 @@ func drawMask(
 
     case .redactedTag:
         context.fill(Path(rect), with: .color(.black))
-        let text = Text("REDACTED")
+        let text = Text(LanguageManager.shared.model("model_mask_redacted_label"))
             .font(.system(size: min(rect.height * 0.5, 12), weight: .bold, design: .monospaced))
             .foregroundColor(Color(hex: "FFD60A"))
         context.draw(text, at: CGPoint(x: rect.midX, y: rect.midY))
@@ -368,12 +368,12 @@ struct DNISpainView: View {
                      with: .color(Color(hex: "1B3A6B")))
 
         // Header text
-        let headerText1 = Text("REINO DE ESPAÑA")
+        let headerText1 = Text(LanguageManager.shared.model("model_doc_spain_title"))
             .font(.system(size: h * 0.065, weight: .black))
             .foregroundColor(Color(hex: "FFD24A"))
         context.draw(headerText1, at: CGPoint(x: w * 0.05, y: headerH * 0.6), anchor: .leading)
 
-        let headerText2 = Text("DOCUMENTO NACIONAL DE IDENTIDAD")
+        let headerText2 = Text(LanguageManager.shared.model("model_doc_spain_dni"))
             .font(.system(size: h * 0.045, weight: .bold))
             .foregroundColor(.white)
         context.draw(headerText2, at: CGPoint(x: w * 0.97, y: headerH * 0.6), anchor: .trailing)
@@ -398,14 +398,14 @@ struct DNISpainView: View {
         let dniSurname2 = dniSurnameWords.count > 1 ? dniSurnameWords.dropFirst().joined(separator: " ") : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("PRIMER APELLIDO", dniSurname1, 0.30, 0.22),
-            ("SEGUNDO APELLIDO", dniSurname2, 0.30, 0.36),
-            ("NOMBRE", dniGiven.isEmpty ? "—" : dniGiven, 0.30, 0.50),
-            ("SEXO", f?.sex ?? "F", 0.30, 0.64),
-            ("NACIONALIDAD", f?.nationality ?? "ESP", 0.40, 0.64),
-            ("FECHA NAC.", f?.dateOfBirth ?? "14 03 1990", 0.62, 0.64),
-            ("NÚM. DOC.", f?.documentNumber ?? "12345678Z", 0.30, 0.78),
-            ("VÁLIDO HASTA", f?.expires ?? "12 11 2031", 0.62, 0.78),
+            (LanguageManager.shared.model("model_label_surname1"), dniSurname1, 0.30, 0.22),
+            (LanguageManager.shared.model("model_label_surname2"), dniSurname2, 0.30, 0.36),
+            (LanguageManager.shared.model("model_label_given_name"), dniGiven.isEmpty ? "—" : dniGiven, 0.30, 0.50),
+            (LanguageManager.shared.model("model_label_sex"), f?.sex ?? "F", 0.30, 0.64),
+            (LanguageManager.shared.model("model_label_nationality"), f?.nationality ?? "ESP", 0.40, 0.64),
+            (LanguageManager.shared.model("model_label_dob"), f?.dateOfBirth ?? "14 03 1990", 0.62, 0.64),
+            (LanguageManager.shared.model("model_label_doc_number"), f?.documentNumber ?? "12345678Z", 0.30, 0.78),
+            (LanguageManager.shared.model("model_label_expires"), f?.expires ?? "12 11 2031", 0.62, 0.78),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)
@@ -494,12 +494,12 @@ struct PassportUSAView: View {
         }
 
         // Title
-        let title = Text("PASSPORT / PASSEPORT")
+        let title = Text(LanguageManager.shared.model("model_doc_passport_title"))
             .font(.system(size: h * 0.045, weight: .bold))
             .foregroundColor(Color(hex: "3a2a1c"))
         context.draw(title, at: CGPoint(x: w * 0.04, y: h * 0.06), anchor: .topLeading)
 
-        let country = Text("UNITED STATES OF AMERICA")
+        let country = Text(LanguageManager.shared.model("model_doc_usa_title"))
             .font(.system(size: h * 0.036, weight: .semibold))
             .foregroundColor(Color(hex: "3a2a1c"))
         context.draw(country, at: CGPoint(x: w * 0.04, y: h * 0.13), anchor: .topLeading)
@@ -520,15 +520,15 @@ struct PassportUSAView: View {
         let ppGiven = ppParts.count > 1 ? ppParts[1] : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("Type", "P", 0.28, 0.22),
-            ("Code", fp?.nationality ?? "USA", 0.42, 0.22),
-            ("Passport No.", fp?.documentNumber ?? "518749632", 0.62, 0.22),
-            ("Surname / Nom", ppSurname, 0.28, 0.36),
-            ("Given Names", ppGiven, 0.28, 0.50),
-            ("Nationality", fp?.nationality ?? "USA", 0.28, 0.62),
-            ("Date of birth", fp?.dateOfBirth ?? "21 JUL 1985", 0.28, 0.74),
-            ("Sex", fp?.sex ?? "M", 0.55, 0.74),
-            ("Date of expiration", fp?.expires ?? "03 MAR 2032", 0.70, 0.74),
+            (LanguageManager.shared.model("model_label_type"), "P", 0.28, 0.22),
+            (LanguageManager.shared.model("model_label_code"), fp?.nationality ?? "USA", 0.42, 0.22),
+            (LanguageManager.shared.model("model_label_passport_no"), fp?.documentNumber ?? "518749632", 0.62, 0.22),
+            (LanguageManager.shared.model("model_label_surname_nom"), ppSurname, 0.28, 0.36),
+            (LanguageManager.shared.model("model_label_given_names"), ppGiven, 0.28, 0.50),
+            (LanguageManager.shared.model("model_label_nationality"), fp?.nationality ?? "USA", 0.28, 0.62),
+            (LanguageManager.shared.model("model_label_dob"), fp?.dateOfBirth ?? "21 JUL 1985", 0.28, 0.74),
+            (LanguageManager.shared.model("model_label_sex"), fp?.sex ?? "M", 0.55, 0.74),
+            (LanguageManager.shared.model("model_label_expires"), fp?.expires ?? "03 MAR 2032", 0.70, 0.74),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)
@@ -611,17 +611,17 @@ struct DrivingUKView: View {
         context.fill(Path(CGRect(x: 0, y: 0, width: w * 0.10, height: h)),
                      with: .color(Color(hex: "1B3A6B")))
 
-        let ukText = Text("UK")
+        let ukText = Text(LanguageManager.shared.model("model_doc_uk_short"))
             .font(.system(size: h * 0.09, weight: .black))
             .foregroundColor(Color(hex: "FFD24A"))
         context.draw(ukText, at: CGPoint(x: w * 0.05, y: h * 0.20), anchor: .top)
 
         // Title
-        let title = Text("DRIVING LICENCE")
+        let title = Text(LanguageManager.shared.model("model_doc_uk_dl_title"))
             .font(.system(size: h * 0.048, weight: .heavy))
             .foregroundColor(Color(hex: "1B3A6B"))
         context.draw(title, at: CGPoint(x: w * 0.13, y: h * 0.06), anchor: .topLeading)
-        let subtitle = Text("UNITED KINGDOM")
+        let subtitle = Text(LanguageManager.shared.model("model_doc_uk_title"))
             .font(.system(size: h * 0.032, weight: .semibold))
             .foregroundColor(Color(hex: "1B3A6B"))
         context.draw(subtitle, at: CGPoint(x: w * 0.13, y: h * 0.13), anchor: .topLeading)
@@ -642,13 +642,13 @@ struct DrivingUKView: View {
         let dlGiven = dlParts.count > 1 ? dlParts[1] : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("1. Surname", dlSurname, 0.36, 0.24),
-            ("2. Given names", dlGiven, 0.36, 0.36),
-            ("3. Date of birth", fd?.dateOfBirth ?? "02-09-1992", 0.36, 0.48),
-            ("4a. Issued", fd?.issued ?? "02-09-2022", 0.36, 0.60),
-            ("4b. Expires", fd?.expires ?? "02-09-2032", 0.62, 0.60),
-            ("5. Driver No.", fd?.documentNumber ?? "PATEL902145JZ9MN", 0.36, 0.72),
-            ("8. Address", fd?.address ?? "14 KINGS RD, LONDON SW3 5UL", 0.36, 0.84),
+            (LanguageManager.shared.model("model_label_uk_surname"), dlSurname, 0.36, 0.24),
+            (LanguageManager.shared.model("model_label_uk_given_names"), dlGiven, 0.36, 0.36),
+            (LanguageManager.shared.model("model_label_uk_dob"), fd?.dateOfBirth ?? "02-09-1992", 0.36, 0.48),
+            (LanguageManager.shared.model("model_label_uk_issued"), fd?.issued ?? "02-09-2022", 0.36, 0.60),
+            (LanguageManager.shared.model("model_label_uk_expires"), fd?.expires ?? "02-09-2032", 0.62, 0.60),
+            (LanguageManager.shared.model("model_label_uk_driver_no"), fd?.documentNumber ?? "PATEL902145JZ9MN", 0.36, 0.72),
+            (LanguageManager.shared.model("model_label_uk_address"), fd?.address ?? "14 KINGS RD, LONDON SW3 5UL", 0.36, 0.84),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)
@@ -704,12 +704,12 @@ struct PassportMEXView: View {
         context.fill(Path(CGRect(x: 0, y: 0, width: w, height: headerH)),
                      with: .color(Color(hex: "006847")))
 
-        let title1 = Text("ESTADOS UNIDOS MEXICANOS")
+        let title1 = Text(LanguageManager.shared.model("model_doc_mexico_title"))
             .font(.system(size: h * 0.046, weight: .black))
             .foregroundColor(.white)
         context.draw(title1, at: CGPoint(x: w * 0.50, y: headerH * 0.30), anchor: .top)
 
-        let title2 = Text("PASAPORTE  /  PASSPORT")
+        let title2 = Text(LanguageManager.shared.model("model_doc_mexico_passport"))
             .font(.system(size: h * 0.034, weight: .semibold))
             .foregroundColor(Color(hex: "CE1126"))
         context.draw(title2, at: CGPoint(x: w * 0.50, y: headerH * 0.62), anchor: .top)
@@ -730,12 +730,12 @@ struct PassportMEXView: View {
         let given = parts.count > 1 ? parts[1] : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("Apellidos / Surname", surname, 0.28, 0.23),
-            ("Nombre / Given name", given, 0.28, 0.36),
-            ("Nacionalidad", f?.nationality ?? "MEXICANA", 0.28, 0.49),
-            ("Fecha nac. / DOB", f?.dateOfBirth ?? "15 05 1988", 0.28, 0.60),
-            ("Núm. pasaporte", f?.documentNumber ?? "G12345678", 0.28, 0.72),
-            ("Válido hasta", f?.expires ?? "10 08 2033", 0.62, 0.72),
+            (LanguageManager.shared.model("model_label_mex_surname"), surname, 0.28, 0.23),
+            (LanguageManager.shared.model("model_label_mex_given"), given, 0.28, 0.36),
+            (LanguageManager.shared.model("model_label_nationality"), f?.nationality ?? "MEXICANA", 0.28, 0.49),
+            (LanguageManager.shared.model("model_label_dob"), f?.dateOfBirth ?? "15 05 1988", 0.28, 0.60),
+            (LanguageManager.shared.model("model_label_passport_no"), f?.documentNumber ?? "G12345678", 0.28, 0.72),
+            (LanguageManager.shared.model("model_label_expires"), f?.expires ?? "10 08 2033", 0.62, 0.72),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)
@@ -818,7 +818,7 @@ struct DNIItalyView: View {
         let headerH = h * 0.14
         context.fill(Path(CGRect(x: stripeW * 3, y: 0, width: w - stripeW * 3, height: headerH)),
                      with: .color(Color(hex: "003D8F")))
-        let title = Text("REPUBBLICA ITALIANA  —  CARTA D'IDENTITÀ")
+        let title = Text(LanguageManager.shared.model("model_doc_italy_title"))
             .font(.system(size: h * 0.040, weight: .bold))
             .foregroundColor(.white)
         context.draw(title, at: CGPoint(x: stripeW * 3 + 6, y: headerH * 0.28), anchor: .topLeading)
@@ -839,12 +839,12 @@ struct DNIItalyView: View {
         let given = parts.count > 1 ? parts[1] : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("COGNOME", surname, 0.38, 0.22),
-            ("NOME", given, 0.38, 0.35),
-            ("NAZIONALITÀ", f?.nationality ?? "ITALIANA", 0.38, 0.48),
-            ("DATA DI NASCITA", f?.dateOfBirth ?? "23 04 1991", 0.38, 0.59),
-            ("CODICE FISCALE", f?.documentNumber ?? "FRRMRC91D23H501Z", 0.38, 0.71),
-            ("SCADENZA", f?.expires ?? "23 04 2031", 0.70, 0.71),
+            (LanguageManager.shared.model("model_label_ita_surname"), surname, 0.38, 0.22),
+            (LanguageManager.shared.model("model_label_ita_name"), given, 0.38, 0.35),
+            (LanguageManager.shared.model("model_label_nationality"), f?.nationality ?? "ITALIANA", 0.38, 0.48),
+            (LanguageManager.shared.model("model_label_dob"), f?.dateOfBirth ?? "23 04 1991", 0.38, 0.59),
+            (LanguageManager.shared.model("model_label_ita_tax_code"), f?.documentNumber ?? "FRRMRC91D23H501Z", 0.38, 0.71),
+            (LanguageManager.shared.model("model_label_expires"), f?.expires ?? "23 04 2031", 0.70, 0.71),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)
@@ -921,7 +921,7 @@ struct GenericIDView: View {
         let headerH = h * 0.14
         context.fill(Path(CGRect(x: 0, y: 0, width: w, height: headerH)),
                      with: .color(Color(hex: "2C2C2C")))
-        let title = Text("IDENTIFICATION DOCUMENT")
+        let title = Text(LanguageManager.shared.model("model_doc_generic_id"))
             .font(.system(size: h * 0.046, weight: .black))
             .foregroundColor(.white)
         context.draw(title, at: CGPoint(x: w * 0.05, y: headerH * 0.55), anchor: .leading)
@@ -943,12 +943,12 @@ struct GenericIDView: View {
         let given = parts.count > 1 ? parts[1] : "—"
 
         let fieldData: [(String, String, CGFloat, CGFloat)] = [
-            ("SURNAME", surname, 0.30, 0.22),
-            ("GIVEN NAME", given, 0.30, 0.35),
-            ("NATIONALITY", f?.nationality ?? "—", 0.30, 0.48),
-            ("DATE OF BIRTH", f?.dateOfBirth ?? "01 JAN 1990", 0.30, 0.59),
-            ("DOCUMENT NO.", f?.documentNumber ?? "ID000000000", 0.30, 0.71),
-            ("EXPIRY DATE", f?.expires ?? "01 JAN 2030", 0.62, 0.71),
+            (LanguageManager.shared.model("model_label_surname"), surname, 0.30, 0.22),
+            (LanguageManager.shared.model("model_label_given_name"), given, 0.30, 0.35),
+            (LanguageManager.shared.model("model_label_nationality"), f?.nationality ?? "—", 0.30, 0.48),
+            (LanguageManager.shared.model("model_label_dob"), f?.dateOfBirth ?? "01 JAN 1990", 0.30, 0.59),
+            (LanguageManager.shared.model("model_label_doc_number"), f?.documentNumber ?? "ID000000000", 0.30, 0.71),
+            (LanguageManager.shared.model("model_label_expires"), f?.expires ?? "01 JAN 2030", 0.62, 0.71),
         ]
         for (label, value, fx, fy) in fieldData {
             let labelT = Text(label)

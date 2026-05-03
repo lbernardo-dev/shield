@@ -295,10 +295,14 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
                 return UIWindow(windowScene: fallbackScene)
             }
 
-            // Last resort: no UIWindowScene available (e.g. Catalyst edge case).
-            // Create a temporary detached window — auth may not display but we avoid crashing.
-            let fallback = UIWindow()
-            return fallback
+            // Last resort: find any available scene to avoid deprecated init()
+            if let fallbackScene = scenes.first {
+                return UIWindow(windowScene: fallbackScene)
+            }
+            
+            // If truly no scenes exist, we use the deprecated init as absolute last resort
+            // though on iOS/iPadOS this case is virtually impossible in a running app.
+            return UIWindow()
         }
     }
 }
@@ -307,7 +311,6 @@ final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticat
 // Presents a sheet to pick from connected cloud providers.
 
 struct ExternalStoragePickerSheet: View {
-    @EnvironmentObject var appState: AppState
     @StateObject private var ext = ExternalStorageManager.shared
     @StateObject private var pm = PremiumManager.shared
     @Binding var isPresented: Bool
@@ -325,7 +328,7 @@ struct ExternalStoragePickerSheet: View {
                 .padding(.top, 10)
 
             HStack {
-                Text(appState.str("cloud_import_title"))
+                Text(LanguageManager.shared.common("cloud_import_title"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -364,7 +367,6 @@ struct ExternalStoragePickerSheet: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
-                .environmentObject(appState)
         }
     }
 
@@ -373,7 +375,7 @@ struct ExternalStoragePickerSheet: View {
             Image(systemName: "icloud.and.arrow.down")
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.textTertiary)
-            Text(appState.str("cloud_pro_desc"))
+            Text(LanguageManager.shared.common("cloud_pro_desc"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -381,7 +383,7 @@ struct ExternalStoragePickerSheet: View {
             Button {
                 showPaywall = true
             } label: {
-                Label(appState.str("paywall_unlock_pro"),
+                Label(LanguageManager.shared.paywall("paywall_unlock_pro"),
                       systemImage: "crown.fill")
                     .font(.system(size: 15, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 50)
@@ -401,8 +403,8 @@ struct ExternalStoragePickerSheet: View {
             providerRow(
                 icon: "folder.fill",
                 color: "FFD60A",
-                name: appState.str("cloud_files_title"),
-                subtitle: appState.str("cloud_files_subtitle"),
+                name: LanguageManager.shared.common("cloud_files_title"),
+                subtitle: LanguageManager.shared.common("cloud_files_subtitle"),
                 isConnected: true
             ) {
                 showDocPicker = true
@@ -418,8 +420,8 @@ struct ExternalStoragePickerSheet: View {
                     color: provider.iconColor,
                     name: provider.displayName,
                     subtitle: connected
-                        ? (ext.connectedEmail(provider) ?? appState.str("cloud_connected"))
-                        : appState.str("cloud_tap_to_connect"),
+                        ? (ext.connectedEmail(provider) ?? LanguageManager.shared.common("cloud_connected"))
+                        : LanguageManager.shared.common("cloud_tap_to_connect"),
                     isConnected: connected
                 ) {
                     if connected {
@@ -455,7 +457,7 @@ struct ExternalStoragePickerSheet: View {
 
     @ViewBuilder
     private func providerRow(icon: String, color: String, name: String, subtitle: String,
-                              isConnected: Bool, action: @escaping () -> Void) -> some View {
+                               isConnected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 14) {
                 ZStack {
@@ -487,7 +489,7 @@ struct ExternalStoragePickerSheet: View {
                     if ext.isAuthenticating == ExternalStorageProvider.allCases.first(where: { $0.displayName == name }) {
                         ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
                     } else {
-                        Text(appState.str("cloud_connect"))
+                        Text(LanguageManager.shared.common("cloud_connect"))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(ShieldTheme.accent)
                     }

@@ -530,14 +530,14 @@ struct OBDemoView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         // Name (not redactable)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("NOMBRE").font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
+                            Text(LanguageManager.shared.onboarding("onboarding_demo_name_label")).font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
                             Text(LanguageManager.shared.onboarding("onboarding_demo_sample_name"))
                                 .font(.system(size: 13, weight: .semibold)).foregroundColor(ShieldTheme.textPrimary)
                         }
                         Divider().background(ShieldTheme.surfaceLine)
-                        demoField(id: "dob", labelKey: "onboarding_demo_field_dob", value: "12/05/1988")
+                        demoField(id: "dob", labelKey: "onboarding_demo_field_dob", value: LanguageManager.shared.onboarding("onboarding_demo_sample_dob"))
                         Divider().background(ShieldTheme.surfaceLine)
-                        demoField(id: "docnum", labelKey: "onboarding_demo_field_doc_num", value: "47821634-X")
+                        demoField(id: "docnum", labelKey: "onboarding_demo_field_doc_num", value: LanguageManager.shared.onboarding("onboarding_demo_sample_doc_num"))
                     }
                 }
                 .padding(16)
@@ -554,7 +554,7 @@ struct OBDemoView: View {
                                 RoundedRectangle(cornerRadius: 3).fill(Color.black)
                                     .frame(maxWidth: .infinity).frame(height: 16)
                             } else {
-                                Text("Calle Mayor 14, 28001 Madrid")
+                                Text(LanguageManager.shared.onboarding("onboarding_demo_address_value"))
                                     .font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
                             }
                         }
@@ -676,7 +676,7 @@ struct OBPaywallView: View {
     var onComplete: () -> Void
 
     private let features: [(icon: String, hex: String, key: String)] = [
-        ("doc.stack.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
+        ("doc.on.doc.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
         ("eye.slash.fill",       "FFD60A", "paywall_feature_all_styles"),
         ("lock.rectangle.stack", "30D158", "paywall_feature_vault"),
         ("wand.and.stars",       "BF5AF2", "paywall_feature_auto_title"),

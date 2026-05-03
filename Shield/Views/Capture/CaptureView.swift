@@ -19,13 +19,13 @@ enum ScanDocumentType: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func label(lang: AppLanguage) -> String {
+    func label(lang: AppLanguage? = nil) -> String {
         switch self {
-        case .identity:       return LanguageManager.shared.t("capture_kind_id_card", table: "Capture")
-        case .passport:       return LanguageManager.shared.t("capture_kind_passport", table: "Capture")
-        case .drivingLicense: return LanguageManager.shared.t("capture_kind_driving_license", table: "Capture")
-        case .a4Document:     return LanguageManager.shared.t("capture_kind_a4", table: "Capture")
-        case .freeform:       return LanguageManager.shared.t("capture_kind_freeform", table: "Capture")
+        case .identity:       return LanguageManager.shared.capture("capture_kind_id_card")
+        case .passport:       return LanguageManager.shared.capture("capture_kind_passport")
+        case .drivingLicense: return LanguageManager.shared.capture("capture_kind_driving_license")
+        case .a4Document:     return LanguageManager.shared.capture("capture_kind_a4")
+        case .freeform:       return LanguageManager.shared.capture("capture_kind_freeform")
         }
     }
 
@@ -117,7 +117,7 @@ struct CaptureView: View {
             DocumentScannerOverlayView(
                 documentType: selectedScanType,
                 showGuide: showScanTypeGuide,
-                lang: appState.language
+                lang: LanguageManager.shared.current
             ) { images in
                 showScanner = false
                 guard !images.isEmpty else { return }
@@ -188,7 +188,7 @@ struct CaptureView: View {
                         .frame(width: 44, height: 44)
                 }
                 Spacer()
-                Text(appState.str("capture_add_document"))
+                Text(LanguageManager.shared.capture("capture_add_document"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -208,8 +208,8 @@ struct CaptureView: View {
             VStack(spacing: 12) {
                 captureOption(
                     icon: "camera.viewfinder",
-                    title: appState.str("capture_scan_document"),
-                    subtitle: appState.str("capture_guide_frame", selectedScanType.label(lang: appState.language)),
+                    title: LanguageManager.shared.capture("capture_scan_document"),
+                    subtitle: LanguageManager.shared.capture("capture_guide_frame", selectedScanType.label()),
                     primary: true
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -222,8 +222,8 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "photo.on.rectangle",
-                    title: appState.str("capture_from_photos"),
-                    subtitle: appState.str("capture_pick_images"),
+                    title: LanguageManager.shared.capture("capture_from_photos"),
+                    subtitle: LanguageManager.shared.capture("capture_pick_images"),
                     primary: false
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -232,8 +232,8 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "folder",
-                    title: appState.str("capture_from_files"),
-                    subtitle: appState.str("capture_files_subtitle"),
+                    title: LanguageManager.shared.capture("capture_from_files"),
+                    subtitle: LanguageManager.shared.capture("capture_files_subtitle"),
                     primary: false
                 ) {
                     guard ensureCanImportMoreDocuments() else { return }
@@ -242,7 +242,7 @@ struct CaptureView: View {
 
                 captureOption(
                     icon: "icloud.and.arrow.down",
-                    title: appState.str("capture_from_cloud"),
+                    title: LanguageManager.shared.capture("capture_from_cloud"),
                     subtitle: "Google Drive, Dropbox, OneDrive…",
                     primary: false
                 ) {
@@ -259,7 +259,7 @@ struct CaptureView: View {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "666666"))
-                Text(appState.str("capture_on_device_privacy"))
+                Text(LanguageManager.shared.capture("capture_on_device_privacy"))
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "666666"))
             }
@@ -273,7 +273,7 @@ struct CaptureView: View {
     private var documentTypeSelector: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(appState.str("capture_document_type"))
+                Text(LanguageManager.shared.capture("capture_document_type"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(Color(hex: "888888"))
                 Spacer()
@@ -284,8 +284,8 @@ struct CaptureView: View {
                         Image(systemName: showScanTypeGuide ? "eye.slash" : "eye")
                             .font(.system(size: 11, weight: .semibold))
                         Text(showScanTypeGuide
-                             ? appState.str("capture_hide_guide")
-                             : appState.str("capture_show_guide"))
+                             ? LanguageManager.shared.capture("capture_hide_guide")
+                             : LanguageManager.shared.capture("capture_show_guide"))
                             .font(.system(size: 11, weight: .semibold))
                     }
                     .foregroundColor(ShieldTheme.accent)
@@ -302,7 +302,7 @@ struct CaptureView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: type.icon)
                                     .font(.system(size: 12, weight: .semibold))
-                                Text(type.label(lang: appState.language))
+                                Text(type.label())
                                     .font(.system(size: 12, weight: .semibold))
                             }
                             .foregroundColor(isSelected ? .black : Color(hex: "aaaaaa"))
@@ -394,7 +394,7 @@ struct CaptureView: View {
         }
         AppState.trackEvent("import_started", properties: ["source": "file"])
         isProcessing = true
-        processingMessage = appState.str("capture_importing_file")
+        processingMessage = LanguageManager.shared.capture("capture_importing_file")
 
         Task {
             _ = url.startAccessingSecurityScopedResource()
@@ -448,17 +448,21 @@ struct CaptureView: View {
         docID: String
     ) {
         guard !pages.isEmpty else { return }
+        
+        // Normalize images to prevent orientation/EXIF mismatches from breaking geometry filters and producing black images
+        let normalizedPages = pages.map { $0.normalizedForShield() }
+        
         if sourceType == .image {
             AppState.trackEvent("import_started", properties: ["source": "image"])
         }
-        stagedPages = pages
+        stagedPages = normalizedPages
         stagedTitle = title
         stagedSourceType = sourceType
         stagedSourceFileName = sourceFileName
         stagedDocID = docID
         showScanReview = true
         AppState.trackEvent("scan_adjustment_opened", properties: [
-            "pages": String(pages.count),
+            "pages": String(normalizedPages.count),
             "source": sourceType.rawValue
         ])
     }
@@ -495,7 +499,7 @@ struct CaptureView: View {
         sourceFileName: String?
     ) {
         isProcessing = true
-        processingMessage = appState.str("capture_processing_pages")
+        processingMessage = LanguageManager.shared.capture("capture_processing_pages")
 
         Task {
             var pageFileNames: [String] = []
@@ -550,7 +554,7 @@ struct CaptureView: View {
                 if !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return title }
                 let fmt = DateFormatter()
                 fmt.dateFormat = "d MMM HH:mm"
-                return appState.str("capture_scan_fallback_title", fmt.string(from: Date()))
+                return LanguageManager.shared.capture("capture_scan_fallback_title", fmt.string(from: Date()))
             }()
             let docTitle = !fields.fullName.isEmpty ? fields.fullName : fallbackTitle
 
@@ -716,12 +720,12 @@ enum ScanFilterPreset: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func label(lang: AppLanguage) -> String {
+    func label() -> String {
         switch self {
         case .original: return "Original"
         case .auto: return "Auto"
-        case .blackWhite: return LanguageManager.shared.str("capture_black_white", table: "Capture")
-        case .highContrast: return LanguageManager.shared.str("capture_high_contrast", table: "Capture")
+        case .blackWhite: return LanguageManager.shared.capture("capture_black_white")
+        case .highContrast: return LanguageManager.shared.capture("capture_high_contrast")
         }
     }
 }
@@ -733,11 +737,11 @@ enum ScanAdjustmentPreset: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func label(lang: AppLanguage) -> String {
+    func label() -> String {
         switch self {
-        case .document: return LanguageManager.shared.str("capture_document", table: "Capture")
-        case .photo: return LanguageManager.shared.str("capture_photo", table: "Capture")
-        case .grayscale: return LanguageManager.shared.str("capture_grayscale_strong", table: "Capture")
+        case .document: return LanguageManager.shared.capture("capture_document")
+        case .photo: return LanguageManager.shared.capture("capture_photo")
+        case .grayscale: return LanguageManager.shared.capture("capture_grayscale_strong")
         }
     }
 
@@ -1121,8 +1125,13 @@ struct ScanReviewView: View {
             VStack(spacing: 0) {
                 header
                 previewArea
-                pageStrip
-                controls
+                
+                VStack(spacing: 0) {
+                    pageStrip
+                    controls
+                }
+                .frame(maxHeight: 280)
+                .background(ShieldTheme.pageBackground(.dark))
             }
         }
         .preferredColorScheme(.dark)
@@ -1135,19 +1144,19 @@ struct ScanReviewView: View {
 
     private var header: some View {
         HStack {
-            Button(appState.str("capture_cancel")) {
+            Button(LanguageManager.shared.capture("capture_cancel")) {
                 onCancel()
             }
             .font(.system(size: 15, weight: .semibold))
             .foregroundColor(ShieldTheme.textSecondary)
 
             Spacer()
-            Text(appState.str("capture_enhance_title"))
+            Text(LanguageManager.shared.capture("capture_enhance_title"))
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
             Spacer()
 
-            Button(applying ? appState.str("capture_processing") : appState.str("capture_save")) {
+            Button(applying ? LanguageManager.shared.capture("capture_processing") : LanguageManager.shared.capture("capture_save")) {
                 applyAndContinue()
             }
             .disabled(applying)
@@ -1167,10 +1176,29 @@ struct ScanReviewView: View {
 
         return ZStack(alignment: .topTrailing) {
             GeometryReader { geo in
-                let maxH: CGFloat = 260
-                let aspect = preview.size.width / max(preview.size.height, 1)
-                let frameW = min(geo.size.width, maxH * aspect)
-                let frameH = frameW / aspect
+                let dimensions: (width: CGFloat, height: CGFloat) = {
+                    let w = geo.size.width
+                    let h = geo.size.height
+                    let imgW = preview.size.width
+                    let imgH = preview.size.height
+
+                    if imgW > 0 && imgH > 0 && w > 0 && h > 0 && w.isFinite && h.isFinite {
+                        let aspect = imgW / imgH
+                        let geoAspect = w / h
+
+                        if aspect > 0 && aspect.isFinite && geoAspect > 0 && geoAspect.isFinite {
+                            if aspect > geoAspect {
+                                return (w, w / aspect)
+                            } else {
+                                return (h * aspect, h)
+                            }
+                        }
+                    }
+                    return (0, 0)
+                }()
+
+                let frameW = dimensions.width
+                let frameH = dimensions.height
 
                 ZStack {
                     Image(uiImage: preview)
@@ -1195,9 +1223,8 @@ struct ScanReviewView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: maxH, alignment: .center)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
-            .frame(height: 260)
 
             VStack(alignment: .trailing, spacing: 6) {
                 Text("\(selectedPage + 1)/\(max(1, pages.count))")
@@ -1241,7 +1268,7 @@ struct ScanReviewView: View {
                         Image(uiImage: preview)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 70, height: 92)
+                            .frame(width: 50, height: 68) // Slightly smaller since the bottom area is more compact
                             .clipped()
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
@@ -1253,6 +1280,7 @@ struct ScanReviewView: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.top, 10)
             .padding(.bottom, 10)
         }
     }
@@ -1270,7 +1298,7 @@ struct ScanReviewView: View {
                     Button {
                         resetCurrentPage()
                     } label: {
-                        Text(appState.str("capture_reset_page", table: "Capture"))
+                        Text(LanguageManager.shared.capture("capture_reset_page"))
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1283,7 +1311,7 @@ struct ScanReviewView: View {
                     Button {
                         resetAllPages()
                     } label: {
-                        Text(appState.str("capture_reset_all", table: "Capture"))
+                        Text(LanguageManager.shared.capture("capture_reset_all"))
                             .font(.system(size: 13, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
@@ -1299,7 +1327,7 @@ struct ScanReviewView: View {
                     adjustments = Array(repeating: current, count: pages.count)
                     AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
                 } label: {
-                    Text(appState.str("capture_apply_all_pages", table: "Capture"))
+                    Text(LanguageManager.shared.capture("capture_apply_all_pages"))
                         .font(.system(size: 14, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
@@ -1316,13 +1344,13 @@ struct ScanReviewView: View {
 
     private var presetSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(appState.str("capture_quick_presets"))
+            Text(LanguageManager.shared.capture("capture_quick_presets"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
             Picker("", selection: $selectedPreset) {
                 ForEach(ScanAdjustmentPreset.allCases) { preset in
-                    Text(preset.label(lang: appState.language)).tag(preset)
+                    Text(preset.label()).tag(preset)
                 }
             }
             .pickerStyle(.segmented)
@@ -1330,7 +1358,7 @@ struct ScanReviewView: View {
             Button {
                 applyPresetToCurrentPage(selectedPreset)
             } label: {
-                Text(appState.str("capture_apply_preset"))
+                Text(LanguageManager.shared.capture("capture_apply_preset"))
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -1344,12 +1372,12 @@ struct ScanReviewView: View {
 
     private var filterSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(appState.str("capture_filters"))
+            Text(LanguageManager.shared.capture("capture_filters"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
             Picker("", selection: binding(\.filterPreset)) {
                 ForEach(ScanFilterPreset.allCases) { preset in
-                    Text(preset.label(lang: appState.language)).tag(preset)
+                    Text(preset.label()).tag(preset)
                 }
             }
             .pickerStyle(.segmented)
@@ -1358,7 +1386,7 @@ struct ScanReviewView: View {
 
     private var geometrySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(appState.str("capture_geometry"))
+            Text(LanguageManager.shared.capture("capture_geometry"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
@@ -1368,7 +1396,7 @@ struct ScanReviewView: View {
                     Image(systemName: "hand.draw.fill")
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.accent)
-                    Text(appState.str("capture_drag_perspective_hint"))
+                    Text(LanguageManager.shared.capture("capture_drag_perspective_hint"))
                         .font(.system(size: 11))
                         .foregroundColor(ShieldTheme.textSecondary)
                     Spacer()
@@ -1377,7 +1405,7 @@ struct ScanReviewView: View {
                             adjustments[selectedPage].quad = .identity
                         }
                     } label: {
-                        Text(appState.str("capture_reset"))
+                        Text(LanguageManager.shared.capture("capture_reset"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(ShieldTheme.danger)
                     }
@@ -1388,7 +1416,7 @@ struct ScanReviewView: View {
             }
 
             sliderRow(
-                title: appState.str("capture_straighten"),
+                title: LanguageManager.shared.capture("capture_straighten"),
                 valueText: "\(Int(binding(\.straightenDegrees).wrappedValue))°"
             ) {
                 Slider(value: binding(\.straightenDegrees), in: -25...25, step: 1)
@@ -1397,7 +1425,7 @@ struct ScanReviewView: View {
             Button {
                 detectPerspectiveForCurrentPage()
             } label: {
-                Text(appState.str("capture_auto_perspective"))
+                Text(LanguageManager.shared.capture("capture_auto_perspective"))
                     .font(.system(size: 13, weight: .semibold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -1408,35 +1436,35 @@ struct ScanReviewView: View {
             .buttonStyle(ScaleButtonStyle())
 
             sliderRow(
-                title: appState.str("capture_top_perspective"),
+                title: LanguageManager.shared.capture("capture_top_perspective"),
                 valueText: percent(binding(\.perspectiveTopInset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveTopInset), in: 0...0.3, step: 0.01)
             }
 
             sliderRow(
-                title: appState.str("capture_bottom_perspective"),
+                title: LanguageManager.shared.capture("capture_bottom_perspective"),
                 valueText: percent(binding(\.perspectiveBottomInset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveBottomInset), in: 0...0.3, step: 0.01)
             }
 
             sliderRow(
-                title: appState.str("capture_horizontal_skew"),
+                title: LanguageManager.shared.capture("capture_horizontal_skew"),
                 valueText: signed(binding(\.perspectiveSkew).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveSkew), in: -0.16...0.16, step: 0.005)
             }
 
             sliderRow(
-                title: appState.str("capture_top_vertical_trim"),
+                title: LanguageManager.shared.capture("capture_top_vertical_trim"),
                 valueText: percent(binding(\.perspectiveTopYOffset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveTopYOffset), in: 0...0.25, step: 0.01)
             }
 
             sliderRow(
-                title: appState.str("capture_bottom_vertical_trim"),
+                title: LanguageManager.shared.capture("capture_bottom_vertical_trim"),
                 valueText: percent(binding(\.perspectiveBottomYOffset).wrappedValue)
             ) {
                 Slider(value: binding(\.perspectiveBottomYOffset), in: 0...0.25, step: 0.01)
@@ -1448,7 +1476,7 @@ struct ScanReviewView: View {
                     a.rotationDegrees -= 90
                     adjustments[selectedPage] = a
                 } label: {
-                    Text(appState.str("capture_rotate_left"))
+                    Text(LanguageManager.shared.capture("capture_rotate_left"))
                         .font(.system(size: 12, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
@@ -1463,7 +1491,7 @@ struct ScanReviewView: View {
                     a.rotationDegrees += 90
                     adjustments[selectedPage] = a
                 } label: {
-                    Text(appState.str("capture_rotate_right"))
+                    Text(LanguageManager.shared.capture("capture_rotate_right"))
                         .font(.system(size: 12, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
@@ -1478,20 +1506,20 @@ struct ScanReviewView: View {
 
     private var cropSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(appState.str("capture_crop"))
+            Text(LanguageManager.shared.capture("capture_crop"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
-            sliderRow(title: appState.str("capture_left"), valueText: percent(binding(\.cropLeft).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_left"), valueText: percent(binding(\.cropLeft).wrappedValue)) {
                 Slider(value: binding(\.cropLeft), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_right"), valueText: percent(binding(\.cropRight).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_right"), valueText: percent(binding(\.cropRight).wrappedValue)) {
                 Slider(value: binding(\.cropRight), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_top"), valueText: percent(binding(\.cropTop).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_top"), valueText: percent(binding(\.cropTop).wrappedValue)) {
                 Slider(value: binding(\.cropTop), in: 0...0.35, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_bottom"), valueText: percent(binding(\.cropBottom).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_bottom"), valueText: percent(binding(\.cropBottom).wrappedValue)) {
                 Slider(value: binding(\.cropBottom), in: 0...0.35, step: 0.01)
             }
         }
@@ -1499,20 +1527,20 @@ struct ScanReviewView: View {
 
     private var imageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(appState.str("capture_adjustments"))
+            Text(LanguageManager.shared.capture("capture_adjustments"))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(ShieldTheme.textSecondary)
 
-            sliderRow(title: appState.str("capture_brightness"), valueText: signed(binding(\.brightness).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_brightness"), valueText: signed(binding(\.brightness).wrappedValue)) {
                 Slider(value: binding(\.brightness), in: -0.3...0.3, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_contrast"), valueText: String(format: "%.2f", binding(\.contrast).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_contrast"), valueText: String(format: "%.2f", binding(\.contrast).wrappedValue)) {
                 Slider(value: binding(\.contrast), in: 0.7...1.8, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_sharpness"), valueText: String(format: "%.2f", binding(\.sharpness).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_sharpness"), valueText: String(format: "%.2f", binding(\.sharpness).wrappedValue)) {
                 Slider(value: binding(\.sharpness), in: 0...1.5, step: 0.01)
             }
-            sliderRow(title: appState.str("capture_noise_reduction"), valueText: String(format: "%.2f", binding(\.noiseReduction).wrappedValue)) {
+            sliderRow(title: LanguageManager.shared.capture("capture_noise_reduction"), valueText: String(format: "%.2f", binding(\.noiseReduction).wrappedValue)) {
                 Slider(value: binding(\.noiseReduction), in: 0...0.08, step: 0.005)
             }
         }
@@ -3191,6 +3219,19 @@ struct FilesPickerView: UIViewControllerRepresentable {
 
         func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
             parent.onCancel()
+        }
+    }
+}
+
+// MARK: - Image Normalization
+extension UIImage {
+    func normalizedForShield() -> UIImage {
+        if self.imageOrientation == .up && self.cgImage != nil { return self }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = self.scale
+        let renderer = UIGraphicsImageRenderer(size: self.size, format: format)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: self.size))
         }
     }
 }

@@ -16,30 +16,30 @@ struct PaywallView: View {
 
     private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
         return [
-            ("doc.stack.fill",       "64D2FF",
-             appState.str("paywall_feature_unlimited_docs", table: "Paywall"),
-             appState.str("paywall_feature_unlimited_desc", table: "Paywall")),
+            ("doc.on.doc.fill",       "64D2FF",
+             LanguageManager.shared.paywall("paywall_feature_unlimited_docs"),
+             LanguageManager.shared.paywall("paywall_feature_unlimited_desc")),
             ("eye.slash.fill",       "FFD60A",
-             appState.str("paywall_feature_all_styles", table: "Paywall"),
-             appState.str("paywall_feature_styles_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_all_styles"),
+             LanguageManager.shared.paywall("paywall_feature_styles_desc")),
             ("lock.rectangle.stack", "30D158",
-             appState.str("paywall_feature_vault", table: "Paywall"),
-             appState.str("paywall_feature_vault_desc", table: "Paywall")),
-            ("doc.fill",             "FF9F0A",
-             appState.str("paywall_feature_pdf_title", table: "Paywall"),
-             appState.str("paywall_feature_pdf_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_vault"),
+             LanguageManager.shared.paywall("paywall_feature_vault_desc")),
+            ("doc.on.doc.fill",             "FF9F0A",
+             LanguageManager.shared.paywall("paywall_feature_pdf_title"),
+             LanguageManager.shared.paywall("paywall_feature_pdf_desc")),
             ("drop.halffull",        "5E5CE6",
-             appState.str("paywall_feature_watermark", table: "Paywall"),
-             appState.str("paywall_feature_watermark_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_watermark"),
+             LanguageManager.shared.paywall("paywall_feature_watermark_desc")),
             ("slider.horizontal.3",  "FF453A",
-             appState.str("paywall_feature_adjust_title", table: "Paywall"),
-             appState.str("paywall_feature_adjust_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_adjust_title"),
+             LanguageManager.shared.paywall("paywall_feature_adjust_desc")),
             ("wand.and.stars",       "BF5AF2",
-             appState.str("paywall_feature_auto_title", table: "Paywall"),
-             appState.str("paywall_feature_auto_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_auto_title"),
+             LanguageManager.shared.paywall("paywall_feature_auto_desc")),
             ("icloud",               "30D158",
-             appState.str("paywall_feature_icloud", table: "Paywall"),
-             appState.str("paywall_feature_icloud_desc", table: "Paywall")),
+             LanguageManager.shared.paywall("paywall_feature_icloud"),
+             LanguageManager.shared.paywall("paywall_feature_icloud_desc")),
         ]
     }
 
@@ -120,11 +120,11 @@ struct PaywallView: View {
                     .font(.system(size: 36, weight: .semibold))
                     .foregroundColor(ShieldTheme.accent)
             }
-            Text("Shield Pro")
+            Text(LanguageManager.shared.paywall("paywall_title"))
                 .font(.system(size: 30, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .tracking(-0.6)
-            Text(appState.str("paywall_hero_subtitle", table: "Paywall"))
+            Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
                 .font(.system(size: 15))
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -137,7 +137,7 @@ struct PaywallView: View {
             Image(systemName: "info.circle.fill")
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.accent)
-            Text(appState.str(trigger.localizationKey, table: "Paywall"))
+            Text(LanguageManager.shared.paywall(trigger.localizationKey))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(ShieldTheme.textSecondary)
             Spacer()
@@ -240,7 +240,7 @@ struct PaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "crown.fill")
-                        Text(appState.str("paywall_get_pro", table: "Paywall"))
+                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
                             .font(.system(size: 16, weight: .bold))
                     }
                 }
@@ -276,7 +276,7 @@ struct PaywallView: View {
                     if pm.isRestoring {
                         ProgressView().tint(ShieldTheme.textTertiary).scaleEffect(0.7)
                     } else {
-                        Text(appState.str("paywall_restore", table: "Paywall"))
+                        Text(LanguageManager.shared.paywall("paywall_restore"))
                     }
                 }
                 .font(.system(size: 12))
@@ -288,7 +288,7 @@ struct PaywallView: View {
             Button {
                 if let privacyURL { openURL(privacyURL) }
             } label: {
-                Text(appState.str("paywall_privacy", table: "Paywall"))
+                Text(LanguageManager.shared.paywall("paywall_privacy"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -298,7 +298,7 @@ struct PaywallView: View {
             Button {
                 if let termsURL { openURL(termsURL) }
             } label: {
-                Text(appState.str("paywall_terms", table: "Paywall"))
+                Text(LanguageManager.shared.paywall("paywall_terms"))
                     .font(.system(size: 12))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -339,7 +339,7 @@ private struct PlanRow: View {
                             .foregroundColor(ShieldTheme.textPrimary)
                         // Trial badge for annual plan
                         if ShieldProduct(rawValue: product.id) == .annual {
-                            Text(appState.str("paywall_trial_days", args: 7, table: "Paywall"))
+                            Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.black)
                                 .padding(.horizontal, 7)
@@ -388,27 +388,27 @@ private struct PlanRow: View {
 
     private var planName: String {
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return appState.str("paywall_plan_monthly", table: "Paywall")
-        case .annual:   return appState.str("paywall_plan_annual", table: "Paywall")
-        case .lifetime: return appState.str("paywall_plan_lifetime", table: "Paywall")
+        case .monthly:  return LanguageManager.shared.paywall("paywall_plan_monthly")
+        case .annual:   return LanguageManager.shared.paywall("paywall_plan_annual")
+        case .lifetime: return LanguageManager.shared.paywall("paywall_plan_lifetime")
         case nil:       return product.displayName
         }
     }
 
     private var planSubtitle: String {
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return appState.str("paywall_billed_monthly", table: "Paywall")
-        case .annual:   return appState.str("paywall_billed_annually", table: "Paywall")
-        case .lifetime: return appState.str("paywall_one_time", table: "Paywall")
+        case .monthly:  return LanguageManager.shared.paywall("paywall_billed_monthly")
+        case .annual:   return LanguageManager.shared.paywall("paywall_billed_annually")
+        case .lifetime: return LanguageManager.shared.paywall("paywall_one_time")
         case nil:       return ""
         }
     }
 
     private var periodLabel: String {
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return appState.str("paywall_per_mo_short", table: "Paywall")
-        case .annual:   return appState.str("paywall_per_yr_short", table: "Paywall")
-        case .lifetime: return appState.str("paywall_once_short", table: "Paywall")
+        case .monthly:  return LanguageManager.shared.paywall("paywall_per_mo_short")
+        case .annual:   return LanguageManager.shared.paywall("paywall_per_yr_short")
+        case .lifetime: return LanguageManager.shared.paywall("paywall_once_short")
         case nil:       return ""
         }
     }

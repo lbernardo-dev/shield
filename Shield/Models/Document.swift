@@ -27,7 +27,7 @@ enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
 
     var icon: String {
         switch self {
-        case .all:      return "doc.fill"
+        case .all:      return "doc.on.doc.fill"
         case .identity: return "shield.fill"
         case .travel:   return "airplane"
         case .driving:  return "car.fill"

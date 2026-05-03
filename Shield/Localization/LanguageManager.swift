@@ -107,8 +107,13 @@ final class LanguageManager {
 
     /// Resolver with arguments
     func t(_ key: String, table: String, args: CVarArg...) -> String {
+        t(key, table: table, argsArray: args)
+    }
+
+    /// Internal resolver that takes an array of arguments
+    private func t(_ key: String, table: String, argsArray: [CVarArg]) -> String {
         let format = t(key, table: table)
-        return String(format: format, locale: Locale(identifier: current.rawValue), arguments: args)
+        return String(format: format, locale: Locale(identifier: current.rawValue), arguments: argsArray)
     }
 
     // MARK: - Aliases for easier migration
@@ -124,15 +129,15 @@ final class LanguageManager {
 
     // MARK: - Catalog shortcuts
 
-    func common(_ key: String) -> String { t(key, table: "Common") }
-    func onboarding(_ key: String) -> String { t(key, table: "Onboarding") }
-    func home(_ key: String) -> String { t(key, table: "Home") }
-    func editor(_ key: String) -> String { t(key, table: "Editor") }
-    func capture(_ key: String) -> String { t(key, table: "Capture") }
-    func settings(_ key: String) -> String { t(key, table: "Settings") }
-    func vault(_ key: String) -> String { t(key, table: "Vault") }
-    func paywall(_ key: String) -> String { t(key, table: "Paywall") }
-    func gallery(_ key: String) -> String { t(key, table: "Gallery") }
-    func model(_ key: String) -> String { t(key, table: "Model") }
-    func auth(_ key: String) -> String { t(key, table: "Auth") }
+    func common(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Common", argsArray: args) }
+    func onboarding(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Onboarding", argsArray: args) }
+    func home(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Home", argsArray: args) }
+    func editor(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Editor", argsArray: args) }
+    func capture(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Capture", argsArray: args) }
+    func settings(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Settings", argsArray: args) }
+    func vault(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Vault", argsArray: args) }
+    func paywall(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Paywall", argsArray: args) }
+    func gallery(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Gallery", argsArray: args) }
+    func model(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Model", argsArray: args) }
+    func auth(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Auth", argsArray: args) }
 }

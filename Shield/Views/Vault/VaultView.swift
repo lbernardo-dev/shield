@@ -57,16 +57,16 @@ struct VaultView: View {
                 Image(systemName: "lock.rectangle.stack.fill").font(.system(size: 44)).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 8) {
-                Text(appState.str("vault_title_pro"))
+                Text(LanguageManager.shared.vault("vault_title_pro"))
                     .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
-                Text(appState.str("vault_pro_desc"))
+                Text(LanguageManager.shared.vault("vault_pro_desc"))
                     .font(.system(size: 15)).foregroundColor(ShieldTheme.secondary(scheme)).multilineTextAlignment(.center)
             }
             Button {
                 paywallTrigger = .vaultUpgrade
                 showPaywall = true
             } label: {
-                Label(appState.str("paywall_unlock_pro"), systemImage: "crown.fill")
+                Label(LanguageManager.shared.paywall("paywall_unlock_pro"), systemImage: "crown.fill")
                     .font(.system(size: 16, weight: .bold))
                     .frame(maxWidth: .infinity).frame(height: 52)
                     .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
@@ -90,9 +90,9 @@ struct VaultView: View {
                 Image(systemName: "faceid").font(.system(size: 54, weight: .light)).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 6) {
-                Text(appState.str("vault_locked_title"))
+                Text(LanguageManager.shared.vault("vault_locked_title"))
                     .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
-                Text(appState.str("vault_locked_desc"))
+                Text(LanguageManager.shared.vault("vault_locked_desc"))
                     .font(.system(size: 14)).foregroundColor(ShieldTheme.secondary(scheme))
             }
             if let err = authError {
@@ -101,7 +101,7 @@ struct VaultView: View {
 
             VStack(spacing: 10) {
                 Button { authenticate() } label: {
-                    Label(appState.str("vault_unlock_faceid"), systemImage: "faceid")
+                    Label(LanguageManager.shared.vault("vault_unlock_faceid"), systemImage: "faceid")
                         .font(.system(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity).frame(height: 52)
                         .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
@@ -111,13 +111,13 @@ struct VaultView: View {
 
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
-                        Text(appState.str("vault_use_pin"))
+                        Text(LanguageManager.shared.vault("vault_use_pin"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.accent)
                     }
                 } else {
                     Button { showPINSetup = true } label: {
-                        Text(appState.str("vault_setup_pin"))
+                        Text(LanguageManager.shared.vault("vault_setup_pin"))
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.textTertiary)
                     }
@@ -139,12 +139,12 @@ struct VaultView: View {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.success)
-                        Text(appState.str("vault_title"))
+                        Text(LanguageManager.shared.vault("vault_title"))
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
                             .tracking(-0.5)
                     }
-                    Text(appState.str("vault_status_count", appState.vaultDocuments.count))
+                    Text(LanguageManager.shared.vault("vault_status_count", appState.vaultDocuments.count))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.success)
                 }
@@ -152,7 +152,7 @@ struct VaultView: View {
                 Button {
                     withAnimation { isUnlocked = false }
                 } label: {
-                    Label(appState.str("vault_lock_button"), systemImage: "lock.fill")
+                    Label(LanguageManager.shared.vault("vault_lock_button"), systemImage: "lock.fill")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(ShieldTheme.danger)
                         .padding(.horizontal, 12).frame(height: 32)
@@ -175,12 +175,12 @@ struct VaultView: View {
                                 Button(role: .destructive) {
                                     appState.deleteDocument(doc)
                                 } label: {
-                                    Label(appState.str("common_delete"), systemImage: "trash")
+                                    Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
                                 }
                                 Button {
                                     appState.toggleVault(doc)
                                 } label: {
-                                    Label(appState.str("vault_move_out"), systemImage: "lock.open")
+                                    Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
                                 }
                                 .tint(.orange)
                             }
@@ -191,7 +191,7 @@ struct VaultView: View {
                     Button { showAddToVault = true } label: {
                         HStack(spacing: 10) {
                             Image(systemName: "plus.circle.fill").font(.system(size: 18)).foregroundColor(ShieldTheme.accent)
-                            Text(appState.str("vault_add_to_vault"))
+                            Text(LanguageManager.shared.vault("vault_add_to_vault"))
                                 .font(.system(size: 14, weight: .semibold)).foregroundColor(ShieldTheme.accent)
                         }
                         .frame(maxWidth: .infinity).frame(height: 52)
@@ -216,10 +216,10 @@ struct VaultView: View {
                 .font(.system(size: 48, weight: .light))
                 .foregroundColor(ShieldTheme.textTertiary)
                 .padding(.top, 40)
-            Text(appState.str("vault_empty_title"))
+            Text(LanguageManager.shared.vault("vault_empty_title"))
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(ShieldTheme.secondary(scheme))
-            Text(appState.str("vault_empty_desc"))
+            Text(LanguageManager.shared.vault("vault_empty_desc"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .multilineTextAlignment(.center)
@@ -238,7 +238,7 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.str("vault_biometric_reason")
+            localizedReason: LanguageManager.shared.vault("vault_biometric_reason")
         ) { success, err in
             DispatchQueue.main.async {
                 if success {
@@ -259,7 +259,7 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthentication,
-            localizedReason: appState.str("vault_biometric_reason")
+            localizedReason: LanguageManager.shared.vault("vault_biometric_reason")
         ) { success, err in
             DispatchQueue.main.async {
                 if success {
@@ -277,7 +277,7 @@ struct VaultView: View {
             return
         }
         showPINSetup = true
-        authError = appState.str("vault_pin_setup_help")
+        authError = LanguageManager.shared.vault("vault_pin_setup_help")
     }
 }
 
@@ -294,7 +294,7 @@ struct AddToVaultSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(appState.str("vault_move_to_vault"))
+                Text(LanguageManager.shared.vault("vault_move_to_vault"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -311,7 +311,7 @@ struct AddToVaultSheet: View {
 
             if libraryDocs.isEmpty {
                 Spacer()
-                Text(appState.str("vault_no_docs_library"))
+                Text(LanguageManager.shared.vault("vault_no_docs_library"))
                     .foregroundColor(ShieldTheme.textTertiary)
                     .font(.system(size: 14))
                 Spacer()
@@ -459,8 +459,8 @@ struct PINSetupView: View {
                 .foregroundColor(ShieldTheme.accent)
 
             Text(step == 0
-                 ? appState.str("vault_pin_setup_choose")
-                 : appState.str("vault_pin_setup_confirm"))
+                 ? LanguageManager.shared.vault("vault_pin_setup_choose")
+                 : LanguageManager.shared.vault("vault_pin_setup_confirm"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -484,7 +484,7 @@ struct PINSetupView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete)
 
             Button { isPresented = false } label: {
-                Text(appState.str("capture_cancel"))
+                Text(LanguageManager.shared.capture("capture_cancel"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -520,7 +520,7 @@ struct PINSetupView: View {
                 isPresented = false
                 onSuccess()
             } else {
-                errorMsg = appState.str("vault_pin_mismatch")
+                errorMsg = LanguageManager.shared.vault("vault_pin_mismatch")
                 pin = ""; confirmPin = ""; step = 0
             }
         }
@@ -546,7 +546,7 @@ struct PINEntryView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.accent)
 
-            Text(appState.str("vault_pin_entry_prompt"))
+            Text(LanguageManager.shared.vault("vault_pin_entry_prompt"))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
 
@@ -566,7 +566,7 @@ struct PINEntryView: View {
             }
 
             if lockoutRemaining > 0 {
-                Text(appState.str("vault_pin_try_again_in", lockoutRemaining))
+                Text(LanguageManager.shared.vault("vault_pin_try_again_in", lockoutRemaining))
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -574,7 +574,7 @@ struct PINEntryView: View {
             PINNumpad(onDigit: handleDigit, onDelete: handleDelete, isDisabled: lockoutRemaining > 0)
 
             Button { isPresented = false } label: {
-                Text(appState.str("capture_cancel"))
+                Text(LanguageManager.shared.capture("capture_cancel"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -615,9 +615,9 @@ struct PINEntryView: View {
         } else {
             refreshLockoutState()
             if lockoutRemaining > 0 {
-                errorMsg = appState.str("vault_pin_too_many_attempts", lockoutRemaining)
+                errorMsg = LanguageManager.shared.vault("vault_pin_too_many_attempts", lockoutRemaining)
             } else {
-                errorMsg = appState.str("vault_pin_incorrect")
+                errorMsg = LanguageManager.shared.vault("vault_pin_incorrect")
             }
             pin = ""
         }

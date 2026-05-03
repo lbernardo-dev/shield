@@ -591,7 +591,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Docs"
+            "value": "Documentos"
           }
         }
       }
@@ -1289,6 +1289,669 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mantener original"
+          }
+        }
+      }
+    },
+    "model_mask_redacted_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REDACTED"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CENSURADO"
+          }
+        }
+      }
+    },
+    "model_doc_spain_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REINO DE ESPAÑA"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REINO DE ESPAÑA"
+          }
+        }
+      }
+    },
+    "model_doc_spain_dni": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOCUMENTO NACIONAL DE IDENTIDAD"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOCUMENTO NACIONAL DE IDENTIDAD"
+          }
+        }
+      }
+    },
+    "model_doc_passport_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASSPORT / PASSEPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASAPORTE / PASSEPORT"
+          }
+        }
+      }
+    },
+    "model_doc_usa_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNITED STATES OF AMERICA"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESTADOS UNIDOS DE AMÉRICA"
+          }
+        }
+      }
+    },
+    "model_doc_uk_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UK"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UK"
+          }
+        }
+      }
+    },
+    "model_doc_uk_dl_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DRIVING LICENCE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CARNET DE CONDUCIR"
+          }
+        }
+      }
+    },
+    "model_doc_uk_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UNITED KINGDOM"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REINO UNIDO"
+          }
+        }
+      }
+    },
+    "model_doc_mexico_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESTADOS UNIDOS MEXICANOS"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESTADOS UNIDOS MEXICANOS"
+          }
+        }
+      }
+    },
+    "model_doc_mexico_passport": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASAPORTE / PASSPORT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASAPORTE / PASSPORT"
+          }
+        }
+      }
+    },
+    "model_doc_italy_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
+          }
+        }
+      }
+    },
+    "model_doc_generic_id": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IDENTIFICATION DOCUMENT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOCUMENTO DE IDENTIDAD"
+          }
+        }
+      }
+    },
+    "model_label_surname1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FIRST SURNAME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PRIMER APELLIDO"
+          }
+        }
+      }
+    },
+    "model_label_surname2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SECOND SURNAME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEGUNDO APELLIDO"
+          }
+        }
+      }
+    },
+    "model_label_given_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GIVEN NAME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOMBRE"
+          }
+        }
+      }
+    },
+    "model_label_sex": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEX"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SEXO"
+          }
+        }
+      }
+    },
+    "model_label_nationality": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NATIONALITY"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NACIONALIDAD"
+          }
+        }
+      }
+    },
+    "model_label_dob": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DATE OF BIRTH"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FECHA NAC."
+          }
+        }
+      }
+    },
+    "model_label_doc_number": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DOC NUMBER"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NÚM. DOC."
+          }
+        }
+      }
+    },
+    "model_label_expires": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VALID UNTIL"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VÁLIDO HASTA"
+          }
+        }
+      }
+    },
+    "model_label_surname": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SURNAME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APELLIDOS"
+          }
+        }
+      }
+    },
+    "model_label_issued": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DATE OF ISSUE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FECHA EXP."
+          }
+        }
+      }
+    },
+    "model_label_type": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipo"
+          }
+        }
+      }
+    },
+    "model_label_code": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código"
+          }
+        }
+      }
+    },
+    "model_label_passport_no": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passport No."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Núm. Pasaporte"
+          }
+        }
+      }
+    },
+    "model_label_surname_nom": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surname / Nom"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apellidos / Nom"
+          }
+        }
+      }
+    },
+    "model_label_given_names": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Given Names"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombres"
+          }
+        }
+      }
+    },
+    "model_label_uk_surname": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Surname"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Apellidos"
+          }
+        }
+      }
+    },
+    "model_label_uk_given_names": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. Given names"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. Nombres"
+          }
+        }
+      }
+    },
+    "model_label_uk_dob": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Date of birth"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Fecha de nacimiento"
+          }
+        }
+      }
+    },
+    "model_label_uk_issued": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4a. Issued"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4a. Expedido"
+          }
+        }
+      }
+    },
+    "model_label_uk_expires": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4b. Expires"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4b. Caduca"
+          }
+        }
+      }
+    },
+    "model_label_uk_driver_no": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5. Driver No."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5. Núm. Conductor"
+          }
+        }
+      }
+    },
+    "model_label_uk_address": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8. Address"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "8. Dirección"
+          }
+        }
+      }
+    },
+    "model_label_mex_surname": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apellidos / Surname"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apellidos / Surname"
+          }
+        }
+      }
+    },
+    "model_label_mex_given": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre / Given name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre / Given name"
+          }
+        }
+      }
+    },
+    "model_label_ita_surname": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COGNOME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APELLIDO"
+          }
+        }
+      }
+    },
+    "model_label_ita_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOMBRE"
+          }
+        }
+      }
+    },
+    "model_label_ita_tax_code": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CODICE FISCALE"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CÓDIGO FISCAL"
           }
         }
       }

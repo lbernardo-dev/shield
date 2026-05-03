@@ -1445,6 +1445,74 @@
           }
         }
       }
+    },
+    "onboarding_demo_name_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAME"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOMBRE"
+          }
+        }
+      }
+    },
+    "onboarding_demo_address_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "123 Main St, London SW1A 1AA"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calle Mayor 14, 28001 Madrid"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_doc_num": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "47821634-X"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "47821634-X"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_dob": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12/05/1988"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12/05/1988"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -137,7 +137,7 @@ struct HomeView: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(appState.preferredScheme == .dark ? ShieldTheme.accentText : ShieldTheme.accent)
                 }
-                Text(appState.str("common_app_name"))
+                Text(LanguageManager.shared.common("common_app_name"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .tracking(-0.3)
@@ -193,7 +193,7 @@ struct HomeView: View {
 
     private var titleSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(appState.str("home_documents"))
+            Text(LanguageManager.shared.home("home_documents"))
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .tracking(-0.7)
@@ -202,10 +202,10 @@ struct HomeView: View {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(ShieldTheme.success)
-                Text(appState.str("home_on_device"))
+                Text(LanguageManager.shared.home("home_on_device"))
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(ShieldTheme.success)
-                Text("· \(appState.documents.count) \(appState.str("home_documents").lowercased())")
+                Text("· \(appState.documents.count) \(LanguageManager.shared.home("home_documents").lowercased())")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(ShieldTheme.textTertiary)
             }
@@ -232,12 +232,12 @@ struct HomeView: View {
         } label: {
             VStack(alignment: .leading, spacing: 5) {
                 HStack {
-                    Text(appState.str("home_plan_status", appState.str("home_free_plan"), used, limit))
+                    Text(LanguageManager.shared.home("home_plan_status", LanguageManager.shared.home("home_free_plan"), used, limit))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(atLimit ? ShieldTheme.danger : ShieldTheme.textSecondary)
                     Spacer()
                     if atLimit {
-                        Text(appState.str("home_upgrade"))
+                        Text(LanguageManager.shared.home("home_upgrade"))
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(ShieldTheme.accent)
                     }
@@ -279,7 +279,7 @@ struct HomeView: View {
                     ? ShieldTheme.accent
                     : ShieldTheme.tertiary(appState.preferredScheme))
 
-            TextField(appState.str("home_search"), text: $appState.searchQuery)
+            TextField(LanguageManager.shared.home("home_search"), text: $appState.searchQuery)
                 .font(.system(size: 15))
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .focused($searchFocused)
@@ -348,7 +348,7 @@ struct HomeView: View {
                         Button(role: .destructive) {
                             appState.deleteCustomCategory(id: cat.id)
                         } label: {
-                            Label(appState.str("common_delete_category"), systemImage: "trash")
+                            Label(LanguageManager.shared.common("common_delete_category"), systemImage: "trash")
                         }
                     }
                 }
@@ -357,7 +357,7 @@ struct HomeView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "plus").font(.system(size: 11, weight: .semibold))
-                        Text(appState.str("common_new")).font(.system(size: 12, weight: .semibold))
+                        Text(LanguageManager.shared.common("common_new")).font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundColor(ShieldTheme.accent)
                     .padding(.horizontal, 10)
@@ -382,7 +382,7 @@ struct HomeView: View {
     private var modesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                SectionHeader(title: appState.str("home_quick_modes"))
+                SectionHeader(title: LanguageManager.shared.home("home_quick_modes"))
                 Spacer()
                 // Batch Pro button
                 Button {
@@ -395,7 +395,7 @@ struct HomeView: View {
                     HStack(spacing: 5) {
                         Image(systemName: pm.isPro ? "square.stack.3d.up.fill" : "lock.fill")
                             .font(.system(size: 11, weight: .semibold))
-                        Text(appState.str("home_batch_pro"))
+                        Text(LanguageManager.shared.home("home_batch_pro"))
                             .font(.system(size: 12, weight: .bold))
                     }
                     .foregroundColor(pm.isPro ? .black : ShieldTheme.textTertiary)
@@ -430,9 +430,9 @@ struct HomeView: View {
     private var recentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
-                title: appState.str("home_recent_documents"),
+                title: LanguageManager.shared.home("home_recent_documents"),
                 action: { showAllDocs = true },
-                actionLabel: appState.str("home_see_all")
+                actionLabel: LanguageManager.shared.home("home_see_all")
             )
 
             if appState.filteredDocuments.isEmpty {
@@ -455,8 +455,8 @@ struct HomeView: View {
                                     appState.toggleFavorite(doc)
                                 } label: {
                                     Label(doc.isFavorite
-                                          ? appState.str("home_remove_favorite")
-                                          : appState.str("home_mark_favorite"),
+                                          ? LanguageManager.shared.home("home_remove_favorite")
+                                          : LanguageManager.shared.home("home_mark_favorite"),
                                           systemImage: doc.isFavorite ? "star.slash" : "star.fill")
                                 }
                             }
@@ -469,15 +469,15 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Label(doc.isVaulted
-                                      ? appState.str("home_open_vault")
-                                      : appState.str("home_move_vault"),
+                                      ? LanguageManager.shared.home("home_open_vault")
+                                      : LanguageManager.shared.home("home_move_vault"),
                                       systemImage: doc.isVaulted ? "lock.open" : "lock.fill")
                             }
                             Divider()
                             Button(role: .destructive) {
                                 appState.deleteDocument(doc)
                             } label: {
-                                Label(appState.str("common_delete"), systemImage: "trash")
+                                Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
                             }
                         }
                     }
@@ -551,7 +551,7 @@ struct HomeView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: appState.str("home_vault_auth_reason")
+            localizedReason: LanguageManager.shared.home("home_vault_auth_reason")
         ) { success, _ in
             DispatchQueue.main.async {
                 if success { showVaultAuthForDoc = doc }
@@ -570,7 +570,7 @@ struct HomeView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthentication,
-            localizedReason: appState.str("home_vault_auth_reason")
+            localizedReason: LanguageManager.shared.home("home_vault_auth_reason")
         ) { success, _ in
             DispatchQueue.main.async {
                 if success { showVaultAuthForDoc = doc }
@@ -584,10 +584,10 @@ struct HomeView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 .padding(.top, 32)
-            Text(appState.str("home_no_documents"))
+            Text(LanguageManager.shared.home("home_no_documents"))
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-            Text(appState.str("home_no_documents_subtitle"))
+            Text(LanguageManager.shared.home("home_no_documents_subtitle"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 .multilineTextAlignment(.center)
@@ -603,9 +603,9 @@ struct HomeView: View {
     private var cloudStorageSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
-                title: appState.str("home_cloud_storage"),
+                title: LanguageManager.shared.home("home_cloud_storage"),
                 action: pm.isPro ? nil : { showPaywall = true },
-                actionLabel: appState.str("home_pro_badge")
+                actionLabel: LanguageManager.shared.home("home_pro_badge")
             )
 
             VStack(spacing: 0) {
@@ -653,7 +653,7 @@ struct HomeView: View {
                                 ext.disconnect(provider)
                             } label: {
                                 Label(
-                                    appState.str("common_disconnect_provider", provider.displayName),
+                                    LanguageManager.shared.common("common_disconnect_provider", provider.displayName),
                                     systemImage: "link.badge.minus"
                                 )
                             }
@@ -678,7 +678,7 @@ struct HomeView: View {
                     Image(systemName: "crown.fill")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(ShieldTheme.accent)
-                    Text(appState.str("home_connect_cloud_description"))
+                    Text(LanguageManager.shared.home("home_connect_cloud_description"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 }
@@ -722,7 +722,7 @@ struct HomeView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                         if !pm.isPro {
-                            Text(appState.str("common_pro"))
+                            Text(LanguageManager.shared.common("common_pro"))
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(ShieldTheme.accentText)
                                 .padding(.horizontal, 5)
@@ -735,7 +735,7 @@ struct HomeView: View {
                         Circle()
                             .fill(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
                             .frame(width: 6, height: 6)
-                        Text(pm.isPro ? statusText : appState.str("home_requires_pro"))
+                        Text(pm.isPro ? statusText : LanguageManager.shared.home("home_requires_pro"))
                             .font(.system(size: 12))
                             .foregroundColor(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
                     }
@@ -767,15 +767,15 @@ struct HomeView: View {
     private var iCloudStatusText: String {
         let enabled = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
         guard enabled else {
-            return appState.str("home_icloud_not_enabled")
+            return LanguageManager.shared.home("home_icloud_not_enabled")
         }
         if cloud.isAvailable {
             if let last = cloud.lastSyncFormatted {
-                return appState.str("home_icloud_synced_status", last)
+                return LanguageManager.shared.home("home_icloud_synced_status", last)
             }
-            return appState.str("home_icloud_ready")
+            return LanguageManager.shared.home("home_icloud_ready")
         }
-        return appState.str("home_icloud_unavailable")
+        return LanguageManager.shared.home("home_icloud_unavailable")
     }
 
     private var iCloudStatusColor: Color {
@@ -786,12 +786,12 @@ struct HomeView: View {
 
     private func providerStatusText(_ provider: ExternalStorageProvider) -> String {
         guard ext.isConnected(provider) else {
-            return appState.str("home_not_connected")
+            return LanguageManager.shared.home("home_not_connected")
         }
         if let email = ext.connectedEmail(provider) {
             return email
         }
-        return appState.str("home_connected")
+        return LanguageManager.shared.home("home_connected")
     }
 
     private func providerStatusColor(_ provider: ExternalStorageProvider) -> Color {
@@ -814,10 +814,10 @@ struct HomeView: View {
                         .foregroundColor(ShieldTheme.accent)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(appState.str("home_vault"))
+                    Text(LanguageManager.shared.home("home_vault"))
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
-                    Text(appState.str("home_secure_storage_faceid"))
+                    Text(LanguageManager.shared.home("home_secure_storage_faceid"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 }
@@ -858,7 +858,7 @@ struct FilterSheet: View {
                 .padding(.top, 10)
 
             HStack {
-                Text(appState.str("home_filters"))
+                Text(LanguageManager.shared.home("home_filters"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(ShieldTheme.primary(effectiveScheme))
                 Spacer()
@@ -869,7 +869,7 @@ struct FilterSheet: View {
                             appState.searchQuery = ""
                         }
                     } label: {
-                        Text(appState.str("home_clear"))
+                        Text(LanguageManager.shared.home("home_clear"))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(ShieldTheme.accent)
                     }
@@ -895,7 +895,7 @@ struct FilterSheet: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // Category filter
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(appState.str("home_category_uppercase"))
+                        Text(LanguageManager.shared.home("home_category_uppercase"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(ShieldTheme.tertiary(effectiveScheme))
                             .tracking(0.6)
@@ -926,7 +926,7 @@ struct FilterSheet: View {
 
                     // Sort (UI only for now — extend AppState as needed)
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(appState.str("home_sort_by_uppercase"))
+                        Text(LanguageManager.shared.home("home_sort_by_uppercase"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(ShieldTheme.tertiary(effectiveScheme))
                             .tracking(0.6)
@@ -978,7 +978,7 @@ struct FilterSheet: View {
             Button {
                 isPresented = false
             } label: {
-                Text(appState.str("home_apply_filters"))
+                Text(LanguageManager.shared.home("home_apply_filters"))
                     .font(.system(size: 16, weight: .bold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -1117,7 +1117,7 @@ struct DocumentRow: View {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         if shouldMask {
-                            Text(appState.str("home_protected_document"))
+                            Text(LanguageManager.shared.home("home_protected_document"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                                 .lineLimit(1)
@@ -1237,7 +1237,7 @@ struct NewCategorySheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(appState.str("home_new_category"))
+                Text(LanguageManager.shared.home("home_new_category"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -1253,7 +1253,7 @@ struct NewCategorySheet: View {
             .padding()
 
             VStack(spacing: 16) {
-                TextField(appState.str("home_category_name_placeholder"), text: $name)
+                TextField(LanguageManager.shared.home("home_category_name_placeholder"), text: $name)
                     .font(.system(size: 16))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .padding(12)
@@ -1261,7 +1261,7 @@ struct NewCategorySheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
 
-                Text(appState.str("home_icon_uppercase"))
+                Text(LanguageManager.shared.home("home_icon_uppercase"))
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(ShieldTheme.textTertiary)
                     .textCase(.uppercase)
@@ -1289,7 +1289,7 @@ struct NewCategorySheet: View {
                     appState.addCustomCategory(cat)
                     isPresented = false
                 } label: {
-                    Text(appState.str("home_create_category"))
+                    Text(LanguageManager.shared.home("home_create_category"))
                         .font(.system(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
@@ -1346,12 +1346,12 @@ struct VaultAutoLockOverlay: View {
                 }
 
                 VStack(spacing: 8) {
-                    Text(appState.str("home_vault_mode"))
+                    Text(LanguageManager.shared.home("home_vault_mode"))
                         .font(.system(size: 20, weight: .heavy))
                         .foregroundColor(ShieldTheme.textPrimary)
                         .tracking(-0.4)
 
-                    Text(appState.str("home_vault_auto_lock_msg"))
+                    Text(LanguageManager.shared.home("home_vault_auto_lock_msg"))
                         .font(.system(size: 14))
                         .foregroundColor(ShieldTheme.textSecondary)
                         .multilineTextAlignment(.center)
@@ -1380,7 +1380,7 @@ struct VaultAutoLockOverlay: View {
                         stopTimer()
                         onLockNow()
                     } label: {
-                        Label(appState.str("home_lock_now"), systemImage: "lock.fill")
+                        Label(LanguageManager.shared.home("home_lock_now"), systemImage: "lock.fill")
                             .font(.system(size: 15, weight: .bold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
@@ -1394,7 +1394,7 @@ struct VaultAutoLockOverlay: View {
                         stopTimer()
                         onKeepEditing()
                     } label: {
-                        Text(appState.str("home_keep_editing"))
+                        Text(LanguageManager.shared.home("home_keep_editing"))
                             .font(.system(size: 15, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
@@ -1463,11 +1463,11 @@ struct BatchRedactView: View {
                     form
                 }
             }
-            .navigationTitle(appState.str("home_batch_pro"))
+            .navigationTitle(LanguageManager.shared.home("home_batch_pro"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(appState.str("capture_cancel")) {
+                    Button(LanguageManager.shared.capture("capture_cancel")) {
                         isPresented = false
                     }
                     .foregroundColor(ShieldTheme.accent)
@@ -1482,7 +1482,7 @@ struct BatchRedactView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Mode picker
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(appState.str("home_batch_redaction_mode"))
+                    Text(LanguageManager.shared.home("home_batch_redaction_mode"))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(ShieldTheme.textTertiary)
                         .tracking(0.5)
@@ -1520,7 +1520,7 @@ struct BatchRedactView: View {
                 // Document picker
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text(String(format: appState.str("home_batch_documents_count"), selectedIDs.count))
+                        Text(LanguageManager.shared.home("home_batch_documents_count", selectedIDs.count))
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(ShieldTheme.textTertiary)
                             .tracking(0.5)
@@ -1533,8 +1533,8 @@ struct BatchRedactView: View {
                             }
                         } label: {
                             Text(selectedIDs.count == selectableDocs.count
-                                 ? appState.str("common_deselect_all")
-                                 : appState.str("common_select_all"))
+                                 ? LanguageManager.shared.common("common_deselect_all")
+                                 : LanguageManager.shared.common("common_select_all"))
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(ShieldTheme.accent)
                         }
@@ -1554,7 +1554,7 @@ struct BatchRedactView: View {
                                         .font(.system(size: 14, weight: .semibold))
                                         .foregroundColor(ShieldTheme.textPrimary)
                                         .lineLimit(1)
-                                    Text("\(doc.pageCount) \(appState.str("common_pages_count")) · \(doc.dateLabelLocalized(lang: appState.language))")
+                                    Text("\(doc.pageCount) \(LanguageManager.shared.common("common_pages_count")) · \(doc.dateLabelLocalized(lang: appState.language))")
                                         .font(.system(size: 11))
                                         .foregroundColor(ShieldTheme.textTertiary)
                                 }
@@ -1579,12 +1579,12 @@ struct BatchRedactView: View {
                     HStack(spacing: 8) {
                         if isProcessing {
                             ProgressView().tint(.black).scaleEffect(0.9)
-                            Text(String(format: appState.str("home_batch_processing"), processed, selectedIDs.count))
+                            Text(LanguageManager.shared.home("home_batch_processing", processed, selectedIDs.count))
                                 .font(.system(size: 15, weight: .bold))
                         } else {
                             Image(systemName: "square.stack.3d.up.fill")
                                 .font(.system(size: 15, weight: .semibold))
-                            Text(String(format: appState.str("home_batch_apply_button"), selectedIDs.count))
+                            Text(LanguageManager.shared.home("home_batch_apply_button", selectedIDs.count))
                                 .font(.system(size: 15, weight: .bold))
                         }
                     }
@@ -1597,7 +1597,7 @@ struct BatchRedactView: View {
                 .buttonStyle(ScaleButtonStyle())
                 .disabled(selectedIDs.isEmpty || isProcessing)
 
-                Text(appState.str("home_batch_description"))
+                Text(LanguageManager.shared.home("home_batch_description"))
                     .font(.system(size: 11))
                     .foregroundColor(ShieldTheme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1619,17 +1619,17 @@ struct BatchRedactView: View {
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(spacing: 6) {
-                Text(appState.str("home_batch_complete_title"))
+                Text(LanguageManager.shared.home("home_batch_complete_title"))
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
-                Text(appState.str("home_batch_complete_desc", selectedMode.label(lang: appState.language), processed))
+                Text(LanguageManager.shared.home("home_batch_complete_desc", selectedMode.label(lang: appState.language), processed))
                     .font(.system(size: 14))
                     .foregroundColor(ShieldTheme.textSecondary)
                     .multilineTextAlignment(.center)
             }
             Spacer()
             Button { isPresented = false } label: {
-                Text(appState.str("common_done"))
+                Text(LanguageManager.shared.common("common_done"))
                     .font(.system(size: 16, weight: .bold))
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)

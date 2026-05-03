@@ -98,7 +98,7 @@ struct ExportSheetView: View {
                                         Image(systemName: f == .pdf ? "doc.fill" : "photo.fill")
                                             .font(.system(size: 16, weight: .semibold))
                                             .foregroundColor(format == f ? ShieldTheme.accent : ShieldTheme.textPrimary)
-                                        Text(f == .pdf ? "PDF" : LanguageManager.shared.editor("editor_export_image"))
+                                        Text(f == .pdf ? LanguageManager.shared.editor("editor_export_pdf") : LanguageManager.shared.editor("editor_export_image"))
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(ShieldTheme.textPrimary)
                                     }
@@ -309,7 +309,7 @@ struct ExportSheetView: View {
         let labelKey: String = score >= 80
             ? "editor_export_safe_to_share"
             : (score >= 50 ? "editor_export_moderate_risk" : "editor_export_high_risk")
-        let label = LanguageManager.shared.str(labelKey, table: "Editor")
+        let label = LanguageManager.shared.editor(labelKey)
 
         return Button {
             withAnimation(.spring(response: 0.3)) { showPrivacyScore.toggle() }
@@ -323,7 +323,7 @@ struct ExportSheetView: View {
                             .foregroundColor(color)
                     }
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Privacy Score")
+                        Text(LanguageManager.shared.editor("editor_privacy_score"))
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(ShieldTheme.textPrimary)
                         Text(label)
@@ -340,30 +340,30 @@ struct ExportSheetView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         privacyScoreRow(
                             icon: "scissors",
-                            label: LanguageManager.shared.str("editor_export_redactions_applied", table: "Editor"),
+                            label: LanguageManager.shared.editor("editor_export_redactions_applied"),
                             value: totalRedactionCount > 0
                                 ? "\(totalRedactionCount)"
-                                : LanguageManager.shared.str("editor_export_none", table: "Editor"),
+                                : LanguageManager.shared.editor("editor_export_none"),
                             ok: totalRedactionCount > 0
                         )
                         privacyScoreRow(
                             icon: "doc.badge.minus",
-                            label: LanguageManager.shared.str("editor_export_metadata_stripped", table: "Editor"),
-                            value: LanguageManager.shared.str("editor_export_always", table: "Editor"),
+                            label: LanguageManager.shared.editor("editor_export_metadata_stripped"),
+                            value: LanguageManager.shared.editor("editor_export_always"),
                             ok: true
                         )
                         privacyScoreRow(
                             icon: "text.magnifyingglass",
-                            label: LanguageManager.shared.str("editor_export_ocr_risk", table: "Editor"),
+                            label: LanguageManager.shared.editor("editor_export_ocr_risk"),
                             value: (doc.fields.ocrRiskLevel ?? "").capitalized,
                             ok: doc.fields.ocrRiskLevel != "high"
                         )
                         privacyScoreRow(
                             icon: pm.isPro ? "drop.slash" : "drop.fill",
-                            label: LanguageManager.shared.str("editor_export_no_watermark", table: "Editor"),
+                            label: LanguageManager.shared.editor("editor_export_no_watermark"),
                             value: pm.isPro
-                                ? LanguageManager.shared.str("editor_export_yes_pro", table: "Editor")
-                                : LanguageManager.shared.str("editor_export_no_free", table: "Editor"),
+                                ? LanguageManager.shared.editor("editor_export_yes_pro")
+                                : LanguageManager.shared.editor("editor_export_no_free"),
                             ok: pm.isPro
                         )
                     }
@@ -439,7 +439,7 @@ struct ExportSheetView: View {
         let n = format == .pdf
             ? pageRedactions.values.reduce(0) { $0 + $1.count }
             : redactions.count
-        return LanguageManager.shared.str("editor_export_count_label", table: "Editor", args: n)
+        return LanguageManager.shared.t("editor_export_count_label", table: "Editor", args: n)
     }
 
     private var watermarkApplied: Bool {
@@ -458,14 +458,14 @@ struct ExportSheetView: View {
     private func doExport() {
         exportErrorMessage = nil
         guard pm.canExportNow() else {
-            exportErrorMessage = LanguageManager.shared.str("editor_export_free_limit_reached", table: "Editor")
+            exportErrorMessage = LanguageManager.shared.editor("editor_export_free_limit_reached")
             AppState.trackEvent("export_blocked_free_limit")
             showPaywall = true
             return
         }
 
         if shouldWarnForHighRiskExport && !acknowledgeHighRiskExport {
-            exportErrorMessage = LanguageManager.shared.str("editor_export_risk_acknowledge_error", table: "Editor")
+            exportErrorMessage = LanguageManager.shared.editor("editor_export_risk_acknowledge_error")
             AppState.trackEvent("export_blocked_risk", properties: ["risk": "high"])
             return
         }
@@ -473,7 +473,7 @@ struct ExportSheetView: View {
         let effectiveWatermark = pm.isPro
             ? watermark
             : (watermark ?? Watermark(
-                text: LanguageManager.shared.str("editor_export_protected_free", table: "Editor"),
+                text: LanguageManager.shared.editor("editor_export_protected_free"),
                 opacity: 0.18,
                 isRepeating: true
             ))
@@ -508,7 +508,7 @@ struct ExportSheetView: View {
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
                     } else {
-                        exportErrorMessage = LanguageManager.shared.str("editor_export_error_pdf_retry", table: "Editor")
+                        exportErrorMessage = LanguageManager.shared.editor("editor_export_error_pdf_retry")
                         AppState.trackEvent("export_failed", properties: ["format": "pdf"])
                     }
                 }
@@ -528,7 +528,7 @@ struct ExportSheetView: View {
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
                     } else {
-                        exportErrorMessage = LanguageManager.shared.str("editor_export_error_image_retry", table: "Editor")
+                        exportErrorMessage = LanguageManager.shared.editor("editor_export_error_image_retry")
                         AppState.trackEvent("export_failed", properties: ["format": "image"])
                     }
                 }
@@ -997,7 +997,7 @@ enum ExportEngine {
                 .font: UIFont.monospacedSystemFont(ofSize: min(rect.height * 0.5, 14), weight: .bold),
                 .foregroundColor: UIColor(Color(hex: "FFD60A"))
             ]
-            let text = "REDACTED" as NSString
+            let text = LanguageManager.shared.model("model_mask_redacted_label") as NSString
             let textSize = text.size(withAttributes: attrs)
             text.draw(at: CGPoint(
                 x: rect.midX - textSize.width / 2,

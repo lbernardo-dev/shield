@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Batch Pro"
+            "value": "Lotes Pro"
           }
         }
       }
@@ -1442,6 +1442,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Marcar favorito"
+          }
+        }
+      }
+    },
+    "home_batch_apply_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply to %d documents"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicar a %d documentos"
+          }
+        }
+      }
+    },
+    "home_batch_complete_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing complete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesamiento completado"
+          }
+        }
+      }
+    },
+    "home_batch_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply the current redaction style to all selected documents."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplica el estilo de redacción actual a todos los documentos seleccionados."
+          }
+        }
+      }
+    },
+    "home_batch_processing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processing %d of %d..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesando %d de %d..."
+          }
+        }
+      }
+    },
+    "home_move_vault": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover a Bóveda"
+          }
+        }
+      }
+    },
+    "home_open_vault": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Bóveda"
           }
         }
       }

@@ -28,7 +28,7 @@ struct WatermarkConfigView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text(LanguageManager.shared.str("editor_watermark_title", table: "Editor"))
+                Text(LanguageManager.shared.editor("editor_watermark_title"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
@@ -36,7 +36,7 @@ struct WatermarkConfigView: View {
                     onSave(nil)
                     isPresented = false
                 } label: {
-                    Text(LanguageManager.shared.str("editor_watermark_remove", table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_watermark_remove"))
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(ShieldTheme.danger)
                 }
@@ -61,8 +61,8 @@ struct WatermarkConfigView: View {
                 VStack(spacing: 20) {
                     // Text field
                     VStack(alignment: .leading, spacing: 8) {
-                        label(LanguageManager.shared.str("editor_watermark_text", table: "Editor"))
-                        TextField(LanguageManager.shared.str("editor_watermark_placeholder", table: "Editor"), text: $text)
+                        label(LanguageManager.shared.editor("editor_watermark_text"))
+                        TextField(LanguageManager.shared.editor("editor_watermark_placeholder"), text: $text)
                             .font(.system(size: 14))
                             .foregroundColor(ShieldTheme.textPrimary)
                             .padding(.horizontal, 12)
@@ -78,7 +78,7 @@ struct WatermarkConfigView: View {
                     // Opacity
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            label(LanguageManager.shared.str("editor_watermark_opacity", table: "Editor"))
+                            label(LanguageManager.shared.editor("editor_watermark_opacity"))
                             Spacer()
                             Text("\(Int(opacity * 100))%")
                                 .font(.system(size: 12, weight: .semibold))
@@ -90,7 +90,7 @@ struct WatermarkConfigView: View {
 
                     // Color
                     HStack {
-                        label(LanguageManager.shared.str("editor_watermark_color", table: "Editor"))
+                        label(LanguageManager.shared.editor("editor_watermark_color"))
                         Spacer()
                         ColorPicker("", selection: $selectedColor, supportsOpacity: false)
                             .labelsHidden()
@@ -100,10 +100,10 @@ struct WatermarkConfigView: View {
                     // Repeat toggle
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(LanguageManager.shared.str("editor_watermark_tile_title", table: "Editor"))
+                            Text(LanguageManager.shared.editor("editor_watermark_tile_title"))
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(ShieldTheme.textPrimary)
-                            Text(LanguageManager.shared.str("editor_watermark_tile_desc", table: "Editor"))
+                            Text(LanguageManager.shared.editor("editor_watermark_tile_desc"))
                                 .font(.system(size: 11))
                                 .foregroundColor(ShieldTheme.textTertiary)
                         }
@@ -115,7 +115,7 @@ struct WatermarkConfigView: View {
 
                     // Live preview
                     VStack(alignment: .leading, spacing: 8) {
-                        label(LanguageManager.shared.str("editor_preview", table: "Editor"))
+                        label(LanguageManager.shared.editor("editor_preview"))
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color(hex: "E8E4D8"))
@@ -143,7 +143,7 @@ struct WatermarkConfigView: View {
                     onSave(previewWatermark)
                     isPresented = false
                 } label: {
-                    Text(LanguageManager.shared.str("editor_watermark_apply", table: "Editor"))
+                    Text(LanguageManager.shared.editor("editor_watermark_apply"))
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(ShieldTheme.accentText)
                         .frame(maxWidth: .infinity)

@@ -59,7 +59,7 @@ struct LockScreenView: View {
                     }
 
                     VStack(spacing: 6) {
-                        Text("Shield")
+                        Text(LanguageManager.shared.common("common_app_name"))
                             .font(.system(size: 28, weight: .heavy, design: .default))
                             .foregroundColor(ShieldTheme.textPrimary)
                             .tracking(-0.5)

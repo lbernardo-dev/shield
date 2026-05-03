@@ -30,23 +30,23 @@ struct StyleGalleryView: View {
 
                     LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
                         styleSection(
-                            title: appState.str("gallery_group_essentials"),
-                            subtitle: appState.str("gallery_group_essentials_sub"),
+                            title: LanguageManager.shared.gallery("gallery_group_essentials"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_essentials_sub"),
                             styles: [.block, .blockWhite]
                         )
                         styleSection(
-                            title: appState.str("gallery_group_blur"),
-                            subtitle: appState.str("gallery_group_blur_sub"),
+                            title: LanguageManager.shared.gallery("gallery_group_blur"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_blur_sub"),
                             styles: [.blurStrong, .blurSoft, .pixelate]
                         )
                         styleSection(
-                            title: appState.str("gallery_group_patterns"),
-                            subtitle: appState.str("gallery_group_patterns_sub"),
+                            title: LanguageManager.shared.gallery("gallery_group_patterns"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_patterns_sub"),
                             styles: [.diagonal, .secure, .redactedTag]
                         )
                         styleSection(
-                            title: appState.str("gallery_group_special"),
-                            subtitle: appState.str("gallery_group_special_sub"),
+                            title: LanguageManager.shared.gallery("gallery_group_special"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_special_sub"),
                             styles: [.semi]
                         )
                     }
@@ -85,11 +85,11 @@ struct StyleGalleryView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
-                Text(appState.str("gallery_title"))
+                Text(LanguageManager.shared.gallery("gallery_title"))
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .tracking(-0.5)
-                Text(appState.str("gallery_subtitle"))
+                Text(LanguageManager.shared.gallery("gallery_subtitle"))
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
@@ -105,17 +105,17 @@ struct StyleGalleryView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
                 docPickerGroup(
-                    label: appState.str("gallery_region_europe"),
+                    label: LanguageManager.shared.gallery("gallery_region_europe"),
                     kinds: [.dniESP, .drivingUK, .dniITA]
                 )
                 pickerDivider
                 docPickerGroup(
-                    label: appState.str("gallery_region_americas"),
+                    label: LanguageManager.shared.gallery("gallery_region_americas"),
                     kinds: [.passportUSA, .passportMEX]
                 )
                 pickerDivider
                 docPickerGroup(
-                    label: appState.str("gallery_region_generic"),
+                    label: LanguageManager.shared.gallery("gallery_region_generic"),
                     kinds: [.genericID]
                 )
             }
@@ -214,13 +214,13 @@ struct StyleGalleryView: View {
 
     private func kindLabel(_ kind: DocumentKind) -> String {
         switch kind {
-        case .dniESP:      return appState.str("gallery_doc_dni_esp")
-        case .passportUSA: return appState.str("gallery_doc_passport_usa")
-        case .drivingUK:   return appState.str("gallery_doc_driving_uk")
-        case .photo:       return appState.str("gallery_doc_photo")
-        case .passportMEX: return appState.str("gallery_doc_passport_mex")
-        case .dniITA:      return appState.str("gallery_doc_dni_ita")
-        case .genericID:   return appState.str("gallery_doc_generic_id")
+        case .dniESP:      return LanguageManager.shared.gallery("gallery_doc_dni_esp")
+        case .passportUSA: return LanguageManager.shared.gallery("gallery_doc_passport_usa")
+        case .drivingUK:   return LanguageManager.shared.gallery("gallery_doc_driving_uk")
+        case .photo:       return LanguageManager.shared.gallery("gallery_doc_photo")
+        case .passportMEX: return LanguageManager.shared.gallery("gallery_doc_passport_mex")
+        case .dniITA:      return LanguageManager.shared.gallery("gallery_doc_dni_ita")
+        case .genericID:   return LanguageManager.shared.gallery("gallery_doc_generic_id")
         }
     }
 }
@@ -263,7 +263,7 @@ private struct StyleCard: View {
                             Image(systemName: "crown.fill")
                                 .font(.system(size: 18))
                                 .foregroundColor(ShieldTheme.accent)
-                            Text(appState.str("common_pro"))
+                            Text(LanguageManager.shared.common("common_pro"))
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(ShieldTheme.accent)
                         }
@@ -291,7 +291,7 @@ private struct StyleCard: View {
                         .lineLimit(1)
                     Spacer()
                     if isPremium && isUnlocked {
-                        Text(appState.str("common_pro"))
+                        Text(LanguageManager.shared.common("common_pro"))
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(.horizontal, 5)
@@ -350,7 +350,7 @@ struct StyleSourceSheet: View {
             .padding(.top, 10)
 
             VStack(spacing: 4) {
-                Text(appState.str("gallery_selected_style_header"))
+                Text(LanguageManager.shared.gallery("gallery_selected_style_header"))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .tracking(0.6)
@@ -370,7 +370,7 @@ struct StyleSourceSheet: View {
                 .padding(.top, 16)
                 .padding(.bottom, 20)
 
-            Text(appState.str("gallery_load_source_title"))
+            Text(LanguageManager.shared.gallery("gallery_load_source_title"))
                 .font(.system(size: 14))
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
@@ -381,7 +381,7 @@ struct StyleSourceSheet: View {
                 HStack(spacing: 10) {
                     Image(systemName: "camera.viewfinder")
                         .font(.system(size: 17, weight: .semibold))
-                Text(appState.str("gallery_load_source_button"))
+                Text(LanguageManager.shared.gallery("gallery_load_source_button"))
                         .font(.system(size: 15, weight: .bold))
                 }
                 .frame(maxWidth: .infinity)
