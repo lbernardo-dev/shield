@@ -1035,6 +1035,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Shield/Resources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
@@ -1074,6 +1075,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Shield/Resources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
