@@ -3,22 +3,22 @@
   "nonRenewingSubscriptions" : [],
   "products" : [
     {
-      "displayPrice" : "9.99",
-      "familyShareable" : false,
+      "displayPrice" : "49.99",
+      "familyShareable" : true,
       "internalID" : "lifetime_001",
       "localizations" : [
         {
-          "description" : "Acceso de por vida a Shield Pro",
-          "displayName" : "Shield Pro Lifetime",
+          "description" : "Acceso permanente a Shield Pro",
+          "displayName" : "Shield Pro de por vida",
           "locale" : "es_ES"
         },
         {
-          "description" : "Lifetime access to Shield Pro",
+          "description" : "Permanent access to Shield Pro",
           "displayName" : "Shield Pro Lifetime",
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.romerodev.shield.pro.lifetime",
+      "productID" : "com.romerodev.shield.pro.lifetime.unlock",
       "referenceName" : "Shield Pro Lifetime",
       "type" : "NonConsumable"
     }
@@ -67,7 +67,7 @@
         {
           "adHocOffers" : [],
           "codeOffers" : [],
-          "displayPrice" : "19.99",
+          "displayPrice" : "29.99",
           "familyShareable" : true,
           "gracePeriod" : null,
           "internalID" : "annual_001",

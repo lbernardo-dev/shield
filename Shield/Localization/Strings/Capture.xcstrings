@@ -1072,6 +1072,7 @@
         }
       }
     },
+    "capture_scan_accessibility_hint": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Opens camera, scanner, and import options"}},"es":{"stringUnit":{"state":"translated","value":"Abre la cámara, el escáner y las opciones de importación"}}}},
     "capture_grayscale_strong": {
       "extractionState": "manual",
       "localizations": {

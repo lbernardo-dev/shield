@@ -123,13 +123,13 @@ struct PhotoDocumentView: View {
     var watermark: Watermark? = nil
     var isVaulted: Bool = false
     var imageAdjustment: ImageAdjustmentStore? = nil
+    @State private var sourceImage: UIImage? = nil
+    @State private var displayedImage: UIImage? = nil
 
     var body: some View {
         ZStack {
-            if let fileName = imageFileName,
-               let uiImage = AppState.loadImage(fileName: fileName, isVaulted: isVaulted) {
-                let renderedImage = imageAdjustment.flatMap { ExportEngine.applyImageAdjustment(uiImage, store: $0) } ?? uiImage
-                Image(uiImage: renderedImage)
+            if let displayedImage {
+                Image(uiImage: displayedImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: size.width, height: size.height)
@@ -168,6 +168,24 @@ struct PhotoDocumentView: View {
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .allowsHitTesting(false)
+        .task(id: imageFileName) {
+            guard let imageFileName else {
+                sourceImage = nil
+                displayedImage = nil
+                return
+            }
+            let loaded = AppState.loadImage(fileName: imageFileName, isVaulted: isVaulted)
+            sourceImage = loaded
+            displayedImage = loaded.flatMap { image in
+                imageAdjustment.flatMap { ExportEngine.applyImageAdjustment(image, store: $0) } ?? image
+            }
+        }
+        .onChange(of: imageAdjustment) { _, adjustment in
+            guard let sourceImage else { return }
+            displayedImage = adjustment.flatMap {
+                ExportEngine.applyImageAdjustment(sourceImage, store: $0)
+            } ?? sourceImage
+        }
     }
 }
 

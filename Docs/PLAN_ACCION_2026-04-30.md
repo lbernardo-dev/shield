@@ -198,3 +198,4 @@ Shield/Views/Settings/SettingsView.swift
 Shield/Views/Vault/VaultView.swift
 Shield/Premium/PremiumManager.swift
 ```
+> Documento histórico de abril de 2026. No usar como checklist vigente; consultar `RELEASE_READINESS_2026-07-13.md`.

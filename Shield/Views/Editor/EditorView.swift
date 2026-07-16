@@ -7,6 +7,8 @@ struct EditorView: View {
     @StateObject private var pm = PremiumManager.shared
     @StateObject private var vm: EditorViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
@@ -14,6 +16,9 @@ struct EditorView: View {
     @State private var showReadjustReview = false
     @State private var readjustPages: [UIImage] = []
     @State private var shouldPersistOnDismiss = false
+    @State private var currentPageAspect: CGFloat? = nil
+    @State private var zoomScale: CGFloat = 1
+    @GestureState private var magnifyScale: CGFloat = 1
 
     init(doc: DocumentItem) {
         _vm = StateObject(wrappedValue: EditorViewModel(doc: doc))
@@ -42,7 +47,7 @@ struct EditorView: View {
             }
             bottomBar
         }
-        .background(ShieldTheme.surface0.ignoresSafeArea())
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {
             if let style = appState.pendingMaskStyle {
@@ -57,6 +62,30 @@ struct EditorView: View {
                 appState.pendingRedactionMode = nil
             }
             vm.bootstrapOCRSuggestionsIfNeeded()
+#if DEBUG
+            if ASOScreenshotMode.isEnabled {
+                if ASOScreenshotMode.scene == "ocr" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        vm.showOCRSheet = true
+                    }
+                } else if ASOScreenshotMode.scene == "export" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        vm.showExportSheet = true
+                    }
+                }
+            }
+#endif
+        }
+        .task(id: vm.currentImageFileName) {
+            guard vm.doc.kind == .photo,
+                  let fileName = vm.currentImageFileName,
+                  let image = AppState.loadImage(fileName: fileName, isVaulted: vm.doc.isVaulted),
+                  image.size.height > 0 else {
+                currentPageAspect = nil
+                return
+            }
+            currentPageAspect = image.size.width / image.size.height
+            zoomScale = 1
         }
         .sheet(isPresented: $vm.showOCRSheet) {
             SheetContainer(heightFraction: 0.80) {
@@ -117,33 +146,20 @@ struct EditorView: View {
             ScanReviewView(
                 pages: readjustPages,
                 initialAdjustments: {
-                    let adj = vm.imageAdjustment
-                    let scanAdj = ScanPageAdjustment(
-                        filterPreset: .auto, // Default to auto for re-adjust
-                        straightenDegrees: 0,
-                        rotationDegrees: adj.rotation,
-                        perspectiveTopInset: 0,
-                        perspectiveBottomInset: 0,
-                        perspectiveSkew: 0,
-                        perspectiveTopYOffset: 0,
-                        perspectiveBottomYOffset: 0,
-                        quad: nil,
-                        cropLeft: adj.cropLeft,
-                        cropRight: adj.cropRight,
-                        cropTop: adj.cropTop,
-                        cropBottom: adj.cropBottom,
-                        brightness: adj.brightness,
-                        contrast: adj.contrast,
-                        sharpness: adj.sharpness,
-                        noiseReduction: 0
-                    )
-                    return Array(repeating: scanAdj, count: readjustPages.count)
+                    guard vm.doc.originalPageFileNames?.count == readjustPages.count,
+                          vm.doc.pageTransforms.count == readjustPages.count else {
+                        // Legacy documents have no immutable original. Starting
+                        // from identity prevents their baked adjustments from
+                        // being applied a second time.
+                        return Array(repeating: .default, count: readjustPages.count)
+                    }
+                    return vm.doc.pageTransforms.map(ScanPageAdjustment.init(documentTransform:))
                 }(),
                 onCancel: {
                     showReadjustReview = false
                     readjustPages = []
                 },
-                onConfirm: { adjustedPages, _ in
+                onConfirm: { adjustedPages, _, transforms in
                     let fileNames: [String]
                     if let all = vm.doc.pageFileNames, !all.isEmpty {
                         fileNames = all
@@ -157,7 +173,7 @@ struct EditorView: View {
                         let id = (fileNames[index] as NSString).deletingPathExtension
                         _ = appState.saveImage(image, id: id)
                     }
-                    vm.refreshAfterImageOverwrite()
+                    vm.updateRenderedPages(transforms: transforms)
                     showReadjustReview = false
                     readjustPages = []
                 }
@@ -185,7 +201,10 @@ struct EditorView: View {
                 }
             }
             .font(.system(size: 15, weight: .semibold))
-            .foregroundColor(ShieldTheme.accent)
+            .foregroundColor(ShieldTheme.accent(scheme))
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+            .keyboardShortcut(.cancelAction)
             .confirmationDialog(
                 LanguageManager.shared.editor("editor_exit_confirm"),
                 isPresented: $showCancelConfirm,
@@ -206,7 +225,9 @@ struct EditorView: View {
                 // Re-adjust scan button
                 Button {
                     let fileNames: [String]
-                    if let all = vm.doc.pageFileNames, !all.isEmpty {
+                    if let originals = vm.doc.originalPageFileNames, !originals.isEmpty {
+                        fileNames = originals
+                    } else if let all = vm.doc.pageFileNames, !all.isEmpty {
                         fileNames = all
                     } else if let first = vm.doc.imageFileName {
                         fileNames = [first]
@@ -222,7 +243,7 @@ struct EditorView: View {
                 } label: {
                     Image(systemName: "camera.filters")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(ShieldTheme.textSecondary)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
                         .frame(width: 30, height: 30)
                 }
 
@@ -235,13 +256,14 @@ struct EditorView: View {
                 } label: {
                     Text(appState.language == .es ? "Guardar" : "Save")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.textTertiary)
+                        .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 14)
                         .frame(height: 30)
-                        .background(vm.hasUnsavedChanges ? ShieldTheme.success : ShieldTheme.surface3)
+                        .background(vm.hasUnsavedChanges ? ShieldTheme.success : ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(!vm.hasUnsavedChanges)
+                .keyboardShortcut("s", modifiers: .command)
 
                 Button {
                     vm.showExportSheet = true
@@ -251,154 +273,52 @@ struct EditorView: View {
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 14)
                         .frame(height: 30)
-                        .background(ShieldTheme.accent)
+                        .background(ShieldTheme.accent(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+                .keyboardShortcut("e", modifiers: [.command, .shift])
             } // HStack
         }
         .padding(.horizontal, ShieldTheme.s4)
         .padding(.vertical, 4) // Reduced from 6
-        .background(ShieldTheme.surface0.ignoresSafeArea(edges: .top))
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea(edges: .top))
         .overlay(alignment: .bottom) { ShieldDivider() }
     }
 
     private var documentMetaBar: some View {
-        HStack(spacing: 10) {
-            Text(vm.doc.title)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundColor(ShieldTheme.textPrimary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-
-            Spacer()
-
-            Text(vm.changeCount == 0
-                 ? (appState.language == .es ? "Sin cambios" : "No changes")
-                 : (appState.language == .es ? "\(vm.changeCount) cambios" : "\(vm.changeCount) changes"))
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.warning : ShieldTheme.textTertiary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(vm.hasUnsavedChanges ? ShieldTheme.warning.opacity(0.16) : ShieldTheme.surface2)
-                .clipShape(Capsule())
-        }
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.vertical, 3) // Reduced from 4
-        .background(ShieldTheme.surface0)
+        EditorDocumentMetaBar(
+            title: vm.doc.title,
+            changeCount: vm.changeCount,
+            hasUnsavedChanges: vm.hasUnsavedChanges,
+            lang: appState.language
+        )
     }
 
     // MARK: - Sensitive banner
 
     @ViewBuilder
     private var sensitiveBanner: some View {
-        if vm.showSensitiveBanner {
-            HStack(spacing: 10) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(ShieldTheme.warning)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    let titleText: String = vm.isAnalyzingOCRSuggestions
-                        ? (appState.language == .es ? "Analizando zonas sensibles…" : "Analyzing sensitive zones…")
-                        : LanguageManager.shared.editor("editor_sensitive_suggested", vm.suggestedRedactionCount)
-                    Text(titleText)
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(ShieldTheme.textPrimary)
-                    Text(vm.doc.kind == .photo || vm.doc.kind == .genericID
-                         ? (appState.language == .es ? "Basado en los campos OCR detectados." : "Based on detected OCR fields.")
-                         : LanguageManager.shared.editor("editor_sensitive_based_on_template"))
-                        .font(.system(size: 11))
-                        .foregroundColor(ShieldTheme.textSecondary)
-                }
-                Spacer()
-
-                Button {
-                    vm.applyAutoDetect()
-                } label: {
-                    Text(LanguageManager.shared.common("common_apply"))
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 12)
-                        .frame(height: 28)
-                        .background(ShieldTheme.warning)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .disabled(vm.suggestedRedactionCount == 0 || vm.isAnalyzingOCRSuggestions)
-                .opacity((vm.suggestedRedactionCount == 0 || vm.isAnalyzingOCRSuggestions) ? 0.55 : 1)
-
-                Button {
-                    vm.showOCRSheet = true
-                } label: {
-                    Text(appState.language == .es ? "Campos" : "Fields")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(ShieldTheme.accent)
-                        .padding(.horizontal, 10)
-                        .frame(height: 28)
-                        .background(ShieldTheme.accentDim)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-
-                Button {
-                    withAnimation { vm.showSensitiveBanner = false }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 13))
-                        .foregroundColor(ShieldTheme.textTertiary)
-                        .padding(4)
-                }
-            }
-            .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 4) // Reduced from 6
-            .background(ShieldTheme.warning.opacity(0.10))
-            .overlay(
-                Rectangle()
-                    .stroke(ShieldTheme.warning.opacity(0.35), lineWidth: 0.5)
-            )
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
+        EditorSensitiveBanner(
+            isVisible: vm.showSensitiveBanner,
+            isAnalyzing: vm.isAnalyzingOCRSuggestions,
+            suggestedRedactionCount: vm.suggestedRedactionCount,
+            docKind: vm.doc.kind,
+            lang: appState.language,
+            onApply: { vm.applyAutoDetect() },
+            onOpenFields: { vm.showOCRSheet = true },
+            onDismiss: { withAnimation { vm.showSensitiveBanner = false } }
+        )
     }
 
     // MARK: - Propagate banner
 
     @ViewBuilder
     private var propagateBanner: some View {
-        if vm.pageCount > 1 && !vm.redactions.isEmpty {
-            HStack(spacing: 10) {
-                Image(systemName: "square.stack.3d.up.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(ShieldTheme.accent)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(LanguageManager.shared.editor("editor_redactions_on_page", vm.redactions.count))
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(ShieldTheme.textPrimary)
-                    Text(LanguageManager.shared.editor("editor_apply_to_all"))
-                        .font(.system(size: 11))
-                        .foregroundColor(ShieldTheme.textSecondary)
-                }
-                Spacer()
-
-                Button {
-                    vm.propagateCurrentPageToAllPages()
-                } label: {
-                    Text(LanguageManager.shared.editor("editor_find_all"))
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 12)
-                        .frame(height: 28)
-                        .background(ShieldTheme.accent)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-            }
-            .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 6)
-            .background(ShieldTheme.accentDim)
-            .overlay(
-                Rectangle()
-                    .stroke(ShieldTheme.accent.opacity(0.3), lineWidth: 0.5)
-            )
-            .transition(.move(edge: .top).combined(with: .opacity))
-        }
+        EditorPropagateBanner(
+            pageCount: vm.pageCount,
+            redactionCount: vm.redactions.count,
+            onPropagate: { vm.propagateCurrentPageToAllPages() }
+        )
     }
 
     // MARK: - Canvas area
@@ -409,11 +329,9 @@ struct EditorView: View {
         guard vm.doc.kind == .photo else {
             return CGSize(width: w, height: min(w / 1.6, maxH))
         }
-        let img = vm.currentImageFileName.flatMap {
-            AppState.loadImage(fileName: $0, isVaulted: vm.doc.isVaulted)
+        guard let aspect = currentPageAspect, aspect > 0 else {
+            return CGSize(width: w, height: maxH)
         }
-        guard let img = img else { return CGSize(width: w, height: maxH) }
-        let aspect = img.size.width / img.size.height
         let fitH = w / aspect
         if fitH <= maxH {
             return CGSize(width: w, height: min(fitH, maxH))
@@ -430,10 +348,14 @@ struct EditorView: View {
             let canvasH = sz.height
             let totalPages = vm.pageCount
             let currentPage = vm.currentPage
+            let effectiveZoom = min(4, max(1, zoomScale * magnifyScale))
 
             ZStack {
                 RadialGradient(
-                    colors: [Color(hex: "15151b"), ShieldTheme.surface0],
+                    colors: [
+                        scheme == .dark ? Color(hex: "15151b") : ShieldTheme.accentDim(scheme),
+                        ShieldTheme.pageBackground(scheme)
+                    ],
                     center: .center,
                     startRadius: 0,
                     endRadius: max(canvasW, canvasH)
@@ -447,21 +369,24 @@ struct EditorView: View {
                         } label: {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(currentPage > 0 ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
+                                .foregroundColor(currentPage > 0 ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
                                 .frame(width: 22, height: 22)
                         }
                         .disabled(currentPage == 0)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityLabel(appState.language == .es ? "Página anterior" : "Previous page")
+                        .keyboardShortcut(.leftArrow, modifiers: [])
                     }
 
                     Text(LanguageManager.shared.editor("editor_page_indicator", currentPage + 1, max(totalPages, 1)))
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(ShieldTheme.surface2)
+                        .background(ShieldTheme.cardBackground(scheme))
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                                .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 6))
 
@@ -471,19 +396,81 @@ struct EditorView: View {
                         } label: {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
+                                .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
                                 .frame(width: 22, height: 22)
                         }
                         .disabled(currentPage >= totalPages - 1)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityLabel(appState.language == .es ? "Página siguiente" : "Next page")
+                        .keyboardShortcut(.rightArrow, modifiers: [])
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(ShieldTheme.s4)
+                .zIndex(2)
 
-                DocumentCanvas(vm: vm, canvasSize: CGSize(width: canvasW, height: canvasH))
-                    .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
-                    .frame(width: canvasW, height: canvasH)
-                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                ScrollView([.horizontal, .vertical]) {
+                    ZStack {
+                        DocumentCanvas(vm: vm, canvasSize: CGSize(width: canvasW, height: canvasH))
+                            .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
+                            .frame(width: canvasW, height: canvasH)
+                            .scaleEffect(effectiveZoom)
+                    }
+                    .frame(
+                        width: max(geo.size.width, canvasW * effectiveZoom),
+                        height: max(geo.size.height, canvasH * effectiveZoom)
+                    )
+                }
+                .scrollIndicators(effectiveZoom > 1 ? .visible : .hidden)
+                .simultaneousGesture(
+                    MagnifyGesture(minimumScaleDelta: 0.01)
+                        .updating($magnifyScale) { value, state, _ in
+                            state = value.magnification
+                        }
+                        .onEnded { value in
+                            zoomScale = min(4, max(1, zoomScale * value.magnification))
+                        }
+                )
+                .onTapGesture(count: 2) {
+                    withAnimation(reduceMotion ? nil : .snappy) {
+                        zoomScale = zoomScale > 1 ? 1 : 2
+                    }
+                }
+
+                HStack(spacing: 0) {
+                    Button {
+                        withAnimation(reduceMotion ? nil : .snappy) { zoomScale = max(1, zoomScale - 0.5) }
+                    } label: {
+                        Image(systemName: "minus.magnifyingglass")
+                            .frame(width: 36, height: 34)
+                    }
+                    .disabled(zoomScale <= 1)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel(appState.language == .es ? "Reducir zoom" : "Zoom out")
+                    .keyboardShortcut("-", modifiers: .command)
+
+                    Text("\(Int(effectiveZoom * 100))%")
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .frame(minWidth: 48)
+
+                    Button {
+                        withAnimation(reduceMotion ? nil : .snappy) { zoomScale = min(4, zoomScale + 0.5) }
+                    } label: {
+                        Image(systemName: "plus.magnifyingglass")
+                            .frame(width: 36, height: 34)
+                    }
+                    .disabled(zoomScale >= 4)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel(appState.language == .es ? "Aumentar zoom" : "Zoom in")
+                    .keyboardShortcut("+", modifiers: .command)
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(appState.language == .es ? "Controles de zoom" : "Zoom controls")
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(ShieldTheme.s4)
             }
         }
         .frame(maxWidth: .infinity)
@@ -494,43 +481,20 @@ struct EditorView: View {
     // MARK: - Mode chips
 
     private var modeChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(RedactionMode.allCases, id: \.self) { mode in
-                    let isActive = vm.activeMode == mode
-                    let locked = mode.requiresPro && !pm.isPro
-                    Button {
-                        if locked {
-                            paywallTrigger = .manual
-                            showPaywall = true
-                        } else {
-                            vm.applyMode(mode)
-                            vm.tool = .rect
-                            vm.activeRedactionID = nil
-                        }
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: locked ? "lock.fill" : mode.icon)
-                                .font(.system(size: 11, weight: .semibold))
-                            Text(mode.label(lang: appState.language))
-                                .font(.system(size: 12, weight: .semibold))
-                        }
-                        .foregroundColor(locked ? ShieldTheme.textTertiary : (isActive ? .black : ShieldTheme.textPrimary))
-                        .padding(.horizontal, 10)
-                        .frame(height: 28)
-                        .background(locked ? ShieldTheme.surface2 : (isActive ? mode.color : ShieldTheme.surface2))
-                        .overlay(
-                            Capsule()
-                                .stroke(locked ? ShieldTheme.surfaceLine.opacity(0.5) : (isActive ? mode.color : ShieldTheme.surfaceLine), lineWidth: isActive ? 0 : 0.5)
-                        )
-                        .clipShape(Capsule())
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                }
+        EditorModeChips(
+            activeMode: vm.activeMode,
+            lang: appState.language,
+            isPro: pm.isPro,
+            onLockedTap: {
+                paywallTrigger = .manual
+                showPaywall = true
+            },
+            onSelect: { mode in
+                vm.applyMode(mode)
+                vm.tool = .rect
+                vm.activeRedactionID = nil
             }
-            .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 1) // Minimal padding
-        }
+        )
     }
 
     // MARK: - Mask style picker
@@ -556,94 +520,19 @@ struct EditorView: View {
     // MARK: - Bottom toolbar
 
     private var bottomBar: some View {
-        VStack(spacing: 2) { // Reduced spacing from 4
-            HStack {
-                // Undo / Redo
-                HStack(spacing: 4) {
-                    Button {
-                        vm.undo()
-                    } label: {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(vm.canUndo ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
-                            .frame(width: 32, height: 32)
-                            .background(ShieldTheme.surface2)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .disabled(!vm.canUndo)
-
-                    Button {
-                        vm.redo()
-                    } label: {
-                        Image(systemName: "arrow.uturn.forward")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(vm.canRedo ? ShieldTheme.textPrimary : ShieldTheme.textQuaternary)
-                            .frame(width: 32, height: 32)
-                            .background(ShieldTheme.surface2)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .disabled(!vm.canRedo)
-                }
-
-                Spacer()
-
-                // Tools
-                HStack(spacing: 8) {
-                    ForEach(EditorTool.allCases) { tool in
-                        let isSelected = vm.tool == tool
-                        let watermarkActive = tool == .watermark && vm.watermark != nil
-                        let adjustActive = tool == .adjust && vm.showAdjustPanel
-                        let adjustDirty  = tool == .adjust && !vm.imageAdjustment.isDefault
-                        Button {
-                            handleToolTap(tool)
-                        } label: {
-                            VStack(spacing: 2) {
-                                ZStack(alignment: .topTrailing) {
-                                    Image(systemName: tool.icon)
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(
-                                            (isSelected || adjustActive) ? ShieldTheme.accentText : ShieldTheme.textPrimary
-                                        )
-                                        .frame(width: 32, height: 32)
-                                        .background((isSelected || adjustActive) ? ShieldTheme.accent : Color.clear)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                    if watermarkActive || adjustDirty {
-                                        Circle()
-                                            .fill(adjustDirty ? ShieldTheme.info : ShieldTheme.success)
-                                            .frame(width: 8, height: 8)
-                                            .offset(x: 2, y: -2)
-                                    }
-                                }
-                                Text(tool.label(lang: appState.language))
-                                    .font(.system(size: 8, weight: .semibold))
-                                    .foregroundColor((isSelected || adjustActive) ? ShieldTheme.accent : ShieldTheme.textTertiary)
-                            }
-                        }
-                        .buttonStyle(ScaleButtonStyle())
-                    }
-                }
-            }
-
-            HStack(spacing: 8) {
-                Image(systemName: vm.tool == .rect ? "hand.draw" : "info.circle")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(ShieldTheme.textTertiary)
-                Text(toolHelpText)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(ShieldTheme.textTertiary)
-                Spacer()
-            }
-            .padding(.horizontal, 10)
-            .frame(height: 24)
-            .background(ShieldTheme.surface3)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.top, 6)
-        .padding(.bottom, 0)
-        .background(ShieldTheme.surface2.ignoresSafeArea(edges: .bottom))
-        .overlay(alignment: .top) { ShieldDivider() }
+        EditorBottomToolbar(
+            canUndo: vm.canUndo,
+            canRedo: vm.canRedo,
+            selectedTool: vm.tool,
+            lang: appState.language,
+            watermarkActive: vm.watermark != nil,
+            adjustActive: vm.showAdjustPanel,
+            adjustDirty: !vm.imageAdjustment.isDefault,
+            toolHelpText: toolHelpText,
+            onUndo: { vm.undo() },
+            onRedo: { vm.redo() },
+            onToolTap: handleToolTap
+        )
     }
 
     private var toolHelpText: String {

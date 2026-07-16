@@ -2313,6 +2313,17 @@
         }
       }
     },
+    "editor_mask_accessibility_label": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Redaction mask"}},"es":{"stringUnit":{"state":"translated","value":"Máscara de ocultación"}}}},
+    "editor_mask_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Selected"}},"es":{"stringUnit":{"state":"translated","value":"Seleccionada"}}}},
+    "editor_mask_not_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Not selected"}},"es":{"stringUnit":{"state":"translated","value":"No seleccionada"}}}},
+    "editor_mask_accessibility_hint": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Activate the mask, then use actions to move, resize, or delete it"}},"es":{"stringUnit":{"state":"translated","value":"Activa la máscara y usa las acciones para moverla, redimensionarla o eliminarla"}}}},
+    "editor_mask_delete": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Delete mask"}},"es":{"stringUnit":{"state":"translated","value":"Eliminar máscara"}}}},
+    "editor_mask_move_up": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Move up"}},"es":{"stringUnit":{"state":"translated","value":"Mover arriba"}}}},
+    "editor_mask_move_down": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Move down"}},"es":{"stringUnit":{"state":"translated","value":"Mover abajo"}}}},
+    "editor_mask_move_left": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Move left"}},"es":{"stringUnit":{"state":"translated","value":"Mover a la izquierda"}}}},
+    "editor_mask_move_right": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Move right"}},"es":{"stringUnit":{"state":"translated","value":"Mover a la derecha"}}}},
+    "editor_export_preview_accessibility": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Protected export preview"}},"es":{"stringUnit":{"state":"translated","value":"Previsualización protegida de la exportación"}}}},
+    "editor_protected_document_preview": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Protected document preview"}},"es":{"stringUnit":{"state":"translated","value":"Previsualización protegida del documento"}}}},
     "editor_preview": {
       "extractionState": "manual",
       "localizations": {

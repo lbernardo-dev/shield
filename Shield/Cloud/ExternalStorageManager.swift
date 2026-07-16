@@ -1,7 +1,5 @@
 import SwiftUI
-import AuthenticationServices
 import UniformTypeIdentifiers
-import Security
 
 // MARK: - ExternalStorageProvider
 
@@ -36,276 +34,14 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         }
     }
 
-    // OAuth 2.0 authorization endpoints
-    var authBaseURL: String {
-        switch self {
-        case .googleDrive:
-            return "https://accounts.google.com/o/oauth2/v2/auth"
-        case .dropbox:
-            return "https://www.dropbox.com/oauth2/authorize"
-        case .oneDrive:
-            return "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
-        }
-    }
-
-    // Scopes required for file download
-    var scope: String {
-        switch self {
-        case .googleDrive: return "https://www.googleapis.com/auth/drive.readonly"
-        case .dropbox:     return "files.content.read"
-        case .oneDrive:    return "Files.Read offline_access"
-        }
-    }
-
-    // Redirect URI registered in your app's Info.plist / URL schemes
-    var redirectURI: String {
-        return "shield://oauth/\(rawValue)"
-    }
-
-    // UserDefaults key for storing connection state (non-sensitive)
-    var connectedKey: String { "shield.cloud.\(rawValue).connected" }
-    // Keychain service/account identifiers for sensitive token storage
-    var keychainService: String { "com.romerodev.shield.oauth" }
-    var keychainAccount: String { "shield.cloud.\(rawValue).token" }
-    var emailKey: String     { "shield.cloud.\(rawValue).email" }
-}
-
-// MARK: - ExternalStorageManager
-
-@MainActor
-final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticationPresentationContextProviding {
-    static let shared = ExternalStorageManager()
-
-    @Published var connectedProviders: Set<ExternalStorageProvider> = []
-    @Published var isAuthenticating: ExternalStorageProvider? = nil
-    @Published var authError: String? = nil
-    @Published var showFilePicker: Bool = false
-    @Published var pickerProvider: ExternalStorageProvider? = nil
-
-    private var authSession: ASWebAuthenticationSession?
-    private var pendingProvider: ExternalStorageProvider?
-    var onFileImported: ((URL) -> Void)?
-
-    private override init() {
-        super.init()
-        loadConnectedState()
-    }
-
-    // MARK: - Keychain helpers
-
-    private func saveToken(_ token: String, for provider: ExternalStorageProvider) {
-        guard let data = token.data(using: .utf8) else { return }
-        let query: [CFString: Any] = [
-            kSecClass:            kSecClassGenericPassword,
-            kSecAttrService:      provider.keychainService,
-            kSecAttrAccount:      provider.keychainAccount,
-            kSecValueData:        data,
-            kSecAttrAccessible:   kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        ]
-        SecItemDelete(query as CFDictionary)
-        SecItemAdd(query as CFDictionary, nil)
-    }
-
-    private func loadToken(for provider: ExternalStorageProvider) -> String? {
-        let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
-            kSecAttrService: provider.keychainService,
-            kSecAttrAccount: provider.keychainAccount,
-            kSecReturnData:  true,
-            kSecMatchLimit:  kSecMatchLimitOne
-        ]
-        var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-              let data = result as? Data,
-              let token = String(data: data, encoding: .utf8) else { return nil }
-        return token
-    }
-
-    private func deleteToken(for provider: ExternalStorageProvider) {
-        let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
-            kSecAttrService: provider.keychainService,
-            kSecAttrAccount: provider.keychainAccount
-        ]
-        SecItemDelete(query as CFDictionary)
-    }
-
-    // MARK: - Connection state
-
-    private func loadConnectedState() {
-        for provider in ExternalStorageProvider.allCases {
-            if UserDefaults.standard.bool(forKey: provider.connectedKey) {
-                connectedProviders.insert(provider)
-            }
-        }
-    }
-
-    func isConnected(_ provider: ExternalStorageProvider) -> Bool {
-        connectedProviders.contains(provider)
-    }
-
-    func connectedEmail(_ provider: ExternalStorageProvider) -> String? {
-        UserDefaults.standard.string(forKey: provider.emailKey)
-    }
-
-    func token(for provider: ExternalStorageProvider) -> String? {
-        loadToken(for: provider)
-    }
-
-    // MARK: - Connect via OAuth
-
-    func connect(_ provider: ExternalStorageProvider) {
-        guard !isConnected(provider) else {
-            // Already connected: open file picker
-            openFilePicker(for: provider)
-            return
-        }
-
-        isAuthenticating = provider
-        authError = nil
-        pendingProvider = provider
-
-        // Build the OAuth URL.
-        // NOTE: In production you must register real client IDs for each provider
-        // and add URL schemes to Info.plist. These placeholders show the correct structure.
-        var components = URLComponents(string: provider.authBaseURL)!
-        let clientID: String = {
-            switch provider {
-            case .googleDrive: return UserDefaults.standard.string(forKey: "shield.oauth.google.clientID") ?? "YOUR_GOOGLE_CLIENT_ID"
-            case .dropbox:     return UserDefaults.standard.string(forKey: "shield.oauth.dropbox.appKey") ?? "YOUR_DROPBOX_APP_KEY"
-            case .oneDrive:    return UserDefaults.standard.string(forKey: "shield.oauth.onedrive.clientID") ?? "YOUR_ONEDRIVE_CLIENT_ID"
-            }
-        }()
-
-        components.queryItems = [
-            URLQueryItem(name: "client_id",     value: clientID),
-            URLQueryItem(name: "redirect_uri",  value: provider.redirectURI),
-            URLQueryItem(name: "response_type", value: "token"),
-            URLQueryItem(name: "scope",         value: provider.scope),
-        ]
-
-        guard let authURL = components.url else {
-            isAuthenticating = nil
-            authError = "Invalid OAuth URL"
-            return
-        }
-
-        guard let callbackScheme = URL(string: provider.redirectURI)?.scheme else {
-            isAuthenticating = nil
-            authError = "Invalid redirect URI"
-            return
-        }
-
-        authSession = ASWebAuthenticationSession(
-            url: authURL,
-            callbackURLScheme: callbackScheme
-        ) { [weak self] callbackURL, error in
-            DispatchQueue.main.async {
-                self?.handleOAuthCallback(provider: provider, url: callbackURL, error: error)
-            }
-        }
-        authSession?.presentationContextProvider = self
-        authSession?.prefersEphemeralWebBrowserSession = false
-        authSession?.start()
-    }
-
-    private func handleOAuthCallback(provider: ExternalStorageProvider, url: URL?, error: Error?) {
-        isAuthenticating = nil
-
-        if let error = error as? ASWebAuthenticationSessionError,
-           error.code == .canceledLogin {
-            return
-        }
-
-        if let error = error {
-            authError = error.localizedDescription
-            return
-        }
-
-        guard let callbackURL = url,
-              let fragment = callbackURL.fragment else {
-            authError = "OAuth callback missing token"
-            return
-        }
-
-        // Parse access_token from fragment (implicit flow)
-        let params = fragment.split(separator: "&").reduce(into: [String: String]()) { dict, pair in
-            let kv = pair.split(separator: "=", maxSplits: 1)
-            if kv.count == 2 { dict[String(kv[0])] = String(kv[1]) }
-        }
-
-        guard let token = params["access_token"] else {
-            authError = "No access token in response"
-            return
-        }
-
-        // Store token in Keychain (encrypted at rest, not accessible in backups).
-        saveToken(token, for: provider)
-        UserDefaults.standard.set(true, forKey: provider.connectedKey)
-        connectedProviders.insert(provider)
-        authError = nil
-
-        // After connecting, open the file picker
-        openFilePicker(for: provider)
-    }
-
-    // MARK: - Disconnect
-
-    func disconnect(_ provider: ExternalStorageProvider) {
-        UserDefaults.standard.removeObject(forKey: provider.connectedKey)
-        UserDefaults.standard.removeObject(forKey: provider.emailKey)
-        deleteToken(for: provider)
-        connectedProviders.remove(provider)
-    }
-
-    // MARK: - File picker (native iOS Files app + cloud)
-    // Uses UIDocumentPickerViewController which natively lists cloud providers
-    // including Google Drive (via Files integration), Dropbox, and OneDrive
-    // if those apps are installed.
-
-    func openFilePicker(for provider: ExternalStorageProvider) {
-        pickerProvider = provider
-        showFilePicker = true
-    }
-
-    func openGenericCloudPicker(onImport: @escaping (URL) -> Void) {
-        onFileImported = onImport
-        pickerProvider = nil
-        showFilePicker = true
-    }
-
-    // MARK: - ASWebAuthenticationPresentationContextProviding
-
-    nonisolated func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        MainActor.assumeIsolated {
-            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-            let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
-
-            if let window = activeScene?.keyWindow { return window }
-
-            let allWindows = scenes.flatMap { $0.windows }
-            if let window = allWindows.first(where: { $0.isKeyWindow }) ?? allWindows.first {
-                return window
-            }
-
-            if let scene = activeScene { return UIWindow(windowScene: scene) }
-
-            if let fallbackScene = UIApplication.shared.connectedScenes
-                .first(where: { $0 is UIWindowScene }) as? UIWindowScene {
-                return UIWindow(windowScene: fallbackScene)
-            }
-
-            // All scene-based paths exhausted — no scenes exist, which cannot happen in a running app.
-            fatalError("No UIWindowScene available")
-        }
-    }
 }
 
 // MARK: - ExternalStoragePickerView
-// Presents a sheet to pick from connected cloud providers.
+// Cloud providers are exposed by their Files extensions. Shield never stores
+// provider credentials and receives only the security-scoped URL selected by
+// the user in the system document picker.
 
 struct ExternalStoragePickerSheet: View {
-    @StateObject private var ext = ExternalStorageManager.shared
     @StateObject private var pm = PremiumManager.shared
     @Binding var isPresented: Bool
     var onImport: (URL) -> Void
@@ -393,60 +129,51 @@ struct ExternalStoragePickerSheet: View {
 
     private var providerList: some View {
         VStack(spacing: 0) {
-            // Native Files app picker (includes all cloud providers via Files extension)
-            providerRow(
-                icon: "folder.fill",
-                color: "FFD60A",
-                name: LanguageManager.shared.common("cloud_files_title"),
-                subtitle: LanguageManager.shared.common("cloud_files_subtitle"),
-                isConnected: true
-            ) {
-                showDocPicker = true
-            }
-
-            ShieldDivider().padding(.leading, 54)
-
-            // Individual provider connections for direct OAuth
-            ForEach(ExternalStorageProvider.allCases) { provider in
-                let connected = ext.isConnected(provider)
+            VStack(spacing: 0) {
+                // Native Files app picker (includes all cloud providers via Files extension)
                 providerRow(
-                    icon: provider.icon,
-                    color: provider.iconColor,
-                    name: provider.displayName,
-                    subtitle: connected
-                        ? (ext.connectedEmail(provider) ?? LanguageManager.shared.common("cloud_connected"))
-                        : LanguageManager.shared.common("cloud_tap_to_connect"),
-                    isConnected: connected
+                    icon: "folder.fill",
+                    color: "FFD60A",
+                    name: LanguageManager.shared.common("cloud_files_title"),
+                    subtitle: LanguageManager.shared.common("cloud_files_subtitle"),
+                    isConnected: true
                 ) {
-                    if connected {
-                        ext.openFilePicker(for: provider)
-                        // After picking, FilesPickerView handles import
+                    showDocPicker = true
+                }
+
+                ShieldDivider().padding(.leading, 54)
+
+                // These shortcuts all open the system picker. iOS controls which
+                // provider is initially visible and which locations are enabled.
+                ForEach(ExternalStorageProvider.allCases) { provider in
+                    providerRow(
+                        icon: provider.icon,
+                        color: provider.iconColor,
+                        name: provider.displayName,
+                        subtitle: LanguageManager.shared.common("cloud_select_in_files"),
+                        isConnected: true
+                    ) {
                         showDocPicker = true
-                    } else {
-                        ext.connect(provider)
+                    }
+                    if provider != ExternalStorageProvider.allCases.last {
+                        ShieldDivider().padding(.leading, 54)
                     }
                 }
-                if provider != ExternalStorageProvider.allCases.last {
-                    ShieldDivider().padding(.leading, 54)
-                }
             }
+            .background(ShieldTheme.surface2)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
+            .padding(.horizontal, 16)
 
-            if let err = ext.authError {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(ShieldTheme.danger)
-                    Text(err)
-                        .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.danger)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-            }
+            Label(
+                LanguageManager.shared.common("cloud_provider_setup_hint"),
+                systemImage: "info.circle"
+            )
+            .font(.system(size: 11))
+            .foregroundColor(ShieldTheme.textTertiary)
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
         }
-        .background(ShieldTheme.surface2)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
-        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -480,13 +207,9 @@ struct ExternalStoragePickerSheet: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(ShieldTheme.textTertiary)
                 } else {
-                    if ext.isAuthenticating == ExternalStorageProvider.allCases.first(where: { $0.displayName == name }) {
-                        ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
-                    } else {
-                        Text(LanguageManager.shared.common("cloud_connect"))
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(ShieldTheme.accent)
-                    }
+                    Text(LanguageManager.shared.common("cloud_connect"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(ShieldTheme.accent)
                 }
             }
             .padding(.horizontal, 14)

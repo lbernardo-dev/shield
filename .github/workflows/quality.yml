@@ -1,0 +1,15 @@
+name: Shield Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict build, tests and privacy checks
+        run: AGENT_NAME=CI scripts/release_gate.sh

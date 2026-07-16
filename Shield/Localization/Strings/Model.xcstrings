@@ -1,6 +1,7 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "model_field_support_number" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Support number"}},"es":{"stringUnit":{"state":"translated","value":"Número de soporte"}}}},
     "model_mask_style_block": {
       "extractionState": "manual",
       "localizations": {

@@ -11,8 +11,6 @@ struct PaywallView: View {
     var trigger: PaywallTrigger = .manual
     @State private var selectedProduct: ShieldProduct = .annual
     @State private var didStartCheckout = false
-    private let privacyURL = URL(string: "https://shieldapp.io/privacy")
-    private let termsURL = URL(string: "https://shieldapp.io/terms")
 
     private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
         return [
@@ -22,21 +20,9 @@ struct PaywallView: View {
             ("eye.slash.fill",       "FFD60A",
              LanguageManager.shared.paywall("paywall_feature_all_styles"),
              LanguageManager.shared.paywall("paywall_feature_styles_desc")),
-            ("lock.rectangle.stack", "30D158",
+            ("lock.rectangle.stack.fill", "30D158",
              LanguageManager.shared.paywall("paywall_feature_vault"),
              LanguageManager.shared.paywall("paywall_feature_vault_desc")),
-            ("doc.on.doc.fill",             "FF9F0A",
-             LanguageManager.shared.paywall("paywall_feature_pdf_title"),
-             LanguageManager.shared.paywall("paywall_feature_pdf_desc")),
-            ("drop.halffull",        "5E5CE6",
-             LanguageManager.shared.paywall("paywall_feature_watermark"),
-             LanguageManager.shared.paywall("paywall_feature_watermark_desc")),
-            ("slider.horizontal.3",  "FF453A",
-             LanguageManager.shared.paywall("paywall_feature_adjust_title"),
-             LanguageManager.shared.paywall("paywall_feature_adjust_desc")),
-            ("wand.and.stars",       "BF5AF2",
-             LanguageManager.shared.paywall("paywall_feature_auto_title"),
-             LanguageManager.shared.paywall("paywall_feature_auto_desc")),
             ("icloud",               "30D158",
              LanguageManager.shared.paywall("paywall_feature_icloud"),
              LanguageManager.shared.paywall("paywall_feature_icloud_desc")),
@@ -94,6 +80,8 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(appState.preferredScheme)
+        .sensoryFeedback(.selection, trigger: selectedProduct)
+        .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
         .task {
             AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
             await pm.loadProducts()
@@ -216,10 +204,18 @@ struct PaywallView: View {
     }
 
     private func savingsLabel(for product: Product) -> String? {
-        guard product.id == ShieldProduct.annual.rawValue,
-              let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
-        else { return nil }
-        return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        switch ShieldProduct(rawValue: product.id) {
+        case .annual:
+            guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
+            else { return nil }
+            return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        case .lifetime:
+            guard let annual = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue })
+            else { return nil }
+            return pm.lifetimeSavings(annual: annual, lifetime: product, lang: appState.language)
+        default:
+            return nil
+        }
     }
 
     // MARK: - CTA
@@ -265,7 +261,7 @@ struct PaywallView: View {
     // MARK: - Footer
 
     private var footerLinks: some View {
-        HStack(spacing: 20) {
+        VStack(spacing: 12) {
             Button {
                 Task {
                     await pm.restore()
@@ -281,35 +277,56 @@ struct PaywallView: View {
                 }
                 .font(.system(size: 12))
                 .foregroundColor(ShieldTheme.textTertiary)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
 
-            Text("·").foregroundColor(ShieldTheme.textQuaternary)
+            HStack(spacing: 14) {
+                publicPageLink(
+                    title: LanguageManager.shared.paywall("paywall_privacy"),
+                    page: .privacy
+                )
 
-            Button {
-                if let privacyURL { openURL(privacyURL) }
-            } label: {
-                Text(LanguageManager.shared.paywall("paywall_privacy"))
-                    .font(.system(size: 12))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                Text("·").foregroundColor(ShieldTheme.textQuaternary)
+
+                publicPageLink(
+                    title: LanguageManager.shared.paywall("paywall_terms"),
+                    page: .terms
+                )
             }
 
-            Text("·").foregroundColor(ShieldTheme.textQuaternary)
-
-            Button {
-                if let termsURL { openURL(termsURL) }
-            } label: {
-                Text(LanguageManager.shared.paywall("paywall_terms"))
-                    .font(.system(size: 12))
-                    .foregroundColor(ShieldTheme.textTertiary)
-            }
+            publicPageLink(
+                title: LanguageManager.shared.settings("settings_subscription_terms"),
+                page: .subscriptions
+            )
         }
         .padding(.bottom, 8)
+    }
+
+    private func publicPageLink(title: String, page: ShieldPublicPage) -> some View {
+        Button {
+            openPublicPage(page)
+        } label: {
+            Text(title)
+                .font(.system(size: 12))
+                .foregroundColor(ShieldTheme.textTertiary)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityHint(LanguageManager.shared.settings("settings_opens_browser"))
+    }
+
+    private func openPublicPage(_ page: ShieldPublicPage) {
+        openURL(page.localizedURL(for: appState.language)) { accepted in
+            guard !accepted else { return }
+            openURL(page.compatibilityURL)
+        }
     }
 }
 
 // MARK: - PlanRow
 
-private struct PlanRow: View {
+struct PlanRow: View {
     @EnvironmentObject var appState: AppState
     let product: Product
     let isSelected: Bool
@@ -337,8 +354,8 @@ private struct PlanRow: View {
                         Text(planName)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(ShieldTheme.textPrimary)
-                        // Trial badge for annual plan
-                        if ShieldProduct(rawValue: product.id) == .annual {
+                        if ShieldProduct(rawValue: product.id) == .annual,
+                           product.subscription?.introductoryOffer != nil {
                             Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.black)
@@ -399,7 +416,7 @@ private struct PlanRow: View {
         switch ShieldProduct(rawValue: product.id) {
         case .monthly:  return LanguageManager.shared.paywall("paywall_billed_monthly")
         case .annual:   return LanguageManager.shared.paywall("paywall_billed_annually")
-        case .lifetime: return LanguageManager.shared.paywall("paywall_one_time")
+        case .lifetime: return LanguageManager.shared.paywall("paywall_billed_once")
         case nil:       return ""
         }
     }

@@ -965,7 +965,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escanea cualquier documento al instante"
+            "value": "Escanea documentos al instante"
           }
         }
       }
@@ -976,13 +976,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield uses your camera to capture documents directly — nothing saved to your gallery."
+            "value": "Scan documents directly. Nothing is saved to your gallery."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield usa la cámara para capturar tus docs directamente, sin pasar por el carrete."
+            "value": "Escanea documentos directamente. Nada se guarda en tu galería."
           }
         }
       }
@@ -1051,6 +1051,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Activar cámara"
+          }
+        }
+      }
+    },
+    "onboarding_camera_artwork_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An animated iPhone camera preview moving across a private document on a desk"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vista animada de la cámara de un iPhone recorriendo un documento privado sobre un escritorio"
+          }
+        }
+      }
+    },
+    "onboarding_camera_denied_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access is off. You can enable it in Settings to scan documents directly with Shield."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El acceso a la cámara está desactivado. Puedes activarlo en Ajustes para escanear directamente con Shield."
+          }
+        }
+      }
+    },
+    "onboarding_camera_denied_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the camera in Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa la cámara en Ajustes"
+          }
+        }
+      }
+    },
+    "onboarding_camera_open_settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes"
+          }
+        }
+      }
+    },
+    "onboarding_camera_restricted_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera use is restricted on this device. You can continue and import documents from Files or Photos."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El uso de la cámara está restringido en este dispositivo. Puedes continuar e importar desde Archivos o Fotos."
+          }
+        }
+      }
+    },
+    "onboarding_camera_restricted_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera unavailable on this device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cámara no está disponible en este dispositivo"
           }
         }
       }
@@ -1395,19 +1497,87 @@
         }
       }
     },
+    "onboarding_demo_result_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sensitive fields hidden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld campos sensibles ocultos"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_device": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En tu dispositivo"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_gallery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No gallery copy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin copia en galería"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review before sharing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisión antes de compartir"
+          }
+        }
+      }
+    },
     "onboarding_demo_result_cta": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continue"
+            "value": "Use it with my documents"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continuar"
+            "value": "Usarlo con mis documentos"
           }
         }
       }

@@ -10,6 +10,7 @@ enum AppLanguage: String, CaseIterable, Codable {
 // MARK: - LanguageManager
 
 @Observable
+@MainActor
 final class LanguageManager {
     static let shared = LanguageManager()
 
@@ -134,7 +135,11 @@ final class LanguageManager {
     func home(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Home", argsArray: args) }
     func editor(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Editor", argsArray: args) }
     func capture(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Capture", argsArray: args) }
-    func settings(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Settings", argsArray: args) }
+    func settings(_ key: String, _ args: CVarArg...) -> String {
+        let existing = t(key, table: "Settings", argsArray: args)
+        guard existing == key else { return existing }
+        return t(key, table: "SettingsInfo", argsArray: args)
+    }
     func vault(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Vault", argsArray: args) }
     func paywall(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Paywall", argsArray: args) }
     func gallery(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Gallery", argsArray: args) }

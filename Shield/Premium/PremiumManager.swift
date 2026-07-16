@@ -1,12 +1,21 @@
 import StoreKit
 import SwiftUI
+import OSLog
 
 // MARK: - Product IDs  (match exactly what you register in App Store Connect)
 
 enum ShieldProduct: String, CaseIterable {
     case monthly   = "com.romerodev.shield.pro.monthly"
     case annual    = "com.romerodev.shield.pro.annual"
-    case lifetime  = "com.romerodev.shield.pro.lifetime"
+    case lifetime  = "com.romerodev.shield.pro.lifetime.unlock"
+
+    var analyticsName: String {
+        switch self {
+        case .monthly: "monthly"
+        case .annual: "annual"
+        case .lifetime: "lifetime"
+        }
+    }
 
     func label(lang: AppLanguage) -> String {
         let key: String
@@ -46,6 +55,8 @@ final class PremiumManager: ObservableObject {
 
     static let shared = PremiumManager()
 
+    private let logger = Logger(subsystem: "com.romerodev.shield", category: "StoreKit")
+
     @Published private(set) var isPro: Bool = false
     @Published private(set) var products: [Product] = []
     @Published private(set) var purchaseError: String? = nil
@@ -68,7 +79,11 @@ final class PremiumManager: ObservableObject {
         #endif
         // Start listener
         updateListenerTask = listenForTransactions()
-        Task { await loadProducts() }
+        Task {
+            await processUnfinishedTransactions()
+            await updateProStatus()
+            await loadProducts()
+        }
     }
 
     deinit { updateListenerTask?.cancel() }
@@ -79,7 +94,7 @@ final class PremiumManager: ObservableObject {
         do {
             let ids = ShieldProduct.allCases.map(\.rawValue)
             let fetched = try await Product.products(for: ids)
-            // Sort: monthly → annual → lifetime
+            // The product surface is intentionally limited to three clear choices.
             products = fetched.sorted { lhs, rhs in
                 let order: [String: Int] = [
                     ShieldProduct.monthly.rawValue: 0,
@@ -89,7 +104,7 @@ final class PremiumManager: ObservableObject {
                 return (order[lhs.id] ?? 99) < (order[rhs.id] ?? 99)
             }
         } catch {
-            print("Shield: failed to load products: \(error)")
+            logger.error("Product loading failed: \(String(describing: error), privacy: .private)")
         }
     }
 
@@ -152,8 +167,20 @@ final class PremiumManager: ObservableObject {
                     await self.updateProStatus()
                     await transaction.finish()
                 } catch {
-                    print("Shield: transaction verification failed: \(error)")
+                    self.logger.error("Transaction verification failed: \(String(describing: error), privacy: .private)")
                 }
+            }
+        }
+    }
+
+    private func processUnfinishedTransactions() async {
+        for await result in Transaction.unfinished {
+            do {
+                let transaction = try checkVerified(result)
+                await updateProStatus()
+                await transaction.finish()
+            } catch {
+                logger.error("Unfinished transaction verification failed: \(String(describing: error), privacy: .private)")
             }
         }
     }
@@ -166,12 +193,19 @@ final class PremiumManager: ObservableObject {
         #endif
         var hasPro = false
         for await result in Transaction.currentEntitlements {
-            guard case .verified(let transaction) = result else { continue }
+            guard case .verified(let transaction) = result,
+                  transaction.revocationDate == nil
+            else { continue }
             if ShieldProduct.allCases.map(\.rawValue).contains(transaction.productID) {
                 if let expiry = transaction.expirationDate {
-                    hasPro = expiry > Date()
+                    if expiry > Date() {
+                        hasPro = true
+                        break
+                    }
                 } else {
-                    hasPro = true  // lifetime
+                    // Non-consumable lifetime entitlement.
+                    hasPro = true
+                    break
                 }
             }
         }
@@ -200,8 +234,8 @@ final class PremiumManager: ObservableObject {
     // MARK: - Limits
 
     /// Max documents in free tier
-    static let freeDocumentLimit = 3
-    static let freeWeeklyExportLimit = 3
+    static let freeDocumentLimit = 10
+    static let freeWeeklyExportLimit = 0 // Secure export is never paywalled.
     private static let exportHistoryKey = "shield.free.exportHistoryTimestamps"
 
     func canAddDocument(currentCount: Int) -> Bool {
@@ -213,8 +247,7 @@ final class PremiumManager: ObservableObject {
     }
 
     func canExportNow() -> Bool {
-        if isPro { return true }
-        return freeExportsUsedThisWeek() < PremiumManager.freeWeeklyExportLimit
+        true
     }
 
     func freeExportsUsedThisWeek() -> Int {
@@ -229,25 +262,31 @@ final class PremiumManager: ObservableObject {
     }
 
     func remainingFreeExportsThisWeek() -> Int {
-        max(0, PremiumManager.freeWeeklyExportLimit - freeExportsUsedThisWeek())
+        .max
     }
 
     func recordExport() {
-        if isPro { return }
-        var history = UserDefaults.standard.array(forKey: PremiumManager.exportHistoryKey) as? [Double] ?? []
-        history.append(Date().timeIntervalSince1970)
-        UserDefaults.standard.set(history, forKey: PremiumManager.exportHistoryKey)
+        // Intentionally empty: verified exports are a core safety capability.
     }
 
     // MARK: - Helpers for display
 
     func annualSavings(monthly: Product, annual: Product, lang: AppLanguage = .en) -> String? {
-        let m = monthly.price * 12
-        let a = annual.price
-        guard m > 0 else { return nil }
-        let ratio = NSDecimalNumber(decimal: (m - a) / m).doubleValue
-        let pct = Int((ratio * 100).rounded())
-        guard pct > 0 else { return nil }
+        guard let pct = savingsPercent(referencePrice: monthly.price * 12, offerPrice: annual.price)
+        else { return nil }
         return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: pct)
+    }
+
+    func lifetimeSavings(annual: Product, lifetime: Product, lang: AppLanguage = .en) -> String? {
+        guard let pct = savingsPercent(referencePrice: annual.price * 2, offerPrice: lifetime.price)
+        else { return nil }
+        return LanguageManager.shared.str("paywall_save_two_years_percent", table: "Paywall", args: pct)
+    }
+
+    func savingsPercent(referencePrice: Decimal, offerPrice: Decimal) -> Int? {
+        guard referencePrice > 0, offerPrice < referencePrice else { return nil }
+        let ratio = NSDecimalNumber(decimal: (referencePrice - offerPrice) / referencePrice).doubleValue
+        let percentage = Int((ratio * 100).rounded())
+        return percentage > 0 ? percentage : nil
     }
 }

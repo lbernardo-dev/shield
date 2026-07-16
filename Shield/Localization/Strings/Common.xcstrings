@@ -773,6 +773,40 @@
         }
       }
     },
+    "cloud_select_in_files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a file in Files"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona un archivo en Archivos"
+          }
+        }
+      }
+    },
+    "cloud_provider_setup_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If a provider is missing, install its app and enable it in Files > Browse > More > Edit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si no aparece un proveedor, instala su app y actívalo en Archivos > Explorar > Más > Editar."
+          }
+        }
+      }
+    },
     "cloud_connect": {
       "extractionState": "manual",
       "localizations": {
@@ -807,6 +841,10 @@
         }
       }
     },
+    "common_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Selected"}},"es":{"stringUnit":{"state":"translated","value":"Seleccionado"}}}},
+    "common_not_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Not selected"}},"es":{"stringUnit":{"state":"translated","value":"No seleccionado"}}}},
+    "common_enabled": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Enabled"}},"es":{"stringUnit":{"state":"translated","value":"Activado"}}}},
+    "common_disabled": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Disabled"}},"es":{"stringUnit":{"state":"translated","value":"Desactivado"}}}},
     "common_delete_category": {
       "extractionState": "manual",
       "localizations": {

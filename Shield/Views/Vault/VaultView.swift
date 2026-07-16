@@ -1,36 +1,37 @@
 import SwiftUI
 import LocalAuthentication
 import CryptoKit
+import Security
 
 // MARK: - VaultView
 
 struct VaultView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var pm = PremiumManager.shared
     @Environment(\.colorScheme) var scheme
-    @State private var isUnlocked = false
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var isUnlocked: Bool = {
+#if DEBUG
+        ASOScreenshotMode.isEnabled && ASOScreenshotMode.scene == "vault"
+#else
+        false
+#endif
+    }()
     @State private var authError: String? = nil
-    @State private var showPaywall = false
-    @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var selectedDoc: DocumentItem? = nil
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showAddToVault = false
+    @State private var shouldAuthenticateOnGateAppearance = true
 
     var body: some View {
         ZStack {
             ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-            if !pm.isPro {
-                proGate
-            } else if !isUnlocked {
+            if !isUnlocked {
                 lockGate
             } else {
                 vaultContent
             }
-        }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
         .fullScreenCover(isPresented: $showPINSetup) {
             PINSetupView(isPresented: $showPINSetup) {
@@ -45,35 +46,11 @@ struct VaultView: View {
         .fullScreenCover(item: $selectedDoc) { doc in
             EditorView(doc: doc).environmentObject(appState)
         }
-    }
-
-    // MARK: - Pro gate
-
-    private var proGate: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            ZStack {
-                RoundedRectangle(cornerRadius: 24).fill(ShieldTheme.accentDim).frame(width: 96, height: 96)
-                Image(systemName: "lock.rectangle.stack.fill").font(.system(size: 44)).foregroundColor(ShieldTheme.accent)
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                isUnlocked = false
+                selectedDoc = nil
             }
-            VStack(spacing: 8) {
-                Text(LanguageManager.shared.vault("vault_title_pro"))
-                    .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
-                Text(LanguageManager.shared.vault("vault_pro_desc"))
-                    .font(.system(size: 15)).foregroundColor(ShieldTheme.secondary(scheme)).multilineTextAlignment(.center)
-            }
-            Button {
-                paywallTrigger = .vaultUpgrade
-                showPaywall = true
-            } label: {
-                Label(LanguageManager.shared.paywall("paywall_unlock_pro"), systemImage: "crown.fill")
-                    .font(.system(size: 16, weight: .bold))
-                    .frame(maxWidth: .infinity).frame(height: 52)
-                    .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .buttonStyle(ScaleButtonStyle()).padding(.horizontal, 32)
-            Spacer()
         }
     }
 
@@ -125,7 +102,17 @@ struct VaultView: View {
             }
             Spacer()
         }
-        .onAppear { authenticate() }
+        .onAppear {
+#if DEBUG
+            if ASOScreenshotMode.isEnabled {
+                shouldAuthenticateOnGateAppearance = false
+                return
+            }
+#endif
+            guard shouldAuthenticateOnGateAppearance else { return }
+            shouldAuthenticateOnGateAppearance = false
+            authenticate()
+        }
     }
 
     // MARK: - Vault content
@@ -150,7 +137,7 @@ struct VaultView: View {
                 }
                 Spacer()
                 Button {
-                    withAnimation { isUnlocked = false }
+                    lockVault()
                 } label: {
                     Label(LanguageManager.shared.vault("vault_lock_button"), systemImage: "lock.fill")
                         .font(.system(size: 12, weight: .semibold))
@@ -229,11 +216,19 @@ struct VaultView: View {
 
     // MARK: - Auth
 
+    private func lockVault() {
+        selectedDoc = nil
+        authError = nil
+        shouldAuthenticateOnGateAppearance = false
+        withAnimation { isUnlocked = false }
+        AppState.trackEvent("vault_locked", properties: ["method": "manual"])
+    }
+
     private func authenticate() {
         let ctx = LAContext()
         var error: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            authenticateWithDevicePasscodeOrPIN()
+            presentPINFallback()
             return
         }
         ctx.evaluatePolicy(
@@ -246,28 +241,9 @@ struct VaultView: View {
                     AppState.trackEvent("vault_unlocked", properties: ["method": "biometric"])
                 } else {
                     authError = err?.localizedDescription
-                }
-            }
-        }
-    }
-
-    private func authenticateWithDevicePasscodeOrPIN() {
-        let ctx = LAContext()
-        var error: NSError?
-        guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-            presentPINFallback()
-            return
-        }
-        ctx.evaluatePolicy(
-            .deviceOwnerAuthentication,
-            localizedReason: LanguageManager.shared.vault("vault_biometric_reason")
-        ) { success, err in
-            DispatchQueue.main.async {
-                if success {
-                    withAnimation { isUnlocked = true; authError = nil }
-                    AppState.trackEvent("vault_unlocked", properties: ["method": "passcode"])
-                } else {
-                    authError = err?.localizedDescription
+                    if let laError = err as? LAError, laError.code != .userCancel, laError.code != .appCancel {
+                        presentPINFallback()
+                    }
                 }
             }
         }
@@ -276,6 +252,7 @@ struct VaultView: View {
     private func presentPINFallback() {
         if PINManager.hasPIN {
             showPINEntry = true
+            authError = nil
             return
         }
         showPINSetup = true
@@ -362,11 +339,23 @@ struct AddToVaultSheet: View {
 enum PINManager {
     private static let service = "com.romerodev.shield.vault"
     private static let account = "vault-pin"
-    private static let failedAttemptsKey = "shield.pin.failedAttempts"
-    private static let lockoutUntilKey = "shield.pin.lockoutUntil"
+    private static let lockoutAccount = "vault-pin-lockout"
     private static let lockoutBaseSeconds = 30
     private static let lockoutStartAttempt = 3
     private static let maxBackoffExponent = 6
+    private static let derivationIterations = 60_000
+
+    private struct PINRecord: Codable {
+        let version: Int
+        let salt: Data
+        let digest: Data
+        let iterations: Int
+    }
+
+    private struct LockoutRecord: Codable {
+        var failedAttempts: Int
+        var lockoutUntil: TimeInterval
+    }
 
     static var hasPIN: Bool {
         (try? KeychainStore.read(service: service, account: account)) != nil
@@ -377,11 +366,21 @@ enum PINManager {
     }
 
     static func save(pin: String) {
-        guard let data = pin.data(using: .utf8) else { return }
-        let hashed = SHA256.hash(data: data)
-        let digest = Data(hashed)
+        guard pin.count == 6 else { return }
+        var salt = Data(count: 16)
+        let status = salt.withUnsafeMutableBytes {
+            SecRandomCopyBytes(kSecRandomDefault, 16, $0.baseAddress!)
+        }
+        guard status == errSecSuccess else { return }
+        let record = PINRecord(
+            version: 2,
+            salt: salt,
+            digest: derive(pin: pin, salt: salt, iterations: derivationIterations),
+            iterations: derivationIterations
+        )
+        guard let encoded = try? JSONEncoder().encode(record) else { return }
         try? KeychainStore.save(
-            digest,
+            encoded,
             service: service,
             account: account,
             accessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
@@ -391,10 +390,20 @@ enum PINManager {
 
     static func verify(pin: String) -> Bool {
         guard !isLockedOut else { return false }
-        guard let stored = try? KeychainStore.read(service: service, account: account),
-              let data = pin.data(using: .utf8) else { return false }
-        let digest = Data(SHA256.hash(data: data))
-        let isValid = stored == digest
+        guard let stored = try? KeychainStore.read(service: service, account: account) else { return false }
+        let isValid: Bool
+        if let record = try? JSONDecoder().decode(PINRecord.self, from: stored),
+           record.version == 2,
+           record.iterations >= 10_000 {
+            let candidate = derive(pin: pin, salt: record.salt, iterations: record.iterations)
+            isValid = constantTimeEqual(candidate, record.digest)
+        } else if let data = pin.data(using: .utf8) {
+            // One-time migration from the legacy unsalted SHA-256 record.
+            isValid = constantTimeEqual(Data(SHA256.hash(data: data)), stored)
+            if isValid { save(pin: pin) }
+        } else {
+            isValid = false
+        }
         if isValid {
             resetLockout()
         } else {
@@ -405,11 +414,12 @@ enum PINManager {
 
     static func clear() {
         KeychainStore.delete(service: service, account: account)
+        KeychainStore.delete(service: service, account: lockoutAccount)
         resetLockout()
     }
 
     static func lockoutRemainingSeconds() -> Int {
-        let until = UserDefaults.standard.double(forKey: lockoutUntilKey)
+        let until = loadLockout().lockoutUntil
         guard until > 0 else { return 0 }
         let remaining = Int(ceil(until - Date().timeIntervalSince1970))
         if remaining <= 0 {
@@ -420,25 +430,61 @@ enum PINManager {
     }
 
     private static func registerFailure() {
-        let defaults = UserDefaults.standard
-        let attempts = defaults.integer(forKey: failedAttemptsKey) + 1
-        defaults.set(attempts, forKey: failedAttemptsKey)
+        var record = loadLockout()
+        record.failedAttempts += 1
 
-        guard attempts >= lockoutStartAttempt else {
-            defaults.removeObject(forKey: lockoutUntilKey)
+        guard record.failedAttempts >= lockoutStartAttempt else {
+            record.lockoutUntil = 0
+            saveLockout(record)
             return
         }
 
-        let exponent = min(attempts - lockoutStartAttempt, maxBackoffExponent)
+        let exponent = min(record.failedAttempts - lockoutStartAttempt, maxBackoffExponent)
         let delay = lockoutBaseSeconds * Int(pow(2.0, Double(exponent)))
-        let until = Date().addingTimeInterval(TimeInterval(delay)).timeIntervalSince1970
-        defaults.set(until, forKey: lockoutUntilKey)
+        record.lockoutUntil = Date().addingTimeInterval(TimeInterval(delay)).timeIntervalSince1970
+        saveLockout(record)
     }
 
     private static func resetLockout() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: failedAttemptsKey)
-        defaults.removeObject(forKey: lockoutUntilKey)
+        KeychainStore.delete(service: service, account: lockoutAccount)
+        UserDefaults.standard.removeObject(forKey: "shield.pin.failedAttempts")
+        UserDefaults.standard.removeObject(forKey: "shield.pin.lockoutUntil")
+    }
+
+    private static func loadLockout() -> LockoutRecord {
+        guard let data = try? KeychainStore.read(service: service, account: lockoutAccount),
+              let record = try? JSONDecoder().decode(LockoutRecord.self, from: data) else {
+            return LockoutRecord(failedAttempts: 0, lockoutUntil: 0)
+        }
+        return record
+    }
+
+    private static func saveLockout(_ record: LockoutRecord) {
+        guard let data = try? JSONEncoder().encode(record) else { return }
+        try? KeychainStore.save(
+            data,
+            service: service,
+            account: lockoutAccount,
+            accessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
+        )
+    }
+
+    private static func derive(pin: String, salt: Data, iterations: Int) -> Data {
+        let key = SymmetricKey(data: salt)
+        var digest = Data(HMAC<SHA256>.authenticationCode(for: Data(pin.utf8) + salt, using: key))
+        for _ in 1..<iterations {
+            digest = Data(HMAC<SHA256>.authenticationCode(for: digest, using: key))
+        }
+        return digest
+    }
+
+    private static func constantTimeEqual(_ lhs: Data, _ rhs: Data) -> Bool {
+        guard lhs.count == rhs.count else { return false }
+        var difference: UInt8 = 0
+        for (left, right) in zip(lhs, rhs) {
+            difference |= left ^ right
+        }
+        return difference == 0
     }
 }
 

@@ -1021,6 +1021,57 @@
         }
       }
     },
+    "settings_icloud_error_quota": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud storage is full"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El almacenamiento de iCloud está lleno"
+          }
+        }
+      }
+    },
+    "settings_icloud_error_retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not sync. Check your connection and try again"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo sincronizar. Comprueba la conexión e inténtalo de nuevo"
+          }
+        }
+      }
+    },
+    "settings_icloud_error_setup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud sync is being prepared. Try again shortly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización con iCloud se está preparando. Inténtalo de nuevo en breve"
+          }
+        }
+      }
+    },
     "settings_pro_unlocked": {
       "extractionState": "manual",
       "localizations": {

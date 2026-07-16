@@ -1,731 +1,351 @@
 import SwiftUI
-import LocalAuthentication
 import MessageUI
+import StoreKit
 
 // MARK: - SettingsView
 
 struct SettingsView: View {
-    @EnvironmentObject var appState: AppState
-    @StateObject private var pm = PremiumManager.shared
-    @ObservedObject private var cloud = CloudSyncManager.shared
-    @Environment(\.colorScheme) var scheme
+    @EnvironmentObject private var appState: AppState
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.requestReview) private var requestReview
+    @StateObject private var premium = PremiumManager.shared
+
     @State private var showPaywall = false
-    @State private var paywallTrigger: PaywallTrigger = .manual
-    @State private var showAbout = false
-    @State private var showDeleteConfirm = false
     @State private var showMailCompose = false
-    @State private var biometricEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.biometric")
-    @State private var autoLockIndex: Int = UserDefaults.standard.integer(forKey: "shield.autoLock")
-    @State private var hapticEnabled: Bool = UserDefaults.standard.object(forKey: "shield.haptic") == nil
-        ? true
-        : UserDefaults.standard.bool(forKey: "shield.haptic")
-    @State private var strictKYCEnabled: Bool = UserDefaults.standard.object(forKey: "shield.ocr.strictKYC") == nil
-        ? false
-        : UserDefaults.standard.bool(forKey: "shield.ocr.strictKYC")
-    @State private var warnLowConfidenceEnabled: Bool = UserDefaults.standard.object(forKey: "shield.ocr.warnLowConfidence") == nil
-        ? true
-        : UserDefaults.standard.bool(forKey: "shield.ocr.warnLowConfidence")
-    @State private var ocrConfidenceIndex: Int = UserDefaults.standard.object(forKey: "shield.ocr.minConfidence") == nil
-        ? 1
-        : UserDefaults.standard.integer(forKey: "shield.ocr.minConfidence")
-    @State private var exportFormatIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportFormat")
-    @State private var exportQualityIndex: Int = UserDefaults.standard.integer(forKey: "shield.exportQuality")
-    @State private var iCloudEnabled: Bool = UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
-    @State private var showPINSetup = false
-    @State private var showPINEntry = false
-    @State private var showBiometricAlert = false
-    @State private var pendingBiometricEnable = false
+    @State private var showSupportUnavailable = false
 
-    @State private var expandedRow: ExpandedRow? = nil
-
-    enum ExpandedRow: Equatable { case autoLock, exportFormat, exportQuality, ocrConfidence }
-
-    private var autoLockOptions: [String] {
-        [
-            LanguageManager.shared.settings("settings_autolock_immediately"),
-            LanguageManager.shared.settings("settings_autolock_1_minute"),
-            LanguageManager.shared.settings("settings_autolock_5_minutes"),
-            LanguageManager.shared.settings("settings_autolock_15_minutes"),
-            LanguageManager.shared.settings("settings_autolock_never")
-        ]
-    }
-    private var exportFormats: [String] {
-        [LanguageManager.shared.settings("settings_format_pdf"), LanguageManager.shared.settings("settings_format_image")]
-    }
-    private var exportQualities: [String] {
-        [LanguageManager.shared.settings("settings_quality_high"), LanguageManager.shared.settings("settings_quality_medium"), LanguageManager.shared.settings("settings_quality_low")]
-    }
-    private let ocrConfidenceOptions = ["70%", "80%", "90%"]
+    private var strings: LanguageManager { .shared }
 
     var body: some View {
-        ZStack {
-            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    // Title
-                    HStack {
-                        Text(LanguageManager.shared.settings("settings_title"))
-                            .font(.system(size: 28, weight: .heavy))
-                            .foregroundColor(ShieldTheme.primary(scheme))
-                            .tracking(-0.5)
-                        Spacer()
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: ShieldTheme.s5) {
+                        title
+                        SettingsSummaryCard(
+                            documentCount: appState.documents.count,
+                            vaultedCount: appState.documents.filter(\.isVaulted).count,
+                            isPro: premium.isPro
+                        )
+
+                        if !premium.isPro {
+                            premiumCard
+                        }
+
+                        SettingsCardSection(
+                            title: strings.settings("settings_section_personalization"),
+                            icon: "slider.horizontal.3"
+                        ) {
+                            SettingsNavigationRow(
+                                route: .appPreferences,
+                                icon: "paintbrush.fill",
+                                color: Color(hex: "D9AA00"),
+                                title: strings.settings("settings_app_preferences"),
+                                subtitle: strings.settings("settings_app_preferences_subtitle")
+                            )
+                        }
+
+                        SettingsCardSection(
+                            title: strings.settings("settings_section_workspace"),
+                            icon: "lock.shield.fill"
+                        ) {
+                            SettingsNavigationRow(
+                                route: .security,
+                                icon: "lock.fill",
+                                color: Color(hex: "30D158"),
+                                title: strings.settings("settings_security_privacy"),
+                                subtitle: strings.settings("settings_security_privacy_subtitle")
+                            )
+                            SettingsRowDivider()
+                            SettingsNavigationRow(
+                                route: .cloud,
+                                icon: "icloud.fill",
+                                color: Color(hex: "5E5CE6"),
+                                title: strings.settings("settings_icloud_sync"),
+                                subtitle: strings.settings("settings_icloud_subtitle")
+                            )
+                            SettingsRowDivider()
+                            SettingsNavigationRow(
+                                route: .export,
+                                icon: "square.and.arrow.up.fill",
+                                color: Color(hex: "0A84FF"),
+                                title: strings.settings("settings_export_preferences"),
+                                subtitle: strings.settings("settings_export_preferences_subtitle")
+                            )
+                        }
+
+                        SettingsCardSection(
+                            title: strings.settings("settings_feedback_section"),
+                            icon: "bubble.left.and.bubble.right.fill"
+                        ) {
+                            SettingsActionRow(
+                                icon: "envelope.fill",
+                                color: Color(hex: "30D158"),
+                                title: strings.settings("settings_send_feedback"),
+                                subtitle: strings.settings("settings_send_feedback_subtitle"),
+                                action: sendFeedback
+                            )
+                            SettingsRowDivider()
+                            SettingsActionRow(
+                                icon: "star.fill",
+                                color: Color(hex: "FFD60A"),
+                                title: strings.settings("settings_rate_app"),
+                                subtitle: strings.settings("settings_rate_app_subtitle"),
+                                action: { requestReview() }
+                            )
+                        }
+
+                        SettingsCardSection(
+                            title: strings.settings("settings_about"),
+                            icon: "info.circle.fill"
+                        ) {
+                            aboutRows
+                        }
+
+                        #if DEBUG
+                        SettingsCardSection(
+                            title: strings.settings("settings_developer"),
+                            icon: "hammer.fill"
+                        ) {
+                            SettingsNavigationRow(
+                                route: .developer,
+                                icon: "hammer.fill",
+                                color: Color(hex: "8E8E93"),
+                                title: strings.settings("settings_developer_tools"),
+                                subtitle: strings.settings("settings_developer_tools_subtitle")
+                            )
+                        }
+                        #endif
+
+                        SettingsFooter()
+                            .padding(.top, ShieldTheme.s2)
+                            .padding(.bottom, 110)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 20)
-
-                    // Pro banner (if not pro)
-                    if !pm.isPro {
-                        proBanner
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 16)
-                    } else {
-                        proActiveBanner
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 16)
-                    }
-
-                    // Appearance
-                    settingsSection(title: LanguageManager.shared.settings("settings_appearance")) {
-                        // Theme
-                        settingsRow(
-                            icon: "moon.fill",
-                            iconColor: "5E5CE6",
-                            title: LanguageManager.shared.settings("settings_dark_mode")
-                        ) {
-                            ShieldToggle(isOn: Binding(
-                                get: { appState.preferredScheme == .dark },
-                                set: { appState.preferredScheme = $0 ? .dark : .light }
-                            ))
-                        }
-                        ShieldDivider().padding(.leading, 54)
-
-                        // Language
-                        settingsRow(
-                            icon: "globe",
-                            iconColor: "64D2FF",
-                            title: LanguageManager.shared.settings("settings_language")
-                        ) {
-                            Picker("", selection: $appState.language) {
-                                Text(LanguageManager.shared.common("common_language_es")).tag(AppLanguage.es)
-                                Text(LanguageManager.shared.common("common_language_en")).tag(AppLanguage.en)
-                            }
-                            .pickerStyle(.segmented)
-                            .frame(width: 130)
-                        }
-                    }
-
-                    // Security
-                    settingsSection(title: LanguageManager.shared.settings("settings_security")) {
-                        settingsRow(
-                            icon: "faceid",
-                            iconColor: "30D158",
-                            title: LanguageManager.shared.settings("settings_face_id")
-                        ) {
-                            ShieldToggle(isOn: $biometricEnabled)
-                                .onChange(of: biometricEnabled) { _, v in
-                                    if v {
-                                        guard PINManager.hasPIN else {
-                                            pendingBiometricEnable = true
-                                            biometricEnabled = false
-                                            UserDefaults.standard.set(false, forKey: "shield.biometric")
-                                            showPINSetup = true
-                                            return
-                                        }
-                                        requestBiometricEnable()
-                                    } else {
-                                        pendingBiometricEnable = false
-                                        UserDefaults.standard.set(false, forKey: "shield.biometric")
-                                    }
-                                }
-                        }
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRowButton(
-                            icon: "lock.circle.fill",
-                            iconColor: "BF5AF2",
-                            title: PINManager.hasPIN ? LanguageManager.shared.settings("settings_change_pin") : LanguageManager.shared.settings("settings_setup_pin")
-                        ) {
-                            if PINManager.hasPIN {
-                                showPINEntry = true
-                            } else {
-                                showPINSetup = true
-                            }
-                        }
-                        ShieldDivider().padding(.leading, 54)
-
-                        expandableRow(
-                            icon: "lock.rotation",
-                            iconColor: "FF9F0A",
-                            title: LanguageManager.shared.settings("settings_auto_lock"),
-                            value: autoLockOptions[autoLockIndex],
-                            row: .autoLock
-                        ) {
-                            Picker("", selection: $autoLockIndex) {
-                                ForEach(0..<autoLockOptions.count, id: \.self) { i in
-                                    Text(autoLockOptions[i]).tag(i)
-                                }
-                            }
-                            .pickerStyle(.inline)
-                            .onChange(of: autoLockIndex) { _, v in
-                                UserDefaults.standard.set(v, forKey: "shield.autoLock")
-                            }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRow(
-                            icon: "hand.tap.fill",
-                            iconColor: "FF453A",
-                            title: LanguageManager.shared.settings("settings_haptic_feedback")
-                        ) {
-                            ShieldToggle(isOn: $hapticEnabled)
-                                .onChange(of: hapticEnabled) { _, v in
-                                    UserDefaults.standard.set(v, forKey: "shield.haptic")
-                                }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRow(
-                            icon: "checkmark.shield.fill",
-                            iconColor: "0A84FF",
-                            title: LanguageManager.shared.settings("settings_strict_kyc")
-                        ) {
-                            ShieldToggle(isOn: $strictKYCEnabled)
-                                .onChange(of: strictKYCEnabled) { _, v in
-                                    UserDefaults.standard.set(v, forKey: "shield.ocr.strictKYC")
-                                }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRow(
-                            icon: "exclamationmark.triangle.fill",
-                            iconColor: "FF9F0A",
-                            title: LanguageManager.shared.settings("settings_low_confidence_alert")
-                        ) {
-                            ShieldToggle(isOn: $warnLowConfidenceEnabled)
-                                .onChange(of: warnLowConfidenceEnabled) { _, v in
-                                    UserDefaults.standard.set(v, forKey: "shield.ocr.warnLowConfidence")
-                                }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        expandableRow(
-                            icon: "slider.horizontal.3",
-                            iconColor: "64D2FF",
-                            title: LanguageManager.shared.settings("settings_ocr_threshold"),
-                            value: ocrConfidenceOptions[ocrConfidenceIndex],
-                            row: .ocrConfidence
-                        ) {
-                            Picker("", selection: $ocrConfidenceIndex) {
-                                ForEach(0..<ocrConfidenceOptions.count, id: \.self) { i in
-                                    Text(ocrConfidenceOptions[i]).tag(i)
-                                }
-                            }
-                            .pickerStyle(.inline)
-                            .onChange(of: ocrConfidenceIndex) { _, v in
-                                UserDefaults.standard.set(v, forKey: "shield.ocr.minConfidence")
-                            }
-                        }
-                    }
-
-                    // iCloud sync (Pro only)
-                    iCloudSection
-
-                    // Export defaults
-                    settingsSection(title: LanguageManager.shared.settings("settings_export")) {
-                        expandableRow(
-                            icon: "doc.fill",
-                            iconColor: "FFD60A",
-                            title: LanguageManager.shared.settings("settings_default_format"),
-                            value: exportFormats[exportFormatIndex],
-                            row: .exportFormat
-                        ) {
-                            Picker("", selection: $exportFormatIndex) {
-                                ForEach(0..<exportFormats.count, id: \.self) { i in
-                                    Text(exportFormats[i]).tag(i)
-                                }
-                            }
-                            .pickerStyle(.inline)
-                            .onChange(of: exportFormatIndex) { _, v in
-                                UserDefaults.standard.set(v, forKey: "shield.exportFormat")
-                            }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        expandableRow(
-                            icon: "photo.fill",
-                            iconColor: "64D2FF",
-                            title: LanguageManager.shared.settings("settings_image_quality"),
-                            value: exportQualities[exportQualityIndex],
-                            row: .exportQuality
-                        ) {
-                            Picker("", selection: $exportQualityIndex) {
-                                ForEach(0..<exportQualities.count, id: \.self) { i in
-                                    Text(exportQualities[i]).tag(i)
-                                }
-                            }
-                            .pickerStyle(.inline)
-                            .onChange(of: exportQualityIndex) { _, v in
-                                UserDefaults.standard.set(v, forKey: "shield.exportQuality")
-                            }
-                        }
-                    }
-
-                    // About
-                    settingsSection(title: LanguageManager.shared.settings("settings_about")) {
-                        settingsRow(
-                            icon: "info.circle.fill",
-                            iconColor: "5E5CE6",
-                            title: LanguageManager.shared.settings("settings_version")
-                        ) {
-                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
-                                .font(.system(size: 14))
-                                .foregroundColor(ShieldTheme.tertiary(scheme))
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRowButton(
-                            icon: "star.fill",
-                            iconColor: "FFD60A",
-                            title: LanguageManager.shared.settings("settings_rate_app")
-                        ) {
-                            if let url = URL(string: "itms-apps://itunes.apple.com/app/id6745955196?action=write-review") {
-                                UIApplication.shared.open(url)
-                            }
-                        }
-
-                        ShieldDivider().padding(.leading, 54)
-
-                        settingsRowButton(
-                            icon: "envelope.fill",
-                            iconColor: "30D158",
-                            title: LanguageManager.shared.settings("settings_contact")
-                        ) {
-                            if MFMailComposeViewController.canSendMail() {
-                                showMailCompose = true
-                            } else {
-                                let subject = LanguageManager.shared.settings("settings_support_subject")
-                                    .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                                if let url = URL(string: "mailto:support@shieldapp.io?subject=\(subject)") {
-                                    UIApplication.shared.open(url)
-                                }
-                            }
-                        }
-                    }
-
-                    // Developer (debug only)
-                    #if DEBUG
-                    developerSection
-                    #endif
-
-                    // Danger zone
-                    settingsSection(title: LanguageManager.shared.settings("settings_privacy")) {
-                        settingsRowButton(
-                            icon: "trash.fill",
-                            iconColor: "FF453A",
-                            title: LanguageManager.shared.settings("settings_delete_all_documents"),
-                            titleColor: ShieldTheme.danger
-                        ) {
-                            showDeleteConfirm = true
-                        }
-                    }
-
-                    Spacer().frame(height: 100)
+                    .frame(maxWidth: 760)
+                    .padding(.horizontal, ShieldTheme.s4)
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showPINSetup) {
-            PINSetupView(isPresented: $showPINSetup) {
-                if pendingBiometricEnable {
-                    pendingBiometricEnable = false
-                    requestBiometricEnable()
-                }
-            }.environmentObject(appState)
-        }
-        .fullScreenCover(isPresented: $showPINEntry) {
-            PINEntryView(isPresented: $showPINEntry) {
-                showPINSetup = true
-            }.environmentObject(appState)
-        }
-        .alert(
-            LanguageManager.shared.settings("settings_biometric_unavailable"),
-            isPresented: $showBiometricAlert
-        ) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(LanguageManager.shared.settings("settings_biometric_unavailable_message"))
+            .toolbarVisibility(.hidden, for: .navigationBar)
+            .navigationDestination(for: SettingsRoute.self) { route in
+                destination(for: route)
+            }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
+            PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
                 .environmentObject(appState)
         }
         .sheet(isPresented: $showMailCompose) {
-            MailComposeView(
-                recipient: "support@shieldapp.io",
-                subject: LanguageManager.shared.settings("settings_support_subject"),
-                body: LanguageManager.shared.settings("settings_support_body")
-            )
+            if let email = SettingsSupportConfiguration.email {
+                MailComposeView(
+                    recipient: email,
+                    subject: strings.settings("settings_support_subject"),
+                    body: strings.settings("settings_support_body")
+                )
+            }
         }
-        .confirmationDialog(
-            LanguageManager.shared.settings("settings_delete_all_confirm_title"),
-            isPresented: $showDeleteConfirm,
-            titleVisibility: .visible
+        .alert(
+            strings.settings("settings_support_unavailable_title"),
+            isPresented: $showSupportUnavailable
         ) {
-            Button(LanguageManager.shared.settings("settings_delete_all_button"), role: .destructive) {
-                appState.deleteAllDocuments()
-            }
-            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
+            Button(strings.common("common_ok"), role: .cancel) {}
         } message: {
-            Text(LanguageManager.shared.settings("settings_delete_all_confirm_message"))
-        }
-        .onAppear {
-            sanitizePreferences()
+            Text(strings.settings("settings_support_unavailable_message"))
         }
     }
 
-    // MARK: - Developer section (DEBUG only)
-
-    #if DEBUG
-    private var developerSection: some View {
-        settingsSection(title: LanguageManager.shared.settings("settings_developer")) {
-            settingsRow(
-                icon: "hammer.fill",
-                iconColor: "FF6B35",
-                title: LanguageManager.shared.settings("settings_premium_override")
-            ) {
-                ShieldToggle(isOn: Binding(
-                    get: { pm.isDebugProOverride },
-                    set: { pm.setDebugProOverride($0) }
-                ))
-            }
-        }
-    }
-    #endif
-
-    // MARK: - iCloud section
-
-    @ViewBuilder
-    private var iCloudSection: some View {
-        settingsSection(title: LanguageManager.shared.settings("settings_icloud")) {
-            if !pm.isPro {
-                settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: LanguageManager.shared.settings("settings_icloud_sync")) {
-                    Button {
-                        paywallTrigger = .settingsUpgrade
-                        showPaywall = true
-                    } label: {
-                        Text(LanguageManager.shared.common("common_pro"))
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(ShieldTheme.accentText)
-                            .padding(.horizontal, 8).padding(.vertical, 3)
-                            .background(ShieldTheme.accent)
-                            .clipShape(Capsule())
-                    }
-                }
-            } else {
-                settingsRow(icon: "icloud", iconColor: "5E5CE6",
-                            title: LanguageManager.shared.settings("settings_icloud_sync_with")) {
-                    ShieldToggle(isOn: $iCloudEnabled)
-                        .onChange(of: iCloudEnabled) { _, v in
-                            cloud.setSyncEnabled(v)
-                            if v {
-                                Task { await cloud.pushDocuments(appState.documents) }
-                            }
-                        }
-                }
-
-                if iCloudEnabled {
-                    ShieldDivider().padding(.leading, 54)
-                    settingsRow(icon: "arrow.clockwise.icloud", iconColor: "64D2FF",
-                                title: LanguageManager.shared.settings("settings_icloud_sync_now")) {
-                        Button {
-                            Task { await cloud.pushDocuments(appState.documents) }
-                        } label: {
-                            if case .syncing = cloud.syncStatus {
-                                ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
-                            } else {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(ShieldTheme.accent)
-                            }
-                        }
-                        .buttonStyle(ScaleButtonStyle())
-                    }
-
-                    if let lastSync = cloud.lastSyncFormatted {
-                        ShieldDivider().padding(.leading, 54)
-                        settingsRow(icon: "checkmark.icloud", iconColor: "30D158",
-                                    title: LanguageManager.shared.settings("settings_icloud_last_sync")) {
-                            Text(lastSync)
-                                .font(.system(size: 12))
-                                .foregroundColor(ShieldTheme.tertiary(scheme))
-                        }
-                    }
-
-                    if case .error(let msg) = cloud.syncStatus {
-                        ShieldDivider().padding(.leading, 54)
-                        HStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.icloud")
-                                .font(.system(size: 14)).foregroundColor(ShieldTheme.danger)
-                            Text(msg)
-                                .font(.system(size: 12))
-                                .foregroundColor(ShieldTheme.danger)
-                                .lineLimit(2)
-                        }
-                        .padding(.horizontal, 14).padding(.vertical, 10)
-                    }
-
-                    if !cloud.isAvailable {
-                        ShieldDivider().padding(.leading, 54)
-                        settingsRow(icon: "xmark.icloud", iconColor: "FF453A",
-                                    title: LanguageManager.shared.settings("settings_icloud_unavailable")) {
-                            EmptyView()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Pro banners
-
-    private var proBanner: some View {
-        Button {
-            paywallTrigger = .settingsUpgrade
-            showPaywall = true
-        } label: {
-            HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(ShieldTheme.accentDim)
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "crown.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(ShieldTheme.accent)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(LanguageManager.shared.common("common_pro_name"))
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(ShieldTheme.textPrimary)
-                    Text(LanguageManager.shared.settings("settings_pro_unlock_features"))
-                        .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.textSecondary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(ShieldTheme.textSecondary)
-            }
-            .padding(16)
-            .background(
-                LinearGradient(colors: [Color(hex: "1a1a22"), Color(hex: "15151b")],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
-            )
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.accentDim, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(ScaleButtonStyle())
-    }
-
-    private var proActiveBanner: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(ShieldTheme.successDim)
-                    .frame(width: 44, height: 44)
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(ShieldTheme.success)
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LanguageManager.shared.settings("settings_pro_active"))
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                Text(LanguageManager.shared.settings("settings_pro_unlocked"))
-                    .font(.system(size: 12))
-                    .foregroundColor(ShieldTheme.success)
+    private var title: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(strings.settings("settings_eyebrow"))
+                    .font(.caption.weight(.bold))
+                    .tracking(0.7)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .textCase(.uppercase)
+                Text(strings.settings("settings_title"))
+                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .tracking(-0.7)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
             }
             Spacer()
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(ShieldTheme.success)
-                .font(.system(size: 20))
         }
-        .padding(16)
-        .background(ShieldTheme.successDim)
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.success.opacity(0.3), lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .padding(.top, ShieldTheme.topChromePadding)
     }
 
-    // MARK: - Section builder
-
-    @ViewBuilder
-    private func settingsSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(title.uppercased())
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(ShieldTheme.tertiary(scheme))
-                .tracking(0.5)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 6)
-
-            VStack(spacing: 0) {
-                content()
+    private var premiumCard: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s4) {
+            HStack(spacing: ShieldTheme.s3) {
+                SettingsIconBadge(icon: "crown.fill", color: Color(hex: "FF9F0A"), size: 48)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(strings.settings("settings_unlock_premium"))
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                    Text(strings.settings("settings_pro_unlock_features"))
+                        .font(.subheadline)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                }
             }
-            .background(ShieldTheme.cardBackground(scheme))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .padding(.horizontal, 16)
-        }
-        .padding(.bottom, 20)
-    }
 
-    @ViewBuilder
-    private func settingsRow<Control: View>(
-        icon: String, iconColor: String, title: String,
-        @ViewBuilder control: () -> Control
-    ) -> some View {
-        HStack(spacing: 14) {
-            iconBadge(icon, color: iconColor)
-            Text(title)
-                .font(.system(size: 15))
-                .foregroundColor(ShieldTheme.primary(scheme))
-            Spacer()
-            control()
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-    }
-
-    @ViewBuilder
-    private func expandableRow<P: View>(
-        icon: String, iconColor: String, title: String, value: String,
-        row: ExpandedRow,
-        @ViewBuilder picker: () -> P
-    ) -> some View {
-        let isExpanded = expandedRow == row
-        VStack(spacing: 0) {
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    expandedRow = isExpanded ? nil : row
-                }
+                showPaywall = true
             } label: {
-                HStack(spacing: 14) {
-                    iconBadge(icon, color: iconColor)
-                    Text(title)
-                        .font(.system(size: 15))
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                    Spacer()
-                    Text(value)
-                        .font(.system(size: 14))
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(ShieldTheme.quaternary(scheme))
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
+                Text(strings.settings("settings_view_options"))
+                    .font(.headline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 50)
+                    .foregroundStyle(ShieldTheme.accentText)
+                    .background(ShieldTheme.accent(scheme))
+                    .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
             }
-            .buttonStyle(.plain)
-
-            if isExpanded {
-                ShieldDivider().padding(.leading, 54)
-                picker()
-                    .padding(.horizontal, 14)
-            }
+            .buttonStyle(ScaleButtonStyle())
         }
+        .padding(ShieldTheme.s4)
+        .shieldSettingsCard()
     }
 
     @ViewBuilder
-    private func settingsRowButton(
-        icon: String, iconColor: String, title: String,
-        titleColor: Color? = nil,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                iconBadge(icon, color: iconColor)
-                Text(title)
-                    .font(.system(size: 15))
-                    .foregroundColor(titleColor ?? ShieldTheme.primary(scheme))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(ShieldTheme.quaternary(scheme))
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-        }
-        .buttonStyle(ScaleButtonStyle())
+    private var aboutRows: some View {
+        SettingsNavigationRow(
+            route: .information,
+            icon: "info.circle.fill",
+            color: Color(hex: "D9AA00"),
+            title: strings.settings("settings_information_disclaimer"),
+            subtitle: strings.settings("settings_information_disclaimer_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .whatsNew,
+            icon: "sparkles",
+            color: Color(hex: "00C7BE"),
+            title: strings.settings("settings_whats_new"),
+            subtitle: strings.settings("settings_whats_new_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .privacy,
+            icon: "hand.raised.fill",
+            color: Color(hex: "5E5CE6"),
+            title: strings.settings("settings_privacy_policy"),
+            subtitle: strings.settings("settings_privacy_policy_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .terms,
+            icon: "doc.text.fill",
+            color: Color(hex: "8E8E93"),
+            title: strings.settings("settings_terms_service"),
+            subtitle: strings.settings("settings_terms_service_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .subscriptionTerms,
+            icon: "doc.badge.gearshape.fill",
+            color: Color(hex: "8E8E93"),
+            title: strings.settings("settings_subscription_terms"),
+            subtitle: strings.settings("settings_subscription_terms_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .support,
+            icon: "questionmark.bubble.fill",
+            color: Color(hex: "0A84FF"),
+            title: strings.settings("settings_support"),
+            subtitle: strings.settings("settings_support_subtitle")
+        )
+        SettingsRowDivider()
+        SettingsNavigationRow(
+            route: .faq,
+            icon: "questionmark.circle.fill",
+            color: Color(hex: "FF9F0A"),
+            title: strings.settings("settings_faq"),
+            subtitle: strings.settings("settings_faq_subtitle")
+        )
     }
 
     @ViewBuilder
-    private func iconBadge(_ icon: String, color: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(hex: color))
-                .frame(width: 32, height: 32)
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.white)
+    private func destination(for route: SettingsRoute) -> some View {
+        switch route {
+        case .appPreferences:
+            AppPreferencesSettingsView()
+                .environmentObject(appState)
+        case .security:
+            SecuritySettingsView()
+                .environmentObject(appState)
+        case .cloud:
+            CloudSettingsView()
+                .environmentObject(appState)
+        case .export:
+            ExportSettingsView()
+        case .information:
+            SettingsArticleView(article: .information)
+        case .whatsNew:
+            WhatsNewSettingsView()
+        case .privacy:
+            SettingsArticleView(article: .privacy)
+        case .terms:
+            SettingsArticleView(article: .terms)
+        case .subscriptionTerms:
+            SettingsArticleView(article: .subscriptionTerms)
+        case .support:
+            SupportSettingsView(onSendFeedback: sendFeedback, onRate: { requestReview() })
+        case .faq:
+            FAQSettingsView()
+        #if DEBUG
+        case .developer:
+            DeveloperSettingsView()
+        #endif
         }
     }
 
-    private func sanitizePreferences() {
-        let clampedAutoLock = max(0, min(autoLockIndex, autoLockOptions.count - 1))
-        if clampedAutoLock != autoLockIndex {
-            autoLockIndex = clampedAutoLock
-            UserDefaults.standard.set(clampedAutoLock, forKey: "shield.autoLock")
-        }
-
-        let clampedFormat = max(0, min(exportFormatIndex, exportFormats.count - 1))
-        if clampedFormat != exportFormatIndex {
-            exportFormatIndex = clampedFormat
-            UserDefaults.standard.set(clampedFormat, forKey: "shield.exportFormat")
-        }
-
-        let clampedQuality = max(0, min(exportQualityIndex, exportQualities.count - 1))
-        if clampedQuality != exportQualityIndex {
-            exportQualityIndex = clampedQuality
-            UserDefaults.standard.set(clampedQuality, forKey: "shield.exportQuality")
-        }
-
-        let clampedOCR = max(0, min(ocrConfidenceIndex, ocrConfidenceOptions.count - 1))
-        if clampedOCR != ocrConfidenceIndex {
-            ocrConfidenceIndex = clampedOCR
-            UserDefaults.standard.set(clampedOCR, forKey: "shield.ocr.minConfidence")
-        }
-    }
-
-    private func requestBiometricEnable() {
-        let ctx = LAContext()
-        var err: NSError?
-        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
-            biometricEnabled = false
-            UserDefaults.standard.set(false, forKey: "shield.biometric")
-            showBiometricAlert = true
+    private func sendFeedback() {
+        guard SettingsSupportConfiguration.email != nil else {
+            showSupportUnavailable = true
             return
         }
-        ctx.evaluatePolicy(
-            .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: LanguageManager.shared.settings("settings_biometric_reason")
-        ) { ok, _ in
-            DispatchQueue.main.async {
-                biometricEnabled = ok
-                UserDefaults.standard.set(ok, forKey: "shield.biometric")
-                if !ok { showBiometricAlert = true }
-            }
+        guard MFMailComposeViewController.canSendMail() else {
+            openMailURL()
+            return
         }
+        showMailCompose = true
+    }
+
+    private func openMailURL() {
+        guard let email = SettingsSupportConfiguration.email else {
+            showSupportUnavailable = true
+            return
+        }
+        let subject = strings.settings("settings_support_subject")
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        guard let url = URL(string: "mailto:\(email)?subject=\(subject)") else { return }
+        UIApplication.shared.open(url)
     }
 }
 
-// MARK: - MailComposeView
+// MARK: - Routing and configuration
+
+enum SettingsRoute: Hashable {
+    case appPreferences
+    case security
+    case cloud
+    case export
+    case information
+    case whatsNew
+    case privacy
+    case terms
+    case subscriptionTerms
+    case support
+    case faq
+    #if DEBUG
+    case developer
+    #endif
+}
+
+enum SettingsSupportConfiguration {
+    static let email: String? = "romerodev.app+shield@gmail.com"
+}
+
+// MARK: - Mail composer
 
 struct MailComposeView: UIViewControllerRepresentable {
     let recipient: String
@@ -733,22 +353,30 @@ struct MailComposeView: UIViewControllerRepresentable {
     let body: String
 
     func makeUIViewController(context: Context) -> MFMailComposeViewController {
-        let vc = MFMailComposeViewController()
-        vc.setToRecipients([recipient])
-        vc.setSubject(subject)
-        vc.setMessageBody(body, isHTML: false)
-        vc.mailComposeDelegate = context.coordinator
-        return vc
+        let controller = MFMailComposeViewController()
+        controller.setToRecipients([recipient])
+        controller.setSubject(subject)
+        controller.setMessageBody(body, isHTML: false)
+        controller.mailComposeDelegate = context.coordinator
+        return controller
     }
 
     func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: Context) {}
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
-    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-        func mailComposeController(_ controller: MFMailComposeViewController,
-                                   didFinishWith result: MFMailComposeResult, error: Error?) {
+    final class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
+        func mailComposeController(
+            _ controller: MFMailComposeViewController,
+            didFinishWith result: MFMailComposeResult,
+            error: Error?
+        ) {
             controller.dismiss(animated: true)
         }
     }
+}
+
+#Preview {
+    SettingsView()
+        .environmentObject(AppState())
 }

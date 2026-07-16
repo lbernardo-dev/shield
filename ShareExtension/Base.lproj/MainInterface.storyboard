@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="26000" targetRuntime="iOS.CocoaTouch" useAutolayout="YES" initialViewController="ShareViewController">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="26000"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="ShareScene">
+            <objects>
+                <viewController id="ShareViewController" customClass="ShareViewController" customModule="ShieldShareExtension" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ShareView"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FirstResponder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

@@ -35,7 +35,7 @@ struct ShieldButton: View {
 
     private var bgColor: Color {
         switch style {
-        case .primary:   return ShieldTheme.accent
+        case .primary:   return ShieldTheme.accent(scheme)
         case .secondary: return ShieldTheme.rowBackground(scheme)
         case .ghost:     return .clear
         case .danger:    return ShieldTheme.dangerDim
@@ -54,10 +54,12 @@ struct ShieldButton: View {
 // MARK: - ScaleButtonStyle
 
 struct ScaleButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
+            .scaleEffect(reduceMotion ? 1 : (configuration.isPressed ? 0.97 : 1))
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.08), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, isPressed in
                 guard isPressed else { return }
                 AppState.markUserActivity()
@@ -100,15 +102,18 @@ struct PillButton: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(isActive ? ShieldTheme.accentDim : ShieldTheme.cardBackground(scheme))
-            .foregroundColor(isActive ? ShieldTheme.accent : ShieldTheme.primary(scheme))
+            .background(isActive ? ShieldTheme.accentDim(scheme) : ShieldTheme.cardBackground(scheme))
+            .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
             .overlay(
                 Capsule()
-                    .stroke(isActive ? ShieldTheme.accent : ShieldTheme.line(scheme), lineWidth: isActive ? 1 : 0.5)
+                    .stroke(isActive ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme), lineWidth: isActive ? 1 : 0.5)
             )
             .clipShape(Capsule())
         }
         .buttonStyle(ScaleButtonStyle())
+        .frame(minHeight: 44)
+        .accessibilityValue(LanguageManager.shared.common(isActive ? "common_selected" : "common_not_selected"))
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }
 
@@ -116,6 +121,7 @@ struct PillButton: View {
 
 struct IconButton: View {
     let icon: String
+    var accessibilityName: String? = nil
     var size: CGFloat = 32
     var color: Color? = nil
     var background: Color? = nil
@@ -136,6 +142,9 @@ struct IconButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rSM))
         }
         .buttonStyle(ScaleButtonStyle())
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityLabel(accessibilityName ?? icon.replacingOccurrences(of: ".", with: " "))
     }
 }
 
@@ -143,6 +152,7 @@ struct IconButton: View {
 
 struct ShieldToggle: View {
     @Binding var isOn: Bool
+    var accessibilityName: String = "Opción"
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
@@ -152,14 +162,22 @@ struct ShieldToggle: View {
             ZStack(alignment: isOn ? .trailing : .leading) {
                 Capsule()
                     .frame(width: 44, height: 26)
-                    .foregroundColor(isOn ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                    .foregroundColor(isOn ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
+                    .overlay(
+                        Capsule()
+                            .stroke(isOn ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme), lineWidth: 1)
+                    )
                 Circle()
                     .frame(width: 22, height: 22)
-                    .foregroundColor(isOn ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
+                    .foregroundColor(isOn ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
                     .padding(2)
             }
         }
         .buttonStyle(.plain)
+        .frame(minWidth: 44, minHeight: 44)
+        .accessibilityLabel(accessibilityName)
+        .accessibilityValue(LanguageManager.shared.common(isOn ? "common_enabled" : "common_disabled"))
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -173,22 +191,29 @@ struct SectionHeader: View {
 
     var body: some View {
         HStack {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
+            Text(title.uppercased())
+                .font(.caption.weight(.semibold))
                 .foregroundColor(ShieldTheme.tertiary(scheme))
-                .textCase(.uppercase)
                 .tracking(0.4)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, 4)
             Spacer()
             if let action {
                 Button(action: action) {
                     Text(actionLabel)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(ShieldTheme.accent)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(ShieldTheme.accent(scheme))
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, ShieldTheme.s5)
-        .padding(.vertical, 6)
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isHeader)
     }
 }
 

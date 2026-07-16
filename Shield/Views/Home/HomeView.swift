@@ -6,7 +6,6 @@ import LocalAuthentication
 struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
-    @ObservedObject private var ext = ExternalStorageManager.shared
     @ObservedObject private var cloud = CloudSyncManager.shared
     @Environment(\.colorScheme) var scheme
 
@@ -20,6 +19,7 @@ struct HomeView: View {
     // Vault auth flow from recents
     @State private var showVaultAuthForDoc: DocumentItem? = nil
     @State private var showVaultPINEntry = false
+    @State private var showVaultPINSetup = false
     @State private var vaultAuthDoc: DocumentItem? = nil
     @State private var showVaultAutoLock = false
     @State private var vaultAutoLockDoc: DocumentItem? = nil
@@ -30,11 +30,11 @@ struct HomeView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                stickyHeader
+                topBarSection
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        titleSection
+                        heroSection
                         searchSection
                         categoryScroll
                         Divider()
@@ -51,6 +51,8 @@ struct HomeView: View {
                         cloudStorageSection
                             .padding(.bottom, 110)
                     }
+                    .frame(maxWidth: 1_100)
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -98,6 +100,14 @@ struct HomeView: View {
                 .environmentObject(appState)
             }
         }
+        .fullScreenCover(isPresented: $showVaultPINSetup) {
+            if let doc = vaultAuthDoc {
+                PINSetupView(isPresented: $showVaultPINSetup) {
+                    showVaultAuthForDoc = doc
+                }
+                .environmentObject(appState)
+            }
+        }
         // Auto-lock countdown overlay (covers the whole Home)
         .overlay {
             if showVaultAutoLock, let doc = vaultAutoLockDoc {
@@ -124,60 +134,18 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Sticky Header (brand bar)
+    // MARK: - Top Bar
 
-    private var stickyHeader: some View {
-        HStack {
-            HStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(ShieldTheme.accentColor(appState.preferredScheme))
-                        .frame(width: 28, height: 28)
-                    Image(systemName: "shield.fill")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(appState.preferredScheme == .dark ? ShieldTheme.accentText : ShieldTheme.accent)
-                }
-                Text(LanguageManager.shared.common("common_app_name"))
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                    .tracking(-0.3)
-            }
-            Spacer()
-            HStack(spacing: 8) {
-                Button {
-                    withAnimation { appState.language = appState.language == .es ? .en : .es }
-                } label: {
-                    Text(appState.language.displayName)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
-                        .frame(width: 32, height: 32)
-                        .background(ShieldTheme.cardBackground(appState.preferredScheme))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                Button {
-                    withAnimation { appState.preferredScheme = appState.preferredScheme == .dark ? .light : .dark }
-                } label: {
-                    Image(systemName: appState.preferredScheme == .dark ? "sun.max.fill" : "moon.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
-                        .frame(width: 32, height: 32)
-                        .background(ShieldTheme.cardBackground(appState.preferredScheme))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                IconButton(
-                    icon: "gearshape",
-                    size: 32,
-                    color: ShieldTheme.primary(appState.preferredScheme),
-                    background: ShieldTheme.cardBackground(appState.preferredScheme)
-                ) {
-                    withAnimation { appState.activeTab = .settings }
-                }
-            }
-        }
+    private var topBarSection: some View {
+        HomeTopBarView(
+            scheme: appState.preferredScheme,
+            language: appState.language,
+            onToggleLanguage: toggleLanguage,
+            onToggleScheme: toggleColorScheme,
+            onOpenSettings: openSettings
+        )
         .padding(.horizontal, ShieldTheme.s5)
-        .padding(.top, 8)
+        .padding(.top, 2)
         .padding(.bottom, 10)
         .background(
             ShieldTheme.background(appState.preferredScheme)
@@ -189,84 +157,23 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Title
+    // MARK: - Hero
 
-    private var titleSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(LanguageManager.shared.home("home_documents"))
-                .font(.system(size: 28, weight: .bold))
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .tracking(-0.7)
-
-            HStack(spacing: 6) {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(ShieldTheme.success)
-                Text(LanguageManager.shared.home("home_on_device"))
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(ShieldTheme.success)
-                Text("· \(appState.documents.count) \(LanguageManager.shared.home("home_documents").lowercased())")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-            }
-
-            // Free tier usage bar
-            if !pm.isPro {
-                freeUsageBadge
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private var heroSection: some View {
+        HomeHeroCardView(
+            scheme: appState.preferredScheme,
+            language: appState.language,
+            documentCount: appState.documents.count,
+            isPro: pm.isPro,
+            freeUsed: appState.documents.count,
+            freeLimit: PremiumManager.freeDocumentLimit,
+            onUpgrade: { showPaywall = true },
+            onPrimaryAction: { appState.showCapture = true },
+            onSecondaryAction: handleCloudImportTap
+        )
         .padding(.horizontal, ShieldTheme.s5)
-        .padding(.top, 20)
-        .padding(.bottom, 16)
-    }
-
-    private var freeUsageBadge: some View {
-        let used = appState.documents.count
-        let limit = PremiumManager.freeDocumentLimit
-        let fraction = min(1.0, Double(used) / Double(limit))
-        let atLimit = used >= limit
-
-        return Button {
-            if atLimit { showPaywall = true }
-        } label: {
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(LanguageManager.shared.home("home_plan_status", LanguageManager.shared.home("home_free_plan"), used, limit))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(atLimit ? ShieldTheme.danger : ShieldTheme.secondary(scheme))
-                    Spacer()
-                    if atLimit {
-                        Text(LanguageManager.shared.home("home_upgrade"))
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(ShieldTheme.accent)
-                    }
-                }
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(ShieldTheme.rowBackground(scheme))
-                            .frame(height: 5)
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(atLimit ? ShieldTheme.danger : ShieldTheme.accent)
-                            .frame(width: geo.size.width * fraction, height: 5)
-                            .animation(.easeInOut(duration: 0.4), value: fraction)
-                    }
-                }
-                .frame(height: 5)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(atLimit ? ShieldTheme.dangerDim : ShieldTheme.cardBackground(scheme))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(atLimit ? ShieldTheme.danger.opacity(0.4) : ShieldTheme.line(scheme), lineWidth: 0.5)
-            )
-        }
-        .buttonStyle(ScaleButtonStyle())
+        .padding(.top, 12)
+        .padding(.bottom, 14)
     }
 
     // MARK: - Search
@@ -380,50 +287,17 @@ struct HomeView: View {
     // MARK: - Modes
 
     private var modesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                SectionHeader(title: LanguageManager.shared.home("home_quick_modes"))
-                Spacer()
-                // Batch Pro button
-                Button {
-                    if pm.isPro {
-                        showBatchRedact = true
-                    } else {
-                        showPaywall = true
-                    }
-                } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: pm.isPro ? "square.stack.3d.up.fill" : "lock.fill")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text(LanguageManager.shared.home("home_batch_pro"))
-                            .font(.system(size: 12, weight: .bold))
-                    }
-                    .foregroundColor(pm.isPro ? .black : ShieldTheme.tertiary(scheme))
-                    .padding(.horizontal, 12)
-                    .frame(height: 28)
-                    .background(pm.isPro ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
-                    .overlay(Capsule().stroke(ShieldTheme.line(scheme).opacity(0.5), lineWidth: pm.isPro ? 0 : 0.5))
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(ScaleButtonStyle())
-                .padding(.trailing, ShieldTheme.s5)
+        HomeModesSection(
+            scheme: scheme,
+            lang: appState.language,
+            isPro: pm.isPro,
+            onShowBatch: { showBatchRedact = true },
+            onShowPaywall: { showPaywall = true },
+            onModeSelected: { mode in
+                appState.pendingRedactionMode = mode
+                appState.showCapture = true
             }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(RedactionMode.allCases, id: \.self) { mode in
-                        ModeCard(mode: mode, lang: appState.language) {
-                            // Store the chosen mode so the editor auto-applies it
-                            // once the newly imported document is opened.
-                            appState.pendingRedactionMode = mode
-                            appState.showCapture = true
-                        }
-                    }
-                }
-                .padding(.horizontal, ShieldTheme.s5)
-                .padding(.bottom, 4)
-            }
-        }
+        )
         .padding(.top, 20)
         .padding(.bottom, 8)
     }
@@ -498,45 +372,17 @@ struct HomeView: View {
     }
 
     private var paginationControls: some View {
-        HStack(spacing: 12) {
-            Button {
+        HomePaginationControls(
+            scheme: appState.preferredScheme,
+            currentPage: appState.recentDocsPage,
+            totalPages: appState.recentDocsTotalPages,
+            onPrevious: {
                 withAnimation { appState.recentDocsPage = max(0, appState.recentDocsPage - 1) }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(appState.recentDocsPage > 0
-                        ? ShieldTheme.accent
-                        : ShieldTheme.tertiary(appState.preferredScheme))
-                    .frame(width: 32, height: 32)
-                    .background(ShieldTheme.cardBackground(appState.preferredScheme))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            .disabled(appState.recentDocsPage == 0)
-
-            Spacer()
-
-            Text("\(appState.recentDocsPage + 1) / \(appState.recentDocsTotalPages)")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-
-            Spacer()
-
-            Button {
+            },
+            onNext: {
                 withAnimation { appState.recentDocsPage = min(appState.recentDocsTotalPages - 1, appState.recentDocsPage + 1) }
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(appState.recentDocsPage < appState.recentDocsTotalPages - 1
-                        ? ShieldTheme.accent
-                        : ShieldTheme.tertiary(appState.preferredScheme))
-                    .frame(width: 32, height: 32)
-                    .background(ShieldTheme.cardBackground(appState.preferredScheme))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .disabled(appState.recentDocsPage >= appState.recentDocsTotalPages - 1)
-        }
+        )
         .padding(.horizontal, ShieldTheme.s4)
         .padding(.top, 4)
     }
@@ -548,7 +394,7 @@ struct HomeView: View {
             if PINManager.hasPIN {
                 showVaultPINEntry = true
             } else {
-                authenticateVaultWithDeviceOwner(doc)
+                showVaultPINSetup = true
             }
             return
         }
@@ -559,24 +405,7 @@ struct HomeView: View {
             DispatchQueue.main.async {
                 if success { showVaultAuthForDoc = doc }
                 else if PINManager.hasPIN { showVaultPINEntry = true }
-                else { authenticateVaultWithDeviceOwner(doc) }
-            }
-        }
-    }
-
-    private func authenticateVaultWithDeviceOwner(_ doc: DocumentItem) {
-        let ctx = LAContext()
-        var error: NSError?
-        guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-            showVaultPINEntry = true
-            return
-        }
-        ctx.evaluatePolicy(
-            .deviceOwnerAuthentication,
-            localizedReason: LanguageManager.shared.home("home_vault_auth_reason")
-        ) { success, _ in
-            DispatchQueue.main.async {
-                if success { showVaultAuthForDoc = doc }
+                else { showVaultPINSetup = true }
             }
         }
     }
@@ -638,30 +467,13 @@ struct HomeView: View {
                         statusText: providerStatusText(provider),
                         statusColor: providerStatusColor(provider),
                         isPro: true,
-                        isConnected: ext.isConnected(provider),
-                        isAuthenticating: ext.isAuthenticating == provider,
+                        isConnected: false,
+                        showsDisclosureIndicator: true,
                         onTap: {
                             if !pm.isPro { showPaywall = true; return }
-                            if ext.isConnected(provider) {
-                                showCloudImport = true
-                            } else {
-                                ext.connect(provider)
-                            }
+                            showCloudImport = true
                         }
                     )
-
-                    .contextMenu {
-                        if pm.isPro && ext.isConnected(provider) {
-                            Button(role: .destructive) {
-                                ext.disconnect(provider)
-                            } label: {
-                                Label(
-                                    LanguageManager.shared.common("common_disconnect_provider", provider.displayName),
-                                    systemImage: "link.badge.minus"
-                                )
-                            }
-                        }
-                    }
 
                     if idx < ExternalStorageProvider.allCases.count - 1 {
                         ShieldDivider().padding(.leading, 58)
@@ -703,6 +515,7 @@ struct HomeView: View {
         isPro: Bool,
         isConnected: Bool,
         isAuthenticating: Bool = false,
+        showsDisclosureIndicator: Bool = false,
         onTap: @escaping () -> Void
     ) -> some View {
         Button(action: onTap) {
@@ -754,7 +567,7 @@ struct HomeView: View {
                 } else if isAuthenticating {
                     ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
                 } else {
-                    Image(systemName: isConnected ? "chevron.right" : "plus.circle.fill")
+                    Image(systemName: (isConnected || showsDisclosureIndicator) ? "chevron.right" : "plus.circle.fill")
                         .font(.system(size: 14, weight: isConnected ? .medium : .semibold))
                         .foregroundColor(isConnected ? ShieldTheme.tertiary(appState.preferredScheme) : ShieldTheme.accent)
                 }
@@ -788,58 +601,48 @@ struct HomeView: View {
     }
 
     private func providerStatusText(_ provider: ExternalStorageProvider) -> String {
-        guard ext.isConnected(provider) else {
-            return LanguageManager.shared.home("home_not_connected")
-        }
-        if let email = ext.connectedEmail(provider) {
-            return email
-        }
-        return LanguageManager.shared.home("home_connected")
+        LanguageManager.shared.home("home_select_in_files")
     }
 
     private func providerStatusColor(_ provider: ExternalStorageProvider) -> Color {
-        ext.isConnected(provider) ? ShieldTheme.success : ShieldTheme.tertiary(scheme)
+        ShieldTheme.tertiary(scheme)
     }
 
     // MARK: - Vault
 
     private var vaultSection: some View {
-        Button {
-            withAnimation { appState.activeTab = .vault }
-        } label: {
-            HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(ShieldTheme.accentDim)
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "lock.rectangle.stack.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(ShieldTheme.accent)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(LanguageManager.shared.home("home_vault"))
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
-                    Text(LanguageManager.shared.home("home_secure_storage_faceid"))
-                        .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-            }
-            .padding(16)
-            .background(ShieldTheme.cardBackground(appState.preferredScheme))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(ScaleButtonStyle())
+        HomeVaultCard(
+            scheme: appState.preferredScheme,
+            onTap: { withAnimation { appState.activeTab = .vault } }
+        )
         .padding(.horizontal, ShieldTheme.s4)
         .padding(.top, 24)
+    }
+
+    private func toggleLanguage() {
+        withAnimation {
+            appState.language = appState.language == .es ? .en : .es
+        }
+    }
+
+    private func toggleColorScheme() {
+        withAnimation {
+            appState.preferredScheme = appState.preferredScheme == .dark ? .light : .dark
+        }
+    }
+
+    private func openSettings() {
+        withAnimation {
+            appState.activeTab = .settings
+        }
+    }
+
+    private func handleCloudImportTap() {
+        if pm.isPro {
+            showCloudImport = true
+        } else {
+            showPaywall = true
+        }
     }
 }
 
@@ -1189,10 +992,12 @@ struct DocumentRow: View {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(ShieldTheme.accent)
+                        .accessibilityHidden(true)
                 } else {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                        .accessibilityHidden(true)
                 }
             }
             .padding(12)
@@ -1348,6 +1153,7 @@ struct VaultAutoLockOverlay: View {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 32, weight: .semibold))
                         .foregroundColor(ShieldTheme.accent)
+                        .accessibilityHidden(true)
                 }
 
                 VStack(spacing: 8) {

@@ -970,6 +970,23 @@
         }
       }
     },
+    "home_select_in_files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select in Files"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar en Archivos"
+          }
+        }
+      }
+    },
     "home_disconnect": {
       "extractionState": "manual",
       "localizations": {

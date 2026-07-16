@@ -17,45 +17,47 @@ struct StyleGalleryView: View {
     }
 
     var body: some View {
-        ZStack {
-            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+        GeometryReader { _ in
+            ZStack {
+                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                header
-                docTypePicker
+                VStack(spacing: 0) {
+                    header
+                    docTypePicker
 
-                ScrollView(showsIndicators: false) {
-                    GeometryReader { geo in Color.clear.preference(key: WidthKey.self, value: geo.size.width) }
-                        .frame(height: 0)
+                    ScrollView(showsIndicators: false) {
+                        GeometryReader { innerGeo in Color.clear.preference(key: WidthKey.self, value: innerGeo.size.width) }
+                            .frame(height: 0)
 
-                    LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
-                        styleSection(
-                            title: LanguageManager.shared.gallery("gallery_group_essentials"),
-                            subtitle: LanguageManager.shared.gallery("gallery_group_essentials_sub"),
-                            styles: [.block, .blockWhite]
-                        )
-                        styleSection(
-                            title: LanguageManager.shared.gallery("gallery_group_blur"),
-                            subtitle: LanguageManager.shared.gallery("gallery_group_blur_sub"),
-                            styles: [.blurStrong, .blurSoft, .pixelate]
-                        )
-                        styleSection(
-                            title: LanguageManager.shared.gallery("gallery_group_patterns"),
-                            subtitle: LanguageManager.shared.gallery("gallery_group_patterns_sub"),
-                            styles: [.diagonal, .secure, .redactedTag]
-                        )
-                        styleSection(
-                            title: LanguageManager.shared.gallery("gallery_group_special"),
-                            subtitle: LanguageManager.shared.gallery("gallery_group_special_sub"),
-                            styles: [.semi]
-                        )
+                        LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
+                            styleSection(
+                                title: LanguageManager.shared.gallery("gallery_group_essentials"),
+                                subtitle: LanguageManager.shared.gallery("gallery_group_essentials_sub"),
+                                styles: [.block, .blockWhite]
+                            )
+                            styleSection(
+                                title: LanguageManager.shared.gallery("gallery_group_blur"),
+                                subtitle: LanguageManager.shared.gallery("gallery_group_blur_sub"),
+                                styles: [.blurStrong, .blurSoft, .pixelate]
+                            )
+                            styleSection(
+                                title: LanguageManager.shared.gallery("gallery_group_patterns"),
+                                subtitle: LanguageManager.shared.gallery("gallery_group_patterns_sub"),
+                                styles: [.diagonal, .secure, .redactedTag]
+                            )
+                            styleSection(
+                                title: LanguageManager.shared.gallery("gallery_group_special"),
+                                subtitle: LanguageManager.shared.gallery("gallery_group_special_sub"),
+                                styles: [.semi]
+                            )
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 4)
+                        .padding(.bottom, 100)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 100)
-                }
-                .onPreferenceChange(WidthKey.self) { width in
-                    contentWidth = width
+                    .onPreferenceChange(WidthKey.self) { width in
+                        contentWidth = width
+                    }
                 }
             }
         }
@@ -96,7 +98,8 @@ struct StyleGalleryView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
-        .padding(.top, 16)
+        // GeometryReader already lays this view out below the top safe area.
+        .padding(.top, 12)
         .padding(.bottom, 14)
     }
 
@@ -226,7 +229,7 @@ struct StyleGalleryView: View {
 }
 
 private struct WidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+    static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 

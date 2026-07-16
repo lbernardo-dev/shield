@@ -256,19 +256,19 @@
         }
       }
     },
-    "paywall_lifetime": {
+    "paywall_weekly": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lifetime"
+            "value": "Weekly"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "De por vida"
+            "value": "Semanal"
           }
         }
       }
@@ -375,6 +375,23 @@
         }
       }
     },
+    "paywall_plan_weekly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semanal"
+          }
+        }
+      }
+    },
     "paywall_save_percent": {
       "extractionState": "manual",
       "localizations": {
@@ -388,6 +405,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ahorra %d%%"
+          }
+        }
+      }
+    },
+    "paywall_save_two_years_percent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save %d%% vs 2 years"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahorra %d%% vs 2 años"
           }
         }
       }
@@ -851,19 +885,19 @@
         }
       }
     },
-    "paywall_plan_lifetime": {
+    "paywall_plan_weekly": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lifetime"
+            "value": "Weekly"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "De por vida"
+            "value": "Semanal"
           }
         }
       }
@@ -902,19 +936,36 @@
         }
       }
     },
-    "paywall_one_time": {
+    "paywall_billed_once": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "One-time payment"
+            "value": "One payment, permanent access"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pago único"
+            "value": "Un pago, acceso permanente"
+          }
+        }
+      }
+    },
+    "paywall_billed_weekly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Billed weekly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Facturación semanal"
           }
         }
       }
@@ -966,6 +1017,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "una vez"
+          }
+        }
+      }
+    },
+    "paywall_per_week_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/wk"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/sem"
           }
         }
       }

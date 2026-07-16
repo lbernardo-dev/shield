@@ -4,6 +4,28 @@ import CryptoKit
 import Security
 import UIKit
 
+#if DEBUG
+enum ASOScreenshotMode {
+    static let isEnabled = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
+
+    static var scene: String {
+        value(after: "-aso-scene") ?? "home"
+    }
+
+    static var language: AppLanguage {
+        AppLanguage(rawValue: value(after: "-aso-language") ?? "es") ?? .es
+    }
+
+    private static func value(after flag: String) -> String? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else {
+            return nil
+        }
+        return arguments[index + 1]
+    }
+}
+#endif
+
 // MARK: - SortOption
 
 enum SortOption: String, CaseIterable, Identifiable {
@@ -32,23 +54,8 @@ enum SortOption: String, CaseIterable, Identifiable {
 // MARK: - AppState
 
 final class AppState: ObservableObject {
-    private let autoLockTimestampKey = "shield.autoLock.backgroundTimestamp"
-    private static let userActivityTimestampKey = "shield.autoLock.lastActivity"
-    private static var lastActivityWrite: TimeInterval = 0
-    private var inactivityCheckCancellable: AnyCancellable?
-    private var currentScenePhase: ScenePhase = .active
-
-    // MARK: - Onboarding (persisted)
-    @Published var isOnboarded: Bool {
-        didSet { UserDefaults.standard.set(isOnboarded, forKey: "shield.onboarded") }
-    }
-    @Published var isAuthenticated: Bool = false {
-        didSet {
-            if isAuthenticated {
-                AppState.markUserActivity(force: true)
-            }
-        }
-    }
+    private let session: AppSessionCoordinator
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Preferences (persisted)
     var language: AppLanguage {
@@ -65,6 +72,7 @@ final class AppState: ObservableObject {
     // MARK: - Navigation
     @Published var selectedDoc: DocumentItem? = nil
     @Published var showCapture: Bool = false
+    @Published var pendingSharedImportURL: URL? = nil
     @Published var showVault: Bool = false
     @Published var activeTab: AppTab = .library
 
@@ -99,28 +107,153 @@ final class AppState: ObservableObject {
 
     init() {
         let ud = UserDefaults.standard
-        isOnboarded     = ud.bool(forKey: "shield.onboarded")
+        session = AppSessionCoordinator(userDefaults: ud)
         // Language is handled by LanguageManager.shared
         preferredScheme = ud.object(forKey: "shield.darkMode") == nil
             ? .dark
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
 
-        // Default auto-lock to "1 minute" (index 1) for new installs
-        if ud.object(forKey: "shield.autoLock") == nil {
-            ud.set(1, forKey: "shield.autoLock")
-        }
-
         documents = AppState.loadDocuments()
         customCategories = AppState.loadCustomCategories()
-        AppState.markUserActivity(force: true)
-        startInactivityMonitoring()
+
+#if DEBUG
+        if ASOScreenshotMode.isEnabled {
+            LanguageManager.shared.current = ASOScreenshotMode.language
+            preferredScheme = .dark
+            session.isOnboarded = true
+            session.isAuthenticated = true
+            documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
+
+            switch ASOScreenshotMode.scene {
+            case "capture":
+                showCapture = true
+            case "editor", "ocr", "export":
+                selectedDoc = documents.first
+            case "gallery":
+                activeTab = .gallery
+            case "vault":
+                activeTab = .vault
+            case "settings":
+                activeTab = .settings
+            default:
+                activeTab = .library
+            }
+        }
+#endif
+        bindSession()
     }
 
-    deinit {
-        inactivityCheckCancellable?.cancel()
+#if DEBUG
+    private static func asoSampleDocuments(language: AppLanguage) -> [DocumentItem] {
+        var identityFields = DocumentFields.empty
+        identityFields.documentNumber = "X1234567T"
+        identityFields.supportNumber = "SYN123456"
+        identityFields.fullName = language == .es ? "MARÍA GARCÍA LÓPEZ" : "ALEX MORGAN"
+        identityFields.dateOfBirth = "14/03/1990"
+        identityFields.nationality = language == .es ? "ESPAÑOLA" : "SPANISH"
+        identityFields.expires = "12/11/2031"
+        identityFields.sex = "F"
+        identityFields.address = language == .es ? "CALLE EJEMPLO 24, MADRID" : "24 SAMPLE STREET, MADRID"
+        identityFields.mrz = "IDESPX1234567T<<<<<<<<<<<<<<<"
+        identityFields.ocrDocumentType = "DNI"
+        identityFields.ocrMRZValid = true
+        identityFields.ocrRiskLevel = "low"
+        identityFields.ocrDetectedCountry = "ESP"
+        identityFields.ocrFieldConfidence = [
+            "documentNumber": 0.98,
+            "fullName": 0.97,
+            "dateOfBirth": 0.96,
+            "address": 0.94,
+            "mrz": 0.99
+        ]
+
+        let identityRedactions = AutoRedactions.suggested(for: .dniESP, style: .secure)
+        let now = Date()
+        let titles: [(String, String)] = [
+            ("DNI — copia protegida", "ID card — protected copy"),
+            ("Pasaporte — viaje", "Passport — travel"),
+            ("Contrato de alquiler", "Rental agreement"),
+            ("Nómina — abril", "Payslip — April"),
+            ("Extracto bancario", "Bank statement"),
+            ("Informe médico", "Medical report")
+        ]
+
+        return [
+            DocumentItem(
+                id: "aso-identity",
+                kind: .dniESP,
+                title: language == .es ? titles[0].0 : titles[0].1,
+                category: .identity,
+                date: now,
+                isFavorite: true,
+                pageFileNames: ["aso-id-front", "aso-id-back"],
+                fields: identityFields,
+                pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: identityRedactions)],
+                watermark: Watermark(text: language == .es ? "COPIA PROTEGIDA" : "PROTECTED COPY")
+            ),
+            DocumentItem(
+                id: "aso-passport",
+                kind: .passportUSA,
+                title: language == .es ? titles[1].0 : titles[1].1,
+                category: .travel,
+                date: now.addingTimeInterval(-3_600),
+                redactionCount: 7,
+                isVaulted: true,
+                pageFileNames: ["aso-passport"]
+            ),
+            DocumentItem(
+                id: "aso-rental",
+                kind: .genericID,
+                title: language == .es ? titles[2].0 : titles[2].1,
+                category: .work,
+                date: now.addingTimeInterval(-86_400),
+                redactionCount: 9,
+                pageFileNames: ["aso-rental-1", "aso-rental-2", "aso-rental-3"]
+            ),
+            DocumentItem(
+                id: "aso-payslip",
+                kind: .dniITA,
+                title: language == .es ? titles[3].0 : titles[3].1,
+                category: .work,
+                date: now.addingTimeInterval(-172_800),
+                redactionCount: 6,
+                isFavorite: true,
+                pageFileNames: ["aso-payslip"]
+            ),
+            DocumentItem(
+                id: "aso-bank",
+                kind: .drivingUK,
+                title: language == .es ? titles[4].0 : titles[4].1,
+                category: .finance,
+                date: now.addingTimeInterval(-259_200),
+                redactionCount: 8,
+                isVaulted: true,
+                pageFileNames: ["aso-bank-1", "aso-bank-2"]
+            ),
+            DocumentItem(
+                id: "aso-medical",
+                kind: .passportMEX,
+                title: language == .es ? titles[5].0 : titles[5].1,
+                category: .health,
+                date: now.addingTimeInterval(-345_600),
+                redactionCount: 5,
+                pageFileNames: ["aso-medical"]
+            )
+        ]
     }
+#endif
 
     // MARK: - Computed
+
+    var isOnboarded: Bool {
+        get { session.isOnboarded }
+        set { session.isOnboarded = newValue }
+    }
+
+    var isAuthenticated: Bool {
+        get { session.isAuthenticated }
+        set { session.isAuthenticated = newValue }
+    }
 
     var hasActiveFilter: Bool {
         activeCategoryID != DocumentCategory.all.rawValue || !searchQuery.isEmpty
@@ -189,8 +322,7 @@ final class AppState: ObservableObject {
     }
 
     func deleteDocument(_ doc: DocumentItem) {
-        let fileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
-        for fileName in fileNames {
+        for fileName in doc.allImageFileNames {
             SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
         }
         if let sourceFileName = doc.sourceFileName {
@@ -206,17 +338,20 @@ final class AppState: ObservableObject {
         updateDocument(d)
     }
 
-    func toggleVault(_ doc: DocumentItem) {
+    @discardableResult
+    func toggleVault(_ doc: DocumentItem) -> Bool {
         var d = doc
-        moveAssets(for: &d, toVault: !doc.isVaulted)
+        guard relocateAssetsTransactionally(for: d, toVault: !doc.isVaulted) else {
+            return false
+        }
         d.isVaulted.toggle()
         updateDocument(d)
+        return true
     }
 
     func deleteAllDocuments() {
         for doc in documents {
-            let fileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
-            for fileName in fileNames {
+            for fileName in doc.allImageFileNames {
                 SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
             }
             if let sourceFileName = doc.sourceFileName {
@@ -263,6 +398,18 @@ final class AppState: ObservableObject {
         AppState.loadSourceData(fileName: fileName, isVaulted: isVaulted)
     }
 
+    func removeStoredImage(fileName: String, isVaulted: Bool = false) {
+        SecureFileStore.shared.removeFile(
+            at: AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
+        )
+    }
+
+    func removeStoredSource(fileName: String, isVaulted: Bool = false) {
+        SecureFileStore.shared.removeFile(
+            at: AppState.resolveSourceURL(fileName: fileName, isVaulted: isVaulted)
+        )
+    }
+
     // MARK: - Category CRUD
 
     func addCustomCategory(_ cat: UserCategory) {
@@ -290,47 +437,49 @@ final class AppState: ObservableObject {
     }
 
     static func markUserActivity(force: Bool = false) {
-        let now = Date().timeIntervalSince1970
-        if !force && now - lastActivityWrite < 1.0 {
-            return
-        }
-        lastActivityWrite = now
-        UserDefaults.standard.set(now, forKey: userActivityTimestampKey)
+        AppSessionCoordinator.markUserActivity(force: force)
     }
 
     func completeSuccessfulUnlock() {
-        isAuthenticated = true
-        let now = Date().timeIntervalSince1970
-        let defaults = UserDefaults.standard
-        defaults.set(now, forKey: autoLockTimestampKey)
-        Self.markUserActivity(force: true)
+        session.completeSuccessfulUnlock()
     }
 
     static func trackEvent(_ name: String, properties: [String: String] = [:]) {
-        var payload: [String: Any] = properties
-        payload["event"] = name
+        let safeName = sanitizedTelemetryValue(name)
+        let allowedKeys: Set<String> = [
+            "source", "format", "pages", "redactions", "count", "kind", "mode",
+            "method", "risk", "low_fields", "detected_type", "mrz_valid",
+            "has_adjustments", "product_id", "trigger", "reason", "error_type"
+        ]
+        let safeProperties = properties.reduce(into: [String: String]()) { result, item in
+            guard allowedKeys.contains(item.key) else { return }
+            result[item.key] = sanitizedTelemetryValue(item.value)
+        }
+        var payload: [String: Any] = safeProperties
+        payload["event"] = safeName
         payload["timestamp"] = ISO8601DateFormatter().string(from: Date())
         payload["build"] = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
 
         guard JSONSerialization.isValidJSONObject(payload),
-              let line = try? JSONSerialization.data(withJSONObject: payload, options: []),
-              let handle = FileHandle(forWritingAtPath: telemetryURL.path) ?? createTelemetryFile(at: telemetryURL)
+              let line = try? JSONSerialization.data(withJSONObject: payload, options: [])
         else {
             return
         }
 
-        do {
-            try handle.seekToEnd()
-            handle.write(line)
-            handle.write(Data([0x0A]))
-            try handle.close()
-        } catch {
-            try? handle.close()
+        var log = (try? SecureFileStore.shared.read(from: telemetryURL)) ?? Data()
+        log.append(line)
+        log.append(0x0A)
+        let maximumBytes = 512 * 1_024
+        if log.count > maximumBytes {
+            let suffix = log.suffix(maximumBytes)
+            if let firstLineBreak = suffix.firstIndex(of: 0x0A) {
+                log = Data(suffix[suffix.index(after: firstLineBreak)...])
+            } else {
+                log = Data(suffix)
+            }
         }
+        try? SecureFileStore.shared.write(log, to: telemetryURL)
 
-        #if DEBUG
-        print("ShieldTelemetry:", name, properties)
-        #endif
     }
 
     func redactionsCount(_ n: Int) -> String {
@@ -340,81 +489,18 @@ final class AppState: ObservableObject {
     // MARK: - App lifecycle / auto-lock
 
     func handleScenePhaseChange(_ phase: ScenePhase) {
-        currentScenePhase = phase
-        switch phase {
-        case .active:
-            applyAutoLockIfNeededOnResume()
-            AppState.markUserActivity(force: true)
-        case .background:
-            markBackgroundTimestampAndLockIfImmediate()
-        case .inactive:
-            break
-        @unknown default:
-            break
-        }
-    }
-
-    private func markBackgroundTimestampAndLockIfImmediate() {
-        let defaults = UserDefaults.standard
-        defaults.set(Date().timeIntervalSince1970, forKey: autoLockTimestampKey)
-
-        guard isOnboarded, isAuthenticated else { return }
-        if autoLockDelaySeconds == 0 {
-            isAuthenticated = false
-        }
-    }
-
-    private func applyAutoLockIfNeededOnResume() {
-        guard isOnboarded, isAuthenticated else { return }
-        guard let delay = autoLockDelaySeconds else { return }
-        // Immediate auto-lock is already enforced on background transition.
-        // Avoid re-locking on transient active callbacks (e.g. Face ID prompt dismissal).
-        guard delay > 0 else {
-            AppState.markUserActivity(force: true)
-            return
-        }
-
-        let defaults = UserDefaults.standard
-        let backgroundTimestamp = defaults.double(forKey: autoLockTimestampKey)
-        guard backgroundTimestamp > 0 else { return }
-
-        let elapsed = Date().timeIntervalSince1970 - backgroundTimestamp
-        if elapsed >= delay {
-            isAuthenticated = false
-        } else {
-            AppState.markUserActivity(force: true)
-        }
-    }
-
-    private var autoLockDelaySeconds: TimeInterval? {
-        let idx = UserDefaults.standard.integer(forKey: "shield.autoLock")
-        switch idx {
-        case 0: return 0
-        case 1: return 60
-        case 2: return 5 * 60
-        case 3: return 15 * 60
-        case 4: return nil
-        default: return 0
-        }
-    }
-
-    private func startInactivityMonitoring() {
-        inactivityCheckCancellable = Timer.publish(every: 15, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.applyForegroundInactivityLockIfNeeded()
-            }
-    }
-
-    private func applyForegroundInactivityLockIfNeeded() {
-        guard currentScenePhase == .active else { return }
-        guard isOnboarded, isAuthenticated else { return }
-        // Keep foreground sessions uninterrupted. Auto-lock is enforced on background/resume.
-        // This prevents lock-screen interruptions while actively reviewing or editing documents.
-        Self.markUserActivity(force: true)
+        session.handleScenePhaseChange(phase)
     }
 
     // MARK: - Persistence (private)
+
+    private func bindSession() {
+        session.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
 
     private static var appSupportDir: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -463,9 +549,10 @@ final class AppState: ObservableObject {
         appSupportDir.appendingPathComponent("telemetry.ndjson")
     }
 
-    private static func createTelemetryFile(at url: URL) -> FileHandle? {
-        FileManager.default.createFile(atPath: url.path, contents: nil)
-        return FileHandle(forWritingAtPath: url.path)
+    private static func sanitizedTelemetryValue(_ value: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "._,-"))
+        let scalars = value.unicodeScalars.filter { allowed.contains($0) }.prefix(64)
+        return String(String.UnicodeScalarView(scalars))
     }
 
     static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
@@ -517,13 +604,21 @@ final class AppState: ObservableObject {
     private static func loadDocuments() -> [DocumentItem] {
         if let data = try? SecureFileStore.shared.read(from: docsURL),
            let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) {
-            return docs
+            return docs.map { document in
+                var migrated = document
+                migrated.migrateToCurrentSchema()
+                return migrated
+            }
         }
         guard let data = try? Data(contentsOf: docsURL),
               let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) else {
             return []
         }
-        return docs
+        return docs.map { document in
+            var migrated = document
+            migrated.migrateToCurrentSchema()
+            return migrated
+        }
     }
 
     private static func loadCustomCategories() -> [UserCategory] {
@@ -539,17 +634,34 @@ final class AppState: ObservableObject {
         return []
     }
 
-    private func moveAssets(for doc: inout DocumentItem, toVault: Bool) {
-        let imageFileNames = Set((doc.pageFileNames ?? []) + [doc.imageFileName].compactMap { $0 })
-        for fileName in imageFileNames {
-            let from = AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted)
-            let to = AppState.resolveImageURL(fileName: fileName, isVaulted: toVault)
-            try? SecureFileStore.shared.moveFile(from: from, to: to)
+    private func relocateAssetsTransactionally(for doc: DocumentItem, toVault: Bool) -> Bool {
+        var pairs = doc.allImageFileNames.map { fileName in
+            (
+                AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted),
+                AppState.resolveImageURL(fileName: fileName, isVaulted: toVault)
+            )
         }
         if let sourceFileName = doc.sourceFileName {
-            let from = AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted)
-            let to = AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: toVault)
-            try? SecureFileStore.shared.moveFile(from: from, to: to)
+            pairs.append((
+                AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted),
+                AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: toVault)
+            ))
+        }
+
+        var createdDestinations: [URL] = []
+        do {
+            for (source, destination) in pairs {
+                guard FileManager.default.fileExists(atPath: source.path) else { continue }
+                try SecureFileStore.shared.copyFile(from: source, to: destination)
+                createdDestinations.append(destination)
+            }
+            for (source, _) in pairs {
+                SecureFileStore.shared.removeFile(at: source)
+            }
+            return true
+        } catch {
+            createdDestinations.forEach(SecureFileStore.shared.removeFile(at:))
+            return false
         }
     }
 }
@@ -561,17 +673,18 @@ enum SecureFileStoreError: Error {
     case unexpectedKeyData
 }
 
-final class SecureFileStore {
+final class SecureFileStore: Sendable {
     static let shared = SecureFileStore()
 
     private let service = "com.romerodev.shield.secure-store"
-    private let account = "master-key"
+    private let libraryKeyAccount = "master-key"
+    private let vaultKeyAccount = "vault-master-key"
     private let magicHeader = "SHLD1".data(using: .utf8)!
 
     private init() {}
 
     func write(_ data: Data, to url: URL) throws {
-        let encrypted = magicHeader + (try encrypt(data))
+        let encrypted = magicHeader + (try encrypt(data, for: url))
         try encrypted.write(to: url, options: .atomic)
         try FileManager.default.setAttributes(
             [.protectionKey: FileProtectionType.complete],
@@ -584,7 +697,15 @@ final class SecureFileStore {
         guard data.starts(with: magicHeader) else {
             return data
         }
-        return try decrypt(Data(data.dropFirst(magicHeader.count)))
+        let ciphertext = Data(data.dropFirst(magicHeader.count))
+        do {
+            return try decrypt(ciphertext, for: url)
+        } catch {
+            // Existing vault files from schema v1 used the library key. Read
+            // them once so the next move/write transparently re-encrypts them.
+            guard isVaultURL(url) else { throw error }
+            return try decrypt(ciphertext, account: libraryKeyAccount)
+        }
     }
 
     func loadImage(from url: URL) -> UIImage? {
@@ -601,34 +722,49 @@ final class SecureFileStore {
 
     func moveFile(from sourceURL: URL, to destinationURL: URL) throws {
         guard sourceURL != destinationURL else { return }
-        let dir = destinationURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.removeItem(at: destinationURL)
-        }
-        if FileManager.default.fileExists(atPath: sourceURL.path) {
-            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
-            try FileManager.default.setAttributes(
-                [.protectionKey: FileProtectionType.complete],
-                ofItemAtPath: destinationURL.path
-            )
-        }
+        guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
+        let plaintext = try read(from: sourceURL)
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try write(plaintext, to: destinationURL)
+        try FileManager.default.removeItem(at: sourceURL)
     }
 
-    private func encrypt(_ data: Data) throws -> Data {
-        let sealedBox = try AES.GCM.seal(data, using: symmetricKey())
+    func copyFile(from sourceURL: URL, to destinationURL: URL) throws {
+        guard sourceURL != destinationURL else { return }
+        guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
+        let plaintext = try read(from: sourceURL)
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try write(plaintext, to: destinationURL)
+    }
+
+    private func encrypt(_ data: Data, for url: URL) throws -> Data {
+        let sealedBox = try AES.GCM.seal(data, using: symmetricKey(for: url))
         guard let combined = sealedBox.combined else {
             throw SecureFileStoreError.invalidCiphertext
         }
         return combined
     }
 
-    private func decrypt(_ data: Data) throws -> Data {
-        let box = try AES.GCM.SealedBox(combined: data)
-        return try AES.GCM.open(box, using: symmetricKey())
+    private func decrypt(_ data: Data, for url: URL) throws -> Data {
+        try decrypt(data, account: keyAccount(for: url))
     }
 
-    private func symmetricKey() throws -> SymmetricKey {
+    private func decrypt(_ data: Data, account: String) throws -> Data {
+        let box = try AES.GCM.SealedBox(combined: data)
+        return try AES.GCM.open(box, using: symmetricKey(account: account))
+    }
+
+    private func symmetricKey(for url: URL) throws -> SymmetricKey {
+        try symmetricKey(account: keyAccount(for: url))
+    }
+
+    private func symmetricKey(account: String) throws -> SymmetricKey {
         if let stored = try KeychainStore.read(service: service, account: account) {
             return SymmetricKey(data: stored)
         }
@@ -639,9 +775,19 @@ final class SecureFileStore {
             keyData,
             service: service,
             account: account,
-            accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            accessible: account == vaultKeyAccount
+                ? kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
+                : kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         )
         return key
+    }
+
+    private func keyAccount(for url: URL) -> String {
+        isVaultURL(url) ? vaultKeyAccount : libraryKeyAccount
+    }
+
+    private func isVaultURL(_ url: URL) -> Bool {
+        url.pathComponents.contains("vault-images") || url.pathComponents.contains("vault-sources")
     }
 }
 
