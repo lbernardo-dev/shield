@@ -245,7 +245,7 @@ private struct CloudProviderBrowserView: View {
     @State private var folders: [CloudRemoteItem] = []
     @State private var items: [CloudRemoteItem] = []
     @State private var isLoading = true
-    @State private var errorMessage: String?
+    @State private var failure: CloudProviderFailure?
 
     private var language: AppLanguage { LanguageManager.shared.current }
 
@@ -254,16 +254,13 @@ private struct CloudProviderBrowserView: View {
             Group {
                 if isLoading {
                     ProgressView(language == .es ? "Conectando…" : "Connecting…")
-                } else if let errorMessage {
-                    ContentUnavailableView {
-                        Label(provider.displayName, systemImage: "exclamationmark.triangle")
-                    } description: {
-                        Text(errorMessage)
-                    } actions: {
-                        Button(language == .es ? "Reintentar" : "Try again") {
-                            Task { await loadCurrentFolder(forceReconnect: true) }
-                        }
-                    }
+                } else if let failure {
+                    CloudConnectionRecoveryView(
+                        provider: provider,
+                        failure: failure,
+                        onRetry: { Task { await loadCurrentFolder(forceReconnect: true) } },
+                        onChooseAnotherProvider: { dismiss() }
+                    )
                 } else if items.isEmpty {
                     ContentUnavailableView(
                         language == .es ? "No hay documentos compatibles" : "No compatible documents",
@@ -337,7 +334,7 @@ private struct CloudProviderBrowserView: View {
 
     private func loadCurrentFolder(forceReconnect: Bool = false) async {
         isLoading = true
-        errorMessage = nil
+        failure = nil
         do {
             if forceReconnect { manager.disconnect(provider) }
             if !manager.isConnected(provider) {
@@ -345,7 +342,7 @@ private struct CloudProviderBrowserView: View {
             }
             items = try await manager.listItems(for: provider, folder: folders.last)
         } catch {
-            errorMessage = error.localizedDescription
+            failure = CloudProviderFailure(error)
         }
         isLoading = false
     }
@@ -361,12 +358,179 @@ private struct CloudProviderBrowserView: View {
             let url = try await manager.download(item, from: provider)
             onImport(url)
         } catch {
-            errorMessage = error.localizedDescription
+            failure = CloudProviderFailure(error)
             isLoading = false
         }
     }
 
     private func fileIcon(_ item: CloudRemoteItem) -> String {
         item.name.lowercased().hasSuffix(".pdf") ? "doc.richtext.fill" : "photo.fill"
+    }
+}
+
+private enum CloudProviderFailure: Equatable {
+    case cancelled
+    case unavailable
+    case sessionExpired
+    case unsupportedFile
+    case connection
+
+    init(_ error: Error) {
+        guard let cloudError = error as? DirectCloudError else {
+            self = .connection
+            return
+        }
+        switch cloudError {
+        case .authorizationCancelled:
+            self = .cancelled
+        case .providerNotConfigured:
+            self = .unavailable
+        case .missingRefreshToken:
+            self = .sessionExpired
+        case .unsupportedFile:
+            self = .unsupportedFile
+        case .invalidAuthorizationResponse, .invalidServerResponse:
+            self = .connection
+        }
+    }
+
+    var messageKey: String {
+        switch self {
+        case .cancelled: "cloud_cancelled_message"
+        case .unavailable: "cloud_unavailable_message"
+        case .sessionExpired: "cloud_session_expired_message"
+        case .unsupportedFile: "cloud_unsupported_file_message"
+        case .connection: "cloud_connection_problem_message"
+        }
+    }
+}
+
+private struct CloudConnectionRecoveryView: View {
+    let provider: ExternalStorageProvider
+    let failure: CloudProviderFailure
+    let onRetry: () -> Void
+    let onChooseAnotherProvider: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isFloating = false
+
+    private var isCancellation: Bool { failure == .cancelled }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 36)
+
+            illustration
+                .padding(.bottom, 28)
+
+            Text(LanguageManager.shared.common(
+                isCancellation ? "cloud_cancelled_title" : "cloud_connection_problem_title"
+            ))
+            .font(.system(size: 24, weight: .bold, design: .rounded))
+            .foregroundStyle(ShieldTheme.textPrimary)
+            .multilineTextAlignment(.center)
+
+            Text(LanguageManager.shared.common(failure.messageKey))
+                .font(.system(size: 15, weight: .regular))
+                .foregroundStyle(ShieldTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.top, 9)
+                .padding(.horizontal, 30)
+
+            VStack(spacing: 12) {
+                Button(action: onRetry) {
+                    Label(
+                        LanguageManager.shared.common("cloud_retry_connection"),
+                        systemImage: "arrow.clockwise"
+                    )
+                    .font(.system(size: 15, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(ShieldTheme.accent)
+                    .foregroundStyle(ShieldTheme.accentText)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("cloud.recovery.retry")
+
+                Button(action: onChooseAnotherProvider) {
+                    Text(LanguageManager.shared.common("cloud_choose_provider"))
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .foregroundStyle(ShieldTheme.textSecondary)
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("cloud.recovery.chooseProvider")
+            }
+            .padding(.top, 28)
+            .padding(.horizontal, 28)
+
+            Spacer(minLength: 28)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RadialGradient(
+                colors: [Color(hex: provider.iconColor).opacity(0.10), .clear],
+                center: .center,
+                startRadius: 12,
+                endRadius: 260
+            )
+            .ignoresSafeArea()
+        }
+        .onAppear {
+            guard !reduceMotion else { return }
+            isFloating = true
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(isCancellation ? "cloud.recovery.cancelled" : "cloud.recovery.problem")
+    }
+
+    private var illustration: some View {
+        ZStack {
+            Circle()
+                .fill(Color(hex: provider.iconColor).opacity(0.10))
+                .frame(width: 136, height: 136)
+
+            Circle()
+                .stroke(Color(hex: provider.iconColor).opacity(0.22), lineWidth: 1)
+                .frame(width: 112, height: 112)
+
+            Circle()
+                .fill(Color(hex: provider.iconColor).opacity(0.7))
+                .frame(width: 7, height: 7)
+                .offset(x: -58, y: -35)
+
+            Circle()
+                .fill(ShieldTheme.accent.opacity(0.8))
+                .frame(width: 5, height: 5)
+                .offset(x: 61, y: 29)
+
+            RoundedRectangle(cornerRadius: 22)
+                .fill(Color(hex: provider.iconColor))
+                .frame(width: 76, height: 76)
+                .shadow(color: Color(hex: provider.iconColor).opacity(0.28), radius: 18, y: 10)
+                .overlay {
+                    Image(systemName: provider.icon)
+                        .font(.system(size: 31, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+            Image(systemName: isCancellation ? "arrow.uturn.backward.circle.fill" : "wifi.exclamationmark.circle.fill")
+                .font(.system(size: 29, weight: .bold))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(ShieldTheme.accentText, ShieldTheme.accent)
+                .background(Circle().fill(ShieldTheme.surface1).padding(2))
+                .offset(x: 36, y: 36)
+                .symbolEffect(.bounce, value: isFloating)
+        }
+        .offset(y: isFloating ? -5 : 5)
+        .scaleEffect(isFloating ? 1.02 : 0.98)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            value: isFloating
+        )
+        .accessibilityHidden(true)
     }
 }

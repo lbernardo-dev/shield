@@ -965,6 +965,69 @@
         }
       }
     },
+    "cloud_cancelled_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Connection paused" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Conexión pausada" } }
+      }
+    },
+    "cloud_cancelled_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No changes were made. You can reconnect whenever you're ready." } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se realizó ningún cambio. Puedes volver a conectar cuando quieras." } }
+      }
+    },
+    "cloud_connection_problem_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "We couldn't connect" } },
+        "es": { "stringUnit": { "state": "translated", "value": "No pudimos conectar" } }
+      }
+    },
+    "cloud_connection_problem_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Check your connection and try again. Your documents remain safe." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comprueba tu conexión y vuelve a intentarlo. Tus documentos siguen seguros." } }
+      }
+    },
+    "cloud_unavailable_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This provider isn't available right now. Choose another one or try again later." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Este proveedor no está disponible ahora. Elige otro o inténtalo más tarde." } }
+      }
+    },
+    "cloud_session_expired_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Your session has expired. Reconnect securely to continue." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tu sesión ha caducado. Vuelve a conectar de forma segura para continuar." } }
+      }
+    },
+    "cloud_unsupported_file_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Shield can import PDF documents and compatible images. Choose another file." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Shield puede importar documentos PDF e imágenes compatibles. Elige otro archivo." } }
+      }
+    },
+    "cloud_retry_connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Connect again" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Volver a conectar" } }
+      }
+    },
+    "cloud_choose_provider": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Choose another provider" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Elegir otro proveedor" } }
+      }
+    },
     "common_language_en": {
       "extractionState": "manual",
       "localizations": {
