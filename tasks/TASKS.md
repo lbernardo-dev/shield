@@ -391,10 +391,10 @@
    Id: 36-real-cloud-navigation
    Scope: Corregir todos los botones Volver y sustituir cualquier integración de almacenamiento simulada por flujos reales, completos y verificables
    Files: Shield/ ShieldTests/ ShieldUITests/
-   Note: Reproduciendo navegación y trazando I/O real por proveedor
+   Note: User explicitly removed OneDrive from current scope; retain and finish real Google Drive and Dropbox only
    Detail: tasks/details/36-real-cloud-navigation.md
    Claimed by: CODEX
-   Claimed at: 2026-07-17T03:45:30Z
+   Claimed at: 2026-07-17T06:16:50Z
 
 37. tab-bar-layout-and-size
    Id: 37-tab-bar-layout-and-size
@@ -411,8 +411,32 @@
    Id: 38-tab-bar-height-reduction
    Scope: UI
    Files: Shield/Views/Components/TabBar.swift
-   Note: Reducing tab bar height and shifting it down by making HStack ignore safe area bottom
+   Note: Tab bar fitted cleanly to bottom with ignoresSafeArea on safeAreaInset parent. Buttons padded to 16pt (safe area) / 6pt (non-safe area) to reduce height. UI tests updated and verified.
    Detail: tasks/details/38-tab-bar-height-reduction.md
    Claimed by: CODEX
    Claimed at: 2026-07-17T06:00:51Z
+   Done by: CODEX
+   Done at: 2026-07-17T06:20:13Z
+
+39. paywall-ux-pricing-cards
+   Id: 39-paywall-ux-pricing-cards
+   Scope: UI
+   Files: Shield/Views/Paywall/PaywallView.swift,Shield/Views/Onboarding/OnboardingSteps.swift
+   Note: Redesigned PlanRow with spacious vertical stacked layout, separate badges row, custom radio selection animation, floating recommended badge for Annual plan, and increased layout spacing. Verified build and tests.
+   Detail: tasks/details/39-paywall-ux-pricing-cards.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-17T06:18:43Z
+   Done by: CODEX
+   Done at: 2026-07-17T06:19:38Z
+
+40. cloud-cancellation-ux
+   Id: 40-cloud-cancellation-ux
+   Scope: UX
+   Files: Shield/Cloud/ExternalStorageManager.swift,Shield/Localization/Strings/Common.xcstrings
+   Note: Implemented provider-branded animated cancellation/recovery view, localized friendly failures, Reduce Motion support; Debug simulator build passed and both recovery actions manually verified on iPhone 16 iOS 18.6
+   Detail: tasks/details/40-cloud-cancellation-ux.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-17T06:25:53Z
+   Done by: CODEX
+   Done at: 2026-07-17T06:30:33Z
 

@@ -176,13 +176,13 @@ struct PaywallView: View {
     // MARK: - Plan selector
 
     private var planSelector: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             if pm.products.isEmpty {
                 // Loading skeleton
                 ForEach(0..<3, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(ShieldTheme.surface2)
-                        .frame(height: 72)
+                        .frame(height: 84)
                         .opacity(0.5)
                 }
             } else {
@@ -335,12 +335,16 @@ struct PlanRow: View {
     let onTap: () -> Void
 
     var body: some View {
+        let isAnnual = ShieldProduct(rawValue: product.id) == .annual
+        let hasTrial = isAnnual && product.subscription?.introductoryOffer != nil
+        let hasBadges = hasTrial || savingsLabel != nil
+
         Button(action: onTap) {
-            HStack(spacing: 14) {
-                // Radio
+            HStack(spacing: 16) {
+                // Radio Circle
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine, lineWidth: isSelected ? 2 : 1)
+                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary.opacity(0.4), lineWidth: isSelected ? 2 : 1.5)
                         .frame(width: 20, height: 20)
                     if isSelected {
                         Circle()
@@ -348,59 +352,81 @@ struct PlanRow: View {
                             .frame(width: 10, height: 10)
                     }
                 }
+                .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(planName)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(ShieldTheme.textPrimary)
-                        if ShieldProduct(rawValue: product.id) == .annual,
-                           product.subscription?.introductoryOffer != nil {
-                            Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
-                                .background(Color(hex: "30D158"))
-                                .clipShape(Capsule())
-                        }
-                        if let s = savingsLabel {
-                            Text(s)
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(ShieldTheme.accentText)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
-                                .background(ShieldTheme.accent)
-                                .clipShape(Capsule())
-                        }
-                    }
+                // Content details
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(planName)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(ShieldTheme.textPrimary)
+                    
                     Text(planSubtitle)
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
+
+                    if hasBadges {
+                        HStack(spacing: 6) {
+                            if hasTrial {
+                                Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Color(hex: "30D158"))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color(hex: "30D158").opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                            if let s = savingsLabel {
+                                Text(s)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(ShieldTheme.accent)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(ShieldTheme.accent.opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.top, 2)
+                    }
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 1) {
+                // Pricing
+                VStack(alignment: .trailing, spacing: 2) {
                     Text(product.displayPrice)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
                     Text(periodLabel)
-                        .font(.system(size: 11))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
+            .padding(.vertical, 12)
+            .frame(height: 96)
+            .background(isSelected ? ShieldTheme.accent.opacity(0.06) : ShieldTheme.surface2)
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
-                            lineWidth: isSelected ? 1.5 : 0.5)
+                            lineWidth: isSelected ? 2 : 0.8)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: isSelected ? ShieldTheme.accent.opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(ScaleButtonStyle())
+        .overlay(alignment: .topTrailing) {
+            if isAnnual {
+                Text(LanguageManager.shared.paywall("paywall_best_value").uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(ShieldTheme.accentText)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(ShieldTheme.accent)
+                    .clipShape(Capsule())
+                    .offset(y: -8)
+                    .padding(.trailing, 16)
+            }
+        }
     }
 
     private var planName: String {

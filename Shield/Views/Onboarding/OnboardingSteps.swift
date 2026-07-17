@@ -1276,12 +1276,12 @@ struct OBPaywallView: View {
     }
 
     private var planSelector: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             if pm.products.isEmpty {
                 ForEach(0..<3, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(ShieldTheme.surface2)
-                        .frame(height: 72)
+                        .frame(height: 84)
                         .redacted(reason: .placeholder)
                 }
             } else {
