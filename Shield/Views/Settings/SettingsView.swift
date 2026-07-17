@@ -1,18 +1,18 @@
 import SwiftUI
 import MessageUI
-import StoreKit
 
 // MARK: - SettingsView
 
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.colorScheme) private var scheme
-    @Environment(\.requestReview) private var requestReview
+    @Environment(\.openURL) private var openURL
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
     @State private var showMailCompose = false
     @State private var showSupportUnavailable = false
+    @State private var showRatingUnavailable = false
 
     private var strings: LanguageManager { .shared }
 
@@ -85,6 +85,7 @@ struct SettingsView: View {
                                 color: Color(hex: "30D158"),
                                 title: strings.settings("settings_send_feedback"),
                                 subtitle: strings.settings("settings_send_feedback_subtitle"),
+                                accessibilityIdentifier: "settings.action.sendFeedback",
                                 action: sendFeedback
                             )
                             SettingsRowDivider()
@@ -93,7 +94,8 @@ struct SettingsView: View {
                                 color: Color(hex: "FFD60A"),
                                 title: strings.settings("settings_rate_app"),
                                 subtitle: strings.settings("settings_rate_app_subtitle"),
-                                action: { requestReview() }
+                                accessibilityIdentifier: "settings.action.rateApp",
+                                action: openRatingPage
                             )
                         }
 
@@ -152,6 +154,14 @@ struct SettingsView: View {
             Button(strings.common("common_ok"), role: .cancel) {}
         } message: {
             Text(strings.settings("settings_support_unavailable_message"))
+        }
+        .alert(
+            strings.settings("settings_rating_unavailable_title"),
+            isPresented: $showRatingUnavailable
+        ) {
+            Button(strings.common("common_ok"), role: .cancel) {}
+        } message: {
+            Text(strings.settings("settings_rating_unavailable_message"))
         }
     }
 
@@ -288,7 +298,7 @@ struct SettingsView: View {
         case .subscriptionTerms:
             SettingsArticleView(article: .subscriptionTerms)
         case .support:
-            SupportSettingsView(onSendFeedback: sendFeedback, onRate: { requestReview() })
+            SupportSettingsView(onSendFeedback: sendFeedback, onRate: openRatingPage)
         case .faq:
             FAQSettingsView()
         #if DEBUG
@@ -315,10 +325,47 @@ struct SettingsView: View {
             showSupportUnavailable = true
             return
         }
-        let subject = strings.settings("settings_support_subject")
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        guard let url = URL(string: "mailto:\(email)?subject=\(subject)") else { return }
-        UIApplication.shared.open(url)
+        guard let url = SettingsSupportConfiguration.feedbackURL(
+            recipient: email,
+            subject: strings.settings("settings_support_subject"),
+            body: strings.settings("settings_support_body")
+        ) else {
+            showSupportUnavailable = true
+            return
+        }
+
+        openURL(url) { accepted in
+            guard !accepted else { return }
+            openSupportPageFallback()
+        }
+    }
+
+    private func openSupportPageFallback() {
+        let supportURL = ShieldPublicPage.support.localizedURL(for: appState.language)
+        openURL(supportURL) { accepted in
+            if !accepted { showSupportUnavailable = true }
+        }
+    }
+
+    private func openRatingPage() {
+        guard let nativeURL = SettingsStoreConfiguration.nativeReviewURL else {
+            openRatingWebFallback()
+            return
+        }
+        openURL(nativeURL) { accepted in
+            guard !accepted else { return }
+            openRatingWebFallback()
+        }
+    }
+
+    private func openRatingWebFallback() {
+        guard let webURL = SettingsStoreConfiguration.webReviewURL else {
+            showRatingUnavailable = true
+            return
+        }
+        openURL(webURL) { accepted in
+            if !accepted { showRatingUnavailable = true }
+        }
     }
 }
 
@@ -339,10 +386,65 @@ enum SettingsRoute: Hashable {
     #if DEBUG
     case developer
     #endif
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .appPreferences: "settings.route.appPreferences"
+        case .security: "settings.route.security"
+        case .cloud: "settings.route.cloud"
+        case .export: "settings.route.export"
+        case .information: "settings.route.information"
+        case .whatsNew: "settings.route.whatsNew"
+        case .privacy: "settings.route.privacy"
+        case .terms: "settings.route.terms"
+        case .subscriptionTerms: "settings.route.subscriptionTerms"
+        case .support: "settings.route.support"
+        case .faq: "settings.route.faq"
+        #if DEBUG
+        case .developer: "settings.route.developer"
+        #endif
+        }
+    }
 }
 
 enum SettingsSupportConfiguration {
     static let email: String? = "romerodev.app+shield@gmail.com"
+
+    static func feedbackURL(recipient: String, subject: String, body: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = recipient
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: subject),
+            URLQueryItem(name: "body", value: body)
+        ]
+        return components.url
+    }
+}
+
+enum SettingsStoreConfiguration {
+    private static var appID: String? {
+        Bundle.main.object(forInfoDictionaryKey: "ShieldAppStoreID") as? String
+    }
+
+    static var nativeReviewURL: URL? {
+        guard let appID else { return nil }
+        return reviewURL(appID: appID, scheme: "itms-apps")
+    }
+
+    static var webReviewURL: URL? {
+        guard let appID else { return nil }
+        return reviewURL(appID: appID, scheme: "https")
+    }
+
+    static func reviewURL(appID: String, scheme: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = scheme
+        components.host = "apps.apple.com"
+        components.path = "/app/id\(appID)"
+        components.queryItems = [URLQueryItem(name: "action", value: "write-review")]
+        return components.url
+    }
 }
 
 // MARK: - Mail composer

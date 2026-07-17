@@ -286,6 +286,7 @@ struct SettingsNavigationRow: View {
             SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true)
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier(route.accessibilityIdentifier)
         .accessibilityHint(subtitle)
     }
 }
@@ -295,6 +296,7 @@ struct SettingsActionRow: View {
     let color: Color
     let title: String
     let subtitle: String
+    var accessibilityIdentifier: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -302,6 +304,7 @@ struct SettingsActionRow: View {
             SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true)
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier(accessibilityIdentifier ?? title)
         .accessibilityHint(subtitle)
     }
 }
@@ -1124,6 +1127,7 @@ struct SupportSettingsView: View {
                     color: Color(hex: "30D158"),
                     title: strings.settings("settings_send_feedback"),
                     subtitle: strings.settings("settings_send_feedback_subtitle"),
+                    accessibilityIdentifier: "settings.action.sendFeedback",
                     action: onSendFeedback
                 )
                 SettingsRowDivider()
@@ -1140,6 +1144,7 @@ struct SupportSettingsView: View {
                     color: Color(hex: "FFD60A"),
                     title: strings.settings("settings_rate_app"),
                     subtitle: strings.settings("settings_rate_app_subtitle"),
+                    accessibilityIdentifier: "settings.action.rateApp",
                     action: onRate
                 )
             }

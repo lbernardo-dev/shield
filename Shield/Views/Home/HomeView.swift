@@ -1349,6 +1349,8 @@ struct BatchRedactView: View {
                                  : LanguageManager.shared.common("common_select_all"))
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(ShieldTheme.accent)
+                                .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                                .contentShape(Rectangle())
                         }
                     }
 

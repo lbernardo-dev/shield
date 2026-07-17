@@ -56,9 +56,6 @@ struct ContentView: View {
         .simultaneousGesture(
             TapGesture().onEnded(noteUserActivity)
         )
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.2).onEnded { _ in noteUserActivity() }
-        )
     }
 
     private var sessionStage: SessionStage {
@@ -122,21 +119,16 @@ private struct AuthenticatedShellView: View {
                     tabContent
                 }
             } else {
-                ZStack(alignment: .bottom) {
-                    tabContent
-                        .ignoresSafeArea(edges: .bottom)
-
-                    VStack(spacing: 0) {
-                        Spacer()
+                tabContent
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
                         ShieldTabBar(
                             selected: $appState.activeTab,
                             lang: appState.language,
                             onScanTap: { appState.showCapture = true }
                         )
+                        .ignoresSafeArea(edges: .bottom)
                     }
-                    .ignoresSafeArea(edges: .bottom)
                 }
-            }
 
             if appState.showCapture {
                 CaptureView()
@@ -153,11 +145,6 @@ private struct AuthenticatedShellView: View {
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: appState.showCapture)
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.88), value: appState.selectedDoc?.id)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0).onChanged { _ in
-                AppState.markUserActivity()
-            }
-        )
     }
 
     @ViewBuilder

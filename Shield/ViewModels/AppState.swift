@@ -125,6 +125,9 @@ final class AppState: ObservableObject {
             documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
 
             switch ASOScreenshotMode.scene {
+            case "onboarding":
+                session.isOnboarded = false
+                session.isAuthenticated = false
             case "capture":
                 showCapture = true
             case "editor", "ocr", "export":

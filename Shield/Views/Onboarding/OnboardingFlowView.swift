@@ -76,6 +76,8 @@ struct OnboardingFlowView: View {
                 }
             }
             .frame(height: 3)
+            .padding(.vertical, 20.5)
+            .contentShape(Rectangle())
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(appState.language == .es ? "Progreso" : "Progress")
             .accessibilityValue(appState.language == .es

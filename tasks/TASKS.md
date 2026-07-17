@@ -374,3 +374,14 @@
    Claimed by: CODEX
    Claimed at: 2026-07-16T11:44:33Z
 
+35. interaction-navigation-audit
+   Id: 35-interaction-navigation-audit
+   Scope: Auditar y corregir botones de retroceso, envío de evacuación y demás acciones táctiles que requieran pulsación larga
+   Files: Shield/Views Shield/App ShieldUITests ShieldTests
+   Note: Eliminados LongPressGesture y DragGesture(minimumDistance: 0) globales que competían con botones; feedback crea mailto seguro y cae a soporte web; añadidos tests unitario y UI. Validado ShieldTests completo y regresión UI de toque/atrás/soporte en iOS 18.6 e iOS 26.5.
+   Detail: tasks/details/35-interaction-navigation-audit.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-16T12:04:47Z
+   Done by: CODEX
+   Done at: 2026-07-16T12:15:09Z
+

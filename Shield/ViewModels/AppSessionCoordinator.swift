@@ -23,8 +23,10 @@ final class AppSessionCoordinator: ObservableObject {
 
     private var inactivityCheckCancellable: AnyCancellable?
     private var currentScenePhase: ScenePhase = .active
+    private let bypassAutoLockForAutomation: Bool
 
     init(userDefaults: UserDefaults = .standard) {
+        bypassAutoLockForAutomation = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
         isOnboarded = userDefaults.bool(forKey: "shield.onboarded")
 
         if userDefaults.object(forKey: "shield.autoLock") == nil {
@@ -69,6 +71,7 @@ final class AppSessionCoordinator: ObservableObject {
     }
 
     private func markBackgroundTimestampAndLockIfImmediate() {
+        guard !bypassAutoLockForAutomation else { return }
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: autoLockTimestampKey)
 
         guard isOnboarded, isAuthenticated else { return }
@@ -78,6 +81,10 @@ final class AppSessionCoordinator: ObservableObject {
     }
 
     private func applyAutoLockIfNeededOnResume() {
+        guard !bypassAutoLockForAutomation else {
+            Self.markUserActivity(force: true)
+            return
+        }
         guard isOnboarded, isAuthenticated else { return }
         guard let delay = autoLockDelaySeconds else { return }
         guard delay > 0 else {
@@ -117,6 +124,7 @@ final class AppSessionCoordinator: ObservableObject {
     }
 
     private func applyForegroundInactivityLockIfNeeded() {
+        guard !bypassAutoLockForAutomation else { return }
         guard currentScenePhase == .active else { return }
         guard isOnboarded, isAuthenticated else { return }
         guard let delay = autoLockDelaySeconds else { return }

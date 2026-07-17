@@ -84,6 +84,34 @@ struct SecurityPrivacyTests {
         PINManager.clear()
         #expect(!PINManager.hasPIN)
     }
+
+    @Test("Feedback mail URL preserves recipient and safely encodes localized content")
+    func feedbackURLIsValid() throws {
+        let url = try #require(SettingsSupportConfiguration.feedbackURL(
+            recipient: "romerodev.app+shield@gmail.com",
+            subject: "Comentarios sobre Shield & privacidad",
+            body: "Describe aquí qué ocurrió.\nGracias."
+        ))
+        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+
+        #expect(components.scheme == "mailto")
+        #expect(components.path == "romerodev.app+shield@gmail.com")
+        #expect(components.queryItems?.first(where: { $0.name == "subject" })?.value == "Comentarios sobre Shield & privacidad")
+        #expect(components.queryItems?.first(where: { $0.name == "body" })?.value == "Describe aquí qué ocurrió.\nGracias.")
+    }
+
+    @Test("Rate action targets Shield's App Store review page")
+    func ratingURLsAreValid() throws {
+        let nativeURL = try #require(SettingsStoreConfiguration.reviewURL(appID: "6790398619", scheme: "itms-apps"))
+        let webURL = try #require(SettingsStoreConfiguration.reviewURL(appID: "6790398619", scheme: "https"))
+
+        #expect(nativeURL.scheme == "itms-apps")
+        #expect(webURL.scheme == "https")
+        #expect(nativeURL.absoluteString.contains("id6790398619"))
+        #expect(webURL.absoluteString.contains("id6790398619"))
+        #expect(URLComponents(url: nativeURL, resolvingAgainstBaseURL: false)?.queryItems?.first?.value == "write-review")
+        #expect(URLComponents(url: webURL, resolvingAgainstBaseURL: false)?.queryItems?.first?.value == "write-review")
+    }
 }
 
 private extension Optional {
