@@ -93,8 +93,9 @@ final class ShieldLaunchTests: XCTestCase {
 
             let navigationBar = app.navigationBars.firstMatch
             XCTAssertTrue(navigationBar.waitForExistence(timeout: 3), "No destination opened for \(identifier)")
-            let backButton = navigationBar.buttons.firstMatch
-            XCTAssertTrue(backButton.isHittable, "No back action for \(identifier)")
+            let backButton = app.buttons["settings.back"]
+            XCTAssertTrue(backButton.waitForExistence(timeout: 3), "No explicit back action for \(identifier)")
+            XCTAssertTrue(backButton.isHittable, "Back action is not hittable for \(identifier)")
             backButton.tap()
             XCTAssertTrue(app.staticTexts["Ajustes"].waitForExistence(timeout: 3))
         }

@@ -313,13 +313,17 @@ final class AppState: ObservableObject {
     // MARK: - Document CRUD
 
     func addDocument(_ doc: DocumentItem) {
-        documents.insert(doc, at: 0)
+        var document = doc
+        document.modifiedAt = Date()
+        documents.insert(document, at: 0)
         persistDocuments()
     }
 
     func updateDocument(_ doc: DocumentItem) {
         if let idx = documents.firstIndex(where: { $0.id == doc.id }) {
-            documents[idx] = doc
+            var document = doc
+            document.modifiedAt = Date()
+            documents[idx] = document
             persistDocuments()
         }
     }
@@ -333,6 +337,7 @@ final class AppState: ObservableObject {
         }
         documents.removeAll { $0.id == doc.id }
         persistDocuments()
+        CloudSyncManager.shared.scheduleRemoteDeletion(id: doc.id)
     }
 
     func toggleFavorite(_ doc: DocumentItem) {
@@ -353,6 +358,7 @@ final class AppState: ObservableObject {
     }
 
     func deleteAllDocuments() {
+        let deletedDocumentIDs = documents.map(\.id)
         for doc in documents {
             for fileName in doc.allImageFileNames {
                 SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
@@ -362,6 +368,29 @@ final class AppState: ObservableObject {
             }
         }
         documents.removeAll()
+        persistDocuments()
+        for id in deletedDocumentIDs {
+            CloudSyncManager.shared.scheduleRemoteDeletion(id: id)
+        }
+    }
+
+    func restoreCloudDocument(_ document: DocumentItem, assets: [CloudAssetPayload]) throws {
+        for asset in assets {
+            let destination: URL
+            switch asset.kind {
+            case .image:
+                destination = AppState.resolveImageURL(fileName: asset.fileName, isVaulted: document.isVaulted)
+            case .source:
+                destination = AppState.resolveSourceURL(fileName: asset.fileName, isVaulted: document.isVaulted)
+            }
+            try SecureFileStore.shared.write(asset.data, to: destination)
+        }
+        if let index = documents.firstIndex(where: { $0.id == document.id }) {
+            documents[index] = document
+        } else {
+            documents.append(document)
+            documents.sort { $0.date > $1.date }
+        }
         persistDocuments()
     }
 

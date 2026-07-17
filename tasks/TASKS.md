@@ -387,3 +387,32 @@
    Done by: CODEX
    Done at: 2026-07-16T12:15:09Z
 
+36. real-cloud-navigation
+   Id: 36-real-cloud-navigation
+   Scope: Corregir todos los botones Volver y sustituir cualquier integración de almacenamiento simulada por flujos reales, completos y verificables
+   Files: Shield/ ShieldTests/ ShieldUITests/
+   Note: Reproduciendo navegación y trazando I/O real por proveedor
+   Detail: tasks/details/36-real-cloud-navigation.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-17T03:45:30Z
+
+37. tab-bar-layout-and-size
+   Id: 37-tab-bar-layout-and-size
+   Scope: UI
+   Files: Shield/Views/Components/TabBar.swift,Shield/App/ContentView.swift
+   Note: Fixed footer tab bar height, lowered position, and increased scan button size to 72x72; build succeeds
+   Detail: tasks/details/37-tab-bar-layout-and-size.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-17T05:41:12Z
+   Done by: CODEX
+   Done at: 2026-07-17T05:57:13Z
+
+38. tab-bar-height-reduction
+   Id: 38-tab-bar-height-reduction
+   Scope: UI
+   Files: Shield/Views/Components/TabBar.swift
+   Note: Reducing tab bar height and shifting it down by making HStack ignore safe area bottom
+   Detail: tasks/details/38-tab-bar-height-reduction.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-17T06:00:51Z
+

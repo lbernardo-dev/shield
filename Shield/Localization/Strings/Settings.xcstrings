@@ -347,13 +347,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Securely sync your documents across all your Apple devices."
+            "value": "Back up and restore complete documents through your private iCloud database."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sincroniza tus documentos de forma segura en todos tus dispositivos Apple."
+            "value": "Guarda y restaura documentos completos mediante tu base privada de iCloud."
           }
         }
       }

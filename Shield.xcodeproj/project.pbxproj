@@ -39,6 +39,7 @@
 		A028 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F028 /* PrivacyInfo.xcprivacy */; };
 		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
 		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
+		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
 		A033 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* OnboardingFlowView.swift */; };
 		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
@@ -169,6 +170,7 @@
 		F028 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
+		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
 		F033 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 			children = (
 				F030 /* CloudSyncManager.swift */,
 				F031 /* ExternalStorageManager.swift */,
+				F060 /* DirectCloudStorageManager.swift */,
 			);
 			path = Cloud;
 			sourceTree = "<group>";
@@ -801,6 +804,7 @@
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
+				A060 /* DirectCloudStorageManager.swift in Sources */,
 				A033 /* OnboardingFlowView.swift in Sources */,
 				A034 /* OnboardingSteps.swift in Sources */,
 				A035 /* OnboardingState.swift in Sources */,

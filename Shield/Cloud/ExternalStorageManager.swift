@@ -37,17 +37,19 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
 }
 
 // MARK: - ExternalStoragePickerView
-// Cloud providers are exposed by their Files extensions. Shield never stores
-// provider credentials and receives only the security-scoped URL selected by
-// the user in the system document picker.
+// Direct providers authenticate with OAuth 2.0 + PKCE and browse their remote
+// APIs. Files remains a separate system File Provider integration.
 
 struct ExternalStoragePickerSheet: View {
     @StateObject private var pm = PremiumManager.shared
+    @ObservedObject private var cloudStorage = DirectCloudStorageManager.shared
     @Binding var isPresented: Bool
+    var initialProvider: ExternalStorageProvider? = nil
     var onImport: (URL) -> Void
 
     @State private var showDocPicker = false
     @State private var showPaywall = false
+    @State private var selectedProvider: ExternalStorageProvider?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -86,6 +88,11 @@ struct ExternalStoragePickerSheet: View {
         .background(ShieldTheme.surface1.ignoresSafeArea())
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
+        .onAppear {
+            if let initialProvider {
+                selectedProvider = initialProvider
+            }
+        }
         .sheet(isPresented: $showDocPicker) {
             FilesPickerView { url in
                 showDocPicker = false
@@ -97,6 +104,13 @@ struct ExternalStoragePickerSheet: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
+        }
+        .sheet(item: $selectedProvider) { provider in
+            CloudProviderBrowserView(provider: provider) { url in
+                selectedProvider = nil
+                isPresented = false
+                onImport(url)
+            }
         }
     }
 
@@ -143,17 +157,15 @@ struct ExternalStoragePickerSheet: View {
 
                 ShieldDivider().padding(.leading, 54)
 
-                // These shortcuts all open the system picker. iOS controls which
-                // provider is initially visible and which locations are enabled.
                 ForEach(ExternalStorageProvider.allCases) { provider in
                     providerRow(
                         icon: provider.icon,
                         color: provider.iconColor,
                         name: provider.displayName,
-                        subtitle: LanguageManager.shared.common("cloud_select_in_files"),
-                        isConnected: true
+                        subtitle: providerSubtitle(provider),
+                        isConnected: cloudStorage.isConnected(provider)
                     ) {
-                        showDocPicker = true
+                        selectedProvider = provider
                     }
                     if provider != ExternalStorageProvider.allCases.last {
                         ShieldDivider().padding(.leading, 54)
@@ -174,6 +186,15 @@ struct ExternalStoragePickerSheet: View {
             .padding(.horizontal, 24)
             .padding(.top, 12)
         }
+    }
+
+    private func providerSubtitle(_ provider: ExternalStorageProvider) -> String {
+        if !cloudStorage.isConfigured(provider) {
+            return LanguageManager.shared.common("cloud_configuration_required")
+        }
+        return cloudStorage.isConnected(provider)
+            ? LanguageManager.shared.common("cloud_connected")
+            : LanguageManager.shared.common("cloud_tap_to_connect")
     }
 
     @ViewBuilder
@@ -216,5 +237,140 @@ struct ExternalStoragePickerSheet: View {
             .padding(.vertical, 12)
         }
         .buttonStyle(ScaleButtonStyle())
+    }
+}
+
+private struct CloudProviderBrowserView: View {
+    let provider: ExternalStorageProvider
+    let onImport: (URL) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var manager = DirectCloudStorageManager.shared
+    @State private var folders: [CloudRemoteItem] = []
+    @State private var items: [CloudRemoteItem] = []
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+
+    private var language: AppLanguage { LanguageManager.shared.current }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if isLoading {
+                    ProgressView(language == .es ? "Conectando…" : "Connecting…")
+                } else if let errorMessage {
+                    ContentUnavailableView {
+                        Label(provider.displayName, systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(errorMessage)
+                    } actions: {
+                        Button(language == .es ? "Reintentar" : "Try again") {
+                            Task { await loadCurrentFolder(forceReconnect: true) }
+                        }
+                    }
+                } else if items.isEmpty {
+                    ContentUnavailableView(
+                        language == .es ? "No hay documentos compatibles" : "No compatible documents",
+                        systemImage: "folder"
+                    )
+                } else {
+                    List(items) { item in
+                        Button {
+                            Task { await open(item) }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: item.isFolder ? "folder.fill" : fileIcon(item))
+                                    .foregroundStyle(item.isFolder ? Color(hex: provider.iconColor) : ShieldTheme.accent)
+                                    .frame(width: 28)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.name)
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(2)
+                                    if let size = item.size, !item.isFolder {
+                                        Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Spacer()
+                                if item.isFolder {
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                            .contentShape(.rect)
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle(folders.last?.name ?? provider.displayName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if folders.isEmpty {
+                            dismiss()
+                        } else {
+                            folders.removeLast()
+                            Task { await loadCurrentFolder() }
+                        }
+                    } label: {
+                        Label(
+                            folders.isEmpty
+                                ? (language == .es ? "Cerrar" : "Close")
+                                : (language == .es ? "Volver" : "Back"),
+                            systemImage: folders.isEmpty ? "xmark" : "chevron.left"
+                        )
+                    }
+                    .accessibilityIdentifier("cloud.browser.back")
+                }
+                if manager.isConnected(provider) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(language == .es ? "Desconectar" : "Disconnect", role: .destructive) {
+                            manager.disconnect(provider)
+                            dismiss()
+                        }
+                    }
+                }
+            }
+        }
+        .task { await loadCurrentFolder() }
+    }
+
+    private func loadCurrentFolder(forceReconnect: Bool = false) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            if forceReconnect { manager.disconnect(provider) }
+            if !manager.isConnected(provider) {
+                try await manager.connect(provider)
+            }
+            items = try await manager.listItems(for: provider, folder: folders.last)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    private func open(_ item: CloudRemoteItem) async {
+        if item.isFolder {
+            folders.append(item)
+            await loadCurrentFolder()
+            return
+        }
+        isLoading = true
+        do {
+            let url = try await manager.download(item, from: provider)
+            onImport(url)
+        } catch {
+            errorMessage = error.localizedDescription
+            isLoading = false
+        }
+    }
+
+    private func fileIcon(_ item: CloudRemoteItem) -> String {
+        item.name.lowercased().hasSuffix(".pdf") ? "doc.richtext.fill" : "photo.fill"
     }
 }

@@ -841,6 +841,7 @@
         }
       }
     },
+    "cloud_configuration_required": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"OAuth configuration required"}},"es":{"stringUnit":{"state":"translated","value":"Requiere configuración OAuth"}}}},
     "common_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Selected"}},"es":{"stringUnit":{"state":"translated","value":"Seleccionado"}}}},
     "common_not_selected": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Not selected"}},"es":{"stringUnit":{"state":"translated","value":"No seleccionado"}}}},
     "common_enabled": {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Enabled"}},"es":{"stringUnit":{"state":"translated","value":"Activado"}}}},

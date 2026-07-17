@@ -408,6 +408,7 @@ private struct SettingsDetailScaffold<Content: View>: View {
     @ViewBuilder let content: Content
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dismiss) private var dismiss
 
     init(title: String, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
@@ -435,7 +436,19 @@ private struct SettingsDetailScaffold<Content: View>: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
+        .toolbarVisibility(.visible, for: .navigationBar)
         .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
+                }
+                .accessibilityIdentifier("settings.back")
+            }
+        }
     }
 }
 
@@ -801,7 +814,7 @@ struct CloudSettingsView: View {
             Task {
                 let changed = await cloud.setSyncEnabled(enabled)
                 if changed, enabled {
-                    await cloud.syncNow(documents: appState.documents)
+                    await cloud.syncNow(appState: appState)
                 } else if !changed {
                     await MainActor.run { isEnabled = !enabled }
                 }
@@ -823,7 +836,7 @@ struct CloudSettingsView: View {
     }
 
     private func syncNow() {
-        Task { await cloud.syncNow(documents: appState.documents) }
+        Task { await cloud.syncNow(appState: appState) }
     }
 }
 

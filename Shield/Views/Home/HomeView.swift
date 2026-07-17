@@ -7,12 +7,14 @@ struct HomeView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
     @ObservedObject private var cloud = CloudSyncManager.shared
+    @ObservedObject private var directCloud = DirectCloudStorageManager.shared
     @Environment(\.colorScheme) var scheme
 
     @State private var showAllDocs = false
     @State private var showFilters = false
     @State private var showPaywall = false
     @State private var showCloudImport = false
+    @State private var requestedCloudProvider: ExternalStorageProvider?
     @State private var showBatchRedact = false
     @FocusState private var searchFocused: Bool
 
@@ -67,7 +69,11 @@ struct HomeView: View {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade).environmentObject(appState)
         }
         .sheet(isPresented: $showCloudImport) {
-            ExternalStoragePickerSheet(isPresented: $showCloudImport) { url in
+            ExternalStoragePickerSheet(
+                isPresented: $showCloudImport,
+                initialProvider: requestedCloudProvider
+            ) { url in
+                requestedCloudProvider = nil
                 appState.showCapture = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     NotificationCenter.default.post(
@@ -467,10 +473,11 @@ struct HomeView: View {
                         statusText: providerStatusText(provider),
                         statusColor: providerStatusColor(provider),
                         isPro: true,
-                        isConnected: false,
+                        isConnected: directCloud.isConnected(provider),
                         showsDisclosureIndicator: true,
                         onTap: {
                             if !pm.isPro { showPaywall = true; return }
+                            requestedCloudProvider = provider
                             showCloudImport = true
                         }
                     )
@@ -601,11 +608,16 @@ struct HomeView: View {
     }
 
     private func providerStatusText(_ provider: ExternalStorageProvider) -> String {
-        LanguageManager.shared.home("home_select_in_files")
+        if !directCloud.isConfigured(provider) {
+            return LanguageManager.shared.common("cloud_configuration_required")
+        }
+        return directCloud.isConnected(provider)
+            ? LanguageManager.shared.common("cloud_connected")
+            : LanguageManager.shared.common("cloud_tap_to_connect")
     }
 
     private func providerStatusColor(_ provider: ExternalStorageProvider) -> Color {
-        ShieldTheme.tertiary(scheme)
+        directCloud.isConnected(provider) ? ShieldTheme.success : ShieldTheme.tertiary(scheme)
     }
 
     // MARK: - Vault

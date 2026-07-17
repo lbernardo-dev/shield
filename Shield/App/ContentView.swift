@@ -68,7 +68,7 @@ struct ContentView: View {
         appState.handleScenePhaseChange(newPhase)
 
         guard newPhase == .active, sessionStage == .ready else { return }
-        cloud.syncOnForeground(documents: appState.documents)
+        cloud.syncOnForeground(appState: appState)
     }
 
     private func noteUserActivity() {
@@ -126,9 +126,9 @@ private struct AuthenticatedShellView: View {
                             lang: appState.language,
                             onScanTap: { appState.showCapture = true }
                         )
-                        .ignoresSafeArea(edges: .bottom)
                     }
-                }
+                    .ignoresSafeArea(edges: .bottom)
+            }
 
             if appState.showCapture {
                 CaptureView()

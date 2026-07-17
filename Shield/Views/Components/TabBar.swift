@@ -47,6 +47,15 @@ struct ShieldTabBar: View {
     @Environment(\.colorScheme) var scheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
+    @MainActor
+    private var bottomPadding: CGFloat {
+        let scenes = UIApplication.shared.connectedScenes
+        let windowScene = scenes.first { $0.activationState == .foregroundActive } as? UIWindowScene
+            ?? scenes.first as? UIWindowScene
+        let bottom = windowScene?.windows.first(where: { $0.isKeyWindow })?.safeAreaInsets.bottom ?? 0
+        return bottom > 0 ? 16 : 6
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             // Library
@@ -60,16 +69,16 @@ struct ShieldTabBar: View {
                 ZStack {
                     Circle()
                         .fill(ShieldTheme.accent(scheme))
-                        .frame(width: 64, height: 64)
+                        .frame(width: 72, height: 72)
                         .shadow(color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.45 : 0.24), radius: 12, x: 0, y: 5)
                     Image(systemName: "camera.viewfinder")
-                        .font(.title2.weight(.semibold))
+                        .font(.system(size: 26, weight: .semibold))
                         .foregroundColor(ShieldTheme.accentText)
                 }
             }
             .buttonStyle(ScaleButtonStyle())
             .frame(maxWidth: .infinity)
-            .offset(y: -22)
+            .offset(y: -24)
             .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
             .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
 
@@ -80,8 +89,8 @@ struct ShieldTabBar: View {
             tabItem(.settings)
         }
         .padding(.horizontal, 8)
-        .padding(.top, 10)
-        .padding(.bottom, 4)
+        .padding(.top, 8)
+        .padding(.bottom, bottomPadding)
         .background(
             ZStack {
                 // Material blur

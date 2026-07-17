@@ -285,7 +285,7 @@ struct DocumentPageTransform: Codable, Equatable {
 // MARK: - DocumentItem
 
 struct DocumentItem: Identifiable, Codable {
-    static let currentSchemaVersion = 2
+    static let currentSchemaVersion = 3
 
     var schemaVersion: Int
     let id: String
@@ -294,6 +294,7 @@ struct DocumentItem: Identifiable, Codable {
     var category: DocumentCategory
     var customCategoryID: String?   // non-nil = user category overrides `category`
     var date: Date
+    var modifiedAt: Date
     var redactionCount: Int
     var isFavorite: Bool
     var isLocked: Bool
@@ -325,6 +326,7 @@ struct DocumentItem: Identifiable, Codable {
         case category
         case customCategoryID
         case date
+        case modifiedAt
         case redactionCount
         case isFavorite
         case isLocked
@@ -366,6 +368,7 @@ struct DocumentItem: Identifiable, Codable {
          category: DocumentCategory = .identity,
          customCategoryID: String? = nil,
          date: Date = Date(),
+         modifiedAt: Date = Date(),
          redactionCount: Int = 0,
          isFavorite: Bool = false,
          isLocked: Bool = false,
@@ -387,6 +390,7 @@ struct DocumentItem: Identifiable, Codable {
         self.category = category
         self.customCategoryID = customCategoryID
         self.date = date
+        self.modifiedAt = modifiedAt
         self.redactionCount = redactionCount
         self.isFavorite = isFavorite
         self.isLocked = isLocked
@@ -415,6 +419,7 @@ struct DocumentItem: Identifiable, Codable {
         category = try container.decodeIfPresent(DocumentCategory.self, forKey: .category) ?? .identity
         customCategoryID = try container.decodeIfPresent(String.self, forKey: .customCategoryID)
         date = try container.decodeIfPresent(Date.self, forKey: .date) ?? Date()
+        modifiedAt = try container.decodeIfPresent(Date.self, forKey: .modifiedAt) ?? date
         redactionCount = try container.decodeIfPresent(Int.self, forKey: .redactionCount) ?? 0
         isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
         isLocked = try container.decodeIfPresent(Bool.self, forKey: .isLocked) ?? false

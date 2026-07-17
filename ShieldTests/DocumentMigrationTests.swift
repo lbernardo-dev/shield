@@ -12,9 +12,11 @@ struct DocumentMigrationTests {
             cropLeft: 0.1,
             contrast: 1.25
         )
+        let modifiedAt = Date(timeIntervalSince1970: 1_700_000_000)
         let original = DocumentItem(
             kind: .photo,
             title: "Fixture",
+            modifiedAt: modifiedAt,
             imageFileName: "rendered.jpg",
             originalPageFileNames: ["original.jpg"],
             pageTransforms: [transform]
@@ -26,6 +28,7 @@ struct DocumentMigrationTests {
         #expect(decoded.schemaVersion == DocumentItem.currentSchemaVersion)
         #expect(decoded.originalPageFileNames == ["original.jpg"])
         #expect(decoded.pageTransforms == [transform])
+        #expect(decoded.modifiedAt == modifiedAt)
     }
 
     @Test("Legacy documents migrate without inventing an immutable original")
@@ -40,6 +43,7 @@ struct DocumentMigrationTests {
         object.removeValue(forKey: "schemaVersion")
         object.removeValue(forKey: "originalPageFileNames")
         object.removeValue(forKey: "pageTransforms")
+        object.removeValue(forKey: "modifiedAt")
         let legacyData = try JSONSerialization.data(withJSONObject: object)
 
         var decoded = try JSONDecoder().decode(DocumentItem.self, from: legacyData)
@@ -49,5 +53,6 @@ struct DocumentMigrationTests {
         #expect(decoded.schemaVersion == DocumentItem.currentSchemaVersion)
         #expect(decoded.originalPageFileNames == nil)
         #expect(decoded.pageTransforms == [.identity])
+        #expect(decoded.modifiedAt == decoded.date)
     }
 }
