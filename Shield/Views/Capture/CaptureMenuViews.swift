@@ -111,7 +111,7 @@ struct CaptureMenuView: View {
                             CaptureSecondarySourceCard(
                                 icon: "icloud.and.arrow.down.fill",
                                 title: LanguageManager.shared.capture("capture_from_cloud"),
-                                subtitle: "Google Drive, Dropbox, OneDrive",
+                                subtitle: "Google Drive, Dropbox",
                                 accent: Color(hex: "34D399"),
                                 action: onCloud
                             )

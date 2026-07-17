@@ -711,13 +711,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importing from Google Drive, Dropbox and OneDrive is available in Shield Pro."
+            "value": "Importing from Google Drive and Dropbox is available in Shield Pro."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar desde Google Drive, Dropbox y OneDrive está disponible en Shield Pro."
+            "value": "Importar desde Google Drive y Dropbox está disponible en Shield Pro."
           }
         }
       }

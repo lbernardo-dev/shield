@@ -6,7 +6,6 @@ import UniformTypeIdentifiers
 enum ExternalStorageProvider: String, CaseIterable, Identifiable {
     case googleDrive
     case dropbox
-    case oneDrive
 
     var id: String { rawValue }
 
@@ -14,7 +13,6 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "Google Drive"
         case .dropbox:     return "Dropbox"
-        case .oneDrive:    return "OneDrive"
         }
     }
 
@@ -22,7 +20,6 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "g.circle.fill"
         case .dropbox:     return "shippingbox.fill"
-        case .oneDrive:    return "cloud.fill"
         }
     }
 
@@ -30,7 +27,6 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "4285F4"
         case .dropbox:     return "0061FF"
-        case .oneDrive:    return "0078D4"
         }
     }
 

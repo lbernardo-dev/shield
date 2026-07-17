@@ -153,8 +153,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
             return try await listGoogleDrive(folderID: folder?.id, token: token)
         case .dropbox:
             return try await listDropbox(path: folder?.providerPath ?? "", token: token)
-        case .oneDrive:
-            return try await listOneDrive(folderID: folder?.id, token: token)
         }
     }
 
@@ -167,8 +165,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
             result = try await downloadGoogleDrive(item, token: token)
         case .dropbox:
             result = try await downloadDropbox(item, token: token)
-        case .oneDrive:
-            result = try await downloadOneDrive(item, token: token)
         }
 
         let directory = FileManager.default.temporaryDirectory
@@ -197,12 +193,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
                 clientID: string("ShieldDropboxAppKey"),
                 redirectURI: string("ShieldDropboxRedirectURI"),
                 callbackScheme: string("ShieldDropboxCallbackScheme")
-            )
-        case .oneDrive:
-            return CloudProviderConfiguration(
-                clientID: string("ShieldMicrosoftClientID"),
-                redirectURI: string("ShieldMicrosoftRedirectURI"),
-                callbackScheme: string("ShieldMicrosoftCallbackScheme")
             )
         }
     }
@@ -236,12 +226,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
             items += [
                 URLQueryItem(name: "scope", value: "files.metadata.read files.content.read"),
                 URLQueryItem(name: "token_access_type", value: "offline")
-            ]
-        case .oneDrive:
-            base = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
-            items += [
-                URLQueryItem(name: "scope", value: "offline_access Files.Read User.Read"),
-                URLQueryItem(name: "response_mode", value: "query")
             ]
         }
 
@@ -289,7 +273,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
         switch provider {
         case .googleDrive: endpoint = URL(string: "https://oauth2.googleapis.com/token")!
         case .dropbox: endpoint = URL(string: "https://api.dropboxapi.com/oauth2/token")!
-        case .oneDrive: endpoint = URL(string: "https://login.microsoftonline.com/common/oauth2/v2.0/token")!
         }
         let response: OAuthTokenResponse = try await formRequest(
             url: endpoint,
@@ -321,7 +304,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
         switch provider {
         case .googleDrive: endpoint = URL(string: "https://oauth2.googleapis.com/token")!
         case .dropbox: endpoint = URL(string: "https://api.dropboxapi.com/oauth2/token")!
-        case .oneDrive: endpoint = URL(string: "https://login.microsoftonline.com/common/oauth2/v2.0/token")!
         }
         let response: OAuthTokenResponse = try await formRequest(
             url: endpoint,
@@ -466,55 +448,6 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
         let argument = try JSONSerialization.data(withJSONObject: ["path": path])
         request.setValue(String(decoding: argument, as: UTF8.self), forHTTPHeaderField: "Dropbox-API-Arg")
         return (try await performDataRequest(request), item.name)
-    }
-
-    // MARK: OneDrive
-
-    private struct OneDriveListResponse: Decodable {
-        struct Item: Decodable {
-            let id: String
-            let name: String
-            let size: Int64?
-            let folder: Folder?
-            let file: FileFacet?
-            struct Folder: Decodable { let childCount: Int? }
-            struct FileFacet: Decodable { let mimeType: String? }
-        }
-        let value: [Item]
-        let nextLink: String?
-        enum CodingKeys: String, CodingKey {
-            case value
-            case nextLink = "@odata.nextLink"
-        }
-    }
-
-    private func listOneDrive(folderID: String?, token: String) async throws -> [CloudRemoteItem] {
-        var nextURL = URL(string: folderID.map {
-            "https://graph.microsoft.com/v1.0/me/drive/items/\($0)/children?$top=200"
-        } ?? "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=200")
-        var items: [CloudRemoteItem] = []
-        while let url = nextURL {
-            let response: OneDriveListResponse = try await authorizedJSON(url: url, token: token)
-            items += response.value.compactMap { item in
-                let folder = item.folder != nil
-                guard folder || Self.isSupportedFileName(item.name) else { return nil }
-                return CloudRemoteItem(
-                    id: item.id,
-                    name: item.name,
-                    isFolder: folder,
-                    mimeType: item.file?.mimeType,
-                    size: item.size,
-                    providerPath: nil
-                )
-            }
-            nextURL = response.nextLink.flatMap(URL.init(string:))
-        }
-        return Self.sorted(items)
-    }
-
-    private func downloadOneDrive(_ item: CloudRemoteItem, token: String) async throws -> (Data, String) {
-        let url = URL(string: "https://graph.microsoft.com/v1.0/me/drive/items/\(item.id)/content")!
-        return (try await authorizedData(url: url, token: token), item.name)
     }
 
     // MARK: Networking and persistence
