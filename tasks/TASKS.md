@@ -369,10 +369,12 @@
    Id: 34-release-candidate-upload
    Scope: Consolidar RC 1.0.0, archive/IPA, auditoría, upload/TestFlight y staging ASC sin omitir validaciones
    Files: Shield.xcodeproj Shield ShareExtension ShieldTests ShieldUITests metadata scripts Docs
-   Note: Preparando RC trazable, upload y staging ASC
+   Note: Build 100202607171 VALID y enlazado a 1.0.0; 0 bloqueos; no enviado a revision
    Detail: tasks/details/34-release-candidate-upload.md
    Claimed by: CODEX
    Claimed at: 2026-07-16T11:44:33Z
+   Done by: CODEX
+   Done at: 2026-07-17T03:36:12Z
 
 35. interaction-navigation-audit
    Id: 35-interaction-navigation-audit
