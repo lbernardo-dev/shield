@@ -27,7 +27,7 @@ enum ShieldPublicPage: String, CaseIterable, Sendable {
         case (.support, .en): path = "en/case-studies/shield/support/"
         case (.faq, .en): path = "en/case-studies/shield/faq/"
         }
-        return Self.baseURL.appending(path: path)
+        return URL(string: Self.baseURL.absoluteString + path)!
     }
 
     var compatibilityURL: URL {
@@ -40,7 +40,7 @@ enum ShieldPublicPage: String, CaseIterable, Sendable {
         case .support: path = "apps/shield/support/"
         case .faq: path = "apps/shield/faq/"
         }
-        return Self.baseURL.appending(path: path)
+        return URL(string: Self.baseURL.absoluteString + path)!
     }
 
     private static let baseURL = URL(string: "https://lbernardo-dev.github.io/apps/")!

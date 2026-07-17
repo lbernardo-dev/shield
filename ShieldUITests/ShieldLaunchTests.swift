@@ -208,12 +208,12 @@ final class ShieldLaunchTests: XCTestCase {
             }
             if element.exists {
                 if element.frame.minY < topThreshold {
-                    scrollView.swipeDown(velocity: .fast)
+                    scrollView.swipeDown()
                 } else {
-                    scrollView.swipeUp(velocity: .fast)
+                    scrollView.swipeUp()
                 }
             } else {
-                scrollView.swipeUp(velocity: .fast)
+                scrollView.swipeUp()
             }
             attempts += 1
         }
