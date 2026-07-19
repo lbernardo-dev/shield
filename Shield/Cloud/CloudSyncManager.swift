@@ -165,6 +165,7 @@ final class CloudSyncManager: ObservableObject {
     }
 
     func scheduleRemoteDeletion(id: String) {
+        guard isSyncEnabled else { return }
         var ids = pendingDeletionIDs
         ids.insert(id)
         UserDefaults.standard.set(Array(ids), forKey: pendingDeletionKey)

@@ -440,3 +440,12 @@
    Done by: CODEX
    Done at: 2026-07-17T06:30:33Z
 
+41. aso-app-store-connect
+   Id: 41-aso-app-store-connect
+   Scope: Investigación profunda de mercado, ASO profesional EN/ES y configuración integral de App Store Connect
+   Files: Docs/ APP_STORE_METADATA_DRAFT.md metadata/ screenshots/ tasks/
+   Note: Iniciando auditoría de producto, mercado, ASO EN/ES y App Store Connect
+   Detail: tasks/details/41-aso-app-store-connect.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T06:23:35Z
+

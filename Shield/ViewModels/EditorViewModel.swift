@@ -161,7 +161,7 @@ final class EditorViewModel: ObservableObject {
         if showSensitiveBanner {
             AppState.trackEvent("risk_detected", properties: [
                 "kind": doc.kind.rawValue,
-                "suggested_count": String(suggestions.count)
+                "count": String(suggestions.count)
             ])
         }
     }

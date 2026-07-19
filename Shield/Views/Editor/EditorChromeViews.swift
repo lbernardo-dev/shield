@@ -34,6 +34,9 @@ struct EditorDocumentMetaBar: View {
         if changeCount == 0 {
             return lang == .es ? "Sin cambios" : "No changes"
         }
+        if changeCount == 1 {
+            return lang == .es ? "1 cambio" : "1 change"
+        }
         return lang == .es ? "\(changeCount) cambios" : "\(changeCount) changes"
     }
 }

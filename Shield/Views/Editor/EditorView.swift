@@ -171,7 +171,7 @@ struct EditorView: View {
                     for (index, image) in adjustedPages.enumerated() {
                         guard index < fileNames.count else { break }
                         let id = (fileNames[index] as NSString).deletingPathExtension
-                        _ = appState.saveImage(image, id: id)
+                        _ = appState.saveImage(image, id: id, isVaulted: vm.doc.isVaulted)
                     }
                     vm.updateRenderedPages(transforms: transforms)
                     showReadjustReview = false

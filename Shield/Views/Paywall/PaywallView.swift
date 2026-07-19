@@ -191,6 +191,7 @@ struct PaywallView: View {
                         product: product,
                         isSelected: selectedProduct.rawValue == product.id,
                         savingsLabel: savingsLabel(for: product),
+                        trialLabel: pm.trialLabels[product.id],
                         lang: appState.language,
                         onTap: {
                             if let sp = ShieldProduct(rawValue: product.id) {
@@ -236,8 +237,12 @@ struct PaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "crown.fill")
-                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
-                            .font(.system(size: 16, weight: .bold))
+                        Text(LanguageManager.shared.paywall(
+                            pm.trialLabels[selectedProduct.rawValue] != nil
+                                ? "paywall_free_trial"
+                                : "paywall_get_pro"
+                        ))
+                        .font(.system(size: 16, weight: .bold))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -331,13 +336,13 @@ struct PlanRow: View {
     let product: Product
     let isSelected: Bool
     let savingsLabel: String?
+    let trialLabel: String?
     let lang: AppLanguage
     let onTap: () -> Void
 
     var body: some View {
         let isAnnual = ShieldProduct(rawValue: product.id) == .annual
-        let hasTrial = isAnnual && product.subscription?.introductoryOffer != nil
-        let hasBadges = hasTrial || savingsLabel != nil
+        let hasBadges = trialLabel != nil || savingsLabel != nil
 
         Button(action: onTap) {
             HStack(spacing: 16) {
@@ -366,8 +371,8 @@ struct PlanRow: View {
 
                     if hasBadges {
                         HStack(spacing: 6) {
-                            if hasTrial {
-                                Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
+                            if let trialLabel {
+                                Text(trialLabel)
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(Color(hex: "30D158"))
                                     .padding(.horizontal, 8)

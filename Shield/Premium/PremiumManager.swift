@@ -59,6 +59,9 @@ final class PremiumManager: ObservableObject {
 
     @Published private(set) var isPro: Bool = false
     @Published private(set) var products: [Product] = []
+    /// Product ID → localized free-trial badge. Only populated for products with
+    /// a free-trial introductory offer the user is still eligible for.
+    @Published private(set) var trialLabels: [String: String] = [:]
     @Published private(set) var purchaseError: String? = nil
     @Published var isPurchasing: Bool = false
     @Published var isRestoring: Bool = false
@@ -105,6 +108,35 @@ final class PremiumManager: ObservableObject {
             }
         } catch {
             logger.error("Product loading failed: \(String(describing: error), privacy: .private)")
+        }
+        await refreshTrialEligibility()
+    }
+
+    private func refreshTrialEligibility() async {
+        var labels: [String: String] = [:]
+        for product in products {
+            guard let subscription = product.subscription,
+                  let offer = subscription.introductoryOffer,
+                  offer.paymentMode == .freeTrial,
+                  await subscription.isEligibleForIntroOffer
+            else { continue }
+            labels[product.id] = Self.trialBadgeLabel(for: offer.period)
+        }
+        trialLabels = labels
+    }
+
+    private static func trialBadgeLabel(for period: Product.SubscriptionPeriod) -> String {
+        switch period.unit {
+        case .day:
+            return LanguageManager.shared.paywall("paywall_trial_days", period.value)
+        case .week:
+            return LanguageManager.shared.paywall("paywall_trial_days", period.value * 7)
+        case .month:
+            return LanguageManager.shared.paywall("paywall_trial_months", period.value)
+        case .year:
+            return LanguageManager.shared.paywall("paywall_trial_months", period.value * 12)
+        @unknown default:
+            return LanguageManager.shared.paywall("paywall_trial_days", period.value)
         }
     }
 

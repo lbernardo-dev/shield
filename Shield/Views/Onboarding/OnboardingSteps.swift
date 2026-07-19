@@ -1290,6 +1290,7 @@ struct OBPaywallView: View {
                         product: product,
                         isSelected: selectedProduct.rawValue == product.id,
                         savingsLabel: savingsLabel(for: product),
+                        trialLabel: pm.trialLabels[product.id],
                         lang: appState.language
                     ) {
                         guard let selection = ShieldProduct(rawValue: product.id) else { return }

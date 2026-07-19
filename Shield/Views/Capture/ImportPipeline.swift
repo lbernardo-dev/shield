@@ -6,6 +6,7 @@ import UIKit
 enum CaptureImportError: Error, Equatable, Sendable, LocalizedError {
     case emptyInput
     case unsupportedFormat
+    case protectedPDF
     case fileTooLarge(maximumMB: Int)
     case tooManyPages(maximum: Int)
     case memoryBudgetExceeded(maximumMB: Int)
@@ -15,14 +16,15 @@ enum CaptureImportError: Error, Equatable, Sendable, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .emptyInput: return "No se encontró contenido importable."
-        case .unsupportedFormat: return "El formato no es compatible o el archivo está dañado."
-        case .fileTooLarge(let maximum): return "El archivo supera el límite seguro de \(maximum) MB."
-        case .tooManyPages(let maximum): return "El documento supera el máximo de \(maximum) páginas por importación."
-        case .memoryBudgetExceeded(let maximum): return "Las páginas superan el presupuesto de memoria de \(maximum) MB. Divide el documento en varios lotes."
-        case .unreadablePage(let index): return "No se pudo procesar la página \(index + 1)."
-        case .sourceReadFailed: return "No se pudo leer el archivo de origen."
-        case .storageWriteFailed: return "No se pudo guardar la importación de forma segura."
+        case .emptyInput: return LanguageManager.backgroundText("capture_error_empty", table: "Capture")
+        case .unsupportedFormat: return LanguageManager.backgroundText("capture_error_unsupported", table: "Capture")
+        case .protectedPDF: return LanguageManager.backgroundText("capture_error_protected_pdf", table: "Capture")
+        case .fileTooLarge(let maximum): return LanguageManager.backgroundText("capture_error_too_large", table: "Capture", maximum)
+        case .tooManyPages(let maximum): return LanguageManager.backgroundText("capture_error_too_many_pages", table: "Capture", maximum)
+        case .memoryBudgetExceeded(let maximum): return LanguageManager.backgroundText("capture_error_memory", table: "Capture", maximum)
+        case .unreadablePage(let index): return LanguageManager.backgroundText("capture_error_unreadable_page", table: "Capture", index + 1)
+        case .sourceReadFailed: return LanguageManager.backgroundText("capture_error_source_read", table: "Capture")
+        case .storageWriteFailed: return LanguageManager.backgroundText("capture_error_storage_write", table: "Capture")
         }
     }
 }
@@ -73,6 +75,9 @@ enum CaptureImportPipeline {
 
         guard let document = PDFDocument(url: url), document.pageCount > 0 else {
             throw CaptureImportError.unsupportedFormat
+        }
+        guard !document.isLocked else {
+            throw CaptureImportError.protectedPDF
         }
         guard document.pageCount <= limits.maximumPages else {
             throw CaptureImportError.tooManyPages(maximum: limits.maximumPages)

@@ -456,9 +456,18 @@ final class DirectCloudStorageManager: NSObject, ObservableObject, ASWebAuthenti
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        var components = URLComponents()
-        components.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
-        request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
+        // application/x-www-form-urlencoded requires "+" to be escaped as %2B;
+        // URLComponents leaves it literal, which servers would decode as a space.
+        var allowed = CharacterSet.urlQueryAllowed
+        allowed.remove(charactersIn: "+&=")
+        let body = parameters
+            .map { key, value in
+                let encodedKey = key.addingPercentEncoding(withAllowedCharacters: allowed) ?? key
+                let encodedValue = value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+                return "\(encodedKey)=\(encodedValue)"
+            }
+            .joined(separator: "&")
+        request.httpBody = body.data(using: .utf8)
         let data = try await performDataRequest(request)
         return try JSONDecoder().decode(T.self, from: data)
     }

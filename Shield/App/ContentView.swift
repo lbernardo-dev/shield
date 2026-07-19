@@ -54,6 +54,12 @@ struct ContentView: View {
             handleScenePhaseChange(newPhase)
         }
         .simultaneousGesture(
+            // minimumDistance 0 fires on touch-down, so scrolling, zooming and
+            // drawing count as activity for the inactivity auto-lock, not just taps.
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in noteUserActivity() }
+        )
+        .simultaneousGesture(
             TapGesture().onEnded(noteUserActivity)
         )
     }

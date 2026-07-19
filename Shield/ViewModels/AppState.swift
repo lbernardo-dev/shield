@@ -397,9 +397,9 @@ final class AppState: ObservableObject {
     // MARK: - Image storage
 
     @discardableResult
-    func saveImage(_ image: UIImage, id: String) -> String? {
+    func saveImage(_ image: UIImage, id: String, isVaulted: Bool = false) -> String? {
         let fileName = "\(id).jpg"
-        let url = AppState.libraryImagesDir.appendingPathComponent(fileName)
+        let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
         guard let data = image.jpegData(compressionQuality: 0.85) else { return nil }
         do {
             try SecureFileStore.shared.write(data, to: url)

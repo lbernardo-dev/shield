@@ -145,4 +145,25 @@ final class LanguageManager {
     func gallery(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Gallery", argsArray: args) }
     func model(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Model", argsArray: args) }
     func auth(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Auth", argsArray: args) }
+
+    // MARK: - Off-main-actor resolver
+
+    /// Localizes a key without touching main-actor state. Safe from any
+    /// isolation context (e.g. `LocalizedError.errorDescription` on background
+    /// import pipelines). Reads the persisted language directly.
+    nonisolated static func backgroundText(_ key: String, table: String, _ args: CVarArg...) -> String {
+        let language = UserDefaults.standard.string(forKey: "shield.language")
+            .flatMap(AppLanguage.init(rawValue:))
+            ?? ((Locale.preferredLanguages.first ?? "").hasPrefix("es") ? .es : .en)
+        let locale = Locale(identifier: language.rawValue)
+        let resource = LocalizedStringResource(
+            String.LocalizationValue(key),
+            table: table,
+            locale: locale,
+            bundle: .atURL(Bundle.main.bundleURL)
+        )
+        let format = String(localized: resource)
+        guard !args.isEmpty else { return format }
+        return String(format: format, locale: locale, arguments: args)
+    }
 }
