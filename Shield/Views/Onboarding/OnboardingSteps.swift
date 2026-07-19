@@ -1201,7 +1201,7 @@ struct OBPaywallView: View {
                                 .frame(width: 44, height: 44)
                                 .background(ShieldTheme.surface2, in: Circle())
                         }
-                        .accessibilityLabel(appState.language == .es ? "Atrás" : "Back")
+                        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_back"))
                         Spacer()
                     }
                     paywallHero

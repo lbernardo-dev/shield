@@ -215,9 +215,9 @@ struct ExportSheetView: View {
     private var exportSummaryText: String {
         let verificationNote: String
         if verificationReport?.isVerified == true {
-            verificationNote = lang == .es ? "Salida PDF verificada" : "Verified PDF output"
+            verificationNote = LanguageManager.shared.editor("editor_export_verified_pdf_note")
         } else {
-            verificationNote = lang == .es ? "Imagen aplanada y sin metadatos heredados" : "Flattened image without inherited metadata"
+            verificationNote = LanguageManager.shared.editor("editor_export_flattened_image_note")
         }
         let watermarkNote = watermarkApplied
             ? " · \(LanguageManager.shared.editor("editor_wm_applied_note"))"
@@ -286,9 +286,7 @@ struct ExportSheetView: View {
                 } catch {
                     await MainActor.run {
                         isExporting = false
-                        exportErrorMessage = lang == .es
-                            ? "No se pudo completar una exportación segura. El archivo parcial se eliminó. Inténtalo de nuevo."
-                            : "A secure export could not be completed. The partial file was deleted. Please try again."
+                        exportErrorMessage = LanguageManager.shared.editor("editor_export_secure_export_failed")
                         AppState.trackEvent("export_failed", properties: ["format": "pdf"])
                     }
                 }

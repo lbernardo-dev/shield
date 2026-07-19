@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7C1D5E4E2FA7359600E171B4 /* GhostDocInFormal.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */; };
-		7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */; };
+		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -137,7 +137,7 @@
 
 /* Begin PBXFileReference section */
 		7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDocInFormal.icon; sourceTree = "<group>"; };
-		7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDoc.icon; sourceTree = "<group>"; };
+		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -498,7 +498,7 @@
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
-				7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */,
+				7C1D5E4F2FA7392000E171B4 /* MaskID.icon */,
 				7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */,
 				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
 				GRP_APP /* App */,
@@ -755,7 +755,7 @@
 				B012 /* SettingsInfo.xcstrings in Resources */,
 				B013 /* AppShortcuts.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
-				7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */,
+				7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -879,7 +879,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 100202607171;
+				CURRENT_PROJECT_VERSION = 100202607191;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -906,7 +906,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 100202607171;
+				CURRENT_PROJECT_VERSION = 100202607191;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1029,21 +1029,21 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 100202607171;
+				CURRENT_PROJECT_VERSION = 100202607191;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Shield/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1069,21 +1069,21 @@
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 100202607171;
+				CURRENT_PROJECT_VERSION = 100202607191;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Shield/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shield;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

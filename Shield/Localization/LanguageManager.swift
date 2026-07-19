@@ -14,8 +14,21 @@ enum AppLanguage: String, CaseIterable, Codable {
 final class LanguageManager {
     static let shared = LanguageManager()
 
+    private static let overrideKey = "shield.language"
+    private static let manualOverrideFlagKey = "shield.language.isManualOverride"
+
+    /// Guards the initializer's own assignment to `current` from being
+    /// recorded as an explicit user override — only a later, real change
+    /// (e.g. the in-app language toggle) should pin the language and stop
+    /// following the system locale.
+    private var isBootstrapping = true
+
     var current: AppLanguage {
-        didSet { UserDefaults.standard.set(current.rawValue, forKey: "shield.language") }
+        didSet {
+            guard !isBootstrapping, current != oldValue else { return }
+            UserDefaults.standard.set(true, forKey: Self.manualOverrideFlagKey)
+            UserDefaults.standard.set(current.rawValue, forKey: Self.overrideKey)
+        }
     }
 
     var currentLanguage: AppLanguage { current }
@@ -42,13 +55,31 @@ final class LanguageManager {
     }
 
     init() {
-        if let saved = UserDefaults.standard.string(forKey: "shield.language"),
+        if UserDefaults.standard.bool(forKey: Self.manualOverrideFlagKey),
+           let saved = UserDefaults.standard.string(forKey: Self.overrideKey),
            let lang = AppLanguage(rawValue: saved) {
             current = lang
         } else {
-            let pref = Locale.preferredLanguages.first ?? ""
-            current = pref.hasPrefix("es") ? .es : .en
+            // No explicit in-app choice yet: defer to the OS's own locale
+            // resolution (device language, or the app's per-app Language
+            // override under Settings > General > Language & Region),
+            // so the app tracks the system automatically until the user
+            // picks a language in-app.
+            current = Self.systemPreferredLanguage()
         }
+        isBootstrapping = false
+    }
+
+    /// Resolves the best-matching supported locale using the same
+    /// preference-ranked algorithm Foundation uses for bundle resources,
+    /// rather than a hand-rolled string prefix check.
+    private static func systemPreferredLanguage() -> AppLanguage {
+        let supported = AppLanguage.allCases.map(\.rawValue)
+        let preferred = Bundle.preferredLocalizations(from: supported)
+        guard let code = preferred.first, let lang = AppLanguage(rawValue: code) else {
+            return .en
+        }
+        return lang
     }
 
     /// Core resolver — pulls from the specified String Catalog (.xcstrings)

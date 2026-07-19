@@ -307,6 +307,64 @@
         }
       }
     },
+    "editor_change_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d change"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d changes"
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d cambio"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d cambios"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "editor_change_count_none": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No changes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin cambios"
+          }
+        }
+      }
+    },
     "editor_contrast": {
       "extractionState": "manual",
       "localizations": {
@@ -460,6 +518,23 @@
         }
       }
     },
+    "editor_export_collapse_details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse details"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraer detalles"
+          }
+        }
+      }
+    },
     "editor_export_count_label": {
       "extractionState": "manual",
       "localizations": {
@@ -582,6 +657,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo guardar en la galería"
+          }
+        }
+      }
+    },
+    "editor_export_flattened_image_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flattened image without inherited metadata"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagen aplanada y sin metadatos heredados"
           }
         }
       }
@@ -841,6 +933,40 @@
         }
       }
     },
+    "editor_export_original_content_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original content"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenido original"
+          }
+        }
+      }
+    },
+    "editor_export_original_content_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not reused"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se reutiliza"
+          }
+        }
+      }
+    },
     "editor_export_pdf": {
       "extractionState": "manual",
       "localizations": {
@@ -854,6 +980,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "PDF"
+          }
+        }
+      }
+    },
+    "editor_export_pdf_checks_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF checks"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobaciones PDF"
+          }
+        }
+      }
+    },
+    "editor_export_pdf_checks_not_applicable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not applicable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No aplicable"
+          }
+        }
+      }
+    },
+    "editor_export_pdf_checks_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text, pages and metadata"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Texto, páginas y metadatos"
           }
         }
       }
@@ -880,13 +1057,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protected with Shield Free"
+            "value": "Protected with MaskID Free"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protegido con Shield Free"
+            "value": "Protegido con MaskID Free"
           }
         }
       }
@@ -976,6 +1153,23 @@
         }
       }
     },
+    "editor_export_secure_export_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A secure export could not be completed. The partial file was deleted. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo completar una exportación segura. El archivo parcial se eliminó. Inténtalo de nuevo."
+          }
+        }
+      }
+    },
     "editor_export_share": {
       "extractionState": "manual",
       "localizations": {
@@ -989,6 +1183,142 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compartir"
+          }
+        }
+      }
+    },
+    "editor_export_show_details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show details"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar detalles"
+          }
+        }
+      }
+    },
+    "editor_export_verification_image_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rasterized and flattened output"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida rasterizada y aplanada"
+          }
+        }
+      }
+    },
+    "editor_export_verification_pdf_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verified before sharing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se verificará antes de compartir"
+          }
+        }
+      }
+    },
+    "editor_export_verification_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output verification"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificación de salida"
+          }
+        }
+      }
+    },
+    "editor_export_verified_pdf_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verified PDF output"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida PDF verificada"
+          }
+        }
+      }
+    },
+    "editor_export_visual_obfuscations_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visual obfuscations"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obfuscaciones visuales"
+          }
+        }
+      }
+    },
+    "editor_export_visual_obfuscations_none": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguna"
+          }
+        }
+      }
+    },
+    "editor_export_visual_obfuscations_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d → opaque"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d → opacas"
           }
         }
       }
@@ -1101,13 +1431,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Includes watermark on Shield Free"
+            "value": "Includes watermark on MaskID Free"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Incluir marca de agua en Shield Free"
+            "value": "Incluir marca de agua en MaskID Free"
           }
         }
       }
@@ -1358,6 +1688,23 @@
         }
       }
     },
+    "editor_next_page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next page"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Página siguiente"
+          }
+        }
+      }
+    },
     "editor_no_free": {
       "extractionState": "manual",
       "localizations": {
@@ -1426,6 +1773,23 @@
         }
       }
     },
+    "editor_ocr_all_fields_masked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All sensitive fields are hidden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los campos sensibles están ocultos"
+          }
+        }
+      }
+    },
     "editor_ocr_analyzing": {
       "extractionState": "manual",
       "localizations": {
@@ -1456,6 +1820,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Confianza"
+          }
+        }
+      }
+    },
+    "editor_ocr_copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        }
+      }
+    },
+    "editor_ocr_copy_item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar %@"
           }
         }
       }
@@ -1494,6 +1892,23 @@
         }
       }
     },
+    "editor_ocr_detected_fields_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detected fields"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Campos detectados"
+          }
+        }
+      }
+    },
     "editor_ocr_detected_type": {
       "extractionState": "manual",
       "localizations": {
@@ -1507,6 +1922,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tipo detectado"
+          }
+        }
+      }
+    },
+    "editor_ocr_dni": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNI / ID Card"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNI / Identidad"
           }
         }
       }
@@ -1541,6 +1973,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Documento"
+          }
+        }
+      }
+    },
+    "editor_ocr_driving_license": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Driving Licence"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carnet de conducir"
           }
         }
       }
@@ -1596,6 +2045,47 @@
         }
       }
     },
+    "editor_ocr_fields_visible_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d field still visible"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%d fields still visible"
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Queda %d campo visible"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Quedan %d campos visibles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "editor_ocr_full_doc": {
       "extractionState": "manual",
       "localizations": {
@@ -1626,6 +2116,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Documento completo (OCR)"
+          }
+        }
+      }
+    },
+    "editor_ocr_health_card": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health Card"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarjeta sanitaria"
           }
         }
       }
@@ -1664,6 +2171,74 @@
         }
       }
     },
+    "editor_ocr_mask_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mask"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar"
+          }
+        }
+      }
+    },
+    "editor_ocr_mask_all": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mask all"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar todo"
+          }
+        }
+      }
+    },
+    "editor_ocr_masked_summary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d/%d fields masked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d/%d campos ocultos"
+          }
+        }
+      }
+    },
+    "editor_ocr_missing_fields_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not detected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No detectados"
+          }
+        }
+      }
+    },
     "editor_ocr_mrz_not_validated": {
       "extractionState": "manual",
       "localizations": {
@@ -1694,6 +2269,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "MRZ validada%@"
+          }
+        }
+      }
+    },
+    "editor_ocr_no_fields_detected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No fields detected. Tap Reread to try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se han detectado campos. Toca Releer para intentarlo otra vez."
           }
         }
       }
@@ -1745,6 +2337,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Releer"
+          }
+        }
+      }
+    },
+    "editor_ocr_residence_permit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Residence Permit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permiso de residencia"
           }
         }
       }
@@ -1851,6 +2460,40 @@
         }
       }
     },
+    "editor_ocr_unmask_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmask"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar"
+          }
+        }
+      }
+    },
+    "editor_ocr_unmask_all": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmask all"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar todo"
+          }
+        }
+      }
+    },
     "editor_page_indicator": {
       "extractionState": "manual",
       "localizations": {
@@ -1881,6 +2524,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Previsualización"
+          }
+        }
+      }
+    },
+    "editor_previous_page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous page"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Página anterior"
           }
         }
       }
@@ -1924,13 +2584,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protected with Shield Free"
+            "value": "Protected with MaskID Free"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protegido con Shield Free"
+            "value": "Protegido con MaskID Free"
           }
         }
       }
@@ -2061,6 +2721,40 @@
         }
       }
     },
+    "editor_sensitive_analyzing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing sensitive zones…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analizando zonas sensibles…"
+          }
+        }
+      }
+    },
+    "editor_sensitive_based_on_ocr": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Based on detected OCR fields."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basado en los campos OCR detectados."
+          }
+        }
+      }
+    },
     "editor_sensitive_based_on_template": {
       "extractionState": "manual",
       "localizations": {
@@ -2074,6 +2768,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Basado en la plantilla del documento actual."
+          }
+        }
+      }
+    },
+    "editor_sensitive_fields_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fields"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Campos"
           }
         }
       }
@@ -2142,6 +2853,210 @@
           "stringUnit": {
             "state": "translated",
             "value": "Texto"
+          }
+        }
+      }
+    },
+    "editor_tool_adjust": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar"
+          }
+        }
+      }
+    },
+    "editor_tool_auto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto"
+          }
+        }
+      }
+    },
+    "editor_tool_fields": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fields"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Campos"
+          }
+        }
+      }
+    },
+    "editor_tool_help_adjust": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust brightness, crop and geometry."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajusta brillo, recorte y geometría."
+          }
+        }
+      }
+    },
+    "editor_tool_help_auto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically applies sensitive areas."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicación automática de zonas sensibles."
+          }
+        }
+      }
+    },
+    "editor_tool_help_fields": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a field to mask or unmask it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca un campo para enmascararlo o quitar máscara."
+          }
+        }
+      }
+    },
+    "editor_tool_help_rect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag over the document to create a new mask."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra sobre el documento para crear una nueva máscara."
+          }
+        }
+      }
+    },
+    "editor_tool_help_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review OCR and mask by field."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa OCR y aplica máscaras por campo."
+          }
+        }
+      }
+    },
+    "editor_tool_help_watermark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure the document watermark."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configura marca de agua del documento."
+          }
+        }
+      }
+    },
+    "editor_tool_rect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rect"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rectángulo"
+          }
+        }
+      }
+    },
+    "editor_tool_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Texto"
+          }
+        }
+      }
+    },
+    "editor_tool_watermark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WM"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marca agua"
           }
         }
       }
@@ -2567,6 +3482,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sí (Pro)"
+          }
+        }
+      }
+    },
+    "editor_zoom_controls": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom controls"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controles de zoom"
+          }
+        }
+      }
+    },
+    "editor_zoom_in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom in"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aumentar zoom"
+          }
+        }
+      }
+    },
+    "editor_zoom_out": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom out"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reducir zoom"
           }
         }
       }

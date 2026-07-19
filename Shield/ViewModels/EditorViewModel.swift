@@ -15,12 +15,12 @@ enum EditorTool: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .rect:      return lang == .es ? "Rectángulo" : "Rect"
-        case .fields:    return lang == .es ? "Campos" : "Fields"
-        case .auto:      return "Auto"
-        case .text:      return "Texto"
-        case .watermark: return lang == .es ? "Marca agua" : "WM"
-        case .adjust:    return lang == .es ? "Ajustar" : "Adjust"
+        case .rect:      return LanguageManager.shared.editor("editor_tool_rect")
+        case .fields:    return LanguageManager.shared.editor("editor_tool_fields")
+        case .auto:      return LanguageManager.shared.editor("editor_tool_auto")
+        case .text:      return LanguageManager.shared.editor("editor_tool_text")
+        case .watermark: return LanguageManager.shared.editor("editor_tool_watermark")
+        case .adjust:    return LanguageManager.shared.editor("editor_tool_adjust")
         }
     }
 

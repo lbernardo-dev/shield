@@ -5,11 +5,11 @@ import UIKit
 
 enum ShieldTheme {
     // Surfaces — dark
-    static let surface0 = Color(hex: "0A0A0B")
-    static let surface1 = Color(hex: "111114")
-    static let surface2 = Color(hex: "18181D")
-    static let surface3 = Color(hex: "1F1F26")
-    static let surface4 = Color(hex: "26262E")
+    static let surface0 = Color(hex: "050D18")
+    static let surface1 = Color(hex: "071426")
+    static let surface2 = Color(hex: "0E2038")
+    static let surface3 = Color(hex: "142A45")
+    static let surface4 = Color(hex: "1B3552")
     static let surfaceLine = Color.white.opacity(0.08)
     static let surfaceLineStrong = Color.white.opacity(0.14)
 
@@ -19,11 +19,11 @@ enum ShieldTheme {
     static let textTertiary = Color(hex: "F5F5F7").opacity(0.42)
     static let textQuaternary = Color(hex: "F5F5F7").opacity(0.24)
 
-    // Accent (dark = yellow, light = near-black)
-    static let accent = Color(hex: "D9AA00")
-    static let accentStrong = Color(hex: "F2C200")
-    static let accentDim = Color(hex: "D9AA00").opacity(0.22)
-    static let accentText = Color(hex: "0A0A0B")
+    // MaskID identity palette: electric cyan over deep privacy navy.
+    static let accent = Color(hex: "20C7D9")
+    static let accentStrong = Color(hex: "42DCEA")
+    static let accentDim = Color(hex: "20C7D9").opacity(0.22)
+    static let accentText = Color(hex: "071426")
 
     // Semantic
     static let success = Color(hex: "30D158")
@@ -91,7 +91,7 @@ extension ShieldTheme {
         scheme == .dark ? textTertiary : Color(hex: "0A0A0B").opacity(0.42)
     }
     static func accentColor(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? accent : Color(hex: "1A1A1A")
+        scheme == .dark ? accent : Color(hex: "087D8A")
     }
     static func pageBackground(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? surface0 : Color(hex: "F4F4F8")

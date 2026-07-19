@@ -87,11 +87,13 @@ private struct PrivacySnapshotShield: View {
         ZStack {
             Color.black.ignoresSafeArea()
             VStack(spacing: 14) {
-                Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 46, weight: .semibold))
-                    .foregroundStyle(Color(hex: "FFD60A"))
+                Image("MaskIDMark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 72, height: 72)
+                    .clipShape(.rect(cornerRadius: 18))
                     .accessibilityHidden(true)
-                Text("Shield")
+                Text("MaskID")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .accessibilityHidden(true)

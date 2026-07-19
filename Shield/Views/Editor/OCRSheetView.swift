@@ -88,49 +88,43 @@ struct OCRSheetView: View {
     }
 
     private var allFieldsMaskedText: String {
-        lang == .es ? "Todos los campos sensibles están ocultos" : "All sensitive fields are hidden"
+        LanguageManager.shared.editor("editor_ocr_all_fields_masked")
     }
 
     private func visibleFieldsText(_ count: Int) -> String {
-        if lang == .es {
-            return count == 1 ? "Queda 1 campo visible" : "Quedan \(count) campos visibles"
-        }
-        return "\(count) field\(count == 1 ? "" : "s") still visible"
+        LanguageManager.shared.editor("editor_ocr_fields_visible_count", count)
     }
 
     private var maskAllText: String {
-        lang == .es ? "Ocultar todo" : "Mask all"
+        LanguageManager.shared.editor("editor_ocr_mask_all")
     }
 
     private var unmaskAllText: String {
-        lang == .es ? "Mostrar todo" : "Unmask all"
+        LanguageManager.shared.editor("editor_ocr_unmask_all")
     }
 
     private var detectedFieldsTitle: String {
-        lang == .es ? "Campos detectados" : "Detected fields"
+        LanguageManager.shared.editor("editor_ocr_detected_fields_title")
     }
 
     private var missingFieldsTitle: String {
-        lang == .es ? "No detectados" : "Not detected"
+        LanguageManager.shared.editor("editor_ocr_missing_fields_title")
     }
 
     private var noFieldsDetectedText: String {
-        lang == .es ? "No se han detectado campos. Toca Releer para intentarlo otra vez." : "No fields detected. Tap Reread to try again."
+        LanguageManager.shared.editor("editor_ocr_no_fields_detected")
     }
 
     private var maskToggleText: String {
-        lang == .es ? "Ocultar" : "Mask"
+        LanguageManager.shared.editor("editor_ocr_mask_action")
     }
 
     private var unmaskToggleText: String {
-        lang == .es ? "Mostrar" : "Unmask"
+        LanguageManager.shared.editor("editor_ocr_unmask_action")
     }
 
     private func maskedSummaryText(masked: Int, total: Int) -> String {
-        if lang == .es {
-            return "\(masked)/\(total) campos ocultos"
-        }
-        return "\(masked)/\(total) fields masked"
+        LanguageManager.shared.editor("editor_ocr_masked_summary", masked, total)
     }
 
     var body: some View {
@@ -545,8 +539,8 @@ struct OCRSheetView: View {
                 .contentShape(Rectangle())
                 .accessibilityLabel(
                     copiedKey == item.key
-                        ? (lang == .es ? "Copiado" : "Copied")
-                        : (lang == .es ? "Copiar \(item.label)" : "Copy \(item.label)")
+                        ? LanguageManager.shared.editor("editor_ocr_copied")
+                        : LanguageManager.shared.editor("editor_ocr_copy_item", item.label)
                 )
             }
 
@@ -802,11 +796,11 @@ struct OCRSheetView: View {
 
     private func detectedTypeLabel(_ raw: String) -> String {
         switch raw.lowercased() {
-        case "dni": return lang == .es ? "DNI / Identidad" : "DNI / ID Card"
+        case "dni": return LanguageManager.shared.editor("editor_ocr_dni")
         case "passport": return LanguageManager.shared.editor("editor_ocr_passport")
-        case "drivinglicense": return lang == .es ? "Carnet de conducir" : "Driving Licence"
-        case "residencepermit": return lang == .es ? "Permiso de residencia" : "Residence Permit"
-        case "healthcard": return lang == .es ? "Tarjeta sanitaria" : "Health Card"
+        case "drivinglicense": return LanguageManager.shared.editor("editor_ocr_driving_license")
+        case "residencepermit": return LanguageManager.shared.editor("editor_ocr_residence_permit")
+        case "healthcard": return LanguageManager.shared.editor("editor_ocr_health_card")
         default: return LanguageManager.shared.editor("editor_ocr_doc")
         }
     }

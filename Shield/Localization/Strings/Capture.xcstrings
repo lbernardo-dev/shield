@@ -69,6 +69,23 @@
         }
       }
     },
+    "capture_analyzing_sensitive_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing sensitive text…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analizando texto sensible…"
+          }
+        }
+      }
+    },
     "capture_apply_all_pages": {
       "extractionState": "manual",
       "localizations": {
@@ -82,6 +99,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aplicar ajustes a todas las páginas"
+          }
+        }
+      }
+    },
+    "capture_apply_crop": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply crop"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicar recorte"
           }
         }
       }
@@ -324,6 +358,23 @@
         }
       }
     },
+    "capture_enhance_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix readability, perspective and crop before importing."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrige legibilidad, perspectiva y recorte antes de importar."
+          }
+        }
+      }
+    },
     "capture_enhance_title": {
       "extractionState": "manual",
       "localizations": {
@@ -511,6 +562,40 @@
         }
       }
     },
+    "capture_filter_auto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automático"
+          }
+        }
+      }
+    },
+    "capture_filter_original": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original"
+          }
+        }
+      }
+    },
     "capture_filters": {
       "extractionState": "manual",
       "localizations": {
@@ -630,6 +715,57 @@
         }
       }
     },
+    "capture_guide_free_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free capture without overlay"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura libre sin superposición"
+          }
+        }
+      }
+    },
+    "capture_guide_visible_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide visible for easier alignment"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guía visible para centrar mejor"
+          }
+        }
+      }
+    },
+    "capture_hide_advanced_controls": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide advanced controls"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar ajustes avanzados"
+          }
+        }
+      }
+    },
     "capture_hide_guide": {
       "extractionState": "manual",
       "localizations": {
@@ -677,6 +813,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sesgo horizontal"
+          }
+        }
+      }
+    },
+    "capture_import_failed_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import failed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo importar"
           }
         }
       }
@@ -800,6 +953,74 @@
         }
       }
     },
+    "capture_manual_perspective": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual perspective"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perspectiva manual"
+          }
+        }
+      }
+    },
+    "capture_menu_eyebrow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secure intake"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrada segura"
+          }
+        }
+      }
+    },
+    "capture_menu_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The full workflow stays on-device."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo el flujo se mantiene en el dispositivo."
+          }
+        }
+      }
+    },
+    "capture_menu_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan or import."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanea o importa."
+          }
+        }
+      }
+    },
     "capture_noise_reduction": {
       "extractionState": "manual",
       "localizations": {
@@ -830,6 +1051,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todo se procesa en el dispositivo. Sin servidores."
+          }
+        }
+      }
+    },
+    "capture_other_sources_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import existing content and continue through the same review flow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importa contenido ya existente y sigue el mismo flujo de revisión."
+          }
+        }
+      }
+    },
+    "capture_other_sources_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other sources"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otras entradas"
           }
         }
       }
@@ -1152,6 +1407,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nitidez"
+          }
+        }
+      }
+    },
+    "capture_show_advanced_controls": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show advanced controls"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar ajustes avanzados"
           }
         }
       }

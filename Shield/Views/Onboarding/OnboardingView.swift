@@ -168,9 +168,7 @@ struct LockScreenView: View {
     }
 
     private var lockSubtitle: String {
-        appState.language == .es
-            ? "Verifica tu acceso antes de abrir tu espacio seguro."
-            : "Verify access before opening your secure workspace."
+        LanguageManager.shared.auth("lock_verify_subtitle")
     }
 
     private var lockPillOnDevice: String {
@@ -178,11 +176,11 @@ struct LockScreenView: View {
     }
 
     private var lockPillEncrypted: String {
-        appState.language == .es ? "Cifrado" : "Encrypted"
+        LanguageManager.shared.auth("lock_pill_encrypted")
     }
 
     private var lockPillPrivate: String {
-        appState.language == .es ? "Privado" : "Private"
+        LanguageManager.shared.auth("lock_pill_private")
     }
 
     private var showsSecondaryPINButton: Bool {
@@ -206,16 +204,12 @@ struct LockScreenView: View {
         if PINManager.hasPIN {
             return LanguageManager.shared.auth("lock_unlock_to_continue")
         }
-        return appState.language == .es
-            ? "Configura un código local antes de acceder a tu espacio seguro."
-            : "Set a local passcode before accessing your secure workspace."
+        return LanguageManager.shared.auth("lock_setup_passcode_message")
     }
 
     private var lockActionHint: String? {
         guard !PINManager.hasPIN else { return nil }
-        return appState.language == .es
-            ? "El código protege el acceso cuando Face ID no está disponible."
-            : "The passcode protects access when Face ID is unavailable."
+        return LanguageManager.shared.auth("lock_passcode_hint")
     }
 
     @ViewBuilder

@@ -59,7 +59,7 @@ struct OnboardingFlowView: View {
                         .frame(width: 44, height: 44)
                         .contentShape(.rect)
                 }
-                .accessibilityLabel(appState.language == .es ? "Atrás" : "Back")
+                .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_back"))
             }
 
             GeometryReader { geo in
@@ -79,10 +79,10 @@ struct OnboardingFlowView: View {
             .padding(.vertical, 20.5)
             .contentShape(Rectangle())
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(appState.language == .es ? "Progreso" : "Progress")
-            .accessibilityValue(appState.language == .es
-                ? "Paso \(state.currentStep + 1) de \(state.totalSteps)"
-                : "Step \(state.currentStep + 1) of \(state.totalSteps)")
+            .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_progress_label"))
+            .accessibilityValue(LanguageManager.shared.onboarding(
+                "onboarding_progress_value", state.currentStep + 1, state.totalSteps
+            ))
 
             Button(action: { completeOnboarding(source: "top_skip") }) {
                 Text(LanguageManager.shared.onboarding("onboarding_skip"))
@@ -91,9 +91,7 @@ struct OnboardingFlowView: View {
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(Rectangle())
             }
-            .accessibilityHint(appState.language == .es
-                ? "Finaliza la introducción y continúa con la versión gratuita"
-                : "Ends onboarding and continues with the free version")
+            .accessibilityHint(LanguageManager.shared.onboarding("onboarding_skip_hint"))
         }
     }
 

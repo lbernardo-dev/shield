@@ -1,8 +1,8 @@
-# Shield — product positioning
+# MaskID — product positioning
 
 ## Promise
 
-Shield is the on-device document redaction workspace for people and teams that need a reviewable, verifiable output—not a cosmetic black rectangle.
+MaskID is the on-device identity-protection workspace for people and teams that need to share documents without exposing unnecessary personal data—and need a reviewable, verifiable output rather than a cosmetic black rectangle.
 
 ## Free
 

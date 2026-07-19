@@ -13,22 +13,16 @@ struct CaptureMenuView: View {
     let onFiles: () -> Void
     let onCloud: () -> Void
 
-    private var isSpanish: Bool {
-        LanguageManager.shared.current == .es
-    }
-
     private var introEyebrow: String {
-        isSpanish ? "Entrada segura" : "Secure intake"
+        LanguageManager.shared.capture("capture_menu_eyebrow")
     }
 
     private var introTitle: String {
-        isSpanish ? "Escanea o importa." : "Scan or import."
+        LanguageManager.shared.capture("capture_menu_title")
     }
 
     private var introSubtitle: String {
-        isSpanish
-            ? "Todo el flujo se mantiene en el dispositivo."
-            : "The full workflow stays on-device."
+        LanguageManager.shared.capture("capture_menu_subtitle")
     }
 
     private var scanHeroSubtitle: String {
@@ -43,17 +37,17 @@ struct CaptureMenuView: View {
 
     private var guideStateDescription: String {
         if showGuide {
-            return isSpanish ? "Guía visible para centrar mejor" : "Guide visible for easier alignment"
+            return LanguageManager.shared.capture("capture_guide_visible_desc")
         }
-        return isSpanish ? "Captura libre sin superposición" : "Free capture without overlay"
+        return LanguageManager.shared.capture("capture_guide_free_desc")
     }
 
     private var importSectionTitle: String {
-        isSpanish ? "Otras entradas" : "Other sources"
+        LanguageManager.shared.capture("capture_other_sources_title")
     }
 
     private var importSectionSubtitle: String {
-        isSpanish ? "Importa contenido ya existente y sigue el mismo flujo de revisión." : "Import existing content and continue through the same review flow."
+        LanguageManager.shared.capture("capture_other_sources_subtitle")
     }
 
     var body: some View {

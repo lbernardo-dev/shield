@@ -304,12 +304,12 @@ struct ExportVerificationPreflightPanel: View {
                             .foregroundColor(color)
                     }
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(language == .es ? "Verificación de salida" : "Output verification")
+                        Text(LanguageManager.shared.editor("editor_export_verification_title"))
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(ShieldTheme.primary(scheme))
                         Text(isPDF
-                             ? (language == .es ? "Se verificará antes de compartir" : "Verified before sharing")
-                             : (language == .es ? "Salida rasterizada y aplanada" : "Rasterized and flattened output"))
+                             ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
+                             : LanguageManager.shared.editor("editor_export_verification_image_note"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(color)
                     }
@@ -331,26 +331,26 @@ struct ExportVerificationPreflightPanel: View {
                         ExportPrivacyScoreRow(
                             scheme: scheme,
                             icon: "doc.badge.minus",
-                            label: language == .es ? "Contenido original" : "Original content",
-                            value: language == .es ? "No se reutiliza" : "Not reused",
+                            label: LanguageManager.shared.editor("editor_export_original_content_label"),
+                            value: LanguageManager.shared.editor("editor_export_original_content_value"),
                             ok: true
                         )
                         ExportPrivacyScoreRow(
                             scheme: scheme,
                             icon: "eye.slash",
-                            label: language == .es ? "Obfuscaciones visuales" : "Visual obfuscations",
+                            label: LanguageManager.shared.editor("editor_export_visual_obfuscations_label"),
                             value: visualObfuscationCount > 0
-                                ? (language == .es ? "\(visualObfuscationCount) → opacas" : "\(visualObfuscationCount) → opaque")
-                                : (language == .es ? "Ninguna" : "None"),
+                                ? LanguageManager.shared.editor("editor_export_visual_obfuscations_value", visualObfuscationCount)
+                                : LanguageManager.shared.editor("editor_export_visual_obfuscations_none"),
                             ok: true
                         )
                         ExportPrivacyScoreRow(
                             scheme: scheme,
                             icon: "checkmark.seal",
-                            label: language == .es ? "Comprobaciones PDF" : "PDF checks",
+                            label: LanguageManager.shared.editor("editor_export_pdf_checks_label"),
                             value: isPDF
-                                ? (language == .es ? "Texto, páginas y metadatos" : "Text, pages and metadata")
-                                : (language == .es ? "No aplicable" : "Not applicable"),
+                                ? LanguageManager.shared.editor("editor_export_pdf_checks_value")
+                                : LanguageManager.shared.editor("editor_export_pdf_checks_not_applicable"),
                             ok: true
                         )
                     }
@@ -363,16 +363,16 @@ struct ExportVerificationPreflightPanel: View {
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(language == .es ? "Verificación de salida" : "Output verification")
+        .accessibilityLabel(LanguageManager.shared.editor("editor_export_verification_title"))
         .accessibilityValue(
             isPDF
-                ? (language == .es ? "Se verificará antes de compartir" : "Verified before sharing")
-                : (language == .es ? "Salida rasterizada y aplanada" : "Rasterized and flattened output")
+                ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
+                : LanguageManager.shared.editor("editor_export_verification_image_note")
         )
         .accessibilityHint(
             isExpanded
-                ? (language == .es ? "Contraer detalles" : "Collapse details")
-                : (language == .es ? "Mostrar detalles" : "Show details")
+                ? LanguageManager.shared.editor("editor_export_collapse_details")
+                : LanguageManager.shared.editor("editor_export_show_details")
         )
     }
 }

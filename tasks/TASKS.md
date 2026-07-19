@@ -444,8 +444,85 @@
    Id: 41-aso-app-store-connect
    Scope: Investigación profunda de mercado, ASO profesional EN/ES y configuración integral de App Store Connect
    Files: Docs/ APP_STORE_METADATA_DRAFT.md metadata/ screenshots/ tasks/
-   Note: Iniciando auditoría de producto, mercado, ASO EN/ES y App Store Connect
+   Note: MaskID rebrand complete: new pixelated-face icon, in-app EN/ES identity and cyan/navy system, market/ASO strategy, App Store metadata and 20 screenshots applied, subscriptions/IAP renamed; simulator build passed. App review submission intentionally not triggered.
    Detail: tasks/details/41-aso-app-store-connect.md
    Claimed by: CODEX
    Claimed at: 2026-07-19T06:23:35Z
+   Done by: CODEX
+   Done at: 2026-07-19T06:49:58Z
+
+42. 30-day-social-campaign
+   Id: 42-30-day-social-campaign
+   Scope: Create a bilingual 30-day, platform-organized social media campaign using only verified MaskID features and authentic simulator captures
+   Files: Marketing/30-Day-Social-Campaign/ tasks/
+   Note: Created bilingual 30-day campaign for Instagram, LinkedIn, X, Facebook and TikTok: 300 publish-ready post files, 156 1080x1350 assets derived only from 20 authentic simulator captures, calendar, strategy, provenance and claim guardrails; automated validation passed
+   Detail: tasks/details/42-30-day-social-campaign.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T08:12:48Z
+   Done by: CODEX
+   Done at: 2026-07-19T08:18:22Z
+
+43. campaign-feature-infographics
+   Id: 43-campaign-feature-infographics
+   Scope: Add multiple bilingual, simulator-based feature infographics to the 30-day social campaign and integrate them into platform schedules
+   Files: Marketing/30-Day-Social-Campaign/ scripts/build_30_day_social_campaign.py tasks/
+   Note: Added 10 bilingual six-slide feature infographic guides (120 new simulator-based assets), integrated them into selected campaign days across five networks, added 20 platform-copy files and a feature calendar; link, size and X-thread validation passed
+   Detail: tasks/details/43-campaign-feature-infographics.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T08:26:35Z
+   Done by: CODEX
+   Done at: 2026-07-19T08:29:38Z
+
+44. maskid-app-icon
+   Id: 44-maskid-app-icon
+   Scope: Configurar y verificar MaskID como icono principal de la app
+   Files: Shield/MaskID.icon,Shield.xcodeproj/project.pbxproj
+   Note: MaskID.icon confirmado como icono principal en Debug y Release; paquete incluido en Resources; build de simulador completado correctamente
+   Detail: tasks/details/44-maskid-app-icon.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T09:45:51Z
+   Done by: CODEX
+   Done at: 2026-07-19T09:46:32Z
+
+45. maskid-complete-asc-rebrand
+   Id: 45-maskid-complete-asc-rebrand
+   Scope: Auditar y corregir toda la ficha App Store Connect y ASO de MaskID, incluidas categorías, localizaciones, URLs, screenshots e IAP
+   Files: metadata/,Docs/,tasks/
+   Note: Rebranding ASC completo aplicado: nombres y subtítulos EN/ES orientados a protección de identidad, keywords optimizadas, Utilities/Productivity, notas de review corregidas, paywall screenshots con USD retiradas; metadata validada y sincronizada, 0 errores/bloqueos. Privacidad web pendiente de confirmación por sesión Apple caducada; IAP listos para adjuntar en primer envío.
+   Detail: tasks/details/45-maskid-complete-asc-rebrand.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T09:49:11Z
+   Done by: CODEX
+   Done at: 2026-07-19T09:55:07Z
+
+46. maskid-build-and-app-preview
+   Id: 46-maskid-build-and-app-preview
+   Scope: Grabar App Preview real en iPhone 16, crear build 100202607191, archivar, subir y enlazar a App Store 1.0.0 sin enviar a revisión
+   Files: Shield.xcodeproj/project.pbxproj,.asc/,Docs/,tasks/
+   Note: Build 100202607191 aplicado a Shield y ShieldShareExtension; archive e IPA creados; build subido y VALID en App Store Connect; enlazado a la versión 1.0.0; App Preview real de iPhone 16 subido y COMPLETE; validación sin errores bloqueantes; no se creó ni envió submission a revisión.
+   Detail: tasks/details/46-maskid-build-and-app-preview.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T10:15:35Z
+   Done by: CODEX
+   Done at: 2026-07-19T10:30:56Z
+
+47. restore-aso-screenshots-with-preview
+   Id: 47-restore-aso-screenshots-with-preview
+   Scope: Restaurar las 10 capturas ASO en en-US y es-ES manteniendo el App Preview, verificar convivencia y no enviar a revisión
+   Files: .asc/screenshots/aso/final metadata tasks
+   Note: Corregido: 10 capturas ASO iPhone 6.7 en orden 01-10 y COMPLETE en en-US y es-ES; App Preview real COMPLETE en ambos locales; sets iPad preservados; no existe submission de revisión.
+   Detail: tasks/details/47-restore-aso-screenshots-with-preview.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T11:42:05Z
+   Done by: CODEX
+   Done at: 2026-07-19T11:47:12Z
+
+48. publish-pending-and-merge-main
+   Id: 48-publish-pending-and-merge-main
+   Scope: Commit and push all pending repository changes, then merge the release branch into main and push main
+   Files: entire repository
+   Note: Starting commit, push, merge into main, and final push
+   Detail: tasks/details/48-publish-pending-and-merge-main.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T13:03:40Z
 

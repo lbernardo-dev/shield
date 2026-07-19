@@ -31,7 +31,7 @@ enum DirectCloudError: LocalizedError {
         case .invalidServerResponse:
             return "The cloud provider returned an invalid response."
         case .unsupportedFile:
-            return "This file type cannot be imported by Shield."
+return "This file type cannot be imported by MaskID."
         case .missingRefreshToken:
             return "The cloud session expired. Connect the provider again."
         }

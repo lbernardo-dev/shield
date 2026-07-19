@@ -157,16 +157,15 @@ struct SettingsSummaryCard: View {
     var body: some View {
         VStack(spacing: ShieldTheme.s4) {
             HStack(spacing: ShieldTheme.s4) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(ShieldTheme.accentText)
+                Image("MaskIDMark")
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: 66, height: 66)
-                    .background(ShieldTheme.accent(scheme).gradient)
                     .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: ShieldTheme.s2) {
-                    Text("Shield")
+                    Text("MaskID")
                         .font(.title2.weight(.heavy))
                         .foregroundStyle(ShieldTheme.primary(scheme))
 

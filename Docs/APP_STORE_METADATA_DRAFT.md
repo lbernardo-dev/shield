@@ -1,149 +1,97 @@
-# Shield — App Store metadata draft
+# MaskID — App Store metadata
 
-Status: synchronized with App Store Connect for app `6790398619`, version `1.0.0`. Review submission remains explicitly unauthorized.
+Status: synchronized with App Store Connect for app `6790398619`, version `1.0.0`. The app has not been submitted for review.
+
+## Positioning
+
+MaskID protects identity and sensitive data before documents are shared. Its core promise is safer sharing of IDs, passports, licenses, bank documents, contracts, screenshots, photos and PDFs through on-device detection, precise masking and verified export.
+
+It is not positioned as a generic PDF/photo editor.
 
 ## App record
 
-- Platforms: iOS and iPadOS
-- Name: `Shield`
-- Primary language: Spanish (Spain)
-- Bundle ID: `com.romerodev.shield`
-- SKU: `SHIELD-ROMERODEV-001`
-- User access: Full Access
-- Primary category: Productivity
-- Secondary category: Utilities
+- English name: `MaskID: Protect Your Identity`
+- Spanish name: `MaskID: Protege tu identidad`
+- Primary locale: English (U.S.)
+- Bundle ID: `com.romerodev.shield` (immutable legacy identifier)
+- SKU: `SHIELD-ROMERODEV-001` (immutable internal identifier)
+- Primary category: Utilities
+- Secondary category: Productivity
+- Subcategories: none; Apple does not offer subcategories for Utilities or Productivity
+- Age rating: 4+
 - Version: `1.0.0`
-- Current release candidate build: `100202607132`
-- Build convention: `<major><minor-two-digits><YYYYMMDD><daily-increment>`; this build is `1` + `00` + `20260713` + `2`.
+- Current valid build: `100202607191`
+- Release type: manual
+
+## Localized ASO
+
+Canonical metadata lives in `metadata/`.
+
+### English (U.S.)
+
+- Name: `MaskID: Protect Your Identity`
+- Subtitle: `Hide sensitive data safely`
+- Keywords: `privacy,passport,license,scanner,OCR,PII,documents,photo,PDF,redact,blackout,offline,vault,metadata`
+
+### Spanish (Spain)
+
+- Name: `MaskID: Protege tu identidad`
+- Subtitle: `Oculta datos antes de enviar`
+- Keywords: `privacidad,DNI,NIE,pasaporte,escáner,OCR,IBAN,firma,dirección,fotos,PDF,tachar,censurar,bóveda`
+
+The localized descriptions lead with identity protection and explain on-device OCR, manual masking, multi-page documents, encrypted Vault, metadata removal and residual-text verification. They also state that automatic suggestions require user review.
 
 ## URLs
 
-English primary references:
+The public pages are branded MaskID. Their existing `/shield/` paths are retained because they are live, stable compatibility URLs; changing App Store Connect to nonexistent `/maskid/` paths would break support and privacy links.
 
-- Marketing: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/`
-- Support: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/support/`
-- Privacy: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/privacy/`
-- Terms: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/terms/`
-- Subscription terms: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/subscriptions/`
-- FAQ: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/faq/`
+- English marketing: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/`
+- English support: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/support/`
+- English privacy: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/privacy/`
+- English terms: `https://lbernardo-dev.github.io/apps/en/case-studies/shield/terms/`
+- Spanish base: `https://lbernardo-dev.github.io/apps/es/casos/shield/`
 
-Spain localization uses the equivalent URLs below `https://lbernardo-dev.github.io/apps/es/casos/shield/`. Compatibility routes remain available below `https://lbernardo-dev.github.io/apps/apps/shield/`.
+## Screenshots
 
-## Screenshot assets
+- English iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/en-US/iphone-69`
+- Spanish iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/es-ES/iphone-69`
+- English iPad 13-inch source: `.asc/screenshots/en-US/ipad-13`
+- Spanish iPad 13-inch source: `.asc/screenshots/es-ES/ipad-13`
 
-- Spanish iPhone 6.9-inch ASO set: `.asc/screenshots/aso/final/es-ES/iphone-69` (10 files).
-- English iPhone 6.9-inch ASO set: `.asc/screenshots/aso/final/en-US/iphone-69` (10 files).
-- Spanish iPad 13-inch: `.asc/screenshots/es-ES/ipad-13` (2 files).
-- English iPad 13-inch: `.asc/screenshots/en-US/ipad-13` (1 file).
+The App Store sets use real simulator UI with synthetic identity-document fixtures. The sequence focuses on protecting identity, capture/import, precise masking, OCR, verified export, redaction styles, encrypted Vault, batch processing and privacy controls. The paywall screenshot is intentionally excluded because it hard-codes USD pricing and weakens the identity-protection narrative.
 
-The iPhone sets use real simulator UI with synthetic, non-personal document fixtures and a deterministic Shield marketing composition. They cover home, capture, precision editing, OCR, verified export, style gallery, Vault, batch processing, Pro and privacy controls. All 20 iPhone assets are `1320×2868`, pass `asc screenshots validate` with zero errors and zero warnings, and report `COMPLETE` in App Store Connect. The existing required iPad sets remain uploaded.
-
-## Spanish (Spain)
-
-### Subtitle
-
-`Oculta datos con seguridad`
-
-### Promotional text
-
-`Importa, escanea y revisa documentos. Detecta datos sensibles en el dispositivo, aplica máscaras y exporta una copia verificada antes de compartirla.`
-
-### Description
-
-Shield es un espacio profesional para ocultar información sensible en documentos antes de compartirlos.
-
-Importa archivos PDF e imágenes desde Archivos, Fotos o la extensión Compartir. También puedes capturar páginas con la cámara o utilizar el escáner integrado. Shield procesa el contenido en el dispositivo y te permite revisar cada resultado antes de exportarlo.
-
-Funciones principales:
-
-- Máscaras manuales precisas y editables.
-- Sugerencias OCR para documentos, correos, teléfonos, IBAN y tarjetas.
-- Plantillas semánticas para flujos repetitivos.
-- Documentos multipágina y procesamiento por lotes.
-- Exportación rasterizada con comprobación de texto residual.
-- Biblioteca local cifrada y Vault con autenticación del dispositivo.
-- Extensión Compartir para recibir documentos desde otras apps.
-- Compatibilidad con iPhone, iPad, teclado, VoiceOver y Dynamic Type.
-- Sin publicidad ni seguimiento entre apps.
-
-La detección automática puede cometer errores. Shield siempre requiere que revises las zonas seleccionadas antes de compartir el documento exportado.
-
-### Keywords
-
-`privacidad,documentos,ocultar datos,OCR,PDF,escáner,DNI,IBAN,redacción,seguridad`
-
-### What’s New
-
-`Primera versión de Shield: importación y escaneo, OCR en el dispositivo, máscaras manuales y automáticas, Vault cifrado y exportación verificada.`
-
-## English (U.S.)
-
-### Subtitle
-
-`Private document redaction`
-
-### Promotional text
-
-`Import, scan, and review documents. Detect sensitive data on device, apply masks, and export a verified copy before sharing.`
-
-### Description
-
-Shield is a professional workspace for hiding sensitive information in documents before sharing them.
-
-Import PDF files and images from Files, Photos, or the Share Extension. You can also capture pages with the camera or use the built-in document scanner. Shield processes content on device and lets you review every result before export.
-
-Key features:
-
-- Precise, editable manual masks.
-- OCR suggestions for identity documents, email addresses, phone numbers, IBANs, and payment cards.
-- Semantic templates for repeated workflows.
-- Multi-page documents and batch processing.
-- Rasterized export with residual-text verification.
-- Encrypted local library and a device-authenticated Vault.
-- Share Extension for receiving documents from other apps.
-- iPhone, iPad, keyboard, VoiceOver, and Dynamic Type support.
-- No advertising or cross-app tracking.
-
-Automatic detection can make mistakes. Shield always requires you to review selected regions before sharing an exported document.
-
-### Keywords
-
-`privacy,documents,redaction,OCR,PDF,scanner,identity,IBAN,mask,secure`
-
-### What’s New
-
-`The first Shield release: import and scanning, on-device OCR, manual and suggested masks, encrypted Vault, and verified export.`
+The English product page also includes `MaskID-Identity-Protection.mov`, a real 17-second iPhone 16 simulator recording showing document selection, protected-document editing and export. It is delivered as an App Preview at 886×1920, H.264 High, 30 fps with stereo AAC audio.
 
 ## App Review notes
 
-Shield does not require an account or demo credentials.
+MaskID does not require an account or demo credentials.
 
 Suggested review path:
 
-1. Tap Import or Scan and select/capture a document.
-2. Review and confirm the pages.
-3. Open OCR to inspect suggested sensitive fields, or draw a mask manually.
-4. Open Export, acknowledge the review warning, and export a verified PDF or image.
-5. The Share Extension can be tested from Photos or Files using Share > Shield.
+1. Import, photograph or scan a document.
+2. Review the detected pages.
+3. Inspect OCR suggestions or draw a mask manually.
+4. Export a rasterized PDF or image and inspect the verification result.
+5. Test the Share Extension from Photos or Files using Share > MaskID.
 
-Camera is used only to photograph or scan pages selected by the user. Photos and Files access are user initiated. Face ID or Touch ID protects the encrypted Vault. App Groups transfer user-selected documents from the Share Extension through an encrypted inbox. CloudKit is optional and synchronizes only a minimized private index; document images, imported files, OCR text, and user-entered titles remain on device.
+Camera access is used only for user-initiated capture and scanning. Photos and Files access is user initiated. Face ID or Touch ID protects the encrypted Vault. App Groups move user-selected documents from the Share Extension through an encrypted inbox. CloudKit is optional and synchronizes only a minimized private index; document images, imported files, OCR text and user-entered titles remain on device.
 
 ## StoreKit products
 
-| Product ID | Type | Reference name | Initial price intent |
-|---|---|---|---|
-| `com.romerodev.shield.pro.monthly` | Auto-renewable subscription | Shield Pro Monthly | 2.99 EUR base in Spain |
-| `com.romerodev.shield.pro.weekly` | Auto-renewable subscription | Shield Pro Weekly | 0.99 EUR base in Spain |
-| `com.romerodev.shield.pro.annual` | Auto-renewable subscription | Shield Pro Annual | 29.99 EUR base in Spain; 7-day trial |
+| Product ID | Type | Public name |
+|---|---|---|
+| `com.romerodev.shield.pro.monthly` | Auto-renewable subscription | MaskID Pro Monthly / MaskID Pro Mensual |
+| `com.romerodev.shield.pro.annual` | Auto-renewable subscription | MaskID Pro Annual / MaskID Pro Anual |
+| `com.romerodev.shield.pro.lifetime.unlock` | Non-consumable | MaskID Pro Lifetime / MaskID Pro de por vida |
 
-The monthly and annual products belong to the `Shield Pro` subscription group. Apple-equivalent prices and availability are configured for all 175 territories. Descriptions and public screenshots do not hard-code regional prices.
+Product IDs are immutable legacy identifiers and are never shown as the customer-facing product names. All three products are ready to submit and must be attached to the first app review submission.
 
-## App Privacy working declaration
+## App Privacy
 
-- Tracking: No.
-- Advertising: No.
-- Third-party analytics: No.
-- Documents, images, OCR text, titles, telemetry, and Vault contents: not transmitted to the developer.
-- Optional CloudKit private index: document UUID, generic protected title, document kind, built-in category, date, redaction count, favorite state, and source type; used only for App Functionality, not tracking or advertising.
+- Tracking: no
+- Advertising: no
+- Third-party analytics: no
+- Documents, images, OCR text, titles, telemetry and Vault contents are not transmitted to the developer
+- Optional private CloudKit index is used only for app functionality
 
-Before publishing App Privacy, choose the conservative CloudKit disclosure offered by App Store Connect for product interaction/private app content, marked as linked to the user only if Apple’s questionnaire treats private iCloud records as developer-collected data. Preserve “Data Not Collected” only if the questionnaire explicitly excludes private CloudKit data inaccessible to the developer.
+App Privacy publication must be confirmed using an authenticated App Store Connect web session before review submission; the public API cannot verify its publish state.

@@ -7,16 +7,16 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger un documento" } }
       }
     },
-    "Opens Shield ready to import, scan, or photograph a document." : {
+    "Opens MaskID ready to import, scan, or photograph a document." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens Shield ready to import, scan, or photograph a document." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre Shield para importar, escanear o fotografiar un documento." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens MaskID ready to import, scan, or photograph a document." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre MaskID para importar, escanear o fotografiar un documento." } }
       }
     },
-    "Shield is ready to protect your document." : {
+    "MaskID is ready to protect your document." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shield is ready to protect your document." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Shield está lista para proteger tu documento." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "MaskID is ready to protect your document." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "MaskID está lista para proteger tu documento." } }
       }
     },
     "Open Secure Vault" : {
@@ -25,10 +25,10 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir la bóveda segura" } }
       }
     },
-    "Opens Shield's protected vault. Authentication is always required in the app." : {
+    "Opens MaskID's protected vault. Authentication is always required in the app." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens Shield's protected vault. Authentication is always required in the app." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la bóveda protegida de Shield. La app siempre solicita autenticación." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens MaskID's protected vault. Authentication is always required in the app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la bóveda protegida de MaskID. La app siempre solicita autenticación." } }
       }
     },
     "Opening the secure vault." : {

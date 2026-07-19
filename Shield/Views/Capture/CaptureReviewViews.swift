@@ -16,8 +16,8 @@ enum ScanFilterPreset: String, CaseIterable, Identifiable {
 
     func label() -> String {
         switch self {
-        case .original: return LanguageManager.shared.current == .es ? "Original" : "Original"
-        case .auto: return LanguageManager.shared.current == .es ? "Automático" : "Auto"
+        case .original: return LanguageManager.shared.capture("capture_filter_original")
+        case .auto: return LanguageManager.shared.capture("capture_filter_auto")
         case .blackWhite: return LanguageManager.shared.capture("capture_black_white")
         case .highContrast: return LanguageManager.shared.capture("capture_high_contrast")
         }
@@ -627,7 +627,7 @@ struct ScanReviewView: View {
                 Spacer()
 
                 if showQuadEditor {
-                    Button(appState.language == .es ? "Aplicar" : "Apply") {
+                    Button(LanguageManager.shared.common("common_apply")) {
                         applyManualCrop()
                     }
                     .font(.system(size: 15, weight: .bold))
@@ -657,7 +657,7 @@ struct ScanReviewView: View {
                     .font(.system(size: 22, weight: .heavy))
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
-                Text(appState.language == .es ? "Corrige legibilidad, perspectiva y recorte antes de importar." : "Fix readability, perspective and crop before importing.")
+                Text(LanguageManager.shared.capture("capture_enhance_subtitle"))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .lineLimit(2)
@@ -971,8 +971,8 @@ struct ScanReviewView: View {
                         Image(systemName: showQuadEditor ? "checkmark.circle.fill" : "skew")
                             .font(.system(size: 11, weight: .semibold))
                         Text(showQuadEditor
-                             ? (appState.language == .es ? "Aplicar recorte" : "Apply crop")
-                             : (appState.language == .es ? "Perspectiva manual" : "Manual perspective"))
+                             ? LanguageManager.shared.capture("capture_apply_crop")
+                             : LanguageManager.shared.capture("capture_manual_perspective"))
                             .font(.system(size: 12, weight: .semibold))
                     }
                     .frame(maxWidth: .infinity)
@@ -1024,8 +1024,8 @@ struct ScanReviewView: View {
                 Image(systemName: showAdvancedControls ? "slider.horizontal.3" : "slider.horizontal.below.square.and.square.filled")
                     .font(.system(size: 12, weight: .semibold))
                 Text(showAdvancedControls
-                     ? (appState.language == .es ? "Ocultar ajustes avanzados" : "Hide advanced controls")
-                     : (appState.language == .es ? "Mostrar ajustes avanzados" : "Show advanced controls"))
+                     ? LanguageManager.shared.capture("capture_hide_advanced_controls")
+                     : LanguageManager.shared.capture("capture_show_advanced_controls"))
                     .font(.system(size: 12, weight: .semibold))
                 Spacer()
                 Image(systemName: showAdvancedControls ? "chevron.up" : "chevron.down")

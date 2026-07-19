@@ -585,13 +585,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Support"
+            "value": "MaskID Support"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soporte Shield"
+            "value": "Soporte MaskID"
           }
         }
       }
@@ -738,13 +738,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro"
+            "value": "MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro"
+            "value": "MaskID Pro"
           }
         }
       }
@@ -789,13 +789,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro — Active"
+            "value": "MaskID Pro — Active"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro — Activo"
+            "value": "MaskID Pro — Activo"
           }
         }
       }
@@ -1078,13 +1078,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro Unlocked"
+            "value": "MaskID Pro Unlocked"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro Desbloqueado"
+            "value": "MaskID Pro Desbloqueado"
           }
         }
       }

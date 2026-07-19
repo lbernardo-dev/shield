@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create deterministic App Store marketing screenshots from real Shield UI captures."""
+"""Create deterministic App Store marketing screenshots from real MaskID UI captures."""
 
 from __future__ import annotations
 
@@ -16,9 +16,9 @@ REVIEW_ROOT = ROOT / ".asc" / "screenshots" / "aso" / "review"
 
 WIDTH = 1320
 HEIGHT = 2868
-BACKGROUND = "#0B0B0F"
-SURFACE = "#18181E"
-ACCENT = "#FFD60A"
+BACKGROUND = "#071426"
+SURFACE = "#0E2038"
+ACCENT = "#20C7D9"
 WHITE = "#F7F7FA"
 SECONDARY = "#A7A7B2"
 
@@ -64,7 +64,7 @@ def compose(raw_path: Path, output_path: Path, order: int, copy: list[str], loca
 
     # Cohesive brand accents used across the full set.
     draw.rounded_rectangle((72, 92, 258, 148), radius=28, fill=ACCENT)
-    draw.text((104, 105), "SHIELD", font=font(27), fill="#101014")
+    draw.text((102, 105), "MASKID", font=font(27), fill="#071426")
     locale_label = "PRIVACIDAD EN EL DISPOSITIVO" if locale == "es-ES" else "PRIVACY ON DEVICE"
     draw.text((286, 108), locale_label, font=font(25), fill=SECONDARY)
     draw.ellipse((1110, 55, 1335, 280), outline="#2D2D35", width=5)

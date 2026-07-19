@@ -10,15 +10,12 @@ struct HomeTopBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 9) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 11)
-                        .fill(ShieldTheme.accentColor(scheme))
-                        .frame(width: 30, height: 30)
-                    Image(systemName: "shield.lefthalf.filled")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(scheme == .dark ? ShieldTheme.accentText : ShieldTheme.accent)
-                        .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
-                }
+                Image("MaskIDMark")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 30, height: 30)
+                    .clipShape(.rect(cornerRadius: 9))
+                    .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(LanguageManager.shared.common("common_app_name"))
@@ -65,7 +62,7 @@ struct HomeTopBarView: View {
     }
 
     private var workspaceTagline: String {
-        language == .es ? "Privado en el dispositivo" : "Private on-device"
+        LanguageManager.shared.home("home_workspace_tagline")
     }
 
     private func smallChromeButton(title: String, action: @escaping () -> Void) -> some View {
@@ -142,21 +139,15 @@ struct HomeHeroCardView: View {
     }
 
     private var heroTitle: String {
-        language == .es
-            ? "Protege antes de compartir."
-            : "Protect before sharing."
+        LanguageManager.shared.home("home_hero_title")
     }
 
     private var heroSubtitle: String {
-        language == .es
-            ? "Escanea o importa y oculta datos sensibles sin sacar el archivo del dispositivo."
-            : "Scan or import and hide sensitive data without sending the file off-device."
+        LanguageManager.shared.home("home_hero_subtitle")
     }
 
     private var summaryLine: String {
-        language == .es
-            ? "\(documentCount) documentos protegibles"
-            : "\(documentCount) protected-ready documents"
+        LanguageManager.shared.home("home_hero_summary_line", documentCount)
     }
 
     private var statusBadge: some View {
@@ -234,7 +225,7 @@ struct HomeHeroCardView: View {
     }
 
     private var cloudImportTitle: String {
-        language == .es ? "Importar" : "Import"
+        LanguageManager.shared.home("home_import_action")
     }
 
     private var freePlanMeter: some View {

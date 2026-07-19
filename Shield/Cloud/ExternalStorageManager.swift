@@ -253,7 +253,7 @@ private struct CloudProviderBrowserView: View {
         NavigationStack {
             Group {
                 if isLoading {
-                    ProgressView(language == .es ? "Conectando…" : "Connecting…")
+                    ProgressView(LanguageManager.shared.common("cloud_connecting"))
                 } else if let failure {
                     CloudConnectionRecoveryView(
                         provider: provider,
@@ -263,7 +263,7 @@ private struct CloudProviderBrowserView: View {
                     )
                 } else if items.isEmpty {
                     ContentUnavailableView(
-                        language == .es ? "No hay documentos compatibles" : "No compatible documents",
+                        LanguageManager.shared.common("cloud_no_compatible_documents"),
                         systemImage: "folder"
                     )
                 } else {
@@ -312,8 +312,8 @@ private struct CloudProviderBrowserView: View {
                     } label: {
                         Label(
                             folders.isEmpty
-                                ? (language == .es ? "Cerrar" : "Close")
-                                : (language == .es ? "Volver" : "Back"),
+                                ? LanguageManager.shared.common("common_close")
+                                : LanguageManager.shared.common("cloud_browser_back"),
                             systemImage: folders.isEmpty ? "xmark" : "chevron.left"
                         )
                     }
@@ -321,7 +321,7 @@ private struct CloudProviderBrowserView: View {
                 }
                 if manager.isConnected(provider) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(language == .es ? "Desconectar" : "Disconnect", role: .destructive) {
+                        Button(LanguageManager.shared.common("cloud_disconnect"), role: .destructive) {
                             manager.disconnect(provider)
                             dismiss()
                         }

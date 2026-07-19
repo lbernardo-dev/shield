@@ -31,13 +31,10 @@ struct EditorDocumentMetaBar: View {
     }
 
     private var changeCountLabel: String {
-        if changeCount == 0 {
-            return lang == .es ? "Sin cambios" : "No changes"
+        guard changeCount > 0 else {
+            return LanguageManager.shared.editor("editor_change_count_none")
         }
-        if changeCount == 1 {
-            return lang == .es ? "1 cambio" : "1 change"
-        }
-        return lang == .es ? "\(changeCount) cambios" : "\(changeCount) changes"
+        return LanguageManager.shared.editor("editor_change_count", changeCount)
     }
 }
 
@@ -82,7 +79,7 @@ struct EditorSensitiveBanner: View {
                 .opacity((suggestedRedactionCount == 0 || isAnalyzing) ? 0.55 : 1)
 
                 Button(action: onOpenFields) {
-                    Text(lang == .es ? "Campos" : "Fields")
+                    Text(LanguageManager.shared.editor("editor_sensitive_fields_button"))
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(ShieldTheme.accent(scheme))
                         .padding(.horizontal, 10)
@@ -112,14 +109,14 @@ struct EditorSensitiveBanner: View {
 
     private var titleText: String {
         if isAnalyzing {
-            return lang == .es ? "Analizando zonas sensibles…" : "Analyzing sensitive zones…"
+            return LanguageManager.shared.editor("editor_sensitive_analyzing")
         }
         return LanguageManager.shared.editor("editor_sensitive_suggested", suggestedRedactionCount)
     }
 
     private var subtitleText: String {
         if docKind == .photo || docKind == .genericID {
-            return lang == .es ? "Basado en los campos OCR detectados." : "Based on detected OCR fields."
+            return LanguageManager.shared.editor("editor_sensitive_based_on_ocr")
         }
         return LanguageManager.shared.editor("editor_sensitive_based_on_template")
     }

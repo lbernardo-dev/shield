@@ -483,13 +483,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get Shield Pro"
+            "value": "Get MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activar Shield Pro"
+            "value": "Activar MaskID Pro"
           }
         }
       }
@@ -874,13 +874,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro"
+            "value": "MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield Pro"
+            "value": "MaskID Pro"
           }
         }
       }
@@ -976,13 +976,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock all Shield features"
+            "value": "Unlock all MaskID features"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquea todas las funciones de Shield"
+            "value": "Desbloquea todas las funciones de MaskID"
           }
         }
       }
@@ -1027,13 +1027,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encrypted vault is available with Shield Pro."
+            "value": "Encrypted vault is available with MaskID Pro."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La bóveda cifrada está disponible con Shield Pro."
+            "value": "La bóveda cifrada está disponible con MaskID Pro."
           }
         }
       }
@@ -1044,13 +1044,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get Shield Pro"
+            "value": "Get MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activar Shield Pro"
+            "value": "Activar MaskID Pro"
           }
         }
       }

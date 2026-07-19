@@ -254,7 +254,7 @@ struct EditorView: View {
                     appState.selectedDoc = nil
                     dismiss()
                 } label: {
-                    Text(appState.language == .es ? "Guardar" : "Save")
+                    Text(LanguageManager.shared.common("common_save"))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 14)
@@ -374,7 +374,7 @@ struct EditorView: View {
                         }
                         .disabled(currentPage == 0)
                         .frame(minWidth: 44, minHeight: 44)
-                        .accessibilityLabel(appState.language == .es ? "Página anterior" : "Previous page")
+                        .accessibilityLabel(LanguageManager.shared.editor("editor_previous_page"))
                         .keyboardShortcut(.leftArrow, modifiers: [])
                     }
 
@@ -401,7 +401,7 @@ struct EditorView: View {
                         }
                         .disabled(currentPage >= totalPages - 1)
                         .frame(minWidth: 44, minHeight: 44)
-                        .accessibilityLabel(appState.language == .es ? "Página siguiente" : "Next page")
+                        .accessibilityLabel(LanguageManager.shared.editor("editor_next_page"))
                         .keyboardShortcut(.rightArrow, modifiers: [])
                     }
                 }
@@ -446,7 +446,7 @@ struct EditorView: View {
                     }
                     .disabled(zoomScale <= 1)
                     .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel(appState.language == .es ? "Reducir zoom" : "Zoom out")
+                    .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_out"))
                     .keyboardShortcut("-", modifiers: .command)
 
                     Text("\(Int(effectiveZoom * 100))%")
@@ -461,11 +461,11 @@ struct EditorView: View {
                     }
                     .disabled(zoomScale >= 4)
                     .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel(appState.language == .es ? "Aumentar zoom" : "Zoom in")
+                    .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_in"))
                     .keyboardShortcut("+", modifiers: .command)
                 }
                 .accessibilityElement(children: .contain)
-                .accessibilityLabel(appState.language == .es ? "Controles de zoom" : "Zoom controls")
+                .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_controls"))
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .background(.ultraThinMaterial, in: Capsule())
                 .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
@@ -536,24 +536,13 @@ struct EditorView: View {
     }
 
     private var toolHelpText: String {
-        if appState.language == .es {
-            switch vm.tool {
-            case .rect: return "Arrastra sobre el documento para crear una nueva máscara."
-            case .fields: return "Toca un campo para enmascararlo o quitar máscara."
-            case .auto: return "Aplicación automática de zonas sensibles."
-            case .text: return "Revisa OCR y aplica máscaras por campo."
-            case .watermark: return "Configura marca de agua del documento."
-            case .adjust: return "Ajusta brillo, recorte y geometría."
-            }
-        } else {
-            switch vm.tool {
-            case .rect: return "Drag over the document to create a new mask."
-            case .fields: return "Tap a field to mask or unmask it."
-            case .auto: return "Automatically applies sensitive areas."
-            case .text: return "Review OCR and mask by field."
-            case .watermark: return "Configure the document watermark."
-            case .adjust: return "Adjust brightness, crop and geometry."
-            }
+        switch vm.tool {
+        case .rect: return LanguageManager.shared.editor("editor_tool_help_rect")
+        case .fields: return LanguageManager.shared.editor("editor_tool_help_fields")
+        case .auto: return LanguageManager.shared.editor("editor_tool_help_auto")
+        case .text: return LanguageManager.shared.editor("editor_tool_help_text")
+        case .watermark: return LanguageManager.shared.editor("editor_tool_help_watermark")
+        case .adjust: return LanguageManager.shared.editor("editor_tool_help_adjust")
         }
     }
 

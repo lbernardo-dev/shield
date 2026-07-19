@@ -201,7 +201,7 @@ struct CaptureView: View {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
         .alert(
-            appState.language == .es ? "No se pudo importar" : "Import failed",
+            LanguageManager.shared.capture("capture_import_failed_title"),
             isPresented: Binding(
                 get: { importErrorMessage != nil },
                 set: { if !$0 { importErrorMessage = nil } }
@@ -302,7 +302,7 @@ struct CaptureView: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .multilineTextAlignment(.center)
-            Button(appState.language == .es ? "Cancelar" : "Cancel", role: .cancel) {
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {
                 processingTask?.cancel()
                 processingTask = nil
                 isProcessing = false
@@ -551,7 +551,7 @@ struct CaptureView: View {
             }
 
             processingProgress = nil
-            processingMessage = appState.language == .es ? "Analizando texto sensible…" : "Analyzing sensitive text…"
+            processingMessage = LanguageManager.shared.capture("capture_analyzing_sensitive_text")
 
             // OCR all pages: two-pass adaptive — second pass adds country-specific languages if detected.
             // Also capture bounding boxes for page 0 to enable precision auto-redaction.

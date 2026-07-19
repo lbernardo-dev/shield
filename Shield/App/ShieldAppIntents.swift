@@ -8,7 +8,7 @@ struct OpenShieldCaptureIntent: AppIntent {
     )
     static let description = IntentDescription(
         LocalizedStringResource(
-            "Opens Shield ready to import, scan, or photograph a document.",
+"Opens MaskID ready to import, scan, or photograph a document.",
             table: "AppShortcuts"
         )
     )
@@ -17,7 +17,7 @@ struct OpenShieldCaptureIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         UserDefaults.standard.set(true, forKey: "shield.intent.openCapture")
         return .result(dialog: IntentDialog(stringLiteral: String(localized: LocalizedStringResource(
-            "Shield is ready to protect your document.",
+"MaskID is ready to protect your document.",
             table: "AppShortcuts"
         ))))
     }
@@ -27,7 +27,7 @@ struct OpenShieldVaultIntent: AppIntent {
     static let title = LocalizedStringResource("Open Secure Vault", table: "AppShortcuts")
     static let description = IntentDescription(
         LocalizedStringResource(
-            "Opens Shield's protected vault. Authentication is always required in the app.",
+"Opens MaskID's protected vault. Authentication is always required in the app.",
             table: "AppShortcuts"
         )
     )
