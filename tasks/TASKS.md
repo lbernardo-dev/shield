@@ -528,3 +528,12 @@
    Done by: CODEX
    Done at: 2026-07-19T13:04:23Z
 
+49. fix-aso-preview-and-upload-build
+   Id: 49-fix-aso-preview-and-upload-build
+   Scope: Move EN/ES App Preview from iPhone 6.5-inch to iPhone 6.9-inch, set build 100202607192 for all targets, archive/export/upload, attach to version 1.0.0, and audit submission readiness without submitting
+   Files: Shield.xcodeproj/project.pbxproj .asc/app-previews tasks/
+   Note: Inspecting App Store Connect preview sets and preparing build 100202607192
+   Detail: tasks/details/49-fix-aso-preview-and-upload-build.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T13:09:10Z
+
