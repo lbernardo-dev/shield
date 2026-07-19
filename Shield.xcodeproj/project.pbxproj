@@ -64,6 +64,7 @@
 		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
 		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
 		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
+		ARC001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCPROD001 /* RevenueCat */; };
 		AIMP /* ImportPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIMP /* ImportPipeline.swift */; };
 		AINT /* ShieldAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FINT /* ShieldAppIntents.swift */; };
 		AMETRIC /* ShieldMetricSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FMETRIC /* ShieldMetricSubscriber.swift */; };
@@ -245,6 +246,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ARC001 /* RevenueCat in Frameworks */,
 				A099 /* StoreKit.framework in Frameworks */,
 				A100 /* Vision.framework in Frameworks */,
 				A101 /* PhotosUI.framework in Frameworks */,
@@ -640,6 +642,9 @@
 				DEP_SHARE_EXTENSION /* PBXTargetDependency */,
 			);
 			name = Shield;
+			packageProductDependencies = (
+				RCPROD001 /* RevenueCat */,
+			);
 			productName = Shield;
 			productReference = FAPP /* Shield.app */;
 			productType = "com.apple.product-type.application";
@@ -714,6 +719,9 @@
 				Base,
 			);
 			mainGroup = GRP_ROOT;
+			packageReferences = (
+				RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+			);
 			productRefGroup = GRP_PRODUCTS /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -725,6 +733,25 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.81.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		RCPROD001 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		PH_EXT_RESOURCES /* Resources */ = {

@@ -1,7 +1,6 @@
 import SwiftUI
 import AVFoundation
 import LocalAuthentication
-import StoreKit
 
 // MARK: - Screen 1: Welcome
 
@@ -1403,7 +1402,7 @@ struct OBPaywallView: View {
         .accessibilityHint(LanguageManager.shared.settings("settings_opens_browser"))
     }
 
-    private func savingsLabel(for product: Product) -> String? {
+    private func savingsLabel(for product: PremiumProduct) -> String? {
         switch ShieldProduct(rawValue: product.id) {
         case .annual:
             guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })

@@ -1,6 +1,6 @@
-import StoreKit
 import SwiftUI
 import OSLog
+import RevenueCat
 
 // MARK: - Product IDs  (match exactly what you register in App Store Connect)
 
@@ -27,6 +27,15 @@ enum ShieldProduct: String, CaseIterable {
         return LanguageManager.shared.str(key, table: "Paywall")
     }
 }
+
+struct PremiumProduct: Identifiable {
+    let storeProduct: StoreProduct
+
+    var id: String { storeProduct.productIdentifier }
+    var displayName: String { storeProduct.localizedTitle }
+    var displayPrice: String { storeProduct.localizedPriceString }
+    var price: Decimal { storeProduct.price }
+}
 // MARK: - PaywallTrigger (why are we showing the paywall)
 enum PaywallTrigger: String, CaseIterable {
     case manual
@@ -51,14 +60,15 @@ enum PaywallTrigger: String, CaseIterable {
 // MARK: - PremiumManager
 
 @MainActor
-final class PremiumManager: ObservableObject {
+final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     static let shared = PremiumManager()
 
-    private let logger = Logger(subsystem: "com.romerodev.shield", category: "StoreKit")
+    private static let entitlementFallback = "MaskID Pro"
+    private let logger = Logger(subsystem: "com.romerodev.shield", category: "RevenueCat")
 
     @Published private(set) var isPro: Bool = false
-    @Published private(set) var products: [Product] = []
+    @Published private(set) var products: [PremiumProduct] = []
     /// Product ID → localized free-trial badge. Only populated for products with
     /// a free-trial introductory offer the user is still eligible for.
     @Published private(set) var trialLabels: [String: String] = [:]
@@ -70,9 +80,24 @@ final class PremiumManager: ObservableObject {
     @Published private(set) var isDebugProOverride: Bool = false
     #endif
 
-    private var updateListenerTask: Task<Void, Error>? = nil
+    static func configureRevenueCat() {
+        guard !Purchases.isConfigured else { return }
+        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "RevenueCatAPIKey") as? String,
+              !apiKey.isEmpty else { return }
+        #if DEBUG
+        Purchases.logLevel = .debug
+        #endif
+        Purchases.configure(withAPIKey: apiKey)
+    }
 
-    private init() {
+    private var entitlementIdentifier: String {
+        Bundle.main.object(forInfoDictionaryKey: "RevenueCatEntitlementIdentifier") as? String
+            ?? Self.entitlementFallback
+    }
+
+    private override init() {
+        Self.configureRevenueCat()
+        super.init()
         // Restore from cache immediately
         isPro = UserDefaults.standard.bool(forKey: "shield.isPro")
         #if DEBUG
@@ -80,34 +105,26 @@ final class PremiumManager: ObservableObject {
         isDebugProOverride = override
         if override { isPro = true }
         #endif
-        // Start listener
-        updateListenerTask = listenForTransactions()
+        Purchases.shared.delegate = self
         Task {
-            await processUnfinishedTransactions()
             await updateProStatus()
             await loadProducts()
         }
     }
 
-    deinit { updateListenerTask?.cancel() }
-
     // MARK: - Load products
 
     func loadProducts() async {
-        do {
-            let ids = ShieldProduct.allCases.map(\.rawValue)
-            let fetched = try await Product.products(for: ids)
-            // The product surface is intentionally limited to three clear choices.
-            products = fetched.sorted { lhs, rhs in
-                let order: [String: Int] = [
-                    ShieldProduct.monthly.rawValue: 0,
-                    ShieldProduct.annual.rawValue: 1,
-                    ShieldProduct.lifetime.rawValue: 2,
-                ]
-                return (order[lhs.id] ?? 99) < (order[rhs.id] ?? 99)
-            }
-        } catch {
-            logger.error("Product loading failed: \(String(describing: error), privacy: .private)")
+        let ids = ShieldProduct.allCases.map(\.rawValue)
+        let fetched = await Purchases.shared.products(ids).map(PremiumProduct.init(storeProduct:))
+        // The product surface is intentionally limited to three clear choices.
+        products = fetched.sorted { lhs, rhs in
+            let order: [String: Int] = [
+                ShieldProduct.monthly.rawValue: 0,
+                ShieldProduct.annual.rawValue: 1,
+                ShieldProduct.lifetime.rawValue: 2,
+            ]
+            return (order[lhs.id] ?? 99) < (order[rhs.id] ?? 99)
         }
         await refreshTrialEligibility()
     }
@@ -115,17 +132,16 @@ final class PremiumManager: ObservableObject {
     private func refreshTrialEligibility() async {
         var labels: [String: String] = [:]
         for product in products {
-            guard let subscription = product.subscription,
-                  let offer = subscription.introductoryOffer,
+            guard let offer = product.storeProduct.introductoryDiscount,
                   offer.paymentMode == .freeTrial,
-                  await subscription.isEligibleForIntroOffer
+                  await Purchases.shared.checkTrialOrIntroDiscountEligibility(product: product.storeProduct) == .eligible
             else { continue }
-            labels[product.id] = Self.trialBadgeLabel(for: offer.period)
+            labels[product.id] = Self.trialBadgeLabel(for: offer.subscriptionPeriod)
         }
         trialLabels = labels
     }
 
-    private static func trialBadgeLabel(for period: Product.SubscriptionPeriod) -> String {
+    private static func trialBadgeLabel(for period: SubscriptionPeriod) -> String {
         switch period.unit {
         case .day:
             return LanguageManager.shared.paywall("paywall_trial_days", period.value)
@@ -142,28 +158,19 @@ final class PremiumManager: ObservableObject {
 
     // MARK: - Purchase
 
-    func purchase(_ product: Product) async {
+    func purchase(_ product: PremiumProduct) async {
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
         AppState.trackEvent("purchase_started", properties: ["product_id": product.id])
 
         do {
-            let result = try await product.purchase()
-            switch result {
-            case .success(let verification):
-                let transaction = try checkVerified(verification)
-                await updateProStatus()
-                AppState.trackEvent("purchase_success", properties: ["product_id": product.id])
-                await transaction.finish()
-            case .pending:
-                AppState.trackEvent("purchase_pending", properties: ["product_id": product.id])
-                break
-            case .userCancelled:
+            let result = try await Purchases.shared.purchase(product: product.storeProduct)
+            if result.userCancelled {
                 AppState.trackEvent("purchase_cancelled", properties: ["product_id": product.id])
-                break
-            @unknown default:
-                break
+            } else {
+                apply(result.customerInfo)
+                AppState.trackEvent("purchase_success", properties: ["product_id": product.id])
             }
         } catch {
             purchaseError = error.localizedDescription
@@ -180,40 +187,12 @@ final class PremiumManager: ObservableObject {
         isRestoring = true
         defer { isRestoring = false }
         do {
-            try await AppStore.sync()
-            await updateProStatus()
+            let customerInfo = try await Purchases.shared.restorePurchases()
+            apply(customerInfo)
             AppState.trackEvent("restore_success")
         } catch {
             purchaseError = error.localizedDescription
             AppState.trackEvent("restore_failed", properties: ["error": error.localizedDescription])
-        }
-    }
-
-    // MARK: - Listen for transactions
-
-    private func listenForTransactions() -> Task<Void, Error> {
-        Task.detached {
-            for await result in Transaction.updates {
-                do {
-                    let transaction = try await self.checkVerified(result)
-                    await self.updateProStatus()
-                    await transaction.finish()
-                } catch {
-                    self.logger.error("Transaction verification failed: \(String(describing: error), privacy: .private)")
-                }
-            }
-        }
-    }
-
-    private func processUnfinishedTransactions() async {
-        for await result in Transaction.unfinished {
-            do {
-                let transaction = try checkVerified(result)
-                await updateProStatus()
-                await transaction.finish()
-            } catch {
-                logger.error("Unfinished transaction verification failed: \(String(describing: error), privacy: .private)")
-            }
         }
     }
 
@@ -223,26 +202,24 @@ final class PremiumManager: ObservableObject {
         #if DEBUG
         if isDebugProOverride { return }
         #endif
-        var hasPro = false
-        for await result in Transaction.currentEntitlements {
-            guard case .verified(let transaction) = result,
-                  transaction.revocationDate == nil
-            else { continue }
-            if ShieldProduct.allCases.map(\.rawValue).contains(transaction.productID) {
-                if let expiry = transaction.expirationDate {
-                    if expiry > Date() {
-                        hasPro = true
-                        break
-                    }
-                } else {
-                    // Non-consumable lifetime entitlement.
-                    hasPro = true
-                    break
-                }
-            }
+        do {
+            apply(try await Purchases.shared.customerInfo())
+        } catch {
+            logger.error("Customer info refresh failed: \(String(describing: error), privacy: .private)")
         }
+    }
+
+    private func apply(_ customerInfo: CustomerInfo) {
+        #if DEBUG
+        if isDebugProOverride { return }
+        #endif
+        let hasPro = customerInfo.entitlements[entitlementIdentifier]?.isActive == true
         isPro = hasPro
         UserDefaults.standard.set(hasPro, forKey: "shield.isPro")
+    }
+
+    nonisolated func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+        Task { @MainActor [weak self] in self?.apply(customerInfo) }
     }
 
     #if DEBUG
@@ -253,15 +230,6 @@ final class PremiumManager: ObservableObject {
         UserDefaults.standard.set(enabled, forKey: "shield.isPro")
     }
     #endif
-
-    // MARK: - Verify
-
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .unverified(_, let error): throw error
-        case .verified(let value): return value
-        }
-    }
 
     // MARK: - Limits
 
@@ -303,13 +271,13 @@ final class PremiumManager: ObservableObject {
 
     // MARK: - Helpers for display
 
-    func annualSavings(monthly: Product, annual: Product, lang: AppLanguage = .en) -> String? {
+    func annualSavings(monthly: PremiumProduct, annual: PremiumProduct, lang: AppLanguage = .en) -> String? {
         guard let pct = savingsPercent(referencePrice: monthly.price * 12, offerPrice: annual.price)
         else { return nil }
         return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: pct)
     }
 
-    func lifetimeSavings(annual: Product, lifetime: Product, lang: AppLanguage = .en) -> String? {
+    func lifetimeSavings(annual: PremiumProduct, lifetime: PremiumProduct, lang: AppLanguage = .en) -> String? {
         guard let pct = savingsPercent(referencePrice: annual.price * 2, offerPrice: lifetime.price)
         else { return nil }
         return LanguageManager.shared.str("paywall_save_two_years_percent", table: "Paywall", args: pct)

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>RevenueCatAPIKey</key>
+	<string>appl_cJuegsqbihOvDkhDESnUPrekHTJ</string>
+	<key>RevenueCatEntitlementIdentifier</key>
+	<string>MaskID Pro</string>
 	<key>ShieldAppStoreID</key>
 	<string>6790398619</string>
 	<key>ShieldGoogleDriveClientID</key>

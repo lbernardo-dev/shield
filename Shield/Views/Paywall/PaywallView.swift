@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 // MARK: - PaywallView
 
@@ -204,7 +203,7 @@ struct PaywallView: View {
         }
     }
 
-    private func savingsLabel(for product: Product) -> String? {
+    private func savingsLabel(for product: PremiumProduct) -> String? {
         switch ShieldProduct(rawValue: product.id) {
         case .annual:
             guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
@@ -333,7 +332,7 @@ struct PaywallView: View {
 
 struct PlanRow: View {
     @EnvironmentObject var appState: AppState
-    let product: Product
+    let product: PremiumProduct
     let isSelected: Bool
     let savingsLabel: String?
     let trialLabel: String?

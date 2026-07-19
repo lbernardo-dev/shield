@@ -539,3 +539,14 @@
    Done by: CODEX
    Done at: 2026-07-19T13:16:42Z
 
+50. integrate-revenuecat-custom-paywall
+   Id: 50-integrate-revenuecat-custom-paywall
+   Scope: Integrate RevenueCat purchases and entitlements while preserving the existing custom SwiftUI paywall
+   Files: Shield/Premium/PremiumManager.swift Shield/Views/Paywall/PaywallView.swift Shield/Views/Onboarding/OnboardingSteps.swift Shield/App/ShieldApp.swift Shield/Resources/Info.plist Shield.xcodeproj/project.pbxproj ShieldTests/ tasks/ Docs/
+   Note: RevenueCat project/app configured with valid Apple credentials; 3 production products imported and attached to MaskID Pro; SDK 5.81.1 integrated with existing Swift paywalls, purchase/restore/entitlement/trial eligibility; simulator build passes. Unit test runner blocked by local LLDB DebuggerVersionStore error.
+   Detail: tasks/details/50-integrate-revenuecat-custom-paywall.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T13:32:05Z
+   Done by: CODEX
+   Done at: 2026-07-19T13:54:13Z
+
