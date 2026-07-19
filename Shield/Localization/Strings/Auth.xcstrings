@@ -1,70 +1,87 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "lock_subtitle": {
+    "lock_faceid_unavailable": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your documents protected"
+            "value": "Face ID is not available on this device."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tus documentos protegidos"
+            "value": "Face ID no disponible en este dispositivo."
           }
         }
       }
     },
-    "lock_verifying": {
+    "lock_passcode_hint": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifying…"
+            "value": "The passcode protects access when Face ID is unavailable."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verificando…"
+            "value": "El código protege el acceso cuando Face ID no está disponible."
           }
         }
       }
     },
-    "lock_unlock_to_continue": {
+    "lock_pill_encrypted": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock to continue"
+            "value": "Encrypted"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquea para continuar"
+            "value": "Cifrado"
           }
         }
       }
     },
-    "lock_unlock_faceid": {
+    "lock_pill_private": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock with Face ID"
+            "value": "Private"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquear con Face ID"
+            "value": "Privado"
+          }
+        }
+      }
+    },
+    "lock_reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock MaskID"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquea MaskID"
           }
         }
       }
@@ -86,53 +103,19 @@
         }
       }
     },
-    "lock_unlock_pin": {
+    "lock_setup_passcode_message": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock with PIN"
+            "value": "Set a local passcode before accessing your secure workspace."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquear con PIN"
-          }
-        }
-      }
-    },
-    "lock_unlock_generic": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unlock"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desbloquear"
-          }
-        }
-      }
-    },
-    "lock_use_pin": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use code (PIN)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar código (PIN)"
+            "value": "Configura un código local antes de acceder a tu espacio seguro."
           }
         }
       }
@@ -154,6 +137,108 @@
         }
       }
     },
+    "lock_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your documents protected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus documentos protegidos"
+          }
+        }
+      }
+    },
+    "lock_system_auth_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System authentication is unavailable on this device. Set up a MaskID PIN."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este dispositivo no tiene autenticación del sistema disponible. Configura un PIN de MaskID."
+          }
+        }
+      }
+    },
+    "lock_unlock_faceid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Face ID"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear con Face ID"
+          }
+        }
+      }
+    },
+    "lock_unlock_generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear"
+          }
+        }
+      }
+    },
+    "lock_unlock_pin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with PIN"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear con PIN"
+          }
+        }
+      }
+    },
+    "lock_unlock_to_continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock to continue"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquea para continuar"
+          }
+        }
+      }
+    },
     "lock_use_passcode": {
       "extractionState": "manual",
       "localizations": {
@@ -171,53 +256,53 @@
         }
       }
     },
-    "lock_faceid_unavailable": {
+    "lock_use_pin": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Face ID is not available on this device."
+            "value": "Use code (PIN)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Face ID no disponible en este dispositivo."
+            "value": "Usar código (PIN)"
           }
         }
       }
     },
-    "lock_reason": {
+    "lock_verify_subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock Shield"
+            "value": "Verify access before opening your secure workspace."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquea Shield"
+            "value": "Verifica tu acceso antes de abrir tu espacio seguro."
           }
         }
       }
     },
-    "lock_system_auth_unavailable": {
+    "lock_verifying": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "System authentication is unavailable on this device. Set up a Shield PIN."
+            "value": "Verifying…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este dispositivo no tiene autenticación del sistema disponible. Configura un PIN de Shield."
+            "value": "Verificando…"
           }
         }
       }

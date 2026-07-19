@@ -12,6 +12,7 @@ struct ImageAdjustToolbar: View {
     let isPro: Bool
     var onShowPaywall: () -> Void
 
+    @Environment(\.colorScheme) private var scheme
     @State private var activeTool: AdjustTool = .brightness
 
     enum AdjustTool: String, CaseIterable, Identifiable {
@@ -54,7 +55,7 @@ struct ImageAdjustToolbar: View {
             HStack {
                 Text(LanguageManager.shared.editor("editor_adjust_title"))
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 if !vm.imageAdjustment.isDefault {
                     Button {
@@ -70,9 +71,9 @@ struct ImageAdjustToolbar: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 26, height: 26)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                 }
             }
@@ -115,10 +116,14 @@ struct ImageAdjustToolbar: View {
                                 Text(tool.label())
                                     .font(.system(size: 11, weight: .semibold))
                             }
-                            .foregroundColor(isSelected ? .black : (locked ? ShieldTheme.textTertiary : ShieldTheme.textPrimary))
+                            .foregroundColor(
+                                isSelected
+                                    ? ShieldTheme.accentText
+                                    : (locked ? ShieldTheme.tertiary(scheme) : ShieldTheme.primary(scheme))
+                            )
                             .padding(.horizontal, 10)
                             .frame(height: 28)
-                            .background(isSelected ? ShieldTheme.accent : ShieldTheme.surface3)
+                            .background(isSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
                             .clipShape(Capsule())
                         }
                         .buttonStyle(ScaleButtonStyle())
@@ -166,11 +171,11 @@ struct ImageAdjustToolbar: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
-        .background(ShieldTheme.surface1)
+        .background(ShieldTheme.cardBackground(scheme))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
         )
         .padding(.horizontal, 12)
         .padding(.bottom, 8)
@@ -184,14 +189,14 @@ struct ImageAdjustToolbar: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(ShieldTheme.textPrimary)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Text(label)
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             .frame(maxWidth: .infinity)
             .frame(height: 44)
-            .background(ShieldTheme.surface3)
+            .background(ShieldTheme.rowBackground(scheme))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(ScaleButtonStyle())
@@ -209,11 +214,11 @@ struct ImageAdjustToolbar: View {
             HStack {
                 Text(label)
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(ShieldTheme.textSecondary)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
                 Spacer()
                 Text(String(format: format, value.wrappedValue))
                     .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundColor(ShieldTheme.accent)
+                    .foregroundColor(ShieldTheme.accent(scheme))
                     .frame(minWidth: 44, alignment: .trailing)
 
                 Button {
@@ -221,15 +226,15 @@ struct ImageAdjustToolbar: View {
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(ShieldTheme.textTertiary)
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 26, height: 26)
-                        .background(ShieldTheme.surface3)
+                        .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(ScaleButtonStyle())
             }
             Slider(value: value, in: range)
-                .tint(ShieldTheme.accent)
+                .tint(ShieldTheme.accent(scheme))
         }
         .padding(.top, 8)
     }
@@ -239,7 +244,7 @@ struct ImageAdjustToolbar: View {
         VStack(spacing: 10) {
             Text(LanguageManager.shared.editor("editor_adjust_crop_desc"))
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(ShieldTheme.textTertiary)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
 
@@ -263,13 +268,13 @@ struct ImageAdjustToolbar: View {
         HStack(spacing: 10) {
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(ShieldTheme.textSecondary)
+                .foregroundColor(ShieldTheme.secondary(scheme))
                 .frame(width: 70, alignment: .leading)
             Slider(value: binding, in: 0...0.4, step: 0.005)
-                .tint(ShieldTheme.accent)
+                .tint(ShieldTheme.accent(scheme))
             Text("\(Int((binding.wrappedValue * 100).rounded()))%")
                 .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundColor(ShieldTheme.accent)
+                .foregroundColor(ShieldTheme.accent(scheme))
                 .frame(width: 32, alignment: .trailing)
         }
     }

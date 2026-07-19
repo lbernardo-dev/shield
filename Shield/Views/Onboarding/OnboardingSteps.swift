@@ -7,6 +7,7 @@ import StoreKit
 
 struct OBWelcomeView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var state: OnboardingState
 
     var body: some View {
@@ -14,22 +15,32 @@ struct OBWelcomeView: View {
             Spacer()
 
             ZStack {
+                Circle()
+                    .stroke(ShieldTheme.accent.opacity(0.12), lineWidth: 1)
+                    .frame(width: 176, height: 176)
+                    .scaleEffect(reduceMotion ? 1 : 1.08)
+                Circle()
+                    .stroke(ShieldTheme.accent.opacity(0.22), lineWidth: 1)
+                    .frame(width: 142, height: 142)
                 RoundedRectangle(cornerRadius: 28)
                     .fill(ShieldTheme.accentDim)
                     .frame(width: 110, height: 110)
                 Image(systemName: "checkmark.shield.fill")
                     .font(.system(size: 52, weight: .semibold))
                     .foregroundColor(ShieldTheme.accent)
+                    .accessibilityHidden(true)
             }
-            .symbolEffect(.pulse, isActive: true)
+            .symbolEffect(.pulse, options: reduceMotion ? .nonRepeating : .repeating, isActive: !reduceMotion)
             .padding(.bottom, 36)
 
             Text(LanguageManager.shared.onboarding("onboarding_welcome_title"))
-                .font(.system(size: 32, weight: .heavy))
+                .font(.largeTitle.weight(.heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
                 .multilineTextAlignment(.center)
-                .tracking(-0.7)
+                .lineLimit(3)
+                .minimumScaleFactor(0.75)
                 .padding(.horizontal, 24)
+                .padding(.vertical, 6)
 
             Spacer().frame(height: 16)
 
@@ -51,6 +62,7 @@ struct OBWelcomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(ScaleButtonStyle())
+            .sensoryFeedback(.impact(weight: .medium), trigger: state.currentStep)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
@@ -107,6 +119,8 @@ struct OBGoalView: View {
                     .animation(.easeInOut(duration: 0.15), value: state.selectedGoal != nil)
             }
             .buttonStyle(ScaleButtonStyle())
+            .disabled(state.selectedGoal == nil)
+            .sensoryFeedback(.selection, trigger: state.selectedGoal)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
@@ -168,6 +182,7 @@ struct OBPainPointsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(ScaleButtonStyle())
+            .sensoryFeedback(.selection, trigger: state.selectedPainPoints)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
@@ -359,29 +374,308 @@ struct OBPreferencesView: View {
 // MARK: - Screen 7: Camera Permission
 
 struct OBCameraPermView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.openURL) private var openURL
     @ObservedObject var state: OnboardingState
+    @State private var authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @State private var isRequesting = false
 
     var body: some View {
-        OBPermissionLayout(
-            sfSymbol: "camera.fill",
-            accentHex: "64D2FF",
-            title: LanguageManager.shared.onboarding("onboarding_camera_title"),
-            subtitle: LanguageManager.shared.onboarding("onboarding_camera_subtitle"),
-            bullets: [
-                LanguageManager.shared.onboarding("onboarding_camera_bullet_1"),
-                LanguageManager.shared.onboarding("onboarding_camera_bullet_2"),
-                LanguageManager.shared.onboarding("onboarding_camera_bullet_3"),
-            ],
-            enableLabel: LanguageManager.shared.onboarding("onboarding_camera_enable"),
-            notNowLabel: LanguageManager.shared.onboarding("onboarding_not_now"),
-            onEnable: {
-                AVCaptureDevice.requestAccess(for: .video) { _ in
-                    DispatchQueue.main.async { state.next() }
+        GeometryReader { proxy in
+            Color.black
+                .overlay {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 6)
+
+                        permissionAnimation
+                            .frame(height: min(390, max(300, proxy.size.height * 0.54)))
+
+                        permissionContent
+                            .padding(.top, 8)
+                            .padding(.bottom, 20)
+                    }
                 }
-            },
-            onSkip: { state.next() }
-        )
+        }
+        .environment(\.colorScheme, .dark)
+        .onAppear(perform: refreshAuthorizationStatus)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            refreshAuthorizationStatus()
+        }
+    }
+
+    private var permissionContent: some View {
+        VStack(spacing: 10) {
+            cameraPermissionSymbol
+
+            Text(presentationTitle)
+                .font(.title.bold())
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Text(presentationSubtitle)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+
+            Button(action: handlePrimaryAction) {
+                ZStack {
+                    Text(primaryButtonTitle)
+                        .opacity(isRequesting ? 0 : 1)
+                    if isRequesting {
+                        ProgressView()
+                            .tint(ShieldTheme.accentText)
+                    }
+                }
+                .font(.body.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .foregroundStyle(ShieldTheme.accentText)
+            .background(ShieldTheme.accent, in: Capsule())
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(isRequesting)
+            .padding(.top, 10)
+
+            Button(LanguageManager.shared.onboarding("onboarding_not_now"), action: handleNotNow)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(minHeight: 36)
+                .disabled(isRequesting)
+                .padding(.top, 1)
+        }
+        .frame(maxWidth: 330)
+        .padding(.horizontal, 24)
+    }
+
+    private var cameraPermissionSymbol: some View {
+        Image(systemName: "camera")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .fontWeight(.ultraLight)
+            .foregroundStyle(.white)
+            .frame(width: 62, height: 62)
+            .overlay(alignment: .topLeading) {
+                if reduceMotion {
+                    permissionChevron
+                } else {
+                    permissionChevron
+                        .symbolEffect(.bounce.down, options: .repeating)
+                }
+            }
+            .accessibilityHidden(true)
+    }
+
+    private var permissionChevron: some View {
+        Image(systemName: "chevron.down")
+            .font(.system(size: 12, weight: .medium))
+            .offset(x: -2, y: -8)
+    }
+
+    private var permissionAnimation: some View {
+        GeometryReader { proxy in
+            let size = proxy.size
+            let ratio = min(size.width / 390, size.height / 870)
+
+            if reduceMotion {
+                cameraPhone(frame: .visible, size: size, ratio: ratio)
+            } else {
+                KeyframeAnimator(initialValue: CameraPermissionFrame(), repeating: true) { frame in
+                    cameraPhone(frame: frame, size: size, ratio: ratio)
+                } keyframes: { _ in
+                    KeyframeTrack(\.scale) {
+                        MoveKeyframe(1)
+                        LinearKeyframe(1, duration: 0.5)
+                        CubicKeyframe(0.95, duration: 0.5)
+                        LinearKeyframe(0.95, duration: 5)
+                        CubicKeyframe(1, duration: 0.35)
+                        LinearKeyframe(1, duration: 0.5)
+                    }
+                    KeyframeTrack(\.cameraOpacity) {
+                        MoveKeyframe(0)
+                        LinearKeyframe(0, duration: 0.5)
+                        CubicKeyframe(1, duration: 0.5)
+                        LinearKeyframe(1, duration: 5)
+                        CubicKeyframe(0, duration: 0.35)
+                        LinearKeyframe(0, duration: 0.5)
+                    }
+                    KeyframeTrack(\.progress) {
+                        MoveKeyframe(0)
+                        LinearKeyframe(0, duration: 1.5)
+                        SpringKeyframe(-1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        SpringKeyframe(1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        SpringKeyframe(0, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        CubicKeyframe(0, duration: 0.35)
+                        LinearKeyframe(0, duration: 0.5)
+                    }
+                }
+            }
+        }
+        .aspectRatio(390 / 870, contentMode: .fit)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_camera_artwork_accessibility"))
+    }
+
+    private func cameraPhone(frame: CameraPermissionFrame, size: CGSize, ratio: CGFloat) -> some View {
+        let cornerRadius = 47 * ratio
+
+        return Rectangle()
+            .fill(Color.white.opacity(0.10))
+            .overlay {
+                ZStack(alignment: .bottom) {
+                    Rectangle()
+                        .fill(.black)
+                        .overlay {
+                            Image("OnboardingCamera")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: size.width * 3, height: size.height)
+                                .offset(x: -frame.progress * size.width)
+                        }
+                        .clipped()
+
+                    HStack(spacing: 0) {
+                        Circle()
+                            .fill(.white.secondary)
+                            .frame(width: size.height * 0.05)
+                            .frame(maxWidth: .infinity)
+
+                        Circle()
+                            .fill(.white)
+                            .frame(width: size.height * 0.2, height: size.height * 0.1)
+                            .frame(maxWidth: .infinity)
+
+                        Circle()
+                            .fill(.white.secondary)
+                            .frame(width: size.height * 0.05)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: size.height * 0.17)
+                    .background(.black.opacity(0.5))
+                }
+                .clipped()
+                .offset(y: size.height - (size.height * frame.cameraOpacity))
+            }
+            .overlay(alignment: .top) {
+                Capsule()
+                    .fill(.black)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    .frame(width: 120 * ratio, height: 36 * ratio)
+                    .overlay {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 10 * ratio, height: 10 * ratio)
+                            .offset(x: 12 * ratio)
+                            .opacity(frame.cameraOpacity)
+                    }
+                    .padding(.top, 11 * ratio)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 2)
+            }
+            .compositingGroup()
+            .scaleEffect(frame.scale, anchor: .center)
+            .rotation3DEffect(
+                .degrees(frame.progress * 15),
+                axis: (x: 0, y: abs(frame.progress), z: abs(frame.progress / 4)),
+                anchor: .center
+            )
+            .offset(x: frame.progress * 80)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .aspectRatio(390 / 870, contentMode: .fit)
+            .shadow(color: .black.opacity(0.45), radius: 22, y: 12)
+    }
+
+    private struct CameraPermissionFrame {
+        var scale: CGFloat = 1
+        var cameraOpacity: CGFloat = 0
+        var progress: CGFloat = 0
+
+        static let visible = CameraPermissionFrame(scale: 0.95, cameraOpacity: 1, progress: 0)
+    }
+
+    private var presentationTitle: String {
+        switch authorizationStatus {
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_denied_title")
+        case .restricted:
+            LanguageManager.shared.onboarding("onboarding_camera_restricted_title")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_title")
+        }
+    }
+
+    private var presentationSubtitle: String {
+        switch authorizationStatus {
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_denied_subtitle")
+        case .restricted:
+            LanguageManager.shared.onboarding("onboarding_camera_restricted_subtitle")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_subtitle")
+        }
+    }
+
+    private var primaryButtonTitle: String {
+        switch authorizationStatus {
+        case .authorized, .restricted:
+            LanguageManager.shared.onboarding("onboarding_continue")
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_open_settings")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_enable")
+        }
+    }
+
+    private func handlePrimaryAction() {
+        switch authorizationStatus {
+        case .authorized, .restricted:
+            AppState.trackEvent("camera_permission_continued", properties: [
+                "status": authorizationStatus == .authorized ? "authorized" : "restricted"
+            ])
+            state.next()
+        case .denied:
+            AppState.trackEvent("camera_settings_opened")
+            guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
+            openURL(settingsURL)
+        case .notDetermined:
+            isRequesting = true
+            Task {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                isRequesting = false
+                AppState.trackEvent("camera_permission_resolved", properties: [
+                    "granted": granted ? "true" : "false"
+                ])
+                if granted { state.next() }
+            }
+        @unknown default:
+            state.next()
+        }
+    }
+
+    private func handleNotNow() {
+        AppState.trackEvent("camera_permission_skipped", properties: [
+            "status": String(describing: authorizationStatus)
+        ])
+        state.next()
+    }
+
+    private func refreshAuthorizationStatus() {
+        let refreshedStatus = AVCaptureDevice.authorizationStatus(for: .video)
+        authorizationStatus = refreshedStatus
+
+        // The system permission sheet can return the app to the foreground before
+        // requestAccess resumes (especially in Simulator). Never leave the CTA
+        // disabled once iOS has already resolved the permission decision.
+        if refreshedStatus != .notDetermined {
+            isRequesting = false
+        }
     }
 }
 
@@ -389,38 +683,155 @@ struct OBCameraPermView: View {
 
 struct OBFaceIDPermView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var state: OnboardingState
+    @State private var scanAtBottom = false
+    @State private var isAuthenticating = false
+    @State private var authenticationSucceeded = false
 
     var body: some View {
-        let reason = LanguageManager.shared.onboarding("onboarding_face_id_enable")
-        OBPermissionLayout(
-            sfSymbol: "faceid",
-            accentHex: "30D158",
-            title: LanguageManager.shared.onboarding("onboarding_face_id_title"),
-            subtitle: LanguageManager.shared.onboarding("onboarding_face_id_subtitle"),
-            bullets: [
-                LanguageManager.shared.onboarding("onboarding_face_id_bullet_1"),
-                LanguageManager.shared.onboarding("onboarding_face_id_bullet_2"),
-                LanguageManager.shared.onboarding("onboarding_face_id_bullet_3"),
-            ],
-            enableLabel: reason,
-            notNowLabel: LanguageManager.shared.onboarding("onboarding_not_now"),
-            onEnable: {
-                let ctx = LAContext()
-                var err: NSError?
-                guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
-                    state.next()
-                    return
+        VStack(spacing: 0) {
+            Spacer(minLength: 18)
+
+            faceIDHero
+
+            VStack(spacing: 10) {
+                Text(LanguageManager.shared.onboarding("onboarding_face_id_title"))
+                    .font(.system(size: 28, weight: .heavy))
+                    .foregroundStyle(ShieldTheme.textPrimary)
+                    .multilineTextAlignment(.center)
+                Text(LanguageManager.shared.onboarding("onboarding_face_id_subtitle"))
+                    .font(.callout)
+                    .foregroundStyle(ShieldTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 12)
+            }
+            .padding(.top, 30)
+
+            VStack(spacing: 12) {
+                faceIDBenefit("lock.shield.fill", key: "onboarding_face_id_bullet_1")
+                faceIDBenefit("hand.raised.fill", key: "onboarding_face_id_bullet_2")
+                faceIDBenefit("iphone.gen3", key: "onboarding_face_id_bullet_3")
+            }
+            .padding(.top, 26)
+
+            Spacer(minLength: 20)
+
+            VStack(spacing: 8) {
+                Button(action: authenticate) {
+                    ZStack {
+                        Text(LanguageManager.shared.onboarding("onboarding_face_id_enable"))
+                            .opacity(isAuthenticating ? 0 : 1)
+                        if isAuthenticating {
+                            ProgressView().tint(.black)
+                        }
+                    }
+                    .font(.body.bold())
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .background(Color(hex: "30D158"), in: .rect(cornerRadius: 16))
+                    .foregroundStyle(.black)
                 }
-                ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
-                    DispatchQueue.main.async {
-                        if success { UserDefaults.standard.set(true, forKey: "shield.biometric") }
-                        state.next()
+                .buttonStyle(ScaleButtonStyle())
+                .disabled(isAuthenticating)
+
+                Button(LanguageManager.shared.onboarding("onboarding_not_now"), action: state.next)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(ShieldTheme.textTertiary)
+                    .frame(minHeight: 44)
+                    .disabled(isAuthenticating)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 34)
+        }
+        .onAppear {
+            guard !reduceMotion else { return }
+            scanAtBottom = true
+        }
+        .sensoryFeedback(.success, trigger: authenticationSucceeded) { _, newValue in newValue }
+    }
+
+    private var faceIDHero: some View {
+        ZStack {
+            ForEach([170.0, 132.0], id: \.self) { size in
+                Circle()
+                    .stroke(Color(hex: "30D158").opacity(size == 170 ? 0.10 : 0.20), lineWidth: 1)
+                    .frame(width: size, height: size)
+            }
+
+            RoundedRectangle(cornerRadius: 34)
+                .fill(ShieldTheme.surface2)
+                .frame(width: 116, height: 148)
+                .overlay {
+                    Image(systemName: authenticationSucceeded ? "checkmark.shield.fill" : "faceid")
+                        .font(.system(size: 52, weight: .light))
+                        .foregroundStyle(Color(hex: "30D158"))
+
+                    if !authenticationSucceeded {
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.clear, Color(hex: "30D158"), .clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: 76, height: 1.5)
+                            .shadow(color: Color(hex: "30D158").opacity(0.8), radius: 5)
+                            .offset(y: scanAtBottom ? 42 : -42)
+                            .animation(
+                                reduceMotion ? nil : .easeInOut(duration: 1.45).repeatForever(autoreverses: true),
+                                value: scanAtBottom
+                            )
                     }
                 }
-            },
-            onSkip: { state.next() }
-        )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 34)
+                        .stroke(Color(hex: "30D158").opacity(0.45), lineWidth: 1)
+                }
+                .shadow(color: Color(hex: "30D158").opacity(0.12), radius: 24)
+        }
+        .frame(height: 178)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_face_id_title"))
+    }
+
+    private func faceIDBenefit(_ symbol: String, key: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color(hex: "30D158"))
+                .frame(width: 24)
+                .accessibilityHidden(true)
+            Text(LanguageManager.shared.onboarding(key))
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(ShieldTheme.textPrimary)
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+    }
+
+    private func authenticate() {
+        let reason = LanguageManager.shared.onboarding("onboarding_face_id_enable")
+        let context = LAContext()
+        var error: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            state.next()
+            return
+        }
+
+        isAuthenticating = true
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
+            DispatchQueue.main.async {
+                isAuthenticating = false
+                guard success else { return }
+                UserDefaults.standard.set(true, forKey: "shield.biometric")
+                authenticationSucceeded = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
+                    state.next()
+                }
+            }
+        }
     }
 }
 
@@ -473,7 +884,19 @@ struct OBDemoView: View {
     private let minRequired = 2
 
     var body: some View {
-        if showResult { resultView } else { interactiveView }
+        Group {
+            if showResult {
+                resultView
+                    .transition(.scale(scale: 0.96).combined(with: .opacity))
+            } else {
+                interactiveView
+                    .transition(.opacity)
+            }
+        }
+        .sensoryFeedback(.selection, trigger: redacted.count)
+        .sensoryFeedback(.success, trigger: showResult) { _, newValue in
+            newValue
+        }
     }
 
     private var interactiveView: some View {
@@ -628,18 +1051,13 @@ struct OBDemoView: View {
 
     private var resultView: some View {
         VStack(spacing: 0) {
-            Spacer()
-            VStack(spacing: 16) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 28)
-                        .fill(Color(hex: "30D158").opacity(0.15))
-                        .frame(width: 96, height: 96)
-                    Image(systemName: "checkmark.shield.fill")
-                        .font(.system(size: 44, weight: .semibold))
-                        .foregroundColor(Color(hex: "30D158"))
-                }
+            Spacer(minLength: 16)
+
+            protectedDocumentPreview
+
+            VStack(spacing: 10) {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_title"))
-                    .font(.system(size: 26, weight: .heavy))
+                    .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .tracking(-0.5)
@@ -649,7 +1067,18 @@ struct OBDemoView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
-            Spacer()
+            .padding(.top, 22)
+
+            HStack(spacing: 8) {
+                resultTrustPill("iphone", key: "onboarding_demo_result_device")
+                resultTrustPill("photo.on.rectangle.angled", key: "onboarding_demo_result_gallery")
+                resultTrustPill("checkmark.circle", key: "onboarding_demo_result_review")
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 20)
+
+            Spacer(minLength: 18)
+
             Button(action: state.next) {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_cta"))
                     .font(.system(size: 17, weight: .bold))
@@ -663,6 +1092,75 @@ struct OBDemoView: View {
         }
     }
 
+    private var protectedDocumentPreview: some View {
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                HStack {
+                    Text(LanguageManager.shared.onboarding("onboarding_demo_sample_country"))
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(ShieldTheme.textSecondary)
+                    Spacer()
+                    Image(systemName: "checkmark.shield.fill")
+                        .foregroundStyle(ShieldTheme.success)
+                }
+                .padding(12)
+                .background(Color(hex: "1a1a2e"))
+
+                VStack(alignment: .leading, spacing: 13) {
+                    HStack(spacing: 12) {
+                        RoundedRectangle(cornerRadius: 7)
+                            .fill(.black)
+                            .frame(width: 58, height: 72)
+                        VStack(alignment: .leading, spacing: 9) {
+                            RoundedRectangle(cornerRadius: 3).fill(ShieldTheme.surfaceLine).frame(width: 118, height: 9)
+                            RoundedRectangle(cornerRadius: 3).fill(.black).frame(width: 136, height: 14)
+                            RoundedRectangle(cornerRadius: 3).fill(.black).frame(width: 102, height: 14)
+                        }
+                    }
+                    RoundedRectangle(cornerRadius: 3).fill(.black).frame(maxWidth: .infinity).frame(height: 14)
+                }
+                .padding(16)
+            }
+            .frame(width: 270)
+            .background(ShieldTheme.surface2)
+            .clipShape(.rect(cornerRadius: 18))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(ShieldTheme.success.opacity(0.45), lineWidth: 1)
+            }
+            .shadow(color: ShieldTheme.success.opacity(0.12), radius: 24, y: 12)
+
+            Label(
+                LanguageManager.shared.onboarding("onboarding_demo_result_count", redacted.count),
+                systemImage: "eye.slash.fill"
+            )
+            .font(.caption.bold())
+            .foregroundStyle(.black)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(ShieldTheme.success, in: Capsule())
+            .offset(y: 16)
+        }
+        .padding(.bottom, 16)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func resultTrustPill(_ symbol: String, key: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(ShieldTheme.accent)
+            Text(LanguageManager.shared.onboarding(key))
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(ShieldTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 64)
+        .background(ShieldTheme.surface2, in: .rect(cornerRadius: 12))
+    }
+
     private func toggle(_ id: String) {
         if redacted.contains(id) { redacted.remove(id) } else { redacted.insert(id) }
     }
@@ -672,129 +1170,251 @@ struct OBDemoView: View {
 
 struct OBPaywallView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.openURL) private var openURL
     @StateObject private var pm = PremiumManager.shared
+    @State private var selectedProduct: ShieldProduct = .annual
+    var onBack: () -> Void
     var onComplete: () -> Void
 
     private let features: [(icon: String, hex: String, key: String)] = [
         ("doc.on.doc.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
         ("eye.slash.fill",       "FFD60A", "paywall_feature_all_styles"),
         ("lock.rectangle.stack", "30D158", "paywall_feature_vault"),
-        ("wand.and.stars",       "BF5AF2", "paywall_feature_auto_title"),
-        ("icloud",               "30D158", "paywall_feature_icloud"),
     ]
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                Spacer().frame(height: 40)
+        ZStack {
+            LinearGradient(
+                colors: [Color(hex: "0D0D10"), Color.black],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-                VStack(spacing: 10) {
-                    Image(systemName: "shield.fill")
-                        .font(.system(size: 40))
-                        .foregroundColor(ShieldTheme.accent)
-                        .padding(.bottom, 8)
-                    Text(LanguageManager.shared.paywall("paywall_title"))
-                        .font(.system(size: 30, weight: .heavy))
-                        .foregroundColor(ShieldTheme.textPrimary)
-                        .multilineTextAlignment(.center)
-                        .tracking(-0.7)
-                        .padding(.horizontal, 24)
-                    Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
-                        .font(.system(size: 14))
-                        .foregroundColor(ShieldTheme.textSecondary)
-                }
-
-                Spacer().frame(height: 24)
-
-                // Testimonial
-                VStack(spacing: 6) {
-                    HStack(spacing: 3) {
-                        ForEach(0..<5, id: \.self) { _ in
-                            Image(systemName: "star.fill").font(.system(size: 12)).foregroundColor(ShieldTheme.accent)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 22) {
+                    HStack {
+                        Button(action: onBack) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(ShieldTheme.textPrimary)
+                                .frame(width: 44, height: 44)
+                                .background(ShieldTheme.surface2, in: Circle())
                         }
+                        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_back"))
+                        Spacer()
                     }
-                    Text(LanguageManager.shared.paywall("paywall_testimonial"))
-                        .font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
-                        .multilineTextAlignment(.center).italic()
-                    Text(LanguageManager.shared.paywall("paywall_testimonial_author"))
-                        .font(.system(size: 12)).foregroundColor(ShieldTheme.textSecondary)
+                    paywallHero
+                    valueRecap
+                    planSelector
+                    purchaseSection
+                    footer
                 }
-                .padding(16)
-                .background(ShieldTheme.surface2)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
-                .padding(.horizontal, 24)
-
-                Spacer().frame(height: 24)
-
-                // Features
-                VStack(spacing: 10) {
-                    ForEach(features, id: \.key) { f in
-                        HStack(spacing: 14) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(hex: f.hex).opacity(0.15))
-                                    .frame(width: 36, height: 36)
-                                Image(systemName: f.icon)
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(Color(hex: f.hex))
-                            }
-                            Text(LanguageManager.shared.paywall(f.key))
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(ShieldTheme.textPrimary)
-                            Spacer()
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(Color(hex: "30D158"))
-                        }
-                        .padding(.horizontal, 24)
-                    }
-                }
-
-                Spacer().frame(height: 32)
-
-                VStack(spacing: 12) {
-                    Button {
-                        Task {
-                            guard let product = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue }) else { return }
-                            await pm.purchase(product)
-                            if pm.isPro { onComplete() }
-                        }
-                    } label: {
-                        Group {
-                            if pm.isPurchasing {
-                                ProgressView().tint(ShieldTheme.accentText)
-                            } else {
-                                Text(LanguageManager.shared.paywall("paywall_get_pro"))
-                                    .font(.system(size: 17, weight: .bold))
-                                    .foregroundColor(ShieldTheme.accentText)
-                            }
-                        }
-                        .frame(maxWidth: .infinity).frame(height: 54)
-                        .background(ShieldTheme.accent)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                    .disabled(pm.isPurchasing)
-
-                    Button {
-                        Task { await pm.restore(); if pm.isPro { onComplete() } }
-                    } label: {
-                        Text(LanguageManager.shared.paywall("paywall_restore"))
-                            .font(.system(size: 14)).foregroundColor(ShieldTheme.textSecondary).frame(height: 40)
-                    }
-
-                    Button(action: onComplete) {
-                        Text(LanguageManager.shared.paywall("paywall_skip"))
-                            .font(.system(size: 13)).foregroundColor(ShieldTheme.textTertiary).frame(height: 36)
-                    }
-
-                    Text(LanguageManager.shared.paywall("paywall_legal"))
-                        .font(.system(size: 10)).foregroundColor(ShieldTheme.textTertiary)
-                        .multilineTextAlignment(.center).padding(.horizontal, 40)
-                }
-                .padding(.horizontal, 24).padding(.bottom, 40)
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                .padding(.bottom, 30)
             }
+        }
+        .task { await pm.loadProducts() }
+        .onChange(of: pm.products.map(\.id)) { _, availableProductIDs in
+            guard !availableProductIDs.contains(selectedProduct.rawValue),
+                  let fallback = ShieldProduct.allCases.first(where: { availableProductIDs.contains($0.rawValue) })
+            else { return }
+            selectedProduct = fallback
+        }
+        .sensoryFeedback(.selection, trigger: selectedProduct)
+        .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
+    }
+
+    private var paywallHero: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(ShieldTheme.accentDim)
+                    .frame(width: 72, height: 72)
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(ShieldTheme.accent)
+            }
+            .symbolEffect(.breathe, options: .repeating)
+
+            Text(LanguageManager.shared.paywall("paywall_title"))
+                .font(.system(size: 29, weight: .heavy))
+                .foregroundStyle(ShieldTheme.textPrimary)
+                .multilineTextAlignment(.center)
+            Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
+                .font(.callout)
+                .foregroundStyle(ShieldTheme.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    private var valueRecap: some View {
+        VStack(spacing: 10) {
+            ForEach(features, id: \.key) { feature in
+                HStack(spacing: 12) {
+                    Image(systemName: feature.icon)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color(hex: feature.hex))
+                        .frame(width: 28, height: 28)
+                        .background(Color(hex: feature.hex).opacity(0.14), in: .rect(cornerRadius: 8))
+                    Text(LanguageManager.shared.paywall(feature.key))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(ShieldTheme.textPrimary)
+                    Spacer()
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(ShieldTheme.success)
+                }
+            }
+        }
+        .padding(14)
+        .background(ShieldTheme.surface2, in: .rect(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+        }
+    }
+
+    private var planSelector: some View {
+        VStack(spacing: 12) {
+            if pm.products.isEmpty {
+                ForEach(0..<3, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(ShieldTheme.surface2)
+                        .frame(height: 84)
+                        .redacted(reason: .placeholder)
+                }
+            } else {
+                ForEach(pm.products, id: \.id) { product in
+                    PlanRow(
+                        product: product,
+                        isSelected: selectedProduct.rawValue == product.id,
+                        savingsLabel: savingsLabel(for: product),
+                        trialLabel: pm.trialLabels[product.id],
+                        lang: appState.language
+                    ) {
+                        guard let selection = ShieldProduct(rawValue: product.id) else { return }
+                        withAnimation(.snappy(duration: 0.24)) {
+                            selectedProduct = selection
+                        }
+                        AppState.trackEvent("paywall_plan_selected", properties: [
+                            "plan": selection.analyticsName
+                        ])
+                    }
+                }
+            }
+        }
+    }
+
+    private var purchaseSection: some View {
+        VStack(spacing: 10) {
+            Button {
+                Task {
+                    guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue }) else { return }
+                    AppState.trackEvent("paywall_purchase_started", properties: [
+                        "plan": selectedProduct.analyticsName
+                    ])
+                    await pm.purchase(product)
+                    if pm.isPro {
+                        AppState.trackEvent("paywall_purchase_completed", properties: [
+                            "plan": selectedProduct.analyticsName
+                        ])
+                        onComplete()
+                    }
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    if pm.isPurchasing {
+                        ProgressView().tint(ShieldTheme.accentText)
+                    } else {
+                        Image(systemName: "shield.fill")
+                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
+                            .font(.body.bold())
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(ShieldTheme.accent, in: .rect(cornerRadius: 16))
+                .foregroundStyle(ShieldTheme.accentText)
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(pm.isPurchasing || pm.products.isEmpty)
+
+            if let error = pm.purchaseError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.danger)
+                    .multilineTextAlignment(.center)
+            }
+
+            Button(LanguageManager.shared.paywall("paywall_skip")) {
+                AppState.trackEvent("paywall_skipped")
+                onComplete()
+            }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(ShieldTheme.textSecondary)
+                .frame(minHeight: 44)
+        }
+    }
+
+    private var footer: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 16) {
+                Button(LanguageManager.shared.paywall("paywall_restore")) {
+                    Task {
+                        AppState.trackEvent("paywall_restore_started")
+                        await pm.restore()
+                        if pm.isPro { onComplete() }
+                    }
+                }
+                publicPageLink(
+                    LanguageManager.shared.paywall("paywall_privacy"),
+                    page: .privacy
+                )
+                publicPageLink(
+                    LanguageManager.shared.paywall("paywall_terms"),
+                    page: .terms
+                )
+            }
+            .font(.caption)
+            .foregroundStyle(ShieldTheme.textTertiary)
+
+            publicPageLink(
+                LanguageManager.shared.settings("settings_subscription_terms"),
+                page: .subscriptions
+            )
+            .font(.caption)
+            .foregroundStyle(ShieldTheme.textTertiary)
+
+            Text(LanguageManager.shared.paywall("paywall_legal"))
+                .font(.system(size: 10))
+                .foregroundStyle(ShieldTheme.textTertiary)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    private func publicPageLink(_ title: String, page: ShieldPublicPage) -> some View {
+        Button(title) {
+            openURL(page.localizedURL(for: appState.language)) { accepted in
+                guard !accepted else { return }
+                openURL(page.compatibilityURL)
+            }
+        }
+        .accessibilityHint(LanguageManager.shared.settings("settings_opens_browser"))
+    }
+
+    private func savingsLabel(for product: Product) -> String? {
+        switch ShieldProduct(rawValue: product.id) {
+        case .annual:
+            guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
+            else { return nil }
+            return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        case .lifetime:
+            guard let annual = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue })
+            else { return nil }
+            return pm.lifetimeSavings(annual: annual, lifetime: product, lang: appState.language)
+        default:
+            return nil
         }
     }
 }

@@ -100,14 +100,21 @@ final class OnboardingState: ObservableObject {
     @Published var selectedPainPoints: Set<OBPainPoint> = []
     @Published var selectedDocTypes: Set<OBDocType> = []
 
-    let totalSteps = 11
+    // Keep the first-run path short: two personalization choices, one real
+    // interaction, the essential camera permission, then the post-value offer.
+    let totalSteps = 6
 
     var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
     var showTopBar: Bool { currentStep < totalSteps - 1 }
 
     func next() {
         guard currentStep < totalSteps - 1 else { return }
-        withAnimation(.easeInOut(duration: 0.28)) { currentStep += 1 }
+        withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep += 1 }
+    }
+
+    func previous() {
+        guard currentStep > 0 else { return }
+        withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep -= 1 }
     }
 
     func persistAnswers() {

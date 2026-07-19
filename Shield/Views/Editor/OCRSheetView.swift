@@ -82,7 +82,49 @@ struct OCRSheetView: View {
               let rects = resolvedFields.ocrBoundingRects else {
             return []
         }
-        return zip(texts, rects).map { OCRService.TextObservation(text: $0.0, boundingRect: $0.1) }
+        return zip(texts, rects).map {
+            OCRService.TextObservation(text: $0.0, boundingRect: $0.1, confidence: 0.5)
+        }
+    }
+
+    private var allFieldsMaskedText: String {
+        LanguageManager.shared.editor("editor_ocr_all_fields_masked")
+    }
+
+    private func visibleFieldsText(_ count: Int) -> String {
+        LanguageManager.shared.editor("editor_ocr_fields_visible_count", count)
+    }
+
+    private var maskAllText: String {
+        LanguageManager.shared.editor("editor_ocr_mask_all")
+    }
+
+    private var unmaskAllText: String {
+        LanguageManager.shared.editor("editor_ocr_unmask_all")
+    }
+
+    private var detectedFieldsTitle: String {
+        LanguageManager.shared.editor("editor_ocr_detected_fields_title")
+    }
+
+    private var missingFieldsTitle: String {
+        LanguageManager.shared.editor("editor_ocr_missing_fields_title")
+    }
+
+    private var noFieldsDetectedText: String {
+        LanguageManager.shared.editor("editor_ocr_no_fields_detected")
+    }
+
+    private var maskToggleText: String {
+        LanguageManager.shared.editor("editor_ocr_mask_action")
+    }
+
+    private var unmaskToggleText: String {
+        LanguageManager.shared.editor("editor_ocr_unmask_action")
+    }
+
+    private func maskedSummaryText(masked: Int, total: Int) -> String {
+        LanguageManager.shared.editor("editor_ocr_masked_summary", masked, total)
     }
 
     var body: some View {
@@ -135,6 +177,7 @@ struct OCRSheetView: View {
                         .foregroundColor(ShieldTheme.success)
                 }
             }
+            .accessibilityElement(children: .combine)
             Spacer()
             if hasSourceImage && !isRunningOCR {
                 Button { runOCR() } label: {
@@ -144,16 +187,20 @@ struct OCRSheetView: View {
                         Text(LanguageManager.shared.editor("editor_ocr_reread"))
                             .font(.system(size: 12, weight: .semibold))
                     }
-                    .foregroundColor(ShieldTheme.accent)
+                    .foregroundColor(ShieldTheme.accent(scheme))
                     .padding(.horizontal, 10)
                     .frame(height: 28)
-                    .background(ShieldTheme.accentDim)
+                    .background(ShieldTheme.accentDim(scheme))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
             if isRunningOCR {
                 HStack(spacing: 6) {
-                    ProgressView().scaleEffect(0.75).tint(ShieldTheme.accent)
+                    ProgressView().scaleEffect(0.75).tint(ShieldTheme.accent(scheme))
                     Text(LanguageManager.shared.editor("editor_ocr_analyzing"))
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.secondary(scheme))
@@ -167,6 +214,8 @@ struct OCRSheetView: View {
                     .background(ShieldTheme.rowBackground(scheme))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
         }
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 18)
@@ -184,7 +233,7 @@ struct OCRSheetView: View {
                         .font(.system(size: 14, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .frame(height: 42)
-                        .background(ShieldTheme.accent)
+                        .background(ShieldTheme.accent(scheme))
                         .foregroundColor(ShieldTheme.accentText)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -246,6 +295,8 @@ struct OCRSheetView: View {
         .padding(.vertical, 4)
         .background(color.opacity(0.12))
         .clipShape(Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text)
     }
 
     // MARK: - Summary banner
@@ -256,12 +307,12 @@ struct OCRSheetView: View {
         let allMasked = total > 0 && masked >= total
         return HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(masked)/\(total) fields masked")
+                Text(maskedSummaryText(masked: masked, total: total))
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(allMasked ? ShieldTheme.success : ShieldTheme.primary(scheme))
                 Text(allMasked
-                     ? "All sensitive fields are hidden"
-                     : "\(total - masked) field\(total - masked == 1 ? "" : "s") still visible")
+                     ? allFieldsMaskedText
+                     : visibleFieldsText(total - masked))
                     .font(.system(size: 11))
                     .foregroundColor(ShieldTheme.secondary(scheme))
             }
@@ -277,15 +328,21 @@ struct OCRSheetView: View {
                     HStack(spacing: 5) {
                         Image(systemName: allMasked ? "eye" : "eye.slash")
                             .font(.system(size: 11, weight: .bold))
-                        Text(allMasked ? "Unmask all" : "Mask all")
+                        Text(allMasked ? unmaskAllText : maskAllText)
                             .font(.system(size: 12, weight: .bold))
                     }
                     .foregroundColor(allMasked ? ShieldTheme.secondary(scheme) : ShieldTheme.accent)
                     .padding(.horizontal, 12)
                     .frame(height: 32)
-                    .background(allMasked ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accentDim)
+                    .background(allMasked ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accentDim(scheme))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(allMasked ? ShieldTheme.line(scheme) : ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
         }
         .padding(.horizontal, ShieldTheme.s5)
@@ -298,7 +355,7 @@ struct OCRSheetView: View {
     private var detectedFieldsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             sectionHeader(
-                title: "Detected fields",
+                title: detectedFieldsTitle,
                 count: detectedCount,
                 color: ShieldTheme.success
             )
@@ -307,7 +364,7 @@ struct OCRSheetView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 28))
                         .foregroundColor(ShieldTheme.tertiary(scheme))
-                    Text("No fields detected. Tap Reread to try again.")
+                    Text(noFieldsDetectedText)
                         .font(.system(size: 13))
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .multilineTextAlignment(.center)
@@ -331,7 +388,7 @@ struct OCRSheetView: View {
 
     private var missingFieldsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionHeader(title: "Not detected", count: missingItems.count, color: ShieldTheme.tertiary(scheme))
+            sectionHeader(title: missingFieldsTitle, count: missingItems.count, color: ShieldTheme.tertiary(scheme))
             VStack(spacing: 4) {
                 ForEach(missingItems, id: \.key) { item in
                     HStack(spacing: 10) {
@@ -361,7 +418,7 @@ struct OCRSheetView: View {
             // MRZ block
             if let mrz = resolvedFields.mrz {
                 VStack(alignment: .leading, spacing: 6) {
-                    sectionHeader(title: "MRZ", count: nil, color: ShieldTheme.accent)
+                    sectionHeader(title: "MRZ", count: nil, color: ShieldTheme.accent(scheme))
                     Text(mrz)
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .foregroundColor(ShieldTheme.secondary(scheme))
@@ -454,6 +511,13 @@ struct OCRSheetView: View {
                     .lineLimit(2)
                     .strikethrough(isMasked, color: ShieldTheme.tertiary(scheme))
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(item.label)
+            .accessibilityValue(
+                confidence > 0
+                    ? "\(item.value), \(Int((confidence * 100).rounded()))%"
+                    : item.value
+            )
 
             Spacer(minLength: 4)
 
@@ -471,6 +535,13 @@ struct OCRSheetView: View {
                         .background(ShieldTheme.cardBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+                .accessibilityLabel(
+                    copiedKey == item.key
+                        ? LanguageManager.shared.editor("editor_ocr_copied")
+                        : LanguageManager.shared.editor("editor_ocr_copy_item", item.label)
+                )
             }
 
             // Mask / Unmask button
@@ -480,15 +551,22 @@ struct OCRSheetView: View {
                 HStack(spacing: 4) {
                     Image(systemName: isMasked ? "eye" : "eye.slash")
                         .font(.system(size: 11, weight: .bold))
-                    Text(isMasked ? "Unmask" : "Mask")
+                    Text(isMasked ? unmaskToggleText : maskToggleText)
                         .font(.system(size: 12, weight: .bold))
                 }
-                .foregroundColor(isMasked ? ShieldTheme.success : ShieldTheme.accent)
+                .foregroundColor(isMasked ? ShieldTheme.success : ShieldTheme.accent(scheme))
                 .padding(.horizontal, 10)
                 .frame(height: 30)
-                .background(isMasked ? ShieldTheme.success.opacity(0.15) : ShieldTheme.accentDim)
+                .background(isMasked ? ShieldTheme.success.opacity(0.15) : ShieldTheme.accentDim(scheme))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isMasked ? ShieldTheme.success.opacity(0.25) : ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityLabel("\(isMasked ? unmaskToggleText : maskToggleText) \(item.label)")
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
@@ -521,6 +599,7 @@ struct OCRSheetView: View {
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 14)
         .padding(.bottom, 8)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Mask / Unmask logic
@@ -717,11 +796,11 @@ struct OCRSheetView: View {
 
     private func detectedTypeLabel(_ raw: String) -> String {
         switch raw.lowercased() {
-        case "dni": return "DNI / ID Card"
+        case "dni": return LanguageManager.shared.editor("editor_ocr_dni")
         case "passport": return LanguageManager.shared.editor("editor_ocr_passport")
-        case "drivinglicense": return "Driving Licence"
-        case "residencepermit": return "Residence Permit"
-        case "healthcard": return "Health Card"
+        case "drivinglicense": return LanguageManager.shared.editor("editor_ocr_driving_license")
+        case "residencepermit": return LanguageManager.shared.editor("editor_ocr_residence_permit")
+        case "healthcard": return LanguageManager.shared.editor("editor_ocr_health_card")
         default: return LanguageManager.shared.editor("editor_ocr_doc")
         }
     }

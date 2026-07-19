@@ -398,13 +398,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock your Shield vault"
+            "value": "Unlock your MaskID vault"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desbloquear tu bóveda Shield"
+            "value": "Desbloquear tu bóveda MaskID"
           }
         }
       }
@@ -415,13 +415,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vault — Shield Pro"
+            "value": "Vault — MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bóveda — Shield Pro"
+            "value": "Bóveda — MaskID Pro"
           }
         }
       }
@@ -432,13 +432,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Face ID encrypted storage.\nAvailable in Shield Pro."
+            "value": "Face ID encrypted storage.\nAvailable in MaskID Pro."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Almacenamiento cifrado con Face ID.\nDisponible en Shield Pro."
+            "value": "Almacenamiento cifrado con Face ID.\nDisponible en MaskID Pro."
           }
         }
       }

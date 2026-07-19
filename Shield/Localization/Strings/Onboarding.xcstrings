@@ -1,6 +1,227 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "onboarding_back": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrás"
+          }
+        }
+      }
+    },
+    "onboarding_camera_artwork_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An animated iPhone camera preview moving across a private document on a desk"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La vista animada de la cámara de un iPhone recorriendo un documento privado sobre un escritorio"
+          }
+        }
+      }
+    },
+    "onboarding_camera_bullet_1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically detects the document type"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detecta el tipo de documento automáticamente"
+          }
+        }
+      }
+    },
+    "onboarding_camera_bullet_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart framing for sharp, clean scans"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuadre inteligente para fotos nítidas"
+          }
+        }
+      }
+    },
+    "onboarding_camera_bullet_3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processed on-device. Never on servers."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesado en el dispositivo. Nunca en servidores."
+          }
+        }
+      }
+    },
+    "onboarding_camera_denied_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access is off. You can enable it in Settings to scan documents directly with MaskID."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El acceso a la cámara está desactivado. Puedes activarlo en Ajustes para escanear directamente con MaskID."
+          }
+        }
+      }
+    },
+    "onboarding_camera_denied_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the camera in Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa la cámara en Ajustes"
+          }
+        }
+      }
+    },
+    "onboarding_camera_enable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Camera"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar cámara"
+          }
+        }
+      }
+    },
+    "onboarding_camera_open_settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes"
+          }
+        }
+      }
+    },
+    "onboarding_camera_restricted_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera use is restricted on this device. You can continue and import documents from Files or Photos."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El uso de la cámara está restringido en este dispositivo. Puedes continuar e importar desde Archivos o Fotos."
+          }
+        }
+      }
+    },
+    "onboarding_camera_restricted_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera unavailable on this device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cámara no está disponible en este dispositivo"
+          }
+        }
+      }
+    },
+    "onboarding_camera_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan documents directly. Nothing is saved to your gallery."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanea documentos directamente. Nada se guarda en tu galería."
+          }
+        }
+      }
+    },
+    "onboarding_camera_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan any document instantly"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanea documentos al instante"
+          }
+        }
+      }
+    },
     "onboarding_continue": {
       "extractionState": "manual",
       "localizations": {
@@ -18,172 +239,512 @@
         }
       }
     },
-    "onboarding_skip": {
+    "onboarding_demo_address_value": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skip"
+            "value": "123 Main St, London SW1A 1AA"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Omitir"
+            "value": "Calle Mayor 14, 28001 Madrid"
           }
         }
       }
     },
-    "onboarding_not_now": {
+    "onboarding_demo_field_address": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not now"
+            "value": "Address"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ahora no"
+            "value": "Dirección"
           }
         }
       }
     },
-    "onboarding_welcome_title": {
+    "onboarding_demo_field_dob": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share your documents.\nOnly what you want."
+            "value": "Date of birth"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comparte tus documentos.\nSolo lo que quieras."
+            "value": "Fecha de nac."
           }
         }
       }
     },
-    "onboarding_welcome_subtitle": {
+    "onboarding_demo_field_doc_num": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hide sensitive data in seconds.\nNo servers. No trace."
+            "value": "Document no."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oculta tus datos sensibles en segundos.\nSin servidores. Sin rastro."
+            "value": "N.º documento"
           }
         }
       }
     },
-    "onboarding_welcome_cta": {
+    "onboarding_demo_field_hidden": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get Started"
+            "value": "Hidden"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empezar"
+            "value": "Oculto"
           }
         }
       }
     },
-    "onboarding_goal_title": {
+    "onboarding_demo_field_photo": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Why do you share your documents?"
+            "value": "Photo"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Para qué sueles compartir tus documentos?"
+            "value": "Foto"
           }
         }
       }
     },
-    "onboarding_goal_subtitle": {
+    "onboarding_demo_instruction_done": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We'll personalize Shield for you."
+            "value": "Done! You can see the result"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Así personalizamos Shield para ti."
+            "value": "¡Listo! Ya puedes ver el resultado"
           }
         }
       }
     },
-    "onboarding_goal_rental": {
+    "onboarding_demo_instruction_plural": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renting a home"
+            "value": "Hide at least 2 fields"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alquiler de vivienda"
+            "value": "Oculta al menos 2 campos"
           }
         }
       }
     },
-    "onboarding_goal_work": {
+    "onboarding_demo_instruction_singular": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Work or contracts"
+            "value": "Hide 1 more field"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trabajo o contrato"
+            "value": "Oculta 1 campo más"
           }
         }
       }
     },
-    "onboarding_goal_vehicle": {
+    "onboarding_demo_name_label": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Renting a vehicle"
+            "value": "NAME"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alquiler de vehículo"
+            "value": "NOMBRE"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sensitive fields hidden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld campos sensibles ocultos"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use it with my documents"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usarlo con mis documentos"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_device": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En tu dispositivo"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_gallery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No gallery copy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin copia en galería"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review before sharing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisión antes de compartir"
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is what the recipient will see."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Así es como lo verá quien lo reciba."
+          }
+        }
+      }
+    },
+    "onboarding_demo_result_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your document is protected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu documento está protegido"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_country": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🇪🇸 SPAIN · ID"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🇪🇸 ESPAÑA · DNI"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_dob": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12/05/1988"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12/05/1988"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_doc_num": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "47821634-X"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "47821634-X"
+          }
+        }
+      }
+    },
+    "onboarding_demo_sample_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "García López, Juan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "García López, Juan"
+          }
+        }
+      }
+    },
+    "onboarding_demo_see_result": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See result"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver resultado"
+          }
+        }
+      }
+    },
+    "onboarding_demo_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the fields to hide them on this sample document."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca los campos para ocultarlos en este documento de ejemplo."
+          }
+        }
+      }
+    },
+    "onboarding_demo_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try it yourself"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pruébalo tú mismo"
+          }
+        }
+      }
+    },
+    "onboarding_face_id_bullet_1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instant access with a glance"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso instantáneo con un vistazo"
+          }
+        }
+      }
+    },
+    "onboarding_face_id_bullet_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-locks when you leave the app"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se bloquea automáticamente al salir"
+          }
+        }
+      }
+    },
+    "onboarding_face_id_bullet_3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AES-256 encryption. No one else can open it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cifrado AES-256. Nadie más puede abrirlo."
+          }
+        }
+      }
+    },
+    "onboarding_face_id_enable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Face ID"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar Face ID"
+          }
+        }
+      }
+    },
+    "onboarding_face_id_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The vault stores your encrypted documents. Face ID is the only key."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El vault guarda tus documentos cifrados. Face ID es la única llave."
+          }
+        }
+      }
+    },
+    "onboarding_face_id_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your private vault, for your eyes only"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu vault privado, solo para tus ojos"
           }
         }
       }
@@ -205,23 +766,6 @@
         }
       }
     },
-    "onboarding_goal_travel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travel or immigration"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Viaje o inmigración"
-          }
-        }
-      }
-    },
     "onboarding_goal_other": {
       "extractionState": "manual",
       "localizations": {
@@ -239,87 +783,121 @@
         }
       }
     },
-    "onboarding_pain_title": {
+    "onboarding_goal_rental": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What worries you when sharing documents?"
+            "value": "Renting a home"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Qué te preocupa al enviar tus documentos?"
+            "value": "Alquiler de vivienda"
           }
         }
       }
     },
-    "onboarding_pain_subtitle": {
+    "onboarding_goal_subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select all that apply."
+            "value": "We'll personalize MaskID for you."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecciona todo lo que aplique."
+            "value": "Así personalizamos MaskID para ti."
           }
         }
       }
     },
-    "onboarding_pain_photo": {
+    "onboarding_goal_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Someone seeing my photo"
+            "value": "Why do you share your documents?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Que vean mi foto"
+            "value": "¿Para qué sueles compartir tus documentos?"
           }
         }
       }
     },
-    "onboarding_pain_dob": {
+    "onboarding_goal_travel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exposing my date of birth"
+            "value": "Travel or immigration"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Que vean mi fecha de nacimiento"
+            "value": "Viaje o inmigración"
           }
         }
       }
     },
-    "onboarding_pain_doc_num": {
+    "onboarding_goal_vehicle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Someone copying my document number"
+            "value": "Renting a vehicle"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Que copien mi número de documento"
+            "value": "Alquiler de vehículo"
+          }
+        }
+      }
+    },
+    "onboarding_goal_work": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work or contracts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trabajo o contrato"
+          }
+        }
+      }
+    },
+    "onboarding_not_now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora no"
           }
         }
       }
@@ -358,6 +936,40 @@
         }
       }
     },
+    "onboarding_pain_dob": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exposing my date of birth"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que vean mi fecha de nacimiento"
+          }
+        }
+      }
+    },
+    "onboarding_pain_doc_num": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Someone copying my document number"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que copien mi número de documento"
+          }
+        }
+      }
+    },
     "onboarding_pain_not_sure": {
       "extractionState": "manual",
       "localizations": {
@@ -375,19 +987,274 @@
         }
       }
     },
-    "onboarding_social_title": {
+    "onboarding_pain_photo": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thousands of people share their docs with confidence"
+            "value": "Someone seeing my photo"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Miles de personas comparten sus docs con tranquilidad"
+            "value": "Que vean mi foto"
+          }
+        }
+      }
+    },
+    "onboarding_pain_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select all that apply."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona todo lo que aplique."
+          }
+        }
+      }
+    },
+    "onboarding_pain_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What worries you when sharing documents?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué te preocupa al enviar tus documentos?"
+          }
+        }
+      }
+    },
+    "onboarding_pref_bank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bank statement"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extracto bancario"
+          }
+        }
+      }
+    },
+    "onboarding_pref_dni": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "National ID"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNI / Cédula"
+          }
+        }
+      }
+    },
+    "onboarding_pref_license": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Driver's license"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carnet de conducir"
+          }
+        }
+      }
+    },
+    "onboarding_pref_medical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medical document"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documento médico"
+          }
+        }
+      }
+    },
+    "onboarding_pref_passport": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passport"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasaporte"
+          }
+        }
+      }
+    },
+    "onboarding_pref_payslip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Payslip / Contract"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nómina / Contrato"
+          }
+        }
+      }
+    },
+    "onboarding_prefs_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select the ones you use most."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona los que usas más."
+          }
+        }
+      }
+    },
+    "onboarding_prefs_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What documents will you protect?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué documentos vas a proteger?"
+          }
+        }
+      }
+    },
+    "onboarding_processing_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting up your private space…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparando tu espacio privado…"
+          }
+        }
+      }
+    },
+    "onboarding_progress_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso"
+          }
+        }
+      }
+    },
+    "onboarding_progress_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %d of %d"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paso %d de %d"
+          }
+        }
+      }
+    },
+    "onboarding_skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        }
+      }
+    },
+    "onboarding_skip_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ends onboarding and continues with the free version"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finaliza la introducción y continúa con la versión gratuita"
           }
         }
       }
@@ -534,13 +1401,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "I travel a lot and they always ask for my passport. Shield gives me control over what I share."
+            "value": "I travel a lot and they always ask for my passport. MaskID gives me control over what I share."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Viajo mucho y siempre me piden el pasaporte. Shield me da el control sobre lo que comparto."
+            "value": "Viajo mucho y siempre me piden el pasaporte. MaskID me da el control sobre lo que comparto."
           }
         }
       }
@@ -562,138 +1429,19 @@
         }
       }
     },
-    "onboarding_solution_title": {
+    "onboarding_social_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield protects you exactly where it matters"
+            "value": "Thousands of people share their docs with confidence"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield te protege exactamente donde lo necesitas"
-          }
-        }
-      }
-    },
-    "onboarding_solution_photo_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Someone seeing your photo"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Que vean tu foto"
-          }
-        }
-      }
-    },
-    "onboarding_solution_photo_fix": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cover it with an opaque block in one tap"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta la imagen con un bloque opaco en un toque"
-          }
-        }
-      }
-    },
-    "onboarding_solution_dob_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exposing your date of birth"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Que vean tu fecha de nacimiento"
-          }
-        }
-      }
-    },
-    "onboarding_solution_dob_fix": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide whichever fields you choose with a tap"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta los campos que quieras con un toque"
-          }
-        }
-      }
-    },
-    "onboarding_solution_doc_num_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copying your document number"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Que copien tu número de doc"
-          }
-        }
-      }
-    },
-    "onboarding_solution_doc_num_fix": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Redact any field with precision"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Redacta cualquier campo con precisión total"
-          }
-        }
-      }
-    },
-    "onboarding_solution_address_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revealing your full address"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Que vean tu dirección"
+            "value": "Miles de personas comparten sus docs con tranquilidad"
           }
         }
       }
@@ -715,19 +1463,19 @@
         }
       }
     },
-    "onboarding_solution_bank_title": {
+    "onboarding_solution_address_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exposing your bank details"
+            "value": "Revealing your full address"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Que accedan a tus datos bancarios"
+            "value": "Que vean tu dirección"
           }
         }
       }
@@ -749,53 +1497,19 @@
         }
       }
     },
-    "onboarding_solution_not_sure_title": {
+    "onboarding_solution_bank_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not knowing what to hide"
+            "value": "Exposing your bank details"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No saber qué ocultar"
-          }
-        }
-      }
-    },
-    "onboarding_solution_not_sure_fix": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield auto-detects sensitive fields for you"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield detecta automáticamente los campos sensibles"
-          }
-        }
-      }
-    },
-    "onboarding_solution_default_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leaving a digital trace"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dejar rastro digital"
+            "value": "Que accedan a tus datos bancarios"
           }
         }
       }
@@ -817,699 +1531,223 @@
         }
       }
     },
-    "onboarding_prefs_title": {
+    "onboarding_solution_default_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What documents will you protect?"
+            "value": "Leaving a digital trace"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Qué documentos vas a proteger?"
+            "value": "Dejar rastro digital"
           }
         }
       }
     },
-    "onboarding_prefs_subtitle": {
+    "onboarding_solution_dob_fix": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select the ones you use most."
+            "value": "Hide whichever fields you choose with a tap"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Selecciona los que usas más."
+            "value": "Oculta los campos que quieras con un toque"
           }
         }
       }
     },
-    "onboarding_pref_dni": {
+    "onboarding_solution_dob_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "National ID"
+            "value": "Exposing your date of birth"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "DNI / Cédula"
+            "value": "Que vean tu fecha de nacimiento"
           }
         }
       }
     },
-    "onboarding_pref_passport": {
+    "onboarding_solution_doc_num_fix": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passport"
+            "value": "Redact any field with precision"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pasaporte"
+            "value": "Redacta cualquier campo con precisión total"
           }
         }
       }
     },
-    "onboarding_pref_license": {
+    "onboarding_solution_doc_num_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Driver's license"
+            "value": "Copying your document number"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carnet de conducir"
+            "value": "Que copien tu número de doc"
           }
         }
       }
     },
-    "onboarding_pref_payslip": {
+    "onboarding_solution_not_sure_fix": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Payslip / Contract"
+            "value": "MaskID auto-detects sensitive fields for you"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nómina / Contrato"
+            "value": "MaskID detecta automáticamente los campos sensibles"
           }
         }
       }
     },
-    "onboarding_pref_bank": {
+    "onboarding_solution_not_sure_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bank statement"
+            "value": "Not knowing what to hide"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Extracto bancario"
+            "value": "No saber qué ocultar"
           }
         }
       }
     },
-    "onboarding_pref_medical": {
+    "onboarding_solution_photo_fix": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Medical document"
+            "value": "Cover it with an opaque block in one tap"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Documento médico"
+            "value": "Oculta la imagen con un bloque opaco en un toque"
           }
         }
       }
     },
-    "onboarding_camera_title": {
+    "onboarding_solution_photo_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scan any document instantly"
+            "value": "Someone seeing your photo"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escanea cualquier documento al instante"
+            "value": "Que vean tu foto"
           }
         }
       }
     },
-    "onboarding_camera_subtitle": {
+    "onboarding_solution_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield uses your camera to capture documents directly — nothing saved to your gallery."
+            "value": "MaskID protects you exactly where it matters"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield usa la cámara para capturar tus docs directamente, sin pasar por el carrete."
+            "value": "MaskID te protege exactamente donde lo necesitas"
           }
         }
       }
     },
-    "onboarding_camera_bullet_1": {
+    "onboarding_welcome_cta": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Automatically detects the document type"
+            "value": "Get Started"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Detecta el tipo de documento automáticamente"
+            "value": "Empezar"
           }
         }
       }
     },
-    "onboarding_camera_bullet_2": {
+    "onboarding_welcome_subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Smart framing for sharp, clean scans"
+            "value": "Hide sensitive data in seconds.\nNo servers. No trace."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encuadre inteligente para fotos nítidas"
+            "value": "Oculta tus datos sensibles en segundos.\nSin servidores. Sin rastro."
           }
         }
       }
     },
-    "onboarding_camera_bullet_3": {
+    "onboarding_welcome_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Processed on-device. Never on servers."
+            "value": "Share your documents.\nOnly what you want."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Procesado en el dispositivo. Nunca en servidores."
-          }
-        }
-      }
-    },
-    "onboarding_camera_enable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable Camera"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activar cámara"
-          }
-        }
-      }
-    },
-    "onboarding_face_id_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your private vault, for your eyes only"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tu vault privado, solo para tus ojos"
-          }
-        }
-      }
-    },
-    "onboarding_face_id_subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The vault stores your encrypted documents. Face ID is the only key."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El vault guarda tus documentos cifrados. Face ID es la única llave."
-          }
-        }
-      }
-    },
-    "onboarding_face_id_bullet_1": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Instant access with a glance"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Acceso instantáneo con un vistazo"
-          }
-        }
-      }
-    },
-    "onboarding_face_id_bullet_2": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-locks when you leave the app"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se bloquea automáticamente al salir"
-          }
-        }
-      }
-    },
-    "onboarding_face_id_bullet_3": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AES-256 encryption. No one else can open it."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cifrado AES-256. Nadie más puede abrirlo."
-          }
-        }
-      }
-    },
-    "onboarding_face_id_enable": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable Face ID"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activar Face ID"
-          }
-        }
-      }
-    },
-    "onboarding_processing_text": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Setting up your private space…"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preparando tu espacio privado…"
-          }
-        }
-      }
-    },
-    "onboarding_demo_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try it yourself"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pruébalo tú mismo"
-          }
-        }
-      }
-    },
-    "onboarding_demo_subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap the fields to hide them on this sample document."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toca los campos para ocultarlos en este documento de ejemplo."
-          }
-        }
-      }
-    },
-    "onboarding_demo_instruction_plural": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide at least 2 fields"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta al menos 2 campos"
-          }
-        }
-      }
-    },
-    "onboarding_demo_instruction_singular": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide 1 more field"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta 1 campo más"
-          }
-        }
-      }
-    },
-    "onboarding_demo_instruction_done": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done! You can see the result"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¡Listo! Ya puedes ver el resultado"
-          }
-        }
-      }
-    },
-    "onboarding_demo_field_photo": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photo"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Foto"
-          }
-        }
-      }
-    },
-    "onboarding_demo_field_dob": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Date of birth"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fecha de nac."
-          }
-        }
-      }
-    },
-    "onboarding_demo_field_doc_num": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Document no."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "N.º documento"
-          }
-        }
-      }
-    },
-    "onboarding_demo_field_address": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Address"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dirección"
-          }
-        }
-      }
-    },
-    "onboarding_demo_field_hidden": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hidden"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculto"
-          }
-        }
-      }
-    },
-    "onboarding_demo_see_result": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "See result"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ver resultado"
-          }
-        }
-      }
-    },
-    "onboarding_demo_result_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your document is protected"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tu documento está protegido"
-          }
-        }
-      }
-    },
-    "onboarding_demo_result_subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This is what the recipient will see."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Así es como lo verá quien lo reciba."
-          }
-        }
-      }
-    },
-    "onboarding_demo_result_cta": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continuar"
-          }
-        }
-      }
-    },
-    "onboarding_demo_sample_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "García López, Juan"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "García López, Juan"
-          }
-        }
-      }
-    },
-    "onboarding_demo_sample_country": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🇪🇸 SPAIN · ID"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "🇪🇸 ESPAÑA · DNI"
-          }
-        }
-      }
-    },
-    "onboarding_demo_name_label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NAME"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NOMBRE"
-          }
-        }
-      }
-    },
-    "onboarding_demo_address_value": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "123 Main St, London SW1A 1AA"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Calle Mayor 14, 28001 Madrid"
-          }
-        }
-      }
-    },
-    "onboarding_demo_sample_doc_num": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "47821634-X"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "47821634-X"
-          }
-        }
-      }
-    },
-    "onboarding_demo_sample_dob": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "12/05/1988"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "12/05/1988"
+            "value": "Comparte tus documentos.\nSolo lo que quieras."
           }
         }
       }

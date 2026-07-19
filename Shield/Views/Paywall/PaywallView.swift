@@ -11,8 +11,6 @@ struct PaywallView: View {
     var trigger: PaywallTrigger = .manual
     @State private var selectedProduct: ShieldProduct = .annual
     @State private var didStartCheckout = false
-    private let privacyURL = URL(string: "https://shieldapp.io/privacy")
-    private let termsURL = URL(string: "https://shieldapp.io/terms")
 
     private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
         return [
@@ -22,21 +20,9 @@ struct PaywallView: View {
             ("eye.slash.fill",       "FFD60A",
              LanguageManager.shared.paywall("paywall_feature_all_styles"),
              LanguageManager.shared.paywall("paywall_feature_styles_desc")),
-            ("lock.rectangle.stack", "30D158",
+            ("lock.rectangle.stack.fill", "30D158",
              LanguageManager.shared.paywall("paywall_feature_vault"),
              LanguageManager.shared.paywall("paywall_feature_vault_desc")),
-            ("doc.on.doc.fill",             "FF9F0A",
-             LanguageManager.shared.paywall("paywall_feature_pdf_title"),
-             LanguageManager.shared.paywall("paywall_feature_pdf_desc")),
-            ("drop.halffull",        "5E5CE6",
-             LanguageManager.shared.paywall("paywall_feature_watermark"),
-             LanguageManager.shared.paywall("paywall_feature_watermark_desc")),
-            ("slider.horizontal.3",  "FF453A",
-             LanguageManager.shared.paywall("paywall_feature_adjust_title"),
-             LanguageManager.shared.paywall("paywall_feature_adjust_desc")),
-            ("wand.and.stars",       "BF5AF2",
-             LanguageManager.shared.paywall("paywall_feature_auto_title"),
-             LanguageManager.shared.paywall("paywall_feature_auto_desc")),
             ("icloud",               "30D158",
              LanguageManager.shared.paywall("paywall_feature_icloud"),
              LanguageManager.shared.paywall("paywall_feature_icloud_desc")),
@@ -94,6 +80,8 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(appState.preferredScheme)
+        .sensoryFeedback(.selection, trigger: selectedProduct)
+        .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
         .task {
             AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
             await pm.loadProducts()
@@ -188,13 +176,13 @@ struct PaywallView: View {
     // MARK: - Plan selector
 
     private var planSelector: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             if pm.products.isEmpty {
                 // Loading skeleton
                 ForEach(0..<3, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(ShieldTheme.surface2)
-                        .frame(height: 72)
+                        .frame(height: 84)
                         .opacity(0.5)
                 }
             } else {
@@ -203,6 +191,7 @@ struct PaywallView: View {
                         product: product,
                         isSelected: selectedProduct.rawValue == product.id,
                         savingsLabel: savingsLabel(for: product),
+                        trialLabel: pm.trialLabels[product.id],
                         lang: appState.language,
                         onTap: {
                             if let sp = ShieldProduct(rawValue: product.id) {
@@ -216,10 +205,18 @@ struct PaywallView: View {
     }
 
     private func savingsLabel(for product: Product) -> String? {
-        guard product.id == ShieldProduct.annual.rawValue,
-              let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
-        else { return nil }
-        return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        switch ShieldProduct(rawValue: product.id) {
+        case .annual:
+            guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
+            else { return nil }
+            return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        case .lifetime:
+            guard let annual = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue })
+            else { return nil }
+            return pm.lifetimeSavings(annual: annual, lifetime: product, lang: appState.language)
+        default:
+            return nil
+        }
     }
 
     // MARK: - CTA
@@ -240,8 +237,12 @@ struct PaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "crown.fill")
-                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
-                            .font(.system(size: 16, weight: .bold))
+                        Text(LanguageManager.shared.paywall(
+                            pm.trialLabels[selectedProduct.rawValue] != nil
+                                ? "paywall_free_trial"
+                                : "paywall_get_pro"
+                        ))
+                        .font(.system(size: 16, weight: .bold))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -265,7 +266,7 @@ struct PaywallView: View {
     // MARK: - Footer
 
     private var footerLinks: some View {
-        HStack(spacing: 20) {
+        VStack(spacing: 12) {
             Button {
                 Task {
                     await pm.restore()
@@ -281,49 +282,74 @@ struct PaywallView: View {
                 }
                 .font(.system(size: 12))
                 .foregroundColor(ShieldTheme.textTertiary)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
 
-            Text("·").foregroundColor(ShieldTheme.textQuaternary)
+            HStack(spacing: 14) {
+                publicPageLink(
+                    title: LanguageManager.shared.paywall("paywall_privacy"),
+                    page: .privacy
+                )
 
-            Button {
-                if let privacyURL { openURL(privacyURL) }
-            } label: {
-                Text(LanguageManager.shared.paywall("paywall_privacy"))
-                    .font(.system(size: 12))
-                    .foregroundColor(ShieldTheme.textTertiary)
+                Text("·").foregroundColor(ShieldTheme.textQuaternary)
+
+                publicPageLink(
+                    title: LanguageManager.shared.paywall("paywall_terms"),
+                    page: .terms
+                )
             }
 
-            Text("·").foregroundColor(ShieldTheme.textQuaternary)
-
-            Button {
-                if let termsURL { openURL(termsURL) }
-            } label: {
-                Text(LanguageManager.shared.paywall("paywall_terms"))
-                    .font(.system(size: 12))
-                    .foregroundColor(ShieldTheme.textTertiary)
-            }
+            publicPageLink(
+                title: LanguageManager.shared.settings("settings_subscription_terms"),
+                page: .subscriptions
+            )
         }
         .padding(.bottom, 8)
+    }
+
+    private func publicPageLink(title: String, page: ShieldPublicPage) -> some View {
+        Button {
+            openPublicPage(page)
+        } label: {
+            Text(title)
+                .font(.system(size: 12))
+                .foregroundColor(ShieldTheme.textTertiary)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityHint(LanguageManager.shared.settings("settings_opens_browser"))
+    }
+
+    private func openPublicPage(_ page: ShieldPublicPage) {
+        openURL(page.localizedURL(for: appState.language)) { accepted in
+            guard !accepted else { return }
+            openURL(page.compatibilityURL)
+        }
     }
 }
 
 // MARK: - PlanRow
 
-private struct PlanRow: View {
+struct PlanRow: View {
     @EnvironmentObject var appState: AppState
     let product: Product
     let isSelected: Bool
     let savingsLabel: String?
+    let trialLabel: String?
     let lang: AppLanguage
     let onTap: () -> Void
 
     var body: some View {
+        let isAnnual = ShieldProduct(rawValue: product.id) == .annual
+        let hasBadges = trialLabel != nil || savingsLabel != nil
+
         Button(action: onTap) {
-            HStack(spacing: 14) {
-                // Radio
+            HStack(spacing: 16) {
+                // Radio Circle
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine, lineWidth: isSelected ? 2 : 1)
+                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary.opacity(0.4), lineWidth: isSelected ? 2 : 1.5)
                         .frame(width: 20, height: 20)
                     if isSelected {
                         Circle()
@@ -331,59 +357,81 @@ private struct PlanRow: View {
                             .frame(width: 10, height: 10)
                     }
                 }
+                .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(planName)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(ShieldTheme.textPrimary)
-                        // Trial badge for annual plan
-                        if ShieldProduct(rawValue: product.id) == .annual {
-                            Text(LanguageManager.shared.paywall("paywall_trial_days", 7))
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
-                                .background(Color(hex: "30D158"))
-                                .clipShape(Capsule())
-                        }
-                        if let s = savingsLabel {
-                            Text(s)
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(ShieldTheme.accentText)
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
-                                .background(ShieldTheme.accent)
-                                .clipShape(Capsule())
-                        }
-                    }
+                // Content details
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(planName)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(ShieldTheme.textPrimary)
+                    
                     Text(planSubtitle)
                         .font(.system(size: 12))
                         .foregroundColor(ShieldTheme.textTertiary)
+
+                    if hasBadges {
+                        HStack(spacing: 6) {
+                            if let trialLabel {
+                                Text(trialLabel)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Color(hex: "30D158"))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color(hex: "30D158").opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                            if let s = savingsLabel {
+                                Text(s)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(ShieldTheme.accent)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(ShieldTheme.accent.opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.top, 2)
+                    }
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 1) {
+                // Pricing
+                VStack(alignment: .trailing, spacing: 2) {
                     Text(product.displayPrice)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(ShieldTheme.textPrimary)
                     Text(periodLabel)
-                        .font(.system(size: 11))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
+            .padding(.vertical, 12)
+            .frame(height: 96)
+            .background(isSelected ? ShieldTheme.accent.opacity(0.06) : ShieldTheme.surface2)
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
-                            lineWidth: isSelected ? 1.5 : 0.5)
+                            lineWidth: isSelected ? 2 : 0.8)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: isSelected ? ShieldTheme.accent.opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(ScaleButtonStyle())
+        .overlay(alignment: .topTrailing) {
+            if isAnnual {
+                Text(LanguageManager.shared.paywall("paywall_best_value").uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(ShieldTheme.accentText)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(ShieldTheme.accent)
+                    .clipShape(Capsule())
+                    .offset(y: -8)
+                    .padding(.trailing, 16)
+            }
+        }
     }
 
     private var planName: String {
@@ -399,7 +447,7 @@ private struct PlanRow: View {
         switch ShieldProduct(rawValue: product.id) {
         case .monthly:  return LanguageManager.shared.paywall("paywall_billed_monthly")
         case .annual:   return LanguageManager.shared.paywall("paywall_billed_annually")
-        case .lifetime: return LanguageManager.shared.paywall("paywall_one_time")
+        case .lifetime: return LanguageManager.shared.paywall("paywall_billed_once")
         case nil:       return ""
         }
     }

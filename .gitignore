@@ -7,6 +7,8 @@ xcuserdata/
 # Build artifacts
 DerivedData/
 build/
+.build/
+.asc/
 
 # Local agent folders
 .claude/

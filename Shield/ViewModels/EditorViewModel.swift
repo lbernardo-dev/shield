@@ -15,12 +15,12 @@ enum EditorTool: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .rect:      return lang == .es ? "Rectángulo" : "Rect"
-        case .fields:    return lang == .es ? "Campos" : "Fields"
-        case .auto:      return "Auto"
-        case .text:      return "Texto"
-        case .watermark: return lang == .es ? "Marca agua" : "WM"
-        case .adjust:    return lang == .es ? "Ajustar" : "Adjust"
+        case .rect:      return LanguageManager.shared.editor("editor_tool_rect")
+        case .fields:    return LanguageManager.shared.editor("editor_tool_fields")
+        case .auto:      return LanguageManager.shared.editor("editor_tool_auto")
+        case .text:      return LanguageManager.shared.editor("editor_tool_text")
+        case .watermark: return LanguageManager.shared.editor("editor_tool_watermark")
+        case .adjust:    return LanguageManager.shared.editor("editor_tool_adjust")
         }
     }
 
@@ -127,6 +127,7 @@ final class EditorViewModel: ObservableObject {
     // Undo/redo
     private var history: [[Redaction]] = [[]]
     private var historyIdx: Int = 0
+    private var redactionTransformBaseline: [Redaction]? = nil
 
     var canUndo: Bool { historyIdx > 0 }
     var canRedo: Bool { historyIdx < history.count - 1 }
@@ -160,7 +161,7 @@ final class EditorViewModel: ObservableObject {
         if showSensitiveBanner {
             AppState.trackEvent("risk_detected", properties: [
                 "kind": doc.kind.rawValue,
-                "suggested_count": String(suggestions.count)
+                "count": String(suggestions.count)
             ])
         }
     }
@@ -168,6 +169,7 @@ final class EditorViewModel: ObservableObject {
     // MARK: - History
 
     private func push(_ next: [Redaction]) {
+        guard next != redactions else { return }
         history = Array(history.prefix(historyIdx + 1))
         history.append(next)
         historyIdx = history.count - 1
@@ -241,7 +243,10 @@ final class EditorViewModel: ObservableObject {
                 showSensitiveBanner = false
                 return
             }
-            let preciseRects = AutoRedactions.ocrModeRects(for: .banking, fields: doc.fields)
+            let preciseRects = AutoRedactions.ocrPrecisionModeRects(
+                for: .banking,
+                fields: currentPageOCRFields
+            )
             guard !preciseRects.isEmpty else {
                 showSensitiveBanner = false
                 return
@@ -326,7 +331,10 @@ final class EditorViewModel: ObservableObject {
                 // No real OCR text found — do nothing, do not mark the mode as active.
                 return
             }
-            let modeRects = AutoRedactions.ocrPrecisionModeRects(for: mode, fields: doc.fields)
+            let modeRects = AutoRedactions.ocrPrecisionModeRects(
+                for: mode,
+                fields: currentPageOCRFields
+            )
             guard !modeRects.isEmpty else {
                 // OCR ran but this mode's required fields were not present in the image
                 // (e.g. no DOB found for the job preset). Clear redactions and deselect mode.
@@ -350,10 +358,21 @@ final class EditorViewModel: ObservableObject {
     /// The UI can read this to show feedback when a preset has no data to act on.
     var ocrHasRealText: Bool { Self.ocrHasRealText(in: doc) }
 
+    private var currentPageOCRFields: DocumentFields {
+        var fields = doc.fields
+        guard let page = fields.ocrPageEvidence?.first(where: { $0.pageIndex == currentPage }) else {
+            return fields
+        }
+        fields.ocrBoundingTexts = page.observations.map(\.text)
+        fields.ocrBoundingRects = page.observations.map(\.boundingRect)
+        fields.ocrPageEvidence = [page]
+        return fields
+    }
+
     // MARK: - Image adjustment
 
     func updateAdjustment(_ adjustment: ImageAdjustment) {
-        imageAdjustment = adjustment
+        imageAdjustment = sanitizedAdjustment(adjustment)
         persistCurrentPageState()
     }
 
@@ -383,7 +402,46 @@ final class EditorViewModel: ObservableObject {
         persistCurrentPageState()
     }
 
+    private func sanitizedAdjustment(_ adjustment: ImageAdjustment) -> ImageAdjustment {
+        var sanitized = adjustment
+        sanitized.cropLeft = max(0, min(0.45, sanitized.cropLeft))
+        sanitized.cropRight = max(0, min(0.45, sanitized.cropRight))
+        sanitized.cropTop = max(0, min(0.45, sanitized.cropTop))
+        sanitized.cropBottom = max(0, min(0.45, sanitized.cropBottom))
+
+        let horizontalCrop = sanitized.cropLeft + sanitized.cropRight
+        if horizontalCrop > 0.9 {
+            let scale = 0.9 / horizontalCrop
+            sanitized.cropLeft *= scale
+            sanitized.cropRight *= scale
+        }
+
+        let verticalCrop = sanitized.cropTop + sanitized.cropBottom
+        if verticalCrop > 0.9 {
+            let scale = 0.9 / verticalCrop
+            sanitized.cropTop *= scale
+            sanitized.cropBottom *= scale
+        }
+
+        return sanitized
+    }
+
     // MARK: - Redaction drag & resize
+
+    func beginRedactionTransform() {
+        guard redactionTransformBaseline == nil else { return }
+        redactionTransformBaseline = redactions
+    }
+
+    func commitRedactionTransform() {
+        guard let baseline = redactionTransformBaseline else { return }
+        redactionTransformBaseline = nil
+        guard baseline != redactions else { return }
+        history = Array(history.prefix(historyIdx + 1))
+        history.append(redactions)
+        historyIdx = history.count - 1
+        persistCurrentPageState()
+    }
 
     func moveRedaction(id: UUID, by delta: CGSize, canvasSize: CGSize) {
         guard canvasSize.width > 0, canvasSize.height > 0 else { return }
@@ -398,17 +456,10 @@ final class EditorViewModel: ObservableObject {
             return moved
         }
         redactions = updated
-        persistCurrentPageState()
     }
 
     func resizeRedaction(id: UUID, newRect: CGRect) {
-        let minSize: CGFloat = 0.02
-        let safeRect = CGRect(
-            x: max(0, min(0.98, newRect.origin.x)),
-            y: max(0, min(0.98, newRect.origin.y)),
-            width: max(minSize, min(1 - newRect.origin.x, newRect.width)),
-            height: max(minSize, min(1 - newRect.origin.y, newRect.height))
-        )
+        let safeRect = NormalizedDocumentGeometry.rect(newRect)
         let updated = redactions.map { r -> Redaction in
             guard r.id == id else { return r }
             var resized = r
@@ -416,7 +467,6 @@ final class EditorViewModel: ObservableObject {
             return resized
         }
         redactions = updated
-        persistCurrentPageState()
     }
 
     func toggleField(_ box: FieldBox) {
@@ -493,8 +543,14 @@ final class EditorViewModel: ObservableObject {
             guard let self else { return }
             let pageObs = await OCRService.recognizeObservationsByPageAdaptive(in: images)
             if Task.isCancelled { return }
-            let lines = pageObs.flatMap { $0.map(\.text) }
-            var fields = OCRService.extractFields(from: lines)
+            let pageLines = pageObs.map { $0.map(\.text) }
+            let lines = pageLines.flatMap { $0 }
+            let perPageFields = pageLines.map(OCRService.extractFields(from:))
+            var fields = perPageFields.first ?? OCRService.extractFields(from: lines)
+            fields.ocrPageEvidence = OCRService.buildPageEvidence(
+                observations: pageObs,
+                extractedFields: perPageFields
+            )
             fields.ocrDocumentType = OCRService.detectDocumentType(from: lines).rawValue
             if let page0 = pageObs.first {
                 fields.ocrBoundingTexts = page0.map(\.text)
@@ -618,7 +674,7 @@ final class EditorViewModel: ObservableObject {
             // Only return rects that are anchored to actual OCR tokens (precision mode).
             // ocrModeRects falls back to gridRects when no bounding texts exist, but we
             // already guard against that above, so here we know precision mode will run.
-            let ocrRects = AutoRedactions.ocrModeRects(for: .banking, fields: doc.fields)
+            let ocrRects = AutoRedactions.ocrPrecisionModeRects(for: .banking, fields: doc.fields)
             return ocrRects
         }
         return AutoRedactions.suggested(for: doc.kind).map { $0.rect }
@@ -668,11 +724,14 @@ final class EditorViewModel: ObservableObject {
         return rawImages.map { ExportEngine.applyImageAdjustment($0, store: adjustment) ?? $0 }
     }
 
-    /// Forces a UI refresh after source image files are overwritten in place.
-    func refreshAfterImageOverwrite() {
+    /// Updates the render cache while keeping immutable originals untouched.
+    func updateRenderedPages(transforms: [DocumentPageTransform]) {
         var snapshot = doc
+        snapshot.pageTransforms = transforms
+        snapshot.imageAdjustment = nil
         snapshot.date = Date()
         doc = snapshot
+        imageAdjustment = .default
     }
 
     private func persistCurrentPageState() {

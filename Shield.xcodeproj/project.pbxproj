@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7C1D5E4E2FA7359600E171B4 /* GhostDocInFormal.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */; };
-		7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */; };
+		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -31,19 +31,32 @@
 		A020 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* VaultView.swift */; };
 		A021 /* StyleGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* StyleGalleryView.swift */; };
 		A022 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F022 /* SettingsView.swift */; };
+		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
 		A023 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* TabBar.swift */; };
 		A024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F024 /* Assets.xcassets */; };
-		A025 /* Shield.storekit in Resources */ = {isa = PBXBuildFile; fileRef = F025 /* Shield.storekit */; };
 		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
 		A027 /* WatermarkConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F027 /* WatermarkConfigView.swift */; };
 		A028 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F028 /* PrivacyInfo.xcprivacy */; };
 		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
 		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
+		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
 		A033 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* OnboardingFlowView.swift */; };
 		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
 		A035 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F035 /* OnboardingState.swift */; };
 		A036 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* LanguageManager.swift */; };
+		A037 /* AppSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F037 /* AppSessionCoordinator.swift */; };
+		A038 /* HomeDashboardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F038 /* HomeDashboardViews.swift */; };
+		A039 /* CaptureMenuViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F039 /* CaptureMenuViews.swift */; };
+		A040 /* CaptureReviewViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F040 /* CaptureReviewViews.swift */; };
+		A041 /* CaptureImportViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041 /* CaptureImportViews.swift */; };
+		A042 /* CaptureOCRServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F042 /* CaptureOCRServices.swift */; };
+		A043 /* ExportServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F043 /* ExportServices.swift */; };
+		A044 /* EditorChromeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F044 /* EditorChromeViews.swift */; };
+		A045 /* ExportFormViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F045 /* ExportFormViews.swift */; };
+		A046 /* HomeSectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F046 /* HomeSectionViews.swift */; };
+		A047 /* SecureExportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F047 /* SecureExportModels.swift */; };
+		A048 /* ExportVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048 /* ExportVerifier.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -51,6 +64,17 @@
 		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
 		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
 		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
+		AIMP /* ImportPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIMP /* ImportPipeline.swift */; };
+		AINT /* ShieldAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FINT /* ShieldAppIntents.swift */; };
+		AMETRIC /* ShieldMetricSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FMETRIC /* ShieldMetricSubscriber.swift */; };
+		ASHARE /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
+		AT001 /* RedactionCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T001 /* RedactionCodingTests.swift */; };
+		AT002 /* ShieldLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T002 /* ShieldLaunchTests.swift */; };
+		AT003 /* Export/ExportVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T003 /* Export/ExportVerifierTests.swift */; };
+		AT004 /* DocumentMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T004 /* DocumentMigrationTests.swift */; };
+		AT005 /* SharedImportStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T005 /* SharedImportStoreTests.swift */; };
+		AT006 /* PerformanceBudgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T006 /* PerformanceBudgetTests.swift */; };
+		AT007 /* MetricPayloadStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T007 /* MetricPayloadStoreTests.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -62,11 +86,58 @@
 		B009 /* Paywall.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L009 /* Paywall.xcstrings */; };
 		B010 /* Settings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L010 /* Settings.xcstrings */; };
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
+		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
+		B013 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L013 /* AppShortcuts.xcstrings */; };
+		EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FEXTAPP /* ShieldShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EXTRES1 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FEXTSTORY /* MainInterface.storyboard */; };
+		EXTSRC1 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEXTSRC1 /* ShareViewController.swift */; };
+		EXTSRC2 /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
+		TIMP /* ImportPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTIM /* ImportPipelineTests.swift */; };
+		TOCR /* OCREvidenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTOC /* OCREvidenceTests.swift */; };
+		TSEC /* SecurityPrivacyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSEC /* SecurityPrivacyTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		PROXY_SHARE_EXTENSION /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PROJ /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TARGET_SHARE_EXTENSION;
+			remoteInfo = ShieldShareExtension;
+		};
+		PROXY_TESTS /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PROJ /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TARGET_SHIELD;
+			remoteInfo = Shield;
+		};
+		PROXY_UITESTS /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PROJ /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TARGET_SHIELD;
+			remoteInfo = Shield;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		PH_EMBED_EXTENSIONS /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDocInFormal.icon; sourceTree = "<group>"; };
-		7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = GhostDoc.icon; sourceTree = "<group>"; };
+		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -90,6 +161,7 @@
 		F020 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		F021 /* StyleGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGalleryView.swift; sourceTree = "<group>"; };
 		F022 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
 		F023 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		F024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F025 /* Shield.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shield.storekit; sourceTree = "<group>"; };
@@ -98,11 +170,24 @@
 		F028 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
+		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
 		F033 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
 		F035 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		F036 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		F037 /* AppSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSessionCoordinator.swift; sourceTree = "<group>"; };
+		F038 /* HomeDashboardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardViews.swift; sourceTree = "<group>"; };
+		F039 /* CaptureMenuViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureMenuViews.swift; sourceTree = "<group>"; };
+		F040 /* CaptureReviewViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureReviewViews.swift; sourceTree = "<group>"; };
+		F041 /* CaptureImportViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureImportViews.swift; sourceTree = "<group>"; };
+		F042 /* CaptureOCRServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOCRServices.swift; sourceTree = "<group>"; };
+		F043 /* ExportServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportServices.swift; sourceTree = "<group>"; };
+		F044 /* EditorChromeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorChromeViews.swift; sourceTree = "<group>"; };
+		F045 /* ExportFormViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportFormViews.swift; sourceTree = "<group>"; };
+		F046 /* HomeSectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSectionViews.swift; sourceTree = "<group>"; };
+		F047 /* SecureExportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureExportModels.swift; sourceTree = "<group>"; };
+		F048 /* ExportVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportVerifier.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -111,6 +196,21 @@
 		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAPPINFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FEXTAPP /* ShieldShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEXTENT /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
+		FEXTINFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FEXTSRC1 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		FEXTSTORY /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = MainInterface.storyboard; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		FIMP /* ImportPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipeline.swift; sourceTree = "<group>"; };
+		FINT /* ShieldAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldAppIntents.swift; sourceTree = "<group>"; };
+		FMETRIC /* ShieldMetricSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldMetricSubscriber.swift; sourceTree = "<group>"; };
+		FSEC /* SecurityPrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyTests.swift; sourceTree = "<group>"; };
+		FSHARE /* SharedImportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStore.swift; sourceTree = "<group>"; };
+		FTEST /* ShieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FTIM /* ImportPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipelineTests.swift; sourceTree = "<group>"; };
+		FTOC /* OCREvidenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREvidenceTests.swift; sourceTree = "<group>"; };
+		FUITEST /* ShieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -122,9 +222,25 @@
 		L009 /* Paywall.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Paywall.xcstrings; sourceTree = "<group>"; };
 		L010 /* Settings.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Settings.xcstrings; sourceTree = "<group>"; };
 		L011 /* Vault.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Vault.xcstrings; sourceTree = "<group>"; };
+		L012 /* SettingsInfo.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = SettingsInfo.xcstrings; sourceTree = "<group>"; };
+		L013 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
+		T001 /* RedactionCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionCodingTests.swift; sourceTree = "<group>"; };
+		T002 /* ShieldLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldLaunchTests.swift; sourceTree = "<group>"; };
+		T003 /* Export/ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
+		T004 /* DocumentMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMigrationTests.swift; sourceTree = "<group>"; };
+		T005 /* SharedImportStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStoreTests.swift; sourceTree = "<group>"; };
+		T006 /* PerformanceBudgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceBudgetTests.swift; sourceTree = "<group>"; };
+		T007 /* MetricPayloadStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricPayloadStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		PH_EXT_FRAMEWORKS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		PH_FRAMEWORKS /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +255,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		PH_TEST_FRAMEWORKS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		PH_UITEST_FRAMEWORKS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -147,6 +277,7 @@
 			children = (
 				F001 /* ShieldApp.swift */,
 				F002 /* ContentView.swift */,
+				FINT /* ShieldAppIntents.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -155,6 +286,11 @@
 			isa = PBXGroup;
 			children = (
 				F012 /* CaptureView.swift */,
+				F039 /* CaptureMenuViews.swift */,
+				F040 /* CaptureReviewViews.swift */,
+				F041 /* CaptureImportViews.swift */,
+				FIMP /* ImportPipeline.swift */,
+				F042 /* CaptureOCRServices.swift */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -164,6 +300,7 @@
 			children = (
 				F030 /* CloudSyncManager.swift */,
 				F031 /* ExternalStorageManager.swift */,
+				F060 /* DirectCloudStorageManager.swift */,
 			);
 			path = Cloud;
 			sourceTree = "<group>";
@@ -189,14 +326,26 @@
 			isa = PBXGroup;
 			children = (
 				F013 /* EditorView.swift */,
+				F044 /* EditorChromeViews.swift */,
 				F014 /* DocumentCanvas.swift */,
 				F015 /* MaskStylePicker.swift */,
 				F016 /* OCRSheetView.swift */,
 				F017 /* ExportSheetView.swift */,
+				F043 /* ExportServices.swift */,
+				F045 /* ExportFormViews.swift */,
 				F027 /* WatermarkConfigView.swift */,
 				F032 /* ImageAdjustToolbar.swift */,
 			);
 			path = Editor;
+			sourceTree = "<group>";
+		};
+		GRP_EXPORT /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				F047 /* SecureExportModels.swift */,
+				F048 /* ExportVerifier.swift */,
+			);
+			path = Export;
 			sourceTree = "<group>";
 		};
 		GRP_FRAMEWORKS /* Frameworks */ = {
@@ -226,6 +375,8 @@
 			children = (
 				F011 /* HomeView.swift */,
 				F026 /* AllDocumentsView.swift */,
+				F038 /* HomeDashboardViews.swift */,
+				F046 /* HomeSectionViews.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -246,6 +397,14 @@
 				F005 /* Redaction.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		GRP_OBSERVABILITY /* Observability */ = {
+			isa = PBXGroup;
+			children = (
+				FMETRIC /* ShieldMetricSubscriber.swift */,
+			);
+			path = Observability;
 			sourceTree = "<group>";
 		};
 		GRP_ONBOARDING /* Onboarding */ = {
@@ -278,6 +437,9 @@
 			isa = PBXGroup;
 			children = (
 				FAPP /* Shield.app */,
+				FTEST /* ShieldTests.xctest */,
+				FUITEST /* ShieldUITests.xctest */,
+				FEXTAPP /* ShieldShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,6 +450,7 @@
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
 				F028 /* PrivacyInfo.xcprivacy */,
+				FAPPINFO /* Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -296,6 +459,9 @@
 			isa = PBXGroup;
 			children = (
 				GRP_SHIELD /* Shield */,
+				GRP_TESTS /* ShieldTests */,
+				GRP_UITESTS /* ShieldUITests */,
+				GRP_SHARE_EXTENSION /* ShareExtension */,
 				GRP_FRAMEWORKS /* Frameworks */,
 				GRP_PRODUCTS /* Products */,
 			);
@@ -305,14 +471,34 @@
 			isa = PBXGroup;
 			children = (
 				F022 /* SettingsView.swift */,
+				F049 /* SettingsDestinationViews.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		GRP_SHARE /* Share */ = {
+			isa = PBXGroup;
+			children = (
+				FSHARE /* SharedImportStore.swift */,
+			);
+			path = Share;
+			sourceTree = "<group>";
+		};
+		GRP_SHARE_EXTENSION /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				FEXTSRC1 /* ShareViewController.swift */,
+				FEXTINFO /* Info.plist */,
+				FEXTENT /* ShareExtension.entitlements */,
+				FEXTSTORY /* MainInterface.storyboard */,
+			);
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
-				7C1D5E4F2FA7392000E171B4 /* GhostDoc.icon */,
+				7C1D5E4F2FA7392000E171B4 /* MaskID.icon */,
 				7C1D5E4D2FA7359600E171B4 /* GhostDocInFormal.icon */,
 				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
 				GRP_APP /* App */,
@@ -322,6 +508,9 @@
 				GRP_VIEWS /* Views */,
 				GRP_CLOUD /* Cloud */,
 				GRP_PREMIUM /* Premium */,
+				GRP_EXPORT /* Export */,
+				GRP_SHARE /* Share */,
+				GRP_OBSERVABILITY /* Observability */,
 				GRP_LOCALIZATION /* Localization */,
 				GRP_RESOURCES /* Resources */,
 			);
@@ -341,9 +530,27 @@
 				L008 /* Onboarding.xcstrings */,
 				L009 /* Paywall.xcstrings */,
 				L010 /* Settings.xcstrings */,
+				L012 /* SettingsInfo.xcstrings */,
+				L013 /* AppShortcuts.xcstrings */,
 				L011 /* Vault.xcstrings */,
 			);
 			path = Strings;
+			sourceTree = "<group>";
+		};
+		GRP_TESTS /* ShieldTests */ = {
+			isa = PBXGroup;
+			children = (
+				T001 /* RedactionCodingTests.swift */,
+				T003 /* Export/ExportVerifierTests.swift */,
+				T004 /* DocumentMigrationTests.swift */,
+				FTIM /* ImportPipelineTests.swift */,
+				FTOC /* OCREvidenceTests.swift */,
+				FSEC /* SecurityPrivacyTests.swift */,
+				T005 /* SharedImportStoreTests.swift */,
+				T006 /* PerformanceBudgetTests.swift */,
+				T007 /* MetricPayloadStoreTests.swift */,
+			);
+			path = ShieldTests;
 			sourceTree = "<group>";
 		};
 		GRP_THEME /* Theme */ = {
@@ -352,6 +559,14 @@
 				F003 /* ShieldTheme.swift */,
 			);
 			path = Theme;
+			sourceTree = "<group>";
+		};
+		GRP_UITESTS /* ShieldUITests */ = {
+			isa = PBXGroup;
+			children = (
+				T002 /* ShieldLaunchTests.swift */,
+			);
+			path = ShieldUITests;
 			sourceTree = "<group>";
 		};
 		GRP_VAULT /* Vault */ = {
@@ -368,6 +583,7 @@
 				F006 /* AppState.swift */,
 				F007 /* EditorViewModel.swift */,
 				F035 /* OnboardingState.swift */,
+				F037 /* AppSessionCoordinator.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -392,6 +608,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		TARGET_SHARE_EXTENSION /* ShieldShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCLST_SHARE_EXTENSION /* Build configuration list for PBXNativeTarget "ShieldShareExtension" */;
+			buildPhases = (
+				PH_EXT_SOURCES /* Sources */,
+				PH_EXT_FRAMEWORKS /* Frameworks */,
+				PH_EXT_RESOURCES /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShieldShareExtension;
+			productName = ShieldShareExtension;
+			productReference = FEXTAPP /* ShieldShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		TARGET_SHIELD /* Shield */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BCLST_TARGET /* Build configuration list for PBXNativeTarget "Shield" */;
@@ -399,15 +632,51 @@
 				PH_SOURCES /* Sources */,
 				PH_FRAMEWORKS /* Frameworks */,
 				PH_RESOURCES /* Resources */,
+				PH_EMBED_EXTENSIONS /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DEP_SHARE_EXTENSION /* PBXTargetDependency */,
 			);
 			name = Shield;
 			productName = Shield;
 			productReference = FAPP /* Shield.app */;
 			productType = "com.apple.product-type.application";
+		};
+		TARGET_TESTS /* ShieldTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCLST_TESTS /* Build configuration list for PBXNativeTarget "ShieldTests" */;
+			buildPhases = (
+				PH_TEST_SOURCES /* Sources */,
+				PH_TEST_FRAMEWORKS /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEP_TESTS /* PBXTargetDependency */,
+			);
+			name = ShieldTests;
+			productName = ShieldTests;
+			productReference = FTEST /* ShieldTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		TARGET_UITESTS /* ShieldUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCLST_UITESTS /* Build configuration list for PBXNativeTarget "ShieldUITests" */;
+			buildPhases = (
+				PH_UITEST_SOURCES /* Sources */,
+				PH_UITEST_FRAMEWORKS /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEP_UITESTS /* PBXTargetDependency */,
+			);
+			name = ShieldUITests;
+			productName = ShieldUITests;
+			productReference = FUITEST /* ShieldUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -417,10 +686,21 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 2640;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					TARGET_SHARE_EXTENSION = {
+						CreatedOnToolsVersion = 26.0;
+					};
 					TARGET_SHIELD = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					TARGET_TESTS = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = TARGET_SHIELD;
+					};
+					TARGET_UITESTS = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = TARGET_SHIELD;
 					};
 				};
 			};
@@ -439,18 +719,28 @@
 			projectRoot = "";
 			targets = (
 				TARGET_SHIELD /* Shield */,
+				TARGET_TESTS /* ShieldTests */,
+				TARGET_UITESTS /* ShieldUITests */,
+				TARGET_SHARE_EXTENSION /* ShieldShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		PH_EXT_RESOURCES /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EXTRES1 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		PH_RESOURCES /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				A024 /* Assets.xcassets in Resources */,
 				7C1D5E4E2FA7359600E171B4 /* GhostDocInFormal.icon in Resources */,
-				A025 /* Shield.storekit in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
 				B002 /* Capture.xcstrings in Resources */,
@@ -462,14 +752,25 @@
 				B008 /* Onboarding.xcstrings in Resources */,
 				B009 /* Paywall.xcstrings in Resources */,
 				B010 /* Settings.xcstrings in Resources */,
+				B012 /* SettingsInfo.xcstrings in Resources */,
+				B013 /* AppShortcuts.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
-				7C1D5E502FA7392000E171B4 /* GhostDoc.icon in Resources */,
+				7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		PH_EXT_SOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EXTSRC1 /* ShareViewController.swift in Sources */,
+				EXTSRC2 /* SharedImportStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		PH_SOURCES /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -499,19 +800,133 @@
 				A020 /* VaultView.swift in Sources */,
 				A021 /* StyleGalleryView.swift in Sources */,
 				A022 /* SettingsView.swift in Sources */,
+				A049 /* SettingsDestinationViews.swift in Sources */,
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
+				A060 /* DirectCloudStorageManager.swift in Sources */,
 				A033 /* OnboardingFlowView.swift in Sources */,
 				A034 /* OnboardingSteps.swift in Sources */,
 				A035 /* OnboardingState.swift in Sources */,
 				A036 /* LanguageManager.swift in Sources */,
+				A037 /* AppSessionCoordinator.swift in Sources */,
+				A038 /* HomeDashboardViews.swift in Sources */,
+				A039 /* CaptureMenuViews.swift in Sources */,
+				A040 /* CaptureReviewViews.swift in Sources */,
+				A041 /* CaptureImportViews.swift in Sources */,
+				AIMP /* ImportPipeline.swift in Sources */,
+				A042 /* CaptureOCRServices.swift in Sources */,
+				A043 /* ExportServices.swift in Sources */,
+				A044 /* EditorChromeViews.swift in Sources */,
+				A045 /* ExportFormViews.swift in Sources */,
+				A046 /* HomeSectionViews.swift in Sources */,
+				A047 /* SecureExportModels.swift in Sources */,
+				A048 /* ExportVerifier.swift in Sources */,
+				AINT /* ShieldAppIntents.swift in Sources */,
+				ASHARE /* SharedImportStore.swift in Sources */,
+				AMETRIC /* ShieldMetricSubscriber.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		PH_TEST_SOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AT001 /* RedactionCodingTests.swift in Sources */,
+				AT003 /* Export/ExportVerifierTests.swift in Sources */,
+				AT004 /* DocumentMigrationTests.swift in Sources */,
+				TIMP /* ImportPipelineTests.swift in Sources */,
+				TOCR /* OCREvidenceTests.swift in Sources */,
+				TSEC /* SecurityPrivacyTests.swift in Sources */,
+				AT005 /* SharedImportStoreTests.swift in Sources */,
+				AT006 /* PerformanceBudgetTests.swift in Sources */,
+				AT007 /* MetricPayloadStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		PH_UITEST_SOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AT002 /* ShieldLaunchTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		DEP_SHARE_EXTENSION /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TARGET_SHARE_EXTENSION /* ShieldShareExtension */;
+			targetProxy = PROXY_SHARE_EXTENSION /* PBXContainerItemProxy */;
+		};
+		DEP_TESTS /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TARGET_SHIELD /* Shield */;
+			targetProxy = PROXY_TESTS /* PBXContainerItemProxy */;
+		};
+		DEP_UITESTS /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TARGET_SHIELD /* Shield */;
+			targetProxy = PROXY_UITESTS /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		BC_EXT_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607191;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BC_EXT_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607191;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -614,70 +1029,144 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 100202607191;
+				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = GhostDoc;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = GhostDoc;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 100202607191;
+				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = GhostDoc;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Shield necesita la camara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Shield usa Face ID para proteger tu Boveda.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Shield necesita acceso a fotos para importar documentos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BC_TEST_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Shield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Shield";
+			};
+			name = Debug;
+		};
+		BC_TEST_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Shield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Shield";
+			};
+			name = Release;
+		};
+		BC_UITEST_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Shield;
+			};
+			name = Debug;
+		};
+		BC_UITEST_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Shield;
 			};
 			name = Release;
 		};
@@ -693,11 +1182,38 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		BCLST_SHARE_EXTENSION /* Build configuration list for PBXNativeTarget "ShieldShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC_EXT_DEBUG /* Debug */,
+				BC_EXT_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BCLST_TARGET /* Build configuration list for PBXNativeTarget "Shield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BC_TARGET_DEBUG /* Debug */,
 				BC_TARGET_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCLST_TESTS /* Build configuration list for PBXNativeTarget "ShieldTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC_TEST_DEBUG /* Debug */,
+				BC_TEST_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCLST_UITESTS /* Build configuration list for PBXNativeTarget "ShieldUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC_UITEST_DEBUG /* Debug */,
+				BC_UITEST_RELEASE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

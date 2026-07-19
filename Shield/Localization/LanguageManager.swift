@@ -10,11 +10,25 @@ enum AppLanguage: String, CaseIterable, Codable {
 // MARK: - LanguageManager
 
 @Observable
+@MainActor
 final class LanguageManager {
     static let shared = LanguageManager()
 
+    private static let overrideKey = "shield.language"
+    private static let manualOverrideFlagKey = "shield.language.isManualOverride"
+
+    /// Guards the initializer's own assignment to `current` from being
+    /// recorded as an explicit user override — only a later, real change
+    /// (e.g. the in-app language toggle) should pin the language and stop
+    /// following the system locale.
+    private var isBootstrapping = true
+
     var current: AppLanguage {
-        didSet { UserDefaults.standard.set(current.rawValue, forKey: "shield.language") }
+        didSet {
+            guard !isBootstrapping, current != oldValue else { return }
+            UserDefaults.standard.set(true, forKey: Self.manualOverrideFlagKey)
+            UserDefaults.standard.set(current.rawValue, forKey: Self.overrideKey)
+        }
     }
 
     var currentLanguage: AppLanguage { current }
@@ -41,13 +55,31 @@ final class LanguageManager {
     }
 
     init() {
-        if let saved = UserDefaults.standard.string(forKey: "shield.language"),
+        if UserDefaults.standard.bool(forKey: Self.manualOverrideFlagKey),
+           let saved = UserDefaults.standard.string(forKey: Self.overrideKey),
            let lang = AppLanguage(rawValue: saved) {
             current = lang
         } else {
-            let pref = Locale.preferredLanguages.first ?? ""
-            current = pref.hasPrefix("es") ? .es : .en
+            // No explicit in-app choice yet: defer to the OS's own locale
+            // resolution (device language, or the app's per-app Language
+            // override under Settings > General > Language & Region),
+            // so the app tracks the system automatically until the user
+            // picks a language in-app.
+            current = Self.systemPreferredLanguage()
         }
+        isBootstrapping = false
+    }
+
+    /// Resolves the best-matching supported locale using the same
+    /// preference-ranked algorithm Foundation uses for bundle resources,
+    /// rather than a hand-rolled string prefix check.
+    private static func systemPreferredLanguage() -> AppLanguage {
+        let supported = AppLanguage.allCases.map(\.rawValue)
+        let preferred = Bundle.preferredLocalizations(from: supported)
+        guard let code = preferred.first, let lang = AppLanguage(rawValue: code) else {
+            return .en
+        }
+        return lang
     }
 
     /// Core resolver — pulls from the specified String Catalog (.xcstrings)
@@ -134,10 +166,35 @@ final class LanguageManager {
     func home(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Home", argsArray: args) }
     func editor(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Editor", argsArray: args) }
     func capture(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Capture", argsArray: args) }
-    func settings(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Settings", argsArray: args) }
+    func settings(_ key: String, _ args: CVarArg...) -> String {
+        let existing = t(key, table: "Settings", argsArray: args)
+        guard existing == key else { return existing }
+        return t(key, table: "SettingsInfo", argsArray: args)
+    }
     func vault(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Vault", argsArray: args) }
     func paywall(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Paywall", argsArray: args) }
     func gallery(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Gallery", argsArray: args) }
     func model(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Model", argsArray: args) }
     func auth(_ key: String, _ args: CVarArg...) -> String { t(key, table: "Auth", argsArray: args) }
+
+    // MARK: - Off-main-actor resolver
+
+    /// Localizes a key without touching main-actor state. Safe from any
+    /// isolation context (e.g. `LocalizedError.errorDescription` on background
+    /// import pipelines). Reads the persisted language directly.
+    nonisolated static func backgroundText(_ key: String, table: String, _ args: CVarArg...) -> String {
+        let language = UserDefaults.standard.string(forKey: "shield.language")
+            .flatMap(AppLanguage.init(rawValue:))
+            ?? ((Locale.preferredLanguages.first ?? "").hasPrefix("es") ? .es : .en)
+        let locale = Locale(identifier: language.rawValue)
+        let resource = LocalizedStringResource(
+            String.LocalizationValue(key),
+            table: table,
+            locale: locale,
+            bundle: .atURL(Bundle.main.bundleURL)
+        )
+        let format = String(localized: resource)
+        guard !args.isEmpty else { return format }
+        return String(format: format, locale: locale, arguments: args)
+    }
 }

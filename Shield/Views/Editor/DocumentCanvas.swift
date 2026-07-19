@@ -21,6 +21,9 @@ struct DocumentCanvas: View {
                 imageAdjustment: vm.doc.imageAdjustment
             )
             .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(LanguageManager.shared.editor("editor_protected_document_preview"))
+            .accessibilityAddTraits(.isImage)
 
             // Drawing preview
             if let dr = vm.drawingRect {
@@ -94,10 +97,7 @@ struct DocumentCanvas: View {
     }
 
     func norm(_ pt: CGPoint) -> CGPoint {
-        CGPoint(
-            x: max(0, min(1, pt.x / canvasSize.width)),
-            y: max(0, min(1, pt.y / canvasSize.height))
-        )
+        NormalizedDocumentGeometry.point(pt, in: canvasSize)
     }
 }
 
@@ -169,15 +169,17 @@ private struct RedactionOverlay: View {
         let s = sr
         ZStack {
             // Tap-to-select & drag-to-move
-            Rectangle()
-                .fill(Color.clear)
-                .frame(width: max(s.width, 28), height: max(s.height, 28))
-                .contentShape(Rectangle())
-                .onTapGesture {
+            Button {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         vm.activeRedactionID = isActive ? nil : redaction.id
                     }
+            } label: {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(width: max(s.width, 28), height: max(s.height, 28))
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
                 .gesture(
                     isActive
                     ? DragGesture(minimumDistance: 3, coordinateSpace: .local)
@@ -185,7 +187,10 @@ private struct RedactionOverlay: View {
                             AppState.markUserActivity()
                             vm.isDraggingRedaction = true
                             // Snapshot at gesture start so delta is always from original position
-                            if moveStart == nil { moveStart = redaction.rect }
+                            if moveStart == nil {
+                                moveStart = redaction.rect
+                                vm.beginRedactionTransform()
+                            }
                             guard let start = moveStart else { return }
                             // translation is always relative to startLocation, stable across updates
                             let dx = value.translation.width / canvasSize.width
@@ -199,6 +204,7 @@ private struct RedactionOverlay: View {
                         .onEnded { _ in
                             vm.isDraggingRedaction = false
                             moveStart = nil
+                            vm.commitRedactionTransform()
                         }
                     : nil
                 )
@@ -220,6 +226,8 @@ private struct RedactionOverlay: View {
                     }
                 }
                 .offset(x: s.width / 2 + 10, y: -(s.height / 2 + 10))
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel(LanguageManager.shared.editor("editor_mask_delete"))
 
                 // SE resize — bottom-right
                 ResizeHandle()
@@ -229,7 +237,10 @@ private struct RedactionOverlay: View {
                             .onChanged { value in
                                 AppState.markUserActivity()
                                 vm.isResizingRedaction = true
-                                if resizeSEStart == nil { resizeSEStart = redaction.rect }
+                                if resizeSEStart == nil {
+                                    resizeSEStart = redaction.rect
+                                    vm.beginRedactionTransform()
+                                }
                                 guard let start = resizeSEStart else { return }
                                 let dw = value.translation.width / canvasSize.width
                                 let dh = value.translation.height / canvasSize.height
@@ -241,6 +252,7 @@ private struct RedactionOverlay: View {
                             .onEnded { _ in
                                 vm.isResizingRedaction = false
                                 resizeSEStart = nil
+                                vm.commitRedactionTransform()
                             }
                     )
 
@@ -252,7 +264,10 @@ private struct RedactionOverlay: View {
                             .onChanged { value in
                                 AppState.markUserActivity()
                                 vm.isResizingRedaction = true
-                                if resizeSWStart == nil { resizeSWStart = redaction.rect }
+                                if resizeSWStart == nil {
+                                    resizeSWStart = redaction.rect
+                                    vm.beginRedactionTransform()
+                                }
                                 guard let start = resizeSWStart else { return }
                                 let dx = value.translation.width / canvasSize.width
                                 let dh = value.translation.height / canvasSize.height
@@ -266,12 +281,62 @@ private struct RedactionOverlay: View {
                             .onEnded { _ in
                                 vm.isResizingRedaction = false
                                 resizeSWStart = nil
+                                vm.commitRedactionTransform()
                             }
                     )
             }
         }
         .position(x: s.midX, y: s.midY)
         .animation(.easeInOut(duration: 0.12), value: isActive)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(LanguageManager.shared.editor("editor_mask_accessibility_label"))
+        .accessibilityValue(LanguageManager.shared.editor(isActive ? "editor_mask_selected" : "editor_mask_not_selected"))
+        .accessibilityHint(LanguageManager.shared.editor("editor_mask_accessibility_hint"))
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+        .accessibilityAction {
+            vm.activeRedactionID = isActive ? nil : redaction.id
+        }
+        .accessibilityActions {
+            Button(LanguageManager.shared.editor("editor_mask_delete")) {
+                vm.removeRedaction(id: redaction.id)
+            }
+            Button(LanguageManager.shared.editor("editor_mask_move_up")) {
+                moveAccessibilityMask(dx: 0, dy: -0.02)
+            }
+            Button(LanguageManager.shared.editor("editor_mask_move_down")) {
+                moveAccessibilityMask(dx: 0, dy: 0.02)
+            }
+            Button(LanguageManager.shared.editor("editor_mask_move_left")) {
+                moveAccessibilityMask(dx: -0.02, dy: 0)
+            }
+            Button(LanguageManager.shared.editor("editor_mask_move_right")) {
+                moveAccessibilityMask(dx: 0.02, dy: 0)
+            }
+        }
+        .accessibilityAdjustableAction { direction in
+            let delta: CGFloat = 0.02
+            var rect = redaction.rect
+            switch direction {
+            case .increment:
+                rect.size.width = min(1 - rect.origin.x, rect.width + delta)
+                rect.size.height = min(1 - rect.origin.y, rect.height + delta)
+            case .decrement:
+                rect.size.width = max(0.04, rect.width - delta)
+                rect.size.height = max(0.04, rect.height - delta)
+            @unknown default:
+                return
+            }
+            vm.resizeRedaction(id: redaction.id, newRect: rect)
+        }
+    }
+
+    private func moveAccessibilityMask(dx: CGFloat, dy: CGFloat) {
+        var rect = redaction.rect
+        rect.origin.x = min(max(0, rect.origin.x + dx), 1 - rect.width)
+        rect.origin.y = min(max(0, rect.origin.y + dy), 1 - rect.height)
+        vm.beginRedactionTransform()
+        vm.resizeRedaction(id: redaction.id, newRect: rect)
+        vm.commitRedactionTransform()
     }
 }
 

@@ -75,6 +75,128 @@ enum ImportedDocumentSource: String, Codable {
     case pdf
 }
 
+enum OCRSensitiveEntityKind: String, Codable, CaseIterable, Sendable {
+    case documentNumber
+    case supportNumber
+    case fullName
+    case dateOfBirth
+    case nationality
+    case expirationDate
+    case address
+    case mrz
+    case email
+    case phoneNumber
+    case iban
+    case paymentCard
+}
+
+struct OCRTextEvidence: Identifiable, Codable, Equatable, Sendable {
+    let id: UUID
+    let pageIndex: Int
+    let text: String
+    let boundingRect: CGRect
+    let confidence: Double
+
+    init(
+        id: UUID = UUID(),
+        pageIndex: Int,
+        text: String,
+        boundingRect: CGRect,
+        confidence: Double
+    ) {
+        self.id = id
+        self.pageIndex = pageIndex
+        self.text = text
+        self.boundingRect = NormalizedDocumentGeometry.rect(boundingRect, minimumSize: 0)
+        self.confidence = min(1, max(0, confidence))
+    }
+}
+
+struct OCRSensitiveEntity: Identifiable, Codable, Equatable, Sendable {
+    let id: UUID
+    let kind: OCRSensitiveEntityKind
+    let value: String
+    let pageIndex: Int
+    let evidenceIDs: [UUID]
+    let confidence: Double
+    let validator: String?
+
+    init(
+        id: UUID = UUID(),
+        kind: OCRSensitiveEntityKind,
+        value: String,
+        pageIndex: Int,
+        evidenceIDs: [UUID],
+        confidence: Double,
+        validator: String? = nil
+    ) {
+        self.id = id
+        self.kind = kind
+        self.value = value
+        self.pageIndex = pageIndex
+        self.evidenceIDs = evidenceIDs
+        self.confidence = min(1, max(0, confidence))
+        self.validator = validator
+    }
+}
+
+struct OCRPageEvidence: Codable, Equatable, Sendable {
+    let pageIndex: Int
+    let observations: [OCRTextEvidence]
+    let entities: [OCRSensitiveEntity]
+}
+
+struct OCRExpectedEntity: Codable, Hashable, Sendable {
+    let pageIndex: Int
+    let kind: OCRSensitiveEntityKind
+    let value: String
+}
+
+struct OCREvaluationMetrics: Equatable, Sendable {
+    let truePositives: Int
+    let falsePositives: Int
+    let falseNegatives: Int
+
+    var precision: Double {
+        let denominator = truePositives + falsePositives
+        return denominator == 0 ? 1 : Double(truePositives) / Double(denominator)
+    }
+
+    var recall: Double {
+        let denominator = truePositives + falseNegatives
+        return denominator == 0 ? 1 : Double(truePositives) / Double(denominator)
+    }
+
+    var f1: Double {
+        let denominator = precision + recall
+        return denominator == 0 ? 0 : 2 * precision * recall / denominator
+    }
+}
+
+enum OCREvaluator {
+    static func evaluate(
+        expected: [OCRExpectedEntity],
+        detected pages: [OCRPageEvidence],
+        minimumConfidence: Double = 0.55
+    ) -> OCREvaluationMetrics {
+        let expectedKeys = Set(expected.map { key(page: $0.pageIndex, kind: $0.kind, value: $0.value) })
+        let detectedKeys = Set(pages.flatMap(\.entities)
+            .filter { $0.confidence >= minimumConfidence }
+            .map { key(page: $0.pageIndex, kind: $0.kind, value: $0.value) })
+        return OCREvaluationMetrics(
+            truePositives: expectedKeys.intersection(detectedKeys).count,
+            falsePositives: detectedKeys.subtracting(expectedKeys).count,
+            falseNegatives: expectedKeys.subtracting(detectedKeys).count
+        )
+    }
+
+    private static func key(page: Int, kind: OCRSensitiveEntityKind, value: String) -> String {
+        let normalized = value.uppercased()
+            .replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+        return "\(page)|\(kind.rawValue)|\(normalized)"
+    }
+}
+
 // MARK: - DocumentFields
 
 struct DocumentFields: Codable {
@@ -101,6 +223,7 @@ struct DocumentFields: Codable {
     /// Stored as parallel arrays (text[i] corresponds to rect[i]) for Codable simplicity.
     var ocrBoundingTexts: [String]?
     var ocrBoundingRects: [CGRect]?
+    var ocrPageEvidence: [OCRPageEvidence]? = nil
 
     static var empty: DocumentFields {
         DocumentFields(documentNumber: "", fullName: "", dateOfBirth: "",
@@ -128,21 +251,60 @@ struct DocumentPageRedactions: Codable, Equatable {
     var redactions: [Redaction]
 }
 
+// MARK: - Non-destructive page model
+
+struct DocumentNormalizedQuad: Codable, Equatable {
+    var topLeft: CGPoint
+    var topRight: CGPoint
+    var bottomLeft: CGPoint
+    var bottomRight: CGPoint
+}
+
+struct DocumentPageTransform: Codable, Equatable {
+    var filterPreset: String = "original"
+    var straightenDegrees: Double = 0
+    var rotationDegrees: Double = 0
+    var perspectiveTopInset: Double = 0
+    var perspectiveBottomInset: Double = 0
+    var perspectiveSkew: Double = 0
+    var perspectiveTopYOffset: Double = 0
+    var perspectiveBottomYOffset: Double = 0
+    var quad: DocumentNormalizedQuad?
+    var cropLeft: Double = 0
+    var cropRight: Double = 0
+    var cropTop: Double = 0
+    var cropBottom: Double = 0
+    var brightness: Double = 0
+    var contrast: Double = 1
+    var sharpness: Double = 0
+    var noiseReduction: Double = 0
+
+    static let identity = DocumentPageTransform()
+}
+
 // MARK: - DocumentItem
 
 struct DocumentItem: Identifiable, Codable {
+    static let currentSchemaVersion = 3
+
+    var schemaVersion: Int
     let id: String
     var kind: DocumentKind
     var title: String
     var category: DocumentCategory
     var customCategoryID: String?   // non-nil = user category overrides `category`
     var date: Date
+    var modifiedAt: Date
     var redactionCount: Int
     var isFavorite: Bool
     var isLocked: Bool
     var isVaulted: Bool
     var imageFileName: String?      // filename inside shield_images/ dir (page 0 or single image)
     var pageFileNames: [String]?    // all pages for multi-page PDFs; nil = single page
+    /// Immutable normalized assets captured before filters/crops are applied.
+    /// Legacy documents can be nil because their original was not preserved.
+    var originalPageFileNames: [String]?
+    var pageTransforms: [DocumentPageTransform]
     var sourceType: ImportedDocumentSource
     var sourceFileName: String?
     var fields: DocumentFields
@@ -152,20 +314,27 @@ struct DocumentItem: Identifiable, Codable {
 
     var pageCount: Int { pageFileNames?.count ?? (imageFileName != nil ? 1 : 0) }
     var totalRedactionCount: Int { pageRedactions.reduce(0) { $0 + $1.redactions.count } }
+    var allImageFileNames: Set<String> {
+        Set((pageFileNames ?? []) + (originalPageFileNames ?? []) + [imageFileName].compactMap { $0 })
+    }
 
     enum CodingKeys: String, CodingKey {
+        case schemaVersion
         case id
         case kind
         case title
         case category
         case customCategoryID
         case date
+        case modifiedAt
         case redactionCount
         case isFavorite
         case isLocked
         case isVaulted
         case imageFileName
         case pageFileNames
+        case originalPageFileNames
+        case pageTransforms
         case sourceType
         case sourceFileName
         case fields
@@ -199,30 +368,37 @@ struct DocumentItem: Identifiable, Codable {
          category: DocumentCategory = .identity,
          customCategoryID: String? = nil,
          date: Date = Date(),
+         modifiedAt: Date = Date(),
          redactionCount: Int = 0,
          isFavorite: Bool = false,
          isLocked: Bool = false,
          isVaulted: Bool = false,
          imageFileName: String? = nil,
          pageFileNames: [String]? = nil,
+         originalPageFileNames: [String]? = nil,
+         pageTransforms: [DocumentPageTransform] = [],
          sourceType: ImportedDocumentSource = .image,
          sourceFileName: String? = nil,
          fields: DocumentFields = .empty,
          pageRedactions: [DocumentPageRedactions] = [],
          watermark: Watermark? = nil,
          imageAdjustment: ImageAdjustmentStore? = nil) {
+        self.schemaVersion = Self.currentSchemaVersion
         self.id = id
         self.kind = kind
         self.title = title
         self.category = category
         self.customCategoryID = customCategoryID
         self.date = date
+        self.modifiedAt = modifiedAt
         self.redactionCount = redactionCount
         self.isFavorite = isFavorite
         self.isLocked = isLocked
         self.isVaulted = isVaulted
         self.imageFileName = imageFileName
         self.pageFileNames = pageFileNames
+        self.originalPageFileNames = originalPageFileNames
+        self.pageTransforms = pageTransforms
         self.sourceType = sourceType
         self.sourceFileName = sourceFileName
         self.fields = fields
@@ -236,18 +412,22 @@ struct DocumentItem: Identifiable, Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
         id = try container.decode(String.self, forKey: .id)
         kind = try container.decode(DocumentKind.self, forKey: .kind)
         title = try container.decode(String.self, forKey: .title)
         category = try container.decodeIfPresent(DocumentCategory.self, forKey: .category) ?? .identity
         customCategoryID = try container.decodeIfPresent(String.self, forKey: .customCategoryID)
         date = try container.decodeIfPresent(Date.self, forKey: .date) ?? Date()
+        modifiedAt = try container.decodeIfPresent(Date.self, forKey: .modifiedAt) ?? date
         redactionCount = try container.decodeIfPresent(Int.self, forKey: .redactionCount) ?? 0
         isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
         isLocked = try container.decodeIfPresent(Bool.self, forKey: .isLocked) ?? false
         isVaulted = try container.decodeIfPresent(Bool.self, forKey: .isVaulted) ?? false
         imageFileName = try container.decodeIfPresent(String.self, forKey: .imageFileName)
         pageFileNames = try container.decodeIfPresent([String].self, forKey: .pageFileNames)
+        originalPageFileNames = try container.decodeIfPresent([String].self, forKey: .originalPageFileNames)
+        pageTransforms = try container.decodeIfPresent([DocumentPageTransform].self, forKey: .pageTransforms) ?? []
         sourceType = try container.decodeIfPresent(ImportedDocumentSource.self, forKey: .sourceType) ?? .image
         sourceFileName = try container.decodeIfPresent(String.self, forKey: .sourceFileName)
         fields = try container.decodeIfPresent(DocumentFields.self, forKey: .fields) ?? .empty
@@ -258,6 +438,23 @@ struct DocumentItem: Identifiable, Codable {
         if !pageRedactions.isEmpty {
             redactionCount = pageRedactions.reduce(0) { $0 + $1.redactions.count }
         }
+    }
+
+    mutating func migrateToCurrentSchema() {
+        guard schemaVersion < Self.currentSchemaVersion else { return }
+        // Legacy images may already contain baked adjustments. Do not pretend
+        // they are immutable originals; keeping this nil prevents a destructive
+        // re-adjustment from being presented as reversible.
+        originalPageFileNames = nil
+        if pageTransforms.isEmpty {
+            pageTransforms = Array(repeating: .identity, count: pageCount)
+        }
+        schemaVersion = Self.currentSchemaVersion
+    }
+
+    func originalImageFileName(for page: Int) -> String? {
+        guard let originals = originalPageFileNames, originals.indices.contains(page) else { return nil }
+        return originals[page]
     }
 
     mutating func setRedactions(_ redactions: [Redaction], for page: Int) {
@@ -439,20 +636,10 @@ enum AutoRedactions {
         return rects.map { Redaction(rect: $0, style: style) }
     }
 
-    // Builds redaction rects for photo/generic docs.
-    // When Vision bounding boxes are stored in `fields`, uses precise per-word positions.
-    // Falls back to calibrated grid estimates when boxes are unavailable.
+    // Builds redaction rects for vector demo templates only. Real imported
+    // documents must use `ocrPrecisionModeRects` so every zone has evidence.
     static func ocrModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
-        let fallbackRects = gridRects(for: mode)
-        // Try precision mode first: match stored OCR observations against sensitive field values.
-        if let preciseRects = precisionRects(for: mode, fields: fields), !preciseRects.isEmpty {
-            // If OCR found too few zones, blend with fallback so obvious PII is still covered.
-            if preciseRects.count < max(2, fallbackRects.count / 2) {
-                return mergeRects(preciseRects + fallbackRects)
-            }
-            return mergeRects(preciseRects)
-        }
-        return fallbackRects
+        ocrPrecisionModeRects(for: mode, fields: fields)
     }
 
     /// Returns ONLY bounding-box-derived rects for `mode`, with no grid fallback.
@@ -467,6 +654,9 @@ enum AutoRedactions {
 
     // Precision: locate actual field text in Vision bounding boxes and expand slightly for coverage.
     private static func precisionRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect]? {
+        if fields.ocrPageEvidence != nil {
+            return evidencePrecisionRects(for: mode, fields: fields)
+        }
         guard let texts = fields.ocrBoundingTexts,
               let rects = fields.ocrBoundingRects,
               texts.count == rects.count,
@@ -600,6 +790,44 @@ enum AutoRedactions {
         return result.isEmpty ? nil : result
     }
 
+    private static func evidencePrecisionRects(
+        for mode: RedactionMode,
+        fields: DocumentFields
+    ) -> [CGRect]? {
+        guard let page = fields.ocrPageEvidence?.first else { return nil }
+        let hiddenKinds: Set<OCRSensitiveEntityKind>
+        switch mode {
+        case .rental:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .expirationDate, .address, .mrz, .email, .phoneNumber, .iban, .paymentCard]
+        case .travel:
+            hiddenKinds = [.documentNumber, .supportNumber, .expirationDate, .mrz, .email, .phoneNumber, .paymentCard]
+        case .job:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .nationality, .email, .phoneNumber, .iban]
+        case .verify:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .mrz, .email, .phoneNumber]
+        case .legal:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .address, .mrz, .email, .phoneNumber, .iban, .paymentCard]
+        case .health:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .nationality, .address, .mrz, .email, .phoneNumber, .paymentCard]
+        case .banking:
+            hiddenKinds = [.documentNumber, .supportNumber, .dateOfBirth, .expirationDate, .nationality, .address, .mrz, .email, .phoneNumber, .iban, .paymentCard]
+        }
+
+        let observations = Dictionary(uniqueKeysWithValues: page.observations.map { ($0.id, $0) })
+        let rects = page.entities
+            .filter { hiddenKinds.contains($0.kind) && $0.confidence >= 0.55 }
+            .compactMap { entity -> CGRect? in
+                let evidence = entity.evidenceIDs.compactMap { observations[$0]?.boundingRect }
+                guard let first = evidence.first else { return nil }
+                let union = evidence.dropFirst().reduce(first) { $0.union($1) }
+                let dx = max(0.005, union.width * 0.08)
+                let dy = max(0.004, union.height * 0.20)
+                return union.insetBy(dx: -dx, dy: -dy)
+                    .intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+            }
+        return rects.isEmpty ? nil : rects
+    }
+
     private static func mergeRects(_ rects: [CGRect]) -> [CGRect] {
         var merged: [CGRect] = []
         for rect in rects {
@@ -616,7 +844,8 @@ enum AutoRedactions {
         return merged
     }
 
-    // Calibrated grid fallback — used when bounding boxes are unavailable.
+    // Calibrated grid geometry is retained only for the explicit vector demo
+    // templates above; it is never applied to a captured/imported document.
     private static func gridRects(for mode: RedactionMode) -> [CGRect] {
         switch mode {
         case .rental:

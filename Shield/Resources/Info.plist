@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ShieldAppStoreID</key>
+	<string>6790398619</string>
+	<key>ShieldGoogleDriveClientID</key>
+	<string>1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf.apps.googleusercontent.com</string>
+	<key>ShieldGoogleDriveRedirectURI</key>
+	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf:/oauth2redirect</string>
+	<key>ShieldGoogleDriveCallbackScheme</key>
+	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
+	<key>ShieldDropboxAppKey</key>
+	<string>eelqq7zaevpxt9w</string>
+	<key>ShieldDropboxRedirectURI</key>
+	<string>db-eelqq7zaevpxt9w://2/token</string>
+	<key>ShieldDropboxCallbackScheme</key>
+	<string>db-eelqq7zaevpxt9w</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.romerodev.shield</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>shield</string>
+				<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
+				<string>db-eelqq7zaevpxt9w</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

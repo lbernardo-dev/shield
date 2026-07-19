@@ -76,6 +76,30 @@ struct WatermarkConfigView: View {
                             )
                     }
 
+                    // Anti-fraud quick templates (purpose + date)
+                    VStack(alignment: .leading, spacing: 8) {
+                        label(LanguageManager.shared.editor("editor_watermark_presets_label"))
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(presetKeys, id: \.self) { key in
+                                    Button {
+                                        text = LanguageManager.shared.editor(key, todayLabel)
+                                    } label: {
+                                        Text(LanguageManager.shared.editor(key, todayLabel))
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(ShieldTheme.primary(scheme))
+                                            .padding(.horizontal, 12)
+                                            .frame(height: 32)
+                                            .background(ShieldTheme.rowBackground(scheme))
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
+                                    }
+                                    .buttonStyle(ScaleButtonStyle())
+                                }
+                            }
+                        }
+                    }
+
                     // Opacity
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
@@ -159,6 +183,19 @@ struct WatermarkConfigView: View {
                 .padding(.bottom, 32)
             }
         }
+    }
+
+    private let presetKeys = [
+        "editor_watermark_preset_verification",
+        "editor_watermark_preset_no_original",
+        "editor_watermark_preset_confidential"
+    ]
+
+    private var todayLabel: String {
+        Date().formatted(
+            Date.FormatStyle(date: .numeric)
+                .locale(Locale(identifier: lang.rawValue))
+        )
     }
 
     private var previewWatermark: Watermark {

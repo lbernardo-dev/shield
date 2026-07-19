@@ -774,9 +774,9 @@ final class PremiumManager: ObservableObject {
 
 | Product ID | Tipo | Precio sugerido |
 |------------|------|----------------|
-| `com.romerodev.shield.pro.monthly` | Auto-Renewable | 4,99 USD/mes |
-| `com.romerodev.shield.pro.annual` | Auto-Renewable | 34,99 USD/año |
-| `com.romerodev.shield.pro.lifetime` | Non-Consumable | 79,99 USD |
+| `com.romerodev.shield.pro.weekly` | Suscripción autorrenovable semanal | 0,99 EUR (base España) |
+| `com.romerodev.shield.pro.monthly` | Suscripción autorrenovable mensual | 2,99 EUR (base España) |
+| `com.romerodev.shield.pro.annual` | Suscripción autorrenovable anual | 29,99 EUR (base España), prueba de 7 días |
 
 **Verificación de entitlements:** `Transaction.currentEntitlements` async stream. El status de `isPro` se persiste en `UserDefaults["shield.isPro"]` como cache para el arranque de la app.
 
@@ -949,17 +949,4 @@ El idioma se persiste en `UserDefaults["shield.language"]` y se puede cambiar en
 
 ## 20. Pendientes técnicos conocidos
 
-| # | Descripción | Impacto | Prioridad |
-|---|-------------|---------|-----------|
-| P0 | `PrivacyInfo.xcprivacy` no añadido al target en Xcode | Rechazo App Store | **Crítico** |
-| P0 | `shieldapp.io/privacy` y `/terms` sin activar | Rechazo App Store (5.1.1) | **Crítico** |
-| P0 | URL scheme `shield` no declarado en `Info.plist` | OAuth externos no funciona | **Crítico** |
-| P0 | CloudKit container no configurado como capability | `CloudSyncManager` inoperativo | Alta |
-| P1 | `ExportEngine` no aplica `imageAdjustment` en el fast-path PDF original | Ajustes ignorados si fuente es PDF puro sin blur | Media |
-| P1 | OCR multipágina: `extractFields` recibe texto aplanado | Campos pueden mezclarse entre páginas | Media |
-| P1 | Token OAuth en `UserDefaults` en lugar de Keychain | Riesgo si jailbreak | Media |
-| P1 | Client IDs OAuth vacíos (placeholder) | OAuth directo no funciona | Media |
-| P2 | `PlanRow.planName/planSubtitle` no localizado | Cosmético, no bloquea review | Baja |
-| P2 | `telemetry.ndjson` sin rotación / tamaño máximo | Puede crecer sin límite | Baja |
-| P2 | Eventos de tracking faltantes (`purchase_success`, `vault_unlocked`…) | Embudo de conversión incompleto | Baja |
-| P3 | `defaultAutoLock` inicia en "Inmediato" (index 0) | Fricción en primer uso | Baja |
+> Estado vigente: consultar `RELEASE_READINESS_2026-07-13.md`. La tabla histórica que seguía a este encabezado describía la versión anterior a la reconstrucción y ha quedado sustituida por las puertas externas verificables de ese documento.

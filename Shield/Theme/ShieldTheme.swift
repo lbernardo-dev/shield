@@ -5,11 +5,11 @@ import UIKit
 
 enum ShieldTheme {
     // Surfaces — dark
-    static let surface0 = Color(hex: "0A0A0B")
-    static let surface1 = Color(hex: "111114")
-    static let surface2 = Color(hex: "18181D")
-    static let surface3 = Color(hex: "1F1F26")
-    static let surface4 = Color(hex: "26262E")
+    static let surface0 = Color(hex: "050D18")
+    static let surface1 = Color(hex: "071426")
+    static let surface2 = Color(hex: "0E2038")
+    static let surface3 = Color(hex: "142A45")
+    static let surface4 = Color(hex: "1B3552")
     static let surfaceLine = Color.white.opacity(0.08)
     static let surfaceLineStrong = Color.white.opacity(0.14)
 
@@ -19,11 +19,11 @@ enum ShieldTheme {
     static let textTertiary = Color(hex: "F5F5F7").opacity(0.42)
     static let textQuaternary = Color(hex: "F5F5F7").opacity(0.24)
 
-    // Accent (dark = yellow, light = near-black)
-    static let accent = Color(hex: "FFD60A")
-    static let accentStrong = Color(hex: "FFE94A")
-    static let accentDim = Color(hex: "FFD60A").opacity(0.16)
-    static let accentText = Color(hex: "0A0A0B")
+    // MaskID identity palette: electric cyan over deep privacy navy.
+    static let accent = Color(hex: "20C7D9")
+    static let accentStrong = Color(hex: "42DCEA")
+    static let accentDim = Color(hex: "20C7D9").opacity(0.22)
+    static let accentText = Color(hex: "071426")
 
     // Semantic
     static let success = Color(hex: "30D158")
@@ -55,17 +55,31 @@ enum ShieldTheme {
 // MARK: - Light-mode adaptive colors
 
 extension ShieldTheme {
+    /// Spacing inside a root view that already respects the top safe area.
+    /// Do not add `safeAreaInsets.top` again: SwiftUI has already positioned
+    /// the view below the status bar / Dynamic Island.
+    static let topChromePadding: CGFloat = 10
+    static let topChromeBottomSpacing: CGFloat = 10
+    static func accent(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? accentStrong : accent
+    }
+    static func accentDim(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? accent.opacity(0.18) : accent.opacity(0.24)
+    }
+    static func accentStroke(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? accent.opacity(0.34) : accent.opacity(0.56)
+    }
     static func background(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? surface1 : Color(hex: "F5F5F7")
+        scheme == .dark ? surface1 : Color(hex: "F7F7FA")
     }
     static func cardBackground(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? surface2 : Color.white
     }
     static func rowBackground(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? surface3 : Color(hex: "F0F0F2")
+        scheme == .dark ? surface3 : Color(hex: "ECECF1")
     }
     static func line(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? surfaceLine : Color.black.opacity(0.08)
+        scheme == .dark ? surfaceLine : Color.black.opacity(0.14)
     }
     static func primary(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? textPrimary : Color(hex: "0A0A0B")
@@ -77,10 +91,10 @@ extension ShieldTheme {
         scheme == .dark ? textTertiary : Color(hex: "0A0A0B").opacity(0.42)
     }
     static func accentColor(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? accent : Color(hex: "1A1A1A")
+        scheme == .dark ? accent : Color(hex: "087D8A")
     }
     static func pageBackground(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? surface0 : Color(hex: "F2F2F7")
+        scheme == .dark ? surface0 : Color(hex: "F4F4F8")
     }
     static func quaternary(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? textQuaternary : Color(hex: "0A0A0B").opacity(0.24)

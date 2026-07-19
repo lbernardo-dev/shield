@@ -1,5 +1,35 @@
 import SwiftUI
 
+// MARK: - Normalized document geometry
+
+enum NormalizedDocumentGeometry {
+    static func point(_ point: CGPoint, in size: CGSize) -> CGPoint {
+        guard size.width > 0, size.height > 0 else { return .zero }
+        return CGPoint(
+            x: clamp(point.x / size.width),
+            y: clamp(point.y / size.height)
+        )
+    }
+
+    static func rect(_ rect: CGRect, minimumSize: CGFloat = 0.02) -> CGRect {
+        let minimum = clamp(minimumSize)
+        let proposedX = rect.origin.x.isFinite ? rect.origin.x : 0
+        let proposedY = rect.origin.y.isFinite ? rect.origin.y : 0
+        let x = min(max(0, proposedX), max(0, 1 - minimum))
+        let y = min(max(0, proposedY), max(0, 1 - minimum))
+        let proposedWidth = rect.width.isFinite ? rect.width : minimum
+        let proposedHeight = rect.height.isFinite ? rect.height : minimum
+        let width = min(max(minimum, proposedWidth), 1 - x)
+        let height = min(max(minimum, proposedHeight), 1 - y)
+        return CGRect(x: x, y: y, width: width, height: height)
+    }
+
+    private static func clamp(_ value: CGFloat) -> CGFloat {
+        guard value.isFinite else { return 0 }
+        return min(1, max(0, value))
+    }
+}
+
 // MARK: - MaskStyle
 
 enum MaskStyle: String, CaseIterable, Identifiable, Codable {
@@ -23,6 +53,22 @@ enum MaskStyle: String, CaseIterable, Identifiable, Codable {
     }
 
     var isBlur: Bool { self == .blurStrong || self == .blurSoft }
+
+    /// Visual obfuscation can be useful for presentation, but it is not a
+    /// security boundary. Verified exports replace these styles with an
+    /// opaque redaction before flattening the page.
+    var isVisualObfuscation: Bool {
+        switch self {
+        case .pixelate, .blurStrong, .blurSoft, .semi:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var secureExportStyle: MaskStyle {
+        isVisualObfuscation ? .secure : self
+    }
 
     var localizedLabel: String {
         switch self {
@@ -53,7 +99,7 @@ struct Redaction: Identifiable, Equatable, Codable {
 
     init(rect: CGRect, style: MaskStyle = .block) {
         self.id = UUID()
-        self.rect = rect
+        self.rect = NormalizedDocumentGeometry.rect(rect)
         self.style = style
     }
 
@@ -67,7 +113,7 @@ struct Redaction: Identifiable, Equatable, Codable {
         let y = try c.decode(CGFloat.self, forKey: .y)
         let w = try c.decode(CGFloat.self, forKey: .w)
         let h = try c.decode(CGFloat.self, forKey: .h)
-        rect = CGRect(x: x, y: y, width: w, height: h)
+        rect = NormalizedDocumentGeometry.rect(CGRect(x: x, y: y, width: w, height: h))
     }
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)

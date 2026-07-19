@@ -1,14 +1,11 @@
 import SwiftUI
-import AuthenticationServices
 import UniformTypeIdentifiers
-import Security
 
 // MARK: - ExternalStorageProvider
 
 enum ExternalStorageProvider: String, CaseIterable, Identifiable {
     case googleDrive
     case dropbox
-    case oneDrive
 
     var id: String { rawValue }
 
@@ -16,7 +13,6 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "Google Drive"
         case .dropbox:     return "Dropbox"
-        case .oneDrive:    return "OneDrive"
         }
     }
 
@@ -24,7 +20,6 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "g.circle.fill"
         case .dropbox:     return "shippingbox.fill"
-        case .oneDrive:    return "cloud.fill"
         }
     }
 
@@ -32,286 +27,25 @@ enum ExternalStorageProvider: String, CaseIterable, Identifiable {
         switch self {
         case .googleDrive: return "4285F4"
         case .dropbox:     return "0061FF"
-        case .oneDrive:    return "0078D4"
         }
     }
 
-    // OAuth 2.0 authorization endpoints
-    var authBaseURL: String {
-        switch self {
-        case .googleDrive:
-            return "https://accounts.google.com/o/oauth2/v2/auth"
-        case .dropbox:
-            return "https://www.dropbox.com/oauth2/authorize"
-        case .oneDrive:
-            return "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
-        }
-    }
-
-    // Scopes required for file download
-    var scope: String {
-        switch self {
-        case .googleDrive: return "https://www.googleapis.com/auth/drive.readonly"
-        case .dropbox:     return "files.content.read"
-        case .oneDrive:    return "Files.Read offline_access"
-        }
-    }
-
-    // Redirect URI registered in your app's Info.plist / URL schemes
-    var redirectURI: String {
-        return "shield://oauth/\(rawValue)"
-    }
-
-    // UserDefaults key for storing connection state (non-sensitive)
-    var connectedKey: String { "shield.cloud.\(rawValue).connected" }
-    // Keychain service/account identifiers for sensitive token storage
-    var keychainService: String { "com.romerodev.shield.oauth" }
-    var keychainAccount: String { "shield.cloud.\(rawValue).token" }
-    var emailKey: String     { "shield.cloud.\(rawValue).email" }
-}
-
-// MARK: - ExternalStorageManager
-
-@MainActor
-final class ExternalStorageManager: NSObject, ObservableObject, ASWebAuthenticationPresentationContextProviding {
-    static let shared = ExternalStorageManager()
-
-    @Published var connectedProviders: Set<ExternalStorageProvider> = []
-    @Published var isAuthenticating: ExternalStorageProvider? = nil
-    @Published var authError: String? = nil
-    @Published var showFilePicker: Bool = false
-    @Published var pickerProvider: ExternalStorageProvider? = nil
-
-    private var authSession: ASWebAuthenticationSession?
-    private var pendingProvider: ExternalStorageProvider?
-    var onFileImported: ((URL) -> Void)?
-
-    private override init() {
-        super.init()
-        loadConnectedState()
-    }
-
-    // MARK: - Keychain helpers
-
-    private func saveToken(_ token: String, for provider: ExternalStorageProvider) {
-        guard let data = token.data(using: .utf8) else { return }
-        let query: [CFString: Any] = [
-            kSecClass:            kSecClassGenericPassword,
-            kSecAttrService:      provider.keychainService,
-            kSecAttrAccount:      provider.keychainAccount,
-            kSecValueData:        data,
-            kSecAttrAccessible:   kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        ]
-        SecItemDelete(query as CFDictionary)
-        SecItemAdd(query as CFDictionary, nil)
-    }
-
-    private func loadToken(for provider: ExternalStorageProvider) -> String? {
-        let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
-            kSecAttrService: provider.keychainService,
-            kSecAttrAccount: provider.keychainAccount,
-            kSecReturnData:  true,
-            kSecMatchLimit:  kSecMatchLimitOne
-        ]
-        var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-              let data = result as? Data,
-              let token = String(data: data, encoding: .utf8) else { return nil }
-        return token
-    }
-
-    private func deleteToken(for provider: ExternalStorageProvider) {
-        let query: [CFString: Any] = [
-            kSecClass:       kSecClassGenericPassword,
-            kSecAttrService: provider.keychainService,
-            kSecAttrAccount: provider.keychainAccount
-        ]
-        SecItemDelete(query as CFDictionary)
-    }
-
-    // MARK: - Connection state
-
-    private func loadConnectedState() {
-        for provider in ExternalStorageProvider.allCases {
-            if UserDefaults.standard.bool(forKey: provider.connectedKey) {
-                connectedProviders.insert(provider)
-            }
-        }
-    }
-
-    func isConnected(_ provider: ExternalStorageProvider) -> Bool {
-        connectedProviders.contains(provider)
-    }
-
-    func connectedEmail(_ provider: ExternalStorageProvider) -> String? {
-        UserDefaults.standard.string(forKey: provider.emailKey)
-    }
-
-    func token(for provider: ExternalStorageProvider) -> String? {
-        loadToken(for: provider)
-    }
-
-    // MARK: - Connect via OAuth
-
-    func connect(_ provider: ExternalStorageProvider) {
-        guard !isConnected(provider) else {
-            // Already connected: open file picker
-            openFilePicker(for: provider)
-            return
-        }
-
-        isAuthenticating = provider
-        authError = nil
-        pendingProvider = provider
-
-        // Build the OAuth URL.
-        // NOTE: In production you must register real client IDs for each provider
-        // and add URL schemes to Info.plist. These placeholders show the correct structure.
-        var components = URLComponents(string: provider.authBaseURL)!
-        let clientID: String = {
-            switch provider {
-            case .googleDrive: return UserDefaults.standard.string(forKey: "shield.oauth.google.clientID") ?? "YOUR_GOOGLE_CLIENT_ID"
-            case .dropbox:     return UserDefaults.standard.string(forKey: "shield.oauth.dropbox.appKey") ?? "YOUR_DROPBOX_APP_KEY"
-            case .oneDrive:    return UserDefaults.standard.string(forKey: "shield.oauth.onedrive.clientID") ?? "YOUR_ONEDRIVE_CLIENT_ID"
-            }
-        }()
-
-        components.queryItems = [
-            URLQueryItem(name: "client_id",     value: clientID),
-            URLQueryItem(name: "redirect_uri",  value: provider.redirectURI),
-            URLQueryItem(name: "response_type", value: "token"),
-            URLQueryItem(name: "scope",         value: provider.scope),
-        ]
-
-        guard let authURL = components.url else {
-            isAuthenticating = nil
-            authError = "Invalid OAuth URL"
-            return
-        }
-
-        guard let callbackScheme = URL(string: provider.redirectURI)?.scheme else {
-            isAuthenticating = nil
-            authError = "Invalid redirect URI"
-            return
-        }
-
-        authSession = ASWebAuthenticationSession(
-            url: authURL,
-            callbackURLScheme: callbackScheme
-        ) { [weak self] callbackURL, error in
-            DispatchQueue.main.async {
-                self?.handleOAuthCallback(provider: provider, url: callbackURL, error: error)
-            }
-        }
-        authSession?.presentationContextProvider = self
-        authSession?.prefersEphemeralWebBrowserSession = false
-        authSession?.start()
-    }
-
-    private func handleOAuthCallback(provider: ExternalStorageProvider, url: URL?, error: Error?) {
-        isAuthenticating = nil
-
-        if let error = error as? ASWebAuthenticationSessionError,
-           error.code == .canceledLogin {
-            return
-        }
-
-        if let error = error {
-            authError = error.localizedDescription
-            return
-        }
-
-        guard let callbackURL = url,
-              let fragment = callbackURL.fragment else {
-            authError = "OAuth callback missing token"
-            return
-        }
-
-        // Parse access_token from fragment (implicit flow)
-        let params = fragment.split(separator: "&").reduce(into: [String: String]()) { dict, pair in
-            let kv = pair.split(separator: "=", maxSplits: 1)
-            if kv.count == 2 { dict[String(kv[0])] = String(kv[1]) }
-        }
-
-        guard let token = params["access_token"] else {
-            authError = "No access token in response"
-            return
-        }
-
-        // Store token in Keychain (encrypted at rest, not accessible in backups).
-        saveToken(token, for: provider)
-        UserDefaults.standard.set(true, forKey: provider.connectedKey)
-        connectedProviders.insert(provider)
-        authError = nil
-
-        // After connecting, open the file picker
-        openFilePicker(for: provider)
-    }
-
-    // MARK: - Disconnect
-
-    func disconnect(_ provider: ExternalStorageProvider) {
-        UserDefaults.standard.removeObject(forKey: provider.connectedKey)
-        UserDefaults.standard.removeObject(forKey: provider.emailKey)
-        deleteToken(for: provider)
-        connectedProviders.remove(provider)
-    }
-
-    // MARK: - File picker (native iOS Files app + cloud)
-    // Uses UIDocumentPickerViewController which natively lists cloud providers
-    // including Google Drive (via Files integration), Dropbox, and OneDrive
-    // if those apps are installed.
-
-    func openFilePicker(for provider: ExternalStorageProvider) {
-        pickerProvider = provider
-        showFilePicker = true
-    }
-
-    func openGenericCloudPicker(onImport: @escaping (URL) -> Void) {
-        onFileImported = onImport
-        pickerProvider = nil
-        showFilePicker = true
-    }
-
-    // MARK: - ASWebAuthenticationPresentationContextProviding
-
-    nonisolated func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        MainActor.assumeIsolated {
-            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-            let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
-
-            if let window = activeScene?.keyWindow { return window }
-
-            let allWindows = scenes.flatMap { $0.windows }
-            if let window = allWindows.first(where: { $0.isKeyWindow }) ?? allWindows.first {
-                return window
-            }
-
-            if let scene = activeScene { return UIWindow(windowScene: scene) }
-
-            if let fallbackScene = UIApplication.shared.connectedScenes
-                .first(where: { $0 is UIWindowScene }) as? UIWindowScene {
-                return UIWindow(windowScene: fallbackScene)
-            }
-
-            // All scene-based paths exhausted — no scenes exist, which cannot happen in a running app.
-            fatalError("No UIWindowScene available")
-        }
-    }
 }
 
 // MARK: - ExternalStoragePickerView
-// Presents a sheet to pick from connected cloud providers.
+// Direct providers authenticate with OAuth 2.0 + PKCE and browse their remote
+// APIs. Files remains a separate system File Provider integration.
 
 struct ExternalStoragePickerSheet: View {
-    @StateObject private var ext = ExternalStorageManager.shared
     @StateObject private var pm = PremiumManager.shared
+    @ObservedObject private var cloudStorage = DirectCloudStorageManager.shared
     @Binding var isPresented: Bool
+    var initialProvider: ExternalStorageProvider? = nil
     var onImport: (URL) -> Void
 
     @State private var showDocPicker = false
     @State private var showPaywall = false
+    @State private var selectedProvider: ExternalStorageProvider?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -350,6 +84,11 @@ struct ExternalStoragePickerSheet: View {
         .background(ShieldTheme.surface1.ignoresSafeArea())
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
+        .onAppear {
+            if let initialProvider {
+                selectedProvider = initialProvider
+            }
+        }
         .sheet(isPresented: $showDocPicker) {
             FilesPickerView { url in
                 showDocPicker = false
@@ -361,6 +100,13 @@ struct ExternalStoragePickerSheet: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
+        }
+        .sheet(item: $selectedProvider) { provider in
+            CloudProviderBrowserView(provider: provider) { url in
+                selectedProvider = nil
+                isPresented = false
+                onImport(url)
+            }
         }
     }
 
@@ -393,60 +139,58 @@ struct ExternalStoragePickerSheet: View {
 
     private var providerList: some View {
         VStack(spacing: 0) {
-            // Native Files app picker (includes all cloud providers via Files extension)
-            providerRow(
-                icon: "folder.fill",
-                color: "FFD60A",
-                name: LanguageManager.shared.common("cloud_files_title"),
-                subtitle: LanguageManager.shared.common("cloud_files_subtitle"),
-                isConnected: true
-            ) {
-                showDocPicker = true
-            }
-
-            ShieldDivider().padding(.leading, 54)
-
-            // Individual provider connections for direct OAuth
-            ForEach(ExternalStorageProvider.allCases) { provider in
-                let connected = ext.isConnected(provider)
+            VStack(spacing: 0) {
+                // Native Files app picker (includes all cloud providers via Files extension)
                 providerRow(
-                    icon: provider.icon,
-                    color: provider.iconColor,
-                    name: provider.displayName,
-                    subtitle: connected
-                        ? (ext.connectedEmail(provider) ?? LanguageManager.shared.common("cloud_connected"))
-                        : LanguageManager.shared.common("cloud_tap_to_connect"),
-                    isConnected: connected
+                    icon: "folder.fill",
+                    color: "FFD60A",
+                    name: LanguageManager.shared.common("cloud_files_title"),
+                    subtitle: LanguageManager.shared.common("cloud_files_subtitle"),
+                    isConnected: true
                 ) {
-                    if connected {
-                        ext.openFilePicker(for: provider)
-                        // After picking, FilesPickerView handles import
-                        showDocPicker = true
-                    } else {
-                        ext.connect(provider)
+                    showDocPicker = true
+                }
+
+                ShieldDivider().padding(.leading, 54)
+
+                ForEach(ExternalStorageProvider.allCases) { provider in
+                    providerRow(
+                        icon: provider.icon,
+                        color: provider.iconColor,
+                        name: provider.displayName,
+                        subtitle: providerSubtitle(provider),
+                        isConnected: cloudStorage.isConnected(provider)
+                    ) {
+                        selectedProvider = provider
+                    }
+                    if provider != ExternalStorageProvider.allCases.last {
+                        ShieldDivider().padding(.leading, 54)
                     }
                 }
-                if provider != ExternalStorageProvider.allCases.last {
-                    ShieldDivider().padding(.leading, 54)
-                }
             }
+            .background(ShieldTheme.surface2)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
+            .padding(.horizontal, 16)
 
-            if let err = ext.authError {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(ShieldTheme.danger)
-                    Text(err)
-                        .font(.system(size: 12))
-                        .foregroundColor(ShieldTheme.danger)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-            }
+            Label(
+                LanguageManager.shared.common("cloud_provider_setup_hint"),
+                systemImage: "info.circle"
+            )
+            .font(.system(size: 11))
+            .foregroundColor(ShieldTheme.textTertiary)
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
         }
-        .background(ShieldTheme.surface2)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
-        .padding(.horizontal, 16)
+    }
+
+    private func providerSubtitle(_ provider: ExternalStorageProvider) -> String {
+        if !cloudStorage.isConfigured(provider) {
+            return LanguageManager.shared.common("cloud_configuration_required")
+        }
+        return cloudStorage.isConnected(provider)
+            ? LanguageManager.shared.common("cloud_connected")
+            : LanguageManager.shared.common("cloud_tap_to_connect")
     }
 
     @ViewBuilder
@@ -480,18 +224,313 @@ struct ExternalStoragePickerSheet: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(ShieldTheme.textTertiary)
                 } else {
-                    if ext.isAuthenticating == ExternalStorageProvider.allCases.first(where: { $0.displayName == name }) {
-                        ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
-                    } else {
-                        Text(LanguageManager.shared.common("cloud_connect"))
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(ShieldTheme.accent)
-                    }
+                    Text(LanguageManager.shared.common("cloud_connect"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(ShieldTheme.accent)
                 }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
         }
         .buttonStyle(ScaleButtonStyle())
+    }
+}
+
+private struct CloudProviderBrowserView: View {
+    let provider: ExternalStorageProvider
+    let onImport: (URL) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var manager = DirectCloudStorageManager.shared
+    @State private var folders: [CloudRemoteItem] = []
+    @State private var items: [CloudRemoteItem] = []
+    @State private var isLoading = true
+    @State private var failure: CloudProviderFailure?
+
+    private var language: AppLanguage { LanguageManager.shared.current }
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if isLoading {
+                    ProgressView(LanguageManager.shared.common("cloud_connecting"))
+                } else if let failure {
+                    CloudConnectionRecoveryView(
+                        provider: provider,
+                        failure: failure,
+                        onRetry: { Task { await loadCurrentFolder(forceReconnect: true) } },
+                        onChooseAnotherProvider: { dismiss() }
+                    )
+                } else if items.isEmpty {
+                    ContentUnavailableView(
+                        LanguageManager.shared.common("cloud_no_compatible_documents"),
+                        systemImage: "folder"
+                    )
+                } else {
+                    List(items) { item in
+                        Button {
+                            Task { await open(item) }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: item.isFolder ? "folder.fill" : fileIcon(item))
+                                    .foregroundStyle(item.isFolder ? Color(hex: provider.iconColor) : ShieldTheme.accent)
+                                    .frame(width: 28)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.name)
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(2)
+                                    if let size = item.size, !item.isFolder {
+                                        Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Spacer()
+                                if item.isFolder {
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                            .contentShape(.rect)
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle(folders.last?.name ?? provider.displayName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if folders.isEmpty {
+                            dismiss()
+                        } else {
+                            folders.removeLast()
+                            Task { await loadCurrentFolder() }
+                        }
+                    } label: {
+                        Label(
+                            folders.isEmpty
+                                ? LanguageManager.shared.common("common_close")
+                                : LanguageManager.shared.common("cloud_browser_back"),
+                            systemImage: folders.isEmpty ? "xmark" : "chevron.left"
+                        )
+                    }
+                    .accessibilityIdentifier("cloud.browser.back")
+                }
+                if manager.isConnected(provider) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(LanguageManager.shared.common("cloud_disconnect"), role: .destructive) {
+                            manager.disconnect(provider)
+                            dismiss()
+                        }
+                    }
+                }
+            }
+        }
+        .task { await loadCurrentFolder() }
+    }
+
+    private func loadCurrentFolder(forceReconnect: Bool = false) async {
+        isLoading = true
+        failure = nil
+        do {
+            if forceReconnect { manager.disconnect(provider) }
+            if !manager.isConnected(provider) {
+                try await manager.connect(provider)
+            }
+            items = try await manager.listItems(for: provider, folder: folders.last)
+        } catch {
+            failure = CloudProviderFailure(error)
+        }
+        isLoading = false
+    }
+
+    private func open(_ item: CloudRemoteItem) async {
+        if item.isFolder {
+            folders.append(item)
+            await loadCurrentFolder()
+            return
+        }
+        isLoading = true
+        do {
+            let url = try await manager.download(item, from: provider)
+            onImport(url)
+        } catch {
+            failure = CloudProviderFailure(error)
+            isLoading = false
+        }
+    }
+
+    private func fileIcon(_ item: CloudRemoteItem) -> String {
+        item.name.lowercased().hasSuffix(".pdf") ? "doc.richtext.fill" : "photo.fill"
+    }
+}
+
+private enum CloudProviderFailure: Equatable {
+    case cancelled
+    case unavailable
+    case sessionExpired
+    case unsupportedFile
+    case connection
+
+    init(_ error: Error) {
+        guard let cloudError = error as? DirectCloudError else {
+            self = .connection
+            return
+        }
+        switch cloudError {
+        case .authorizationCancelled:
+            self = .cancelled
+        case .providerNotConfigured:
+            self = .unavailable
+        case .missingRefreshToken:
+            self = .sessionExpired
+        case .unsupportedFile:
+            self = .unsupportedFile
+        case .invalidAuthorizationResponse, .invalidServerResponse:
+            self = .connection
+        }
+    }
+
+    var messageKey: String {
+        switch self {
+        case .cancelled: "cloud_cancelled_message"
+        case .unavailable: "cloud_unavailable_message"
+        case .sessionExpired: "cloud_session_expired_message"
+        case .unsupportedFile: "cloud_unsupported_file_message"
+        case .connection: "cloud_connection_problem_message"
+        }
+    }
+}
+
+private struct CloudConnectionRecoveryView: View {
+    let provider: ExternalStorageProvider
+    let failure: CloudProviderFailure
+    let onRetry: () -> Void
+    let onChooseAnotherProvider: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isFloating = false
+
+    private var isCancellation: Bool { failure == .cancelled }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 36)
+
+            illustration
+                .padding(.bottom, 28)
+
+            Text(LanguageManager.shared.common(
+                isCancellation ? "cloud_cancelled_title" : "cloud_connection_problem_title"
+            ))
+            .font(.system(size: 24, weight: .bold, design: .rounded))
+            .foregroundStyle(ShieldTheme.textPrimary)
+            .multilineTextAlignment(.center)
+
+            Text(LanguageManager.shared.common(failure.messageKey))
+                .font(.system(size: 15, weight: .regular))
+                .foregroundStyle(ShieldTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.top, 9)
+                .padding(.horizontal, 30)
+
+            VStack(spacing: 12) {
+                Button(action: onRetry) {
+                    Label(
+                        LanguageManager.shared.common("cloud_retry_connection"),
+                        systemImage: "arrow.clockwise"
+                    )
+                    .font(.system(size: 15, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(ShieldTheme.accent)
+                    .foregroundStyle(ShieldTheme.accentText)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("cloud.recovery.retry")
+
+                Button(action: onChooseAnotherProvider) {
+                    Text(LanguageManager.shared.common("cloud_choose_provider"))
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .foregroundStyle(ShieldTheme.textSecondary)
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("cloud.recovery.chooseProvider")
+            }
+            .padding(.top, 28)
+            .padding(.horizontal, 28)
+
+            Spacer(minLength: 28)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RadialGradient(
+                colors: [Color(hex: provider.iconColor).opacity(0.10), .clear],
+                center: .center,
+                startRadius: 12,
+                endRadius: 260
+            )
+            .ignoresSafeArea()
+        }
+        .onAppear {
+            guard !reduceMotion else { return }
+            isFloating = true
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(isCancellation ? "cloud.recovery.cancelled" : "cloud.recovery.problem")
+    }
+
+    private var illustration: some View {
+        ZStack {
+            Circle()
+                .fill(Color(hex: provider.iconColor).opacity(0.10))
+                .frame(width: 136, height: 136)
+
+            Circle()
+                .stroke(Color(hex: provider.iconColor).opacity(0.22), lineWidth: 1)
+                .frame(width: 112, height: 112)
+
+            Circle()
+                .fill(Color(hex: provider.iconColor).opacity(0.7))
+                .frame(width: 7, height: 7)
+                .offset(x: -58, y: -35)
+
+            Circle()
+                .fill(ShieldTheme.accent.opacity(0.8))
+                .frame(width: 5, height: 5)
+                .offset(x: 61, y: 29)
+
+            RoundedRectangle(cornerRadius: 22)
+                .fill(Color(hex: provider.iconColor))
+                .frame(width: 76, height: 76)
+                .shadow(color: Color(hex: provider.iconColor).opacity(0.28), radius: 18, y: 10)
+                .overlay {
+                    Image(systemName: provider.icon)
+                        .font(.system(size: 31, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+            Image(systemName: isCancellation ? "arrow.uturn.backward.circle.fill" : "wifi.exclamationmark.circle.fill")
+                .font(.system(size: 29, weight: .bold))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(ShieldTheme.accentText, ShieldTheme.accent)
+                .background(Circle().fill(ShieldTheme.surface1).padding(2))
+                .offset(x: 36, y: 36)
+                .symbolEffect(.bounce, value: isFloating)
+        }
+        .offset(y: isFloating ? -5 : 5)
+        .scaleEffect(isFloating ? 1.02 : 0.98)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            value: isFloating
+        )
+        .accessibilityHidden(true)
     }
 }

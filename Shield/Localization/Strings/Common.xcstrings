@@ -1,206 +1,392 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "common_continue": {
+    "cloud_browser_back": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continue"
+            "value": "Back"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continuar"
+            "value": "Volver"
           }
         }
       }
     },
-    "common_cancel": {
+    "cloud_cancelled_message": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "No changes were made. You can reconnect whenever you're ready."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancelar"
+            "value": "No se realizó ningún cambio. Puedes volver a conectar cuando quieras."
           }
         }
       }
     },
-    "common_done": {
+    "cloud_cancelled_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done"
+            "value": "Connection paused"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hecho"
+            "value": "Conexión pausada"
           }
         }
       }
     },
-    "common_save": {
+    "cloud_choose_provider": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save"
+            "value": "Choose another provider"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Guardar"
+            "value": "Elegir otro proveedor"
           }
         }
       }
     },
-    "common_apply": {
-      "extractionState": "manual",
+    "cloud_configuration_required": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apply"
+            "value": "OAuth configuration required"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aplicar"
+            "value": "Requiere configuración OAuth"
           }
         }
       }
     },
-    "common_pro": {
+    "cloud_connect": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro"
+            "value": "Connect"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro"
+            "value": "Conectar"
           }
         }
       }
     },
-    "common_export": {
+    "cloud_connected": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export"
+            "value": "Connected"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exportar"
+            "value": "Conectado"
           }
         }
       }
     },
-    "common_share": {
+    "cloud_connecting": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share"
+            "value": "Connecting…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Compartir"
+            "value": "Conectando…"
           }
         }
       }
     },
-    "common_undo": {
+    "cloud_connection_problem_message": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Undo"
+            "value": "Check your connection and try again. Your documents remain safe."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deshacer"
+            "value": "Comprueba tu conexión y vuelve a intentarlo. Tus documentos siguen seguros."
           }
         }
       }
     },
-    "common_redo": {
+    "cloud_connection_problem_title": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redo"
+            "value": "We couldn't connect"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rehacer"
+            "value": "No pudimos conectar"
           }
         }
       }
     },
-    "common_skip": {
+    "cloud_disconnect": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skip"
+            "value": "Disconnect"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Omitir"
+            "value": "Desconectar"
           }
         }
       }
     },
-    "common_search": {
+    "cloud_files_subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search"
+            "value": "All your cloud providers"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar"
+            "value": "Todos tus proveedores de nube"
+          }
+        }
+      }
+    },
+    "cloud_files_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files (iCloud, Google Drive, Dropbox…)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivos (iCloud, Google Drive, Dropbox…)"
+          }
+        }
+      }
+    },
+    "cloud_import_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from cloud"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar desde nube"
+          }
+        }
+      }
+    },
+    "cloud_no_compatible_documents": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No compatible documents"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay documentos compatibles"
+          }
+        }
+      }
+    },
+    "cloud_pro_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importing from Google Drive and Dropbox is available in MaskID Pro."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar desde Google Drive y Dropbox está disponible en MaskID Pro."
+          }
+        }
+      }
+    },
+    "cloud_provider_setup_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If a provider is missing, install its app and enable it in Files > Browse > More > Edit."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si no aparece un proveedor, instala su app y actívalo en Archivos > Explorar > Más > Editar."
+          }
+        }
+      }
+    },
+    "cloud_retry_connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect again"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a conectar"
+          }
+        }
+      }
+    },
+    "cloud_select_in_files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a file in Files"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona un archivo en Archivos"
+          }
+        }
+      }
+    },
+    "cloud_session_expired_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session has expired. Reconnect securely to continue."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu sesión ha caducado. Vuelve a conectar de forma segura para continuar."
+          }
+        }
+      }
+    },
+    "cloud_tap_to_connect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to connect"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca para conectar"
+          }
+        }
+      }
+    },
+    "cloud_unavailable_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This provider isn't available right now. Choose another one or try again later."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este proveedor no está disponible ahora. Elige otro o inténtalo más tarde."
+          }
+        }
+      }
+    },
+    "cloud_unsupported_file_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskID can import PDF documents and compatible images. Choose another file."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskID puede importar documentos PDF e imágenes compatibles. Elige otro archivo."
           }
         }
       }
@@ -222,70 +408,53 @@
         }
       }
     },
-    "common_copy": {
+    "common_app_name": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy"
+            "value": "MaskID"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiar"
+            "value": "MaskID"
           }
         }
       }
     },
-    "common_copied": {
+    "common_apply": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copied"
+            "value": "Apply"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copiado"
+            "value": "Aplicar"
           }
         }
       }
     },
-    "common_locked": {
+    "common_cancel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Locked"
+            "value": "Cancel"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloqueado"
-          }
-        }
-      }
-    },
-    "common_delete": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminar"
+            "value": "Cancelar"
           }
         }
       }
@@ -307,36 +476,87 @@
         }
       }
     },
-    "common_not_now": {
+    "common_continue": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not now"
+            "value": "Continue"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ahora no"
+            "value": "Continuar"
           }
         }
       }
     },
-    "common_select_all": {
+    "common_copied": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select all"
+            "value": "Copied"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seleccionar todo"
+            "value": "Copiado"
+          }
+        }
+      }
+    },
+    "common_copy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar"
+          }
+        }
+      }
+    },
+    "common_delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        }
+      }
+    },
+    "common_delete_category": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Category"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar Categoría"
           }
         }
       }
@@ -358,53 +578,68 @@
         }
       }
     },
-    "common_yes": {
-      "extractionState": "manual",
+    "common_disabled": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yes"
+            "value": "Disabled"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sí"
+            "value": "Desactivado"
           }
         }
       }
     },
-    "common_no": {
+    "common_disconnect_provider": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No"
+            "value": "Disconnect %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No"
+            "value": "Desconectar %@"
           }
         }
       }
     },
-    "common_ok": {
+    "common_done": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OK"
+            "value": "Done"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "OK"
+            "value": "Hecho"
+          }
+        }
+      }
+    },
+    "common_enabled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activado"
           }
         }
       }
@@ -426,70 +661,104 @@
         }
       }
     },
-    "common_success": {
+    "common_export": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Success"
+            "value": "Export"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Éxito"
+            "value": "Exportar"
           }
         }
       }
     },
-    "common_app_name": {
+    "common_language_en": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield"
+            "value": "English"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shield"
+            "value": "English"
           }
         }
       }
     },
-    "common_tagline": {
+    "common_language_es": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protect what you share."
+            "value": "Español"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protege lo que compartes."
+            "value": "Español"
           }
         }
       }
     },
-    "common_on_device": {
+    "common_locked": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Processed on-device"
+            "value": "Locked"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Procesado en el dispositivo"
+            "value": "Bloqueado"
+          }
+        }
+      }
+    },
+    "common_new": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva"
+          }
+        }
+      }
+    },
+    "common_no": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No"
           }
         }
       }
@@ -511,53 +780,120 @@
         }
       }
     },
-    "common_today": {
+    "common_not_now": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today"
+            "value": "Not now"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy"
+            "value": "Ahora no"
           }
         }
       }
     },
-    "common_today_at": {
-      "extractionState": "manual",
+    "common_not_selected": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today, %@"
+            "value": "Not selected"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy, %@"
+            "value": "No seleccionado"
           }
         }
       }
     },
-    "common_yesterday": {
+    "common_ok": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yesterday"
+            "value": "OK"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ayer"
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "common_on_device": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processed on-device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesado en el dispositivo"
+          }
+        }
+      }
+    },
+    "common_pages_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "páginas"
+          }
+        }
+      }
+    },
+    "common_pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        }
+      }
+    },
+    "common_pro_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskID Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MaskID Pro"
           }
         }
       }
@@ -603,6 +939,158 @@
         }
       }
     },
+    "common_redo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redo"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rehacer"
+          }
+        }
+      }
+    },
+    "common_reset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer"
+          }
+        }
+      }
+    },
+    "common_save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar"
+          }
+        }
+      }
+    },
+    "common_search": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
+          }
+        }
+      }
+    },
+    "common_select_all": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select all"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionar todo"
+          }
+        }
+      }
+    },
+    "common_selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleccionado"
+          }
+        }
+      }
+    },
+    "common_share": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir"
+          }
+        }
+      }
+    },
+    "common_skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        }
+      }
+    },
+    "common_success": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éxito"
+          }
+        }
+      }
+    },
     "common_tab_docs": {
       "extractionState": "manual",
       "localizations": {
@@ -616,6 +1104,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Documentos"
+          }
+        }
+      }
+    },
+    "common_tab_settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
           }
         }
       }
@@ -654,291 +1159,104 @@
         }
       }
     },
-    "common_tab_settings": {
+    "common_tagline": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Settings"
+            "value": "Protect what you share."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajustes"
+            "value": "Protege lo que compartes."
           }
         }
       }
     },
-    "common_disconnect_provider": {
+    "common_today": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disconnect %@"
+            "value": "Today"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Desconectar %@"
+            "value": "Hoy"
           }
         }
       }
     },
-    "cloud_import_title": {
+    "common_today_at": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import from cloud"
+            "value": "Today, %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar desde nube"
+            "value": "Hoy, %@"
           }
         }
       }
     },
-    "cloud_pro_desc": {
+    "common_undo": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importing from Google Drive, Dropbox and OneDrive is available in Shield Pro."
+            "value": "Undo"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importar desde Google Drive, Dropbox y OneDrive está disponible en Shield Pro."
+            "value": "Deshacer"
           }
         }
       }
     },
-    "cloud_files_title": {
+    "common_yes": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Files (iCloud, Google Drive, Dropbox…)"
+            "value": "Yes"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Archivos (iCloud, Google Drive, Dropbox…)"
+            "value": "Sí"
           }
         }
       }
     },
-    "cloud_files_subtitle": {
+    "common_yesterday": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All your cloud providers"
+            "value": "Yesterday"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todos tus proveedores de nube"
-          }
-        }
-      }
-    },
-    "cloud_tap_to_connect": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap to connect"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toca para conectar"
-          }
-        }
-      }
-    },
-    "cloud_connect": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectar"
-          }
-        }
-      }
-    },
-    "cloud_connected": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connected"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectado"
-          }
-        }
-      }
-    },
-    "common_delete_category": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete Category"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eliminar Categoría"
-          }
-        }
-      }
-    },
-    "common_new": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nueva"
-          }
-        }
-      }
-    },
-    "common_pages_count": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "pages"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "páginas"
-          }
-        }
-      }
-    },
-    "common_reset": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reset"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restablecer"
-          }
-        }
-      }
-    },
-    "common_app_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield"
-          }
-        }
-      }
-    },
-    "common_pro_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield Pro"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shield Pro"
-          }
-        }
-      }
-    },
-    "common_language_es": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Español"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Español"
-          }
-        }
-      }
-    },
-    "common_language_en": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "English"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "English"
+            "value": "Ayer"
           }
         }
       }

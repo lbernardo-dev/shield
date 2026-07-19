@@ -1,0 +1,72 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Mask a Document" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mask a Document" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger un documento" } }
+      }
+    },
+    "Opens MaskID ready to import, scan, or photograph a document." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens MaskID ready to import, scan, or photograph a document." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre MaskID para importar, escanear o fotografiar un documento." } }
+      }
+    },
+    "MaskID is ready to protect your document." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "MaskID is ready to protect your document." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "MaskID está lista para proteger tu documento." } }
+      }
+    },
+    "Open Secure Vault" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Secure Vault" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir la bóveda segura" } }
+      }
+    },
+    "Opens MaskID's protected vault. Authentication is always required in the app." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens MaskID's protected vault. Authentication is always required in the app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la bóveda protegida de MaskID. La app siempre solicita autenticación." } }
+      }
+    },
+    "Opening the secure vault." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opening the secure vault." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abriendo la bóveda segura." } }
+      }
+    },
+    "Mask Document" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mask Document" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger documento" } }
+      }
+    },
+    "Open Vault" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Vault" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir bóveda" } }
+      }
+    },
+    "Mask a document with ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mask a document with ${applicationName}" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Protege un documento con ${applicationName}" } }
+      }
+    },
+    "Protect a document in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protect a document in ${applicationName}" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oculta datos de un documento con ${applicationName}" } }
+      }
+    },
+    "Open my secure vault in ${applicationName}" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open my secure vault in ${applicationName}" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre mi bóveda segura en ${applicationName}" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
