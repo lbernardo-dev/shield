@@ -550,3 +550,14 @@
    Done by: CODEX
    Done at: 2026-07-19T13:54:13Z
 
+51. prepare-appstore-1-0-0
+   Id: 51-prepare-appstore-1-0-0
+   Scope: Increment all target builds, archive/export/upload, attach to App Store version 1.0.0, audit readiness without submitting
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Resources/Info.plist,ShareExtension/Info.plist,tasks/TASKS.md,tasks/details
+   Note: Build 100202607193 archived, uploaded and attached to 1.0.0; privacy/product metadata audited; review draft READY_FOR_REVIEW with app, group, annual, monthly and lifetime IAP; not submitted.
+   Detail: tasks/details/51-prepare-appstore-1-0-0.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T13:57:54Z
+   Done by: CODEX
+   Done at: 2026-07-19T14:12:35Z
+
