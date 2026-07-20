@@ -391,10 +391,12 @@
    Id: 36-real-cloud-navigation
    Scope: Corregir todos los botones Volver y sustituir cualquier integración de almacenamiento simulada por flujos reales, completos y verificables
    Files: Shield/ ShieldTests/ ShieldUITests/
-   Note: User explicitly removed OneDrive from current scope; retain and finish real Google Drive and Dropbox only
+   Note: Navegación real y retorno desde destinos completados; pruebas unitarias y UI focalizada superadas; incluido en build TestFlight interno 100202607195.
    Detail: tasks/details/36-real-cloud-navigation.md
    Claimed by: CODEX
-   Claimed at: 2026-07-17T06:16:50Z
+   Claimed at: 2026-07-19T14:44:38Z
+   Done by: CODEX
+   Done at: 2026-07-19T15:30:22Z
 
 37. tab-bar-layout-and-size
    Id: 37-tab-bar-layout-and-size
@@ -560,4 +562,59 @@
    Claimed at: 2026-07-19T13:57:54Z
    Done by: CODEX
    Done at: 2026-07-19T14:12:35Z
+
+52. verify-revenuecat-production-key
+   Id: 52-verify-revenuecat-production-key
+   Scope: Verify the submitted Release build embeds the RevenueCat Apple production app key and no Test Store key
+   Files: Shield/Resources/Info.plist Shield/Premium/PremiumManager.swift Shield.xcodeproj/
+   Note: Verified submitted build 1.0.0 (100202607193), IPA and archive embed Apple platform key appl_cJuegsqbihOvDkhDESnUPrekHTJ; no RevenueCat test_ key and no .storekit fixture embedded. Release config uses this Info.plist. No code change required.
+   Detail: tasks/details/52-verify-revenuecat-production-key.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T14:35:55Z
+   Done by: CODEX
+   Done at: 2026-07-19T14:36:46Z
+
+53. release-regression-audit
+   Id: 53-release-regression-audit
+   Scope: Auditar y corregir navegación, miniaturas cifradas, identidad MaskID y regresiones; compilar, probar y subir solo a TestFlight sin App Review
+   Files: Shield/ ShieldTests/ ShieldUITests/ Shield.xcodeproj/ tasks/
+   Note: Correcciones completadas: navegación atrás verificada con UI test de un toque; miniaturas de bóveda corregidas; branding/binario MaskID y recurso de icono antiguo retirado; ShieldTests completos y UI test focalizado superados; build 100202607195 procesado VALID y distribuido solo a TestFlight interno; no enviado a App Review.
+   Detail: tasks/details/53-release-regression-audit.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T14:45:50Z
+   Done by: CODEX
+   Done at: 2026-07-19T15:30:22Z
+
+54. fix-settings-navigation-real-device
+   Id: 54-fix-settings-navigation-real-device
+   Scope: Reproducir y corregir todos los retornos y navegación interna de Configuración en el binario real
+   Files: Shield/Views/Settings ShieldUITests Shield.xcodeproj
+   Note: Fixed Settings back navigation and untranslated common_back label. Removed zero-distance global drag gesture. Added UI assertions for physical-coordinate back taps and untranslated key regression. Tests: Settings route UI test passed on iOS 26.5 sim; simulator build passed; Release archive/export succeeded; TestFlight build 100202607196 uploaded VALID and assigned to beta group. Not submitted to App Review.
+   Detail: tasks/details/54-fix-settings-navigation-real-device.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-19T16:17:52Z
+   Done by: CODEX
+   Done at: 2026-07-20T06:12:09Z
+
+55. fix-lock-screen-icon
+   Id: 55-fix-lock-screen-icon
+   Scope: Corregir el icono incorrecto en la pantalla bloqueada de autenticación
+   Files: Shield/App/ContentView.swift Shield/Assets.xcassets
+   Note: Reemplazado el escudo de LockScreenView por MaskIDMark; build Debug generic iOS OK
+   Detail: tasks/details/55-fix-lock-screen-icon.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T06:05:59Z
+   Done by: CODEX
+   Done at: 2026-07-20T06:08:24Z
+
+56. animated-mysterious-splash-view
+   Id: 56-animated-mysterious-splash-view
+   Scope: Reorganizar y potenciar la vista de Splash para que sea animada y misteriosa, con el icono central más grande y sin el nombre de la app
+   Files: Shield/App/ContentView.swift,Shield/Views/Components/SplashView.swift
+   Note: Upgraded the Splash View with a larger, animated icon and a mysterious cyber-mask radiating rings theme; verified compilation and tests successfully
+   Detail: tasks/details/56-animated-mysterious-splash-view.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T06:09:00Z
+   Done by: CODEX
+   Done at: 2026-07-20T06:23:21Z
 

@@ -915,7 +915,7 @@ struct DocumentRow: View {
                 // Thumbnail
                 ZStack {
                     DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
-                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: shouldMask,
+                                 fields: doc.fields, imageFileName: doc.imageFileName, isVaulted: doc.isVaulted,
                                  imageAdjustment: doc.imageAdjustment)
                         .frame(width: 64, height: 44)
                         .clipShape(RoundedRectangle(cornerRadius: 6))

@@ -8,6 +8,7 @@ struct ContentView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var cloud = CloudSyncManager.shared
     @State private var asoOverlayPresented = true
+    @State private var showSplash = true
 
     var body: some View {
         ZStack {
@@ -27,6 +28,12 @@ struct ContentView: View {
                 OnboardingFlowView()
                     .id("onboarding-\(appState.language.rawValue)")
                     .transition(.opacity)
+            }
+
+            if showSplash {
+                SplashView()
+                    .transition(.opacity)
+                    .zIndex(9_000)
             }
 
             if scenePhase != .active {
@@ -54,14 +61,16 @@ struct ContentView: View {
             handleScenePhaseChange(newPhase)
         }
         .simultaneousGesture(
-            // minimumDistance 0 fires on touch-down, so scrolling, zooming and
-            // drawing count as activity for the inactivity auto-lock, not just taps.
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in noteUserActivity() }
-        )
-        .simultaneousGesture(
             TapGesture().onEnded(noteUserActivity)
         )
+        .onAppear {
+            Task {
+                try? await Task.sleep(nanoseconds: 1_800_000_000)
+                withAnimation(.easeInOut(duration: 0.45)) {
+                    showSplash = false
+                }
+            }
+        }
     }
 
     private var sessionStage: SessionStage {
@@ -90,12 +99,13 @@ private struct PrivacySnapshotShield: View {
                 Image("MaskIDMark")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 72, height: 72)
-                    .clipShape(.rect(cornerRadius: 18))
-                    .accessibilityHidden(true)
-                Text("MaskID")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .frame(width: 120, height: 120)
+                    .clipShape(RoundedRectangle(cornerRadius: 30))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30)
+                            .stroke(ShieldTheme.accent.opacity(0.25), lineWidth: 1)
+                    )
+                    .shadow(color: ShieldTheme.accent.opacity(0.3), radius: 10, x: 0, y: 0)
                     .accessibilityHidden(true)
             }
         }

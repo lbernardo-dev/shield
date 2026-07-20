@@ -38,12 +38,23 @@ struct HomeTopBarView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(ShieldTheme.primary(scheme))
                         .frame(width: 32, height: 32)
-                        .background(ShieldTheme.cardBackground(scheme))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .background {
+                            if #available(iOS 26, *) {
+                                Color.clear
+                                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 10))
+                            } else {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(ShieldTheme.cardBackground(scheme))
+                            }
+                        }
+                        .overlay {
+                            if #available(iOS 26, *) {
+                                EmptyView()
+                            } else {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                            }
+                        }
                 }
                 .buttonStyle(ScaleButtonStyle())
                 .frame(minWidth: 44, minHeight: 44)
@@ -71,12 +82,23 @@ struct HomeTopBarView: View {
                 .font(.system(size: 11, weight: .bold))
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .frame(width: 32, height: 32)
-                .background(ShieldTheme.cardBackground(scheme))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .background {
+                    if #available(iOS 26, *) {
+                        Color.clear
+                            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 10))
+                    } else {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(ShieldTheme.cardBackground(scheme))
+                    }
+                }
+                .overlay {
+                    if #available(iOS 26, *) {
+                        EmptyView()
+                    } else {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                    }
+                }
         }
         .buttonStyle(ScaleButtonStyle())
         .frame(minWidth: 44, minHeight: 44)

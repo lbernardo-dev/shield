@@ -421,6 +421,7 @@ struct EditorView: View {
                         height: max(geo.size.height, canvasH * effectiveZoom)
                     )
                 }
+                .scrollEdgeEffectStyleIfAvailable()
                 .scrollIndicators(effectiveZoom > 1 ? .visible : .hidden)
                 .simultaneousGesture(
                     MagnifyGesture(minimumScaleDelta: 0.01)
@@ -467,8 +468,22 @@ struct EditorView: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_controls"))
                 .foregroundColor(ShieldTheme.primary(scheme))
-                .background(.ultraThinMaterial, in: Capsule())
-                .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
+                .background {
+                    if #available(iOS 26, *) {
+                        Color.clear
+                            .glassEffect(.regular.interactive(), in: .capsule)
+                    } else {
+                        Capsule()
+                            .fill(.ultraThinMaterial)
+                    }
+                }
+                .overlay {
+                    if #available(iOS 26, *) {
+                        EmptyView()
+                    } else {
+                        Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                    }
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(ShieldTheme.s4)
             }
@@ -589,5 +604,18 @@ struct SheetContainer<Content: View>: View {
         .presentationDetents([.fraction(heightFraction)])
         .presentationDragIndicator(.visible)
         .presentationBackground(ShieldTheme.cardBackground(scheme))
+    }
+}
+
+// MARK: - Conditional ScrollEdgeEffect Helper
+
+extension View {
+    @ViewBuilder
+    fileprivate func scrollEdgeEffectStyleIfAvailable() -> some View {
+        if #available(iOS 26, *) {
+            self.scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            self
+        }
     }
 }

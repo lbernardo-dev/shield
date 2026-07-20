@@ -91,12 +91,15 @@ final class ShieldLaunchTests: XCTestCase {
             XCTAssertTrue(route.isHittable, route.debugDescription)
             route.tap()
 
-            let navigationBar = app.navigationBars.firstMatch
-            XCTAssertTrue(navigationBar.waitForExistence(timeout: 3), "No destination opened for \(identifier)")
             let backButton = app.buttons["settings.back"]
             XCTAssertTrue(backButton.waitForExistence(timeout: 3), "No explicit back action for \(identifier)")
             XCTAssertTrue(backButton.isHittable, "Back action is not hittable for \(identifier)")
-            backButton.tap()
+            XCTAssertNotEqual(backButton.label, "common_back", "Back action is showing an untranslated localization key for \(identifier)")
+            backButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(
+                backButton.waitForNonExistence(timeout: 3),
+                "The destination did not close after one physical-coordinate tap for \(identifier)"
+            )
             XCTAssertTrue(app.staticTexts["Ajustes"].waitForExistence(timeout: 3))
         }
 
@@ -104,7 +107,7 @@ final class ShieldLaunchTests: XCTestCase {
         scrollToElement(support, in: app)
         XCTAssertTrue(support.isHittable)
         support.tap()
-        XCTAssertTrue(app.navigationBars["Soporte"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["settings.back"].waitForExistence(timeout: 3))
 
         let sendFeedback = app.buttons["settings.action.sendFeedback"]
         scrollToElement(sendFeedback, in: app)
@@ -114,6 +117,35 @@ final class ShieldLaunchTests: XCTestCase {
             app.wait(for: .runningBackground, timeout: 5),
             "Feedback should open an available mail client or the support web fallback"
         )
+    }
+
+    @MainActor
+    func testSettingsBackReturnsToRootWithOneTap() throws {
+        executionTimeAllowance = 60
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-aso-screenshots",
+            "-aso-language", "es",
+            "-aso-scene", "settings"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+
+        let preferences = app.buttons["settings.route.appPreferences"]
+        XCTAssertTrue(preferences.waitForExistence(timeout: 3))
+        XCTAssertTrue(preferences.isHittable)
+        preferences.tap()
+
+        let backButton = app.buttons["settings.back"]
+        XCTAssertTrue(backButton.waitForExistence(timeout: 3))
+        XCTAssertTrue(backButton.isHittable)
+        backButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+
+        XCTAssertTrue(backButton.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["Ajustes"].waitForExistence(timeout: 3))
+        XCTAssertTrue(preferences.waitForExistence(timeout: 3))
+        XCTAssertTrue(preferences.isHittable, "The settings root was not interactive after one back tap")
     }
 
     @MainActor

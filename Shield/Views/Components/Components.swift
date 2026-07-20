@@ -134,12 +134,23 @@ struct IconButton: View {
                 .font(.system(size: size * 0.45, weight: .medium))
                 .foregroundColor(color ?? ShieldTheme.primary(scheme))
                 .frame(width: size, height: size)
-                .background(background ?? ShieldTheme.cardBackground(scheme))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ShieldTheme.rSM)
-                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+                .background {
+                    if #available(iOS 26, *) {
+                        Color.clear
+                            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: ShieldTheme.rSM))
+                    } else {
+                        RoundedRectangle(cornerRadius: ShieldTheme.rSM)
+                            .fill(background ?? ShieldTheme.cardBackground(scheme))
+                    }
+                }
+                .overlay {
+                    if #available(iOS 26, *) {
+                        EmptyView()
+                    } else {
+                        RoundedRectangle(cornerRadius: ShieldTheme.rSM)
+                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                    }
+                }
         }
         .buttonStyle(ScaleButtonStyle())
         .frame(minWidth: 44, minHeight: 44)

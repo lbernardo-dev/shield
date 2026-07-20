@@ -33,21 +33,26 @@ struct LockScreenView: View {
                 Spacer()
 
                 VStack(spacing: 22) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 34)
-                            .fill(ShieldTheme.accentDim(scheme))
+                    ZStack(alignment: .bottomTrailing) {
+                        Image("MaskIDMark")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 122, height: 122)
+                            .clipShape(.rect(cornerRadius: 34))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 34)
                                     .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 1)
                             )
-                            .frame(width: 122, height: 122)
-
-                        Image(systemName: verified ? "checkmark.shield.fill" : "shield.lefthalf.filled")
-                            .font(.system(size: 52, weight: .medium))
-                            .foregroundColor(verified ? ShieldTheme.success : ShieldTheme.accent(scheme))
                             .symbolEffect(.pulse, isActive: isAuthenticating)
-                            .contentTransition(.symbolEffect(.replace))
                             .accessibilityHidden(true)
+
+                        if verified {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 30, weight: .semibold))
+                                .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
+                                .contentTransition(.symbolEffect(.replace))
+                                .accessibilityHidden(true)
+                        }
                     }
 
                     VStack(spacing: 10) {

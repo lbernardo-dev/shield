@@ -416,10 +416,26 @@ private struct SettingsDetailScaffold<Content: View>: View {
     }
 
     var body: some View {
-        ZStack {
-            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+        VStack(spacing: 0) {
+            HStack(spacing: ShieldTheme.s3) {
+                Button {
+                    dismiss()
+                } label: {
+                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
+                        .font(.body.weight(.semibold))
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("settings.back")
+                Spacer()
+            }
+            .padding(.horizontal, ShieldTheme.s4)
+            .background(ShieldTheme.pageBackground(scheme))
+
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
+                    Text(title)
+                        .font(.largeTitle.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
                     if let subtitle {
                         Text(subtitle)
                             .font(.subheadline)
@@ -433,21 +449,9 @@ private struct SettingsDetailScaffold<Content: View>: View {
                 .padding(ShieldTheme.s4)
             }
         }
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.large)
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
-        .toolbarVisibility(.visible, for: .navigationBar)
-        .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
-                }
-                .accessibilityIdentifier("settings.back")
-            }
-        }
+        .toolbarVisibility(.hidden, for: .navigationBar)
     }
 }
 

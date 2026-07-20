@@ -1,196 +1,3151 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "settings_access_protection" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Access protection"}},"es":{"stringUnit":{"state":"translated","value":"Protección de acceso"}}}},
-    "settings_app_preferences" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"App preferences"}},"es":{"stringUnit":{"state":"translated","value":"Preferencias de la app"}}}},
-    "settings_app_preferences_detail" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Choose MaskID's appearance and display language."}},"es":{"stringUnit":{"state":"translated","value":"Elige la apariencia y el idioma de MaskID."}}}},
-    "settings_app_preferences_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Language, theme, and interface"}},"es":{"stringUnit":{"state":"translated","value":"Idioma, tema e interfaz"}}}},
-    "settings_build_value" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Build %@"}},"es":{"stringUnit":{"state":"translated","value":"Compilación %@"}}}},
-    "settings_data_management" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Data management"}},"es":{"stringUnit":{"state":"translated","value":"Gestión de datos"}}}},
-    "settings_delete_all_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Permanently removes local projects and their protected files"}},"es":{"stringUnit":{"state":"translated","value":"Elimina permanentemente los proyectos locales y sus archivos protegidos"}}}},
-    "settings_detection_review" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Detection and review"}},"es":{"stringUnit":{"state":"translated","value":"Detección y revisión"}}}},
-    "settings_developer_tools" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Developer tools"}},"es":{"stringUnit":{"state":"translated","value":"Herramientas de desarrollo"}}}},
-    "settings_developer_tools_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Internal testing controls"}},"es":{"stringUnit":{"state":"translated","value":"Controles internos de pruebas"}}}},
-    "settings_export_detail" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Set the defaults MaskID suggests when you export. You can still change them for each project."}},"es":{"stringUnit":{"state":"translated","value":"Define los valores que MaskID propone al exportar. Podrás cambiarlos en cada proyecto."}}}},
-    "settings_export_preferences" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Export preferences"}},"es":{"stringUnit":{"state":"translated","value":"Preferencias de exportación"}}}},
-    "settings_export_preferences_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Format, image quality, and secure output"}},"es":{"stringUnit":{"state":"translated","value":"Formato, calidad de imagen y salida segura"}}}},
-    "settings_eyebrow" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"App, privacy, and help"}},"es":{"stringUnit":{"state":"translated","value":"App, privacidad y ayuda"}}}},
-    "settings_faq" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"FAQ"}},"es":{"stringUnit":{"state":"translated","value":"Preguntas frecuentes"}}}},
-    "settings_faq_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Quick answers about privacy, OCR, secure export, subscriptions, and your documents."}},"es":{"stringUnit":{"state":"translated","value":"Respuestas rápidas sobre privacidad, OCR, exportación segura, suscripciones y tus documentos."}}}},
-    "settings_faq_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Frequently asked questions"}},"es":{"stringUnit":{"state":"translated","value":"Respuestas a las dudas más habituales"}}}},
-    "settings_feedback_section" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Feedback"}},"es":{"stringUnit":{"state":"translated","value":"Comentarios"}}}},
-    "settings_footer_build" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Build %@"}},"es":{"stringUnit":{"state":"translated","value":"Compilación %@"}}}},
-    "settings_footer_designed" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Designed and developed by RomeroDev"}},"es":{"stringUnit":{"state":"translated","value":"Diseñada y desarrollada por RomeroDev"}}}},
-    "settings_footer_privacy" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Built for private, on-device document work"}},"es":{"stringUnit":{"state":"translated","value":"Creada para trabajar con documentos de forma privada y en el dispositivo"}}}},
-    "settings_footer_rights" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"All rights reserved"}},"es":{"stringUnit":{"state":"translated","value":"Todos los derechos reservados"}}}},
-    "settings_footer_version" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID version %@"}},"es":{"stringUnit":{"state":"translated","value":"MaskID versión %@"}}}},
-    "settings_icloud_detail" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Synchronize complete, restorable MaskID documents through your private iCloud database."}},"es":{"stringUnit":{"state":"translated","value":"Sincroniza documentos completos y restaurables de MaskID mediante tu base privada de iCloud."}}}},
-    "settings_icloud_minimized_note" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Complete private document backup and restore"}},"es":{"stringUnit":{"state":"translated","value":"Copia y restauración privada de documentos completos"}}}},
-    "settings_icloud_privacy_explanation" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"After you opt in, MaskID stores complete document packages as private CloudKit assets. CloudKit encrypts private assets, and MaskID re-encrypts restored files in local protected storage."}},"es":{"stringUnit":{"state":"translated","value":"Tras activarlo, MaskID guarda paquetes completos como recursos privados de CloudKit. CloudKit cifra los recursos privados y MaskID vuelve a cifrar los archivos restaurados en el almacenamiento local protegido."}}}},
-    "settings_icloud_pro_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"View Pro options to enable complete private backup"}},"es":{"stringUnit":{"state":"translated","value":"Consulta las opciones Pro para activar la copia privada completa"}}}},
-    "settings_icloud_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Complete private backup and restore"}},"es":{"stringUnit":{"state":"translated","value":"Copia y restauración privada completa"}}}},
-    "settings_information_disclaimer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Information and disclaimer"}},"es":{"stringUnit":{"state":"translated","value":"Información y aviso legal"}}}},
-    "settings_information_disclaimer_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"How MaskID handles documents and automated suggestions"}},"es":{"stringUnit":{"state":"translated","value":"Cómo trata MaskID los documentos y las sugerencias automáticas"}}}},
-    "settings_last_sync_value" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Last sync: %@"}},"es":{"stringUnit":{"state":"translated","value":"Última sincronización: %@"}}}},
-    "settings_legal_draft_notice" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The current bilingual legal documents are available from MaskID and on the official support website."}},"es":{"stringUnit":{"state":"translated","value":"Los documentos legales bilingües vigentes están disponibles desde MaskID y en el sitio web oficial de soporte."}}}},
-    "settings_legal_updated_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Last updated"}},"es":{"stringUnit":{"state":"translated","value":"Última actualización"}}}},
-    "settings_legal_updated_value" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"July 16, 2026"}},"es":{"stringUnit":{"state":"translated","value":"16 de julio de 2026"}}}},
-    "settings_ocr_threshold" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"OCR confidence threshold"}},"es":{"stringUnit":{"state":"translated","value":"Umbral de confianza OCR"}}}},
-    "settings_open_official_page" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Open official web page"}},"es":{"stringUnit":{"state":"translated","value":"Abrir página web oficial"}}}},
-    "settings_open_online" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"View online"}},"es":{"stringUnit":{"state":"translated","value":"Ver en la web"}}}},
-    "settings_opens_browser" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Opens the localized public page in your browser"}},"es":{"stringUnit":{"state":"translated","value":"Abre la página pública localizada en el navegador"}}}},
-    "settings_pin_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Protect access when biometrics are unavailable"}},"es":{"stringUnit":{"state":"translated","value":"Protege el acceso cuando la biometría no está disponible"}}}},
-    "settings_plan_free" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Free"}},"es":{"stringUnit":{"state":"translated","value":"Free"}}}},
-    "settings_plan_pro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Pro"}},"es":{"stringUnit":{"state":"translated","value":"Pro"}}}},
-    "settings_premium_override" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Premium override"}},"es":{"stringUnit":{"state":"translated","value":"Simular Premium"}}}},
-    "settings_privacy_policy" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Privacy Policy"}},"es":{"stringUnit":{"state":"translated","value":"Política de privacidad"}}}},
-    "settings_privacy_policy_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What MaskID processes, stores, and never collects"}},"es":{"stringUnit":{"state":"translated","value":"Qué procesa, almacena y nunca recopila MaskID"}}}},
-    "settings_private_by_design" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Private by design"}},"es":{"stringUnit":{"state":"translated","value":"Privacidad desde el diseño"}}}},
-    "settings_pro_unlock_features" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Unlock productivity features, batch workflows, and advanced styles."}},"es":{"stringUnit":{"state":"translated","value":"Desbloquea funciones de productividad, flujos por lotes y estilos avanzados."}}}},
-    "settings_quality_high" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"High"}},"es":{"stringUnit":{"state":"translated","value":"Alta"}}}},
-    "settings_quality_low" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Low"}},"es":{"stringUnit":{"state":"translated","value":"Baja"}}}},
-    "settings_quality_medium" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Medium"}},"es":{"stringUnit":{"state":"translated","value":"Media"}}}},
-    "settings_rate_app" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Rate MaskID"}},"es":{"stringUnit":{"state":"translated","value":"Valorar MaskID"}}}},
-    "settings_rate_app_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Opens MaskID's App Store review page"}},"es":{"stringUnit":{"state":"translated","value":"Abre la página de reseñas de MaskID en App Store"}}}},
-    "settings_rating_unavailable_message" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The App Store review page could not be opened. Check your connection and try again."}},"es":{"stringUnit":{"state":"translated","value":"No se pudo abrir la página de reseñas del App Store. Comprueba la conexión e inténtalo de nuevo."}}}},
-    "settings_rating_unavailable_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"App Store unavailable"}},"es":{"stringUnit":{"state":"translated","value":"App Store no disponible"}}}},
-    "settings_section_personalization" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Personalization"}},"es":{"stringUnit":{"state":"translated","value":"Personalización"}}}},
-    "settings_section_workspace" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Security and workspace"}},"es":{"stringUnit":{"state":"translated","value":"Seguridad y espacio de trabajo"}}}},
-    "settings_security_detail" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Control access, automatic locking, review assistance, and deletion of local data."}},"es":{"stringUnit":{"state":"translated","value":"Controla el acceso, el bloqueo automático, la ayuda a la revisión y el borrado de datos locales."}}}},
-    "settings_security_privacy" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Security and privacy"}},"es":{"stringUnit":{"state":"translated","value":"Seguridad y privacidad"}}}},
-    "settings_security_privacy_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Biometrics, PIN, auto-lock, and review controls"}},"es":{"stringUnit":{"state":"translated","value":"Biometría, PIN, bloqueo y controles de revisión"}}}},
-    "settings_send_feedback" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Send feedback"}},"es":{"stringUnit":{"state":"translated","value":"Enviar comentarios"}}}},
-    "settings_send_feedback_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Tell us what works and what we should improve"}},"es":{"stringUnit":{"state":"translated","value":"Cuéntanos qué funciona y qué debemos mejorar"}}}},
-    "settings_subscription_terms" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Subscription terms"}},"es":{"stringUnit":{"state":"translated","value":"Condiciones de suscripción"}}}},
-    "settings_subscription_terms_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Billing, renewal, cancellation, restoration, and lifetime access"}},"es":{"stringUnit":{"state":"translated","value":"Facturación, renovación, cancelación, restauración y acceso vitalicio"}}}},
-    "settings_summary_documents" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Documents"}},"es":{"stringUnit":{"state":"translated","value":"Documentos"}}}},
-    "settings_summary_plan" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Plan"}},"es":{"stringUnit":{"state":"translated","value":"Plan"}}}},
-    "settings_summary_privacy" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Core document processing and OCR run on this device"}},"es":{"stringUnit":{"state":"translated","value":"El procesamiento principal y el OCR se ejecutan en este dispositivo"}}}},
-    "settings_summary_vault" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"In Vault"}},"es":{"stringUnit":{"state":"translated","value":"En Bóveda"}}}},
-    "settings_support" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Support"}},"es":{"stringUnit":{"state":"translated","value":"Soporte"}}}},
-    "settings_support_actions" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Help options"}},"es":{"stringUnit":{"state":"translated","value":"Opciones de ayuda"}}}},
-    "settings_support_before_contact_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Never attach an unredacted identity document, financial record, medical file, PIN, or recovery secret. Describe the issue and include only non-sensitive screenshots if needed."}},"es":{"stringUnit":{"state":"translated","value":"Nunca adjuntes documentos de identidad, archivos financieros o médicos sin redactar, PIN ni secretos de recuperación. Describe el problema e incluye solo capturas sin datos sensibles si es necesario."}}}},
-    "settings_support_before_contact_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Protect your information"}},"es":{"stringUnit":{"state":"translated","value":"Protege tu información"}}}},
-    "settings_support_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Find answers, report a problem, or suggest an improvement."}},"es":{"stringUnit":{"state":"translated","value":"Encuentra respuestas, informa de un problema o sugiere una mejora."}}}},
-    "settings_support_response_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Support will answer through the configured contact channel. Response times are not guaranteed. App Store billing and refund decisions are handled by Apple."}},"es":{"stringUnit":{"state":"translated","value":"Soporte responderá por el canal de contacto configurado. Los plazos no están garantizados. Apple gestiona las decisiones de facturación y reembolso del App Store."}}}},
-    "settings_support_response_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What to expect"}},"es":{"stringUnit":{"state":"translated","value":"Qué puedes esperar"}}}},
-    "settings_support_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Help center and contact"}},"es":{"stringUnit":{"state":"translated","value":"Centro de ayuda y contacto"}}}},
-    "settings_support_unavailable_message" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The final support email has not been configured yet. Add it before release to enable feedback."}},"es":{"stringUnit":{"state":"translated","value":"El correo definitivo de soporte aún no está configurado. Añádelo antes del lanzamiento para activar los comentarios."}}}},
-    "settings_support_unavailable_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Support email pending"}},"es":{"stringUnit":{"state":"translated","value":"Correo de soporte pendiente"}}}},
-    "settings_sync_controls" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Synchronization"}},"es":{"stringUnit":{"state":"translated","value":"Sincronización"}}}},
-    "settings_sync_ready" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Ready to sync"}},"es":{"stringUnit":{"state":"translated","value":"Listo para sincronizar"}}}},
-    "settings_syncing" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Syncing…"}},"es":{"stringUnit":{"state":"translated","value":"Sincronizando…"}}}},
-    "settings_terms_service" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Terms of Use"}},"es":{"stringUnit":{"state":"translated","value":"Términos de uso"}}}},
-    "settings_terms_service_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Rules for using MaskID and its verified export tools"}},"es":{"stringUnit":{"state":"translated","value":"Reglas de uso de MaskID y sus herramientas de exportación verificada"}}}},
-    "settings_unlock_premium" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Unlock MaskID Pro"}},"es":{"stringUnit":{"state":"translated","value":"Desbloquea MaskID Pro"}}}},
-    "settings_verified_export_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID rasterizes secure PDF exports and checks for recoverable text, annotations, metadata, and OCR residue. You must still review every page and selected region before sharing."}},"es":{"stringUnit":{"state":"translated","value":"MaskID rasteriza los PDF seguros y comprueba texto recuperable, anotaciones, metadatos y residuos OCR. Aun así, debes revisar cada página y zona seleccionada antes de compartir."}}}},
-    "settings_verified_export_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Verified output, human review"}},"es":{"stringUnit":{"state":"translated","value":"Salida verificada, revisión humana"}}}},
-    "settings_version_value" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Version %@"}},"es":{"stringUnit":{"state":"translated","value":"Versión %@"}}}},
-    "settings_view_options" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"View options"}},"es":{"stringUnit":{"state":"translated","value":"Ver opciones"}}}},
-    "settings_whats_new" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What's new"}},"es":{"stringUnit":{"state":"translated","value":"Novedades"}}}},
-    "settings_whats_new_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Highlights included in this release of MaskID."}},"es":{"stringUnit":{"state":"translated","value":"Principales mejoras incluidas en esta versión de MaskID."}}}},
-    "settings_whats_new_subtitle" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Release highlights and improvements"}},"es":{"stringUnit":{"state":"translated","value":"Mejoras y novedades de la versión"}}}},
-    "settings_whats_new_item_1" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On-device OCR suggestions with per-field evidence and confidence."}},"es":{"stringUnit":{"state":"translated","value":"Sugerencias OCR en el dispositivo con evidencia y confianza por campo."}}}},
-    "settings_whats_new_item_2" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Secure rasterized PDF export with residual-content verification."}},"es":{"stringUnit":{"state":"translated","value":"Exportación PDF rasterizada segura con verificación de contenido residual."}}}},
-    "settings_whats_new_item_3" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Encrypted local projects and a separately protected Vault."}},"es":{"stringUnit":{"state":"translated","value":"Proyectos locales cifrados y una Bóveda protegida por separado."}}}},
-    "settings_whats_new_item_4" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Cancelable multi-page import from camera, Photos, Files, and Share Sheet."}},"es":{"stringUnit":{"state":"translated","value":"Importación multipágina cancelable desde Cámara, Fotos, Archivos y Compartir."}}}},
-    "settings_whats_new_item_5" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Optional minimized iCloud index synchronization for Pro."}},"es":{"stringUnit":{"state":"translated","value":"Sincronización opcional del índice mínimo de iCloud para Pro."}}}},
-    "settings_whats_new_item_6" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Improved accessibility, iPad layout, keyboard control, and privacy shielding."}},"es":{"stringUnit":{"state":"translated","value":"Mejoras de accesibilidad, diseño para iPad, teclado y pantalla de privacidad."}}}},
-
-    "settings_info_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Important information about MaskID's purpose, limitations, and your responsibility when handling sensitive documents."}},"es":{"stringUnit":{"state":"translated","value":"Información importante sobre la finalidad y los límites de MaskID, y tu responsabilidad al tratar documentos sensibles."}}}},
-    "settings_info_scope_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Purpose of MaskID"}},"es":{"stringUnit":{"state":"translated","value":"Finalidad de MaskID"}}}},
-    "settings_info_scope_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID helps you import, scan, review, mask, and export copies of documents. It is a document-privacy tool, not an identity verification service, records-management system, or guarantee that a recipient will accept an edited copy."}},"es":{"stringUnit":{"state":"translated","value":"MaskID ayuda a importar, escanear, revisar, enmascarar y exportar copias de documentos. Es una herramienta de privacidad documental, no un servicio de verificación de identidad, un gestor documental ni una garantía de que el destinatario acepte una copia editada."}}}},
-    "settings_info_detection_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Automated detection"}},"es":{"stringUnit":{"state":"translated","value":"Detección automática"}}}},
-    "settings_info_detection_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"OCR and sensitive-field suggestions can be incomplete or incorrect because of image quality, language, layout, handwriting, document variation, or software limitations. Suggestions are aids only. Review every page and add, move, or remove masks as needed."}},"es":{"stringUnit":{"state":"translated","value":"El OCR y las sugerencias de campos sensibles pueden ser incompletos o incorrectos por la calidad de imagen, el idioma, el diseño, la escritura, las variaciones documentales o las limitaciones del software. Son solo ayudas. Revisa cada página y añade, mueve o elimina máscaras cuando sea necesario."}}}},
-    "settings_info_export_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Verified export"}},"es":{"stringUnit":{"state":"translated","value":"Exportación verificada"}}}},
-    "settings_info_export_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"A verified export means MaskID's technical checks passed for the generated file. It does not mean every sensitive item was detected or selected, that the source is authentic, or that disclosure is legally permitted. Verification does not replace your final visual review."}},"es":{"stringUnit":{"state":"translated","value":"Una exportación verificada significa que el archivo generado superó las comprobaciones técnicas de MaskID. No significa que se detectaran o seleccionaran todos los datos sensibles, que el original sea auténtico ni que su divulgación sea legal. La verificación no sustituye tu revisión visual final."}}}},
-    "settings_info_security_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Device security"}},"es":{"stringUnit":{"state":"translated","value":"Seguridad del dispositivo"}}}},
-    "settings_info_security_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Encryption and the Vault reduce exposure if app files are accessed, but protection also depends on your device passcode, operating-system security, backups, account security, and how you share exported files. No technical system can eliminate every risk."}},"es":{"stringUnit":{"state":"translated","value":"El cifrado y la Bóveda reducen la exposición si se accede a los archivos de la app, pero la protección también depende del código del dispositivo, el sistema operativo, las copias, la seguridad de tus cuentas y cómo compartes las exportaciones. Ningún sistema elimina todos los riesgos."}}}},
-    "settings_info_health_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No professional advice"}},"es":{"stringUnit":{"state":"translated","value":"Sin asesoramiento profesional"}}}},
-    "settings_info_health_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID does not provide legal, medical, financial, compliance, identity, cybersecurity, or records-retention advice. Obtain qualified advice when your use is regulated or high risk."}},"es":{"stringUnit":{"state":"translated","value":"MaskID no presta asesoramiento jurídico, médico, financiero, normativo, de identidad, ciberseguridad ni conservación documental. Busca asesoramiento cualificado cuando el uso esté regulado o sea de alto riesgo."}}}},
-    "settings_info_responsibility_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your responsibility"}},"es":{"stringUnit":{"state":"translated","value":"Tu responsabilidad"}}}},
-    "settings_info_responsibility_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Use only documents you are authorized to process, preserve required originals, verify the intended recipient and purpose, and inspect the final exported file before sending it. You are responsible for complying with applicable law and contractual duties."}},"es":{"stringUnit":{"state":"translated","value":"Usa solo documentos que estés autorizado a tratar, conserva los originales exigidos, verifica destinatario y finalidad, e inspecciona el archivo final antes de enviarlo. Eres responsable de cumplir la ley y las obligaciones contractuales aplicables."}}}},
-
-    "settings_privacy_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This policy explains how MaskID handles information when you use the app."}},"es":{"stringUnit":{"state":"translated","value":"Esta política explica cómo trata MaskID la información cuando usas la app."}}}},
-    "settings_privacy_controller_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Who is responsible"}},"es":{"stringUnit":{"state":"translated","value":"Quién es responsable"}}}},
-    "settings_privacy_controller_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID is developed by Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, Spain. Privacy and support inquiries can be sent to romerodev.app+shield@gmail.com. The published privacy policy is available from MaskID and the official support website. Apple independently processes App Store purchases and related account data under Apple's policies."}},"es":{"stringUnit":{"state":"translated","value":"MaskID está desarrollada por Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, España. Las consultas de privacidad y soporte pueden enviarse a romerodev.app+shield@gmail.com. La política de privacidad publicada está disponible desde MaskID y el sitio web oficial de soporte. Apple trata de forma independiente las compras y datos de cuenta del App Store conforme a sus políticas."}}}},
-    "settings_privacy_processing_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"On-device processing"}},"es":{"stringUnit":{"state":"translated","value":"Procesamiento en el dispositivo"}}}},
-    "settings_privacy_processing_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. MaskID does not operate an advertising or analytics backend, does not create advertising profiles, and does not track you across apps or websites."}},"es":{"stringUnit":{"state":"translated","value":"La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. MaskID no opera un backend publicitario o analítico, no crea perfiles publicitarios ni te rastrea entre apps o sitios web."}}}},
-    "settings_privacy_storage_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Local storage and security"}},"es":{"stringUnit":{"state":"translated","value":"Almacenamiento local y seguridad"}}}},
-    "settings_privacy_storage_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Imported originals, working files, render caches, and local telemetry are encrypted at rest using device-bound keys protected by Keychain and iOS data protection. Vault content uses a separate device-bound key and requires your configured authentication. Keys marked device-only are not designed to migrate to another device."}},"es":{"stringUnit":{"state":"translated","value":"Los originales, archivos de trabajo, cachés y telemetría local se cifran en reposo con claves vinculadas al dispositivo, protegidas por Llavero y la protección de datos de iOS. La Bóveda usa otra clave y requiere la autenticación configurada. Las claves solo del dispositivo no están diseñadas para migrar."}}}},
-    "settings_privacy_icloud_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Optional complete iCloud backup"}},"es":{"stringUnit":{"state":"translated","value":"Copia completa opcional en iCloud"}}}},
-    "settings_privacy_icloud_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"If a Pro user explicitly enables iCloud sync, MaskID stores complete restorable document packages in that user's private CloudKit database. Private CKAssets are encrypted by CloudKit. Disabling sync deletes MaskID's remote records."}},"es":{"stringUnit":{"state":"translated","value":"Si una persona Pro activa expresamente iCloud, MaskID guarda paquetes completos y restaurables en su base privada de CloudKit. CloudKit cifra los CKAsset privados. Al desactivar la sincronización se eliminan los registros remotos de MaskID."}}}},
-    "settings_privacy_permissions_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Permissions and Files providers"}},"es":{"stringUnit":{"state":"translated","value":"Permisos y proveedores de Archivos"}}}},
-    "settings_privacy_permissions_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Camera, Photos, biometric authentication, Files, Share Sheet, and iCloud access are used only for the features you request and subject to system permission controls. When you choose a third-party storage provider through Apple's Files picker, MaskID receives only the file you select and stores no provider OAuth token."}},"es":{"stringUnit":{"state":"translated","value":"El acceso a Cámara, Fotos, biometría, Archivos, Compartir e iCloud se usa solo para las funciones que solicitas y bajo controles del sistema. Si eliges un proveedor mediante el selector Archivos de Apple, MaskID recibe solo el archivo seleccionado y no guarda tokens OAuth del proveedor."}}}},
-    "settings_privacy_diagnostics_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Diagnostics"}},"es":{"stringUnit":{"state":"translated","value":"Diagnósticos"}}}},
-    "settings_privacy_diagnostics_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MetricKit diagnostics and bounded local telemetry may contain app versions, event identifiers, durations, counts, and device-class buckets. MaskID does not upload them and excludes document titles, OCR text, filenames, URLs, document identifiers, PIN state, and image content."}},"es":{"stringUnit":{"state":"translated","value":"Los diagnósticos de MetricKit y la telemetría local limitada pueden incluir versiones, identificadores de evento, duraciones, recuentos y clases de dispositivo. MaskID no los sube y excluye títulos, texto OCR, nombres de archivo, URL, identificadores, estado del PIN e imágenes."}}}},
-    "settings_privacy_retention_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Retention and deletion"}},"es":{"stringUnit":{"state":"translated","value":"Conservación y eliminación"}}}},
-    "settings_privacy_retention_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Projects remain until you delete them or use Delete all documents. Temporary exports are protected and removed when the export or share flow ends. Deleting the app removes its local data subject to iOS and backup behavior. Private CloudKit records can require separate deletion or iCloud account controls."}},"es":{"stringUnit":{"state":"translated","value":"Los proyectos permanecen hasta que los elimines o uses Eliminar todos. Las exportaciones temporales se protegen y borran al terminar el flujo. Desinstalar elimina datos locales según el funcionamiento de iOS y las copias. Los registros privados de CloudKit pueden requerir borrado separado o controles de iCloud."}}}},
-    "settings_privacy_rights_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your choices and rights"}},"es":{"stringUnit":{"state":"translated","value":"Tus opciones y derechos"}}}},
-    "settings_privacy_rights_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You can deny or revoke optional permissions in iOS Settings, disable iCloud index sync, delete projects, and contact the developer about applicable privacy rights. Because core document content stays on device, the developer normally cannot access, export, correct, or recover it for you."}},"es":{"stringUnit":{"state":"translated","value":"Puedes denegar o revocar permisos en Ajustes de iOS, desactivar iCloud, borrar proyectos y contactar con el desarrollador sobre tus derechos. Como el contenido principal permanece en el dispositivo, el desarrollador normalmente no puede acceder, exportar, corregir ni recuperarlo por ti."}}}},
-    "settings_privacy_children_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Children"}},"es":{"stringUnit":{"state":"translated","value":"Menores"}}}},
-    "settings_privacy_children_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID is a general document utility and is not directed to children. Do not use it to process a child's sensitive information unless you have lawful authority and appropriate safeguards."}},"es":{"stringUnit":{"state":"translated","value":"MaskID es una utilidad documental general y no está dirigida a menores. No la uses para tratar datos sensibles de un menor sin autoridad legal y salvaguardas adecuadas."}}}},
-    "settings_privacy_changes_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Policy changes"}},"es":{"stringUnit":{"state":"translated","value":"Cambios de la política"}}}},
-    "settings_privacy_changes_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"This policy may be updated when MaskID's features, providers, or legal obligations change. Material changes will be reflected by a new effective date and, when appropriate, an in-app notice."}},"es":{"stringUnit":{"state":"translated","value":"La política puede actualizarse cuando cambien las funciones, proveedores u obligaciones legales. Los cambios relevantes se reflejarán con una nueva fecha y, cuando proceda, un aviso en la app."}}}},
-
-    "settings_terms_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"These terms govern your use of MaskID. Mandatory consumer rights in your country continue to apply."}},"es":{"stringUnit":{"state":"translated","value":"Estos términos rigen el uso de MaskID. Se mantienen los derechos imperativos de consumidores de tu país."}}}},
-    "settings_terms_acceptance_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Acceptance and eligibility"}},"es":{"stringUnit":{"state":"translated","value":"Aceptación y capacidad"}}}},
-    "settings_terms_acceptance_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"By downloading or using MaskID, you agree to these terms and Apple's applicable App Store terms. You must be legally able to enter this agreement. If you use MaskID for an organization, you confirm you have authority to bind it."}},"es":{"stringUnit":{"state":"translated","value":"Al descargar o usar MaskID aceptas estos términos y los aplicables del App Store de Apple. Debes tener capacidad legal. Si la usas para una organización, confirmas que puedes vincularla."}}}},
-    "settings_terms_license_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"License"}},"es":{"stringUnit":{"state":"translated","value":"Licencia"}}}},
-    "settings_terms_license_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You receive a limited, personal, non-exclusive, non-transferable, revocable license to use MaskID on Apple devices associated with your App Store account, subject to these terms and Apple's usage rules. MaskID is licensed, not sold."}},"es":{"stringUnit":{"state":"translated","value":"Recibes una licencia limitada, personal, no exclusiva, intransferible y revocable para usar MaskID en dispositivos Apple asociados a tu cuenta, sujeta a estos términos y las reglas de Apple. MaskID se licencia, no se vende."}}}},
-    "settings_terms_user_content_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Your documents"}},"es":{"stringUnit":{"state":"translated","value":"Tus documentos"}}}},
-    "settings_terms_user_content_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You retain your rights in documents and content you import or create. You confirm that you have the rights, consent, or other lawful basis needed to process them. MaskID does not acquire ownership of your content."}},"es":{"stringUnit":{"state":"translated","value":"Conservas tus derechos sobre los documentos y contenido importado o creado. Confirmas que dispones de derechos, consentimiento o base jurídica para tratarlos. MaskID no adquiere su propiedad."}}}},
-    "settings_terms_permitted_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Permitted use"}},"es":{"stringUnit":{"state":"translated","value":"Uso permitido"}}}},
-    "settings_terms_permitted_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Do not use MaskID for fraud, impersonation, falsification, infringement, harassment, malware, unlawful surveillance, unauthorized disclosure, evasion of legal obligations, or interference with the app. Do not reverse engineer MaskID except where applicable law expressly permits it."}},"es":{"stringUnit":{"state":"translated","value":"No uses MaskID para fraude, suplantación, falsificación, infracción, acoso, malware, vigilancia ilícita, divulgación no autorizada, evasión de obligaciones ni interferencia con la app. No realices ingeniería inversa salvo permiso legal expreso."}}}},
-    "settings_terms_accuracy_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"OCR and export limitations"}},"es":{"stringUnit":{"state":"translated","value":"Límites del OCR y la exportación"}}}},
-    "settings_terms_accuracy_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"OCR, entity detection, masks, and technical verification can fail or produce false results. You must inspect every page and retain originals when required. MaskID does not warrant acceptance by governments, banks, employers, healthcare providers, or other recipients."}},"es":{"stringUnit":{"state":"translated","value":"El OCR, la detección, las máscaras y la verificación técnica pueden fallar o dar resultados falsos. Debes inspeccionar cada página y conservar originales cuando sea exigible. MaskID no garantiza aceptación por administraciones, bancos, empleadores, sanidad u otros destinatarios."}}}},
-    "settings_terms_purchases_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Purchases"}},"es":{"stringUnit":{"state":"translated","value":"Compras"}}}},
-    "settings_terms_purchases_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Pro products are sold through Apple's in-app purchase system. Prices, taxes, currency, eligibility, payment authorization, refunds, and account billing are controlled by Apple and the App Store storefront. Additional subscription conditions appear in Subscription terms."}},"es":{"stringUnit":{"state":"translated","value":"Los productos Pro se venden mediante compras integradas de Apple. Apple y la tienda controlan precios, impuestos, moneda, elegibilidad, autorización, reembolsos y facturación. Las condiciones adicionales figuran en Condiciones de suscripción."}}}},
-    "settings_terms_ip_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Intellectual property"}},"es":{"stringUnit":{"state":"translated","value":"Propiedad intelectual"}}}},
-    "settings_terms_ip_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID, its software, design, branding, documentation, and original content are protected by intellectual-property laws. Third-party frameworks, Apple services, and system symbols remain subject to their respective terms."}},"es":{"stringUnit":{"state":"translated","value":"MaskID, su software, diseño, marca, documentación y contenido original están protegidos por normas de propiedad intelectual. Los frameworks, servicios de Apple y símbolos del sistema se rigen por sus condiciones."}}}},
-    "settings_terms_liability_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Availability and liability"}},"es":{"stringUnit":{"state":"translated","value":"Disponibilidad y responsabilidad"}}}},
-    "settings_terms_liability_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID is provided with the warranties required by applicable law. To the maximum extent legally permitted, it is otherwise provided as available, without guarantees of uninterrupted operation, perfect detection, fitness for a regulated purpose, or freedom from data loss. Liability is not excluded where law forbids exclusion."}},"es":{"stringUnit":{"state":"translated","value":"MaskID se ofrece con las garantías exigidas por la ley. En la medida permitida, se presta según disponibilidad, sin garantía de funcionamiento ininterrumpido, detección perfecta, idoneidad regulada o ausencia de pérdida. No se excluye responsabilidad cuando la ley lo prohíbe."}}}},
-    "settings_terms_termination_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Suspension and termination"}},"es":{"stringUnit":{"state":"translated","value":"Suspensión y terminación"}}}},
-    "settings_terms_termination_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"You may stop using MaskID at any time. Access may be limited where necessary to protect users, comply with law, address misuse, or maintain services. Ending use does not automatically cancel an App Store subscription; manage it in your Apple account."}},"es":{"stringUnit":{"state":"translated","value":"Puedes dejar de usar MaskID cuando quieras. El acceso puede limitarse para proteger usuarios, cumplir la ley, afrontar abusos o mantener servicios. Dejar de usarla no cancela una suscripción: gestiónala en tu cuenta Apple."}}}},
-    "settings_terms_law_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Governing terms and changes"}},"es":{"stringUnit":{"state":"translated","value":"Ley aplicable y cambios"}}}},
-    "settings_terms_law_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"These terms are governed by Spanish law, including applicable consumer protections, and the competent courts of Valencia, without removing mandatory rights or courts available to consumers. Updated terms will show a new effective date; continued use after notice may constitute acceptance where permitted."}},"es":{"stringUnit":{"state":"translated","value":"Estos términos se rigen por la legislación española, incluida la protección aplicable a consumidores, y por los tribunales competentes de Valencia, sin eliminar derechos ni fueros imperativos. Los términos actualizados mostrarán una nueva fecha; el uso tras el aviso podrá implicar aceptación cuando sea legal."}}}},
-
-    "settings_subscription_intro" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"These conditions supplement the Terms of Use for MaskID Pro subscriptions and the lifetime unlock."}},"es":{"stringUnit":{"state":"translated","value":"Estas condiciones complementan los Términos de uso para las suscripciones MaskID Pro y el desbloqueo vitalicio."}}}},
-    "settings_subscription_products_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Available products"}},"es":{"stringUnit":{"state":"translated","value":"Productos disponibles"}}}},
-    "settings_subscription_products_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID may offer monthly and annual auto-renewable subscriptions and a one-time lifetime unlock. The exact product, duration, current localized price, included features, and any offer are displayed by the App Store before purchase and take precedence over general examples."}},"es":{"stringUnit":{"state":"translated","value":"MaskID puede ofrecer suscripciones mensuales y anuales autorrenovables y un desbloqueo vitalicio de pago único. El producto, duración, precio localizado, funciones y ofertas se muestran en el App Store antes de comprar y prevalecen sobre ejemplos generales."}}}},
-    "settings_subscription_payment_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Payment"}},"es":{"stringUnit":{"state":"translated","value":"Pago"}}}},
-    "settings_subscription_payment_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Payment is charged to your Apple Account when you confirm the purchase. Apple handles taxes, currency conversion, payment methods, and receipts. MaskID does not receive your full payment-card details."}},"es":{"stringUnit":{"state":"translated","value":"El pago se carga en tu cuenta Apple al confirmarlo. Apple gestiona impuestos, conversión, métodos de pago y recibos. MaskID no recibe los datos completos de tu tarjeta."}}}},
-    "settings_subscription_renewal_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Automatic renewal"}},"es":{"stringUnit":{"state":"translated","value":"Renovación automática"}}}},
-    "settings_subscription_renewal_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"A subscription renews automatically for the same period unless you cancel it at least 24 hours before the current period ends. Apple may charge your account within 24 hours before renewal at the price shown for the next period, subject to Apple's notices and applicable law."}},"es":{"stringUnit":{"state":"translated","value":"La suscripción se renueva por el mismo periodo salvo cancelación al menos 24 horas antes de terminar. Apple puede cobrar dentro de las 24 horas previas al precio mostrado para el siguiente periodo, sujeto a sus avisos y la ley aplicable."}}}},
-    "settings_subscription_trial_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Trials and offers"}},"es":{"stringUnit":{"state":"translated","value":"Pruebas y ofertas"}}}},
-    "settings_subscription_trial_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Eligibility and duration for free trials, introductory offers, promotional offers, or win-back offers are determined by Apple and displayed before confirmation. Unless canceled before the offer ends, an eligible trial converts to the paid subscription shown. Any unused trial portion may be forfeited when purchasing another plan."}},"es":{"stringUnit":{"state":"translated","value":"Apple determina elegibilidad y duración de pruebas y ofertas, que se muestran antes de confirmar. Si no cancelas antes del final, una prueba elegible pasa a la suscripción de pago indicada. La parte no usada puede perderse al comprar otro plan."}}}},
-    "settings_subscription_manage_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Manage or cancel"}},"es":{"stringUnit":{"state":"translated","value":"Gestionar o cancelar"}}}},
-    "settings_subscription_manage_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Manage or cancel subscriptions in Settings > Apple Account > Subscriptions, or through the App Store subscription page. Deleting MaskID does not cancel a subscription. Cancellation stops future renewal and access normally continues until the paid period ends."}},"es":{"stringUnit":{"state":"translated","value":"Gestiona o cancela en Ajustes > Cuenta Apple > Suscripciones o en la página de suscripciones del App Store. Eliminar MaskID no cancela. La cancelación evita renovaciones y el acceso suele continuar hasta acabar el periodo pagado."}}}},
-    "settings_subscription_restore_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Restore purchases"}},"es":{"stringUnit":{"state":"translated","value":"Restaurar compras"}}}},
-    "settings_subscription_restore_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Use Restore purchases in MaskID's purchase screen while signed in with the Apple Account that made the purchase. Restoration depends on App Store availability and verified StoreKit entitlements."}},"es":{"stringUnit":{"state":"translated","value":"Usa Restaurar compras en la pantalla de compra con la cuenta Apple que realizó la compra. Depende de la disponibilidad del App Store y de derechos StoreKit verificados."}}}},
-    "settings_subscription_refunds_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Refunds and billing issues"}},"es":{"stringUnit":{"state":"translated","value":"Reembolsos y problemas de cobro"}}}},
-    "settings_subscription_refunds_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Apple controls refund requests, billing disputes, grace periods, payment retries, and revocations under its policies and applicable law. Contact Apple for transaction-specific billing support. Mandatory refund and withdrawal rights remain unaffected."}},"es":{"stringUnit":{"state":"translated","value":"Apple controla reembolsos, disputas, periodos de gracia, reintentos y revocaciones según sus políticas y la ley. Contacta con Apple para cobros concretos. No se alteran derechos imperativos de reembolso o desistimiento."}}}},
-    "settings_subscription_lifetime_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Lifetime unlock"}},"es":{"stringUnit":{"state":"translated","value":"Desbloqueo vitalicio"}}}},
-    "settings_subscription_lifetime_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"The lifetime unlock is a non-consumable purchase that grants the Pro features associated with that product for the supported lifetime of MaskID, not the purchaser's biological lifetime. It does not promise future products, third-party services, team plans, or features that require separate ongoing costs."}},"es":{"stringUnit":{"state":"translated","value":"El desbloqueo vitalicio es una compra no consumible que concede las funciones Pro asociadas durante la vida útil soportada de MaskID, no la vida biológica del comprador. No promete productos futuros, servicios de terceros, planes de equipo ni funciones con costes continuos separados."}}}},
-    "settings_subscription_changes_title" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Price and feature changes"}},"es":{"stringUnit":{"state":"translated","value":"Cambios de precio y funciones"}}}},
-    "settings_subscription_changes_body" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Apple and the developer may change future prices, plans, or included features. Apple provides required notices and consent flows for subscription price increases. Changes do not remove mandatory rights or entitlements already granted by a completed non-consumable purchase."}},"es":{"stringUnit":{"state":"translated","value":"Apple y el desarrollador pueden cambiar precios, planes o funciones futuras. Apple ofrece avisos y consentimientos exigidos para subidas. Los cambios no eliminan derechos imperativos ni derechos ya concedidos por una compra no consumible completada."}}}},
-
-    "settings_faq_1_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Does MaskID upload my documents?"}},"es":{"stringUnit":{"state":"translated","value":"¿MaskID sube mis documentos?"}}}},
-    "settings_faq_1_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Processing remains on device. If you explicitly enable Pro iCloud sync, MaskID backs up complete restorable document packages to your private CloudKit database; CloudKit encrypts private assets."}},"es":{"stringUnit":{"state":"translated","value":"El procesamiento permanece en el dispositivo. Si activas iCloud Pro, MaskID guarda paquetes completos y restaurables en tu CloudKit privado; CloudKit cifra los recursos privados."}}}},
-    "settings_faq_2_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Can OCR find every sensitive field?"}},"es":{"stringUnit":{"state":"translated","value":"¿Puede el OCR encontrar todos los datos sensibles?"}}}},
-    "settings_faq_2_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"No. OCR suggestions can miss content or mark the wrong region. Image quality, language, layout, handwriting, and document variation all matter. Always review every page and the final export."}},"es":{"stringUnit":{"state":"translated","value":"No. Las sugerencias pueden omitir contenido o marcar una zona incorrecta. Influyen calidad, idioma, diseño, escritura y variaciones. Revisa siempre cada página y la exportación final."}}}},
-    "settings_faq_3_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What does verified export mean?"}},"es":{"stringUnit":{"state":"translated","value":"¿Qué significa exportación verificada?"}}}},
-    "settings_faq_3_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID rasterizes secure PDF output and checks the generated file for recoverable text, annotations, metadata, and OCR residue. Verification confirms those technical checks, not that every sensitive area was selected. Human review remains essential."}},"es":{"stringUnit":{"state":"translated","value":"MaskID rasteriza el PDF seguro y comprueba texto recuperable, anotaciones, metadatos y residuos OCR. La verificación confirma esas pruebas, no que se seleccionaran todos los datos. La revisión humana sigue siendo esencial."}}}},
-    "settings_faq_4_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"How do I restore MaskID Pro?"}},"es":{"stringUnit":{"state":"translated","value":"¿Cómo restauro MaskID Pro?"}}}},
-    "settings_faq_4_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Open the MaskID Pro purchase screen and choose Restore purchases while signed in with the Apple Account used for the original purchase. Active subscriptions and the lifetime unlock are verified through StoreKit."}},"es":{"stringUnit":{"state":"translated","value":"Abre la pantalla MaskID Pro y elige Restaurar compras con la cuenta Apple usada originalmente. StoreKit verifica suscripciones activas y el desbloqueo vitalicio."}}}},
-    "settings_faq_5_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"How do I cancel a subscription?"}},"es":{"stringUnit":{"state":"translated","value":"¿Cómo cancelo una suscripción?"}}}},
-    "settings_faq_5_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Manage it in iOS Settings under your Apple Account and Subscriptions. Cancel at least 24 hours before renewal. Deleting MaskID does not cancel the subscription."}},"es":{"stringUnit":{"state":"translated","value":"Gestiónala en Ajustes de iOS, dentro de tu cuenta Apple y Suscripciones. Cancela al menos 24 horas antes de renovar. Eliminar MaskID no cancela la suscripción."}}}},
-    "settings_faq_6_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What happens if I forget my PIN?"}},"es":{"stringUnit":{"state":"translated","value":"¿Qué ocurre si olvido mi PIN?"}}}},
-    "settings_faq_6_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"MaskID cannot recover a forgotten PIN or device-bound encryption key from a server. Keep your device passcode and Apple Account secure, and retain required original documents outside MaskID."}},"es":{"stringUnit":{"state":"translated","value":"MaskID no puede recuperar desde un servidor un PIN olvidado ni una clave vinculada al dispositivo. Protege el código y la cuenta Apple, y conserva fuera de MaskID los originales necesarios."}}}},
-    "settings_faq_7_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"How can I delete my data?"}},"es":{"stringUnit":{"state":"translated","value":"¿Cómo puedo borrar mis datos?"}}}},
-    "settings_faq_7_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Delete individual projects or use Delete all documents under Security and privacy. You can also disable the optional iCloud index. Removing the app deletes its local container subject to iOS backup behavior."}},"es":{"stringUnit":{"state":"translated","value":"Elimina proyectos o usa Eliminar todos en Seguridad y privacidad. También puedes desactivar el índice de iCloud. Desinstalar borra el contenedor local según el funcionamiento de las copias de iOS."}}}},
-    "settings_faq_8_question" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"What should I include in a support message?"}},"es":{"stringUnit":{"state":"translated","value":"¿Qué debo incluir en un mensaje de soporte?"}}}},
-    "settings_faq_8_answer" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Describe the steps, expected result, actual result, device model, iOS version, and MaskID version. Never attach an unredacted document, PIN, recovery secret, or screenshot containing sensitive personal information."}},"es":{"stringUnit":{"state":"translated","value":"Describe pasos, resultado esperado y real, modelo, versión de iOS y de MaskID. Nunca adjuntes documentos sin redactar, PIN, secretos ni capturas con información personal sensible."}}}}
+    "settings_access_protection" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access protection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protección de acceso"
+          }
+        }
+      }
+    },
+    "settings_app_preferences" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App preferences"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferencias de la app"
+          }
+        }
+      }
+    },
+    "settings_app_preferences_detail" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose MaskID's appearance and display language."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige la apariencia y el idioma de MaskID."
+          }
+        }
+      }
+    },
+    "settings_app_preferences_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language, theme, and interface"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Idioma, tema e interfaz"
+          }
+        }
+      }
+    },
+    "settings_build_value" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compilación %@"
+          }
+        }
+      }
+    },
+    "settings_data_management" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data management"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestión de datos"
+          }
+        }
+      }
+    },
+    "settings_delete_all_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently removes local projects and their protected files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina permanentemente los proyectos locales y sus archivos protegidos"
+          }
+        }
+      }
+    },
+    "settings_detection_review" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detection and review"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detección y revisión"
+          }
+        }
+      }
+    },
+    "settings_developer_tools" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer tools"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herramientas de desarrollo"
+          }
+        }
+      }
+    },
+    "settings_developer_tools_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internal testing controls"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles internos de pruebas"
+          }
+        }
+      }
+    },
+    "settings_export_detail" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set the defaults MaskID suggests when you export. You can still change them for each project."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define los valores que MaskID propone al exportar. Podrás cambiarlos en cada proyecto."
+          }
+        }
+      }
+    },
+    "settings_export_preferences" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export preferences"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferencias de exportación"
+          }
+        }
+      }
+    },
+    "settings_export_preferences_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format, image quality, and secure output"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato, calidad de imagen y salida segura"
+          }
+        }
+      }
+    },
+    "settings_eyebrow" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App, privacy, and help"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App, privacidad y ayuda"
+          }
+        }
+      }
+    },
+    "settings_faq" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FAQ"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preguntas frecuentes"
+          }
+        }
+      }
+    },
+    "settings_faq_1_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing remains on device. If you explicitly enable Pro iCloud sync, MaskID backs up complete restorable document packages to your private CloudKit database; CloudKit encrypts private assets."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento permanece en el dispositivo. Si activas iCloud Pro, MaskID guarda paquetes completos y restaurables en tu CloudKit privado; CloudKit cifra los recursos privados."
+          }
+        }
+      }
+    },
+    "settings_faq_1_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Does MaskID upload my documents?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿MaskID sube mis documentos?"
+          }
+        }
+      }
+    },
+    "settings_faq_2_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No. OCR suggestions can miss content or mark the wrong region. Image quality, language, layout, handwriting, and document variation all matter. Always review every page and the final export."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No. Las sugerencias pueden omitir contenido o marcar una zona incorrecta. Influyen calidad, idioma, diseño, escritura y variaciones. Revisa siempre cada página y la exportación final."
+          }
+        }
+      }
+    },
+    "settings_faq_2_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can OCR find every sensitive field?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Puede el OCR encontrar todos los datos sensibles?"
+          }
+        }
+      }
+    },
+    "settings_faq_3_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID rasterizes secure PDF output and checks the generated file for recoverable text, annotations, metadata, and OCR residue. Verification confirms those technical checks, not that every sensitive area was selected. Human review remains essential."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID rasteriza el PDF seguro y comprueba texto recuperable, anotaciones, metadatos y residuos OCR. La verificación confirma esas pruebas, no que se seleccionaran todos los datos. La revisión humana sigue siendo esencial."
+          }
+        }
+      }
+    },
+    "settings_faq_3_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What does verified export mean?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué significa exportación verificada?"
+          }
+        }
+      }
+    },
+    "settings_faq_4_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the MaskID Pro purchase screen and choose Restore purchases while signed in with the Apple Account used for the original purchase. Active subscriptions and the lifetime unlock are verified through StoreKit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la pantalla MaskID Pro y elige Restaurar compras con la cuenta Apple usada originalmente. StoreKit verifica suscripciones activas y el desbloqueo vitalicio."
+          }
+        }
+      }
+    },
+    "settings_faq_4_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How do I restore MaskID Pro?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cómo restauro MaskID Pro?"
+          }
+        }
+      }
+    },
+    "settings_faq_5_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage it in iOS Settings under your Apple Account and Subscriptions. Cancel at least 24 hours before renewal. Deleting MaskID does not cancel the subscription."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiónala en Ajustes de iOS, dentro de tu cuenta Apple y Suscripciones. Cancela al menos 24 horas antes de renovar. Eliminar MaskID no cancela la suscripción."
+          }
+        }
+      }
+    },
+    "settings_faq_5_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How do I cancel a subscription?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cómo cancelo una suscripción?"
+          }
+        }
+      }
+    },
+    "settings_faq_6_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID cannot recover a forgotten PIN or device-bound encryption key from a server. Keep your device passcode and Apple Account secure, and retain required original documents outside MaskID."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID no puede recuperar desde un servidor un PIN olvidado ni una clave vinculada al dispositivo. Protege el código y la cuenta Apple, y conserva fuera de MaskID los originales necesarios."
+          }
+        }
+      }
+    },
+    "settings_faq_6_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What happens if I forget my PIN?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué ocurre si olvido mi PIN?"
+          }
+        }
+      }
+    },
+    "settings_faq_7_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete individual projects or use Delete all documents under Security and privacy. You can also disable the optional iCloud index. Removing the app deletes its local container subject to iOS backup behavior."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina proyectos o usa Eliminar todos en Seguridad y privacidad. También puedes desactivar el índice de iCloud. Desinstalar borra el contenedor local según el funcionamiento de las copias de iOS."
+          }
+        }
+      }
+    },
+    "settings_faq_7_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How can I delete my data?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cómo puedo borrar mis datos?"
+          }
+        }
+      }
+    },
+    "settings_faq_8_answer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe the steps, expected result, actual result, device model, iOS version, and MaskID version. Never attach an unredacted document, PIN, recovery secret, or screenshot containing sensitive personal information."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe pasos, resultado esperado y real, modelo, versión de iOS y de MaskID. Nunca adjuntes documentos sin redactar, PIN, secretos ni capturas con información personal sensible."
+          }
+        }
+      }
+    },
+    "settings_faq_8_question" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What should I include in a support message?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué debo incluir en un mensaje de soporte?"
+          }
+        }
+      }
+    },
+    "settings_faq_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick answers about privacy, OCR, secure export, subscriptions, and your documents."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respuestas rápidas sobre privacidad, OCR, exportación segura, suscripciones y tus documentos."
+          }
+        }
+      }
+    },
+    "settings_faq_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequently asked questions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respuestas a las dudas más habituales"
+          }
+        }
+      }
+    },
+    "settings_feedback_section" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedback"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comentarios"
+          }
+        }
+      }
+    },
+    "settings_footer_build" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compilación %@"
+          }
+        }
+      }
+    },
+    "settings_footer_designed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Designed and developed by RomeroDev"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diseñada y desarrollada por RomeroDev"
+          }
+        }
+      }
+    },
+    "settings_footer_privacy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built for private, on-device document work"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creada para trabajar con documentos de forma privada y en el dispositivo"
+          }
+        }
+      }
+    },
+    "settings_footer_rights" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All rights reserved"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los derechos reservados"
+          }
+        }
+      }
+    },
+    "settings_footer_version" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID version %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID versión %@"
+          }
+        }
+      }
+    },
+    "settings_icloud_detail" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronize complete, restorable MaskID documents through your private iCloud database."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincroniza documentos completos y restaurables de MaskID mediante tu base privada de iCloud."
+          }
+        }
+      }
+    },
+    "settings_icloud_minimized_note" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete private document backup and restore"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia y restauración privada de documentos completos"
+          }
+        }
+      }
+    },
+    "settings_icloud_privacy_explanation" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After you opt in, MaskID stores complete document packages as private CloudKit assets. CloudKit encrypts private assets, and MaskID re-encrypts restored files in local protected storage."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tras activarlo, MaskID guarda paquetes completos como recursos privados de CloudKit. CloudKit cifra los recursos privados y MaskID vuelve a cifrar los archivos restaurados en el almacenamiento local protegido."
+          }
+        }
+      }
+    },
+    "settings_icloud_pro_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Pro options to enable complete private backup"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta las opciones Pro para activar la copia privada completa"
+          }
+        }
+      }
+    },
+    "settings_icloud_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete private backup and restore"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia y restauración privada completa"
+          }
+        }
+      }
+    },
+    "settings_info_detection_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCR and sensitive-field suggestions can be incomplete or incorrect because of image quality, language, layout, handwriting, document variation, or software limitations. Suggestions are aids only. Review every page and add, move, or remove masks as needed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El OCR y las sugerencias de campos sensibles pueden ser incompletos o incorrectos por la calidad de imagen, el idioma, el diseño, la escritura, las variaciones documentales o las limitaciones del software. Son solo ayudas. Revisa cada página y añade, mueve o elimina máscaras cuando sea necesario."
+          }
+        }
+      }
+    },
+    "settings_info_detection_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automated detection"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detección automática"
+          }
+        }
+      }
+    },
+    "settings_info_export_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A verified export means MaskID's technical checks passed for the generated file. It does not mean every sensitive item was detected or selected, that the source is authentic, or that disclosure is legally permitted. Verification does not replace your final visual review."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una exportación verificada significa que el archivo generado superó las comprobaciones técnicas de MaskID. No significa que se detectaran o seleccionaran todos los datos sensibles, que el original sea auténtico ni que su divulgación sea legal. La verificación no sustituye tu revisión visual final."
+          }
+        }
+      }
+    },
+    "settings_info_export_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verified export"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportación verificada"
+          }
+        }
+      }
+    },
+    "settings_info_health_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID does not provide legal, medical, financial, compliance, identity, cybersecurity, or records-retention advice. Obtain qualified advice when your use is regulated or high risk."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID no presta asesoramiento jurídico, médico, financiero, normativo, de identidad, ciberseguridad ni conservación documental. Busca asesoramiento cualificado cuando el uso esté regulado o sea de alto riesgo."
+          }
+        }
+      }
+    },
+    "settings_info_health_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No professional advice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin asesoramiento profesional"
+          }
+        }
+      }
+    },
+    "settings_info_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Important information about MaskID's purpose, limitations, and your responsibility when handling sensitive documents."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información importante sobre la finalidad y los límites de MaskID, y tu responsabilidad al tratar documentos sensibles."
+          }
+        }
+      }
+    },
+    "settings_info_responsibility_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use only documents you are authorized to process, preserve required originals, verify the intended recipient and purpose, and inspect the final exported file before sending it. You are responsible for complying with applicable law and contractual duties."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa solo documentos que estés autorizado a tratar, conserva los originales exigidos, verifica destinatario y finalidad, e inspecciona el archivo final antes de enviarlo. Eres responsable de cumplir la ley y las obligaciones contractuales aplicables."
+          }
+        }
+      }
+    },
+    "settings_info_responsibility_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your responsibility"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu responsabilidad"
+          }
+        }
+      }
+    },
+    "settings_info_scope_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID helps you import, scan, review, mask, and export copies of documents. It is a document-privacy tool, not an identity verification service, records-management system, or guarantee that a recipient will accept an edited copy."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID ayuda a importar, escanear, revisar, enmascarar y exportar copias de documentos. Es una herramienta de privacidad documental, no un servicio de verificación de identidad, un gestor documental ni una garantía de que el destinatario acepte una copia editada."
+          }
+        }
+      }
+    },
+    "settings_info_scope_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purpose of MaskID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalidad de MaskID"
+          }
+        }
+      }
+    },
+    "settings_info_security_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encryption and the Vault reduce exposure if app files are accessed, but protection also depends on your device passcode, operating-system security, backups, account security, and how you share exported files. No technical system can eliminate every risk."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El cifrado y la Bóveda reducen la exposición si se accede a los archivos de la app, pero la protección también depende del código del dispositivo, el sistema operativo, las copias, la seguridad de tus cuentas y cómo compartes las exportaciones. Ningún sistema elimina todos los riesgos."
+          }
+        }
+      }
+    },
+    "settings_info_security_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device security"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad del dispositivo"
+          }
+        }
+      }
+    },
+    "settings_information_disclaimer" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Information and disclaimer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información y aviso legal"
+          }
+        }
+      }
+    },
+    "settings_information_disclaimer_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How MaskID handles documents and automated suggestions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo trata MaskID los documentos y las sugerencias automáticas"
+          }
+        }
+      }
+    },
+    "settings_last_sync_value" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last sync: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última sincronización: %@"
+          }
+        }
+      }
+    },
+    "settings_legal_draft_notice" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The current bilingual legal documents are available from MaskID and on the official support website."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los documentos legales bilingües vigentes están disponibles desde MaskID y en el sitio web oficial de soporte."
+          }
+        }
+      }
+    },
+    "settings_legal_updated_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last updated"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Última actualización"
+          }
+        }
+      }
+    },
+    "settings_legal_updated_value" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "July 16, 2026"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "16 de julio de 2026"
+          }
+        }
+      }
+    },
+    "settings_ocr_threshold" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCR confidence threshold"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umbral de confianza OCR"
+          }
+        }
+      }
+    },
+    "settings_open_official_page" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open official web page"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir página web oficial"
+          }
+        }
+      }
+    },
+    "settings_open_online" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View online"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver en la web"
+          }
+        }
+      }
+    },
+    "settings_opens_browser" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the localized public page in your browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la página pública localizada en el navegador"
+          }
+        }
+      }
+    },
+    "settings_pin_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect access when biometrics are unavailable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protege el acceso cuando la biometría no está disponible"
+          }
+        }
+      }
+    },
+    "settings_plan_free" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free"
+          }
+        }
+      }
+    },
+    "settings_plan_pro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro"
+          }
+        }
+      }
+    },
+    "settings_premium_override" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium override"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simular Premium"
+          }
+        }
+      }
+    },
+    "settings_privacy_changes_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This policy may be updated when MaskID's features, providers, or legal obligations change. Material changes will be reflected by a new effective date and, when appropriate, an in-app notice."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La política puede actualizarse cuando cambien las funciones, proveedores u obligaciones legales. Los cambios relevantes se reflejarán con una nueva fecha y, cuando proceda, un aviso en la app."
+          }
+        }
+      }
+    },
+    "settings_privacy_changes_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Policy changes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambios de la política"
+          }
+        }
+      }
+    },
+    "settings_privacy_children_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID is a general document utility and is not directed to children. Do not use it to process a child's sensitive information unless you have lawful authority and appropriate safeguards."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID es una utilidad documental general y no está dirigida a menores. No la uses para tratar datos sensibles de un menor sin autoridad legal y salvaguardas adecuadas."
+          }
+        }
+      }
+    },
+    "settings_privacy_children_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Children"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menores"
+          }
+        }
+      }
+    },
+    "settings_privacy_controller_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID is developed by Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, Spain. Privacy and support inquiries can be sent to romerodev.app+shield@gmail.com. The published privacy policy is available from MaskID and the official support website. Apple independently processes App Store purchases and related account data under Apple's policies."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID está desarrollada por Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, España. Las consultas de privacidad y soporte pueden enviarse a romerodev.app+shield@gmail.com. La política de privacidad publicada está disponible desde MaskID y el sitio web oficial de soporte. Apple trata de forma independiente las compras y datos de cuenta del App Store conforme a sus políticas."
+          }
+        }
+      }
+    },
+    "settings_privacy_controller_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Who is responsible"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quién es responsable"
+          }
+        }
+      }
+    },
+    "settings_privacy_diagnostics_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MetricKit diagnostics and bounded local telemetry may contain app versions, event identifiers, durations, counts, and device-class buckets. MaskID does not upload them and excludes document titles, OCR text, filenames, URLs, document identifiers, PIN state, and image content."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los diagnósticos de MetricKit y la telemetría local limitada pueden incluir versiones, identificadores de evento, duraciones, recuentos y clases de dispositivo. MaskID no los sube y excluye títulos, texto OCR, nombres de archivo, URL, identificadores, estado del PIN e imágenes."
+          }
+        }
+      }
+    },
+    "settings_privacy_diagnostics_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnostics"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnósticos"
+          }
+        }
+      }
+    },
+    "settings_privacy_icloud_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If a Pro user explicitly enables iCloud sync, MaskID stores complete restorable document packages in that user's private CloudKit database. Private CKAssets are encrypted by CloudKit. Disabling sync deletes MaskID's remote records."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si una persona Pro activa expresamente iCloud, MaskID guarda paquetes completos y restaurables en su base privada de CloudKit. CloudKit cifra los CKAsset privados. Al desactivar la sincronización se eliminan los registros remotos de MaskID."
+          }
+        }
+      }
+    },
+    "settings_privacy_icloud_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional complete iCloud backup"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia completa opcional en iCloud"
+          }
+        }
+      }
+    },
+    "settings_privacy_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This policy explains how MaskID handles information when you use the app."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta política explica cómo trata MaskID la información cuando usas la app."
+          }
+        }
+      }
+    },
+    "settings_privacy_permissions_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera, Photos, biometric authentication, Files, Share Sheet, and iCloud access are used only for the features you request and subject to system permission controls. When you choose a third-party storage provider through Apple's Files picker, MaskID receives only the file you select and stores no provider OAuth token."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso a Cámara, Fotos, biometría, Archivos, Compartir e iCloud se usa solo para las funciones que solicitas y bajo controles del sistema. Si eliges un proveedor mediante el selector Archivos de Apple, MaskID recibe solo el archivo seleccionado y no guarda tokens OAuth del proveedor."
+          }
+        }
+      }
+    },
+    "settings_privacy_permissions_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions and Files providers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permisos y proveedores de Archivos"
+          }
+        }
+      }
+    },
+    "settings_privacy_policy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Política de privacidad"
+          }
+        }
+      }
+    },
+    "settings_privacy_policy_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What MaskID processes, stores, and never collects"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué procesa, almacena y nunca recopila MaskID"
+          }
+        }
+      }
+    },
+    "settings_privacy_processing_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. MaskID does not operate an advertising or analytics backend, does not create advertising profiles, and does not track you across apps or websites."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. MaskID no opera un backend publicitario o analítico, no crea perfiles publicitarios ni te rastrea entre apps o sitios web."
+          }
+        }
+      }
+    },
+    "settings_privacy_processing_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On-device processing"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Procesamiento en el dispositivo"
+          }
+        }
+      }
+    },
+    "settings_privacy_retention_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Projects remain until you delete them or use Delete all documents. Temporary exports are protected and removed when the export or share flow ends. Deleting the app removes its local data subject to iOS and backup behavior. Private CloudKit records can require separate deletion or iCloud account controls."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los proyectos permanecen hasta que los elimines o uses Eliminar todos. Las exportaciones temporales se protegen y borran al terminar el flujo. Desinstalar elimina datos locales según el funcionamiento de iOS y las copias. Los registros privados de CloudKit pueden requerir borrado separado o controles de iCloud."
+          }
+        }
+      }
+    },
+    "settings_privacy_retention_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retention and deletion"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservación y eliminación"
+          }
+        }
+      }
+    },
+    "settings_privacy_rights_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can deny or revoke optional permissions in iOS Settings, disable iCloud index sync, delete projects, and contact the developer about applicable privacy rights. Because core document content stays on device, the developer normally cannot access, export, correct, or recover it for you."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes denegar o revocar permisos en Ajustes de iOS, desactivar iCloud, borrar proyectos y contactar con el desarrollador sobre tus derechos. Como el contenido principal permanece en el dispositivo, el desarrollador normalmente no puede acceder, exportar, corregir ni recuperarlo por ti."
+          }
+        }
+      }
+    },
+    "settings_privacy_rights_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your choices and rights"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus opciones y derechos"
+          }
+        }
+      }
+    },
+    "settings_privacy_storage_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported originals, working files, render caches, and local telemetry are encrypted at rest using device-bound keys protected by Keychain and iOS data protection. Vault content uses a separate device-bound key and requires your configured authentication. Keys marked device-only are not designed to migrate to another device."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los originales, archivos de trabajo, cachés y telemetría local se cifran en reposo con claves vinculadas al dispositivo, protegidas por Llavero y la protección de datos de iOS. La Bóveda usa otra clave y requiere la autenticación configurada. Las claves solo del dispositivo no están diseñadas para migrar."
+          }
+        }
+      }
+    },
+    "settings_privacy_storage_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local storage and security"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Almacenamiento local y seguridad"
+          }
+        }
+      }
+    },
+    "settings_private_by_design" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Private by design"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacidad desde el diseño"
+          }
+        }
+      }
+    },
+    "settings_pro_unlock_features" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock productivity features, batch workflows, and advanced styles."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquea funciones de productividad, flujos por lotes y estilos avanzados."
+          }
+        }
+      }
+    },
+    "settings_quality_high" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alta"
+          }
+        }
+      }
+    },
+    "settings_quality_low" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baja"
+          }
+        }
+      }
+    },
+    "settings_quality_medium" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
+          }
+        }
+      }
+    },
+    "settings_rate_app" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate MaskID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valorar MaskID"
+          }
+        }
+      }
+    },
+    "settings_rate_app_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens MaskID's App Store review page"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre la página de reseñas de MaskID en App Store"
+          }
+        }
+      }
+    },
+    "settings_rating_unavailable_message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The App Store review page could not be opened. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo abrir la página de reseñas del App Store. Comprueba la conexión e inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "settings_rating_unavailable_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store unavailable"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store no disponible"
+          }
+        }
+      }
+    },
+    "settings_section_personalization" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalization"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalización"
+          }
+        }
+      }
+    },
+    "settings_section_workspace" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security and workspace"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad y espacio de trabajo"
+          }
+        }
+      }
+    },
+    "settings_security_detail" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control access, automatic locking, review assistance, and deletion of local data."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controla el acceso, el bloqueo automático, la ayuda a la revisión y el borrado de datos locales."
+          }
+        }
+      }
+    },
+    "settings_security_privacy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security and privacy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad y privacidad"
+          }
+        }
+      }
+    },
+    "settings_security_privacy_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometrics, PIN, auto-lock, and review controls"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biometría, PIN, bloqueo y controles de revisión"
+          }
+        }
+      }
+    },
+    "settings_send_feedback" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send feedback"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar comentarios"
+          }
+        }
+      }
+    },
+    "settings_send_feedback_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell us what works and what we should improve"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuéntanos qué funciona y qué debemos mejorar"
+          }
+        }
+      }
+    },
+    "settings_subscription_changes_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple and the developer may change future prices, plans, or included features. Apple provides required notices and consent flows for subscription price increases. Changes do not remove mandatory rights or entitlements already granted by a completed non-consumable purchase."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple y el desarrollador pueden cambiar precios, planes o funciones futuras. Apple ofrece avisos y consentimientos exigidos para subidas. Los cambios no eliminan derechos imperativos ni derechos ya concedidos por una compra no consumible completada."
+          }
+        }
+      }
+    },
+    "settings_subscription_changes_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price and feature changes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambios de precio y funciones"
+          }
+        }
+      }
+    },
+    "settings_subscription_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These conditions supplement the Terms of Use for MaskID Pro subscriptions and the lifetime unlock."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas condiciones complementan los Términos de uso para las suscripciones MaskID Pro y el desbloqueo vitalicio."
+          }
+        }
+      }
+    },
+    "settings_subscription_lifetime_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The lifetime unlock is a non-consumable purchase that grants the Pro features associated with that product for the supported lifetime of MaskID, not the purchaser's biological lifetime. It does not promise future products, third-party services, team plans, or features that require separate ongoing costs."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El desbloqueo vitalicio es una compra no consumible que concede las funciones Pro asociadas durante la vida útil soportada de MaskID, no la vida biológica del comprador. No promete productos futuros, servicios de terceros, planes de equipo ni funciones con costes continuos separados."
+          }
+        }
+      }
+    },
+    "settings_subscription_lifetime_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifetime unlock"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloqueo vitalicio"
+          }
+        }
+      }
+    },
+    "settings_subscription_manage_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage or cancel subscriptions in Settings > Apple Account > Subscriptions, or through the App Store subscription page. Deleting MaskID does not cancel a subscription. Cancellation stops future renewal and access normally continues until the paid period ends."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiona o cancela en Ajustes > Cuenta Apple > Suscripciones o en la página de suscripciones del App Store. Eliminar MaskID no cancela. La cancelación evita renovaciones y el acceso suele continuar hasta acabar el periodo pagado."
+          }
+        }
+      }
+    },
+    "settings_subscription_manage_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage or cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestionar o cancelar"
+          }
+        }
+      }
+    },
+    "settings_subscription_payment_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payment is charged to your Apple Account when you confirm the purchase. Apple handles taxes, currency conversion, payment methods, and receipts. MaskID does not receive your full payment-card details."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El pago se carga en tu cuenta Apple al confirmarlo. Apple gestiona impuestos, conversión, métodos de pago y recibos. MaskID no recibe los datos completos de tu tarjeta."
+          }
+        }
+      }
+    },
+    "settings_subscription_payment_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Payment"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pago"
+          }
+        }
+      }
+    },
+    "settings_subscription_products_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID may offer monthly and annual auto-renewable subscriptions and a one-time lifetime unlock. The exact product, duration, current localized price, included features, and any offer are displayed by the App Store before purchase and take precedence over general examples."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID puede ofrecer suscripciones mensuales y anuales autorrenovables y un desbloqueo vitalicio de pago único. El producto, duración, precio localizado, funciones y ofertas se muestran en el App Store antes de comprar y prevalecen sobre ejemplos generales."
+          }
+        }
+      }
+    },
+    "settings_subscription_products_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available products"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Productos disponibles"
+          }
+        }
+      }
+    },
+    "settings_subscription_refunds_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple controls refund requests, billing disputes, grace periods, payment retries, and revocations under its policies and applicable law. Contact Apple for transaction-specific billing support. Mandatory refund and withdrawal rights remain unaffected."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple controla reembolsos, disputas, periodos de gracia, reintentos y revocaciones según sus políticas y la ley. Contacta con Apple para cobros concretos. No se alteran derechos imperativos de reembolso o desistimiento."
+          }
+        }
+      }
+    },
+    "settings_subscription_refunds_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refunds and billing issues"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reembolsos y problemas de cobro"
+          }
+        }
+      }
+    },
+    "settings_subscription_renewal_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A subscription renews automatically for the same period unless you cancel it at least 24 hours before the current period ends. Apple may charge your account within 24 hours before renewal at the price shown for the next period, subject to Apple's notices and applicable law."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La suscripción se renueva por el mismo periodo salvo cancelación al menos 24 horas antes de terminar. Apple puede cobrar dentro de las 24 horas previas al precio mostrado para el siguiente periodo, sujeto a sus avisos y la ley aplicable."
+          }
+        }
+      }
+    },
+    "settings_subscription_renewal_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic renewal"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovación automática"
+          }
+        }
+      }
+    },
+    "settings_subscription_restore_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Restore purchases in MaskID's purchase screen while signed in with the Apple Account that made the purchase. Restoration depends on App Store availability and verified StoreKit entitlements."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa Restaurar compras en la pantalla de compra con la cuenta Apple que realizó la compra. Depende de la disponibilidad del App Store y de derechos StoreKit verificados."
+          }
+        }
+      }
+    },
+    "settings_subscription_restore_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore purchases"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
+          }
+        }
+      }
+    },
+    "settings_subscription_terms" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subscription terms"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condiciones de suscripción"
+          }
+        }
+      }
+    },
+    "settings_subscription_terms_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Billing, renewal, cancellation, restoration, and lifetime access"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facturación, renovación, cancelación, restauración y acceso vitalicio"
+          }
+        }
+      }
+    },
+    "settings_subscription_trial_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eligibility and duration for free trials, introductory offers, promotional offers, or win-back offers are determined by Apple and displayed before confirmation. Unless canceled before the offer ends, an eligible trial converts to the paid subscription shown. Any unused trial portion may be forfeited when purchasing another plan."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple determina elegibilidad y duración de pruebas y ofertas, que se muestran antes de confirmar. Si no cancelas antes del final, una prueba elegible pasa a la suscripción de pago indicada. La parte no usada puede perderse al comprar otro plan."
+          }
+        }
+      }
+    },
+    "settings_subscription_trial_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trials and offers"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pruebas y ofertas"
+          }
+        }
+      }
+    },
+    "settings_summary_documents" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentos"
+          }
+        }
+      }
+    },
+    "settings_summary_plan" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan"
+          }
+        }
+      }
+    },
+    "settings_summary_privacy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core document processing and OCR run on this device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento principal y el OCR se ejecutan en este dispositivo"
+          }
+        }
+      }
+    },
+    "settings_summary_vault" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Vault"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En Bóveda"
+          }
+        }
+      }
+    },
+    "settings_support" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soporte"
+          }
+        }
+      }
+    },
+    "settings_support_actions" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Help options"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opciones de ayuda"
+          }
+        }
+      }
+    },
+    "settings_support_before_contact_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never attach an unredacted identity document, financial record, medical file, PIN, or recovery secret. Describe the issue and include only non-sensitive screenshots if needed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nunca adjuntes documentos de identidad, archivos financieros o médicos sin redactar, PIN ni secretos de recuperación. Describe el problema e incluye solo capturas sin datos sensibles si es necesario."
+          }
+        }
+      }
+    },
+    "settings_support_before_contact_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect your information"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protege tu información"
+          }
+        }
+      }
+    },
+    "settings_support_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find answers, report a problem, or suggest an improvement."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encuentra respuestas, informa de un problema o sugiere una mejora."
+          }
+        }
+      }
+    },
+    "settings_support_response_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support will answer through the configured contact channel. Response times are not guaranteed. App Store billing and refund decisions are handled by Apple."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soporte responderá por el canal de contacto configurado. Los plazos no están garantizados. Apple gestiona las decisiones de facturación y reembolso del App Store."
+          }
+        }
+      }
+    },
+    "settings_support_response_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What to expect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué puedes esperar"
+          }
+        }
+      }
+    },
+    "settings_support_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Help center and contact"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Centro de ayuda y contacto"
+          }
+        }
+      }
+    },
+    "settings_support_unavailable_message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The final support email has not been configured yet. Add it before release to enable feedback."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El correo definitivo de soporte aún no está configurado. Añádelo antes del lanzamiento para activar los comentarios."
+          }
+        }
+      }
+    },
+    "settings_support_unavailable_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support email pending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo de soporte pendiente"
+          }
+        }
+      }
+    },
+    "settings_sync_controls" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronization"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización"
+          }
+        }
+      }
+    },
+    "settings_sync_ready" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready to sync"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo para sincronizar"
+          }
+        }
+      }
+    },
+    "settings_syncing" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncing…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronizando…"
+          }
+        }
+      }
+    },
+    "settings_terms_acceptance_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By downloading or using MaskID, you agree to these terms and Apple's applicable App Store terms. You must be legally able to enter this agreement. If you use MaskID for an organization, you confirm you have authority to bind it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al descargar o usar MaskID aceptas estos términos y los aplicables del App Store de Apple. Debes tener capacidad legal. Si la usas para una organización, confirmas que puedes vincularla."
+          }
+        }
+      }
+    },
+    "settings_terms_acceptance_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceptance and eligibility"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptación y capacidad"
+          }
+        }
+      }
+    },
+    "settings_terms_accuracy_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCR, entity detection, masks, and technical verification can fail or produce false results. You must inspect every page and retain originals when required. MaskID does not warrant acceptance by governments, banks, employers, healthcare providers, or other recipients."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El OCR, la detección, las máscaras y la verificación técnica pueden fallar o dar resultados falsos. Debes inspeccionar cada página y conservar originales cuando sea exigible. MaskID no garantiza aceptación por administraciones, bancos, empleadores, sanidad u otros destinatarios."
+          }
+        }
+      }
+    },
+    "settings_terms_accuracy_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OCR and export limitations"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Límites del OCR y la exportación"
+          }
+        }
+      }
+    },
+    "settings_terms_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These terms govern your use of MaskID. Mandatory consumer rights in your country continue to apply."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos términos rigen el uso de MaskID. Se mantienen los derechos imperativos de consumidores de tu país."
+          }
+        }
+      }
+    },
+    "settings_terms_ip_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID, its software, design, branding, documentation, and original content are protected by intellectual-property laws. Third-party frameworks, Apple services, and system symbols remain subject to their respective terms."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID, su software, diseño, marca, documentación y contenido original están protegidos por normas de propiedad intelectual. Los frameworks, servicios de Apple y símbolos del sistema se rigen por sus condiciones."
+          }
+        }
+      }
+    },
+    "settings_terms_ip_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intellectual property"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedad intelectual"
+          }
+        }
+      }
+    },
+    "settings_terms_law_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These terms are governed by Spanish law, including applicable consumer protections, and the competent courts of Valencia, without removing mandatory rights or courts available to consumers. Updated terms will show a new effective date; continued use after notice may constitute acceptance where permitted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos términos se rigen por la legislación española, incluida la protección aplicable a consumidores, y por los tribunales competentes de Valencia, sin eliminar derechos ni fueros imperativos. Los términos actualizados mostrarán una nueva fecha; el uso tras el aviso podrá implicar aceptación cuando sea legal."
+          }
+        }
+      }
+    },
+    "settings_terms_law_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Governing terms and changes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ley aplicable y cambios"
+          }
+        }
+      }
+    },
+    "settings_terms_liability_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID is provided with the warranties required by applicable law. To the maximum extent legally permitted, it is otherwise provided as available, without guarantees of uninterrupted operation, perfect detection, fitness for a regulated purpose, or freedom from data loss. Liability is not excluded where law forbids exclusion."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID se ofrece con las garantías exigidas por la ley. En la medida permitida, se presta según disponibilidad, sin garantía de funcionamiento ininterrumpido, detección perfecta, idoneidad regulada o ausencia de pérdida. No se excluye responsabilidad cuando la ley lo prohíbe."
+          }
+        }
+      }
+    },
+    "settings_terms_liability_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Availability and liability"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponibilidad y responsabilidad"
+          }
+        }
+      }
+    },
+    "settings_terms_license_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You receive a limited, personal, non-exclusive, non-transferable, revocable license to use MaskID on Apple devices associated with your App Store account, subject to these terms and Apple's usage rules. MaskID is licensed, not sold."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibes una licencia limitada, personal, no exclusiva, intransferible y revocable para usar MaskID en dispositivos Apple asociados a tu cuenta, sujeta a estos términos y las reglas de Apple. MaskID se licencia, no se vende."
+          }
+        }
+      }
+    },
+    "settings_terms_license_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "License"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licencia"
+          }
+        }
+      }
+    },
+    "settings_terms_permitted_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do not use MaskID for fraud, impersonation, falsification, infringement, harassment, malware, unlawful surveillance, unauthorized disclosure, evasion of legal obligations, or interference with the app. Do not reverse engineer MaskID except where applicable law expressly permits it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No uses MaskID para fraude, suplantación, falsificación, infracción, acoso, malware, vigilancia ilícita, divulgación no autorizada, evasión de obligaciones ni interferencia con la app. No realices ingeniería inversa salvo permiso legal expreso."
+          }
+        }
+      }
+    },
+    "settings_terms_permitted_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitted use"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uso permitido"
+          }
+        }
+      }
+    },
+    "settings_terms_purchases_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro products are sold through Apple's in-app purchase system. Prices, taxes, currency, eligibility, payment authorization, refunds, and account billing are controlled by Apple and the App Store storefront. Additional subscription conditions appear in Subscription terms."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los productos Pro se venden mediante compras integradas de Apple. Apple y la tienda controlan precios, impuestos, moneda, elegibilidad, autorización, reembolsos y facturación. Las condiciones adicionales figuran en Condiciones de suscripción."
+          }
+        }
+      }
+    },
+    "settings_terms_purchases_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchases"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compras"
+          }
+        }
+      }
+    },
+    "settings_terms_service" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Términos de uso"
+          }
+        }
+      }
+    },
+    "settings_terms_service_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rules for using MaskID and its verified export tools"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reglas de uso de MaskID y sus herramientas de exportación verificada"
+          }
+        }
+      }
+    },
+    "settings_terms_termination_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You may stop using MaskID at any time. Access may be limited where necessary to protect users, comply with law, address misuse, or maintain services. Ending use does not automatically cancel an App Store subscription; manage it in your Apple account."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes dejar de usar MaskID cuando quieras. El acceso puede limitarse para proteger usuarios, cumplir la ley, afrontar abusos o mantener servicios. Dejar de usarla no cancela una suscripción: gestiónala en tu cuenta Apple."
+          }
+        }
+      }
+    },
+    "settings_terms_termination_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suspension and termination"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suspensión y terminación"
+          }
+        }
+      }
+    },
+    "settings_terms_user_content_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You retain your rights in documents and content you import or create. You confirm that you have the rights, consent, or other lawful basis needed to process them. MaskID does not acquire ownership of your content."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservas tus derechos sobre los documentos y contenido importado o creado. Confirmas que dispones de derechos, consentimiento o base jurídica para tratarlos. MaskID no adquiere su propiedad."
+          }
+        }
+      }
+    },
+    "settings_terms_user_content_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus documentos"
+          }
+        }
+      }
+    },
+    "settings_unlock_premium" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock MaskID Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquea MaskID Pro"
+          }
+        }
+      }
+    },
+    "settings_verified_export_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID rasterizes secure PDF exports and checks for recoverable text, annotations, metadata, and OCR residue. You must still review every page and selected region before sharing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID rasteriza los PDF seguros y comprueba texto recuperable, anotaciones, metadatos y residuos OCR. Aun así, debes revisar cada página y zona seleccionada antes de compartir."
+          }
+        }
+      }
+    },
+    "settings_verified_export_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verified output, human review"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salida verificada, revisión humana"
+          }
+        }
+      }
+    },
+    "settings_version_value" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versión %@"
+          }
+        }
+      }
+    },
+    "settings_view_options" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View options"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver opciones"
+          }
+        }
+      }
+    },
+    "settings_whats_new" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's new"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novedades"
+          }
+        }
+      }
+    },
+    "settings_whats_new_intro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highlights included in this release of MaskID."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Principales mejoras incluidas en esta versión de MaskID."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_1" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On-device OCR suggestions with per-field evidence and confidence."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerencias OCR en el dispositivo con evidencia y confianza por campo."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_2" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secure rasterized PDF export with residual-content verification."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportación PDF rasterizada segura con verificación de contenido residual."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_3" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encrypted local projects and a separately protected Vault."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proyectos locales cifrados y una Bóveda protegida por separado."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_4" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelable multi-page import from camera, Photos, Files, and Share Sheet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importación multipágina cancelable desde Cámara, Fotos, Archivos y Compartir."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_5" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional minimized iCloud index synchronization for Pro."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización opcional del índice mínimo de iCloud para Pro."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_6" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Improved accessibility, iPad layout, keyboard control, and privacy shielding."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mejoras de accesibilidad, diseño para iPad, teclado y pantalla de privacidad."
+          }
+        }
+      }
+    },
+    "settings_whats_new_subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Release highlights and improvements"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mejoras y novedades de la versión"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

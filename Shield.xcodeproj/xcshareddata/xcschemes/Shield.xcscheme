@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "TARGET_SHIELD"
-               BuildableName = "Shield.app"
+               BuildableName = "MaskID.app"
                BlueprintName = "Shield"
                ReferencedContainer = "container:Shield.xcodeproj">
             </BuildableReference>
@@ -95,7 +95,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "TARGET_SHIELD"
-            BuildableName = "Shield.app"
+            BuildableName = "MaskID.app"
             BlueprintName = "Shield"
             ReferencedContainer = "container:Shield.xcodeproj">
          </BuildableReference>
@@ -115,7 +115,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "TARGET_SHIELD"
-            BuildableName = "Shield.app"
+            BuildableName = "MaskID.app"
             BlueprintName = "Shield"
             ReferencedContainer = "container:Shield.xcodeproj">
          </BuildableReference>

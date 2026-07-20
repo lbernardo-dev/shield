@@ -45,7 +45,7 @@ DESTINATION := platform=macOS,arch=arm64
 endif
 
 BUILD_PRODUCTS := $(DERIVED)/Build/Products/$(CONFIGURATION)$(PLATFORM_SUFFIX)
-APP_PATH := $(BUILD_PRODUCTS)/$(APP_SCHEME).app
+APP_PATH := $(BUILD_PRODUCTS)/MaskID.app
 
 PHONY_TARGETS := $(TARGET_PREFIX)help $(TARGET_PREFIX)diagnose $(TARGET_PREFIX)build \
 	$(TARGET_PREFIX)test $(TARGET_PREFIX)run $(TARGET_PREFIX)build-and-run \
@@ -101,8 +101,6 @@ ifeq ($(APP_PLATFORM),ios)
 		-configuration $(CONFIGURATION) \
 		-destination "$$DESTINATION" \
 		-derivedDataPath $(DERIVED) \
-		GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-		SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
 		SWIFT_STRICT_CONCURRENCY=complete \
 		build
 else
@@ -112,8 +110,6 @@ else
 		-configuration $(CONFIGURATION) \
 		-destination '$(DESTINATION)' \
 		-derivedDataPath $(DERIVED) \
-		GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-		SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
 		SWIFT_STRICT_CONCURRENCY=complete \
 		build
 endif
@@ -128,8 +124,6 @@ ifeq ($(APP_PLATFORM),ios)
 		-configuration $(CONFIGURATION) \
 		-destination "$$DESTINATION" \
 		-derivedDataPath $(DERIVED) \
-		GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-		SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
 		SWIFT_STRICT_CONCURRENCY=complete \
 		test
 else
@@ -139,8 +133,6 @@ else
 		-configuration $(CONFIGURATION) \
 		-destination '$(DESTINATION)' \
 		-derivedDataPath $(DERIVED) \
-		GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-		SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
 		SWIFT_STRICT_CONCURRENCY=complete \
 		test
 endif

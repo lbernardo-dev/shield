@@ -1,1962 +1,1978 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "model_field_support_number" : {"localizations":{"en":{"stringUnit":{"state":"translated","value":"Support number"}},"es":{"stringUnit":{"state":"translated","value":"Número de soporte"}}}},
-    "model_mask_style_block": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Black"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "model_adjustment_document" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Negro"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documento"
           }
         }
       }
     },
-    "model_mask_style_block_white": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "White"
+    "model_adjustment_grayscale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strong B/W"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blanco"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B/N fuerte"
           }
         }
       }
     },
-    "model_mask_style_pixelate": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pixelate"
+    "model_adjustment_photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pixelado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto"
           }
         }
       }
     },
-    "model_mask_style_blur_strong": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strong blur"
+    "model_auto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blur fuerte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
           }
         }
       }
     },
-    "model_mask_style_blur_soft": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Soft blur"
+    "model_auto_detect" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-detect"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blur suave"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detección automática"
           }
         }
       }
     },
-    "model_mask_style_diagonal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diagonal"
+    "model_category_all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Diagonal"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos"
           }
         }
       }
     },
-    "model_mask_style_secure": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "High-sec."
+    "model_category_driving" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Driving"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alta seg."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conducción"
           }
         }
       }
     },
-    "model_mask_style_redacted_tag": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Label"
+    "model_category_finance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finance"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Etiqueta"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Financiero"
           }
         }
       }
     },
-    "model_mask_style_semi": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semi"
+    "model_category_health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Health"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semi"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salud"
           }
         }
       }
     },
-    "model_redaction_mode_rental": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rental"
+    "model_category_identity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alquiler"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identidad"
           }
         }
       }
     },
-    "model_redaction_mode_travel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travel"
+    "model_category_travel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Travel"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Viaje"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viaje"
           }
         }
       }
     },
-    "model_redaction_mode_job": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Job"
+    "model_category_work" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Work"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empleo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trabajo"
           }
         }
       }
     },
-    "model_redaction_mode_verify": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verify"
+    "model_detected_fields" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detected fields"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verificación"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Campos detectados"
           }
         }
       }
     },
-    "model_redaction_mode_legal": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legal"
+    "model_doc_generic_id" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IDENTIFICATION DOCUMENT"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legal"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DOCUMENTO DE IDENTIDAD"
           }
         }
       }
     },
-    "model_redaction_mode_health": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Health"
+    "model_doc_italy_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salud"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
           }
         }
       }
     },
-    "model_redaction_mode_banking": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Banking"
+    "model_doc_mexico_passport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PASAPORTE / PASSPORT"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Banca"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PASAPORTE / PASSPORT"
           }
         }
       }
     },
-    "model_redaction_mode_rental_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides photo, address, MRZ"
+    "model_doc_mexico_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ESTADOS UNIDOS MEXICANOS"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta foto, dirección, MRZ"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ESTADOS UNIDOS MEXICANOS"
           }
         }
       }
     },
-    "model_redaction_mode_travel_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides passport №"
+    "model_doc_passport_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PASSPORT / PASSEPORT"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta nº pasaporte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PASAPORTE / PASSEPORT"
           }
         }
       }
     },
-    "model_redaction_mode_job_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides DOB, signature"
+    "model_doc_spain_dni" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DOCUMENTO NACIONAL DE IDENTIDAD"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta DOB, firma"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DOCUMENTO NACIONAL DE IDENTIDAD"
           }
         }
       }
     },
-    "model_redaction_mode_verify_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only name + photo"
+    "model_doc_spain_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REINO DE ESPAÑA"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Solo nombre + foto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REINO DE ESPAÑA"
           }
         }
       }
     },
-    "model_redaction_mode_legal_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides DOB, address, signature"
+    "model_doc_uk_dl_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DRIVING LICENCE"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta DOB, dirección, firma"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CARNET DE CONDUCIR"
           }
         }
       }
     },
-    "model_redaction_mode_health_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides DOB, SS №, address"
+    "model_doc_uk_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UK"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta DOB, nº SS, dirección"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UK"
           }
         }
       }
     },
-    "model_redaction_mode_banking_sub": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hides IBAN, account №, signature"
+    "model_doc_uk_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UNITED KINGDOM"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oculta IBAN, nº cuenta, firma"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REINO UNIDO"
           }
         }
       }
     },
-    "model_category_all": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All"
+    "model_doc_usa_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UNITED STATES OF AMERICA"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Todos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ESTADOS UNIDOS DE AMÉRICA"
           }
         }
       }
     },
-    "model_category_identity": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID"
+    "model_export_image" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as image"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Identidad"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar como imagen"
           }
         }
       }
     },
-    "model_category_travel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travel"
+    "model_export_pdf" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as PDF"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Viaje"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exportar como PDF"
           }
         }
       }
     },
-    "model_category_driving": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Driving"
+    "model_extracted_text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extracted text"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conducción"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto extraído"
           }
         }
       }
     },
-    "model_category_work": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Work"
+    "model_field_address" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trabajo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección"
           }
         }
       }
     },
-    "model_category_health": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Health"
+    "model_field_date_of_birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date of birth"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salud"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de nacimiento"
           }
         }
       }
     },
-    "model_category_finance": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finance"
+    "model_field_document_number" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document number"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Financiero"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de documento"
           }
         }
       }
     },
-    "model_sort_date_desc": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Newest first"
+    "model_field_expires" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expires"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Más reciente primero"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caducidad"
           }
         }
       }
     },
-    "model_sort_date_asc": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oldest first"
+    "model_field_full_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full name"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Más antiguo primero"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre completo"
           }
         }
       }
     },
-    "model_sort_name_asc": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Name A→Z"
+    "model_field_issued" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Issued"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre A→Z"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expedido"
           }
         }
       }
     },
-    "model_sort_name_desc": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Name Z→A"
+    "model_field_mrz" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MRZ"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre Z→A"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MRZ"
           }
         }
       }
     },
-    "model_tab_library": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Docs"
+    "model_field_nationality" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nationality"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Documentos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nacionalidad"
           }
         }
       }
     },
-    "model_tab_gallery": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Styles"
+    "model_field_sex" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sex"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Estilos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sexo"
           }
         }
       }
     },
-    "model_tab_vault": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vault"
+    "model_field_support_number" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support number"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bóveda"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de soporte"
           }
         }
       }
     },
-    "model_tab_settings": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings"
+    "model_fields" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fields"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajustes"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Campos"
           }
         }
       }
     },
-    "model_scan_type_identity": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ID Card"
+    "model_filter_auto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DNI / ID"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
           }
         }
       }
     },
-    "model_scan_type_passport": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passport"
+    "model_filter_bw" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B/W"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pasaporte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B/N"
           }
         }
       }
     },
-    "model_scan_type_driving_license": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Driver's Lic."
+    "model_filter_high_contrast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrast+"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Carnet conducir"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraste+"
           }
         }
       }
     },
-    "model_scan_type_a4_document": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A4 Document"
+    "model_filter_original" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Documento A4"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original"
           }
         }
       }
     },
-    "model_scan_type_freeform": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Freeform"
+    "model_for_verification_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verification only"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Libre"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo para verificación"
           }
         }
       }
     },
-    "model_filter_original": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original"
+    "model_keep_original" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep original"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener original"
           }
         }
       }
     },
-    "model_filter_auto": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto"
+    "model_label_code" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código"
           }
         }
       }
     },
-    "model_filter_bw": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "B/W"
+    "model_label_dob" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DATE OF BIRTH"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "B/N"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FECHA NAC."
           }
         }
       }
     },
-    "model_filter_high_contrast": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contrast+"
+    "model_label_doc_number" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DOC NUMBER"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contraste+"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NÚM. DOC."
           }
         }
       }
     },
-    "model_adjustment_document": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Document"
+    "model_label_expires" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VALID UNTIL"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Documento"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VÁLIDO HASTA"
           }
         }
       }
     },
-    "model_adjustment_photo": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photo"
+    "model_label_given_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GIVEN NAME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Foto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NOMBRE"
           }
         }
       }
     },
-    "model_adjustment_grayscale": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Strong B/W"
+    "model_label_given_names" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Given Names"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "B/N fuerte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombres"
           }
         }
       }
     },
-    "model_redact": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Redact"
+    "model_label_issued" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DATE OF ISSUE"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Redactar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FECHA EXP."
           }
         }
       }
     },
-    "model_style": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Style"
+    "model_label_ita_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NOME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Estilo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NOMBRE"
           }
         }
       }
     },
-    "model_auto": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto"
+    "model_label_ita_surname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "COGNOME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "APELLIDO"
           }
         }
       }
     },
-    "model_manual": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manual"
+    "model_label_ita_tax_code" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CODICE FISCALE"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manual"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CÓDIGO FISCAL"
           }
         }
       }
     },
-    "model_fields": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fields"
+    "model_label_mex_given" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre / Given name"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Campos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre / Given name"
           }
         }
       }
     },
-    "model_text": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Text"
+    "model_label_mex_surname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apellidos / Surname"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Texto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apellidos / Surname"
           }
         }
       }
     },
-    "model_watermark": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WM"
+    "model_label_nationality" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NATIONALITY"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marca agua"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NACIONALIDAD"
           }
         }
       }
     },
-    "model_field_document_number": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Document number"
+    "model_label_passport_no" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passport No."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Número de documento"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Núm. Pasaporte"
           }
         }
       }
     },
-    "model_field_full_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Full name"
+    "model_label_sex" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEX"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre completo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEXO"
           }
         }
       }
     },
-    "model_field_date_of_birth": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Date of birth"
+    "model_label_surname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SURNAME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fecha de nacimiento"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "APELLIDOS"
           }
         }
       }
     },
-    "model_field_nationality": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nationality"
+    "model_label_surname_nom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Surname / Nom"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nacionalidad"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apellidos / Nom"
           }
         }
       }
     },
-    "model_field_expires": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expires"
+    "model_label_surname1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FIRST SURNAME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caducidad"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PRIMER APELLIDO"
           }
         }
       }
     },
-    "model_field_address": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Address"
+    "model_label_surname2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SECOND SURNAME"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dirección"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEGUNDO APELLIDO"
           }
         }
       }
     },
-    "model_field_issued": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Issued"
+    "model_label_type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expedido"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo"
           }
         }
       }
     },
-    "model_field_sex": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sex"
+    "model_label_uk_address" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8. Address"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sexo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8. Dirección"
           }
         }
       }
     },
-    "model_field_mrz": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MRZ"
+    "model_label_uk_dob" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3. Date of birth"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MRZ"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3. Fecha de nacimiento"
           }
         }
       }
     },
-    "model_quality_high": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "High"
+    "model_label_uk_driver_no" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5. Driver No."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alta"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5. Núm. Conductor"
           }
         }
       }
     },
-    "model_quality_medium": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Medium"
+    "model_label_uk_expires" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4b. Expires"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Media"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4b. Caduca"
           }
         }
       }
     },
-    "model_quality_low": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Low"
+    "model_label_uk_given_names" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2. Given names"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Baja"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2. Nombres"
           }
         }
       }
     },
-    "model_auto_detect": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-detect"
+    "model_label_uk_issued" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4a. Issued"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detección automática"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4a. Expedido"
           }
         }
       }
     },
-    "model_for_verification_only": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verification only"
+    "model_label_uk_surname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1. Surname"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Solo para verificación"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1. Apellidos"
           }
         }
       }
     },
-    "model_extracted_text": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Extracted text"
+    "model_manual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Texto extraído"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual"
           }
         }
       }
     },
-    "model_detected_fields": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detected fields"
+    "model_mask_redacted_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REDACTED"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Campos detectados"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CENSURADO"
           }
         }
       }
     },
-    "model_export_pdf": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Export as PDF"
+    "model_mask_style_block" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Black"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exportar como PDF"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Negro"
           }
         }
       }
     },
-    "model_export_image": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Export as image"
+    "model_mask_style_block_white" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "White"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exportar como imagen"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blanco"
           }
         }
       }
     },
-    "model_keep_original": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep original"
+    "model_mask_style_blur_soft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soft blur"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantener original"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blur suave"
           }
         }
       }
     },
-    "model_mask_redacted_label": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REDACTED"
+    "model_mask_style_blur_strong" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strong blur"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CENSURADO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blur fuerte"
           }
         }
       }
     },
-    "model_doc_spain_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REINO DE ESPAÑA"
+    "model_mask_style_diagonal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagonal"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REINO DE ESPAÑA"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagonal"
           }
         }
       }
     },
-    "model_doc_spain_dni": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DOCUMENTO NACIONAL DE IDENTIDAD"
+    "model_mask_style_pixelate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pixelate"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DOCUMENTO NACIONAL DE IDENTIDAD"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pixelado"
           }
         }
       }
     },
-    "model_doc_passport_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PASSPORT / PASSEPORT"
+    "model_mask_style_redacted_tag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Label"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PASAPORTE / PASSEPORT"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etiqueta"
           }
         }
       }
     },
-    "model_doc_usa_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UNITED STATES OF AMERICA"
+    "model_mask_style_secure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High-sec."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ESTADOS UNIDOS DE AMÉRICA"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alta seg."
           }
         }
       }
     },
-    "model_doc_uk_short": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UK"
+    "model_mask_style_semi" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semi"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UK"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semi"
           }
         }
       }
     },
-    "model_doc_uk_dl_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DRIVING LICENCE"
+    "model_quality_high" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CARNET DE CONDUCIR"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alta"
           }
         }
       }
     },
-    "model_doc_uk_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UNITED KINGDOM"
+    "model_quality_low" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REINO UNIDO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baja"
           }
         }
       }
     },
-    "model_doc_mexico_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ESTADOS UNIDOS MEXICANOS"
+    "model_quality_medium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ESTADOS UNIDOS MEXICANOS"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
           }
         }
       }
     },
-    "model_doc_mexico_passport": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PASAPORTE / PASSPORT"
+    "model_redact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redact"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PASAPORTE / PASSPORT"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redactar"
           }
         }
       }
     },
-    "model_doc_italy_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
+    "model_redaction_mode_banking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banking"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REPUBBLICA ITALIANA — CARTA D'IDENTITÀ"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banca"
           }
         }
       }
     },
-    "model_doc_generic_id": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IDENTIFICATION DOCUMENT"
+    "model_redaction_mode_banking_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides IBAN, account №, signature"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DOCUMENTO DE IDENTIDAD"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta IBAN, nº cuenta, firma"
           }
         }
       }
     },
-    "model_label_surname1": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FIRST SURNAME"
+    "model_redaction_mode_health" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Health"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PRIMER APELLIDO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salud"
           }
         }
       }
     },
-    "model_label_surname2": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SECOND SURNAME"
+    "model_redaction_mode_health_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides DOB, SS №, address"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SEGUNDO APELLIDO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta DOB, nº SS, dirección"
           }
         }
       }
     },
-    "model_label_given_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GIVEN NAME"
+    "model_redaction_mode_job" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Job"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NOMBRE"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empleo"
           }
         }
       }
     },
-    "model_label_sex": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SEX"
+    "model_redaction_mode_job_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides DOB, signature"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SEXO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta DOB, firma"
           }
         }
       }
     },
-    "model_label_nationality": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NATIONALITY"
+    "model_redaction_mode_legal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legal"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NACIONALIDAD"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legal"
           }
         }
       }
     },
-    "model_label_dob": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DATE OF BIRTH"
+    "model_redaction_mode_legal_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides DOB, address, signature"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FECHA NAC."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta DOB, dirección, firma"
           }
         }
       }
     },
-    "model_label_doc_number": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DOC NUMBER"
+    "model_redaction_mode_rental" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rental"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NÚM. DOC."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler"
           }
         }
       }
     },
-    "model_label_expires": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VALID UNTIL"
+    "model_redaction_mode_rental_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides photo, address, MRZ"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VÁLIDO HASTA"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta foto, dirección, MRZ"
           }
         }
       }
     },
-    "model_label_surname": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SURNAME"
+    "model_redaction_mode_travel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Travel"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "APELLIDOS"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viaje"
           }
         }
       }
     },
-    "model_label_issued": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DATE OF ISSUE"
+    "model_redaction_mode_travel_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hides passport №"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FECHA EXP."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oculta nº pasaporte"
           }
         }
       }
     },
-    "model_label_type": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Type"
+    "model_redaction_mode_verify" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verify"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tipo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verificación"
           }
         }
       }
     },
-    "model_label_code": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code"
+    "model_redaction_mode_verify_sub" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only name + photo"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Código"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo nombre + foto"
           }
         }
       }
     },
-    "model_label_passport_no": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passport No."
+    "model_scan_type_a4_document" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A4 Document"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Núm. Pasaporte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documento A4"
           }
         }
       }
     },
-    "model_label_surname_nom": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Surname / Nom"
+    "model_scan_type_driving_license" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Driver's Lic."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apellidos / Nom"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carnet conducir"
           }
         }
       }
     },
-    "model_label_given_names": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Given Names"
+    "model_scan_type_freeform" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeform"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombres"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Libre"
           }
         }
       }
     },
-    "model_label_uk_surname": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1. Surname"
+    "model_scan_type_identity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID Card"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1. Apellidos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNI / ID"
           }
         }
       }
     },
-    "model_label_uk_given_names": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "2. Given names"
+    "model_scan_type_passport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passport"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "2. Nombres"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasaporte"
           }
         }
       }
     },
-    "model_label_uk_dob": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3. Date of birth"
+    "model_sort_date_asc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oldest first"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3. Fecha de nacimiento"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más antiguo primero"
           }
         }
       }
     },
-    "model_label_uk_issued": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4a. Issued"
+    "model_sort_date_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Newest first"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4a. Expedido"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más reciente primero"
           }
         }
       }
     },
-    "model_label_uk_expires": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4b. Expires"
+    "model_sort_name_asc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name A→Z"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4b. Caduca"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre A→Z"
           }
         }
       }
     },
-    "model_label_uk_driver_no": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5. Driver No."
+    "model_sort_name_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name Z→A"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5. Núm. Conductor"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre Z→A"
           }
         }
       }
     },
-    "model_label_uk_address": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "8. Address"
+    "model_style" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Style"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "8. Dirección"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estilo"
           }
         }
       }
     },
-    "model_label_mex_surname": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apellidos / Surname"
+    "model_tab_gallery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Styles"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apellidos / Surname"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estilos"
           }
         }
       }
     },
-    "model_label_mex_given": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre / Given name"
+    "model_tab_library" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Docs"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre / Given name"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentos"
           }
         }
       }
     },
-    "model_label_ita_surname": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "COGNOME"
+    "model_tab_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "APELLIDO"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
           }
         }
       }
     },
-    "model_label_ita_name": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NOME"
+    "model_tab_vault" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vault"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NOMBRE"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bóveda"
           }
         }
       }
     },
-    "model_label_ita_tax_code": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CODICE FISCALE"
+    "model_text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CÓDIGO FISCAL"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Texto"
+          }
+        }
+      }
+    },
+    "model_watermark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WM"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marca agua"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

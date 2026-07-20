@@ -175,32 +175,49 @@ struct PaywallView: View {
     // MARK: - Plan selector
 
     private var planSelector: some View {
-        VStack(spacing: 12) {
+        Group {
             if pm.products.isEmpty {
-                // Loading skeleton
-                ForEach(0..<3, id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(ShieldTheme.surface2)
-                        .frame(height: 84)
-                        .opacity(0.5)
+                VStack(spacing: 12) {
+                    // Loading skeleton
+                    ForEach(0..<3, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(ShieldTheme.surface2)
+                            .frame(height: 84)
+                            .opacity(0.5)
+                    }
                 }
             } else {
-                ForEach(pm.products, id: \.id) { product in
-                    PlanRow(
-                        product: product,
-                        isSelected: selectedProduct.rawValue == product.id,
-                        savingsLabel: savingsLabel(for: product),
-                        trialLabel: pm.trialLabels[product.id],
-                        lang: appState.language,
-                        onTap: {
-                            if let sp = ShieldProduct(rawValue: product.id) {
-                                withAnimation { selectedProduct = sp }
-                            }
+                if #available(iOS 26, *) {
+                    GlassEffectContainer(spacing: 12) {
+                        ForEach(pm.products, id: \.id) { product in
+                            planRowView(for: product)
                         }
-                    )
+                    }
+                } else {
+                    VStack(spacing: 12) {
+                        ForEach(pm.products, id: \.id) { product in
+                            planRowView(for: product)
+                        }
+                    }
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func planRowView(for product: PremiumProduct) -> some View {
+        PlanRow(
+            product: product,
+            isSelected: selectedProduct.rawValue == product.id,
+            savingsLabel: savingsLabel(for: product),
+            trialLabel: pm.trialLabels[product.id],
+            lang: appState.language,
+            onTap: {
+                if let sp = ShieldProduct(rawValue: product.id) {
+                    withAnimation { selectedProduct = sp }
+                }
+            }
+        )
     }
 
     private func savingsLabel(for product: PremiumProduct) -> String? {
@@ -220,38 +237,59 @@ struct PaywallView: View {
 
     // MARK: - CTA
 
+    private func purchaseSelectedProduct() {
+        Task {
+            guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue })
+            else { return }
+            didStartCheckout = true
+            await pm.purchase(product)
+            if pm.isPro { isPresented = false }
+        }
+    }
+
+    @ViewBuilder
+    private var ctaLabel: some View {
+        HStack(spacing: 8) {
+            if pm.isPurchasing {
+                ProgressView().tint(ShieldTheme.accentText)
+            } else {
+                Image(systemName: "crown.fill")
+                Text(LanguageManager.shared.paywall(
+                    pm.trialLabels[selectedProduct.rawValue] != nil
+                        ? "paywall_free_trial"
+                        : "paywall_get_pro"
+                ))
+                .font(.system(size: 16, weight: .bold))
+            }
+        }
+    }
+
     private var ctaSection: some View {
         VStack(spacing: 12) {
-            Button {
-                Task {
-                    guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue })
-                    else { return }
-                    didStartCheckout = true
-                    await pm.purchase(product)
-                    if pm.isPro { isPresented = false }
+            if #available(iOS 26, *) {
+                Button {
+                    purchaseSelectedProduct()
+                } label: {
+                    ctaLabel
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
                 }
-            } label: {
-                HStack(spacing: 8) {
-                    if pm.isPurchasing {
-                        ProgressView().tint(ShieldTheme.accentText)
-                    } else {
-                        Image(systemName: "crown.fill")
-                        Text(LanguageManager.shared.paywall(
-                            pm.trialLabels[selectedProduct.rawValue] != nil
-                                ? "paywall_free_trial"
-                                : "paywall_get_pro"
-                        ))
-                        .font(.system(size: 16, weight: .bold))
-                    }
+                .buttonStyle(.glassProminent)
+                .disabled(pm.isPurchasing)
+            } else {
+                Button {
+                    purchaseSelectedProduct()
+                } label: {
+                    ctaLabel
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(ShieldTheme.accent)
+                        .foregroundColor(ShieldTheme.accentText)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .background(ShieldTheme.accent)
-                .foregroundColor(ShieldTheme.accentText)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .buttonStyle(ScaleButtonStyle())
+                .disabled(pm.isPurchasing)
             }
-            .buttonStyle(ScaleButtonStyle())
-            .disabled(pm.isPurchasing)
 
             if let err = pm.purchaseError {
                 Text(err)
@@ -408,12 +446,23 @@ struct PlanRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .frame(height: 96)
-            .background(isSelected ? ShieldTheme.accent.opacity(0.06) : ShieldTheme.surface2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
-                            lineWidth: isSelected ? 2 : 0.8)
-            )
+            .background {
+                if #available(iOS 26, *) {
+                    Color.clear
+                        .glassEffect(isSelected ? .regular.tint(ShieldTheme.accent.opacity(0.15)).interactive() : .regular.interactive(), in: .rect(cornerRadius: 16))
+                } else {
+                    isSelected ? ShieldTheme.accent.opacity(0.06) : ShieldTheme.surface2
+                }
+            }
+            .overlay {
+                if #available(iOS 26, *) {
+                    EmptyView()
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
+                                lineWidth: isSelected ? 2 : 0.8)
+                }
+            }
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: isSelected ? ShieldTheme.accent.opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
         }
