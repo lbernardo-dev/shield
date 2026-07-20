@@ -46,6 +46,7 @@ struct ShieldTabBar: View {
     var onScanTap: () -> Void
     @Environment(\.colorScheme) var scheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Namespace private var tabNamespace
 
     @MainActor
     private var bottomPadding: CGFloat {
@@ -57,54 +58,76 @@ struct ShieldTabBar: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Library
-            tabItem(.library)
+        Group {
+            if #available(iOS 26, *) {
+                HStack(spacing: 0) {
+                    tabItem(.library)
+                    tabItem(.gallery)
+                    scanButton
+                    tabItem(.vault)
+                    tabItem(.settings)
+                }
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                .padding(.bottom, bottomPadding)
+                .background {
+                    Color.clear
+                        .glassEffect(.regular)
+                }
+            } else {
+                HStack(spacing: 0) {
+                    tabItem(.library)
+                    tabItem(.gallery)
+                    scanButton
+                    tabItem(.vault)
+                    tabItem(.settings)
+                }
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                .padding(.bottom, bottomPadding)
+                .background(
+                    ZStack {
+                        // Material blur
+                        Rectangle()
+                            .fill(reduceTransparency ? AnyShapeStyle(ShieldTheme.cardBackground(scheme)) : AnyShapeStyle(.ultraThinMaterial))
+                        // Top hairline
+                        VStack {
+                            Rectangle()
+                                .fill(ShieldTheme.line(scheme))
+                                .frame(height: 0.5)
+                            Spacer()
+                        }
+                    }
+                )
+            }
+        }
+    }
 
-            // Gallery
-            tabItem(.gallery)
-
-            // Scan FAB (center)
-            Button(action: onScanTap) {
-                ZStack {
+    @ViewBuilder
+    private var scanButton: some View {
+        Button(action: onScanTap) {
+            ZStack {
+                if #available(iOS 26, *) {
+                    Circle()
+                        .glassEffect(.regular.tint(ShieldTheme.accent(scheme)).interactive(), in: .circle)
+                        .frame(width: 72, height: 72)
+                        .shadow(color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.45 : 0.24), radius: 12, x: 0, y: 5)
+                } else {
                     Circle()
                         .fill(ShieldTheme.accent(scheme))
                         .frame(width: 72, height: 72)
                         .shadow(color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.45 : 0.24), radius: 12, x: 0, y: 5)
-                    Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundColor(ShieldTheme.accentText)
                 }
+                Image(systemName: "camera.viewfinder")
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundColor(ShieldTheme.accentText)
             }
-            .buttonStyle(ScaleButtonStyle())
-            .frame(maxWidth: .infinity)
-            .offset(y: -24)
-            .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
-            .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
-
-            // Vault
-            tabItem(.vault)
-
-            // Settings
-            tabItem(.settings)
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 8)
-        .padding(.bottom, bottomPadding)
-        .background(
-            ZStack {
-                // Material blur
-                Rectangle()
-                    .fill(reduceTransparency ? AnyShapeStyle(ShieldTheme.cardBackground(scheme)) : AnyShapeStyle(.ultraThinMaterial))
-                // Top hairline
-                VStack {
-                    Rectangle()
-                        .fill(ShieldTheme.line(scheme))
-                        .frame(height: 0.5)
-                    Spacer()
-                }
-            }
-        )
+        .buttonStyle(ScaleButtonStyle())
+        .frame(maxWidth: .infinity)
+        .offset(y: -24)
+        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
     }
 
     @ViewBuilder
@@ -125,6 +148,19 @@ struct ShieldTabBar: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 4)
+            .background {
+                if isActive {
+                    if #available(iOS 26, *) {
+                        Color.clear
+                            .glassEffect(.regular.tint(ShieldTheme.accent(scheme).opacity(0.15)).interactive(), in: .rect(cornerRadius: 12))
+                            .matchedGeometryEffect(id: "activeTabHighlight", in: tabNamespace)
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(ShieldTheme.accent(scheme).opacity(0.08))
+                            .matchedGeometryEffect(id: "activeTabHighlight", in: tabNamespace)
+                    }
+                }
+            }
         }
         .buttonStyle(.plain)
         .frame(minHeight: 44)
