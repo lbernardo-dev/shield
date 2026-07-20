@@ -60,9 +60,6 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhaseChange(newPhase)
         }
-        .simultaneousGesture(
-            TapGesture().onEnded(noteUserActivity)
-        )
         .onAppear {
             Task {
                 try? await Task.sleep(nanoseconds: 1_800_000_000)
@@ -84,10 +81,6 @@ struct ContentView: View {
 
         guard newPhase == .active, sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
-    }
-
-    private func noteUserActivity() {
-        AppState.markUserActivity()
     }
 }
 

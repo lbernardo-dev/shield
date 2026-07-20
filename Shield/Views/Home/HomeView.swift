@@ -434,6 +434,7 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s4)
+        .padding(.bottom, 90)
     }
 
     // MARK: - Cloud Storage

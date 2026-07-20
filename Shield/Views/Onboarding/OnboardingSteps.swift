@@ -192,692 +192,7 @@ struct OBPainPointsView: View {
     }
 }
 
-// MARK: - Screen 4: Social Proof
-
-struct OBSocialProofView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var state: OnboardingState
-
-    private struct T { let name: String; let tag: String; let text: String }
-    private let testimonials: [T] = [
-        T(name: "onboarding_social_1_name", tag: "onboarding_social_1_tag", text: "onboarding_social_1_text"),
-        T(name: "onboarding_social_2_name", tag: "onboarding_social_2_tag", text: "onboarding_social_2_text"),
-        T(name: "onboarding_social_3_name", tag: "onboarding_social_3_tag", text: "onboarding_social_3_text"),
-    ]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer().frame(height: 24)
-
-            Text(LanguageManager.shared.onboarding("onboarding_social_title"))
-                .font(.system(size: 26, weight: .heavy))
-                .foregroundColor(ShieldTheme.textPrimary)
-                .multilineTextAlignment(.center)
-                .tracking(-0.5)
-                .padding(.horizontal, 24)
-
-            Spacer().frame(height: 28)
-
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 14) {
-                    ForEach(Array(testimonials.enumerated()), id: \.offset) { _, t in
-                        OBTestimonialCard(
-                            name: LanguageManager.shared.onboarding(t.name),
-                            tag: LanguageManager.shared.onboarding(t.tag),
-                            text: LanguageManager.shared.onboarding(t.text)
-                        )
-                    }
-                    Text(LanguageManager.shared.onboarding("onboarding_social_note"))
-                        .font(.system(size: 11))
-                        .foregroundColor(ShieldTheme.textTertiary)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 4)
-                }
-                .padding(.horizontal, 24)
-            }
-
-            Spacer()
-
-            Button(action: state.next) {
-                Text(LanguageManager.shared.onboarding("onboarding_continue"))
-                    .font(.system(size: 17, weight: .bold))
-                    .frame(maxWidth: .infinity).frame(height: 54)
-                    .background(ShieldTheme.accent)
-                    .foregroundColor(ShieldTheme.accentText)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
-        }
-    }
-}
-
-// MARK: - Screen 5: Solution
-
-struct OBSolutionView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var state: OnboardingState
-
-    private var items: [(title: String, fix: String)] {
-        let pains = state.selectedPainPoints.isEmpty
-            ? [OBPainPoint.photo, .dob, .docNumber]
-            : Array(state.selectedPainPoints.prefix(3))
-        var result = pains.map { p -> (String, String) in
-            let k = p.solutionKeys
-            return (LanguageManager.shared.onboarding(k.title), LanguageManager.shared.onboarding(k.fix))
-        }
-        result.append((
-            LanguageManager.shared.onboarding("onboarding_solution_default_title"),
-            LanguageManager.shared.onboarding("onboarding_solution_default_fix")
-        ))
-        return result
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer().frame(height: 24)
-
-            Text(LanguageManager.shared.onboarding("onboarding_solution_title"))
-                .font(.system(size: 26, weight: .heavy))
-                .foregroundColor(ShieldTheme.textPrimary)
-                .multilineTextAlignment(.center)
-                .tracking(-0.5)
-                .padding(.horizontal, 24)
-
-            Spacer().frame(height: 28)
-
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 12) {
-                    ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-                        OBSolutionRow(pain: item.title, fix: item.fix)
-                    }
-                }
-                .padding(.horizontal, 24)
-            }
-
-            Spacer()
-
-            Button(action: state.next) {
-                Text(LanguageManager.shared.onboarding("onboarding_continue"))
-                    .font(.system(size: 17, weight: .bold))
-                    .frame(maxWidth: .infinity).frame(height: 54)
-                    .background(ShieldTheme.accent)
-                    .foregroundColor(ShieldTheme.accentText)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
-        }
-    }
-}
-
-// MARK: - Screen 6: Preferences
-
-struct OBPreferencesView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var state: OnboardingState
-    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer().frame(height: 24)
-
-            VStack(spacing: 10) {
-                Text(LanguageManager.shared.onboarding("onboarding_prefs_title"))
-                    .font(.system(size: 26, weight: .heavy))
-                    .foregroundColor(ShieldTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .tracking(-0.5)
-                    .padding(.horizontal, 24)
-                Text(LanguageManager.shared.onboarding("onboarding_prefs_subtitle"))
-                    .font(.system(size: 14))
-                    .foregroundColor(ShieldTheme.textSecondary)
-            }
-
-            Spacer().frame(height: 28)
-
-            ScrollView(showsIndicators: false) {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(OBDocType.allCases) { doc in
-                        OBDocTypeCard(
-                            emoji: doc.emoji,
-                            label: doc.label(lang: appState.language),
-                            isSelected: state.selectedDocTypes.contains(doc)
-                        ) {
-                            if state.selectedDocTypes.contains(doc) {
-                                state.selectedDocTypes.remove(doc)
-                            } else {
-                                state.selectedDocTypes.insert(doc)
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, 24)
-            }
-
-            Spacer()
-
-            Button(action: state.next) {
-                Text(LanguageManager.shared.onboarding("onboarding_continue"))
-                    .font(.system(size: 17, weight: .bold))
-                    .frame(maxWidth: .infinity).frame(height: 54)
-                    .background(ShieldTheme.accent)
-                    .foregroundColor(ShieldTheme.accentText)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
-        }
-    }
-}
-
-// MARK: - Screen 7: Camera Permission
-
-struct OBCameraPermView: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.openURL) private var openURL
-    @ObservedObject var state: OnboardingState
-    @State private var authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
-    @State private var isRequesting = false
-
-    var body: some View {
-        GeometryReader { proxy in
-            Color.black
-                .overlay {
-                    VStack(spacing: 0) {
-                        Spacer(minLength: 6)
-
-                        permissionAnimation
-                            .frame(height: min(390, max(300, proxy.size.height * 0.54)))
-
-                        permissionContent
-                            .padding(.top, 8)
-                            .padding(.bottom, 20)
-                    }
-                }
-        }
-        .environment(\.colorScheme, .dark)
-        .onAppear(perform: refreshAuthorizationStatus)
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-            refreshAuthorizationStatus()
-        }
-    }
-
-    private var permissionContent: some View {
-        VStack(spacing: 10) {
-            cameraPermissionSymbol
-
-            Text(presentationTitle)
-                .font(.title.bold())
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-
-            Text(presentationSubtitle)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-
-            Button(action: handlePrimaryAction) {
-                ZStack {
-                    Text(primaryButtonTitle)
-                        .opacity(isRequesting ? 0 : 1)
-                    if isRequesting {
-                        ProgressView()
-                            .tint(ShieldTheme.accentText)
-                    }
-                }
-                .font(.body.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-            }
-            .foregroundStyle(ShieldTheme.accentText)
-            .background(ShieldTheme.accent, in: Capsule())
-            .buttonStyle(ScaleButtonStyle())
-            .disabled(isRequesting)
-            .padding(.top, 10)
-
-            Button(LanguageManager.shared.onboarding("onboarding_not_now"), action: handleNotNow)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
-                .frame(minHeight: 36)
-                .disabled(isRequesting)
-                .padding(.top, 1)
-        }
-        .frame(maxWidth: 330)
-        .padding(.horizontal, 24)
-    }
-
-    private var cameraPermissionSymbol: some View {
-        Image(systemName: "camera")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .fontWeight(.ultraLight)
-            .foregroundStyle(.white)
-            .frame(width: 62, height: 62)
-            .overlay(alignment: .topLeading) {
-                if reduceMotion {
-                    permissionChevron
-                } else {
-                    permissionChevron
-                        .symbolEffect(.bounce.down, options: .repeating)
-                }
-            }
-            .accessibilityHidden(true)
-    }
-
-    private var permissionChevron: some View {
-        Image(systemName: "chevron.down")
-            .font(.system(size: 12, weight: .medium))
-            .offset(x: -2, y: -8)
-    }
-
-    private var permissionAnimation: some View {
-        GeometryReader { proxy in
-            let size = proxy.size
-            let ratio = min(size.width / 390, size.height / 870)
-
-            if reduceMotion {
-                cameraPhone(frame: .visible, size: size, ratio: ratio)
-            } else {
-                KeyframeAnimator(initialValue: CameraPermissionFrame(), repeating: true) { frame in
-                    cameraPhone(frame: frame, size: size, ratio: ratio)
-                } keyframes: { _ in
-                    KeyframeTrack(\.scale) {
-                        MoveKeyframe(1)
-                        LinearKeyframe(1, duration: 0.5)
-                        CubicKeyframe(0.95, duration: 0.5)
-                        LinearKeyframe(0.95, duration: 5)
-                        CubicKeyframe(1, duration: 0.35)
-                        LinearKeyframe(1, duration: 0.5)
-                    }
-                    KeyframeTrack(\.cameraOpacity) {
-                        MoveKeyframe(0)
-                        LinearKeyframe(0, duration: 0.5)
-                        CubicKeyframe(1, duration: 0.5)
-                        LinearKeyframe(1, duration: 5)
-                        CubicKeyframe(0, duration: 0.35)
-                        LinearKeyframe(0, duration: 0.5)
-                    }
-                    KeyframeTrack(\.progress) {
-                        MoveKeyframe(0)
-                        LinearKeyframe(0, duration: 1.5)
-                        SpringKeyframe(-1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
-                        SpringKeyframe(1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
-                        SpringKeyframe(0, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
-                        CubicKeyframe(0, duration: 0.35)
-                        LinearKeyframe(0, duration: 0.5)
-                    }
-                }
-            }
-        }
-        .aspectRatio(390 / 870, contentMode: .fit)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_camera_artwork_accessibility"))
-    }
-
-    private func cameraPhone(frame: CameraPermissionFrame, size: CGSize, ratio: CGFloat) -> some View {
-        let cornerRadius = 47 * ratio
-
-        return Rectangle()
-            .fill(Color.white.opacity(0.10))
-            .overlay {
-                ZStack(alignment: .bottom) {
-                    Rectangle()
-                        .fill(.black)
-                        .overlay {
-                            Image("OnboardingCamera")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: size.width * 3, height: size.height)
-                                .offset(x: -frame.progress * size.width)
-                        }
-                        .clipped()
-
-                    HStack(spacing: 0) {
-                        Circle()
-                            .fill(.white.secondary)
-                            .frame(width: size.height * 0.05)
-                            .frame(maxWidth: .infinity)
-
-                        Circle()
-                            .fill(.white)
-                            .frame(width: size.height * 0.2, height: size.height * 0.1)
-                            .frame(maxWidth: .infinity)
-
-                        Circle()
-                            .fill(.white.secondary)
-                            .frame(width: size.height * 0.05)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: size.height * 0.17)
-                    .background(.black.opacity(0.5))
-                }
-                .clipped()
-                .offset(y: size.height - (size.height * frame.cameraOpacity))
-            }
-            .overlay(alignment: .top) {
-                Capsule()
-                    .fill(.black)
-                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                    .frame(width: 120 * ratio, height: 36 * ratio)
-                    .overlay {
-                        Circle()
-                            .fill(.green)
-                            .frame(width: 10 * ratio, height: 10 * ratio)
-                            .offset(x: 12 * ratio)
-                            .opacity(frame.cameraOpacity)
-                    }
-                    .padding(.top, 11 * ratio)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            .background {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.white.opacity(0.18), lineWidth: 2)
-            }
-            .compositingGroup()
-            .scaleEffect(frame.scale, anchor: .center)
-            .rotation3DEffect(
-                .degrees(frame.progress * 15),
-                axis: (x: 0, y: abs(frame.progress), z: abs(frame.progress / 4)),
-                anchor: .center
-            )
-            .offset(x: frame.progress * 80)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .aspectRatio(390 / 870, contentMode: .fit)
-            .shadow(color: .black.opacity(0.45), radius: 22, y: 12)
-    }
-
-    private struct CameraPermissionFrame {
-        var scale: CGFloat = 1
-        var cameraOpacity: CGFloat = 0
-        var progress: CGFloat = 0
-
-        static let visible = CameraPermissionFrame(scale: 0.95, cameraOpacity: 1, progress: 0)
-    }
-
-    private var presentationTitle: String {
-        switch authorizationStatus {
-        case .denied:
-            LanguageManager.shared.onboarding("onboarding_camera_denied_title")
-        case .restricted:
-            LanguageManager.shared.onboarding("onboarding_camera_restricted_title")
-        default:
-            LanguageManager.shared.onboarding("onboarding_camera_title")
-        }
-    }
-
-    private var presentationSubtitle: String {
-        switch authorizationStatus {
-        case .denied:
-            LanguageManager.shared.onboarding("onboarding_camera_denied_subtitle")
-        case .restricted:
-            LanguageManager.shared.onboarding("onboarding_camera_restricted_subtitle")
-        default:
-            LanguageManager.shared.onboarding("onboarding_camera_subtitle")
-        }
-    }
-
-    private var primaryButtonTitle: String {
-        switch authorizationStatus {
-        case .authorized, .restricted:
-            LanguageManager.shared.onboarding("onboarding_continue")
-        case .denied:
-            LanguageManager.shared.onboarding("onboarding_camera_open_settings")
-        default:
-            LanguageManager.shared.onboarding("onboarding_camera_enable")
-        }
-    }
-
-    private func handlePrimaryAction() {
-        switch authorizationStatus {
-        case .authorized, .restricted:
-            AppState.trackEvent("camera_permission_continued", properties: [
-                "status": authorizationStatus == .authorized ? "authorized" : "restricted"
-            ])
-            state.next()
-        case .denied:
-            AppState.trackEvent("camera_settings_opened")
-            guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
-            openURL(settingsURL)
-        case .notDetermined:
-            isRequesting = true
-            Task {
-                let granted = await AVCaptureDevice.requestAccess(for: .video)
-                authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
-                isRequesting = false
-                AppState.trackEvent("camera_permission_resolved", properties: [
-                    "granted": granted ? "true" : "false"
-                ])
-                if granted { state.next() }
-            }
-        @unknown default:
-            state.next()
-        }
-    }
-
-    private func handleNotNow() {
-        AppState.trackEvent("camera_permission_skipped", properties: [
-            "status": String(describing: authorizationStatus)
-        ])
-        state.next()
-    }
-
-    private func refreshAuthorizationStatus() {
-        let refreshedStatus = AVCaptureDevice.authorizationStatus(for: .video)
-        authorizationStatus = refreshedStatus
-
-        // The system permission sheet can return the app to the foreground before
-        // requestAccess resumes (especially in Simulator). Never leave the CTA
-        // disabled once iOS has already resolved the permission decision.
-        if refreshedStatus != .notDetermined {
-            isRequesting = false
-        }
-    }
-}
-
-// MARK: - Screen 8: Face ID Permission
-
-struct OBFaceIDPermView: View {
-    @EnvironmentObject var appState: AppState
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ObservedObject var state: OnboardingState
-    @State private var scanAtBottom = false
-    @State private var isAuthenticating = false
-    @State private var authenticationSucceeded = false
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 18)
-
-            faceIDHero
-
-            VStack(spacing: 10) {
-                Text(LanguageManager.shared.onboarding("onboarding_face_id_title"))
-                    .font(.system(size: 28, weight: .heavy))
-                    .foregroundStyle(ShieldTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                Text(LanguageManager.shared.onboarding("onboarding_face_id_subtitle"))
-                    .font(.callout)
-                    .foregroundStyle(ShieldTheme.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
-            }
-            .padding(.top, 30)
-
-            VStack(spacing: 12) {
-                faceIDBenefit("lock.shield.fill", key: "onboarding_face_id_bullet_1")
-                faceIDBenefit("hand.raised.fill", key: "onboarding_face_id_bullet_2")
-                faceIDBenefit("iphone.gen3", key: "onboarding_face_id_bullet_3")
-            }
-            .padding(.top, 26)
-
-            Spacer(minLength: 20)
-
-            VStack(spacing: 8) {
-                Button(action: authenticate) {
-                    ZStack {
-                        Text(LanguageManager.shared.onboarding("onboarding_face_id_enable"))
-                            .opacity(isAuthenticating ? 0 : 1)
-                        if isAuthenticating {
-                            ProgressView().tint(.black)
-                        }
-                    }
-                    .font(.body.bold())
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(Color(hex: "30D158"), in: .rect(cornerRadius: 16))
-                    .foregroundStyle(.black)
-                }
-                .buttonStyle(ScaleButtonStyle())
-                .disabled(isAuthenticating)
-
-                Button(LanguageManager.shared.onboarding("onboarding_not_now"), action: state.next)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(ShieldTheme.textTertiary)
-                    .frame(minHeight: 44)
-                    .disabled(isAuthenticating)
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 34)
-        }
-        .onAppear {
-            guard !reduceMotion else { return }
-            scanAtBottom = true
-        }
-        .sensoryFeedback(.success, trigger: authenticationSucceeded) { _, newValue in newValue }
-    }
-
-    private var faceIDHero: some View {
-        ZStack {
-            ForEach([170.0, 132.0], id: \.self) { size in
-                Circle()
-                    .stroke(Color(hex: "30D158").opacity(size == 170 ? 0.10 : 0.20), lineWidth: 1)
-                    .frame(width: size, height: size)
-            }
-
-            RoundedRectangle(cornerRadius: 34)
-                .fill(ShieldTheme.surface2)
-                .frame(width: 116, height: 148)
-                .overlay {
-                    Image(systemName: authenticationSucceeded ? "checkmark.shield.fill" : "faceid")
-                        .font(.system(size: 52, weight: .light))
-                        .foregroundStyle(Color(hex: "30D158"))
-
-                    if !authenticationSucceeded {
-                        Rectangle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [.clear, Color(hex: "30D158"), .clear],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: 76, height: 1.5)
-                            .shadow(color: Color(hex: "30D158").opacity(0.8), radius: 5)
-                            .offset(y: scanAtBottom ? 42 : -42)
-                            .animation(
-                                reduceMotion ? nil : .easeInOut(duration: 1.45).repeatForever(autoreverses: true),
-                                value: scanAtBottom
-                            )
-                    }
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 34)
-                        .stroke(Color(hex: "30D158").opacity(0.45), lineWidth: 1)
-                }
-                .shadow(color: Color(hex: "30D158").opacity(0.12), radius: 24)
-        }
-        .frame(height: 178)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_face_id_title"))
-    }
-
-    private func faceIDBenefit(_ symbol: String, key: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color(hex: "30D158"))
-                .frame(width: 24)
-                .accessibilityHidden(true)
-            Text(LanguageManager.shared.onboarding(key))
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(ShieldTheme.textPrimary)
-            Spacer()
-        }
-        .padding(.horizontal, 32)
-    }
-
-    private func authenticate() {
-        let reason = LanguageManager.shared.onboarding("onboarding_face_id_enable")
-        let context = LAContext()
-        var error: NSError?
-        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            state.next()
-            return
-        }
-
-        isAuthenticating = true
-        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
-            DispatchQueue.main.async {
-                isAuthenticating = false
-                guard success else { return }
-                UserDefaults.standard.set(true, forKey: "shield.biometric")
-                authenticationSucceeded = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) {
-                    state.next()
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Screen 9: Processing
-
-struct OBProcessingView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var state: OnboardingState
-    @State private var angle: Double = 0
-
-    var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            ZStack {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(ShieldTheme.accentDim)
-                    .frame(width: 110, height: 110)
-                Image(systemName: "shield.fill")
-                    .font(.system(size: 52))
-                    .foregroundColor(ShieldTheme.accent)
-                    .rotationEffect(.degrees(angle))
-            }
-
-            Text(LanguageManager.shared.onboarding("onboarding_processing_text"))
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(ShieldTheme.textPrimary)
-
-            Spacer()
-        }
-        .onAppear {
-            withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                angle = 360
-            }
-        }
-        .task {
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
-            state.next()
-        }
-    }
-}
-
-// MARK: - Screen 10: Demo
+// MARK: - Screen 4: Demo
 
 struct OBDemoView: View {
     @EnvironmentObject var appState: AppState
@@ -1169,7 +484,325 @@ struct OBDemoView: View {
     }
 }
 
-// MARK: - Screen 11: Paywall
+// MARK: - Screen 5: Camera Permission
+
+struct OBCameraPermView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.openURL) private var openURL
+    @ObservedObject var state: OnboardingState
+    @State private var authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    @State private var isRequesting = false
+
+    var body: some View {
+        GeometryReader { proxy in
+            Color.black
+                .overlay {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 6)
+
+                        permissionAnimation
+                            .frame(height: min(390, max(300, proxy.size.height * 0.54)))
+
+                        permissionContent
+                            .padding(.top, 8)
+                            .padding(.bottom, 20)
+                    }
+                }
+        }
+        .environment(\.colorScheme, .dark)
+        .onAppear(perform: refreshAuthorizationStatus)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            refreshAuthorizationStatus()
+        }
+    }
+
+    private var permissionContent: some View {
+        VStack(spacing: 10) {
+            cameraPermissionSymbol
+
+            Text(presentationTitle)
+                .font(.title.bold())
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Text(presentationSubtitle)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+
+            Button(action: handlePrimaryAction) {
+                ZStack {
+                    Text(primaryButtonTitle)
+                        .opacity(isRequesting ? 0 : 1)
+                    if isRequesting {
+                        ProgressView()
+                            .tint(ShieldTheme.accentText)
+                    }
+                }
+                .font(.body.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .foregroundStyle(ShieldTheme.accentText)
+            .background(ShieldTheme.accent, in: Capsule())
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(isRequesting)
+            .padding(.top, 10)
+
+            Button(LanguageManager.shared.onboarding("onboarding_not_now"), action: handleNotNow)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(minHeight: 36)
+                .disabled(isRequesting)
+                .padding(.top, 1)
+        }
+        .frame(maxWidth: 330)
+        .padding(.horizontal, 24)
+    }
+
+    private var cameraPermissionSymbol: some View {
+        Image(systemName: "camera")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .fontWeight(.ultraLight)
+            .foregroundStyle(.white)
+            .frame(width: 62, height: 62)
+            .overlay(alignment: .topLeading) {
+                if reduceMotion {
+                    permissionChevron
+                } else {
+                    permissionChevron
+                        .symbolEffect(.bounce.down, options: .repeating)
+                }
+            }
+            .accessibilityHidden(true)
+    }
+
+    private var permissionChevron: some View {
+        Image(systemName: "chevron.down")
+            .font(.system(size: 12, weight: .medium))
+            .offset(x: -2, y: -8)
+    }
+
+    private var permissionAnimation: some View {
+        GeometryReader { proxy in
+            let size = proxy.size
+            let ratio = min(size.width / 390, size.height / 870)
+
+            if reduceMotion {
+                cameraPhone(frame: .visible, size: size, ratio: ratio)
+            } else {
+                KeyframeAnimator(initialValue: CameraPermissionFrame(), repeating: true) { frame in
+                    cameraPhone(frame: frame, size: size, ratio: ratio)
+                } keyframes: { _ in
+                    KeyframeTrack(\.scale) {
+                        MoveKeyframe(1)
+                        LinearKeyframe(1, duration: 0.5)
+                        CubicKeyframe(0.95, duration: 0.5)
+                        LinearKeyframe(0.95, duration: 5)
+                        CubicKeyframe(1, duration: 0.35)
+                        LinearKeyframe(1, duration: 0.5)
+                    }
+                    KeyframeTrack(\.cameraOpacity) {
+                        MoveKeyframe(0)
+                        LinearKeyframe(0, duration: 0.5)
+                        CubicKeyframe(1, duration: 0.5)
+                        LinearKeyframe(1, duration: 5)
+                        CubicKeyframe(0, duration: 0.35)
+                        LinearKeyframe(0, duration: 0.5)
+                    }
+                    KeyframeTrack(\.progress) {
+                        MoveKeyframe(0)
+                        LinearKeyframe(0, duration: 1.5)
+                        SpringKeyframe(-1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        SpringKeyframe(1, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        SpringKeyframe(0, duration: 1.5, spring: .smooth(duration: 1, extraBounce: 0))
+                        CubicKeyframe(0, duration: 0.35)
+                        LinearKeyframe(0, duration: 0.5)
+                    }
+                }
+            }
+        }
+        .aspectRatio(390 / 870, contentMode: .fit)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_camera_artwork_accessibility"))
+    }
+
+    private func cameraPhone(frame: CameraPermissionFrame, size: CGSize, ratio: CGFloat) -> some View {
+        let cornerRadius = 47 * ratio
+
+        return Rectangle()
+            .fill(Color.white.opacity(0.10))
+            .overlay {
+                ZStack(alignment: .bottom) {
+                    Rectangle()
+                        .fill(.black)
+                        .overlay {
+                            Image("OnboardingCamera")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: size.width * 3, height: size.height)
+                                .offset(x: -frame.progress * size.width)
+                        }
+                        .clipped()
+
+                    HStack(spacing: 0) {
+                        Circle()
+                            .fill(.white.secondary)
+                            .frame(width: size.height * 0.05)
+                            .frame(maxWidth: .infinity)
+
+                        Circle()
+                            .fill(.white)
+                            .frame(width: size.height * 0.2, height: size.height * 0.1)
+                            .frame(maxWidth: .infinity)
+
+                        Circle()
+                            .fill(.white.secondary)
+                            .frame(width: size.height * 0.05)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: size.height * 0.17)
+                    .background(.black.opacity(0.5))
+                }
+                .clipped()
+                .offset(y: size.height - (size.height * frame.cameraOpacity))
+            }
+            .overlay(alignment: .top) {
+                Capsule()
+                    .fill(.black)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    .frame(width: 120 * ratio, height: 36 * ratio)
+                    .overlay {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 10 * ratio, height: 10 * ratio)
+                            .offset(x: 12 * ratio)
+                            .opacity(frame.cameraOpacity)
+                    }
+                    .padding(.top, 11 * ratio)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 2)
+            }
+            .compositingGroup()
+            .scaleEffect(frame.scale, anchor: .center)
+            .rotation3DEffect(
+                .degrees(frame.progress * 15),
+                axis: (x: 0, y: abs(frame.progress), z: abs(frame.progress / 4)),
+                anchor: .center
+            )
+            .offset(x: frame.progress * 80)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .aspectRatio(390 / 870, contentMode: .fit)
+            .shadow(color: .black.opacity(0.45), radius: 22, y: 12)
+    }
+
+    private struct CameraPermissionFrame {
+        var scale: CGFloat = 1
+        var cameraOpacity: CGFloat = 0
+        var progress: CGFloat = 0
+
+        static let visible = CameraPermissionFrame(scale: 0.95, cameraOpacity: 1, progress: 0)
+    }
+
+    private var presentationTitle: String {
+        switch authorizationStatus {
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_denied_title")
+        case .restricted:
+            LanguageManager.shared.onboarding("onboarding_camera_restricted_title")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_title")
+        }
+    }
+
+    private var presentationSubtitle: String {
+        switch authorizationStatus {
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_denied_subtitle")
+        case .restricted:
+            LanguageManager.shared.onboarding("onboarding_camera_restricted_subtitle")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_subtitle")
+        }
+    }
+
+    private var primaryButtonTitle: String {
+        switch authorizationStatus {
+        case .authorized, .restricted:
+            LanguageManager.shared.onboarding("onboarding_continue")
+        case .denied:
+            LanguageManager.shared.onboarding("onboarding_camera_open_settings")
+        default:
+            LanguageManager.shared.onboarding("onboarding_camera_enable")
+        }
+    }
+
+    private func handlePrimaryAction() {
+        switch authorizationStatus {
+        case .authorized, .restricted:
+            AppState.trackEvent("camera_permission_continued", properties: [
+                "status": authorizationStatus == .authorized ? "authorized" : "restricted"
+            ])
+            state.next()
+        case .denied:
+            AppState.trackEvent("camera_settings_opened")
+            guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
+            openURL(settingsURL)
+        case .notDetermined:
+            isRequesting = true
+            Task {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                isRequesting = false
+                AppState.trackEvent("camera_permission_resolved", properties: [
+                    "granted": granted ? "true" : "false"
+                ])
+                if granted { state.next() }
+            }
+            // requestAccess's completion can fail to resume on some Simulator/OS
+            // combinations, permanently disabling the CTA. Fall back to polling the
+            // system status directly so the button never gets stuck; if the real
+            // completion above still lands later, it applies its own (authoritative)
+            // result on top of this with no risk of double-advancing the step.
+            Task {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                guard isRequesting else { return }
+                refreshAuthorizationStatus()
+            }
+        @unknown default:
+            state.next()
+        }
+    }
+
+    private func handleNotNow() {
+        AppState.trackEvent("camera_permission_skipped", properties: [
+            "status": String(describing: authorizationStatus)
+        ])
+        state.next()
+    }
+
+    private func refreshAuthorizationStatus() {
+        let refreshedStatus = AVCaptureDevice.authorizationStatus(for: .video)
+        authorizationStatus = refreshedStatus
+
+        // The system permission sheet can return the app to the foreground before
+        // requestAccess resumes (especially in Simulator). Never leave the CTA
+        // disabled once iOS has already resolved the permission decision.
+        if refreshedStatus != .notDetermined {
+            isRequesting = false
+        }
+    }
+}
+
+// MARK: - Screen 6: Paywall
 
 struct OBPaywallView: View {
     @EnvironmentObject var appState: AppState
@@ -1424,88 +1057,6 @@ struct OBPaywallView: View {
 
 // MARK: - Shared subviews
 
-struct OBPermissionLayout: View {
-    let sfSymbol: String
-    let accentHex: String
-    let title: String
-    let subtitle: String
-    let bullets: [String]
-    let enableLabel: String
-    let notNowLabel: String
-    let onEnable: () -> Void
-    let onSkip: () -> Void
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-
-            ZStack {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(Color(hex: accentHex).opacity(0.12))
-                    .frame(width: 110, height: 110)
-                Image(systemName: sfSymbol)
-                    .font(.system(size: 52, weight: .semibold))
-                    .foregroundColor(Color(hex: accentHex))
-            }
-            .padding(.bottom, 32)
-
-            VStack(spacing: 12) {
-                Text(title)
-                    .font(.system(size: 26, weight: .heavy))
-                    .foregroundColor(ShieldTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .tracking(-0.5)
-                    .padding(.horizontal, 24)
-                Text(subtitle)
-                    .font(.system(size: 14))
-                    .foregroundColor(ShieldTheme.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 32)
-            }
-
-            Spacer().frame(height: 28)
-
-            VStack(spacing: 12) {
-                ForEach(bullets, id: \.self) { bullet in
-                    HStack(spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 16))
-                            .foregroundColor(Color(hex: accentHex))
-                        Text(bullet)
-                            .font(.system(size: 14))
-                            .foregroundColor(ShieldTheme.textPrimary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 32)
-                }
-            }
-
-            Spacer()
-
-            VStack(spacing: 10) {
-                Button(action: onEnable) {
-                    Text(enableLabel)
-                        .font(.system(size: 17, weight: .bold))
-                        .frame(maxWidth: .infinity).frame(height: 54)
-                        .background(Color(hex: accentHex))
-                        .foregroundColor(.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .buttonStyle(ScaleButtonStyle())
-
-                Button(action: onSkip) {
-                    Text(notNowLabel)
-                        .font(.system(size: 15))
-                        .foregroundColor(ShieldTheme.textTertiary)
-                        .frame(height: 44)
-                }
-            }
-            .padding(.horizontal, 24).padding(.bottom, 40)
-        }
-    }
-}
-
 struct OBSelectRow: View {
     let emoji: String
     let label: String
@@ -1529,93 +1080,6 @@ struct OBSelectRow: View {
                 .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
             }
             .padding(.horizontal, 16).padding(.vertical, 14)
-            .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(isSelected ? ShieldTheme.accent.opacity(0.5) : ShieldTheme.surfaceLine, lineWidth: 0.5)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .animation(.easeInOut(duration: 0.15), value: isSelected)
-        }
-        .buttonStyle(ScaleButtonStyle())
-    }
-}
-
-private struct OBTestimonialCard: View {
-    let name: String
-    let tag: String
-    let text: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 3) {
-                ForEach(0..<5, id: \.self) { _ in
-                    Image(systemName: "star.fill").font(.system(size: 10)).foregroundColor(ShieldTheme.accent)
-                }
-            }
-            Text("\"\(text)\"")
-                .font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle().fill(ShieldTheme.accentDim).frame(width: 30, height: 30)
-                    Text(String(name.prefix(1)))
-                        .font(.system(size: 13, weight: .bold)).foregroundColor(ShieldTheme.accent)
-                }
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(name).font(.system(size: 12, weight: .semibold)).foregroundColor(ShieldTheme.textPrimary)
-                    Text(tag).font(.system(size: 11)).foregroundColor(ShieldTheme.textSecondary)
-                }
-            }
-        }
-        .padding(16)
-        .background(ShieldTheme.surface2)
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-}
-
-private struct OBSolutionRow: View {
-    let pain: String
-    let fix: String
-
-    var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10).fill(ShieldTheme.accentDim).frame(width: 36, height: 36)
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 16)).foregroundColor(ShieldTheme.accent)
-            }
-            VStack(alignment: .leading, spacing: 3) {
-                Text(pain).font(.system(size: 11)).foregroundColor(ShieldTheme.textTertiary)
-                Text(fix).font(.system(size: 14, weight: .semibold)).foregroundColor(ShieldTheme.textPrimary)
-            }
-            Spacer()
-        }
-        .padding(14)
-        .background(ShieldTheme.surface2)
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.surfaceLine, lineWidth: 0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-}
-
-private struct OBDocTypeCard: View {
-    let emoji: String
-    let label: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 10) {
-                Text(emoji).font(.system(size: 28))
-                Text(label)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(ShieldTheme.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-            }
-            .frame(maxWidth: .infinity).padding(.vertical, 18)
             .background(isSelected ? ShieldTheme.accentDim : ShieldTheme.surface2)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)

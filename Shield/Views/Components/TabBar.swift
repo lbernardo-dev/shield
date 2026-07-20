@@ -46,7 +46,6 @@ struct ShieldTabBar: View {
     var onScanTap: () -> Void
     @Environment(\.colorScheme) var scheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Namespace private var tabNamespace
 
     @MainActor
     private var bottomPadding: CGFloat {
@@ -148,19 +147,6 @@ struct ShieldTabBar: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 4)
-            .background {
-                if isActive {
-                    if #available(iOS 26, *) {
-                        Color.clear
-                            .glassEffect(.regular.tint(ShieldTheme.accent(scheme).opacity(0.15)).interactive(), in: .rect(cornerRadius: 12))
-                            .matchedGeometryEffect(id: "activeTabHighlight", in: tabNamespace)
-                    } else {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(ShieldTheme.accent(scheme).opacity(0.08))
-                            .matchedGeometryEffect(id: "activeTabHighlight", in: tabNamespace)
-                    }
-                }
-            }
         }
         .buttonStyle(.plain)
         .frame(minHeight: 44)

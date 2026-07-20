@@ -169,7 +169,7 @@ struct SettingsSummaryCard: View {
                         .font(.title2.weight(.heavy))
                         .foregroundStyle(ShieldTheme.primary(scheme))
 
-                    HStack(spacing: ShieldTheme.s2) {
+                    VStack(alignment: .leading, spacing: ShieldTheme.s2) {
                         summaryPill(icon: "info.circle.fill", text: strings.settings("settings_version_value", version))
                         summaryPill(icon: "hammer.fill", text: strings.settings("settings_build_value", build))
                     }

@@ -1068,8 +1068,8 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\341mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\363veda.";
+		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la cámara para escanear documentos.";
+		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu Bóveda.";
 		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
@@ -1110,8 +1110,8 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\341mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\363veda.";
+		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la cámara para escanear documentos.";
+		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu Bóveda.";
 		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
