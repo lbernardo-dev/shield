@@ -100,7 +100,10 @@ final class ShieldLaunchTests: XCTestCase {
                 backButton.waitForNonExistence(timeout: 3),
                 "The destination did not close after one physical-coordinate tap for \(identifier)"
             )
-            XCTAssertTrue(app.staticTexts["Ajustes"].waitForExistence(timeout: 3))
+            XCTAssertTrue(
+                app.scrollViews.firstMatch.waitForExistence(timeout: 3),
+                "Settings root did not reappear after closing \(identifier)"
+            )
         }
 
         let support = app.buttons["settings.route.support"]
@@ -149,6 +152,29 @@ final class ShieldLaunchTests: XCTestCase {
     }
 
     @MainActor
+    func testSettingsCloseExitsFromRootAndDestinations() throws {
+        let app = launch(scene: "settings")
+
+        let settingsClose = app.buttons["settings.close"]
+        XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
+        XCTAssertTrue(settingsClose.isHittable)
+        XCTAssertFalse(app.buttons["tab.0"].exists, "The footer must be hidden in Settings")
+        settingsClose.tap()
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
+
+        app.buttons["tab.3"].tap()
+        let preferences = app.buttons["settings.route.appPreferences"]
+        XCTAssertTrue(preferences.waitForExistence(timeout: 3))
+        preferences.tap()
+
+        XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
+        XCTAssertTrue(settingsClose.isHittable)
+        XCTAssertFalse(app.buttons["tab.0"].exists, "The footer must remain hidden in Settings destinations")
+        settingsClose.tap()
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
+    }
+
+    @MainActor
     func testRateAppOpensShieldReviewDestination() throws {
         let app = XCUIApplication()
         app.launchArguments = [
@@ -172,6 +198,122 @@ final class ShieldLaunchTests: XCTestCase {
 
     @MainActor
     func testPaywallAccessibilityInEnglishAndSpanish() throws { try audit(scene: "paywall") }
+
+    @MainActor
+    func testPrimaryTabNavigationAndCaptureDismissal() throws {
+        let app = launch(scene: "home")
+
+        for identifier in ["tab.1", "tab.2"] {
+            let tab = app.buttons[identifier]
+            XCTAssertTrue(tab.waitForExistence(timeout: 3), "Missing tab \(identifier)")
+            XCTAssertTrue(tab.isHittable, "Tab is not tappable: \(identifier)")
+            tab.tap()
+        }
+
+        let settingsTab = app.buttons["tab.3"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 3), "Missing tab tab.3")
+        XCTAssertTrue(settingsTab.isHittable, "Tab is not tappable: tab.3")
+        settingsTab.tap()
+
+        let closeSettings = app.buttons["settings.close"]
+        XCTAssertTrue(closeSettings.waitForExistence(timeout: 3))
+        closeSettings.tap()
+        XCTAssertTrue(closeSettings.waitForNonExistence(timeout: 3))
+
+        let homeTab = app.buttons["tab.0"]
+        XCTAssertTrue(homeTab.waitForExistence(timeout: 3), "Missing tab tab.0")
+        XCTAssertTrue(homeTab.isHittable, "Tab is not tappable: tab.0")
+        homeTab.tap()
+
+        let capture = app.buttons["tab.capture"]
+        XCTAssertTrue(capture.isHittable)
+        capture.tap()
+
+        let close = app.buttons["capture.close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 3))
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
+
+    @MainActor
+    func testCaptureGuideCanToggleAndDismiss() throws {
+        let app = launch(scene: "capture")
+        let toggle = app.buttons["capture.toggleGuide"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertTrue(toggle.isHittable)
+        toggle.tap()
+        XCTAssertTrue(toggle.isHittable)
+
+        let close = app.buttons["capture.close"]
+        XCTAssertTrue(close.isHittable)
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 3))
+    }
+
+    @MainActor
+    func testGalleryStylePreviewCanOpenAndDismiss() throws {
+        let app = launch(scene: "gallery")
+        let style = app.buttons["gallery.style.block"]
+        XCTAssertTrue(style.waitForExistence(timeout: 3))
+        XCTAssertTrue(style.isHittable)
+        style.tap()
+
+        let close = app.buttons["gallery.styleSource.close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 3))
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(style.isHittable)
+    }
+
+    @MainActor
+    func testEditorExportCanOpenAndDismissWithoutChangingDocument() throws {
+        let app = launch(scene: "editor")
+        let export = app.buttons["editor.export"]
+        XCTAssertTrue(export.waitForExistence(timeout: 3))
+        XCTAssertTrue(export.isHittable)
+        export.tap()
+
+        let closeExport = app.buttons["export.close"]
+        XCTAssertTrue(closeExport.waitForExistence(timeout: 3))
+        closeExport.tap()
+        XCTAssertTrue(closeExport.waitForNonExistence(timeout: 3))
+
+        let closeEditor = app.buttons["editor.close"]
+        XCTAssertTrue(closeEditor.isHittable)
+        closeEditor.tap()
+        if !closeEditor.waitForNonExistence(timeout: 1) {
+            let discardChanges = app.buttons["Salir"]
+            XCTAssertTrue(discardChanges.waitForExistence(timeout: 3))
+            discardChanges.tap()
+        }
+        XCTAssertTrue(closeEditor.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
+
+    @MainActor
+    func testVaultLockReturnsToAuthenticationGate() throws {
+        let app = launch(scene: "vault")
+        let lock = app.buttons["vault.lock"]
+        XCTAssertTrue(lock.waitForExistence(timeout: 3))
+        XCTAssertTrue(lock.isHittable)
+        lock.tap()
+
+        let unlock = app.buttons["vault.unlock"]
+        XCTAssertTrue(unlock.waitForExistence(timeout: 3))
+        XCTAssertTrue(unlock.isHittable)
+    }
+
+    @MainActor
+    func testPaywallCanDismissToWorkspace() throws {
+        let app = launch(scene: "paywall")
+        let close = app.buttons["paywall.close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 3))
+        XCTAssertTrue(close.isHittable)
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
 
     @MainActor
     private func audit(scene: String) throws {
@@ -222,6 +364,20 @@ final class ShieldLaunchTests: XCTestCase {
             }
             app.terminate()
         }
+    }
+
+    @MainActor
+    private func launch(scene: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-aso-screenshots",
+            "-aso-language", "es",
+            "-aso-scene", scene
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        return app
     }
 
     @MainActor

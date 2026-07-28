@@ -7,6 +7,7 @@ struct ShieldApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
+        FirebaseIntegration.configure()
         PremiumManager.configureRevenueCat()
         ShieldMetricSubscriber.shared.subscribe()
     }

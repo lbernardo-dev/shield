@@ -205,6 +205,7 @@ struct EditorView: View {
             .frame(minHeight: 44)
             .contentShape(Rectangle())
             .keyboardShortcut(.cancelAction)
+            .accessibilityIdentifier("editor.close")
             .confirmationDialog(
                 LanguageManager.shared.editor("editor_exit_confirm"),
                 isPresented: $showCancelConfirm,
@@ -244,8 +245,10 @@ struct EditorView: View {
                     Image(systemName: "camera.filters")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(ShieldTheme.secondary(scheme))
-                        .frame(width: 30, height: 30)
+                        .frame(width: 44, height: 44)
                 }
+                .accessibilityLabel(LanguageManager.shared.capture("capture_adjustments"))
+                .accessibilityHint(LanguageManager.shared.capture("capture_auto_perspective"))
 
                 Button {
                     appState.updateDocument(vm.documentSnapshot)
@@ -258,12 +261,13 @@ struct EditorView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 14)
-                        .frame(height: 30)
+                        .frame(minHeight: 44)
                         .background(vm.hasUnsavedChanges ? ShieldTheme.success : ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .disabled(!vm.hasUnsavedChanges)
                 .keyboardShortcut("s", modifiers: .command)
+                .accessibilityIdentifier("editor.save")
 
                 Button {
                     vm.showExportSheet = true
@@ -272,11 +276,12 @@ struct EditorView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 14)
-                        .frame(height: 30)
+                        .frame(minHeight: 44)
                         .background(ShieldTheme.accent(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .keyboardShortcut("e", modifiers: [.command, .shift])
+                .accessibilityIdentifier("editor.export")
             } // HStack
         }
         .padding(.horizontal, ShieldTheme.s4)
@@ -468,22 +473,8 @@ struct EditorView: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_controls"))
                 .foregroundColor(ShieldTheme.primary(scheme))
-                .background {
-                    if #available(iOS 26, *) {
-                        Color.clear
-                            .glassEffect(.regular.interactive(), in: .capsule)
-                    } else {
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    }
-                }
-                .overlay {
-                    if #available(iOS 26, *) {
-                        EmptyView()
-                    } else {
-                        Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                    }
-                }
+                .background(ShieldTheme.cardBackground(scheme), in: Capsule())
+                .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(ShieldTheme.s4)
             }

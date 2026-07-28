@@ -1,6 +1,10 @@
 import SwiftUI
 import LocalAuthentication
 
+extension EnvironmentValues {
+    @Entry var closeSettings: () -> Void = {}
+}
+
 // MARK: - Public web destinations
 
 enum ShieldPublicPage: String, CaseIterable, Sendable {
@@ -408,6 +412,7 @@ private struct SettingsDetailScaffold<Content: View>: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.closeSettings) private var closeSettings
 
     init(title: String, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
@@ -433,9 +438,13 @@ private struct SettingsDetailScaffold<Content: View>: View {
 
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
-                    Text(title)
-                        .font(.largeTitle.weight(.bold))
-                        .foregroundStyle(ShieldTheme.primary(scheme))
+                    HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s3) {
+                        Text(title)
+                            .font(.largeTitle.weight(.bold))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        Spacer(minLength: ShieldTheme.s2)
+                        SettingsCloseButton(action: closeSettings)
+                    }
                     if let subtitle {
                         Text(subtitle)
                             .font(.subheadline)
@@ -452,6 +461,26 @@ private struct SettingsDetailScaffold<Content: View>: View {
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         .toolbarVisibility(.hidden, for: .navigationBar)
+    }
+}
+
+struct SettingsCloseButton: View {
+    let action: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.body.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .frame(width: 44, height: 44)
+                .background(ShieldTheme.rowBackground(scheme), in: Circle())
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(strings.common("common_close"))
+        .accessibilityIdentifier("settings.close")
     }
 }
 
@@ -1211,7 +1240,7 @@ struct FAQSettingsView: View {
     }
 }
 
-#if DEBUG
+#if DEBUG && targetEnvironment(simulator)
 struct DeveloperSettingsView: View {
     @StateObject private var premium = PremiumManager.shared
     @Environment(\.colorScheme) private var scheme

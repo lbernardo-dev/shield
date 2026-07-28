@@ -10,5 +10,8 @@ build/
 .build/
 .asc/
 
+# Firebase local configuration
+GoogleService-Info.plist
+
 # Local agent folders
 .claude/

@@ -146,6 +146,7 @@ private struct CaptureTopBarView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("capture.close")
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(LanguageManager.shared.capture("capture_add_document"))
@@ -230,6 +231,7 @@ private struct CapturePrimaryScanCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("capture.scan")
         }
         .padding(16)
         .background(
@@ -298,6 +300,7 @@ private struct CaptureTypeSectionCard: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("capture.toggleGuide")
             }
 
             LazyVGrid(columns: columns, spacing: 10) {

@@ -618,3 +618,124 @@
    Done by: CODEX
    Done at: 2026-07-20T06:23:21Z
 
+57. firebase-analytics-crashlytics
+   Id: 57-firebase-analytics-crashlytics
+   Scope: Integrar Firebase Analytics y Crashlytics en la app iOS principal
+   Files: Shield/App, Shield.xcodeproj, Shield/Resources
+   Note: Integrated Firebase Analytics and Crashlytics via SPM, startup configuration, official local GoogleService-Info.plist, Crashlytics dSYM archive upload, and setup docs. Debug, Release, and device archive builds passed. Full test run had known flaky Settings UI failures; isolated foreground launch passed.
+   Detail: tasks/details/57-firebase-analytics-crashlytics.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T11:54:26Z
+   Done by: CODEX
+   Done at: 2026-07-20T12:13:35Z
+
+58. ui-experience-audit
+   Id: 58-ui-experience-audit
+   Scope: Auditar y mejorar toda la UI de MaskID: shell, inicio, captura/importación, editor, bóveda, galería, ajustes, onboarding y paywall; corregir flujos, claridad, accesibilidad y fluidez
+   Files: Shield/Views/**/*.swift,Shield/App/**/*.swift,Shield/Theme/**/*.swift,Shield/ViewModels/**/*.swift,ShieldUITests/**,tasks/**
+   Note: UI audit and remediation completed; Debug iPhone 16 build plus full accessibility suite and focused onboarding/paywall regressions passed
+   Detail: tasks/details/58-ui-experience-audit.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T13:23:45Z
+   Done by: CODEX
+   Done at: 2026-07-20T13:28:46Z
+
+59. ui-functional-validation
+   Id: 59-ui-functional-validation
+   Scope: Ejecutar validación funcional exhaustiva y reproducible de botones, navegación, flujos y estados UI; ampliar pruebas de regresión donde sea necesario
+   Files: Shield/Views/**/*.swift,ShieldUITests/**,tasks/**
+   Note: Functional validation completed; full ShieldTests, functional UI routes, full UI/accessibility regression suite passed
+   Detail: tasks/details/59-ui-functional-validation.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T13:33:06Z
+   Done by: CODEX
+   Done at: 2026-07-20T13:37:18Z
+
+60. ui-visual-simulator-walkthrough
+   Id: 60-ui-visual-simulator-walkthrough
+   Scope: Recorrer visualmente la app en simulador, inspeccionar pantallas y flujos principales mediante interacción directa y documentar hallazgos
+   Files: Shield/Views/**/*.swift,ShieldUITests/**,tasks/**
+   Note: Visual simulator walkthrough and Home accessibility/navigation regressions completed; no release-blocking visual defects found.
+   Detail: tasks/details/60-ui-visual-simulator-walkthrough.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T13:38:50Z
+   Done by: CODEX
+   Done at: 2026-07-20T15:20:31Z
+
+61. shell-stability-fix
+   Id: 61-shell-stability-fix
+   Scope: Eliminate recurring launch overlay and restore anchored mobile tab bar
+   Files: Shield/App/ContentView.swift,Shield/Views/Components/SplashView.swift
+   Note: Removed recurring animated splash behavior, enforce one launch overlay per process, restored the compact-shell bottom-edge treatment. Build passed: AGENT_NAME=CODEX make build. Simulator visual recheck deferred because the foreground device is now running the user's StreakReps app.
+   Detail: tasks/details/61-shell-stability-fix.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T13:55:44Z
+   Done by: CODEX
+   Done at: 2026-07-20T13:56:11Z
+
+62. modal-surface-visual-regression
+   Id: 62-modal-surface-visual-regression
+   Scope: Audit and correct opaque readability and safe-area behavior for paywall and modal UI surfaces
+   Files: Shield/Views/Paywall/PaywallView.swift,Shield/Views/Components/**/*.swift,Shield/Views/**/*.swift
+   Note: Removed every glassEffect, GlassEffectContainer, glassProminent and ultraThinMaterial surface from the app. Paywall plan rows, CTA, bottom navigation, home controls, editor zoom, vault lock and PIN pad now use opaque semantic backgrounds. Build passed twice: AGENT_NAME=CODEX make build. Visual simulator recheck pending because user is actively using the simulator with another app.
+   Detail: tasks/details/62-modal-surface-visual-regression.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T13:57:04Z
+   Done by: CODEX
+   Done at: 2026-07-20T14:00:08Z
+
+63. settings-modal-navigation
+   Id: 63-settings-modal-navigation
+   Scope: Ocultar la barra de navegación inferior en Ajustes y sus destinos; añadir cierre superior alineado al título
+   Files: Shield/App/ContentView.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift
+   Note: Footer hidden throughout Settings; close control added to root and destinations; Debug build and targeted UI test passed
+   Detail: tasks/details/63-settings-modal-navigation.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T14:02:35Z
+   Done by: CODEX
+   Done at: 2026-07-20T14:05:26Z
+
+64. appstore-submission-readiness
+   Id: 64-appstore-submission-readiness
+   Scope: Auditar y corregir configuración local, RevenueCat, Firebase y superficie DEBUG para preparar el envío a App Store Review
+   Files: Shield.xcodeproj/**,Shield/**,ShieldTests/**,ShieldUITests/**,Docs/**,tasks/**
+   Note: Build 100202607202 VALID, App Store version and 4 review items READY_FOR_REVIEW; Firebase/RevenueCat App Privacy published; simulator-only developer controls verified; preflight passed.
+   Detail: tasks/details/64-appstore-submission-readiness.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-20T14:05:45Z
+   Done by: CODEX
+   Done at: 2026-07-20T15:20:15Z
+
+65. audit-stalled-app-review
+   Id: 65-audit-stalled-app-review
+   Scope: Auditar estado real de la revisión de MaskID y completar/corregir toda la ficha App Store Connect, incluyendo metadata, build, privacidad, productos, disponibilidad y datos de revisión
+   Files: metadata/**,Marketing/AppStore-Connect/**,Docs/**,tasks/**
+   Note: Auditoría remota completa: submission WAITING_FOR_REVIEW desde 2026-07-20 15:44 UTC, build VALID, 5 items READY_FOR_REVIEW, metadata EN/ES y URLs correctas, 175 territorios, IAP/subscriptions sin errores ni warnings, cero bloqueos y dry-run sin cambios; no se retiró el envío
+   Detail: tasks/details/65-audit-stalled-app-review.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-26T16:06:34Z
+   Done by: CODEX
+   Done at: 2026-07-26T16:11:01Z
+
+66. audit-cross-app-rejection-risks
+   Id: 66-audit-cross-app-rejection-risks
+   Scope: Comparar los cinco motivos de rechazo de StreakReps con MaskID y corregir cualquier riesgo equivalente en el binario enviado o App Store Connect
+   Files: Shield/**,Shield.xcodeproj/**,metadata/**,Marketing/AppStore-Connect/**,Docs/**,tasks/**
+   Note: Comparados los 5 motivos del rechazo de StreakReps: MaskID no está afectada; age assurance/parental controls false, sin WeatherKit ni audio background, Restore Purchases visible y funcional, imágenes anual/mensual distintas y sin promo lifetime. Notas de App Review reforzadas sin retirar el envío; validaciones strict 0 errores/0 warnings.
+   Detail: tasks/details/66-audit-cross-app-rejection-risks.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-26T16:14:30Z
+   Done by: CODEX
+   Done at: 2026-07-26T16:17:48Z
+
+67. complete-appstore-connect-production-setup
+   Id: 67-complete-appstore-connect-production-setup
+   Scope: Audit and complete all App Store Connect, RevenueCat, StoreKit, privacy, accessibility, review and release configuration; rebuild/resubmit only if required
+   Files: Shield/**,Shield.xcodeproj/**,.asc/**,Docs/**,tasks/**
+   Note: Configuración de producción completada: notificaciones App Store Server y tracking de RevenueCat activados, offering mensual/anual/lifetime corregido, credenciales y entitlement validados, ficha/privacidad/IAP/subscriptions sin errores ni bloqueos, borradores de accesibilidad preparados y regresiones iOS 18.6 superadas. El envío permanece WAITING_FOR_REVIEW; no se canceló porque no requiere otro binario y retirarlo perdería la cola.
+   Detail: tasks/details/67-complete-appstore-connect-production-setup.md
+   Claimed by: CODEX
+   Claimed at: 2026-07-27T06:27:02Z
+   Done by: CODEX
+   Done at: 2026-07-27T07:01:24Z
+

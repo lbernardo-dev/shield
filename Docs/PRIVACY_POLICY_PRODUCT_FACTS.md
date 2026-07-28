@@ -1,7 +1,8 @@
 # Shield privacy facts
 
 - Document processing, OCR, masking and export run on device.
-- Shield does not operate an analytics or advertising backend and does not track users.
+- Shield uses Firebase Analytics and Crashlytics for sanitized product analytics and stability diagnostics; it does not use advertising or cross-app tracking.
+- RevenueCat processes anonymous purchase history to validate transactions and enable entitlements.
 - Imported originals, render caches and local telemetry are encrypted at rest with device-only keys.
 - The Vault uses a separate device-only key and requires device authentication/PIN.
 - iCloud index sync is opt-in and uploads only minimized private-database metadata; document content and user-entered titles remain local.

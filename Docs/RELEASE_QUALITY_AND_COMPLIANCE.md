@@ -4,7 +4,7 @@
 
 - Strict Swift concurrency, compiler warnings as errors, unit tests and UI tests pass.
 - Secure PDF verifier rejects extractable text, annotations, metadata and OCR residuals.
-- No placeholder credentials, implicit OAuth, analytics SDK, tracking domain or plaintext telemetry.
+- No placeholder credentials, implicit OAuth, tracking domain, or plaintext telemetry. Firebase and RevenueCat disclosures must match the shipped configuration.
 - Privacy manifest validates and App Store privacy answers match actual behavior.
 - Accessibility audit passes for descriptions, hit regions, clipping, traits and element detection; contrast is reviewed in light/dark and Increase Contrast.
 - Import cancellation leaves no partial project; temporary exports are deleted on dismissal/background.

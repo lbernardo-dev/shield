@@ -20,7 +20,7 @@ It is not positioned as a generic PDF/photo editor.
 - Subcategories: none; Apple does not offer subcategories for Utilities or Productivity
 - Age rating: 4+
 - Version: `1.0.0`
-- Current valid build: `100202607191`
+- Current valid build: `100202607202`
 - Release type: manual
 
 ## Localized ASO
@@ -90,8 +90,9 @@ Product IDs are immutable legacy identifiers and are never shown as the customer
 
 - Tracking: no
 - Advertising: no
-- Third-party analytics: no
-- Documents, images, OCR text, titles, telemetry and Vault contents are not transmitted to the developer
+- Third-party analytics: Firebase Analytics and Crashlytics, with sanitized technical/product telemetry only
+- RevenueCat processes anonymous purchase history to validate transactions and enable entitlements
+- Documents, images, OCR text, titles, Vault contents, file paths, and error-message text are not transmitted to Firebase or RevenueCat
 - Optional private CloudKit index is used only for app functionality
 
 App Privacy publication must be confirmed using an authenticated App Store Connect web session before review submission; the public API cannot verify its publish state.

@@ -134,23 +134,11 @@ struct IconButton: View {
                 .font(.system(size: size * 0.45, weight: .medium))
                 .foregroundColor(color ?? ShieldTheme.primary(scheme))
                 .frame(width: size, height: size)
-                .background {
-                    if #available(iOS 26, *) {
-                        Color.clear
-                            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: ShieldTheme.rSM))
-                    } else {
-                        RoundedRectangle(cornerRadius: ShieldTheme.rSM)
-                            .fill(background ?? ShieldTheme.cardBackground(scheme))
-                    }
-                }
-                .overlay {
-                    if #available(iOS 26, *) {
-                        EmptyView()
-                    } else {
-                        RoundedRectangle(cornerRadius: ShieldTheme.rSM)
-                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                    }
-                }
+                .background(background ?? ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+                .overlay(
+                    RoundedRectangle(cornerRadius: ShieldTheme.rSM)
+                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                )
         }
         .buttonStyle(ScaleButtonStyle())
         .frame(minWidth: 44, minHeight: 44)
@@ -186,9 +174,9 @@ struct ShieldToggle: View {
         }
         .buttonStyle(.plain)
         .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel(accessibilityName)
-        .accessibilityValue(LanguageManager.shared.common(isOn ? "common_enabled" : "common_disabled"))
-        .accessibilityAddTraits(.isButton)
+        .accessibilityRepresentation {
+            Toggle(accessibilityName, isOn: $isOn)
+        }
     }
 }
 

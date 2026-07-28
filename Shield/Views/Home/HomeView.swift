@@ -169,7 +169,6 @@ struct HomeView: View {
         HomeHeroCardView(
             scheme: appState.preferredScheme,
             language: appState.language,
-            documentCount: appState.documents.count,
             isPro: pm.isPro,
             freeUsed: appState.documents.count,
             freeLimit: PremiumManager.freeDocumentLimit,
@@ -1038,6 +1037,26 @@ struct DocumentRow: View {
         .buttonStyle(ScaleButtonStyle())
         .disabled(doc.isLocked)
         .opacity(doc.isLocked ? 0.7 : 1)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(accessibilityHint)
+    }
+
+    private var accessibilityLabel: String {
+        if shouldMask {
+            return LanguageManager.shared.home("home_protected_document")
+        }
+        return doc.title
+    }
+
+    private var accessibilityHint: String {
+        if doc.isLocked {
+            return LanguageManager.shared.vault("vault_locked_desc")
+        }
+        if doc.isVaulted {
+            return LanguageManager.shared.vault("vault_unlock_faceid")
+        }
+        return ""
     }
 }
 
@@ -1173,7 +1192,6 @@ struct VaultAutoLockOverlay: View {
                     Text(LanguageManager.shared.home("home_vault_mode"))
                         .font(.system(size: 20, weight: .heavy))
                         .foregroundColor(ShieldTheme.primary(scheme))
-                        .tracking(-0.4)
 
                     Text(LanguageManager.shared.home("home_vault_auto_lock_msg"))
                         .font(.system(size: 14))

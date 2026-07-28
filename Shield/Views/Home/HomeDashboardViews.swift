@@ -38,23 +38,8 @@ struct HomeTopBarView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(ShieldTheme.primary(scheme))
                         .frame(width: 32, height: 32)
-                        .background {
-                            if #available(iOS 26, *) {
-                                Color.clear
-                                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 10))
-                            } else {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(ShieldTheme.cardBackground(scheme))
-                            }
-                        }
-                        .overlay {
-                            if #available(iOS 26, *) {
-                                EmptyView()
-                            } else {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                            }
-                        }
+                        .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
                 }
                 .buttonStyle(ScaleButtonStyle())
                 .frame(minWidth: 44, minHeight: 44)
@@ -82,23 +67,8 @@ struct HomeTopBarView: View {
                 .font(.system(size: 11, weight: .bold))
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .frame(width: 32, height: 32)
-                .background {
-                    if #available(iOS 26, *) {
-                        Color.clear
-                            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 10))
-                    } else {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(ShieldTheme.cardBackground(scheme))
-                    }
-                }
-                .overlay {
-                    if #available(iOS 26, *) {
-                        EmptyView()
-                    } else {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
-                    }
-                }
+                .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
         }
         .buttonStyle(ScaleButtonStyle())
         .frame(minWidth: 44, minHeight: 44)
@@ -108,7 +78,6 @@ struct HomeTopBarView: View {
 struct HomeHeroCardView: View {
     let scheme: ColorScheme
     let language: AppLanguage
-    let documentCount: Int
     let isPro: Bool
     let freeUsed: Int
     let freeLimit: Int
@@ -124,27 +93,44 @@ struct HomeHeroCardView: View {
         min(1.0, Double(freeUsed) / Double(max(freeLimit, 1)))
     }
 
+    private var remainingDocuments: Int {
+        max(0, freeLimit - freeUsed)
+    }
+
+    private var usageColor: Color {
+        switch usageFraction {
+        case ..<0.5: ShieldTheme.success
+        case ..<0.8: ShieldTheme.warning
+        default: ShieldTheme.danger
+        }
+    }
+
+    private var usageState: String {
+        if isAtFreeLimit {
+            return LanguageManager.shared.home("home_plan_limit")
+        }
+        if usageFraction >= 0.5 {
+            return LanguageManager.shared.home("home_plan_attention")
+        }
+        return LanguageManager.shared.home("home_plan_available")
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 14) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(heroTitle)
-                        .font(.system(size: 21, weight: .heavy))
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 16) {
+            Text(heroTitle)
+                .font(.title2.weight(.heavy))
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
 
-                    Text(heroSubtitle)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(ShieldTheme.secondary(scheme))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+            Text(heroSubtitle)
+                .font(.subheadline.weight(.medium))
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
 
-                Spacer(minLength: 8)
-
-                statusBadge
+            HStack(spacing: 10) {
+                planBadge
+                localProcessingBadge
             }
-
-            quickStatsRow
             actionRow
 
             if !isPro {
@@ -168,42 +154,29 @@ struct HomeHeroCardView: View {
         LanguageManager.shared.home("home_hero_subtitle")
     }
 
-    private var summaryLine: String {
-        LanguageManager.shared.home("home_hero_summary_line", documentCount)
+    private var planBadge: some View {
+        Label(isPro ? "PRO" : LanguageManager.shared.home("home_free_plan"), systemImage: isPro ? "crown.fill" : "person.crop.circle")
+            .font(.caption.weight(.bold))
+            .foregroundColor(isPro ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+            .padding(.horizontal, 10)
+            .frame(minHeight: 32)
+            .background(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.cardBackground(scheme))
+            .overlay(
+                Capsule().stroke(isPro ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme), lineWidth: 0.8)
+            )
+            .clipShape(Capsule())
     }
 
-    private var statusBadge: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(isPro ? "PRO" : "FREE")
-                .font(.system(size: 10, weight: .black))
-                .foregroundColor(isPro ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(isPro ? ShieldTheme.accent : ShieldTheme.cardBackground(scheme))
-                .clipShape(Capsule())
-
-            Label(LanguageManager.shared.home("home_on_device"), systemImage: "lock.fill")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(ShieldTheme.success)
-        }
-        .padding(10)
-        .background(ShieldTheme.cardBackground(scheme).opacity(0.72))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var quickStatsRow: some View {
-        VStack(spacing: 8) {
-            statPill(
-                icon: "doc.text.fill",
-                text: summaryLine,
-                tint: ShieldTheme.primary(scheme)
-            )
-            statPill(
-                icon: "lock.shield.fill",
-                text: LanguageManager.shared.home("home_no_servers"),
-                tint: ShieldTheme.success
-            )
-        }
+    private var localProcessingBadge: some View {
+        Label(LanguageManager.shared.home("home_processing_local"), systemImage: "lock.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundColor(ShieldTheme.success)
+            .lineLimit(1)
+            .minimumScaleFactor(0.82)
+            .padding(.horizontal, 10)
+            .frame(minHeight: 32)
+            .background(ShieldTheme.successDim)
+            .clipShape(Capsule())
     }
 
     private var actionRow: some View {
@@ -214,6 +187,8 @@ struct HomeHeroCardView: View {
                         .font(.system(size: 14, weight: .bold))
                     Text(LanguageManager.shared.capture("capture_scan_document"))
                         .font(.system(size: 15, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.78)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
@@ -230,7 +205,7 @@ struct HomeHeroCardView: View {
                     Text(cloudImportTitle)
                         .font(.system(size: 15, weight: .bold))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.85)
+                        .minimumScaleFactor(0.78)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
@@ -253,29 +228,40 @@ struct HomeHeroCardView: View {
     private var freePlanMeter: some View {
         Button(action: onUpgrade) {
             VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(LanguageManager.shared.home("home_plan_status", LanguageManager.shared.home("home_free_plan"), freeUsed, freeLimit))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(isAtFreeLimit ? ShieldTheme.danger : ShieldTheme.secondary(scheme))
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(usageState)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundColor(usageColor)
+                        Text(LanguageManager.shared.home("home_plan_remaining", remainingDocuments))
+                            .font(.caption)
+                            .foregroundColor(ShieldTheme.secondary(scheme))
+                    }
 
                     Spacer()
 
                     Text(LanguageManager.shared.home("home_upgrade"))
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(isAtFreeLimit ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                        .font(.caption.weight(.bold))
+                        .foregroundColor(usageColor)
                 }
 
                 GeometryReader { proxy in
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(ShieldTheme.rowBackground(scheme))
-                            .frame(height: 6)
+                            .frame(height: 8)
                         Capsule()
-                            .fill(isAtFreeLimit ? ShieldTheme.danger : ShieldTheme.accent(scheme))
-                            .frame(width: proxy.size.width * usageFraction, height: 6)
+                            .fill(
+                                LinearGradient(
+                                    colors: [usageColor.opacity(0.65), usageColor],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: proxy.size.width * usageFraction, height: 8)
                     }
                 }
-                .frame(height: 6)
+                .frame(height: 8)
             }
             .padding(14)
             .background(
@@ -310,24 +296,4 @@ struct HomeHeroCardView: View {
         }
     }
 
-    private func statPill(icon: String, text: String, tint: Color) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(tint)
-                .accessibilityHidden(true)
-
-            Text(text)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(ShieldTheme.secondary(scheme))
-                .lineLimit(2)
-                .minimumScaleFactor(0.85)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(ShieldTheme.cardBackground(scheme).opacity(0.82))
-        .clipShape(RoundedRectangle(cornerRadius: 15))
-        .accessibilityElement(children: .combine)
-    }
 }

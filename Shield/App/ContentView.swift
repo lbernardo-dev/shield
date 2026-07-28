@@ -8,7 +8,7 @@ struct ContentView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var cloud = CloudSyncManager.shared
     @State private var asoOverlayPresented = true
-    @State private var showSplash = true
+    @State private var showSplash = !LaunchSplashState.hasBeenPresented
 
     var body: some View {
         ZStack {
@@ -42,13 +42,13 @@ struct ContentView: View {
             }
 
 #if DEBUG
-            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "paywall" {
+            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "paywall", asoOverlayPresented {
                 PaywallView(isPresented: $asoOverlayPresented, trigger: .manual)
                     .environmentObject(appState)
                     .zIndex(20_000)
             }
 
-            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "batch" {
+            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "batch", asoOverlayPresented {
                 BatchRedactView(isPresented: $asoOverlayPresented)
                     .environmentObject(appState)
                     .zIndex(20_000)
@@ -61,8 +61,12 @@ struct ContentView: View {
             handleScenePhaseChange(newPhase)
         }
         .onAppear {
+            guard showSplash else { return }
+            LaunchSplashState.hasBeenPresented = true
+
             Task {
-                try? await Task.sleep(nanoseconds: 1_800_000_000)
+                try? await Task.sleep(nanoseconds: 650_000_000)
+                guard !Task.isCancelled else { return }
                 withAnimation(.easeInOut(duration: 0.45)) {
                     showSplash = false
                 }
@@ -132,11 +136,13 @@ private struct AuthenticatedShellView: View {
             } else {
                 tabContent
                     .safeAreaInset(edge: .bottom, spacing: 0) {
-                        ShieldTabBar(
-                            selected: $appState.activeTab,
-                            lang: appState.language,
-                            onScanTap: { appState.showCapture = true }
-                        )
+                        if appState.activeTab != .settings {
+                            ShieldTabBar(
+                                selected: $appState.activeTab,
+                                lang: appState.language,
+                                onScanTap: { appState.showCapture = true }
+                            )
+                        }
                     }
                     .ignoresSafeArea(edges: .bottom)
             }
@@ -169,8 +175,18 @@ private struct AuthenticatedShellView: View {
             VaultView()
         case .settings:
             SettingsView()
+                .environment(\.closeSettings) {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        appState.activeTab = .library
+                    }
+                }
         }
     }
+}
+
+private enum LaunchSplashState {
+    /// Prevents root view reconstruction from replaying the launch overlay.
+    static var hasBeenPresented = false
 }
 
 // MARK: - Preview

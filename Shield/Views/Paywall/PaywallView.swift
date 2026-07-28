@@ -49,6 +49,7 @@ struct PaywallView: View {
                             .background(ShieldTheme.surface3)
                             .clipShape(Circle())
                     }
+                    .accessibilityIdentifier("paywall.close")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -84,6 +85,10 @@ struct PaywallView: View {
         .task {
             AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
             await pm.loadProducts()
+            selectAvailableProductIfNeeded()
+        }
+        .onChange(of: pm.products.map(\.id)) { _, _ in
+            selectAvailableProductIfNeeded()
         }
         .onDisappear {
             if !pm.isPro {
@@ -110,7 +115,6 @@ struct PaywallView: View {
             Text(LanguageManager.shared.paywall("paywall_title"))
                 .font(.system(size: 30, weight: .heavy))
                 .foregroundColor(ShieldTheme.textPrimary)
-                .tracking(-0.6)
             Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
                 .font(.system(size: 15))
                 .foregroundColor(ShieldTheme.textSecondary)
@@ -187,17 +191,9 @@ struct PaywallView: View {
                     }
                 }
             } else {
-                if #available(iOS 26, *) {
-                    GlassEffectContainer(spacing: 12) {
-                        ForEach(pm.products, id: \.id) { product in
-                            planRowView(for: product)
-                        }
-                    }
-                } else {
-                    VStack(spacing: 12) {
-                        ForEach(pm.products, id: \.id) { product in
-                            planRowView(for: product)
-                        }
+                VStack(spacing: 12) {
+                    ForEach(pm.products, id: \.id) { product in
+                        planRowView(for: product)
                     }
                 }
             }
@@ -247,6 +243,19 @@ struct PaywallView: View {
         }
     }
 
+    private var selectedPremiumProduct: PremiumProduct? {
+        pm.products.first { $0.id == selectedProduct.rawValue }
+    }
+
+    private func selectAvailableProductIfNeeded() {
+        guard selectedPremiumProduct == nil,
+              let firstAvailable = pm.products.first,
+              let product = ShieldProduct(rawValue: firstAvailable.id) else {
+            return
+        }
+        selectedProduct = product
+    }
+
     @ViewBuilder
     private var ctaLabel: some View {
         HStack(spacing: 8) {
@@ -266,30 +275,18 @@ struct PaywallView: View {
 
     private var ctaSection: some View {
         VStack(spacing: 12) {
-            if #available(iOS 26, *) {
-                Button {
-                    purchaseSelectedProduct()
-                } label: {
-                    ctaLabel
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                }
-                .buttonStyle(.glassProminent)
-                .disabled(pm.isPurchasing)
-            } else {
-                Button {
-                    purchaseSelectedProduct()
-                } label: {
-                    ctaLabel
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(ShieldTheme.accent)
-                        .foregroundColor(ShieldTheme.accentText)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .buttonStyle(ScaleButtonStyle())
-                .disabled(pm.isPurchasing)
+            Button {
+                purchaseSelectedProduct()
+            } label: {
+                ctaLabel
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .background(ShieldTheme.accent)
+                    .foregroundColor(ShieldTheme.accentText)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(pm.isPurchasing || selectedPremiumProduct == nil)
 
             if let err = pm.purchaseError {
                 Text(err)
@@ -446,23 +443,12 @@ struct PlanRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .frame(height: 96)
-            .background {
-                if #available(iOS 26, *) {
-                    Color.clear
-                        .glassEffect(isSelected ? .regular.tint(ShieldTheme.accent.opacity(0.15)).interactive() : .regular.interactive(), in: .rect(cornerRadius: 16))
-                } else {
-                    isSelected ? ShieldTheme.accent.opacity(0.06) : ShieldTheme.surface2
-                }
-            }
-            .overlay {
-                if #available(iOS 26, *) {
-                    EmptyView()
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
-                                lineWidth: isSelected ? 2 : 0.8)
-                }
-            }
+            .background(isSelected ? ShieldTheme.accent.opacity(0.10) : ShieldTheme.surface2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLine,
+                            lineWidth: isSelected ? 2 : 0.8)
+            )
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: isSelected ? ShieldTheme.accent.opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
         }

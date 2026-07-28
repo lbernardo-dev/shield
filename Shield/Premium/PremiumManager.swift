@@ -76,7 +76,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     @Published var isPurchasing: Bool = false
     @Published var isRestoring: Bool = false
 
-    #if DEBUG
+    #if DEBUG && targetEnvironment(simulator)
     @Published private(set) var isDebugProOverride: Bool = false
     #endif
 
@@ -84,7 +84,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         guard !Purchases.isConfigured else { return }
         guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "RevenueCatAPIKey") as? String,
               !apiKey.isEmpty else { return }
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         Purchases.logLevel = .debug
         #endif
         Purchases.configure(withAPIKey: apiKey)
@@ -100,7 +100,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         super.init()
         // Restore from cache immediately
         isPro = UserDefaults.standard.bool(forKey: "shield.isPro")
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         let override = UserDefaults.standard.bool(forKey: "shield.devProOverride")
         isDebugProOverride = override
         if override { isPro = true }
@@ -199,7 +199,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     // MARK: - Update pro status
 
     func updateProStatus() async {
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         if isDebugProOverride { return }
         #endif
         do {
@@ -222,7 +222,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         Task { @MainActor [weak self] in self?.apply(customerInfo) }
     }
 
-    #if DEBUG
+    #if DEBUG && targetEnvironment(simulator)
     func setDebugProOverride(_ enabled: Bool) {
         isDebugProOverride = enabled
         UserDefaults.standard.set(enabled, forKey: "shield.devProOverride")

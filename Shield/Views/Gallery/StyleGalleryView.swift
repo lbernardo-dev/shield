@@ -90,7 +90,6 @@ struct StyleGalleryView: View {
                 Text(LanguageManager.shared.gallery("gallery_title"))
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(ShieldTheme.primary(scheme))
-                    .tracking(-0.5)
                 Text(LanguageManager.shared.gallery("gallery_subtitle"))
                     .font(.system(size: 13))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
@@ -311,6 +310,7 @@ private struct StyleCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("gallery.style.\(style.rawValue)")
     }
 }
 
@@ -347,6 +347,7 @@ struct StyleSourceSheet: View {
                         .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+                .accessibilityIdentifier("gallery.styleSource.close")
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -360,7 +361,6 @@ struct StyleSourceSheet: View {
                 Text(style.label(lang: lang))
                     .font(.system(size: 24, weight: .heavy))
                     .foregroundColor(ShieldTheme.primary(scheme))
-                    .tracking(-0.4)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 14)
@@ -393,6 +393,7 @@ struct StyleSourceSheet: View {
                 .foregroundColor(ShieldTheme.accentText)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
+            .accessibilityIdentifier("gallery.styleSource.continue")
             .buttonStyle(ScaleButtonStyle())
             .padding(.horizontal, 20)
             .padding(.bottom, 36)

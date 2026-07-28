@@ -1469,13 +1469,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. MaskID does not operate an advertising or analytics backend, does not create advertising profiles, and does not track you across apps or websites."
+            "value" : "Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. MaskID uses limited Firebase analytics and crash diagnostics, does not create advertising profiles, and does not track you across apps or websites."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. MaskID no opera un backend publicitario o analítico, no crea perfiles publicitarios ni te rastrea entre apps o sitios web."
+            "value" : "La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. MaskID usa analítica limitada y diagnósticos de fallos de Firebase, no crea perfiles publicitarios ni te rastrea entre apps o sitios web."
           }
         }
       }

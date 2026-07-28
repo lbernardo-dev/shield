@@ -59,7 +59,6 @@ struct LockScreenView: View {
                         Text(LanguageManager.shared.common("common_app_name"))
                             .font(.system(size: 32, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
-                            .tracking(-0.8)
 
                         Text(lockSubtitle)
                             .font(.system(size: 14, weight: .medium))

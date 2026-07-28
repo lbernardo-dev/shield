@@ -87,7 +87,6 @@ struct OBGoalView: View {
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
-                    .tracking(-0.5)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_goal_subtitle"))
                     .font(.system(size: 14))
@@ -145,7 +144,6 @@ struct OBPainPointsView: View {
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
-                    .tracking(-0.5)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_pain_subtitle"))
                     .font(.system(size: 14))
@@ -226,7 +224,6 @@ struct OBDemoView: View {
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
-                    .tracking(-0.5)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_demo_subtitle"))
                     .font(.system(size: 14))
@@ -378,7 +375,6 @@ struct OBDemoView: View {
                     .font(.system(size: 28, weight: .heavy))
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
-                    .tracking(-0.5)
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_subtitle"))
                     .font(.system(size: 15))
                     .foregroundColor(ShieldTheme.textSecondary)
@@ -851,12 +847,12 @@ struct OBPaywallView: View {
                 .padding(.bottom, 30)
             }
         }
-        .task { await pm.loadProducts() }
+        .task {
+            await pm.loadProducts()
+            selectAvailableProductIfNeeded()
+        }
         .onChange(of: pm.products.map(\.id)) { _, availableProductIDs in
-            guard !availableProductIDs.contains(selectedProduct.rawValue),
-                  let fallback = ShieldProduct.allCases.first(where: { availableProductIDs.contains($0.rawValue) })
-            else { return }
-            selectedProduct = fallback
+            selectAvailableProductIfNeeded(availableProductIDs: availableProductIDs)
         }
         .sensoryFeedback(.selection, trigger: selectedProduct)
         .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
@@ -974,7 +970,7 @@ struct OBPaywallView: View {
                 .foregroundStyle(ShieldTheme.accentText)
             }
             .buttonStyle(ScaleButtonStyle())
-            .disabled(pm.isPurchasing || pm.products.isEmpty)
+            .disabled(pm.isPurchasing || selectedPremiumProduct == nil)
 
             if let error = pm.purchaseError {
                 Text(error)
@@ -991,6 +987,19 @@ struct OBPaywallView: View {
                 .foregroundStyle(ShieldTheme.textSecondary)
                 .frame(minHeight: 44)
         }
+    }
+
+    private var selectedPremiumProduct: PremiumProduct? {
+        pm.products.first { $0.id == selectedProduct.rawValue }
+    }
+
+    private func selectAvailableProductIfNeeded(availableProductIDs: [String]? = nil) {
+        let ids = availableProductIDs ?? pm.products.map(\.id)
+        guard !ids.contains(selectedProduct.rawValue),
+              let fallback = ShieldProduct.allCases.first(where: { ids.contains($0.rawValue) }) else {
+            return
+        }
+        selectedProduct = fallback
     }
 
     private var footer: some View {

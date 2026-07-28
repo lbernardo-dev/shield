@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
+		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
 		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
@@ -30,7 +32,6 @@
 		A020 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* VaultView.swift */; };
 		A021 /* StyleGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* StyleGalleryView.swift */; };
 		A022 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F022 /* SettingsView.swift */; };
-		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
 		A023 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* TabBar.swift */; };
 		A024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F024 /* Assets.xcassets */; };
 		A026 /* AllDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AllDocumentsView.swift */; };
@@ -38,7 +39,6 @@
 		A028 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F028 /* PrivacyInfo.xcprivacy */; };
 		A030 /* CloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F030 /* CloudSyncManager.swift */; };
 		A031 /* ExternalStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* ExternalStorageManager.swift */; };
-		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A032 /* ImageAdjustToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* ImageAdjustToolbar.swift */; };
 		A033 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* OnboardingFlowView.swift */; };
 		A034 /* OnboardingSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* OnboardingSteps.swift */; };
@@ -56,6 +56,8 @@
 		A046 /* HomeSectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F046 /* HomeSectionViews.swift */; };
 		A047 /* SecureExportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F047 /* SecureExportModels.swift */; };
 		A048 /* ExportVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048 /* ExportVerifier.swift */; };
+		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
+		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -63,14 +65,15 @@
 		A103 /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F103 /* PDFKit.framework */; };
 		A104 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F104 /* CloudKit.framework */; };
 		A105 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F105 /* AuthenticationServices.framework */; };
-		ARC001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCPROD001 /* RevenueCat */; };
+		A901 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F901 /* SplashView.swift */; };
 		AIMP /* ImportPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIMP /* ImportPipeline.swift */; };
 		AINT /* ShieldAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FINT /* ShieldAppIntents.swift */; };
 		AMETRIC /* ShieldMetricSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FMETRIC /* ShieldMetricSubscriber.swift */; };
+		ARC001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCPROD001 /* RevenueCat */; };
 		ASHARE /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
 		AT001 /* RedactionCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T001 /* RedactionCodingTests.swift */; };
 		AT002 /* ShieldLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T002 /* ShieldLaunchTests.swift */; };
-		AT003 /* Export/ExportVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T003 /* Export/ExportVerifierTests.swift */; };
+		AT003 /* ExportVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T003 /* ExportVerifierTests.swift */; };
 		AT004 /* DocumentMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T004 /* DocumentMigrationTests.swift */; };
 		AT005 /* SharedImportStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T005 /* SharedImportStoreTests.swift */; };
 		AT006 /* PerformanceBudgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T006 /* PerformanceBudgetTests.swift */; };
@@ -88,6 +91,7 @@
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
 		B013 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L013 /* AppShortcuts.xcstrings */; };
+		C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */; };
 		EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FEXTAPP /* ShieldShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EXTRES1 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FEXTSTORY /* MainInterface.storyboard */; };
 		EXTSRC1 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEXTSRC1 /* ShareViewController.swift */; };
@@ -95,7 +99,6 @@
 		TIMP /* ImportPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTIM /* ImportPipelineTests.swift */; };
 		TOCR /* OCREvidenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTOC /* OCREvidenceTests.swift */; };
 		TSEC /* SecurityPrivacyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSEC /* SecurityPrivacyTests.swift */; };
-		A901 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F901 /* SplashView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +142,7 @@
 /* Begin PBXFileReference section */
 		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
+		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
@@ -161,7 +165,6 @@
 		F020 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		F021 /* StyleGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGalleryView.swift; sourceTree = "<group>"; };
 		F022 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
 		F023 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
 		F024 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F025 /* Shield.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shield.storekit; sourceTree = "<group>"; };
@@ -170,7 +173,6 @@
 		F028 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F030 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		F031 /* ExternalStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalStorageManager.swift; sourceTree = "<group>"; };
-		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F032 /* ImageAdjustToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustToolbar.swift; sourceTree = "<group>"; };
 		F033 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		F034 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
@@ -188,6 +190,8 @@
 		F046 /* HomeSectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeSectionViews.swift; sourceTree = "<group>"; };
 		F047 /* SecureExportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureExportModels.swift; sourceTree = "<group>"; };
 		F048 /* ExportVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportVerifier.swift; sourceTree = "<group>"; };
+		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
+		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -195,7 +199,8 @@
 		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
 		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
-		FAPP /* Shield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shield.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F901 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		FAPP /* MaskID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaskID.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAPPINFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FEXTAPP /* ShieldShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEXTENT /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
@@ -226,12 +231,11 @@
 		L013 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		T001 /* RedactionCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionCodingTests.swift; sourceTree = "<group>"; };
 		T002 /* ShieldLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldLaunchTests.swift; sourceTree = "<group>"; };
-		T003 /* Export/ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
+		T003 /* ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
 		T004 /* DocumentMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMigrationTests.swift; sourceTree = "<group>"; };
 		T005 /* SharedImportStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStoreTests.swift; sourceTree = "<group>"; };
 		T006 /* PerformanceBudgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceBudgetTests.swift; sourceTree = "<group>"; };
 		T007 /* MetricPayloadStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricPayloadStoreTests.swift; sourceTree = "<group>"; };
-		F901 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +258,8 @@
 				A103 /* PDFKit.framework in Frameworks */,
 				A104 /* CloudKit.framework in Frameworks */,
 				A105 /* AuthenticationServices.framework in Frameworks */,
+				04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */,
+				C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,6 +412,7 @@
 			isa = PBXGroup;
 			children = (
 				FMETRIC /* ShieldMetricSubscriber.swift */,
+				AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */,
 			);
 			path = Observability;
 			sourceTree = "<group>";
@@ -439,7 +446,7 @@
 		GRP_PRODUCTS /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FAPP /* Shield.app */,
+				FAPP /* MaskID.app */,
 				FTEST /* ShieldTests.xctest */,
 				FUITEST /* ShieldUITests.xctest */,
 				FEXTAPP /* ShieldShareExtension.appex */,
@@ -543,7 +550,7 @@
 			isa = PBXGroup;
 			children = (
 				T001 /* RedactionCodingTests.swift */,
-				T003 /* Export/ExportVerifierTests.swift */,
+				T003 /* ExportVerifierTests.swift */,
 				T004 /* DocumentMigrationTests.swift */,
 				FTIM /* ImportPipelineTests.swift */,
 				FTOC /* OCREvidenceTests.swift */,
@@ -634,7 +641,9 @@
 				PH_SOURCES /* Sources */,
 				PH_FRAMEWORKS /* Frameworks */,
 				PH_RESOURCES /* Resources */,
+				9B46F51206773E69923D659B /* Copy Firebase Configuration */,
 				PH_EMBED_EXTENSIONS /* Embed Foundation Extensions */,
+				B973CB4DE28D06DFC217EF5B /* Upload Crashlytics Symbols */,
 			);
 			buildRules = (
 			);
@@ -644,9 +653,11 @@
 			name = Shield;
 			packageProductDependencies = (
 				RCPROD001 /* RevenueCat */,
+				38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */,
+				8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */,
 			);
 			productName = Shield;
-			productReference = FAPP /* Shield.app */;
+			productReference = FAPP /* MaskID.app */;
 			productType = "com.apple.product-type.application";
 		};
 		TARGET_TESTS /* ShieldTests */ = {
@@ -721,6 +732,7 @@
 			mainGroup = GRP_ROOT;
 			packageReferences = (
 				RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+				A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = GRP_PRODUCTS /* Products */;
 			projectDirPath = "";
@@ -733,25 +745,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.81.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		RCPROD001 /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
-			productName = RevenueCat;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		PH_EXT_RESOURCES /* Resources */ = {
@@ -786,6 +779,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9B46F51206773E69923D659B /* Copy Firebase Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Shield/Resources/GoogleService-Info.plist",
+			);
+			name = "Copy Firebase Configuration";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nSOURCE_PLIST=\"${SRCROOT}/Shield/Resources/GoogleService-Info.plist\"\nDESTINATION_PLIST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ -f \"$SOURCE_PLIST\" ]; then\n  mkdir -p \"$(dirname \"$DESTINATION_PLIST\")\"\n  cp \"$SOURCE_PLIST\" \"$DESTINATION_PLIST\"\nelse\n  echo \"warning: GoogleService-Info.plist not found at $SOURCE_PLIST. Firebase Analytics and Crashlytics will be skipped until it is added.\"\nfi\n";
+		};
+		B973CB4DE28D06DFC217EF5B /* Upload Crashlytics Symbols */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			name = "Upload Crashlytics Symbols";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/CrashlyticsSymbols.stamp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\ntouch \"${SCRIPT_OUTPUT_FILE_0}\"\n\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nif [ \"${PLATFORM_NAME:-}\" = \"iphonesimulator\" ]; then\n  echo \"note: Skipping Crashlytics dSYM upload for simulator builds.\"\n  exit 0\nfi\n\nGOOGLE_SERVICE_PLIST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\nCRASHLYTICS_RUN_SCRIPT=\"${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\nif [ ! -f \"$GOOGLE_SERVICE_PLIST\" ]; then\n  echo \"warning: GoogleService-Info.plist is missing from the built app. Skipping Crashlytics dSYM upload.\"\n  exit 0\nfi\n\nif [ ! -x \"$CRASHLYTICS_RUN_SCRIPT\" ]; then\n  echo \"warning: Firebase Crashlytics run script not found at $CRASHLYTICS_RUN_SCRIPT. Resolve Swift packages before archiving.\"\n  exit 0\nfi\n\n\"$CRASHLYTICS_RUN_SCRIPT\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		PH_EXT_SOURCES /* Sources */ = {
@@ -852,6 +893,7 @@
 				AINT /* ShieldAppIntents.swift in Sources */,
 				ASHARE /* SharedImportStore.swift in Sources */,
 				AMETRIC /* ShieldMetricSubscriber.swift in Sources */,
+				31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -860,7 +902,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AT001 /* RedactionCodingTests.swift in Sources */,
-				AT003 /* Export/ExportVerifierTests.swift in Sources */,
+				AT003 /* ExportVerifierTests.swift in Sources */,
 				AT004 /* DocumentMigrationTests.swift in Sources */,
 				TIMP /* ImportPipelineTests.swift in Sources */,
 				TOCR /* OCREvidenceTests.swift in Sources */,
@@ -901,59 +943,59 @@
 
 /* Begin XCBuildConfiguration section */
 		BC_EXT_DEBUG /* Debug */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 100202607196;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.0";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607202;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_EXT_RELEASE /* Release */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 100202607196;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.0";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607202;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1054,89 +1096,97 @@
 			name = Release;
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 100202607196;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la cámara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu Bóveda.";
-		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.0";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607202;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_TARGET_RELEASE /* Release */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 100202607196;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la cámara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu Bóveda.";
-		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.0";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 100202607202;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MaskID necesita la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MaskID usa Face ID para proteger tu Bóveda.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MaskID necesita acceso a Fotos para importar documentos.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_TEST_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1250,6 +1300,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
+		RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.81.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		RCPROD001 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = PROJ /* Project object */;
 }

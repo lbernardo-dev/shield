@@ -481,12 +481,14 @@ final class AppState: ObservableObject {
         let allowedKeys: Set<String> = [
             "source", "format", "pages", "redactions", "count", "kind", "mode",
             "method", "risk", "low_fields", "detected_type", "mrz_valid",
-            "has_adjustments", "product_id", "trigger", "reason", "error_type"
+            "has_adjustments", "product_id", "trigger", "reason", "error_type",
+            "last_step", "from_step", "step", "name"
         ]
         let safeProperties = properties.reduce(into: [String: String]()) { result, item in
             guard allowedKeys.contains(item.key) else { return }
             result[item.key] = sanitizedTelemetryValue(item.value)
         }
+        FirebaseIntegration.logEvent(safeName, parameters: safeProperties)
         var payload: [String: Any] = safeProperties
         payload["event"] = safeName
         payload["timestamp"] = ISO8601DateFormatter().string(from: Date())

@@ -7,6 +7,7 @@ struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.colorScheme) private var scheme
     @Environment(\.openURL) private var openURL
+    @Environment(\.closeSettings) private var closeSettings
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
@@ -106,7 +107,7 @@ struct SettingsView: View {
                             aboutRows
                         }
 
-                        #if DEBUG
+                        #if DEBUG && targetEnvironment(simulator)
                         SettingsCardSection(
                             title: strings.settings("settings_developer"),
                             icon: "hammer.fill"
@@ -166,7 +167,7 @@ struct SettingsView: View {
     }
 
     private var title: some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s3) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(strings.settings("settings_eyebrow"))
                     .font(.caption.weight(.bold))
@@ -175,10 +176,10 @@ struct SettingsView: View {
                     .textCase(.uppercase)
                 Text(strings.settings("settings_title"))
                     .font(.system(size: 32, weight: .heavy, design: .rounded))
-                    .tracking(-0.7)
                     .foregroundStyle(ShieldTheme.primary(scheme))
             }
-            Spacer()
+            Spacer(minLength: ShieldTheme.s2)
+            SettingsCloseButton(action: closeSettings)
         }
         .padding(.top, ShieldTheme.topChromePadding)
     }
@@ -301,7 +302,7 @@ struct SettingsView: View {
             SupportSettingsView(onSendFeedback: sendFeedback, onRate: openRatingPage)
         case .faq:
             FAQSettingsView()
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         case .developer:
             DeveloperSettingsView()
         #endif
@@ -383,7 +384,7 @@ enum SettingsRoute: Hashable {
     case subscriptionTerms
     case support
     case faq
-    #if DEBUG
+    #if DEBUG && targetEnvironment(simulator)
     case developer
     #endif
 
@@ -400,7 +401,7 @@ enum SettingsRoute: Hashable {
         case .subscriptionTerms: "settings.route.subscriptionTerms"
         case .support: "settings.route.support"
         case .faq: "settings.route.faq"
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         case .developer: "settings.route.developer"
         #endif
         }

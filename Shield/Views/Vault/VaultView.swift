@@ -60,16 +60,10 @@ struct VaultView: View {
         VStack(spacing: 28) {
             Spacer()
             ZStack {
-                if #available(iOS 26, *) {
-                    Color.clear
-                        .glassEffect(.regular.tint(Color(hex: "FFD60A").opacity(0.15)), in: .rect(cornerRadius: 32))
-                        .frame(width: 120, height: 120)
-                } else {
-                    RoundedRectangle(cornerRadius: 32)
-                        .fill(Color(hex: "FFD60A").opacity(0.08))
-                        .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color(hex: "FFD60A").opacity(0.25), lineWidth: 1.5))
-                        .frame(width: 120, height: 120)
-                }
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(Color(hex: "FFD60A").opacity(0.08))
+                    .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color(hex: "FFD60A").opacity(0.25), lineWidth: 1.5))
+                    .frame(width: 120, height: 120)
                 Image(systemName: "faceid").font(.system(size: 54, weight: .light)).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 6) {
@@ -91,6 +85,7 @@ struct VaultView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(ScaleButtonStyle()).padding(.horizontal, 40)
+                .accessibilityIdentifier("vault.unlock")
 
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
@@ -135,7 +130,6 @@ struct VaultView: View {
                         Text(LanguageManager.shared.vault("vault_title"))
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundColor(ShieldTheme.primary(scheme))
-                            .tracking(-0.5)
                     }
                     Text(LanguageManager.shared.vault("vault_status_count", appState.vaultDocuments.count))
                         .font(.system(size: 12))
@@ -152,6 +146,7 @@ struct VaultView: View {
                         .background(ShieldTheme.dangerDim)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+                .accessibilityIdentifier("vault.lock")
             }
             .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 16)
 
@@ -167,7 +162,7 @@ struct VaultView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     appState.deleteDocument(doc)
-                                } label: {
+                } label: {
                                     Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
                                 }
                                 Button {
@@ -721,15 +716,9 @@ struct PINNumpad: View {
                         } label: {
                             ZStack {
                                 if !key.isEmpty {
-                                    if #available(iOS 26, *) {
-                                        Color.clear
-                                            .glassEffect(.regular.interactive(), in: .circle)
-                                            .frame(width: 72, height: 72)
-                                    } else {
-                                        Circle()
-                                            .fill(ShieldTheme.rowBackground(scheme))
-                                            .frame(width: 72, height: 72)
-                                    }
+                                    Circle()
+                                        .fill(ShieldTheme.rowBackground(scheme))
+                                        .frame(width: 72, height: 72)
                                 } else {
                                     Color.clear
                                         .frame(width: 72, height: 72)

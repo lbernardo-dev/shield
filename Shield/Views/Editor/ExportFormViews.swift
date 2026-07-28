@@ -21,6 +21,7 @@ struct ExportSheetHeader: View {
             }
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
+            .accessibilityIdentifier("export.close")
         }
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 20)

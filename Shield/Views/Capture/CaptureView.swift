@@ -82,7 +82,6 @@ enum ScanDocumentType: String, CaseIterable, Identifiable {
 struct CaptureView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
-    @State private var showSourcePicker = false
     @State private var showScanner = false
     @State private var showPhotoPicker = false
     @State private var showFilePicker = false
