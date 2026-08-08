@@ -38,7 +38,15 @@ enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
     }
 
     func label(lang: AppLanguage) -> String {
-        localizedLabel
+        switch self {
+        case .all:      return LanguageManager.shared.t("model_category_all", table: "Model", language: lang)
+        case .identity: return LanguageManager.shared.t("model_category_identity", table: "Model", language: lang)
+        case .travel:   return LanguageManager.shared.t("model_category_travel", table: "Model", language: lang)
+        case .driving:  return LanguageManager.shared.t("model_category_driving", table: "Model", language: lang)
+        case .work:     return LanguageManager.shared.t("model_category_work", table: "Model", language: lang)
+        case .health:   return LanguageManager.shared.t("model_category_health", table: "Model", language: lang)
+        case .finance:  return LanguageManager.shared.t("model_category_finance", table: "Model", language: lang)
+        }
     }
 }
 

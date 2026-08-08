@@ -739,3 +739,36 @@
    Done by: CODEX
    Done at: 2026-07-27T07:01:24Z
 
+68. fase-a-ui-pro-evolucion
+   Id: 68-fase-a-ui-pro-evolucion
+   Scope: UI de producto profesional: tipografia Dynamic Type, dark mode, localizacion, estados vacios
+   Files: Shield/Theme/**,Shield/Views/**,Shield/Localization/**
+   Note: Cierre ampliado Fase A:+dark mode preview/surfaces semanticos, label(lang:) respeta idioma (10 modelos + subtree), tests LocalizationLanguageTests, gate OAuth refinado (falso positivo CodingKeys). agent-verify y release gate verdes.
+   Detail: tasks/details/68-fase-a-ui-pro-evolucion.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T08:54:32Z
+   Done by: CODEX
+   Done at: 2026-08-08T09:39:47Z
+
+69. paywall-storekit-fix
+   Id: 69-paywall-storekit-fix
+   Scope: RevenueCat products empty + paywall resilience
+   Files: Shield.xcodeproj/xcshareddata/xcschemes/Shield.xcscheme, Shield/Premium/PremiumManager.swift, Shield/Views/Paywall/PaywallView.swift, Shield/Views/Onboarding/OnboardingSteps.swift, Shield/Localization/Strings/Paywall.xcstrings
+   Note: StoreKit config path fixed (LaunchAction+TestAction), paywall error/retry state added, productsLoadFailed + isLoadingProducts published, onboarding iCloud feature row, temp probe removed. Verify: make build green, 3 UI tests pass (camera x2 + paywall dismiss), extension builds
+   Detail: tasks/details/69-paywall-storekit-fix.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T14:53:28Z
+   Done by: CODEX
+   Done at: 2026-08-08T14:53:28Z
+
+70. home-paywall-audit-fixes
+   Id: 70-home-paywall-audit-fixes
+   Scope: Empty states + pagination + misc audit fixes
+   Files: Shield/ViewModels/AppState.swift, Shield/Views/Home/HomeView.swift, Shield/Views/Home/AllDocumentsView.swift, Shield/Models/Redaction.swift, Shield/Share/SharedImportStore.swift, Shield/Localization/Strings/Home.xcstrings
+   Note: All above applied. Verify: make build green, app+extension build, UI tests pass
+   Detail: tasks/details/70-home-paywall-audit-fixes.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T14:58:59Z
+   Done by: CODEX
+   Done at: 2026-08-08T14:58:59Z
+

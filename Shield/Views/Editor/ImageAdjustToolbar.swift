@@ -54,7 +54,7 @@ struct ImageAdjustToolbar: View {
             // Header row
             HStack {
                 Text(LanguageManager.shared.editor("editor_adjust_title"))
-                    .font(.system(size: 14, weight: .bold))
+                    .shieldFont(14, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 if !vm.imageAdjustment.isDefault {
@@ -62,7 +62,7 @@ struct ImageAdjustToolbar: View {
                         withAnimation { vm.resetAdjustment() }
                     } label: {
                         Text(LanguageManager.shared.common("common_reset"))
-                            .font(.system(size: 12, weight: .semibold))
+                            .shieldFont(12, weight: .semibold)
                             .foregroundColor(ShieldTheme.danger)
                     }
                 }
@@ -70,7 +70,7 @@ struct ImageAdjustToolbar: View {
                     withAnimation { vm.showAdjustPanel = false }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .medium))
+                        .shieldFont(12, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 26, height: 26)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -112,9 +112,9 @@ struct ImageAdjustToolbar: View {
                         } label: {
                             HStack(spacing: 5) {
                                 Image(systemName: locked ? "lock.fill" : tool.icon)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .shieldFont(11, weight: .semibold)
                                 Text(tool.label())
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .shieldFont(11, weight: .semibold)
                             }
                             .foregroundColor(
                                 isSelected
@@ -188,10 +188,10 @@ struct ImageAdjustToolbar: View {
         Button(action: action) {
             VStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .medium))
+                    .shieldFont(16, weight: .medium)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(label)
-                    .font(.system(size: 9, weight: .semibold))
+                    .shieldFont(9, weight: .semibold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             .frame(maxWidth: .infinity)
@@ -213,11 +213,11 @@ struct ImageAdjustToolbar: View {
         VStack(spacing: 4) {
             HStack {
                 Text(label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
                     .foregroundColor(ShieldTheme.secondary(scheme))
                 Spacer()
                 Text(String(format: format, value.wrappedValue))
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .shieldFont(12, weight: .semibold, design: .monospaced)
                     .foregroundColor(ShieldTheme.accent(scheme))
                     .frame(minWidth: 44, alignment: .trailing)
 
@@ -225,7 +225,7 @@ struct ImageAdjustToolbar: View {
                     value.wrappedValue = defaultValue
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 11, weight: .medium))
+                        .shieldFont(11, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 26, height: 26)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -243,7 +243,7 @@ struct ImageAdjustToolbar: View {
     private var cropSliders: some View {
         VStack(spacing: 10) {
             Text(LanguageManager.shared.editor("editor_adjust_crop_desc"))
-                .font(.system(size: 11, weight: .semibold))
+                .shieldFont(11, weight: .semibold)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
@@ -267,13 +267,13 @@ struct ImageAdjustToolbar: View {
     private func cropSide(_ label: String, binding: Binding<Double>) -> some View {
         HStack(spacing: 10) {
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
+                .shieldFont(11, weight: .semibold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .frame(width: 70, alignment: .leading)
             Slider(value: binding, in: 0...0.4, step: 0.005)
                 .tint(ShieldTheme.accent(scheme))
             Text("\(Int((binding.wrappedValue * 100).rounded()))%")
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .shieldFont(11, weight: .semibold, design: .monospaced)
                 .foregroundColor(ShieldTheme.accent(scheme))
                 .frame(width: 32, alignment: .trailing)
         }

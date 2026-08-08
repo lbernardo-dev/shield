@@ -206,7 +206,7 @@ struct CaptureView: View {
                 set: { if !$0 { importErrorMessage = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { importErrorMessage = nil }
+            Button(LanguageManager.shared.common("common_ok"), role: .cancel) { importErrorMessage = nil }
         } message: {
             Text(importErrorMessage ?? "")
         }
@@ -290,7 +290,7 @@ struct CaptureView: View {
                     .tint(ShieldTheme.accent)
                     .frame(maxWidth: 280)
                 Text("\(Int(processingProgress * 100))%")
-                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                    .shieldFont(13, weight: .semibold, design: .monospaced)
                     .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
             } else {
                 ProgressView()
@@ -298,7 +298,7 @@ struct CaptureView: View {
                     .tint(ShieldTheme.accent)
             }
             Text(processingMessage)
-                .font(.system(size: 16, weight: .semibold))
+                .shieldFont(16, weight: .semibold)
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .multilineTextAlignment(.center)
             Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {

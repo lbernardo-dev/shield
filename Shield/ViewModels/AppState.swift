@@ -43,10 +43,10 @@ enum SortOption: String, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .dateDesc: return LanguageManager.shared.model("model_sort_date_desc")
-        case .dateAsc:  return LanguageManager.shared.model("model_sort_date_asc")
-        case .nameAsc:  return LanguageManager.shared.model("model_sort_name_asc")
-        case .nameDesc: return LanguageManager.shared.model("model_sort_name_desc")
+        case .dateDesc: return LanguageManager.shared.t("model_sort_date_desc", table: "Model", language: lang)
+        case .dateAsc:  return LanguageManager.shared.t("model_sort_date_asc", table: "Model", language: lang)
+        case .nameAsc:  return LanguageManager.shared.t("model_sort_name_asc", table: "Model", language: lang)
+        case .nameDesc: return LanguageManager.shared.t("model_sort_name_desc", table: "Model", language: lang)
         }
     }
 }
@@ -297,8 +297,11 @@ final class AppState: ObservableObject {
     var filteredDocumentsPage: [DocumentItem] {
         let all = filteredDocuments
         let pageSize = AppState.recentDocsPageSize
-        let end = min((recentDocsPage + 1) * pageSize, all.count)
-        let start = min(recentDocsPage * pageSize, end)
+        let lastPage = max(0, recentDocsTotalPages - 1)
+        let page = min(max(0, recentDocsPage), lastPage)
+        let end = min((page + 1) * pageSize, all.count)
+        let start = min(page * pageSize, end)
+        guard start < end else { return [] }
         return Array(all[start..<end])
     }
 

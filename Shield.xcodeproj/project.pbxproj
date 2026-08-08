@@ -10,6 +10,7 @@
 		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
 		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
 		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
+		7C3D808930272B990017854E /* Mask.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D808830272B990017854E /* Mask.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -73,11 +74,12 @@
 		ASHARE /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
 		AT001 /* RedactionCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T001 /* RedactionCodingTests.swift */; };
 		AT002 /* ShieldLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T002 /* ShieldLaunchTests.swift */; };
-		AT003 /* ExportVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T003 /* ExportVerifierTests.swift */; };
+		AT003 /* Export/ExportVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T003 /* Export/ExportVerifierTests.swift */; };
 		AT004 /* DocumentMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T004 /* DocumentMigrationTests.swift */; };
 		AT005 /* SharedImportStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T005 /* SharedImportStoreTests.swift */; };
 		AT006 /* PerformanceBudgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T006 /* PerformanceBudgetTests.swift */; };
 		AT007 /* MetricPayloadStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T007 /* MetricPayloadStoreTests.swift */; };
+		AT008 /* LocalizationLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T008 /* LocalizationLanguageTests.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -141,6 +143,7 @@
 
 /* Begin PBXFileReference section */
 		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
+		7C3D808830272B990017854E /* Mask.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Mask.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
@@ -231,11 +234,12 @@
 		L013 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
 		T001 /* RedactionCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionCodingTests.swift; sourceTree = "<group>"; };
 		T002 /* ShieldLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldLaunchTests.swift; sourceTree = "<group>"; };
-		T003 /* ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
+		T003 /* Export/ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
 		T004 /* DocumentMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMigrationTests.swift; sourceTree = "<group>"; };
 		T005 /* SharedImportStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStoreTests.swift; sourceTree = "<group>"; };
 		T006 /* PerformanceBudgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceBudgetTests.swift; sourceTree = "<group>"; };
 		T007 /* MetricPayloadStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricPayloadStoreTests.swift; sourceTree = "<group>"; };
+		T008 /* LocalizationLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationLanguageTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -508,6 +512,7 @@
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
+				7C3D808830272B990017854E /* Mask.icon */,
 				7C1D5E4F2FA7392000E171B4 /* MaskID.icon */,
 				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
 				GRP_APP /* App */,
@@ -550,7 +555,7 @@
 			isa = PBXGroup;
 			children = (
 				T001 /* RedactionCodingTests.swift */,
-				T003 /* ExportVerifierTests.swift */,
+				T003 /* Export/ExportVerifierTests.swift */,
 				T004 /* DocumentMigrationTests.swift */,
 				FTIM /* ImportPipelineTests.swift */,
 				FTOC /* OCREvidenceTests.swift */,
@@ -558,6 +563,7 @@
 				T005 /* SharedImportStoreTests.swift */,
 				T006 /* PerformanceBudgetTests.swift */,
 				T007 /* MetricPayloadStoreTests.swift */,
+				T008 /* LocalizationLanguageTests.swift */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -763,6 +769,7 @@
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
 				B002 /* Capture.xcstrings in Resources */,
+				7C3D808930272B990017854E /* Mask.icon in Resources */,
 				B003 /* Common.xcstrings in Resources */,
 				B004 /* Editor.xcstrings in Resources */,
 				B005 /* Gallery.xcstrings in Resources */,
@@ -902,7 +909,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AT001 /* RedactionCodingTests.swift in Sources */,
-				AT003 /* ExportVerifierTests.swift in Sources */,
+				AT003 /* Export/ExportVerifierTests.swift in Sources */,
 				AT004 /* DocumentMigrationTests.swift in Sources */,
 				TIMP /* ImportPipelineTests.swift in Sources */,
 				TOCR /* OCREvidenceTests.swift in Sources */,
@@ -910,6 +917,7 @@
 				AT005 /* SharedImportStoreTests.swift in Sources */,
 				AT006 /* PerformanceBudgetTests.swift in Sources */,
 				AT007 /* MetricPayloadStoreTests.swift in Sources */,
+				AT008 /* LocalizationLanguageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1098,7 +1106,7 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1144,7 +1152,7 @@
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = MaskID;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_STYLE = Automatic;

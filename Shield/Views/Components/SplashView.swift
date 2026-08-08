@@ -2,9 +2,11 @@ import SwiftUI
 
 /// A short, static launch cover. Animations belong in product flows, not over the app shell.
 struct SplashView: View {
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
         ZStack {
-            ShieldTheme.surface0
+            ShieldTheme.pageBackground(scheme)
                 .ignoresSafeArea()
 
             Image("MaskIDMark")

@@ -1088,6 +1088,57 @@
           }
         }
       }
+    },
+    "paywall_products_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't load the subscription plans."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar los planes de suscripción."
+          }
+        }
+      }
+    },
+    "paywall_products_unavailable_tip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your connection and try again. You can keep using MaskID for free."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisa tu conexión e inténtalo de nuevo. Puedes seguir usando MaskID gratis."
+          }
+        }
+      }
+    },
+    "paywall_retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -60,7 +60,7 @@ private struct StyleCell: View {
 
                     if !isUnlocked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 8, weight: .bold))
+                            .shieldFont(8, weight: .bold)
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(4)
                             .background(ShieldTheme.accent)
@@ -70,7 +70,7 @@ private struct StyleCell: View {
                 }
 
                 Text(style.label(lang: lang))
-                    .font(.system(size: 10, weight: .semibold))
+                    .shieldFont(10, weight: .semibold)
                     .foregroundColor(isSelected ? ShieldTheme.accent : (isUnlocked ? ShieldTheme.secondary(scheme) : ShieldTheme.tertiary(scheme)))
                     .lineLimit(1)
             }

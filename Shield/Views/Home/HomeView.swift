@@ -186,13 +186,13 @@ struct HomeView: View {
     private var searchSection: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 14, weight: .medium))
+                .shieldFont(14, weight: .medium)
                 .foregroundColor(searchFocused
                     ? ShieldTheme.accent
                     : ShieldTheme.tertiary(appState.preferredScheme))
 
             TextField(LanguageManager.shared.home("home_search"), text: $appState.searchQuery)
-                .font(.system(size: 15))
+                .shieldFont(15)
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .focused($searchFocused)
                 .submitLabel(.search)
@@ -203,30 +203,39 @@ struct HomeView: View {
                     searchFocused = false
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 14))
+                        .shieldFont(14)
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                        .frame(minWidth: 40, minHeight: 40)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(LanguageManager.shared.common("common_clear"))
             }
 
             Button {
                 showFilters = true
             } label: {
                 Image(systemName: appState.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                    .font(.system(size: 18, weight: .medium))
+                    .shieldFont(18, weight: .medium)
                     .foregroundColor(appState.hasActiveFilter ? ShieldTheme.accent : ShieldTheme.tertiary(appState.preferredScheme))
+                    .contentTransition(.symbolEffect(.replace))
+                    .frame(minWidth: 40, minHeight: 40)
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel(LanguageManager.shared.home("home_filters"))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
         .background(ShieldTheme.cardBackground(appState.preferredScheme))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: ShieldTheme.rMD)
                 .stroke(
                     searchFocused ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.line(appState.preferredScheme),
                     lineWidth: searchFocused ? 1.5 : 0.5
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
         .animation(.easeInOut(duration: 0.15), value: searchFocused)
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.bottom, 16)
@@ -268,12 +277,14 @@ struct HomeView: View {
                     showNewCategory = true
                 } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: "plus").font(.system(size: 11, weight: .semibold))
-                        Text(LanguageManager.shared.common("common_new")).font(.system(size: 12, weight: .semibold))
+                        Image(systemName: "plus").shieldFont(11, weight: .semibold)
+                        Text(LanguageManager.shared.common("common_new")).shieldFont(12, weight: .semibold)
                     }
                     .foregroundColor(ShieldTheme.accent)
                     .padding(.horizontal, 10)
                     .frame(height: 28)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                     .background(ShieldTheme.accentDim)
                     .overlay(Capsule().stroke(ShieldTheme.accent.opacity(0.4), lineWidth: 0.5))
                     .clipShape(Capsule())
@@ -417,19 +428,54 @@ struct HomeView: View {
 
     private var emptyLibraryState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "doc.badge.plus")
-                .font(.system(size: 44, weight: .light))
+            Image(systemName: appState.hasActiveFilter ? "magnifyingglass" : "doc.badge.plus")
+                .shieldFont(44, weight: .light)
                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 .padding(.top, 32)
-            Text(LanguageManager.shared.home("home_no_documents"))
-                .font(.system(size: 18, weight: .bold))
+            Text(appState.hasActiveFilter
+                 ? LanguageManager.shared.home("home_no_results")
+                 : LanguageManager.shared.home("home_no_documents"))
+                .shieldFont(18, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-            Text(LanguageManager.shared.home("home_no_documents_subtitle"))
-                .font(.system(size: 14))
+            Text(appState.hasActiveFilter
+                 ? LanguageManager.shared.home("home_no_results_subtitle")
+                 : LanguageManager.shared.home("home_no_documents_subtitle"))
+                .shieldFont(14)
                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
-            Spacer().frame(height: 24)
+            Spacer().frame(height: 16)
+
+            if appState.hasActiveFilter {
+                Button {
+                    withAnimation {
+                        appState.activeCategoryID = DocumentCategory.all.rawValue
+                        appState.searchQuery = ""
+                    }
+                } label: {
+                    Text(LanguageManager.shared.home("home_clear_filters"))
+                        .shieldFont(15, weight: .semibold)
+                        .foregroundColor(ShieldTheme.accent)
+                        .padding(.horizontal, 20)
+                        .frame(height: 44)
+                        .background(ShieldTheme.accentDim)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(ScaleButtonStyle())
+            } else {
+                Button {
+                    appState.showCapture = true
+                } label: {
+                    Text(LanguageManager.shared.home("home_scan_document"))
+                        .shieldFont(15, weight: .semibold)
+                        .foregroundColor(ShieldTheme.accentText)
+                        .padding(.horizontal, 20)
+                        .frame(height: 44)
+                        .background(ShieldTheme.accent)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s4)
@@ -498,10 +544,10 @@ struct HomeView: View {
             if !pm.isPro {
                 HStack(spacing: 6) {
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 11, weight: .semibold))
+                        .shieldFont(11, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent)
                     Text(LanguageManager.shared.home("home_connect_cloud_description"))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                 }
                 .padding(.horizontal, ShieldTheme.s4)
@@ -533,7 +579,7 @@ struct HomeView: View {
                         .fill(Color(hex: colorHex))
                         .frame(width: 36, height: 36)
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .semibold))
+                        .shieldFont(16, weight: .semibold)
                         .foregroundColor(.white)
                 }
                 .opacity(pm.isPro ? 1 : 0.45)
@@ -542,11 +588,11 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(name)
-                            .font(.system(size: 14, weight: .semibold))
+                            .shieldFont(14, weight: .semibold)
                             .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                         if !pm.isPro {
                             Text(LanguageManager.shared.common("common_pro"))
-                                .font(.system(size: 9, weight: .bold))
+                                .shieldFont(9, weight: .bold)
                                 .foregroundColor(ShieldTheme.accentText)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 2)
@@ -559,7 +605,7 @@ struct HomeView: View {
                             .fill(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
                             .frame(width: 6, height: 6)
                         Text(pm.isPro ? statusText : LanguageManager.shared.home("home_requires_pro"))
-                            .font(.system(size: 12))
+                            .shieldFont(12)
                             .foregroundColor(pm.isPro ? statusColor : ShieldTheme.tertiary(appState.preferredScheme))
                     }
                 }
@@ -569,13 +615,13 @@ struct HomeView: View {
                 // Action indicator
                 if !pm.isPro {
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 13, weight: .medium))
+                        .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.accent)
                 } else if isAuthenticating {
                     ProgressView().scaleEffect(0.7).tint(ShieldTheme.accent)
                 } else {
                     Image(systemName: (isConnected || showsDisclosureIndicator) ? "chevron.right" : "plus.circle.fill")
-                        .font(.system(size: 14, weight: isConnected ? .medium : .semibold))
+                        .shieldFont(14, weight: isConnected ? .medium : .semibold)
                         .foregroundColor(isConnected ? ShieldTheme.tertiary(appState.preferredScheme) : ShieldTheme.accent)
                 }
             }
@@ -677,7 +723,7 @@ struct FilterSheet: View {
 
             HStack {
                 Text(LanguageManager.shared.home("home_filters"))
-                    .font(.system(size: 18, weight: .bold))
+                    .shieldFont(18, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(effectiveScheme))
                 Spacer()
                 if appState.hasActiveFilter {
@@ -688,18 +734,20 @@ struct FilterSheet: View {
                         }
                     } label: {
                         Text(LanguageManager.shared.home("home_clear"))
-                            .font(.system(size: 13, weight: .semibold))
+                            .shieldFont(13, weight: .semibold)
                             .foregroundColor(ShieldTheme.accent)
                     }
                 }
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .medium))
+                        .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(effectiveScheme))
-                        .frame(width: 28, height: 28)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                         .background(ShieldTheme.rowBackground(effectiveScheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rSM))
                 }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, ShieldTheme.s5)
             .padding(.top, 16)
@@ -714,7 +762,7 @@ struct FilterSheet: View {
                     // Category filter
                     VStack(alignment: .leading, spacing: 10) {
                         Text(LanguageManager.shared.home("home_category_uppercase"))
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                             .foregroundColor(ShieldTheme.tertiary(effectiveScheme))
                             .tracking(0.6)
 
@@ -745,7 +793,7 @@ struct FilterSheet: View {
                     // Sort (UI only for now — extend AppState as needed)
                     VStack(alignment: .leading, spacing: 10) {
                         Text(LanguageManager.shared.home("home_sort_by_uppercase"))
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                             .foregroundColor(ShieldTheme.tertiary(effectiveScheme))
                             .tracking(0.6)
 
@@ -753,16 +801,16 @@ struct FilterSheet: View {
                             ForEach(SortOption.allCases) { option in
                                 HStack {
                                     Image(systemName: option.icon)
-                                        .font(.system(size: 14))
+                                        .shieldFont(14)
                                         .foregroundColor(appState.sortOption == option ? ShieldTheme.accent : ShieldTheme.secondary(effectiveScheme))
                                         .frame(width: 20)
                                     Text(option.label(lang: appState.language))
-                                        .font(.system(size: 15))
+                                        .shieldFont(15)
                                         .foregroundColor(ShieldTheme.primary(effectiveScheme))
                                     Spacer()
                                     if appState.sortOption == option {
                                         Image(systemName: "checkmark")
-                                            .font(.system(size: 13, weight: .semibold))
+                                            .shieldFont(13, weight: .semibold)
                                             .foregroundColor(ShieldTheme.accent)
                                     }
                                 }
@@ -785,8 +833,8 @@ struct FilterSheet: View {
                                 }
                             }
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ShieldTheme.line(effectiveScheme), lineWidth: 0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+                        .overlay(RoundedRectangle(cornerRadius: ShieldTheme.rMD).stroke(ShieldTheme.line(effectiveScheme), lineWidth: 0.5))
                     }
                 }
                 .padding(ShieldTheme.s5)
@@ -797,7 +845,7 @@ struct FilterSheet: View {
                 isPresented = false
             } label: {
                 Text(LanguageManager.shared.home("home_apply_filters"))
-                    .font(.system(size: 16, weight: .bold))
+                    .shieldFont(16, weight: .bold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(ShieldTheme.accent)
@@ -829,15 +877,15 @@ struct FilterChip: View {
             HStack(spacing: 6) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 13, weight: .semibold))
+                        .shieldFont(13, weight: .semibold)
                 }
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
                     .lineLimit(1)
                 Spacer()
                 if isActive {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .bold))
+                        .shieldFont(11, weight: .bold)
                 }
             }
             .padding(.horizontal, 12)
@@ -872,15 +920,15 @@ struct ModeCard: View {
                         .fill(mode.color.opacity(0.13))
                         .frame(width: 32, height: 32)
                     Image(systemName: mode.icon)
-                        .font(.system(size: 14, weight: .semibold))
+                        .shieldFont(14, weight: .semibold)
                         .foregroundColor(mode.color)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(mode.label(lang: lang))
-                        .font(.system(size: 13, weight: .bold))
+                        .shieldFont(13, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(mode.subtitle(lang: lang))
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
             }
@@ -925,7 +973,7 @@ struct DocumentRow: View {
                         RoundedRectangle(cornerRadius: 6)
                             .fill(Color.black.opacity(0.7))
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 14, weight: .medium))
+                            .shieldFont(14, weight: .medium)
                             .foregroundColor(.white)
                     }
                 }
@@ -937,26 +985,27 @@ struct DocumentRow: View {
                     HStack(spacing: 6) {
                         if shouldMask {
                             Text(LanguageManager.shared.home("home_protected_document"))
-                                .font(.system(size: 14, weight: .semibold))
+                                .shieldFont(14, weight: .semibold)
                                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                                 .lineLimit(1)
                                 .redacted(reason: .placeholder)
                         } else {
                             Text(doc.title)
-                                .font(.system(size: 14, weight: .semibold))
+                                .shieldFont(14, weight: .semibold)
                                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                                 .lineLimit(1)
                             if doc.isFavorite {
                                 Image(systemName: "star.fill")
-                                    .font(.system(size: 11))
+                                    .shieldFont(11)
                                     .foregroundColor(ShieldTheme.accent)
+                                    .symbolEffect(.bounce, value: doc.isFavorite)
                             }
                         }
                     }
                     HStack(spacing: 6) {
                         if shouldMask {
                             Text("••••••")
-                                .font(.system(size: 11, weight: .semibold))
+                                .shieldFont(11, weight: .semibold)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
                                 .background(ShieldTheme.accentDim)
@@ -964,13 +1013,13 @@ struct DocumentRow: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
                             Text("·")
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                                .font(.system(size: 12))
+                                .shieldFont(12)
                             Text(doc.dateLabelLocalized(lang: lang))
-                                .font(.system(size: 12))
+                                .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                         } else {
                             Text(doc.category.label(lang: lang))
-                                .font(.system(size: 11, weight: .semibold))
+                                .shieldFont(11, weight: .semibold)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
                                 .background(ShieldTheme.rowBackground(appState.preferredScheme))
@@ -979,18 +1028,18 @@ struct DocumentRow: View {
 
                             Text("·")
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                                .font(.system(size: 12))
+                                .shieldFont(12)
 
                             Text(doc.dateLabelLocalized(lang: lang))
-                                .font(.system(size: 12))
+                                .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
 
                             if doc.redactionCount > 0 {
                                 Text("·")
                                     .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                                    .font(.system(size: 12))
+                                    .shieldFont(12)
                                 Text(appState.redactionsCount(doc.redactionCount))
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .shieldFont(12, weight: .semibold)
                                     .foregroundColor(ShieldTheme.accent)
                             }
                         }
@@ -1002,12 +1051,12 @@ struct DocumentRow: View {
                 // Vault badge or chevron
                 if doc.isVaulted {
                     Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .shieldFont(16, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent)
                         .accessibilityHidden(true)
                 } else {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .medium))
+                        .shieldFont(12, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                         .accessibilityHidden(true)
                 }
@@ -1080,12 +1129,12 @@ struct NewCategorySheet: View {
         VStack(spacing: 0) {
             HStack {
                 Text(LanguageManager.shared.home("home_new_category"))
-                    .font(.system(size: 18, weight: .bold))
+                    .shieldFont(18, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .medium))
+                        .shieldFont(14, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -1096,7 +1145,7 @@ struct NewCategorySheet: View {
 
             VStack(spacing: 16) {
                 TextField(LanguageManager.shared.home("home_category_name_placeholder"), text: $name)
-                    .font(.system(size: 16))
+                    .shieldFont(16)
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .padding(12)
                     .background(ShieldTheme.rowBackground(scheme))
@@ -1104,18 +1153,18 @@ struct NewCategorySheet: View {
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
 
                 Text(LanguageManager.shared.home("home_icon_uppercase"))
-                    .font(.system(size: 12, weight: .bold))
+                    .shieldFont(12, weight: .bold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .textCase(.uppercase)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 8), spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44), spacing: 10)], spacing: 10) {
                     ForEach(icons, id: \.self) { icon in
                         Button {
                             selectedIcon = icon
                         } label: {
                             Image(systemName: icon)
-                                .font(.system(size: 18))
+                                .shieldFont(18)
                                 .foregroundColor(selectedIcon == icon ? .black : ShieldTheme.primary(scheme))
                                 .frame(width: 40, height: 40)
                                 .background(selectedIcon == icon ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
@@ -1132,7 +1181,7 @@ struct NewCategorySheet: View {
                     isPresented = false
                 } label: {
                     Text(LanguageManager.shared.home("home_create_category"))
-                        .font(.system(size: 16, weight: .bold))
+                        .shieldFont(16, weight: .bold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(name.isEmpty ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accent)
@@ -1183,18 +1232,18 @@ struct VaultAutoLockOverlay: View {
                         .fill(ShieldTheme.accentDim)
                         .frame(width: 72, height: 72)
                     Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 32, weight: .semibold))
+                        .shieldFont(32, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent)
                         .accessibilityHidden(true)
                 }
 
                 VStack(spacing: 8) {
                     Text(LanguageManager.shared.home("home_vault_mode"))
-                        .font(.system(size: 20, weight: .heavy))
+                        .shieldFont(20, weight: .heavy)
                         .foregroundColor(ShieldTheme.primary(scheme))
 
                     Text(LanguageManager.shared.home("home_vault_auto_lock_msg"))
-                        .font(.system(size: 14))
+                        .shieldFont(14)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
@@ -1212,7 +1261,7 @@ struct VaultAutoLockOverlay: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 1), value: remaining)
                     Text("\(remaining)")
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .shieldFont(28, weight: .bold, design: .monospaced)
                         .foregroundColor(ShieldTheme.primary(scheme))
                 }
 
@@ -1223,7 +1272,7 @@ struct VaultAutoLockOverlay: View {
                         onLockNow()
                     } label: {
                         Label(LanguageManager.shared.home("home_lock_now"), systemImage: "lock.fill")
-                            .font(.system(size: 15, weight: .bold))
+                            .shieldFont(15, weight: .bold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
                             .background(ShieldTheme.accent)
@@ -1237,7 +1286,7 @@ struct VaultAutoLockOverlay: View {
                         onKeepEditing()
                     } label: {
                         Text(LanguageManager.shared.home("home_keep_editing"))
-                            .font(.system(size: 15, weight: .semibold))
+                            .shieldFont(15, weight: .semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 48)
                             .background(ShieldTheme.rowBackground(scheme))
@@ -1326,7 +1375,7 @@ struct BatchRedactView: View {
                 // Mode picker
                 VStack(alignment: .leading, spacing: 8) {
                     Text(LanguageManager.shared.home("home_batch_redaction_mode"))
-                        .font(.system(size: 11, weight: .bold))
+                        .shieldFont(11, weight: .bold)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .tracking(0.5)
 
@@ -1336,12 +1385,12 @@ struct BatchRedactView: View {
                             Button { selectedMode = mode } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: mode.icon)
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .shieldFont(12, weight: .semibold)
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(mode.label(lang: appState.language))
-                                            .font(.system(size: 12, weight: .bold))
+                                            .shieldFont(12, weight: .bold)
                                         Text(mode.subtitle(lang: appState.language))
-                                            .font(.system(size: 10))
+                                            .shieldFont(10)
                                             .lineLimit(1)
                                     }
                                     Spacer()
@@ -1364,7 +1413,7 @@ struct BatchRedactView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text(LanguageManager.shared.home("home_batch_documents_count", selectedIDs.count))
-                            .font(.system(size: 11, weight: .bold))
+                            .shieldFont(11, weight: .bold)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
                             .tracking(0.5)
                         Spacer()
@@ -1378,7 +1427,7 @@ struct BatchRedactView: View {
                             Text(selectedIDs.count == selectableDocs.count
                                  ? LanguageManager.shared.common("common_deselect_all")
                                  : LanguageManager.shared.common("common_select_all"))
-                                .font(.system(size: 12, weight: .semibold))
+                                .shieldFont(12, weight: .semibold)
                                 .foregroundColor(ShieldTheme.accent)
                                 .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                                 .contentShape(Rectangle())
@@ -1392,15 +1441,15 @@ struct BatchRedactView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                    .font(.system(size: 18, weight: .semibold))
+                                    .shieldFont(18, weight: .semibold)
                                     .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.tertiary(scheme))
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(doc.title)
-                                        .font(.system(size: 14, weight: .semibold))
+                                        .shieldFont(14, weight: .semibold)
                                         .foregroundColor(ShieldTheme.primary(scheme))
                                         .lineLimit(1)
                                     Text("\(doc.pageCount) \(LanguageManager.shared.common("common_pages_count")) · \(doc.dateLabelLocalized(lang: appState.language))")
-                                        .font(.system(size: 11))
+                                        .shieldFont(11)
                                         .foregroundColor(ShieldTheme.tertiary(scheme))
                                 }
                                 Spacer()
@@ -1425,12 +1474,12 @@ struct BatchRedactView: View {
                         if isProcessing {
                             ProgressView().tint(.black).scaleEffect(0.9)
                             Text(LanguageManager.shared.home("home_batch_processing", processed, selectedIDs.count))
-                                .font(.system(size: 15, weight: .bold))
+                                .shieldFont(15, weight: .bold)
                         } else {
                             Image(systemName: "square.stack.3d.up.fill")
-                                .font(.system(size: 15, weight: .semibold))
+                                .shieldFont(15, weight: .semibold)
                             Text(LanguageManager.shared.home("home_batch_apply_button", selectedIDs.count))
-                                .font(.system(size: 15, weight: .bold))
+                                .shieldFont(15, weight: .bold)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -1443,7 +1492,7 @@ struct BatchRedactView: View {
                 .disabled(selectedIDs.isEmpty || isProcessing)
 
                 Text(LanguageManager.shared.home("home_batch_description"))
-                    .font(.system(size: 11))
+                    .shieldFont(11)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -1460,27 +1509,27 @@ struct BatchRedactView: View {
                     .fill(ShieldTheme.successDim)
                     .frame(width: 90, height: 90)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 44, weight: .semibold))
+                    .shieldFont(44, weight: .semibold)
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(spacing: 6) {
                 Text(LanguageManager.shared.home("home_batch_complete_title"))
-                    .font(.system(size: 22, weight: .bold))
+                    .shieldFont(22, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.home("home_batch_complete_desc", selectedMode.label(lang: appState.language), processed))
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.secondary(scheme))
                     .multilineTextAlignment(.center)
             }
             Spacer()
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.common("common_done"))
-                    .font(.system(size: 16, weight: .bold))
+                    .shieldFont(16, weight: .bold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
                     .background(ShieldTheme.accent)
-                    .foregroundColor(.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .foregroundColor(ShieldTheme.accentText)
+                    .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
             }
             .buttonStyle(ScaleButtonStyle())
             .padding(.horizontal, 20)

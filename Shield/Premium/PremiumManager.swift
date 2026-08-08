@@ -24,7 +24,7 @@ enum ShieldProduct: String, CaseIterable {
         case .annual:   key = "paywall_plan_annual"
         case .lifetime: key = "paywall_plan_lifetime"
         }
-        return LanguageManager.shared.str(key, table: "Paywall")
+        return LanguageManager.shared.t(key, table: "Paywall", language: lang)
     }
 }
 
@@ -69,6 +69,8 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     @Published private(set) var isPro: Bool = false
     @Published private(set) var products: [PremiumProduct] = []
+    @Published private(set) var isLoadingProducts: Bool = false
+    @Published private(set) var productsLoadFailed: Bool = false
     /// Product ID → localized free-trial badge. Only populated for products with
     /// a free-trial introductory offer the user is still eligible for.
     @Published private(set) var trialLabels: [String: String] = [:]
@@ -115,6 +117,9 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     // MARK: - Load products
 
     func loadProducts() async {
+        isLoadingProducts = true
+        productsLoadFailed = false
+        defer { isLoadingProducts = false }
         let ids = ShieldProduct.allCases.map(\.rawValue)
         let fetched = await Purchases.shared.products(ids).map(PremiumProduct.init(storeProduct:))
         // The product surface is intentionally limited to three clear choices.
@@ -126,6 +131,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             ]
             return (order[lhs.id] ?? 99) < (order[rhs.id] ?? 99)
         }
+        productsLoadFailed = fetched.isEmpty
         await refreshTrialEligibility()
     }
 

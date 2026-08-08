@@ -120,6 +120,23 @@
         }
       }
     },
+    "onboarding_camera_allow_access": {
+      "comment": "Primary button while camera permission is denied; opens app Settings explicitly",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir acceso"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow access"
+          }
+        }
+      }
+    },
     "onboarding_camera_enable": {
       "extractionState": "manual",
       "localizations": {

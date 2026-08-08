@@ -200,7 +200,7 @@ struct EditorView: View {
                     showCancelConfirm = true
                 }
             }
-            .font(.system(size: 15, weight: .semibold))
+            .shieldFont(15, weight: .semibold)
             .foregroundColor(ShieldTheme.accent(scheme))
             .frame(minHeight: 44)
             .contentShape(Rectangle())
@@ -243,7 +243,7 @@ struct EditorView: View {
                     showReadjustReview = true
                 } label: {
                     Image(systemName: "camera.filters")
-                        .font(.system(size: 16, weight: .semibold))
+                        .shieldFont(16, weight: .semibold)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .frame(width: 44, height: 44)
                 }
@@ -258,7 +258,7 @@ struct EditorView: View {
                     dismiss()
                 } label: {
                     Text(LanguageManager.shared.common("common_save"))
-                        .font(.system(size: 13, weight: .bold))
+                        .shieldFont(13, weight: .bold)
                         .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 14)
                         .frame(minHeight: 44)
@@ -273,7 +273,7 @@ struct EditorView: View {
                     vm.showExportSheet = true
                 } label: {
                     Text(LanguageManager.shared.editor("editor_export"))
-                        .font(.system(size: 13, weight: .bold))
+                        .shieldFont(13, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 14)
                         .frame(minHeight: 44)
@@ -373,7 +373,7 @@ struct EditorView: View {
                             vm.goToPage(currentPage - 1)
                         } label: {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 11, weight: .bold))
+                                .shieldFont(11, weight: .bold)
                                 .foregroundColor(currentPage > 0 ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
                                 .frame(width: 22, height: 22)
                         }
@@ -384,7 +384,7 @@ struct EditorView: View {
                     }
 
                     Text(LanguageManager.shared.editor("editor_page_indicator", currentPage + 1, max(totalPages, 1)))
-                        .font(.system(size: 11, weight: .semibold))
+                        .shieldFont(11, weight: .semibold)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -400,7 +400,7 @@ struct EditorView: View {
                             vm.goToPage(currentPage + 1)
                         } label: {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .bold))
+                                .shieldFont(11, weight: .bold)
                                 .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
                                 .frame(width: 22, height: 22)
                         }
@@ -456,7 +456,7 @@ struct EditorView: View {
                     .keyboardShortcut("-", modifiers: .command)
 
                     Text("\(Int(effectiveZoom * 100))%")
-                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .shieldFont(11, weight: .semibold, design: .monospaced)
                         .frame(minWidth: 48)
 
                     Button {

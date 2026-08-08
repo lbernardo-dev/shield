@@ -99,6 +99,23 @@ extension ShieldTheme {
     static func quaternary(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? textQuaternary : Color(hex: "0A0A0B").opacity(0.24)
     }
+
+    /// Full-screen "premium" backdrop used by Paywall and post-value
+    /// onboarding surfaces. In dark mode it keeps the deep privacy-navy
+    /// identity; in light mode it becomes a soft, readable gradient so the
+    /// surface no longer "ignores" the appearance setting.
+    static func premiumBackground(_ scheme: ColorScheme) -> [Color] {
+        scheme == .dark
+            ? [surface0, surface2]
+            : [Color(hex: "F4F4F8"), Color.white]
+    }
+
+    /// Selection/affordance highlight for canvas overlays. Yellow reads
+    /// clearly over the dark render surface; a deeper amber keeps contrast
+    /// in light mode where documents render on white.
+    static func selection(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color(hex: "FFD60A") : Color(hex: "B8860B")
+    }
 }
 
 // MARK: - Color(hex:)
@@ -126,6 +143,59 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+// MARK: - Typography (Dynamic Type aware)
+
+/// Base sizes for the Shield type scale. These are the design's default
+/// point sizes at the system's default content size category; `shieldFont`
+/// scales them with the user's Dynamic Type preference.
+enum ShieldTypeSize {
+    static let micro: CGFloat = 9
+    static let caption: CGFloat = 11
+    static let captionMid: CGFloat = 12
+    static let footnote: CGFloat = 13
+    static let subheadline: CGFloat = 14
+    static let callout: CGFloat = 15
+    static let body: CGFloat = 16
+    static let headline: CGFloat = 17
+    static let title3: CGFloat = 20
+    static let title2: CGFloat = 22
+    static let title1: CGFloat = 28
+    static let display: CGFloat = 34
+}
+
+/// Applies a fixed-layout font size as a Dynamic Type-aware token. The view
+/// is re-evaluated when the user changes the system text size, keeping the
+/// identical visual design at the default size while honoring accessibility
+/// Large/Accessibility sizes. Canvas/output renderers must keep using
+/// `.system(size:)` so exported documents never depend on device settings.
+struct ShieldFontModifier: ViewModifier {
+    @ScaledMetric(relativeTo: .body) private var dynamicSize: CGFloat = 14
+    let weight: Font.Weight
+    let design: Font.Design
+
+    init(size: CGFloat, weight: Font.Weight, design: Font.Design) {
+        _dynamicSize = ScaledMetric(wrappedValue: size, relativeTo: .body)
+        self.weight = weight
+        self.design = design
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: dynamicSize, weight: weight, design: design))
+    }
+}
+
+extension View {
+    /// Substitutes the (non-scaling) `.system(size:weight:design:)` pattern
+    /// with a Dynamic Type-aware equivalent.
+    func shieldFont(
+        _ size: CGFloat,
+        weight: Font.Weight = .regular,
+        design: Font.Design = .default
+    ) -> some View {
+        modifier(ShieldFontModifier(size: size, weight: weight, design: design))
     }
 }
 

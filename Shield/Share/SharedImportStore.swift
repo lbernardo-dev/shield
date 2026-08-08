@@ -35,13 +35,32 @@ enum SharedImportStoreError: Error, LocalizedError, Sendable {
     case noPendingImport
 
     var errorDescription: String? {
+        let isSpanish = Locale.preferredLanguages.first?.hasPrefix("es") == true
         switch self {
-        case .appGroupUnavailable: return "No se pudo acceder al contenedor seguro compartido."
-        case .unsupportedFile: return "El elemento compartido no es una imagen o PDF compatible."
-        case .fileTooLarge: return "El archivo compartido supera el límite seguro de 50 MB."
-        case .keychainFailure: return "No se pudo acceder a la clave segura compartida."
-        case .encryptionFailed: return "No se pudo proteger la importación compartida."
-        case .noPendingImport: return "No hay importaciones compartidas pendientes."
+        case .appGroupUnavailable:
+            return isSpanish
+                ? "No se pudo acceder al contenedor seguro compartido."
+                : "Could not access the shared secure container."
+        case .unsupportedFile:
+            return isSpanish
+                ? "El elemento compartido no es una imagen o PDF compatible."
+                : "The shared item is not a supported image or PDF."
+        case .fileTooLarge:
+            return isSpanish
+                ? "El archivo compartido supera el límite seguro de 50 MB."
+                : "The shared file exceeds the 50 MB safe limit."
+        case .keychainFailure:
+            return isSpanish
+                ? "No se pudo acceder a la clave segura compartida."
+                : "Could not access the shared secure key."
+        case .encryptionFailed:
+            return isSpanish
+                ? "No se pudo proteger la importación compartida."
+                : "Could not protect the shared import."
+        case .noPendingImport:
+            return isSpanish
+                ? "No hay importaciones compartidas pendientes."
+                : "There are no pending shared imports."
         }
     }
 }

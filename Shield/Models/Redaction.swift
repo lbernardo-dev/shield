@@ -85,7 +85,17 @@ enum MaskStyle: String, CaseIterable, Identifiable, Codable {
     }
 
     func label(lang: AppLanguage) -> String {
-        localizedLabel
+        switch self {
+        case .block:        return LanguageManager.shared.t("model_mask_style_block", table: "Model", language: lang)
+        case .blockWhite:   return LanguageManager.shared.t("model_mask_style_block_white", table: "Model", language: lang)
+        case .pixelate:     return LanguageManager.shared.t("model_mask_style_pixelate", table: "Model", language: lang)
+        case .blurStrong:   return LanguageManager.shared.t("model_mask_style_blur_strong", table: "Model", language: lang)
+        case .blurSoft:     return LanguageManager.shared.t("model_mask_style_blur_soft", table: "Model", language: lang)
+        case .diagonal:     return LanguageManager.shared.t("model_mask_style_diagonal", table: "Model", language: lang)
+        case .secure:       return LanguageManager.shared.t("model_mask_style_secure", table: "Model", language: lang)
+        case .redactedTag:  return LanguageManager.shared.t("model_mask_style_redacted_tag", table: "Model", language: lang)
+        case .semi:         return LanguageManager.shared.t("model_mask_style_semi", table: "Model", language: lang)
+        }
     }
 }
 
@@ -207,10 +217,26 @@ enum RedactionMode: String, CaseIterable, Identifiable {
     }
 
     func label(lang: AppLanguage) -> String {
-        localizedLabel
+        switch self {
+        case .rental:  return LanguageManager.shared.t("model_redaction_mode_rental", table: "Model", language: lang)
+        case .travel:  return LanguageManager.shared.t("model_redaction_mode_travel", table: "Model", language: lang)
+        case .job:     return LanguageManager.shared.t("model_redaction_mode_job", table: "Model", language: lang)
+        case .verify:  return LanguageManager.shared.t("model_redaction_mode_verify", table: "Model", language: lang)
+        case .legal:   return LanguageManager.shared.t("model_redaction_mode_legal", table: "Model", language: lang)
+        case .health:  return LanguageManager.shared.t("model_redaction_mode_health", table: "Model", language: lang)
+        case .banking: return LanguageManager.shared.t("model_redaction_mode_banking", table: "Model", language: lang)
+        }
     }
 
     func subtitle(lang: AppLanguage) -> String {
-        localizedSubtitle
+        switch self {
+        case .rental:  return LanguageManager.shared.t("model_redaction_mode_rental_sub", table: "Model", language: lang)
+        case .travel:  return LanguageManager.shared.t("model_redaction_mode_travel_sub", table: "Model", language: lang)
+        case .job:     return LanguageManager.shared.t("model_redaction_mode_job_sub", table: "Model", language: lang)
+        case .verify:  return LanguageManager.shared.t("model_redaction_mode_verify_sub", table: "Model", language: lang)
+        case .legal:   return LanguageManager.shared.t("model_redaction_mode_legal_sub", table: "Model", language: lang)
+        case .health:  return LanguageManager.shared.t("model_redaction_mode_health_sub", table: "Model", language: lang)
+        case .banking: return LanguageManager.shared.t("model_redaction_mode_banking_sub", table: "Model", language: lang)
+        }
     }
 }

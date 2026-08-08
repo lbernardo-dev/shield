@@ -15,7 +15,7 @@ struct OnboardingFlowView: View {
                         .ignoresSafeArea()
                 } else {
                     RadialGradient(
-                        colors: [Color(hex: "1a1a22"), ShieldTheme.surface1],
+                        colors: ShieldTheme.premiumBackground(appState.preferredScheme),
                         center: .top, startRadius: 0, endRadius: 500
                     )
                     .ignoresSafeArea()
@@ -54,7 +54,7 @@ struct OnboardingFlowView: View {
             if state.currentStep > 0 {
                 Button(action: moveBack) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
+                        .shieldFont(16, weight: .semibold)
                         .foregroundStyle(ShieldTheme.textPrimary)
                         .frame(width: 44, height: 44)
                         .contentShape(.rect)

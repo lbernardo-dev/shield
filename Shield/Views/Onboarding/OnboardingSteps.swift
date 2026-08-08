@@ -48,7 +48,7 @@ struct OBWelcomeView: View {
             Spacer().frame(height: 16)
 
             Text(LanguageManager.shared.onboarding("onboarding_welcome_subtitle"))
-                .font(.system(size: 15))
+                .shieldFont(15)
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -58,7 +58,7 @@ struct OBWelcomeView: View {
 
             Button(action: state.next) {
                 Text(LanguageManager.shared.onboarding("onboarding_welcome_cta"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
                     .foregroundColor(ShieldTheme.accentText)
@@ -84,12 +84,12 @@ struct OBGoalView: View {
 
             VStack(spacing: 10) {
                 Text(LanguageManager.shared.onboarding("onboarding_goal_title"))
-                    .font(.system(size: 26, weight: .heavy))
+                    .shieldFont(26, weight: .heavy)
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_goal_subtitle"))
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.textSecondary)
             }
 
@@ -113,7 +113,7 @@ struct OBGoalView: View {
 
             Button(action: state.next) {
                 Text(LanguageManager.shared.onboarding("onboarding_continue"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(state.selectedGoal != nil ? ShieldTheme.accent : ShieldTheme.surface2)
                     .foregroundColor(state.selectedGoal != nil ? ShieldTheme.accentText : ShieldTheme.textTertiary)
@@ -141,12 +141,12 @@ struct OBPainPointsView: View {
 
             VStack(spacing: 10) {
                 Text(LanguageManager.shared.onboarding("onboarding_pain_title"))
-                    .font(.system(size: 26, weight: .heavy))
+                    .shieldFont(26, weight: .heavy)
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_pain_subtitle"))
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.textSecondary)
             }
 
@@ -176,7 +176,7 @@ struct OBPainPointsView: View {
 
             Button(action: state.next) {
                 Text(LanguageManager.shared.onboarding("onboarding_continue"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
                     .foregroundColor(ShieldTheme.accentText)
@@ -221,12 +221,12 @@ struct OBDemoView: View {
 
             VStack(spacing: 8) {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_title"))
-                    .font(.system(size: 26, weight: .heavy))
+                    .shieldFont(26, weight: .heavy)
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 Text(LanguageManager.shared.onboarding("onboarding_demo_subtitle"))
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -238,7 +238,7 @@ struct OBDemoView: View {
             VStack(spacing: 0) {
                 HStack {
                     Text(LanguageManager.shared.onboarding("onboarding_demo_sample_country"))
-                        .font(.system(size: 11, weight: .bold))
+                        .shieldFont(11, weight: .bold)
                         .foregroundColor(ShieldTheme.textSecondary)
                     Spacer()
                 }
@@ -254,11 +254,11 @@ struct OBDemoView: View {
                                 .frame(width: 80, height: 100)
                             if redacted.contains("photo") {
                                 Image(systemName: "eye.slash.fill")
-                                    .font(.system(size: 18))
+                                    .shieldFont(18)
                                     .foregroundColor(.white.opacity(0.3))
                             } else {
                                 Image(systemName: "person.fill")
-                                    .font(.system(size: 32))
+                                    .shieldFont(32)
                                     .foregroundColor(ShieldTheme.textTertiary)
                             }
                         }
@@ -268,9 +268,9 @@ struct OBDemoView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         // Name (not redactable)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(LanguageManager.shared.onboarding("onboarding_demo_name_label")).font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
+                            Text(LanguageManager.shared.onboarding("onboarding_demo_name_label")).shieldFont(9, weight: .bold).foregroundColor(ShieldTheme.textTertiary)
                             Text(LanguageManager.shared.onboarding("onboarding_demo_sample_name"))
-                                .font(.system(size: 13, weight: .semibold)).foregroundColor(ShieldTheme.textPrimary)
+                                .shieldFont(13, weight: .semibold).foregroundColor(ShieldTheme.textPrimary)
                         }
                         Divider().background(ShieldTheme.surfaceLine)
                         demoField(id: "dob", labelKey: "onboarding_demo_field_dob", value: LanguageManager.shared.onboarding("onboarding_demo_sample_dob"))
@@ -287,18 +287,18 @@ struct OBDemoView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(LanguageManager.shared.onboarding("onboarding_demo_field_address").uppercased())
-                                .font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
+                                .shieldFont(9, weight: .bold).foregroundColor(ShieldTheme.textTertiary)
                             if redacted.contains("address") {
                                 RoundedRectangle(cornerRadius: 3).fill(Color.black)
                                     .frame(maxWidth: .infinity).frame(height: 16)
                             } else {
                                 Text(LanguageManager.shared.onboarding("onboarding_demo_address_value"))
-                                    .font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
+                                    .shieldFont(13).foregroundColor(ShieldTheme.textPrimary)
                             }
                         }
                         Spacer()
                         if redacted.contains("address") {
-                            Image(systemName: "eye.slash.fill").font(.system(size: 12)).foregroundColor(ShieldTheme.accent)
+                            Image(systemName: "eye.slash.fill").shieldFont(12).foregroundColor(ShieldTheme.accent)
                         }
                     }
                     .padding(.horizontal, 16).padding(.vertical, 10)
@@ -313,7 +313,7 @@ struct OBDemoView: View {
             Spacer().frame(height: 16)
 
             Text(instructionText)
-                .font(.system(size: 14, weight: .medium))
+                .shieldFont(14, weight: .medium)
                 .foregroundColor(redacted.count >= minRequired ? ShieldTheme.success : ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
                 .animation(.easeInOut(duration: 0.2), value: redacted.count)
@@ -322,7 +322,7 @@ struct OBDemoView: View {
 
             Button { withAnimation { showResult = true } } label: {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_see_result"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(redacted.count >= minRequired ? ShieldTheme.accent : ShieldTheme.surface2)
                     .foregroundColor(redacted.count >= minRequired ? ShieldTheme.accentText : ShieldTheme.textTertiary)
@@ -341,16 +341,16 @@ struct OBDemoView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LanguageManager.shared.onboarding(labelKey).uppercased())
-                        .font(.system(size: 9, weight: .bold)).foregroundColor(ShieldTheme.textTertiary)
+                        .shieldFont(9, weight: .bold).foregroundColor(ShieldTheme.textTertiary)
                     if redacted.contains(id) {
                         RoundedRectangle(cornerRadius: 3).fill(Color.black).frame(width: 90, height: 14)
                     } else {
-                        Text(value).font(.system(size: 13)).foregroundColor(ShieldTheme.textPrimary)
+                        Text(value).shieldFont(13).foregroundColor(ShieldTheme.textPrimary)
                     }
                 }
                 Spacer()
                 if redacted.contains(id) {
-                    Image(systemName: "eye.slash.fill").font(.system(size: 11)).foregroundColor(ShieldTheme.accent)
+                    Image(systemName: "eye.slash.fill").shieldFont(11).foregroundColor(ShieldTheme.accent)
                 }
             }
         }
@@ -372,11 +372,11 @@ struct OBDemoView: View {
 
             VStack(spacing: 10) {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_title"))
-                    .font(.system(size: 28, weight: .heavy))
+                    .shieldFont(28, weight: .heavy)
                     .foregroundColor(ShieldTheme.textPrimary)
                     .multilineTextAlignment(.center)
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_subtitle"))
-                    .font(.system(size: 15))
+                    .shieldFont(15)
                     .foregroundColor(ShieldTheme.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
@@ -395,7 +395,7 @@ struct OBDemoView: View {
 
             Button(action: state.next) {
                 Text(LanguageManager.shared.onboarding("onboarding_demo_result_cta"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 54)
                     .background(ShieldTheme.accent)
                     .foregroundColor(ShieldTheme.accentText)
@@ -411,7 +411,7 @@ struct OBDemoView: View {
             VStack(spacing: 0) {
                 HStack {
                     Text(LanguageManager.shared.onboarding("onboarding_demo_sample_country"))
-                        .font(.system(size: 9, weight: .bold))
+                        .shieldFont(9, weight: .bold)
                         .foregroundStyle(ShieldTheme.textSecondary)
                     Spacer()
                     Image(systemName: "checkmark.shield.fill")
@@ -462,10 +462,10 @@ struct OBDemoView: View {
     private func resultTrustPill(_ symbol: String, key: String) -> some View {
         VStack(spacing: 6) {
             Image(systemName: symbol)
-                .font(.system(size: 16, weight: .semibold))
+                .shieldFont(16, weight: .semibold)
                 .foregroundStyle(ShieldTheme.accent)
             Text(LanguageManager.shared.onboarding(key))
-                .font(.system(size: 10, weight: .medium))
+                .shieldFont(10, weight: .medium)
                 .foregroundStyle(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
@@ -506,10 +506,16 @@ struct OBCameraPermView: View {
                 }
         }
         .environment(\.colorScheme, .dark)
-        .onAppear(perform: refreshAuthorizationStatus)
+        .onAppear(perform: requestCameraOnAppear)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             refreshAuthorizationStatus()
         }
+    }
+
+    private func requestCameraOnAppear() {
+        refreshAuthorizationStatus()
+        guard authorizationStatus == .notDetermined, !isRequesting else { return }
+        requestCameraAccess()
     }
 
     private var permissionContent: some View {
@@ -578,7 +584,7 @@ struct OBCameraPermView: View {
 
     private var permissionChevron: some View {
         Image(systemName: "chevron.down")
-            .font(.system(size: 12, weight: .medium))
+            .shieldFont(12, weight: .medium)
             .offset(x: -2, y: -8)
     }
 
@@ -735,7 +741,7 @@ struct OBCameraPermView: View {
         case .authorized, .restricted:
             LanguageManager.shared.onboarding("onboarding_continue")
         case .denied:
-            LanguageManager.shared.onboarding("onboarding_camera_open_settings")
+            LanguageManager.shared.onboarding("onboarding_camera_allow_access")
         default:
             LanguageManager.shared.onboarding("onboarding_camera_enable")
         }
@@ -753,28 +759,32 @@ struct OBCameraPermView: View {
             guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
             openURL(settingsURL)
         case .notDetermined:
-            isRequesting = true
-            Task {
-                let granted = await AVCaptureDevice.requestAccess(for: .video)
-                authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
-                isRequesting = false
-                AppState.trackEvent("camera_permission_resolved", properties: [
-                    "granted": granted ? "true" : "false"
-                ])
-                if granted { state.next() }
-            }
-            // requestAccess's completion can fail to resume on some Simulator/OS
-            // combinations, permanently disabling the CTA. Fall back to polling the
-            // system status directly so the button never gets stuck; if the real
-            // completion above still lands later, it applies its own (authoritative)
-            // result on top of this with no risk of double-advancing the step.
-            Task {
-                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                guard isRequesting else { return }
-                refreshAuthorizationStatus()
-            }
+            requestCameraAccess()
         @unknown default:
             state.next()
+        }
+    }
+
+    private func requestCameraAccess() {
+        isRequesting = true
+        Task {
+            let granted = await AVCaptureDevice.requestAccess(for: .video)
+            authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+            isRequesting = false
+            AppState.trackEvent("camera_permission_resolved", properties: [
+                "granted": granted ? "true" : "false"
+            ])
+            if granted { state.next() }
+        }
+        // requestAccess's completion can fail to resume on some Simulator/OS
+        // combinations, permanently disabling the CTA. Fall back to polling the
+        // system status directly so the button never gets stuck; if the real
+        // completion above still lands later, it applies its own (authoritative)
+        // result on top of this with no risk of double-advancing the step.
+        Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard isRequesting else { return }
+            refreshAuthorizationStatus()
         }
     }
 
@@ -812,12 +822,13 @@ struct OBPaywallView: View {
         ("doc.on.doc.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
         ("eye.slash.fill",       "FFD60A", "paywall_feature_all_styles"),
         ("lock.rectangle.stack", "30D158", "paywall_feature_vault"),
+        ("icloud",               "30D158", "paywall_feature_icloud"),
     ]
 
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: "0D0D10"), Color.black],
+                colors: ShieldTheme.premiumBackground(appState.preferredScheme),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -828,7 +839,7 @@ struct OBPaywallView: View {
                     HStack {
                         Button(action: onBack) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .semibold))
+                                .shieldFont(16, weight: .semibold)
                                 .foregroundStyle(ShieldTheme.textPrimary)
                                 .frame(width: 44, height: 44)
                                 .background(ShieldTheme.surface2, in: Circle())
@@ -865,13 +876,13 @@ struct OBPaywallView: View {
                     .fill(ShieldTheme.accentDim)
                     .frame(width: 72, height: 72)
                 Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 34, weight: .semibold))
+                    .shieldFont(34, weight: .semibold)
                     .foregroundStyle(ShieldTheme.accent)
             }
             .symbolEffect(.breathe, options: .repeating)
 
             Text(LanguageManager.shared.paywall("paywall_title"))
-                .font(.system(size: 29, weight: .heavy))
+                .shieldFont(29, weight: .heavy)
                 .foregroundStyle(ShieldTheme.textPrimary)
                 .multilineTextAlignment(.center)
             Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
@@ -886,7 +897,7 @@ struct OBPaywallView: View {
             ForEach(features, id: \.key) { feature in
                 HStack(spacing: 12) {
                     Image(systemName: feature.icon)
-                        .font(.system(size: 15, weight: .semibold))
+                        .shieldFont(15, weight: .semibold)
                         .foregroundStyle(Color(hex: feature.hex))
                         .frame(width: 28, height: 28)
                         .background(Color(hex: feature.hex).opacity(0.14), in: .rect(cornerRadius: 8))
@@ -909,12 +920,16 @@ struct OBPaywallView: View {
 
     private var planSelector: some View {
         VStack(spacing: 12) {
-            if pm.products.isEmpty {
+            if pm.isLoadingProducts {
                 ForEach(0..<3, id: \.self) { _ in
                     RoundedRectangle(cornerRadius: 16)
                         .fill(ShieldTheme.surface2)
                         .frame(height: 84)
                         .redacted(reason: .placeholder)
+                }
+            } else if pm.products.isEmpty {
+                PaywallProductsUnavailable {
+                    Task { await pm.loadProducts() }
                 }
             } else {
                 ForEach(pm.products, id: \.id) { product in
@@ -1032,7 +1047,7 @@ struct OBPaywallView: View {
             .foregroundStyle(ShieldTheme.textTertiary)
 
             Text(LanguageManager.shared.paywall("paywall_legal"))
-                .font(.system(size: 10))
+                .shieldFont(10)
                 .foregroundStyle(ShieldTheme.textTertiary)
                 .multilineTextAlignment(.center)
         }
@@ -1076,16 +1091,16 @@ struct OBSelectRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 14) {
-                Text(emoji).font(.system(size: 20))
+                Text(emoji).shieldFont(20)
                 Text(label)
-                    .font(.system(size: 15, weight: .medium))
+                    .shieldFont(15, weight: .medium)
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
                 Image(systemName: multiSelect
                     ? (isSelected ? "checkmark.square.fill" : "square")
                     : (isSelected ? "checkmark.circle.fill" : "circle")
                 )
-                .font(.system(size: 18))
+                .shieldFont(18)
                 .foregroundColor(isSelected ? ShieldTheme.accent : ShieldTheme.textTertiary)
             }
             .padding(.horizontal, 16).padding(.vertical, 14)

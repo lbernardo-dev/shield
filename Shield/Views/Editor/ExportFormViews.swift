@@ -8,12 +8,12 @@ struct ExportSheetHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .shieldFont(18, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
             Spacer()
             Button(action: onClose) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .medium))
+                    .shieldFont(14, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .frame(width: 30, height: 30)
                     .background(ShieldTheme.rowBackground(scheme))
@@ -77,10 +77,10 @@ struct ExportFormatPicker: View {
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: format == .pdf ? "doc.fill" : "photo.fill")
-                                .font(.system(size: 16, weight: .semibold))
+                                .shieldFont(16, weight: .semibold)
                                 .foregroundColor(selectedFormat == format ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
                             Text(labels[format] ?? "")
-                                .font(.system(size: 14, weight: .semibold))
+                                .shieldFont(14, weight: .semibold)
                                 .foregroundColor(ShieldTheme.primary(scheme))
                         }
                         .frame(maxWidth: .infinity)
@@ -125,7 +125,7 @@ struct ExportQualityPicker: View {
                         onSelect(quality)
                     } label: {
                         Text(labels[quality] ?? "")
-                            .font(.system(size: 13, weight: .semibold))
+                            .shieldFont(13, weight: .semibold)
                             .frame(maxWidth: .infinity)
                             .frame(height: 36)
                             .background(selectedQuality == quality ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
@@ -157,9 +157,9 @@ struct ExportRiskAcknowledgementCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
                 Text(warningText)
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
             }
             .foregroundColor(ShieldTheme.warning)
 
@@ -168,7 +168,7 @@ struct ExportRiskAcknowledgementCard: View {
                     Image(systemName: isAcknowledged ? "checkmark.square.fill" : "square")
                         .foregroundColor(isAcknowledged ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     Text(acknowledgeText)
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                 }
             }
@@ -194,12 +194,12 @@ struct ExportSheetFooterButton: View {
                     if isExporting {
                         ProgressView().tint(ShieldTheme.accentText).scaleEffect(0.8)
                         Text(LanguageManager.shared.editor("editor_exporting"))
-                            .font(.system(size: 15, weight: .bold))
+                            .shieldFont(15, weight: .bold)
                     } else {
                         Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 16, weight: .semibold))
+                            .shieldFont(16, weight: .semibold)
                         Text(buttonTitle)
-                            .font(.system(size: 15, weight: .bold))
+                            .shieldFont(15, weight: .bold)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -233,19 +233,19 @@ struct ExportCompletionView: View {
                     .fill(ShieldTheme.successDim)
                     .frame(width: 84, height: 84)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 40, weight: .semibold))
+                    .shieldFont(40, weight: .semibold)
                     .foregroundColor(ShieldTheme.success)
             }
             VStack(spacing: 4) {
                 Text(LanguageManager.shared.editor("editor_exported"))
-                    .font(.system(size: 20, weight: .bold))
+                    .shieldFont(20, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(summaryText)
-                    .font(.system(size: 13))
+                    .shieldFont(13)
                     .foregroundColor(ShieldTheme.secondary(scheme))
                 if showFreeWatermarkNote && !isPro {
                     Text(LanguageManager.shared.editor("editor_include_wm_free"))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
             }
@@ -253,7 +253,7 @@ struct ExportCompletionView: View {
             HStack(spacing: 8) {
                 Button(action: onDone) {
                     Text(LanguageManager.shared.common("common_done"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .shieldFont(14, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -267,7 +267,7 @@ struct ExportCompletionView: View {
                         Image(systemName: "square.and.arrow.up")
                         Text(LanguageManager.shared.common("common_share"))
                     }
-                    .font(.system(size: 14, weight: .bold))
+                    .shieldFont(14, weight: .bold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
                     .background(ShieldTheme.accent)
@@ -301,22 +301,22 @@ struct ExportVerificationPreflightPanel: View {
                     ZStack {
                         Circle().fill(color.opacity(0.18)).frame(width: 36, height: 36)
                         Image(systemName: "checkmark.shield.fill")
-                            .font(.system(size: 16, weight: .bold))
+                            .shieldFont(16, weight: .bold)
                             .foregroundColor(color)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(LanguageManager.shared.editor("editor_export_verification_title"))
-                            .font(.system(size: 13, weight: .bold))
+                            .shieldFont(13, weight: .bold)
                             .foregroundColor(ShieldTheme.primary(scheme))
                         Text(isPDF
                              ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
                              : LanguageManager.shared.editor("editor_export_verification_image_note"))
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                             .foregroundColor(color)
                     }
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
+                        .shieldFont(11, weight: .semibold)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
 
@@ -388,15 +388,15 @@ struct ExportPrivacyScoreRow: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 11, weight: .semibold))
+                .shieldFont(11, weight: .semibold)
                 .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
                 .frame(width: 16)
             Text(label)
-                .font(.system(size: 12))
+                .shieldFont(12)
                 .foregroundColor(ShieldTheme.secondary(scheme))
             Spacer()
             Text(value)
-                .font(.system(size: 12, weight: .semibold))
+                .shieldFont(12, weight: .semibold)
                 .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
         }
     }
@@ -408,7 +408,7 @@ struct ExportSectionLabel: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .bold))
+            .shieldFont(11, weight: .bold)
             .foregroundColor(ShieldTheme.tertiary(scheme))
             .textCase(.uppercase)
             .tracking(0.4)

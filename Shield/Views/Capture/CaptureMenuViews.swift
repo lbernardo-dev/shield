@@ -78,11 +78,11 @@ struct CaptureMenuView: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text(importSectionTitle)
-                            .font(.system(size: 18, weight: .heavy))
+                            .shieldFont(18, weight: .heavy)
                             .foregroundColor(ShieldTheme.primary(scheme))
 
                         Text(importSectionSubtitle)
-                            .font(.system(size: 13, weight: .medium))
+                            .shieldFont(13, weight: .medium)
                             .foregroundColor(ShieldTheme.secondary(scheme))
 
                         VStack(spacing: 12) {
@@ -135,7 +135,7 @@ private struct CaptureTopBarView: View {
         HStack(spacing: 12) {
             Button(action: onClose) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .bold))
+                    .shieldFont(16, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .frame(width: 42, height: 42)
                     .background(ShieldTheme.cardBackground(scheme))
@@ -150,10 +150,10 @@ private struct CaptureTopBarView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(LanguageManager.shared.capture("capture_add_document"))
-                    .font(.system(size: 17, weight: .heavy))
+                    .shieldFont(17, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(subtitle)
-                    .font(.system(size: 11, weight: .medium))
+                    .shieldFont(11, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .lineLimit(1)
             }
@@ -185,17 +185,17 @@ private struct CapturePrimaryScanCard: View {
                         .frame(width: 48, height: 48)
 
                     Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 21, weight: .bold))
+                        .shieldFont(21, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.system(size: 17, weight: .heavy))
+                        .shieldFont(17, weight: .heavy)
                         .foregroundColor(ShieldTheme.primary(scheme))
 
                     Text(subtitle)
-                        .font(.system(size: 12, weight: .medium))
+                        .shieldFont(12, weight: .medium)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -216,12 +216,12 @@ private struct CapturePrimaryScanCard: View {
             Button(action: onScan) {
                 HStack(spacing: 10) {
                     Image(systemName: "camera.metering.center.weighted")
-                        .font(.system(size: 15, weight: .bold))
+                        .shieldFont(15, weight: .bold)
                     Text(title)
-                        .font(.system(size: 16, weight: .bold))
+                        .shieldFont(16, weight: .bold)
                     Spacer()
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 14, weight: .bold))
+                        .shieldFont(14, weight: .bold)
                 }
                 .foregroundColor(ShieldTheme.accentText)
                 .frame(maxWidth: .infinity)
@@ -253,9 +253,9 @@ private struct CapturePrimaryScanCard: View {
     private func scanBadge(icon: String, label: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
             Text(label)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
         }
         .foregroundColor(ShieldTheme.primary(scheme))
         .padding(.horizontal, 10)
@@ -283,17 +283,17 @@ private struct CaptureTypeSectionCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(LanguageManager.shared.capture("capture_document_type"))
-                    .font(.system(size: 12, weight: .bold))
+                    .shieldFont(12, weight: .bold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                 Spacer()
                 Button(action: onToggleGuide) {
                     HStack(spacing: 6) {
                         Image(systemName: showGuide ? "eye.slash.fill" : "eye.fill")
-                            .font(.system(size: 11, weight: .bold))
+                            .shieldFont(11, weight: .bold)
                         Text(showGuide
                              ? LanguageManager.shared.capture("capture_hide_guide")
                              : LanguageManager.shared.capture("capture_show_guide"))
-                            .font(.system(size: 11, weight: .bold))
+                            .shieldFont(11, weight: .bold)
                     }
                     .foregroundColor(ShieldTheme.secondary(scheme))
                     .frame(minHeight: 44)
@@ -315,11 +315,11 @@ private struct CaptureTypeSectionCard: View {
 
             HStack(spacing: 10) {
                 Image(systemName: showGuide ? "viewfinder" : "square.dashed")
-                    .font(.system(size: 12, weight: .bold))
+                    .shieldFont(12, weight: .bold)
                     .foregroundColor(ShieldTheme.info)
 
                 Text(guideStateDescription)
-                    .font(.system(size: 12, weight: .medium))
+                    .shieldFont(12, weight: .medium)
                     .foregroundColor(ShieldTheme.secondary(scheme))
             }
         }
@@ -343,9 +343,9 @@ private struct CaptureTypeChip: View {
         Button(action: onSelect) {
             VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: type.icon)
-                    .font(.system(size: 15, weight: .bold))
+                    .shieldFont(15, weight: .bold)
                 Text(type.label())
-                    .font(.system(size: 12, weight: .bold))
+                    .shieldFont(12, weight: .bold)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -381,17 +381,17 @@ private struct CaptureSecondarySourceCard: View {
                         .frame(width: 52, height: 52)
 
                     Image(systemName: icon)
-                        .font(.system(size: 20, weight: .bold))
+                        .shieldFont(20, weight: .bold)
                         .foregroundColor(accent)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: 16, weight: .bold))
+                        .shieldFont(16, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
 
                     Text(subtitle)
-                        .font(.system(size: 13, weight: .medium))
+                        .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -399,7 +399,7 @@ private struct CaptureSecondarySourceCard: View {
                 Spacer()
 
                 Image(systemName: "arrow.up.right")
-                    .font(.system(size: 14, weight: .bold))
+                    .shieldFont(14, weight: .bold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             .padding(16)
@@ -427,17 +427,17 @@ private struct CapturePrivacyCard: View {
                     .frame(width: 44, height: 44)
 
                 Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 18, weight: .bold))
+                    .shieldFont(18, weight: .bold)
                     .foregroundColor(ShieldTheme.success)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .bold))
+                    .shieldFont(15, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
 
                 Text(subtitle)
-                    .font(.system(size: 12, weight: .medium))
+                    .shieldFont(12, weight: .medium)
                     .foregroundColor(ShieldTheme.secondary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
             }

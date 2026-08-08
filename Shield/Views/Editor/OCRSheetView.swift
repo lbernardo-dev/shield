@@ -166,14 +166,14 @@ struct OCRSheetView: View {
         HStack(alignment: .center, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(LanguageManager.shared.model("model_detected_fields"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 HStack(spacing: 4) {
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .semibold))
+                        .shieldFont(10, weight: .semibold)
                         .foregroundColor(ShieldTheme.success)
                     Text(LanguageManager.shared.common("common_on_device"))
-                        .font(.system(size: 11, weight: .semibold))
+                        .shieldFont(11, weight: .semibold)
                         .foregroundColor(ShieldTheme.success)
                 }
             }
@@ -183,9 +183,9 @@ struct OCRSheetView: View {
                 Button { runOCR() } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                         Text(LanguageManager.shared.editor("editor_ocr_reread"))
-                            .font(.system(size: 12, weight: .semibold))
+                            .shieldFont(12, weight: .semibold)
                     }
                     .foregroundColor(ShieldTheme.accent(scheme))
                     .padding(.horizontal, 10)
@@ -202,13 +202,13 @@ struct OCRSheetView: View {
                 HStack(spacing: 6) {
                     ProgressView().scaleEffect(0.75).tint(ShieldTheme.accent(scheme))
                     Text(LanguageManager.shared.editor("editor_ocr_analyzing"))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                 }
             }
             Button { isPresented = false } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .medium))
+                    .shieldFont(13, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .frame(width: 28, height: 28)
                     .background(ShieldTheme.rowBackground(scheme))
@@ -230,7 +230,7 @@ struct OCRSheetView: View {
                     isPresented = false
                 } label: {
                     Text(LanguageManager.shared.common("common_done"))
-                        .font(.system(size: 14, weight: .bold))
+                        .shieldFont(14, weight: .bold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 42)
                         .background(ShieldTheme.accent(scheme))
@@ -287,8 +287,8 @@ struct OCRSheetView: View {
 
     private func statusPill(icon: String, text: String, color: Color) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: icon).font(.system(size: 10, weight: .semibold))
-            Text(text).font(.system(size: 11, weight: .semibold))
+            Image(systemName: icon).shieldFont(10, weight: .semibold)
+            Text(text).shieldFont(11, weight: .semibold)
         }
         .foregroundColor(color)
         .padding(.horizontal, 8)
@@ -308,12 +308,12 @@ struct OCRSheetView: View {
         return HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(maskedSummaryText(masked: masked, total: total))
-                    .font(.system(size: 13, weight: .bold))
+                    .shieldFont(13, weight: .bold)
                     .foregroundColor(allMasked ? ShieldTheme.success : ShieldTheme.primary(scheme))
                 Text(allMasked
                      ? allFieldsMaskedText
                      : visibleFieldsText(total - masked))
-                    .font(.system(size: 11))
+                    .shieldFont(11)
                     .foregroundColor(ShieldTheme.secondary(scheme))
             }
             Spacer()
@@ -327,9 +327,9 @@ struct OCRSheetView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: allMasked ? "eye" : "eye.slash")
-                            .font(.system(size: 11, weight: .bold))
+                            .shieldFont(11, weight: .bold)
                         Text(allMasked ? unmaskAllText : maskAllText)
-                            .font(.system(size: 12, weight: .bold))
+                            .shieldFont(12, weight: .bold)
                     }
                     .foregroundColor(allMasked ? ShieldTheme.secondary(scheme) : ShieldTheme.accent)
                     .padding(.horizontal, 12)
@@ -362,10 +362,10 @@ struct OCRSheetView: View {
             if detectedItems.isEmpty && !isRunningOCR {
                 VStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 28))
+                        .shieldFont(28)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                     Text(noFieldsDetectedText)
-                        .font(.system(size: 13))
+                        .shieldFont(13)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .multilineTextAlignment(.center)
                 }
@@ -393,10 +393,10 @@ struct OCRSheetView: View {
                 ForEach(missingItems, id: \.key) { item in
                     HStack(spacing: 10) {
                         Image(systemName: "minus.circle")
-                            .font(.system(size: 12))
+                            .shieldFont(12)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
                         Text(item.label)
-                            .font(.system(size: 12, weight: .medium))
+                            .shieldFont(12, weight: .medium)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
                         Spacer()
                     }
@@ -420,7 +420,7 @@ struct OCRSheetView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     sectionHeader(title: "MRZ", count: nil, color: ShieldTheme.accent(scheme))
                     Text(mrz)
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .shieldFont(10, weight: .medium, design: .monospaced)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .lineLimit(nil)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -441,14 +441,14 @@ struct OCRSheetView: View {
                     } label: {
                         HStack {
                             Image(systemName: "doc.text")
-                                .font(.system(size: 11))
+                                .shieldFont(11)
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
                             Text(LanguageManager.shared.editor("editor_ocr_full_doc"))
-                                .font(.system(size: 12, weight: .semibold))
+                                .shieldFont(12, weight: .semibold)
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
                             Spacer()
                             Image(systemName: showFullText ? "chevron.up" : "chevron.down")
-                                .font(.system(size: 11))
+                                .shieldFont(11)
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
                         }
                         .padding(.horizontal, ShieldTheme.s5)
@@ -456,7 +456,7 @@ struct OCRSheetView: View {
                     }
                     if showFullText {
                         Text(fullText)
-                            .font(.system(size: 10, design: .monospaced))
+                            .shieldFont(10, design: .monospaced)
                             .foregroundColor(ShieldTheme.secondary(scheme))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(10)
@@ -490,7 +490,7 @@ struct OCRSheetView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(item.label.uppercased())
-                        .font(.system(size: 10, weight: .semibold))
+                        .shieldFont(10, weight: .semibold)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .tracking(0.4)
                     if confidence > 0 {
@@ -499,14 +499,14 @@ struct OCRSheetView: View {
                             .frame(height: 14)
                             .overlay(
                                 Text("\(Int((confidence * 100).rounded()))%")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .shieldFont(9, weight: .bold)
                                     .foregroundColor(confidenceColor)
                             )
                             .frame(width: 34)
                     }
                 }
                 Text(item.value)
-                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                    .shieldFont(13, weight: .semibold, design: .monospaced)
                     .foregroundColor(isMasked ? ShieldTheme.tertiary(scheme) : ShieldTheme.primary(scheme))
                     .lineLimit(2)
                     .strikethrough(isMasked, color: ShieldTheme.tertiary(scheme))
@@ -529,7 +529,7 @@ struct OCRSheetView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copiedKey = nil }
                 } label: {
                     Image(systemName: copiedKey == item.key ? "checkmark" : "doc.on.doc")
-                        .font(.system(size: 12, weight: .medium))
+                        .shieldFont(12, weight: .medium)
                         .foregroundColor(copiedKey == item.key ? ShieldTheme.success : ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
                         .background(ShieldTheme.cardBackground(scheme))
@@ -550,9 +550,9 @@ struct OCRSheetView: View {
             } label: {
                 HStack(spacing: 4) {
                     Image(systemName: isMasked ? "eye" : "eye.slash")
-                        .font(.system(size: 11, weight: .bold))
+                        .shieldFont(11, weight: .bold)
                     Text(isMasked ? unmaskToggleText : maskToggleText)
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                 }
                 .foregroundColor(isMasked ? ShieldTheme.success : ShieldTheme.accent(scheme))
                 .padding(.horizontal, 10)
@@ -582,12 +582,12 @@ struct OCRSheetView: View {
     private func sectionHeader(title: String, count: Int?, color: Color) -> some View {
         HStack(spacing: 6) {
             Text(title.uppercased())
-                .font(.system(size: 10, weight: .bold))
+                .shieldFont(10, weight: .bold)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .tracking(0.6)
             if let count {
                 Text("\(count)")
-                    .font(.system(size: 10, weight: .bold))
+                    .shieldFont(10, weight: .bold)
                     .foregroundColor(color)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 1)

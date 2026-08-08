@@ -48,7 +48,7 @@ struct LockScreenView: View {
 
                         if verified {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 30, weight: .semibold))
+                                .shieldFont(30, weight: .semibold)
                                 .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
                                 .contentTransition(.symbolEffect(.replace))
                                 .accessibilityHidden(true)
@@ -57,11 +57,11 @@ struct LockScreenView: View {
 
                     VStack(spacing: 10) {
                         Text(LanguageManager.shared.common("common_app_name"))
-                            .font(.system(size: 32, weight: .heavy))
+                            .shieldFont(32, weight: .heavy)
                             .foregroundColor(ShieldTheme.primary(scheme))
 
                         Text(lockSubtitle)
-                            .font(.system(size: 14, weight: .medium))
+                            .shieldFont(14, weight: .medium)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 26)
@@ -85,7 +85,7 @@ struct LockScreenView: View {
                             .foregroundColor(ShieldTheme.secondary(scheme))
                         }
                     }
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
@@ -108,7 +108,7 @@ struct LockScreenView: View {
                         if showsSecondaryPINButton {
                             Button { showPINEntry = true } label: {
                                 Text(LanguageManager.shared.auth("lock_use_pin"))
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .shieldFont(15, weight: .semibold)
                                     .foregroundColor(ShieldTheme.secondary(scheme))
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 46)
@@ -125,7 +125,7 @@ struct LockScreenView: View {
                         if biometricEnabled && hasBiometrics && authError != nil {
                             Button { authenticatePasscode() } label: {
                                 Text(LanguageManager.shared.auth("lock_use_passcode"))
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .shieldFont(13, weight: .semibold)
                                     .foregroundColor(ShieldTheme.tertiary(scheme))
                                     .frame(height: 34)
                             }
@@ -134,7 +134,7 @@ struct LockScreenView: View {
 
                         if let actionHint = lockActionHint {
                             Text(actionHint)
-                                .font(.system(size: 12, weight: .medium))
+                                .shieldFont(12, weight: .medium)
                                 .foregroundColor(ShieldTheme.tertiary(scheme))
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 10)
@@ -221,10 +221,10 @@ struct LockScreenView: View {
         Button(action: primaryUnlockAction) {
             HStack(spacing: 10) {
                 Image(systemName: primaryUnlockIcon)
-                    .font(.system(size: 18, weight: .medium))
+                    .shieldFont(18, weight: .medium)
                     .accessibilityHidden(true)
                 Text(primaryUnlockTitle)
-                    .font(.system(size: 16, weight: .bold))
+                    .shieldFont(16, weight: .bold)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
@@ -271,10 +271,10 @@ struct LockScreenView: View {
     private func lockFeaturePill(icon: String, label: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
                 .accessibilityHidden(true)
             Text(label)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
         }
         .foregroundColor(ShieldTheme.secondary(scheme))
         .padding(.horizontal, 10)

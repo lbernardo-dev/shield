@@ -142,6 +142,32 @@ final class LanguageManager {
         t(key, table: table, argsArray: args)
     }
 
+    /// Resolves a catalog key against an explicit language rather than the
+    /// current app language. Used by model types whose `label(lang:)` API
+    /// promises a specific locale (e.g. renderers that must not depend on the
+    /// in-app toggle) and mirrors the runtime preference ranking.
+    func t(_ key: String, table: String, language: AppLanguage) -> String {
+        let locale = Locale(identifier: language.rawValue)
+        let resource = LocalizedStringResource(
+            String.LocalizationValue(key),
+            table: table,
+            locale: locale,
+            bundle: .atURL(Bundle.main.bundleURL)
+        )
+        let localized = String(localized: resource)
+        if localized != key {
+            return localized
+        }
+        if let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
+           let languageBundle = Bundle(path: path) {
+            let bundled = languageBundle.localizedString(forKey: key, value: key, table: table)
+            if bundled != key {
+                return bundled
+            }
+        }
+        return key
+    }
+
     /// Internal resolver that takes an array of arguments
     private func t(_ key: String, table: String, argsArray: [CVarArg]) -> String {
         let format = t(key, table: table)

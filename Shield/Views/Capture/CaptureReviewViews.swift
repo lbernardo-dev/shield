@@ -490,7 +490,7 @@ struct FourPointPerspectiveEditor: View {
                 .frame(width: 28, height: 28)
                 .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 1)
             Text(label)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
                 .foregroundColor(.black)
         }
         .position(position)
@@ -621,7 +621,7 @@ struct ScanReviewView: View {
                 Button(LanguageManager.shared.capture("capture_cancel")) {
                     onCancel()
                 }
-                .font(.system(size: 15, weight: .semibold))
+                .shieldFont(15, weight: .semibold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
                 Spacer()
@@ -630,7 +630,7 @@ struct ScanReviewView: View {
                     Button(LanguageManager.shared.common("common_apply")) {
                         applyManualCrop()
                     }
-                    .font(.system(size: 15, weight: .bold))
+                    .shieldFont(15, weight: .bold)
                     .foregroundColor(ShieldTheme.accent(scheme))
                 }
 
@@ -638,13 +638,13 @@ struct ScanReviewView: View {
                     applyAndContinue()
                 }
                 .disabled(applying || showQuadEditor)
-                .font(.system(size: 15, weight: .bold))
+                .shieldFont(15, weight: .bold)
                 .foregroundColor((applying || showQuadEditor) ? ShieldTheme.tertiary(scheme) : ShieldTheme.accent(scheme))
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("\(selectedPage + 1)/\(max(1, pages.count))")
-                    .font(.system(size: 12, weight: .bold))
+                    .shieldFont(12, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .padding(.horizontal, 10)
                     .frame(height: 32)
@@ -654,11 +654,11 @@ struct ScanReviewView: View {
                     )
                     .clipShape(Capsule())
                 Text(LanguageManager.shared.capture("capture_enhance_title"))
-                    .font(.system(size: 22, weight: .heavy))
+                    .shieldFont(22, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
                 Text(LanguageManager.shared.capture("capture_enhance_subtitle"))
-                    .font(.system(size: 13, weight: .medium))
+                    .shieldFont(13, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .lineLimit(2)
             }
@@ -768,7 +768,7 @@ struct ScanReviewView: View {
                         resetCurrentPage()
                 } label: {
                     Text(LanguageManager.shared.capture("capture_reset_page"))
-                        .font(.system(size: 13, weight: .semibold))
+                        .shieldFont(13, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 40)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -781,7 +781,7 @@ struct ScanReviewView: View {
                         resetAllPages()
                 } label: {
                     Text(LanguageManager.shared.capture("capture_reset_all"))
-                        .font(.system(size: 13, weight: .semibold))
+                        .shieldFont(13, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 40)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -797,7 +797,7 @@ struct ScanReviewView: View {
                     AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
                 } label: {
                     Text(LanguageManager.shared.capture("capture_apply_all_pages"))
-                        .font(.system(size: 14, weight: .bold))
+                        .shieldFont(14, weight: .bold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
                         .background(ShieldTheme.accentDim(scheme))
@@ -814,7 +814,7 @@ struct ScanReviewView: View {
     private var presetSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_quick_presets"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             optionChips {
@@ -835,7 +835,7 @@ struct ScanReviewView: View {
     private var filterSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_filters"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             optionChips {
@@ -855,16 +855,16 @@ struct ScanReviewView: View {
     private var geometrySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_geometry"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             if showQuadEditor {
                 HStack(spacing: 8) {
                     Image(systemName: "hand.draw.fill")
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.accent(scheme))
                     Text(LanguageManager.shared.capture("capture_drag_perspective_hint"))
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                     Spacer()
                     Button {
@@ -873,7 +873,7 @@ struct ScanReviewView: View {
                         }
                     } label: {
                         Text(LanguageManager.shared.capture("capture_reset"))
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                             .foregroundColor(ShieldTheme.danger)
                     }
                 }
@@ -930,7 +930,7 @@ struct ScanReviewView: View {
     private var quickGeometrySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_geometry"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             sliderRow(
@@ -945,7 +945,7 @@ struct ScanReviewView: View {
                     detectPerspectiveForCurrentPage()
                 } label: {
                     Text(LanguageManager.shared.capture("capture_auto_perspective"))
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -969,11 +969,11 @@ struct ScanReviewView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: showQuadEditor ? "checkmark.circle.fill" : "skew")
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                         Text(showQuadEditor
                              ? LanguageManager.shared.capture("capture_apply_crop")
                              : LanguageManager.shared.capture("capture_manual_perspective"))
-                            .font(.system(size: 12, weight: .semibold))
+                            .shieldFont(12, weight: .semibold)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 38)
@@ -989,7 +989,7 @@ struct ScanReviewView: View {
                     rotateCurrentPage(by: -90)
                 } label: {
                     Text(LanguageManager.shared.capture("capture_rotate_left"))
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -1002,7 +1002,7 @@ struct ScanReviewView: View {
                     rotateCurrentPage(by: 90)
                 } label: {
                     Text(LanguageManager.shared.capture("capture_rotate_right"))
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 38)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -1022,14 +1022,14 @@ struct ScanReviewView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: showAdvancedControls ? "slider.horizontal.3" : "slider.horizontal.below.square.and.square.filled")
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
                 Text(showAdvancedControls
                      ? LanguageManager.shared.capture("capture_hide_advanced_controls")
                      : LanguageManager.shared.capture("capture_show_advanced_controls"))
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
                 Spacer()
                 Image(systemName: showAdvancedControls ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 11, weight: .semibold))
+                    .shieldFont(11, weight: .semibold)
             }
             .padding(.horizontal, 12)
             .frame(height: 38)
@@ -1044,7 +1044,7 @@ struct ScanReviewView: View {
     private var cropSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_crop"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             sliderRow(title: LanguageManager.shared.capture("capture_left"), valueText: percent(binding(\.cropLeft).wrappedValue)) {
@@ -1065,7 +1065,7 @@ struct ScanReviewView: View {
     private var imageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LanguageManager.shared.capture("capture_adjustments"))
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             sliderRow(title: LanguageManager.shared.capture("capture_brightness"), valueText: signed(binding(\.brightness).wrappedValue)) {
@@ -1088,11 +1088,11 @@ struct ScanReviewView: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(title)
-                    .font(.system(size: 12, weight: .semibold))
+                    .shieldFont(12, weight: .semibold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Text(valueText)
-                    .font(.system(size: 11, weight: .medium))
+                    .shieldFont(11, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             content()
@@ -1380,9 +1380,9 @@ struct ScanReviewView: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
+                    .shieldFont(11, weight: .semibold)
                 Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
                     .lineLimit(1)
             }
             .padding(.horizontal, 12)

@@ -10,7 +10,7 @@ struct EditorDocumentMetaBar: View {
     var body: some View {
         HStack(spacing: 10) {
             Text(title)
-                .font(.system(size: 13, weight: .bold))
+                .shieldFont(13, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -18,7 +18,7 @@ struct EditorDocumentMetaBar: View {
             Spacer()
 
             Text(changeCountLabel)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
                 .foregroundColor(hasUnsavedChanges ? ShieldTheme.warning : ShieldTheme.tertiary(scheme))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
@@ -53,22 +53,22 @@ struct EditorSensitiveBanner: View {
         if isVisible {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .shieldFont(16, weight: .semibold)
                     .foregroundColor(ShieldTheme.warning)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(titleText)
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(subtitleText)
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                 }
                 Spacer()
 
                 Button(action: onApply) {
                     Text(LanguageManager.shared.common("common_apply"))
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 12)
                         .frame(height: 28)
@@ -80,7 +80,7 @@ struct EditorSensitiveBanner: View {
 
                 Button(action: onOpenFields) {
                     Text(LanguageManager.shared.editor("editor_sensitive_fields_button"))
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accent(scheme))
                         .padding(.horizontal, 10)
                         .frame(height: 28)
@@ -94,7 +94,7 @@ struct EditorSensitiveBanner: View {
 
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13))
+                        .shieldFont(13)
                         .foregroundColor(ShieldTheme.textTertiary)
                         .padding(4)
                 }
@@ -132,22 +132,22 @@ struct EditorPropagateBanner: View {
         if pageCount > 1 && redactionCount > 0 {
             HStack(spacing: 10) {
                 Image(systemName: "square.stack.3d.up.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .shieldFont(14, weight: .semibold)
                     .foregroundColor(ShieldTheme.accent(scheme))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(LanguageManager.shared.editor("editor_redactions_on_page", redactionCount))
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(LanguageManager.shared.editor("editor_apply_to_all"))
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                 }
                 Spacer()
 
                 Button(action: onPropagate) {
                     Text(LanguageManager.shared.editor("editor_find_all"))
-                        .font(.system(size: 12, weight: .bold))
+                        .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 12)
                         .frame(height: 28)
@@ -183,9 +183,9 @@ struct EditorModeChips: View {
                     } label: {
                         HStack(spacing: 5) {
                             Image(systemName: locked ? "lock.fill" : mode.icon)
-                                .font(.system(size: 11, weight: .semibold))
+                                .shieldFont(11, weight: .semibold)
                             Text(mode.label(lang: lang))
-                                .font(.system(size: 12, weight: .semibold))
+                                .shieldFont(12, weight: .semibold)
                         }
                         .foregroundColor(locked ? ShieldTheme.tertiary(scheme) : (isActive ? ShieldTheme.accentText : ShieldTheme.primary(scheme)))
                         .padding(.horizontal, 10)
@@ -253,7 +253,7 @@ struct EditorBottomToolbar: View {
                             VStack(spacing: 2) {
                                 ZStack(alignment: .topTrailing) {
                                     Image(systemName: tool.icon)
-                                        .font(.system(size: 16, weight: .medium))
+                                        .shieldFont(16, weight: .medium)
                                         .foregroundColor(effectiveSelected ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
                                         .frame(width: 32, height: 32)
                                         .background(effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
@@ -267,7 +267,7 @@ struct EditorBottomToolbar: View {
                                     }
                                 }
                                 Text(tool.label(lang: lang))
-                                    .font(.system(size: 8, weight: .semibold))
+                                    .shieldFont(8, weight: .semibold)
                                     .foregroundColor(effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                             }
                         }
@@ -278,10 +278,10 @@ struct EditorBottomToolbar: View {
 
             HStack(spacing: 8) {
                 Image(systemName: selectedTool == .rect ? "hand.draw" : "info.circle")
-                    .font(.system(size: 11, weight: .semibold))
+                    .shieldFont(11, weight: .semibold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                 Text(toolHelpText)
-                    .font(.system(size: 11, weight: .medium))
+                    .shieldFont(11, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                 Spacer()
             }
@@ -300,7 +300,7 @@ struct EditorBottomToolbar: View {
     private func toolbarActionButton(icon: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
+                .shieldFont(16, weight: .medium)
                 .foregroundColor(isEnabled ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
                 .frame(width: 32, height: 32)
                 .background(ShieldTheme.rowBackground(scheme))

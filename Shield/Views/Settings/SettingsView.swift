@@ -175,7 +175,7 @@ struct SettingsView: View {
                     .foregroundStyle(ShieldTheme.accent(scheme))
                     .textCase(.uppercase)
                 Text(strings.settings("settings_title"))
-                    .font(.system(size: 32, weight: .heavy, design: .rounded))
+                    .shieldFont(32, weight: .heavy, design: .rounded)
                     .foregroundStyle(ShieldTheme.primary(scheme))
             }
             Spacer(minLength: ShieldTheme.s2)

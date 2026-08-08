@@ -5,6 +5,7 @@ import SwiftUI
 struct DocumentCanvas: View {
     @ObservedObject var vm: EditorViewModel
     let canvasSize: CGSize
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         ZStack {
@@ -29,9 +30,9 @@ struct DocumentCanvas: View {
             if let dr = vm.drawingRect {
                 let s = scaledRect(dr)
                 Rectangle()
-                    .fill(Color(hex: "FFD60A").opacity(0.20))
+                    .fill(ShieldTheme.selection(scheme).opacity(0.20))
                     .overlay(
-                        Rectangle().stroke(Color(hex: "FFD60A"),
+                        Rectangle().stroke(ShieldTheme.selection(scheme),
                                           style: StrokeStyle(lineWidth: 1.5, dash: [5, 3]))
                     )
                     .frame(width: s.width, height: s.height)
@@ -107,6 +108,7 @@ private struct FieldOverlay: View {
     let box: FieldBox
     @ObservedObject var vm: EditorViewModel
     let canvasSize: CGSize
+    @Environment(\.colorScheme) private var scheme
 
     private var sr: CGRect {
         CGRect(x: box.rect.origin.x * canvasSize.width,
@@ -126,15 +128,15 @@ private struct FieldOverlay: View {
             Rectangle()
                 .fill(isSelected ? ShieldTheme.success.opacity(0.20) : Color.clear)
                 .overlay(Rectangle().stroke(
-                    isSelected ? ShieldTheme.success : Color(hex: "FFD60A"),
+                    isSelected ? ShieldTheme.success : ShieldTheme.selection(scheme),
                     style: StrokeStyle(lineWidth: 1.5, dash: isSelected ? [] : [3, 2])
                 ))
                 .frame(width: sr.width, height: sr.height)
                 .contentShape(Rectangle())
                 .onTapGesture { vm.toggleField(box) }
             Text((isSelected ? "✓ " : "") + box.label)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(isSelected ? ShieldTheme.success : Color(hex: "FFD60A"))
+                .shieldFont(9, weight: .bold)
+                .foregroundColor(isSelected ? ShieldTheme.success : ShieldTheme.selection(scheme))
                 .padding(.horizontal, 5).padding(.vertical, 2)
                 .background(Color.black.opacity(0.85))
                 .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -152,6 +154,7 @@ private struct RedactionOverlay: View {
     let isActive: Bool
     let canvasSize: CGSize
     @ObservedObject var vm: EditorViewModel
+    @Environment(\.colorScheme) private var scheme
 
     // Start-of-gesture snapshots — prevents using the live-updated redaction.rect as delta base
     @State private var moveStart: CGRect? = nil
@@ -212,7 +215,7 @@ private struct RedactionOverlay: View {
             if isActive {
                 // Selection ring
                 Rectangle()
-                    .stroke(Color(hex: "FFD60A"), lineWidth: 2)
+                    .stroke(ShieldTheme.selection(scheme), lineWidth: 2)
                     .frame(width: s.width + 6, height: s.height + 6)
                     .allowsHitTesting(false)
 
@@ -222,7 +225,7 @@ private struct RedactionOverlay: View {
                         Circle().fill(ShieldTheme.danger).frame(width: 26, height: 26)
                         Circle().stroke(Color.white, lineWidth: 2).frame(width: 26, height: 26)
                         Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .bold)).foregroundColor(.white)
+                            .shieldFont(11, weight: .bold).foregroundColor(.white)
                     }
                 }
                 .offset(x: s.width / 2 + 10, y: -(s.height / 2 + 10))
@@ -343,6 +346,7 @@ private struct RedactionOverlay: View {
 // MARK: - ResizeHandle
 
 private struct ResizeHandle: View {
+    @Environment(\.colorScheme) private var scheme
     var body: some View {
         ZStack {
             Circle()
@@ -350,7 +354,7 @@ private struct ResizeHandle: View {
                 .frame(width: 18, height: 18)
                 .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 1)
             Circle()
-                .stroke(Color(hex: "FFD60A"), lineWidth: 2.5)
+                .stroke(ShieldTheme.selection(scheme), lineWidth: 2.5)
                 .frame(width: 18, height: 18)
         }
         .contentShape(Circle().scale(1.8))

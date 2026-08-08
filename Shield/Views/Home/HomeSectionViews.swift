@@ -18,9 +18,9 @@ struct HomeModesSection: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: isPro ? "square.stack.3d.up.fill" : "lock.fill")
-                            .font(.system(size: 11, weight: .semibold))
+                            .shieldFont(11, weight: .semibold)
                         Text(LanguageManager.shared.home("home_batch_pro"))
-                            .font(.system(size: 12, weight: .bold))
+                            .shieldFont(12, weight: .bold)
                     }
                     .foregroundColor(isPro ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
                     .padding(.horizontal, 12)
@@ -59,7 +59,7 @@ struct HomePaginationControls: View {
         HStack(spacing: 12) {
             Button(action: onPrevious) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
                     .foregroundColor(currentPage > 0 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .frame(width: 32, height: 32)
                     .background(ShieldTheme.cardBackground(scheme))
@@ -71,14 +71,14 @@ struct HomePaginationControls: View {
             Spacer()
 
             Text("\(currentPage + 1) / \(totalPages)")
-                .font(.system(size: 13, weight: .semibold))
+                .shieldFont(13, weight: .semibold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             Spacer()
 
             Button(action: onNext) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
                     .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .frame(width: 32, height: 32)
                     .background(ShieldTheme.cardBackground(scheme))
@@ -102,20 +102,20 @@ struct HomeVaultCard: View {
                         .fill(ShieldTheme.accentDim(scheme))
                         .frame(width: 44, height: 44)
                     Image(systemName: "lock.rectangle.stack.fill")
-                        .font(.system(size: 20, weight: .semibold))
+                        .shieldFont(20, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent(scheme))
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LanguageManager.shared.home("home_vault"))
-                        .font(.system(size: 15, weight: .bold))
+                        .shieldFont(15, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(LanguageManager.shared.home("home_secure_storage_faceid"))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
+                    .shieldFont(12, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             .padding(16)

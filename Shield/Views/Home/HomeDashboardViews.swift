@@ -19,10 +19,10 @@ struct HomeTopBarView: View {
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(LanguageManager.shared.common("common_app_name"))
-                        .font(.system(size: 16, weight: .heavy))
+                        .shieldFont(16, weight: .heavy)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(workspaceTagline)
-                        .font(.system(size: 10, weight: .medium))
+                        .shieldFont(10, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .lineLimit(1)
                 }
@@ -35,7 +35,7 @@ struct HomeTopBarView: View {
 
                 Button(action: onToggleScheme) {
                     Image(systemName: scheme == .dark ? "sun.max.fill" : "moon.fill")
-                        .font(.system(size: 13, weight: .semibold))
+                        .shieldFont(13, weight: .semibold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                         .frame(width: 32, height: 32)
                         .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
@@ -64,7 +64,7 @@ struct HomeTopBarView: View {
     private func smallChromeButton(title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 11, weight: .bold))
+                .shieldFont(11, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .frame(width: 32, height: 32)
                 .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
@@ -184,9 +184,9 @@ struct HomeHeroCardView: View {
             Button(action: onPrimaryAction) {
                 HStack(spacing: 8) {
                     Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 14, weight: .bold))
+                        .shieldFont(14, weight: .bold)
                     Text(LanguageManager.shared.capture("capture_scan_document"))
-                        .font(.system(size: 15, weight: .bold))
+                        .shieldFont(15, weight: .bold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
                 }
@@ -201,9 +201,9 @@ struct HomeHeroCardView: View {
             Button(action: onSecondaryAction) {
                 HStack(spacing: 8) {
                     Image(systemName: "icloud.and.arrow.down")
-                        .font(.system(size: 14, weight: .bold))
+                        .shieldFont(14, weight: .bold)
                     Text(cloudImportTitle)
-                        .font(.system(size: 15, weight: .bold))
+                        .shieldFont(15, weight: .bold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.78)
                 }

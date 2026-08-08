@@ -19,10 +19,10 @@ struct ShieldButton: View {
             HStack(spacing: 6) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 15, weight: .semibold))
+                        .shieldFont(15, weight: .semibold)
                 }
                 Text(label)
-                    .font(.system(size: 15, weight: .semibold))
+                    .shieldFont(15, weight: .semibold)
             }
             .frame(maxWidth: .infinity)
             .frame(height: height)
@@ -95,10 +95,10 @@ struct PillButton: View {
             HStack(spacing: 5) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                 }
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .shieldFont(13, weight: .semibold)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
@@ -191,7 +191,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(title.uppercased())
-                .font(.caption.weight(.semibold))
+                .shieldFont(11, weight: .semibold)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .tracking(0.4)
                 .lineLimit(2)
@@ -201,7 +201,7 @@ struct SectionHeader: View {
             if let action {
                 Button(action: action) {
                     Text(actionLabel)
-                        .font(.subheadline.weight(.semibold))
+                        .shieldFont(14, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent(scheme))
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
@@ -300,10 +300,10 @@ struct OnDeviceBadge: View {
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 11, weight: .semibold))
+                .shieldFont(11, weight: .semibold)
                 .foregroundColor(ShieldTheme.success)
             Text(LanguageManager.shared.common("common_on_device"))
-                .font(.system(size: 12, weight: .semibold))
+                .shieldFont(12, weight: .semibold)
                 .foregroundColor(ShieldTheme.success)
         }
     }

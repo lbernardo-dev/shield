@@ -85,7 +85,7 @@ struct ExportSheetView: View {
                     )
 
                     Text(LanguageManager.shared.editor("editor_export_baked_note"))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -93,7 +93,7 @@ struct ExportSheetView: View {
 
                     if let exportErrorMessage {
                         Text(exportErrorMessage)
-                            .font(.system(size: 12, weight: .semibold))
+                            .shieldFont(12, weight: .semibold)
                             .foregroundColor(ShieldTheme.danger)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

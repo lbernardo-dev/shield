@@ -17,12 +17,12 @@ enum OBGoal: String, CaseIterable, Identifiable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .rental:  return LanguageManager.shared.onboarding("onboarding_goal_rental")
-        case .work:    return LanguageManager.shared.onboarding("onboarding_goal_work")
-        case .vehicle: return LanguageManager.shared.onboarding("onboarding_goal_vehicle")
-        case .banking: return LanguageManager.shared.onboarding("onboarding_goal_banking")
-        case .travel:  return LanguageManager.shared.onboarding("onboarding_goal_travel")
-        case .other:   return LanguageManager.shared.onboarding("onboarding_goal_other")
+        case .rental:  return LanguageManager.shared.t("onboarding_goal_rental", table: "Onboarding", language: lang)
+        case .work:    return LanguageManager.shared.t("onboarding_goal_work", table: "Onboarding", language: lang)
+        case .vehicle: return LanguageManager.shared.t("onboarding_goal_vehicle", table: "Onboarding", language: lang)
+        case .banking: return LanguageManager.shared.t("onboarding_goal_banking", table: "Onboarding", language: lang)
+        case .travel:  return LanguageManager.shared.t("onboarding_goal_travel", table: "Onboarding", language: lang)
+        case .other:   return LanguageManager.shared.t("onboarding_goal_other", table: "Onboarding", language: lang)
         }
     }
 }
@@ -44,12 +44,12 @@ enum OBPainPoint: String, CaseIterable, Identifiable, Hashable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .photo:     return LanguageManager.shared.onboarding("onboarding_pain_photo")
-        case .dob:       return LanguageManager.shared.onboarding("onboarding_pain_dob")
-        case .docNumber: return LanguageManager.shared.onboarding("onboarding_pain_doc_num")
-        case .address:   return LanguageManager.shared.onboarding("onboarding_pain_address")
-        case .bank:      return LanguageManager.shared.onboarding("onboarding_pain_bank")
-        case .notSure:   return LanguageManager.shared.onboarding("onboarding_pain_not_sure")
+        case .photo:     return LanguageManager.shared.t("onboarding_pain_photo", table: "Onboarding", language: lang)
+        case .dob:       return LanguageManager.shared.t("onboarding_pain_dob", table: "Onboarding", language: lang)
+        case .docNumber: return LanguageManager.shared.t("onboarding_pain_doc_num", table: "Onboarding", language: lang)
+        case .address:   return LanguageManager.shared.t("onboarding_pain_address", table: "Onboarding", language: lang)
+        case .bank:      return LanguageManager.shared.t("onboarding_pain_bank", table: "Onboarding", language: lang)
+        case .notSure:   return LanguageManager.shared.t("onboarding_pain_not_sure", table: "Onboarding", language: lang)
         }
     }
     var solutionKeys: (title: String, fix: String) {
@@ -81,12 +81,12 @@ enum OBDocType: String, CaseIterable, Identifiable, Hashable {
     }
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .dni:      return LanguageManager.shared.onboarding("onboarding_pref_dni")
-        case .passport: return LanguageManager.shared.onboarding("onboarding_pref_passport")
-        case .license:  return LanguageManager.shared.onboarding("onboarding_pref_license")
-        case .payslip:  return LanguageManager.shared.onboarding("onboarding_pref_payslip")
-        case .bank:     return LanguageManager.shared.onboarding("onboarding_pref_bank")
-        case .medical:  return LanguageManager.shared.onboarding("onboarding_pref_medical")
+        case .dni:      return LanguageManager.shared.t("onboarding_pref_dni", table: "Onboarding", language: lang)
+        case .passport: return LanguageManager.shared.t("onboarding_pref_passport", table: "Onboarding", language: lang)
+        case .license:  return LanguageManager.shared.t("onboarding_pref_license", table: "Onboarding", language: lang)
+        case .payslip:  return LanguageManager.shared.t("onboarding_pref_payslip", table: "Onboarding", language: lang)
+        case .bank:     return LanguageManager.shared.t("onboarding_pref_bank", table: "Onboarding", language: lang)
+        case .medical:  return LanguageManager.shared.t("onboarding_pref_medical", table: "Onboarding", language: lang)
         }
     }
 }

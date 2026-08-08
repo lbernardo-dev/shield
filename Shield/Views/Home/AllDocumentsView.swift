@@ -10,14 +10,41 @@ struct AllDocumentsView: View {
                 ShieldTheme.background(appState.preferredScheme).ignoresSafeArea()
 
                 Group {
-                    if appState.documents.isEmpty {
+                    if appState.filteredDocuments.isEmpty {
                         VStack(spacing: 16) {
-                            Image(systemName: "doc.badge.plus")
-                                .font(.system(size: 44, weight: .light))
+                            Image(systemName: appState.hasActiveFilter ? "magnifyingglass" : "doc.badge.plus")
+                                .shieldFont(44, weight: .light)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                            Text(LanguageManager.shared.home("home_no_documents"))
-                                .font(.system(size: 18, weight: .bold))
+                            Text(appState.hasActiveFilter
+                                 ? LanguageManager.shared.home("home_no_results")
+                                 : LanguageManager.shared.home("home_no_documents"))
+                                .shieldFont(18, weight: .bold)
                                 .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                            Text(appState.hasActiveFilter
+                                 ? LanguageManager.shared.home("home_no_results_subtitle")
+                                 : LanguageManager.shared.home("home_no_documents_subtitle"))
+                                .shieldFont(14)
+                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+
+                            if appState.hasActiveFilter {
+                                Button {
+                                    withAnimation {
+                                        appState.activeCategoryID = DocumentCategory.all.rawValue
+                                        appState.searchQuery = ""
+                                    }
+                                } label: {
+                                    Text(LanguageManager.shared.home("home_clear_filters"))
+                                        .shieldFont(15, weight: .semibold)
+                                        .foregroundColor(ShieldTheme.accent)
+                                        .padding(.horizontal, 20)
+                                        .frame(height: 44)
+                                        .background(ShieldTheme.accentDim)
+                                        .clipShape(Capsule())
+                                }
+                                .buttonStyle(ScaleButtonStyle())
+                            }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {

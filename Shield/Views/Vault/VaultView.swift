@@ -61,25 +61,25 @@ struct VaultView: View {
             Spacer()
             ZStack {
                 RoundedRectangle(cornerRadius: 32)
-                    .fill(Color(hex: "FFD60A").opacity(0.08))
-                    .overlay(RoundedRectangle(cornerRadius: 32).stroke(Color(hex: "FFD60A").opacity(0.25), lineWidth: 1.5))
+                    .fill(ShieldTheme.selection(scheme).opacity(0.08))
+                    .overlay(RoundedRectangle(cornerRadius: 32).stroke(ShieldTheme.selection(scheme).opacity(0.25), lineWidth: 1.5))
                     .frame(width: 120, height: 120)
-                Image(systemName: "faceid").font(.system(size: 54, weight: .light)).foregroundColor(ShieldTheme.accent)
+                Image(systemName: "faceid").shieldFont(54, weight: .light).foregroundColor(ShieldTheme.accent)
             }
             VStack(spacing: 6) {
                 Text(LanguageManager.shared.vault("vault_locked_title"))
-                    .font(.system(size: 22, weight: .bold)).foregroundColor(ShieldTheme.primary(scheme))
+                    .shieldFont(22, weight: .bold).foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.vault("vault_locked_desc"))
-                    .font(.system(size: 14)).foregroundColor(ShieldTheme.secondary(scheme))
+                    .shieldFont(14).foregroundColor(ShieldTheme.secondary(scheme))
             }
             if let err = authError {
-                Text(err).font(.system(size: 13)).foregroundColor(ShieldTheme.danger)
+                Text(err).shieldFont(13).foregroundColor(ShieldTheme.danger)
             }
 
             VStack(spacing: 10) {
                 Button { authenticate() } label: {
                     Label(LanguageManager.shared.vault("vault_unlock_faceid"), systemImage: "faceid")
-                        .font(.system(size: 16, weight: .bold))
+                        .shieldFont(16, weight: .bold)
                         .frame(maxWidth: .infinity).frame(height: 52)
                         .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -90,13 +90,13 @@ struct VaultView: View {
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
                         Text(LanguageManager.shared.vault("vault_use_pin"))
-                            .font(.system(size: 14, weight: .semibold))
+                            .shieldFont(14, weight: .semibold)
                             .foregroundColor(ShieldTheme.accent)
                     }
                 } else {
                     Button { showPINSetup = true } label: {
                         Text(LanguageManager.shared.vault("vault_setup_pin"))
-                            .font(.system(size: 14, weight: .semibold))
+                            .shieldFont(14, weight: .semibold)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
                     }
                 }
@@ -125,14 +125,14 @@ struct VaultView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 14, weight: .semibold))
+                            .shieldFont(14, weight: .semibold)
                             .foregroundColor(ShieldTheme.success)
                         Text(LanguageManager.shared.vault("vault_title"))
-                            .font(.system(size: 28, weight: .heavy))
+                            .shieldFont(28, weight: .heavy)
                             .foregroundColor(ShieldTheme.primary(scheme))
                     }
                     Text(LanguageManager.shared.vault("vault_status_count", appState.vaultDocuments.count))
-                        .font(.system(size: 12))
+                        .shieldFont(12)
                         .foregroundColor(ShieldTheme.success)
                 }
                 Spacer()
@@ -140,7 +140,7 @@ struct VaultView: View {
                     lockVault()
                 } label: {
                     Label(LanguageManager.shared.vault("vault_lock_button"), systemImage: "lock.fill")
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.danger)
                         .padding(.horizontal, 12).frame(height: 32)
                         .background(ShieldTheme.dangerDim)
@@ -178,9 +178,9 @@ struct VaultView: View {
                     // Add to vault CTA
                     Button { showAddToVault = true } label: {
                         HStack(spacing: 10) {
-                            Image(systemName: "plus.circle.fill").font(.system(size: 18)).foregroundColor(ShieldTheme.accent)
+                            Image(systemName: "plus.circle.fill").shieldFont(18).foregroundColor(ShieldTheme.accent)
                             Text(LanguageManager.shared.vault("vault_add_to_vault"))
-                                .font(.system(size: 14, weight: .semibold)).foregroundColor(ShieldTheme.accent)
+                                .shieldFont(14, weight: .semibold).foregroundColor(ShieldTheme.accent)
                         }
                         .frame(maxWidth: .infinity).frame(height: 52)
                         .background(ShieldTheme.accentDim)
@@ -201,14 +201,14 @@ struct VaultView: View {
     private var emptyVaultState: some View {
         VStack(spacing: 16) {
             Image(systemName: "lock.rectangle.stack")
-                .font(.system(size: 48, weight: .light))
+                .shieldFont(48, weight: .light)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .padding(.top, 40)
             Text(LanguageManager.shared.vault("vault_empty_title"))
-                .font(.system(size: 18, weight: .bold))
+                .shieldFont(18, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
             Text(LanguageManager.shared.vault("vault_empty_desc"))
-                .font(.system(size: 14))
+                .shieldFont(14)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -276,12 +276,12 @@ struct AddToVaultSheet: View {
         VStack(spacing: 0) {
             HStack {
                 Text(LanguageManager.shared.vault("vault_move_to_vault"))
-                    .font(.system(size: 18, weight: .bold))
+                    .shieldFont(18, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .medium))
+                        .shieldFont(14, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 30, height: 30)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -294,7 +294,7 @@ struct AddToVaultSheet: View {
                 Spacer()
                 Text(LanguageManager.shared.vault("vault_no_docs_library"))
                     .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                 Spacer()
             } else {
                 ScrollView {
@@ -307,10 +307,10 @@ struct AddToVaultSheet: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(doc.title)
-                                            .font(.system(size: 14, weight: .semibold))
+                                            .shieldFont(14, weight: .semibold)
                                             .foregroundColor(ShieldTheme.primary(scheme))
                                         Text(doc.dateLabelLocalized(lang: appState.language))
-                                            .font(.system(size: 12))
+                                            .shieldFont(12)
                                             .foregroundColor(ShieldTheme.tertiary(scheme))
                                     }
                                     Spacer()
@@ -506,13 +506,13 @@ struct PINSetupView: View {
         VStack(spacing: 32) {
             Spacer()
             Image(systemName: "lock.fill")
-                .font(.system(size: 44, weight: .light))
+                .shieldFont(44, weight: .light)
                 .foregroundColor(ShieldTheme.accent)
 
             Text(step == 0
                  ? LanguageManager.shared.vault("vault_pin_setup_choose")
                  : LanguageManager.shared.vault("vault_pin_setup_confirm"))
-                .font(.system(size: 20, weight: .bold))
+                .shieldFont(20, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
 
             // PIN dots
@@ -527,7 +527,7 @@ struct PINSetupView: View {
 
             if !errorMsg.isEmpty {
                 Text(errorMsg)
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.danger)
             }
 
@@ -536,7 +536,7 @@ struct PINSetupView: View {
 
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.capture("capture_cancel"))
-                    .font(.system(size: 15))
+                    .shieldFont(15)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             Spacer()
@@ -596,11 +596,11 @@ struct PINEntryView: View {
         VStack(spacing: 32) {
             Spacer()
             Image(systemName: "lock.fill")
-                .font(.system(size: 44, weight: .light))
+                .shieldFont(44, weight: .light)
                 .foregroundColor(ShieldTheme.accent)
 
             Text(LanguageManager.shared.vault("vault_pin_entry_prompt"))
-                .font(.system(size: 20, weight: .bold))
+                .shieldFont(20, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
 
             HStack(spacing: 16) {
@@ -614,13 +614,13 @@ struct PINEntryView: View {
 
             if !errorMsg.isEmpty {
                 Text(errorMsg)
-                    .font(.system(size: 14))
+                    .shieldFont(14)
                     .foregroundColor(ShieldTheme.danger)
             }
 
             if lockoutRemaining > 0 {
                 Text(LanguageManager.shared.vault("vault_pin_try_again_in", lockoutRemaining))
-                    .font(.system(size: 13))
+                    .shieldFont(13)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
 
@@ -628,7 +628,7 @@ struct PINEntryView: View {
 
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.capture("capture_cancel"))
-                    .font(.system(size: 15))
+                    .shieldFont(15)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             Spacer()
@@ -725,11 +725,11 @@ struct PINNumpad: View {
                                 }
                                 if key == "⌫" {
                                     Image(systemName: "delete.left")
-                                        .font(.system(size: 20, weight: .medium))
+                                        .shieldFont(20, weight: .medium)
                                         .foregroundColor(ShieldTheme.primary(scheme))
                                 } else if !key.isEmpty {
                                     Text(key)
-                                        .font(.system(size: 26, weight: .medium))
+                                        .shieldFont(26, weight: .medium)
                                         .foregroundColor(ShieldTheme.primary(scheme))
                                 }
                             }

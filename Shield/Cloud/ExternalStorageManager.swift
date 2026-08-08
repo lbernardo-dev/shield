@@ -57,12 +57,12 @@ struct ExternalStoragePickerSheet: View {
 
             HStack {
                 Text(LanguageManager.shared.common("cloud_import_title"))
-                    .font(.system(size: 17, weight: .bold))
+                    .shieldFont(17, weight: .bold)
                     .foregroundColor(ShieldTheme.textPrimary)
                 Spacer()
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .medium))
+                        .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.textTertiary)
                         .frame(width: 28, height: 28)
                         .background(ShieldTheme.surface3)
@@ -113,10 +113,10 @@ struct ExternalStoragePickerSheet: View {
     private var proGate: some View {
         VStack(spacing: 16) {
             Image(systemName: "icloud.and.arrow.down")
-                .font(.system(size: 44, weight: .light))
+                .shieldFont(44, weight: .light)
                 .foregroundColor(ShieldTheme.textTertiary)
             Text(LanguageManager.shared.common("cloud_pro_desc"))
-                .font(.system(size: 14))
+                .shieldFont(14)
                 .foregroundColor(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -125,7 +125,7 @@ struct ExternalStoragePickerSheet: View {
             } label: {
                 Label(LanguageManager.shared.paywall("paywall_unlock_pro"),
                       systemImage: "crown.fill")
-                    .font(.system(size: 15, weight: .bold))
+                    .shieldFont(15, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 50)
                     .background(ShieldTheme.accent)
                     .foregroundColor(ShieldTheme.accentText)
@@ -177,7 +177,7 @@ struct ExternalStoragePickerSheet: View {
                 LanguageManager.shared.common("cloud_provider_setup_hint"),
                 systemImage: "info.circle"
             )
-            .font(.system(size: 11))
+            .shieldFont(11)
             .foregroundColor(ShieldTheme.textTertiary)
             .padding(.horizontal, 24)
             .padding(.top, 12)
@@ -203,17 +203,17 @@ struct ExternalStoragePickerSheet: View {
                         .fill(Color(hex: color))
                         .frame(width: 36, height: 36)
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .semibold))
+                        .shieldFont(16, weight: .semibold)
                         .foregroundColor(.white)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)
-                        .font(.system(size: 14, weight: .semibold))
+                        .shieldFont(14, weight: .semibold)
                         .foregroundColor(ShieldTheme.textPrimary)
                         .lineLimit(1)
                     Text(subtitle)
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.textTertiary)
                 }
 
@@ -221,11 +221,11 @@ struct ExternalStoragePickerSheet: View {
 
                 if isConnected {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .medium))
+                        .shieldFont(12, weight: .medium)
                         .foregroundColor(ShieldTheme.textTertiary)
                 } else {
                     Text(LanguageManager.shared.common("cloud_connect"))
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent)
                 }
             }
@@ -426,12 +426,12 @@ private struct CloudConnectionRecoveryView: View {
             Text(LanguageManager.shared.common(
                 isCancellation ? "cloud_cancelled_title" : "cloud_connection_problem_title"
             ))
-            .font(.system(size: 24, weight: .bold, design: .rounded))
+            .shieldFont(24, weight: .bold, design: .rounded)
             .foregroundStyle(ShieldTheme.textPrimary)
             .multilineTextAlignment(.center)
 
             Text(LanguageManager.shared.common(failure.messageKey))
-                .font(.system(size: 15, weight: .regular))
+                .shieldFont(15, weight: .regular)
                 .foregroundStyle(ShieldTheme.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
@@ -444,7 +444,7 @@ private struct CloudConnectionRecoveryView: View {
                         LanguageManager.shared.common("cloud_retry_connection"),
                         systemImage: "arrow.clockwise"
                     )
-                    .font(.system(size: 15, weight: .bold))
+                    .shieldFont(15, weight: .bold)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(ShieldTheme.accent)
@@ -456,7 +456,7 @@ private struct CloudConnectionRecoveryView: View {
 
                 Button(action: onChooseAnotherProvider) {
                     Text(LanguageManager.shared.common("cloud_choose_provider"))
-                        .font(.system(size: 14, weight: .semibold))
+                        .shieldFont(14, weight: .semibold)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .foregroundStyle(ShieldTheme.textSecondary)
@@ -513,12 +513,12 @@ private struct CloudConnectionRecoveryView: View {
                 .shadow(color: Color(hex: provider.iconColor).opacity(0.28), radius: 18, y: 10)
                 .overlay {
                     Image(systemName: provider.icon)
-                        .font(.system(size: 31, weight: .semibold))
+                        .shieldFont(31, weight: .semibold)
                         .foregroundStyle(.white)
                 }
 
             Image(systemName: isCancellation ? "arrow.uturn.backward.circle.fill" : "wifi.exclamationmark.circle.fill")
-                .font(.system(size: 29, weight: .bold))
+                .shieldFont(29, weight: .bold)
                 .symbolRenderingMode(.palette)
                 .foregroundStyle(ShieldTheme.accentText, ShieldTheme.accent)
                 .background(Circle().fill(ShieldTheme.surface1).padding(2))

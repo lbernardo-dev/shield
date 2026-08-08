@@ -99,7 +99,7 @@ struct DocumentScannerOverlayView: View {
                                         .frame(width: hw, height: hh)
 
                                     Text(hint.label)
-                                        .font(.system(size: 9, weight: .bold))
+                                        .shieldFont(9, weight: .bold)
                                         .foregroundColor(.white.opacity(0.85))
                                         .padding(.horizontal, 4)
                                         .padding(.vertical, 2)
@@ -113,7 +113,7 @@ struct DocumentScannerOverlayView: View {
 
                         VStack(spacing: 4) {
                             Text(documentType.label(lang: lang))
-                                .font(.system(size: 14, weight: .bold))
+                                .shieldFont(14, weight: .bold)
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 5)
@@ -121,7 +121,7 @@ struct DocumentScannerOverlayView: View {
                                 .clipShape(Capsule())
 
                             Text(LanguageManager.shared.t("capture_align_hint", table: "Capture"))
-                                .font(.system(size: 12))
+                                .shieldFont(12)
                                 .foregroundColor(.white.opacity(0.75))
                         }
                         .position(x: geo.size.width / 2, y: offsetY - 44)

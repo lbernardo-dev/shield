@@ -12,10 +12,10 @@ enum AppTab: Int, CaseIterable, Identifiable {
 
     func label(lang: AppLanguage) -> String {
         switch self {
-        case .library:  return LanguageManager.shared.common("common_tab_docs")
-        case .gallery:  return LanguageManager.shared.common("common_tab_styles")
-        case .vault:    return LanguageManager.shared.common("common_tab_vault")
-        case .settings: return LanguageManager.shared.common("common_tab_settings")
+        case .library:  return LanguageManager.shared.t("common_tab_docs", table: "Common", language: lang)
+        case .gallery:  return LanguageManager.shared.t("common_tab_styles", table: "Common", language: lang)
+        case .vault:    return LanguageManager.shared.t("common_tab_vault", table: "Common", language: lang)
+        case .settings: return LanguageManager.shared.t("common_tab_settings", table: "Common", language: lang)
         }
     }
 
@@ -74,7 +74,7 @@ struct ShieldTabBar: View {
                     .frame(width: 72, height: 72)
                     .shadow(color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.45 : 0.24), radius: 12, x: 0, y: 5)
                 Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 26, weight: .semibold))
+                    .shieldFont(26, weight: .semibold)
                     .foregroundColor(ShieldTheme.accentText)
             }
         }

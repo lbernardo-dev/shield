@@ -88,10 +88,10 @@ struct StyleGalleryView: View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
                 Text(LanguageManager.shared.gallery("gallery_title"))
-                    .font(.system(size: 28, weight: .heavy))
+                    .shieldFont(28, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.gallery("gallery_subtitle"))
-                    .font(.system(size: 13))
+                    .shieldFont(13)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
             }
             Spacer()
@@ -130,7 +130,7 @@ struct StyleGalleryView: View {
     private func docPickerGroup(label: String, kinds: [DocumentKind]) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(label)
-                .font(.system(size: 9, weight: .bold))
+                .shieldFont(9, weight: .bold)
                 .foregroundColor(ShieldTheme.tertiary(scheme).opacity(0.7))
                 .textCase(.uppercase)
                 .tracking(0.5)
@@ -160,13 +160,13 @@ struct StyleGalleryView: View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 13, weight: .bold))
+                    .shieldFont(13, weight: .bold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .textCase(.uppercase)
                     .tracking(0.6)
                 if let subtitle {
                     Text(subtitle)
-                        .font(.system(size: 11))
+                        .shieldFont(11)
                         .foregroundColor(ShieldTheme.tertiary(scheme).opacity(0.7))
                 }
             }
@@ -263,10 +263,10 @@ private struct StyleCard: View {
                             .fill(Color.black.opacity(0.55))
                         VStack(spacing: 4) {
                             Image(systemName: "crown.fill")
-                                .font(.system(size: 18))
+                                .shieldFont(18)
                                 .foregroundColor(ShieldTheme.accent)
                             Text(LanguageManager.shared.common("common_pro"))
-                                .font(.system(size: 11, weight: .bold))
+                                .shieldFont(11, weight: .bold)
                                 .foregroundColor(ShieldTheme.accent)
                         }
                     } else {
@@ -274,7 +274,7 @@ private struct StyleCard: View {
                             HStack {
                                 Spacer()
                                 Image(systemName: "arrow.right.circle.fill")
-                                    .font(.system(size: 16))
+                                    .shieldFont(16)
                                     .foregroundColor(.white.opacity(0.85))
                                     .shadow(radius: 3)
                                     .padding(5)
@@ -288,13 +288,13 @@ private struct StyleCard: View {
 
                 HStack(alignment: .center, spacing: 4) {
                     Text(style.label(lang: lang))
-                        .font(.system(size: 12, weight: .semibold))
+                        .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                         .lineLimit(1)
                     Spacer()
                     if isPremium && isUnlocked {
                         Text(LanguageManager.shared.common("common_pro"))
-                            .font(.system(size: 9, weight: .bold))
+                            .shieldFont(9, weight: .bold)
                             .foregroundColor(ShieldTheme.accentText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
@@ -341,7 +341,7 @@ struct StyleSourceSheet: View {
             HStack {
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .medium))
+                        .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                         .frame(width: 28, height: 28)
                         .background(ShieldTheme.rowBackground(scheme))
@@ -355,11 +355,11 @@ struct StyleSourceSheet: View {
 
             VStack(spacing: 4) {
                 Text(LanguageManager.shared.gallery("gallery_selected_style_header"))
-                    .font(.system(size: 11, weight: .semibold))
+                    .shieldFont(11, weight: .semibold)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
                     .tracking(0.6)
                 Text(style.label(lang: lang))
-                    .font(.system(size: 24, weight: .heavy))
+                    .shieldFont(24, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(scheme))
             }
             .frame(maxWidth: .infinity)
@@ -374,7 +374,7 @@ struct StyleSourceSheet: View {
                 .padding(.bottom, 20)
 
             Text(LanguageManager.shared.gallery("gallery_load_source_title"))
-                .font(.system(size: 14))
+                .shieldFont(14)
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
@@ -383,9 +383,9 @@ struct StyleSourceSheet: View {
             Button(action: onConfirm) {
                 HStack(spacing: 10) {
                     Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 17, weight: .semibold))
+                        .shieldFont(17, weight: .semibold)
                 Text(LanguageManager.shared.gallery("gallery_load_source_button"))
-                        .font(.system(size: 15, weight: .bold))
+                        .shieldFont(15, weight: .bold)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)

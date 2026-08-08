@@ -407,4 +407,97 @@ final class ShieldLaunchTests: XCTestCase {
         }
     }
 
+    /// Drives the onboarding flow (steps 0-3) until the camera permission step.
+    /// Assumes the app was launched with `-aso-scene onboarding` and language `es`.
+    @MainActor
+    private func walkToCamera(_ app: XCUIApplication) {
+        let start = app.buttons["Empezar"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10), "Welcome CTA missing")
+        start.tap()
+
+        let goal = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "Alquiler")).firstMatch
+        XCTAssertTrue(goal.waitForExistence(timeout: 5), "Goal step not reached")
+        goal.tap()
+        let continue1 = app.buttons["Continuar"]
+        XCTAssertTrue(continue1.waitForExistence(timeout: 5))
+        XCTAssertTrue(continue1.isEnabled, "Continue disabled on goal step")
+        continue1.tap()
+
+        let pain = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "Que vean mi foto")).firstMatch
+        XCTAssertTrue(pain.waitForExistence(timeout: 5), "Pain point step not reached")
+        pain.tap()
+        let continue2 = app.buttons["Continuar"]
+        XCTAssertTrue(continue2.waitForExistence(timeout: 5))
+        continue2.tap()
+
+        let address = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "DIRECCIÓN")).firstMatch
+        XCTAssertTrue(address.waitForExistence(timeout: 5), "Demo step not reached")
+        address.tap()
+        let dobField = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "NAC")).firstMatch
+        XCTAssertTrue(dobField.waitForExistence(timeout: 5))
+        dobField.tap()
+
+        let seeResult = app.buttons["Ver resultado"]
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        XCTAssertTrue(seeResult.isEnabled, "Selecting 2 fields did not enable demo result")
+        seeResult.tap()
+
+        let useIt = app.buttons.containing(NSPredicate(format: "label CONTAINS %@", "Usarlo")).firstMatch
+        XCTAssertTrue(useIt.waitForExistence(timeout: 5), "Demo result CTA missing")
+        useIt.tap()
+    }
+
+    @MainActor
+    func testCameraPermissionNotNowAdvancesToPaywall() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-aso-screenshots",
+            "-aso-language", "es",
+            "-aso-scene", "onboarding"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        walkToCamera(app)
+
+        let notNow = app.buttons["Ahora no"]
+        XCTAssertTrue(notNow.waitForExistence(timeout: 5), "Camera screen not reached")
+        Thread.sleep(forTimeInterval: 0.8) // let the step transition settle
+        print("CAMERA notNow label=\(notNow.label) enabled=\(notNow.isEnabled) hittable=\(notNow.isHittable) frame=\(notNow.frame)")
+        let primaryExists = app.buttons["Activar cámara"].exists
+        let primary = primaryExists ? app.buttons["Activar cámara"] : app.buttons["Continuar"]
+        print("CAMERA primary exists=\(primary.exists) enabled=\(primary.isEnabled) hittable=\(primary.isHittable)")
+
+        notNow.tap()
+        let paywallTitle = app.staticTexts["MaskID Pro"]
+        let advanced = paywallTitle.waitForExistence(timeout: 5)
+        print("REPRO 'Ahora no' advanced to paywall: \(advanced)")
+        XCTAssertTrue(advanced, "Camera 'Ahora no' did not advance to paywall (buttons dead?)")
+    }
+
+    @MainActor
+    func testCameraPermissionContinueAdvancesToPaywall() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-aso-screenshots",
+            "-aso-language", "es",
+            "-aso-scene", "onboarding"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        walkToCamera(app)
+
+        let continueButton = app.buttons["Continuar"]
+        XCTAssertTrue(continueButton.waitForExistence(timeout: 5), "Camera 'Continuar' not present")
+        Thread.sleep(forTimeInterval: 0.8)
+        print("CAMERA Continuar label=\(continueButton.label) enabled=\(continueButton.isEnabled) hittable=\(continueButton.isHittable) frame=\(continueButton.frame)")
+
+        continueButton.tap()
+        let paywallTitle = app.staticTexts["MaskID Pro"]
+        let advanced = paywallTitle.waitForExistence(timeout: 5)
+        print("REPRO 'Continuar' advanced to paywall: \(advanced)")
+        XCTAssertTrue(advanced, "Camera 'Continuar' did not advance to paywall (buttons dead?)")
+    }
+
 }
