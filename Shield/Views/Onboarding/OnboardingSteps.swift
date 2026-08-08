@@ -814,7 +814,7 @@ struct OBPaywallView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.openURL) private var openURL
     @StateObject private var pm = PremiumManager.shared
-    @State private var selectedProduct: ShieldProduct = .annual
+    @State private var selectedProductID = ShieldProduct.annual.rawValue
     var onBack: () -> Void
     var onComplete: () -> Void
 
@@ -865,7 +865,7 @@ struct OBPaywallView: View {
         .onChange(of: pm.products.map(\.id)) { _, availableProductIDs in
             selectAvailableProductIfNeeded(availableProductIDs: availableProductIDs)
         }
-        .sensoryFeedback(.selection, trigger: selectedProduct)
+        .sensoryFeedback(.selection, trigger: selectedProductID)
         .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
     }
 
@@ -935,17 +935,16 @@ struct OBPaywallView: View {
                 ForEach(pm.products, id: \.id) { product in
                     PlanRow(
                         product: product,
-                        isSelected: selectedProduct.rawValue == product.id,
+                        isSelected: selectedProductID == product.id,
                         savingsLabel: savingsLabel(for: product),
                         trialLabel: pm.trialLabels[product.id],
                         lang: appState.language
                     ) {
-                        guard let selection = ShieldProduct(rawValue: product.id) else { return }
                         withAnimation(.snappy(duration: 0.24)) {
-                            selectedProduct = selection
+                            selectedProductID = product.id
                         }
                         AppState.trackEvent("paywall_plan_selected", properties: [
-                            "plan": selection.analyticsName
+                            "plan": product.analyticsName
                         ])
                     }
                 }
@@ -957,14 +956,14 @@ struct OBPaywallView: View {
         VStack(spacing: 10) {
             Button {
                 Task {
-                    guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue }) else { return }
+                    guard let product = selectedPremiumProduct else { return }
                     AppState.trackEvent("paywall_purchase_started", properties: [
-                        "plan": selectedProduct.analyticsName
+                        "plan": product.analyticsName
                     ])
                     await pm.purchase(product)
                     if pm.isPro {
                         AppState.trackEvent("paywall_purchase_completed", properties: [
-                            "plan": selectedProduct.analyticsName
+                            "plan": product.analyticsName
                         ])
                         onComplete()
                     }
@@ -1005,16 +1004,16 @@ struct OBPaywallView: View {
     }
 
     private var selectedPremiumProduct: PremiumProduct? {
-        pm.products.first { $0.id == selectedProduct.rawValue }
+        pm.products.first { $0.id == selectedProductID }
     }
 
     private func selectAvailableProductIfNeeded(availableProductIDs: [String]? = nil) {
         let ids = availableProductIDs ?? pm.products.map(\.id)
-        guard !ids.contains(selectedProduct.rawValue),
-              let fallback = ShieldProduct.allCases.first(where: { ids.contains($0.rawValue) }) else {
+        guard !ids.contains(selectedProductID),
+              let fallback = ids.first else {
             return
         }
-        selectedProduct = fallback
+        selectedProductID = fallback
     }
 
     private var footer: some View {

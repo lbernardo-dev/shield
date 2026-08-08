@@ -29,9 +29,14 @@ enum ShieldProduct: String, CaseIterable {
 }
 
 struct PremiumProduct: Identifiable {
-    let storeProduct: StoreProduct
+    let package: RevenueCat.Package
 
+    var storeProduct: StoreProduct { package.storeProduct }
     var id: String { storeProduct.productIdentifier }
+    var packageIdentifier: String { package.identifier }
+    var analyticsName: String {
+        ShieldProduct(rawValue: id)?.analyticsName ?? packageIdentifier
+    }
     var displayName: String { storeProduct.localizedTitle }
     var displayPrice: String { storeProduct.localizedPriceString }
     var price: Decimal { storeProduct.price }
@@ -120,19 +125,34 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         isLoadingProducts = true
         productsLoadFailed = false
         defer { isLoadingProducts = false }
-        let ids = ShieldProduct.allCases.map(\.rawValue)
-        let fetched = await Purchases.shared.products(ids).map(PremiumProduct.init(storeProduct:))
-        // The product surface is intentionally limited to three clear choices.
-        products = fetched.sorted { lhs, rhs in
-            let order: [String: Int] = [
-                ShieldProduct.monthly.rawValue: 0,
-                ShieldProduct.annual.rawValue: 1,
-                ShieldProduct.lifetime.rawValue: 2,
-            ]
-            return (order[lhs.id] ?? 99) < (order[rhs.id] ?? 99)
+        do {
+            let offerings = try await Purchases.shared.offerings()
+            guard let currentOffering = offerings.current else {
+                products = []
+                trialLabels = [:]
+                productsLoadFailed = true
+                logger.error("RevenueCat returned no current Offering")
+                return
+            }
+
+            products = currentOffering.availablePackages.map(PremiumProduct.init(package:))
+            productsLoadFailed = products.isEmpty
+            if products.isEmpty {
+                logger.error(
+                    "RevenueCat Offering \(currentOffering.identifier, privacy: .public) contains no available packages"
+                )
+            } else {
+                logger.info(
+                    "Loaded \(self.products.count) packages from RevenueCat Offering \(currentOffering.identifier, privacy: .public)"
+                )
+            }
+            await refreshTrialEligibility()
+        } catch {
+            products = []
+            trialLabels = [:]
+            productsLoadFailed = true
+            logger.error("RevenueCat Offering load failed: \(String(describing: error), privacy: .private)")
         }
-        productsLoadFailed = fetched.isEmpty
-        await refreshTrialEligibility()
     }
 
     private func refreshTrialEligibility() async {
@@ -171,7 +191,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         AppState.trackEvent("purchase_started", properties: ["product_id": product.id])
 
         do {
-            let result = try await Purchases.shared.purchase(product: product.storeProduct)
+            let result = try await Purchases.shared.purchase(package: product.package)
             if result.userCancelled {
                 AppState.trackEvent("purchase_cancelled", properties: ["product_id": product.id])
             } else {
@@ -278,18 +298,18 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     // MARK: - Helpers for display
 
     func annualSavings(monthly: PremiumProduct, annual: PremiumProduct, lang: AppLanguage = .en) -> String? {
-        guard let pct = savingsPercent(referencePrice: monthly.price * 12, offerPrice: annual.price)
+        guard let pct = Self.savingsPercent(referencePrice: monthly.price * 12, offerPrice: annual.price)
         else { return nil }
         return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: pct)
     }
 
     func lifetimeSavings(annual: PremiumProduct, lifetime: PremiumProduct, lang: AppLanguage = .en) -> String? {
-        guard let pct = savingsPercent(referencePrice: annual.price * 2, offerPrice: lifetime.price)
+        guard let pct = Self.savingsPercent(referencePrice: annual.price * 2, offerPrice: lifetime.price)
         else { return nil }
         return LanguageManager.shared.str("paywall_save_two_years_percent", table: "Paywall", args: pct)
     }
 
-    func savingsPercent(referencePrice: Decimal, offerPrice: Decimal) -> Int? {
+    nonisolated static func savingsPercent(referencePrice: Decimal, offerPrice: Decimal) -> Int? {
         guard referencePrice > 0, offerPrice < referencePrice else { return nil }
         let ratio = NSDecimalNumber(decimal: (referencePrice - offerPrice) / referencePrice).doubleValue
         let percentage = Int((ratio * 100).rounded())

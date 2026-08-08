@@ -772,3 +772,47 @@
    Done by: CODEX
    Done at: 2026-08-08T14:58:59Z
 
+71. revenuecat-offerings-diagnosis
+   Id: 71-revenuecat-offerings-diagnosis
+   Scope: Diagnosticar por qué la app no carga los planes de suscripción desde RevenueCat, sin aplicar cambios
+   Files: Shield/Premium/PremiumManager.swift Shield/App/ShieldApp.swift Shield.xcodeproj/project.pbxproj Shield/Config/*.xcconfig ShieldTests
+   Note: Diagnóstico terminado: el cliente usa products(ids) hardcoded y no RevenueCat Offerings; ASC confirma 2 suscripciones + lifetime APPROVED, validadores sin bloqueos; build Debug y UI paywall test OK. Sin cambios funcionales.
+   Detail: tasks/details/71-revenuecat-offerings-diagnosis.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T22:59:53Z
+   Done by: CODEX
+   Done at: 2026-08-08T23:04:08Z
+
+72. revenuecat-offering-integration
+   Id: 72-revenuecat-offering-integration
+   Scope: Cargar y comprar planes exclusivamente desde el current Offering de RevenueCat, manteniendo compatibilidad del paywall y pruebas en simulador
+   Files: Shield/Premium/PremiumManager.swift Shield/Views/Paywall/PaywallView.swift Shield/Views/Onboarding/OnboardingSteps.swift ShieldTests ShieldUITests
+   Note: Offering integration complete: load current.availablePackages, retain/purchase Package, dynamic selection/logging. Debug build, gated live Offering+SKTestSession test, catalog suite, and paywall UI test pass.
+   Detail: tasks/details/72-revenuecat-offering-integration.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T23:04:55Z
+   Done by: CODEX
+   Done at: 2026-08-08T23:22:36Z
+
+73. revenuecat-simulator-error
+   Id: 73-revenuecat-simulator-error
+   Scope: Investigate persistent simulator paywall error after offering-based RevenueCat integration
+   Files: Shield/Premium/PremiumManager.swift Shield/Views/Paywall/PaywallView.swift Shield/Resources/Shield.storekit Shield.xcodeproj/xcshareddata/xcschemes/Shield.xcscheme
+   Note: Diagnosed persistent simulator error: RevenueCat offering path is correct; StoreKit local products are unavailable because launched app has no active StoreKit configuration session. Gated SKTestSession integration passes.
+   Detail: tasks/details/73-revenuecat-simulator-error.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T23:26:33Z
+   Done by: CODEX
+   Done at: 2026-08-08T23:29:53Z
+
+74. fix-storekit-scheme-reference
+   Id: 74-fix-storekit-scheme-reference
+   Scope: Fix shared Xcode scheme StoreKit configuration reference so simulator Run/Test resolves local RevenueCat offering products
+   Files: Shield.xcodeproj/xcshareddata/xcschemes/Shield.xcscheme tasks/details
+   Note: Fixed shared scheme StoreKit path to ../Shield/Resources/Shield.storekit for Run/Test; build succeeded with /tmp/ShieldStoreKitSchemeFix
+   Detail: tasks/details/74-fix-storekit-scheme-reference.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T23:31:37Z
+   Done by: CODEX
+   Done at: 2026-08-08T23:32:57Z
+

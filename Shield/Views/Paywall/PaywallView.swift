@@ -8,7 +8,7 @@ struct PaywallView: View {
     @StateObject private var pm = PremiumManager.shared
     @Binding var isPresented: Bool
     var trigger: PaywallTrigger = .manual
-    @State private var selectedProduct: ShieldProduct = .annual
+    @State private var selectedProductID = ShieldProduct.annual.rawValue
     @State private var didStartCheckout = false
 
     private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
@@ -81,7 +81,7 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(appState.preferredScheme)
-        .sensoryFeedback(.selection, trigger: selectedProduct)
+        .sensoryFeedback(.selection, trigger: selectedProductID)
         .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
         .task {
             AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
@@ -210,14 +210,12 @@ struct PaywallView: View {
     private func planRowView(for product: PremiumProduct) -> some View {
         PlanRow(
             product: product,
-            isSelected: selectedProduct.rawValue == product.id,
+            isSelected: selectedProductID == product.id,
             savingsLabel: savingsLabel(for: product),
             trialLabel: pm.trialLabels[product.id],
             lang: appState.language,
             onTap: {
-                if let sp = ShieldProduct(rawValue: product.id) {
-                    withAnimation { selectedProduct = sp }
-                }
+                withAnimation { selectedProductID = product.id }
             }
         )
     }
@@ -241,7 +239,7 @@ struct PaywallView: View {
 
     private func purchaseSelectedProduct() {
         Task {
-            guard let product = pm.products.first(where: { $0.id == selectedProduct.rawValue })
+            guard let product = selectedPremiumProduct
             else { return }
             didStartCheckout = true
             await pm.purchase(product)
@@ -250,16 +248,15 @@ struct PaywallView: View {
     }
 
     private var selectedPremiumProduct: PremiumProduct? {
-        pm.products.first { $0.id == selectedProduct.rawValue }
+        pm.products.first { $0.id == selectedProductID }
     }
 
     private func selectAvailableProductIfNeeded() {
         guard selectedPremiumProduct == nil,
-              let firstAvailable = pm.products.first,
-              let product = ShieldProduct(rawValue: firstAvailable.id) else {
+              let firstAvailable = pm.products.first else {
             return
         }
-        selectedProduct = product
+        selectedProductID = firstAvailable.id
     }
 
     @ViewBuilder
@@ -270,7 +267,7 @@ struct PaywallView: View {
             } else {
                 Image(systemName: "crown.fill")
                 Text(LanguageManager.shared.paywall(
-                    pm.trialLabels[selectedProduct.rawValue] != nil
+                    pm.trialLabels[selectedProductID] != nil
                         ? "paywall_free_trial"
                         : "paywall_get_pro"
                 ))
@@ -503,6 +500,7 @@ struct PlanRow: View {
             .shadow(color: isSelected ? ShieldTheme.accent.opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("paywall.plan.\(product.packageIdentifier)")
         .overlay(alignment: .topTrailing) {
             if isAnnual {
                 Text(LanguageManager.shared.paywall("paywall_best_value").uppercased())

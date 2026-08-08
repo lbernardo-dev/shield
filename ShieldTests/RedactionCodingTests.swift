@@ -1,5 +1,7 @@
 import CoreGraphics
 import Foundation
+import RevenueCat
+import StoreKitTest
 import Testing
 @testable import Shield
 
@@ -93,11 +95,34 @@ struct ShieldProductCatalogTests {
     }
 
     @Test("Savings use the current monthly, annual, and lifetime prices")
-    @MainActor
     func savingsPercentages() {
-        let manager = PremiumManager.shared
-        #expect(manager.savingsPercent(referencePrice: Decimal(string: "35.88")!, offerPrice: Decimal(string: "29.99")!) == 16)
-        #expect(manager.savingsPercent(referencePrice: Decimal(string: "59.98")!, offerPrice: Decimal(string: "49.99")!) == 17)
+        #expect(PremiumManager.savingsPercent(referencePrice: Decimal(string: "35.88")!, offerPrice: Decimal(string: "29.99")!) == 16)
+        #expect(PremiumManager.savingsPercent(referencePrice: Decimal(string: "59.98")!, offerPrice: Decimal(string: "49.99")!) == 17)
+    }
+
+    @Test(
+        "The current RevenueCat Offering resolves against the local StoreKit catalog",
+        .enabled(if: ProcessInfo.processInfo.environment["RUN_REVENUECAT_INTEGRATION_TESTS"] == "1")
+    )
+    @MainActor
+    func revenueCatOfferingPackages() async throws {
+        #if targetEnvironment(simulator)
+        let configurationURL = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Shield/Resources/Shield.storekit")
+        let session = try SKTestSession(contentsOf: configurationURL)
+        session.disableDialogs = true
+
+        PremiumManager.configureRevenueCat()
+        let currentOffering = try await Purchases.shared.offerings().current
+
+        #expect(currentOffering?.availablePackages.map(\.storeProduct.productIdentifier) == [
+            "com.romerodev.shield.pro.monthly",
+            "com.romerodev.shield.pro.annual",
+            "com.romerodev.shield.pro.lifetime.unlock"
+        ])
+        #endif
     }
 }
 
