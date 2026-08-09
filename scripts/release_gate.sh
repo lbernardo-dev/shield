@@ -12,4 +12,7 @@ fi
 plutil -lint Shield/Resources/PrivacyInfo.xcprivacy
 scripts/app_store_preflight.sh --local
 AGENT_NAME="${AGENT_NAME:-RELEASE}" make agent-verify
+if [[ "${UI_UX_GATE_MODE:-test}" != "skip" ]]; then
+  scripts/ui_ux_release_gate.sh "${UI_UX_GATE_MODE:-test}"
+fi
 echo "Shield release gate passed."

@@ -816,3 +816,190 @@
    Done by: CODEX
    Done at: 2026-08-08T23:32:57Z
 
+75. splash-lottie-identidad
+   Id: 75-splash-lottie-identidad
+   Scope: Integrar MaskID_IdentityMask_v3 en SplashView con Lottie y accesibilidad Reduce Motion
+   Files: Shield/Views/Components/SplashView.swift, Shield/App/ContentView.swift, Shield/Resources/Animations/MaskID_IdentityMask_v3.json, Shield.xcodeproj/project.pbxproj
+   Note: Animación v3 recuperada e integrada en SplashView con Lottie 4.6.1, callback de finalización, fallback y Reduce Motion. Build estricto correcto; JSON confirmado en bundle. Suite de tests detenida por petición del usuario; app instalada y abierta en Simulator.
+   Detail: tasks/details/75-splash-lottie-identidad.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-08T23:46:46Z
+   Done by: CODEX
+   Done at: 2026-08-08T23:57:36Z
+
+76. ui-ux-integral-audit-roadmap
+   Id: 76-ui-ux-integral-audit-roadmap
+   Scope: Auditar integralmente UI/UX en iPhone y iPad; definir sistema visual, navegación persistente, ritmo espacial, microinteracciones, accesibilidad y roadmap ejecutable priorizado
+   Files: Shield/App/**,Shield/Theme/**,Shield/Views/**,ShieldUITests/**,tasks/TASKS.md,tasks/details/76-ui-ux-integral-audit-roadmap.md
+   Note: Auditoría UI/UX integral completada; 32 fuentes revisadas, 16 capturas iPhone/iPad inspeccionadas, build estricto OK, hallazgos P0-P2 y roadmap 77-85 documentados; sin cambios de producto
+   Detail: tasks/details/76-ui-ux-integral-audit-roadmap.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:01:27Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:12:23Z
+
+77. ui-shell-navigation-safeareas-p0
+   Id: 77-ui-shell-navigation-safeareas-p0
+   Scope: Eliminar roturas P0 de layout: Galería iPad, headers persistentes, contrato de navegación, safe areas, espacios finales y detents
+   Files: Shield/App/ContentView.swift,Shield/Views/Components/**,Shield/Views/Gallery/StyleGalleryView.swift,Shield/Views/Settings/**,Shield/Views/Home/HomeView.swift,Shield/Views/Vault/VaultView.swift,Shield/Views/Editor/EditorView.swift,ShieldUITests/**
+   Note: Grid de Galería adaptativo sin cálculos de altura; chrome fijo en Ajustes/destinos/paywall onboarding; CTA fija y detents adaptativos en preview de estilo; safeAreaInset como única reserva del tab bar; padding final 24; Batch usa NavigationStack. Build estricto, tests UI focalizados y revisión iPhone/iPad OK.
+   Detail: tasks/details/77-ui-shell-navigation-safeareas-p0.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:28:12Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:34:42Z
+
+78. design-system-clean-depth-motion
+   Id: 78-design-system-clean-depth-motion
+   Scope: Consolidar tokens de superficies, tipografía, espaciado, botones, cards, estados, elevación y motion accesible
+   Files: Shield/Theme/ShieldTheme.swift,Shield/Views/Components/**,ShieldUITests/**
+   Note: Tokens semánticos adaptativos, layout y motion añadidos; tipografía escalable con estilos relativos y mínimo legible; ShieldButton/Chip/Icon/Toggle/Card/Row/State/Status/StickyFooter consolidados; haptic UIKit retirado en favor de sensoryFeedback; Reduce Motion/Transparency e Increase Contrast integrados; catálogo dark/light AX añadido. Build estricto OK.
+   Detail: tasks/details/78-design-system-clean-depth-motion.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:34:42Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:39:14Z
+
+79. home-library-ux-redesign
+   Id: 79-home-library-ux-redesign
+   Scope: Reestructurar Inicio y biblioteca: jerarquía, búsqueda/filtros, acciones primarias, modos, recientes, estados y densidad
+   Files: Shield/Views/Home/**,Shield/App/ContentView.swift,ShieldUITests/**
+   Note: Hero reducido y acciones Escanear/Importar dominantes con componentes comunes; búsqueda/categorías conducen directamente a recientes; primer documento visible en primera pantalla; modos/Bóveda/nube bajo disclosure progresivo; scroll vuelve al top al reentrar; empty/no-results consolidados; metadata sin wrap. Build, auditoría Home ES/EN y navegación primaria OK.
+   Detail: tasks/details/79-home-library-ux-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:39:14Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:44:31Z
+
+80. capture-import-review-ux-redesign
+   Id: 80-capture-import-review-ux-redesign
+   Scope: Simplificar captura/importación/revisión: eliminar duplicidad, anclar acciones, mejorar progreso, errores y edición de escaneo
+   Files: Shield/Views/Capture/**,Shield/Cloud/ExternalStorageManager.swift,ShieldUITests/**
+   Note: Captura reestructurada: acción Escanear principal, Fotos/Archivos/Nube visibles sin scroll, selección de tipo única y horizontal, guide compacta; revisión conserva header/confirm persistentes; progreso cancelable y error con retry contextual; visual simulator y tests Capture/camera ES/EN OK. Recorrido de hardware físico reservado al gate 85.
+   Detail: tasks/details/80-capture-import-review-ux-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:44:31Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:49:44Z
+
+81. editor-ocr-export-workspace-redesign
+   Id: 81-editor-ocr-export-workspace-redesign
+   Scope: Rehacer jerarquía del editor, herramientas contextuales, OCR y exportación con chrome estable y menor carga cognitiva
+   Files: Shield/Views/Editor/**,Shield/ViewModels/EditorViewModel.swift,ShieldUITests/**
+   Note: Editor simplificado a una sola barra de herramientas con selector de modo; banners contextuales priorizados; OCR/export con detents nativos y CTAs persistentes. Build estricto y 4 pruebas UI de Editor/OCR/Export aprobadas.
+   Detail: tasks/details/81-editor-ocr-export-workspace-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:49:44Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:56:45Z
+
+82. gallery-vault-ux-redesign
+   Id: 82-gallery-vault-ux-redesign
+   Scope: Perfeccionar Galería y Bóveda: selección/preview, responsive grid, estados vacíos y uso del espacio
+   Files: Shield/Views/Gallery/**,Shield/Views/Vault/**,Shield/Views/Documents/**,ShieldUITests/**
+   Note: Galería con selección persistente/VoiceOver, transición discreta y bloqueos Pro no invasivos. Bóveda con resumen de seguridad, grid adaptable, empty state accionable y CTA persistente. Build estricto, revisión visual y 4 pruebas UI aprobadas.
+   Detail: tasks/details/82-gallery-vault-ux-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:56:45Z
+   Done by: CODEX
+   Done at: 2026-08-09T09:02:53Z
+
+83. settings-paywall-onboarding-ux
+   Id: 83-settings-paywall-onboarding-ux
+   Scope: Simplificar Ajustes, Paywall y onboarding; mantener navegación/CTA persistentes, adaptar estados comerciales y reducir textos
+   Files: Shield/Views/Settings/**,Shield/Views/Paywall/**,Shield/Views/Onboarding/**,Shield/Premium/**,ShieldUITests/**
+   Note: Ajustes con resumen compacto y chrome fijo; paywalls con CTA persistente, estado deshabilitado real, retry contextual, tokens adaptativos y Reduce Motion; onboarding verificado con controles fijos y branding animado. Build estricto, revisión visual y 5 pruebas UI aprobadas.
+   Detail: tasks/details/83-settings-paywall-onboarding-ux.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T09:02:53Z
+   Done by: CODEX
+   Done at: 2026-08-09T09:10:58Z
+
+84. ipad-adaptive-layouts
+   Id: 84-ipad-adaptive-layouts
+   Scope: Diseñar layouts iPad reales para dashboard, galería, editor, captura, bóveda, ajustes y multitarea
+   Files: Shield/App/**,Shield/Views/**,ShieldUITests/**
+   Note: iPad: dashboard dos columnas, captura y revisión con layouts laterales, Editor lienzo+inspector, grids adaptativos en Galería/Bóveda/Ajustes y shortcuts de teclado. Build estricto, 3 auditorías UI en iPad Pro 13 y snapshots visuales aprobados.
+   Detail: tasks/details/84-ipad-adaptive-layouts.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T09:10:59Z
+   Done by: CODEX
+   Done at: 2026-08-09T09:18:34Z
+
+85. ui-accessibility-visual-release-gate
+   Id: 85-ui-accessibility-visual-release-gate
+   Scope: Cerrar QA UI/UX: Dynamic Type, VoiceOver, Reduce Motion/Transparency, contraste, localización, snapshots y pruebas físicas
+   Files: Shield/Theme/**,Shield/Views/**,ShieldUITests/**,scripts/**,Docs/**
+   Note: Gate UI/UX automatizado integrado en release_gate, matriz visual claro/oscuro ES/EN iPhone/iPad, prueba AX5+Reduce Motion/Transparency/Contrast y checklist físico firmado documentado. Test AX5 aprobado; firma física queda requisito manual previo al próximo upload.
+   Detail: tasks/details/85-ui-accessibility-visual-release-gate.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T09:18:34Z
+   Done by: CODEX
+   Done at: 2026-08-09T09:24:13Z
+
+86. animated-brand-mark-surfaces
+   Id: 86-animated-brand-mark-surfaces
+   Scope: Crear un componente visual reutilizable basado en la animación Lottie de MaskID y aplicarlo en onboarding, bloqueo, privacy snapshot, Inicio y Ajustes con variantes adaptadas al contexto, fallback estático y Reduce Motion.
+   Files: Shield/Views/Components/SplashView.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Views/Onboarding/OnboardingView.swift,Shield/App/ContentView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Settings/SettingsDestinationViews.swift
+   Note: Componente MaskIDIdentityMark integrado en splash, onboarding, bloqueo, privacy snapshot, Inicio y Ajustes. Lottie one-shot en superficies hero, variantes estáticas compactas, Reduce Motion y VoiceOver respetados. Build estricto OK; suite completa make test OK; validación visual de onboarding en simulador OK.
+   Detail: tasks/details/86-animated-brand-mark-surfaces.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T08:14:54Z
+   Done by: CODEX
+   Done at: 2026-08-09T08:27:01Z
+
+87. compact-footer-navigation
+   Id: 87-compact-footer-navigation
+   Scope: Reducir aproximadamente a la mitad la altura visual del footer sin perder navegación, safe area ni targets accesibles.
+   Files: Shield/Views/Components/TabBar.swift
+   Note: Footer compactado de 88pt a 44pt de altura funcional; scan 44pt, paddings eliminados y targets accesibles conservados. Build estricto, navegación UI y revisión visual aprobadas.
+   Detail: tasks/details/87-compact-footer-navigation.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T09:40:25Z
+   Done by: CODEX
+   Done at: 2026-08-09T09:48:41Z
+
+88. lock-screen-value-redesign
+   Id: 88-lock-screen-value-redesign
+   Scope: Redesign the authentication gate to remove dead space and redundancy, communicate concrete privacy value, keep primary authentication persistently reachable, and validate accessibility/adaptive layouts.
+   Files: Shield/Views/Onboarding/OnboardingView.swift,Shield/ViewModels/AppState.swift,Shield/Localization/Strings/Auth.xcstrings,ShieldUITests/ShieldLaunchTests.swift
+   Note: Redesigned lock screen with compact animated access card, method-aware status, concrete local/encryption value, intentional privacy curtain, and compact sticky CTA. Strict build passed; lock EN/ES accessibility audit and AX5/reduced-motion chrome test passed; visually verified on iPhone 17 Pro Max.
+   Detail: tasks/details/88-lock-screen-value-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T09:51:47Z
+   Done by: CODEX
+   Done at: 2026-08-09T10:03:08Z
+
+89. storekit-review-request-policy
+   Id: 89-storekit-review-request-policy
+   Scope: Use StoreKit's native review request from Settings and after verified value moments, with a more frequent but compliant free-tier cadence and a lighter premium cadence.
+   Files: Shield/App/AppReviewManager.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Capture/CaptureView.swift,Shield/Views/Editor/ExportSheetView.swift,ShieldTests/AppReviewManagerTests.swift,ShieldUITests/ShieldLaunchTests.swift,Shield.xcodeproj/project.pbxproj
+   Note: Implemented AppStore.requestReview(in:) from Settings and after successful import/export value moments. Free: 2d/3-point/45d/3-year cadence; Premium: 14d/8-point/120d/2-year cadence. Removed external review URL behavior. Strict build passed; 4 targeted unit/UI tests passed.
+   Detail: tasks/details/89-storekit-review-request-policy.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T10:05:12Z
+   Done by: CODEX
+   Done at: 2026-08-09T10:11:31Z
+
+90. elevated-central-scan-button
+   Id: 90-elevated-central-scan-button
+   Scope: Increase the central scan control and make it protrude above the compact tab bar without increasing the bar's layout height or safe-area footprint.
+   Files: Shield/Views/Components/TabBar.swift,ShieldUITests/ShieldLaunchTests.swift
+   Note: Central scan control enlarged to 64pt and overlaid 24pt above a fixed 44pt footer slot. Added separation ring/shadow and geometry regression asserting upward-only growth. Strict build passed; focused UI regression passed; visually verified on iPhone 17 Pro Max.
+   Detail: tasks/details/90-elevated-central-scan-button.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T10:13:27Z
+   Done by: CODEX
+   Done at: 2026-08-09T10:24:39Z
+
+91. compact-paywall-footer-links
+   Id: 91-compact-paywall-footer-links
+   Scope: Move restore, privacy, terms, and subscription-condition actions below the paywall CTA in an adaptive compact footer, remove them from scroll content, and reclaim trailing content space.
+   Files: Shield/Views/Paywall/PaywallView.swift,ShieldUITests/ShieldLaunchTests.swift
+   Note: Moved restore/privacy/terms/subscription links below CTA in adaptive footer; normal iPhone layout fits one 44pt line, with accessible fallbacks. Removed links from scroll content and reduced trailing padding. Strict build passed and visual review completed; further tests stopped at user request.
+   Detail: tasks/details/91-compact-paywall-footer-links.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T10:25:39Z
+   Done by: CODEX
+   Done at: 2026-08-09T10:30:18Z
+

@@ -9,6 +9,7 @@ struct EditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
@@ -28,24 +29,12 @@ struct EditorView: View {
         VStack(spacing: 0) {
             topBar
             documentMetaBar
-            sensitiveBanner
-            propagateBanner
-            canvasArea
-            // Image adjust panel (shown when tool == .adjust)
-            if vm.showAdjustPanel {
-                ImageAdjustToolbar(vm: vm, lang: appState.language, isPro: pm.isPro) {
-                    paywallTrigger = .styleLocked
-                    showPaywall = true
-                }
-                .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+            contextBanner
+            if horizontalSizeClass == .regular {
+                regularWorkspace
+            } else {
+                compactWorkspace
             }
-            if !vm.showAdjustPanel {
-                modeChips
-            }
-            if vm.tool == .rect || vm.tool == .fields || vm.activeRedactionID != nil {
-                maskStylePicker
-            }
-            bottomBar
         }
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
@@ -188,6 +177,53 @@ struct EditorView: View {
         }
     }
 
+    private var compactWorkspace: some View {
+        VStack(spacing: 0) {
+            canvasArea
+            contextualToolPanels
+            bottomBar
+        }
+    }
+
+    private var regularWorkspace: some View {
+        HStack(spacing: 0) {
+            canvasArea
+
+            Rectangle()
+                .fill(ShieldTheme.line(scheme))
+                .frame(width: 0.5)
+
+            VStack(spacing: 0) {
+                modeChips
+                    .padding(.vertical, ShieldTheme.s2)
+
+                ScrollView(showsIndicators: false) {
+                    contextualToolPanels
+                        .padding(.vertical, ShieldTheme.s2)
+                }
+
+                Spacer(minLength: 0)
+                bottomBar
+            }
+            .frame(width: 390)
+            .background(ShieldTheme.cardBackground(scheme))
+        }
+    }
+
+    @ViewBuilder
+    private var contextualToolPanels: some View {
+        if vm.showAdjustPanel {
+            ImageAdjustToolbar(vm: vm, lang: appState.language, isPro: pm.isPro) {
+                paywallTrigger = .styleLocked
+                showPaywall = true
+            }
+            .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
+        }
+        if vm.tool == .rect || vm.tool == .fields || vm.activeRedactionID != nil {
+            maskStylePicker
+        }
+    }
+
     // MARK: - Top bar
 
     private var topBar: some View {
@@ -223,32 +259,29 @@ struct EditorView: View {
             Spacer()
 
             HStack(spacing: 12) {
-                // Re-adjust scan button
-                Button {
-                    let fileNames: [String]
-                    if let originals = vm.doc.originalPageFileNames, !originals.isEmpty {
-                        fileNames = originals
-                    } else if let all = vm.doc.pageFileNames, !all.isEmpty {
-                        fileNames = all
-                    } else if let first = vm.doc.imageFileName {
-                        fileNames = [first]
-                    } else {
-                        fileNames = []
+                Menu {
+                    Button {
+                        vm.showOCRSheet = true
+                    } label: {
+                        Label(
+                            LanguageManager.shared.model("model_detected_fields"),
+                            systemImage: "text.viewfinder"
+                        )
                     }
-                    let pages = fileNames.compactMap {
-                        AppState.loadImage(fileName: $0, isVaulted: vm.doc.isVaulted)
+
+                    Button(action: openReadjustReview) {
+                        Label(
+                            LanguageManager.shared.capture("capture_adjustments"),
+                            systemImage: "camera.filters"
+                        )
                     }
-                    guard !pages.isEmpty else { return }
-                    readjustPages = pages
-                    showReadjustReview = true
                 } label: {
-                    Image(systemName: "camera.filters")
+                    Image(systemName: "ellipsis.circle")
                         .shieldFont(16, weight: .semibold)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                         .frame(width: 44, height: 44)
                 }
-                .accessibilityLabel(LanguageManager.shared.capture("capture_adjustments"))
-                .accessibilityHint(LanguageManager.shared.capture("capture_auto_perspective"))
+                .accessibilityLabel(LanguageManager.shared.common("common_more"))
 
                 Button {
                     appState.updateDocument(vm.documentSnapshot)
@@ -290,6 +323,25 @@ struct EditorView: View {
         .overlay(alignment: .bottom) { ShieldDivider() }
     }
 
+    private func openReadjustReview() {
+        let fileNames: [String]
+        if let originals = vm.doc.originalPageFileNames, !originals.isEmpty {
+            fileNames = originals
+        } else if let all = vm.doc.pageFileNames, !all.isEmpty {
+            fileNames = all
+        } else if let first = vm.doc.imageFileName {
+            fileNames = [first]
+        } else {
+            fileNames = []
+        }
+        let pages = fileNames.compactMap {
+            AppState.loadImage(fileName: $0, isVaulted: vm.doc.isVaulted)
+        }
+        guard !pages.isEmpty else { return }
+        readjustPages = pages
+        showReadjustReview = true
+    }
+
     private var documentMetaBar: some View {
         EditorDocumentMetaBar(
             title: vm.doc.title,
@@ -313,6 +365,15 @@ struct EditorView: View {
             onOpenFields: { vm.showOCRSheet = true },
             onDismiss: { withAnimation { vm.showSensitiveBanner = false } }
         )
+    }
+
+    @ViewBuilder
+    private var contextBanner: some View {
+        if vm.showSensitiveBanner {
+            sensitiveBanner
+        } else {
+            propagateBanner
+        }
     }
 
     // MARK: - Propagate banner
@@ -530,26 +591,25 @@ struct EditorView: View {
             canUndo: vm.canUndo,
             canRedo: vm.canRedo,
             selectedTool: vm.tool,
+            activeMode: vm.activeMode,
             lang: appState.language,
+            isPro: pm.isPro,
             watermarkActive: vm.watermark != nil,
             adjustActive: vm.showAdjustPanel,
             adjustDirty: !vm.imageAdjustment.isDefault,
-            toolHelpText: toolHelpText,
             onUndo: { vm.undo() },
             onRedo: { vm.redo() },
+            onModeSelect: { mode in
+                vm.applyMode(mode)
+                vm.tool = .rect
+                vm.activeRedactionID = nil
+            },
+            onLockedModeTap: {
+                paywallTrigger = .manual
+                showPaywall = true
+            },
             onToolTap: handleToolTap
         )
-    }
-
-    private var toolHelpText: String {
-        switch vm.tool {
-        case .rect: return LanguageManager.shared.editor("editor_tool_help_rect")
-        case .fields: return LanguageManager.shared.editor("editor_tool_help_fields")
-        case .auto: return LanguageManager.shared.editor("editor_tool_help_auto")
-        case .text: return LanguageManager.shared.editor("editor_tool_help_text")
-        case .watermark: return LanguageManager.shared.editor("editor_tool_help_watermark")
-        case .adjust: return LanguageManager.shared.editor("editor_tool_help_adjust")
-        }
     }
 
     private func handleToolTap(_ tool: EditorTool) {
@@ -592,7 +652,7 @@ struct SheetContainer<Content: View>: View {
             content()
         }
         .background(ShieldTheme.cardBackground(scheme))
-        .presentationDetents([.fraction(heightFraction)])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(ShieldTheme.cardBackground(scheme))
     }

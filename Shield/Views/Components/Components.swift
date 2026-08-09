@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 // MARK: - ShieldButton
 
@@ -9,15 +8,23 @@ struct ShieldButton: View {
     let label: String
     var icon: String? = nil
     var style: Style = .primary
-    var height: CGFloat = 44
+    var height: CGFloat = ShieldTheme.controlHeight
+    var isLoading = false
     var action: () -> Void
 
-    @Environment(\.colorScheme) var scheme
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                if let icon {
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(fgColor)
+                        .accessibilityHidden(true)
+                } else if let icon {
                     Image(systemName: icon)
                         .shieldFont(15, weight: .semibold)
                 }
@@ -25,15 +32,23 @@ struct ShieldButton: View {
                     .shieldFont(15, weight: .semibold)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: height)
+            .frame(minHeight: max(ShieldTheme.minimumTapTarget, height))
+            .padding(.horizontal, ShieldTheme.s4)
             .background(bgColor)
             .foregroundColor(fgColor)
-            .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+            .overlay {
+                RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                    .stroke(borderColor, lineWidth: contrast == .increased ? 1.5 : 0.75)
+            }
+            .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
         }
         .buttonStyle(ScaleButtonStyle())
+        .disabled(isLoading)
+        .accessibilityValue(isLoading ? LanguageManager.shared.common("common_loading") : "")
     }
 
     private var bgColor: Color {
+        guard isEnabled && !isLoading else { return ShieldTheme.rowBackground(scheme) }
         switch style {
         case .primary:   return ShieldTheme.accent(scheme)
         case .secondary: return ShieldTheme.rowBackground(scheme)
@@ -42,11 +57,20 @@ struct ShieldButton: View {
         }
     }
     private var fgColor: Color {
+        guard isEnabled && !isLoading else { return ShieldTheme.tertiary(scheme) }
         switch style {
         case .primary:   return ShieldTheme.accentText
         case .secondary: return ShieldTheme.primary(scheme)
         case .ghost:     return ShieldTheme.primary(scheme)
         case .danger:    return ShieldTheme.danger
+        }
+    }
+
+    private var borderColor: Color {
+        switch style {
+        case .primary: .clear
+        case .secondary, .ghost: ShieldTheme.line(scheme)
+        case .danger: ShieldTheme.danger.opacity(0.42)
         }
     }
 }
@@ -55,15 +79,19 @@ struct ShieldButton: View {
 
 struct ScaleButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(reduceMotion ? 1 : (configuration.isPressed ? 0.97 : 1))
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.08), value: configuration.isPressed)
+            .opacity(isEnabled ? 1 : 0.62)
+            .animation(reduceMotion ? nil : ShieldMotion.press, value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, isPressed in
                 guard isPressed else { return }
                 AppState.markUserActivity()
-                ShieldHaptics.impactLight()
+            }
+            .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, isPressed in
+                isPressed && isEnabled && ShieldHaptics.isEnabled
             }
     }
 }
@@ -73,11 +101,6 @@ enum ShieldHaptics {
         let defaults = UserDefaults.standard
         if defaults.object(forKey: "shield.haptic") == nil { return true }
         return defaults.bool(forKey: "shield.haptic")
-    }
-
-    static func impactLight() {
-        guard isEnabled else { return }
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 }
 
@@ -153,10 +176,11 @@ struct ShieldToggle: View {
     @Binding var isOn: Bool
     var accessibilityName: String = "Opción"
     @Environment(\.colorScheme) var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) { isOn.toggle() }
+            withAnimation(reduceMotion ? nil : ShieldMotion.state) { isOn.toggle() }
         } label: {
             ZStack(alignment: isOn ? .trailing : .leading) {
                 Capsule()
@@ -222,6 +246,7 @@ struct ShieldProgressDots: View {
     let count: Int
     let current: Int
     @Environment(\.colorScheme) var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 6) {
@@ -229,7 +254,7 @@ struct ShieldProgressDots: View {
                 Capsule()
                     .frame(width: i == current ? 22 : 6, height: 6)
                     .foregroundColor(i == current ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
-                    .animation(.spring(response: 0.3), value: current)
+                    .animation(reduceMotion ? nil : ShieldMotion.state, value: current)
             }
         }
     }
@@ -261,14 +286,19 @@ struct ShieldSheet<Content: View>: View {
     let heightFraction: CGFloat
     @ViewBuilder let content: () -> Content
     @Environment(\.colorScheme) var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .bottom) {
                 if isPresented {
-                    Color.black.opacity(0.5)
+                    ShieldTheme.scrim(scheme)
                         .ignoresSafeArea()
-                        .onTapGesture { withAnimation { isPresented = false } }
+                        .onTapGesture {
+                            withAnimation(reduceMotion ? nil : ShieldMotion.state) {
+                                isPresented = false
+                            }
+                        }
                         .transition(.opacity)
 
                     VStack(spacing: 0) {
@@ -288,9 +318,186 @@ struct ShieldSheet<Content: View>: View {
                     .transition(.move(edge: .bottom))
                 }
             }
-            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isPresented)
+            .animation(reduceMotion ? nil : ShieldMotion.navigation, value: isPresented)
         }
         .ignoresSafeArea()
+        .accessibilityAddTraits(isPresented ? .isModal : [])
+        .accessibilityAction(.escape) { isPresented = false }
+    }
+}
+
+// MARK: - Shared surface primitives
+
+struct ShieldRow<Leading: View, Content: View, Trailing: View>: View {
+    @ViewBuilder let leading: Leading
+    @ViewBuilder let content: Content
+    @ViewBuilder let trailing: Trailing
+
+    init(
+        @ViewBuilder leading: () -> Leading,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder trailing: () -> Trailing
+    ) {
+        self.leading = leading()
+        self.content = content()
+        self.trailing = trailing()
+    }
+
+    var body: some View {
+        HStack(spacing: ShieldTheme.s3) {
+            leading
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+            trailing
+        }
+        .padding(ShieldTheme.s4)
+        .contentShape(.rect)
+    }
+}
+
+struct ShieldStateView: View {
+    enum Kind {
+        case empty
+        case loading
+        case error
+        case success
+    }
+
+    let kind: Kind
+    let title: String
+    var message: String? = nil
+    var actionLabel: String? = nil
+    var action: (() -> Void)? = nil
+
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        VStack(spacing: ShieldTheme.s3) {
+            stateIcon
+                .font(.title.weight(.semibold))
+                .frame(width: 56, height: 56)
+                .background(iconColor.opacity(0.14), in: Circle())
+                .foregroundStyle(iconColor)
+                .accessibilityHidden(true)
+
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .multilineTextAlignment(.center)
+
+            if let message {
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let actionLabel, let action {
+                ShieldButton(label: actionLabel, style: .secondary, action: action)
+                    .frame(maxWidth: 320)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(ShieldTheme.s6)
+        .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+
+    @ViewBuilder
+    private var stateIcon: some View {
+        switch kind {
+        case .loading:
+            ProgressView()
+        default:
+            Image(systemName: iconName)
+        }
+    }
+
+    private var iconName: String {
+        switch kind {
+        case .empty: "tray"
+        case .loading: "hourglass"
+        case .error: "exclamationmark.triangle.fill"
+        case .success: "checkmark.circle.fill"
+        }
+    }
+
+    private var iconColor: Color {
+        switch kind {
+        case .empty, .loading: ShieldTheme.accent(scheme)
+        case .error: ShieldTheme.danger
+        case .success: ShieldTheme.success
+        }
+    }
+}
+
+struct ShieldStickyFooter<Content: View>: View {
+    @ViewBuilder let content: Content
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        content
+            .padding(.horizontal, ShieldTheme.s4)
+            .padding(.vertical, ShieldTheme.s3)
+            .background(
+                reduceTransparency
+                    ? ShieldTheme.elevatedBackground(scheme)
+                    : ShieldTheme.cardBackground(scheme).opacity(0.96)
+            )
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(ShieldTheme.line(scheme))
+                    .frame(height: 0.5)
+            }
+    }
+}
+
+struct ShieldStatusLabel: View {
+    enum Kind { case info, success, warning, error }
+
+    let text: String
+    let kind: Kind
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        Label(text, systemImage: icon)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(color)
+            .padding(.horizontal, ShieldTheme.s3)
+            .padding(.vertical, ShieldTheme.s2)
+            .background(background, in: Capsule())
+    }
+
+    private var icon: String {
+        switch kind {
+        case .info: "info.circle.fill"
+        case .success: "checkmark.circle.fill"
+        case .warning: "exclamationmark.triangle.fill"
+        case .error: "xmark.octagon.fill"
+        }
+    }
+
+    private var color: Color {
+        switch kind {
+        case .info: ShieldTheme.accent(scheme)
+        case .success: ShieldTheme.success
+        case .warning: ShieldTheme.warning
+        case .error: ShieldTheme.danger
+        }
+    }
+
+    private var background: Color {
+        switch kind {
+        case .info: ShieldTheme.accentDim(scheme)
+        case .success: ShieldTheme.successBackground(scheme)
+        case .warning: ShieldTheme.warningBackground(scheme)
+        case .error: ShieldTheme.errorBackground(scheme)
+        }
     }
 }
 
@@ -308,3 +515,54 @@ struct OnDeviceBadge: View {
         }
     }
 }
+
+#if DEBUG
+private struct ShieldComponentCatalog: View {
+    @State private var toggle = true
+    @State private var selectedChip = true
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: ShieldTheme.s5) {
+                SectionHeader(title: "Actions")
+                ShieldButton(label: "Primary action", icon: "sparkles") {}
+                ShieldButton(label: "Secondary action", style: .secondary) {}
+                ShieldButton(label: "Delete securely", icon: "trash", style: .danger) {}
+                ShieldButton(label: "Processing", isLoading: true) {}
+
+                HStack {
+                    PillButton(label: "Selected", isActive: selectedChip) {
+                        selectedChip.toggle()
+                    }
+                    IconButton(icon: "slider.horizontal.3", accessibilityName: "Filters") {}
+                    ShieldToggle(isOn: $toggle, accessibilityName: "Example toggle")
+                }
+
+                ShieldStatusLabel(text: "Stored on this device", kind: .success)
+
+                ShieldStateView(
+                    kind: .empty,
+                    title: "No documents yet",
+                    message: "Scan or import a document to start protecting it.",
+                    actionLabel: "Add document"
+                ) {}
+                .shieldCard()
+            }
+            .frame(maxWidth: 520)
+            .padding(ShieldTheme.s5)
+        }
+        .background(ShieldTheme.pageBackground(.dark).ignoresSafeArea())
+    }
+}
+
+#Preview("Components · Dark") {
+    ShieldComponentCatalog()
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Components · Light · AX") {
+    ShieldComponentCatalog()
+        .preferredColorScheme(.light)
+        .environment(\.dynamicTypeSize, .accessibility3)
+}
+#endif

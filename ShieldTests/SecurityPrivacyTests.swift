@@ -100,17 +100,12 @@ struct SecurityPrivacyTests {
         #expect(components.queryItems?.first(where: { $0.name == "body" })?.value == "Describe aquí qué ocurrió.\nGracias.")
     }
 
-    @Test("Rate action targets Shield's App Store review page")
-    func ratingURLsAreValid() throws {
-        let nativeURL = try #require(SettingsStoreConfiguration.reviewURL(appID: "6790398619", scheme: "itms-apps"))
-        let webURL = try #require(SettingsStoreConfiguration.reviewURL(appID: "6790398619", scheme: "https"))
-
-        #expect(nativeURL.scheme == "itms-apps")
-        #expect(webURL.scheme == "https")
-        #expect(nativeURL.absoluteString.contains("id6790398619"))
-        #expect(webURL.absoluteString.contains("id6790398619"))
-        #expect(URLComponents(url: nativeURL, resolvingAgainstBaseURL: false)?.queryItems?.first?.value == "write-review")
-        #expect(URLComponents(url: webURL, resolvingAgainstBaseURL: false)?.queryItems?.first?.value == "write-review")
+    @Test("Review cadence is quieter for Premium users")
+    func premiumReviewCadenceIsQuieter() {
+        #expect(AppReviewPolicy.premium.minimumAppAge > AppReviewPolicy.free.minimumAppAge)
+        #expect(AppReviewPolicy.premium.valueThreshold > AppReviewPolicy.free.valueThreshold)
+        #expect(AppReviewPolicy.premium.cooldown > AppReviewPolicy.free.cooldown)
+        #expect(AppReviewPolicy.premium.annualRequestLimit < AppReviewPolicy.free.annualRequestLimit)
     }
 }
 

@@ -10,54 +10,48 @@ struct StyleGalleryView: View {
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var styleToApply: MaskStyle? = nil
-    @State private var contentWidth: CGFloat = 0
+    @State private var selectedStyle: MaskStyle? = nil
 
     private func sampleRedaction(style: MaskStyle) -> [Redaction] {
         [Redaction(rect: CGRect(x: 0.30, y: 0.75, width: 0.25, height: 0.10), style: style)]
     }
 
     var body: some View {
-        GeometryReader { _ in
-            ZStack {
-                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+        ZStack {
+            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    header
-                    docTypePicker
+            VStack(spacing: 0) {
+                header
+                docTypePicker
 
-                    ScrollView(showsIndicators: false) {
-                        GeometryReader { innerGeo in Color.clear.preference(key: WidthKey.self, value: innerGeo.size.width) }
-                            .frame(height: 0)
-
-                        LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
-                            styleSection(
-                                title: LanguageManager.shared.gallery("gallery_group_essentials"),
-                                subtitle: LanguageManager.shared.gallery("gallery_group_essentials_sub"),
-                                styles: [.block, .blockWhite]
-                            )
-                            styleSection(
-                                title: LanguageManager.shared.gallery("gallery_group_blur"),
-                                subtitle: LanguageManager.shared.gallery("gallery_group_blur_sub"),
-                                styles: [.blurStrong, .blurSoft, .pixelate]
-                            )
-                            styleSection(
-                                title: LanguageManager.shared.gallery("gallery_group_patterns"),
-                                subtitle: LanguageManager.shared.gallery("gallery_group_patterns_sub"),
-                                styles: [.diagonal, .secure, .redactedTag]
-                            )
-                            styleSection(
-                                title: LanguageManager.shared.gallery("gallery_group_special"),
-                                subtitle: LanguageManager.shared.gallery("gallery_group_special_sub"),
-                                styles: [.semi]
-                            )
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 4)
-                        .padding(.bottom, 100)
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(alignment: .leading, spacing: 24) {
+                        styleSection(
+                            title: LanguageManager.shared.gallery("gallery_group_essentials"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_essentials_sub"),
+                            styles: [.block, .blockWhite]
+                        )
+                        styleSection(
+                            title: LanguageManager.shared.gallery("gallery_group_blur"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_blur_sub"),
+                            styles: [.blurStrong, .blurSoft, .pixelate]
+                        )
+                        styleSection(
+                            title: LanguageManager.shared.gallery("gallery_group_patterns"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_patterns_sub"),
+                            styles: [.diagonal, .secure, .redactedTag]
+                        )
+                        styleSection(
+                            title: LanguageManager.shared.gallery("gallery_group_special"),
+                            subtitle: LanguageManager.shared.gallery("gallery_group_special_sub"),
+                            styles: [.semi]
+                        )
                     }
-                    .onPreferenceChange(WidthKey.self) { width in
-                        contentWidth = width
-                    }
+                    .frame(maxWidth: 1_100)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, 24)
                 }
             }
         }
@@ -172,46 +166,35 @@ struct StyleGalleryView: View {
             }
             .padding(.horizontal, 4)
 
-            GeometryReader { geo in
-                let cardWidth = (geo.size.width - 12) / 2
-                let docSize = CGSize(width: cardWidth - 20, height: (cardWidth - 20) * 0.628)
-
-                LazyVGrid(
-                    columns: [GridItem(.fixed(cardWidth)), GridItem(.fixed(cardWidth))],
-                    spacing: 12
-                ) {
-                    ForEach(styles) { style in
-                        let unlocked = !style.isPremium || pm.isPro
-                        StyleCard(
-                            style: style,
-                            kind: selectedKind,
-                            docSize: docSize,
-                            redaction: sampleRedaction(style: style),
-                            isPremium: style.isPremium,
-                            isUnlocked: unlocked,
-                            lang: appState.language,
-                            onTapLock: {
-                                paywallTrigger = .styleLocked
-                                showPaywall = true
-                            },
-                            onSelect: {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 138, maximum: 260), spacing: 12)],
+                alignment: .leading,
+                spacing: 12
+            ) {
+                ForEach(styles) { style in
+                    let unlocked = !style.isPremium || pm.isPro
+                    StyleCard(
+                        style: style,
+                        kind: selectedKind,
+                        redaction: sampleRedaction(style: style),
+                        isPremium: style.isPremium,
+                        isUnlocked: unlocked,
+                        isSelected: selectedStyle == style,
+                        lang: appState.language,
+                        onTapLock: {
+                            paywallTrigger = .styleLocked
+                            showPaywall = true
+                        },
+                        onSelect: {
+                            withAnimation(ShieldMotion.state) {
+                                selectedStyle = style
                                 styleToApply = style
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
-            .frame(height: sectionHeight(count: styles.count))
         }
-    }
-
-    private func sectionHeight(count: Int) -> CGFloat {
-        let rows = CGFloat((count + 1) / 2)
-        let gridWidth = max((contentWidth > 0 ? contentWidth : 375) - 32, 220)
-        let cardW = (gridWidth - 12) / 2
-        let docH = (cardW - 20) * 0.628
-        let cardH = docH + 20 + 28
-        return rows * cardH + (rows - 1) * 12
     }
 
     private func kindLabel(_ kind: DocumentKind) -> String {
@@ -227,20 +210,15 @@ struct StyleGalleryView: View {
     }
 }
 
-private struct WidthKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
 // MARK: - StyleCard
 
 private struct StyleCard: View {
     let style: MaskStyle
     let kind: DocumentKind
-    let docSize: CGSize
     let redaction: [Redaction]
     let isPremium: Bool
     let isUnlocked: Bool
+    let isSelected: Bool
     let lang: AppLanguage
     let onTapLock: () -> Void
     let onSelect: () -> Void
@@ -252,39 +230,12 @@ private struct StyleCard: View {
             if isUnlocked { onSelect() } else { onTapLock() }
         } label: {
             VStack(spacing: 8) {
-                ZStack {
-                    DocumentView(kind: kind, size: docSize, redactions: redaction)
-                        .saturation(isUnlocked ? 1 : 0.3)
-                        .frame(width: docSize.width, height: docSize.height)
-                        .clipped()
-
-                    if !isUnlocked {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.black.opacity(0.55))
-                        VStack(spacing: 4) {
-                            Image(systemName: "crown.fill")
-                                .shieldFont(18)
-                                .foregroundColor(ShieldTheme.accent)
-                            Text(LanguageManager.shared.common("common_pro"))
-                                .shieldFont(11, weight: .bold)
-                                .foregroundColor(ShieldTheme.accent)
-                        }
-                    } else {
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .shieldFont(16)
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .shadow(radius: 3)
-                                    .padding(5)
-                            }
-                            Spacer()
-                        }
-                    }
+                ViewThatFits(in: .horizontal) {
+                    stylePreview(size: CGSize(width: 220, height: 138))
+                    stylePreview(size: CGSize(width: 180, height: 113))
+                    stylePreview(size: CGSize(width: 140, height: 88))
+                    stylePreview(size: CGSize(width: 116, height: 73))
                 }
-                .frame(width: docSize.width, height: docSize.height)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 HStack(alignment: .center, spacing: 4) {
                     Text(style.label(lang: lang))
@@ -305,12 +256,51 @@ private struct StyleCard: View {
             }
             .padding(10)
             .frame(maxWidth: .infinity)
-            .background(ShieldTheme.cardBackground(scheme))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
+            .background(isSelected ? ShieldTheme.selectedBackground(scheme) : ShieldTheme.cardBackground(scheme))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        isSelected ? ShieldTheme.accent : ShieldTheme.line(scheme),
+                        lineWidth: isSelected ? 2 : 0.5
+                    )
+            }
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityIdentifier("gallery.style.\(style.rawValue)")
+        .accessibilityValue(isUnlocked
+            ? (isSelected ? LanguageManager.shared.common("common_selected") : "")
+            : LanguageManager.shared.common("common_pro"))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func stylePreview(size: CGSize) -> some View {
+        ZStack {
+            DocumentView(kind: kind, size: size, redactions: redaction)
+                .saturation(isUnlocked ? 1 : 0.7)
+                .frame(width: size.width, height: size.height)
+                .clipped()
+
+            if !isUnlocked {
+                Label(LanguageManager.shared.common("common_pro"), systemImage: "lock.fill")
+                    .shieldFont(10, weight: .bold)
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(6)
+            } else {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                    .shieldFont(16)
+                    .foregroundColor(isSelected ? ShieldTheme.accent : .white.opacity(0.85))
+                    .shadow(radius: 3)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(5)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .clipShape(.rect(cornerRadius: 6))
     }
 }
 
@@ -333,75 +323,79 @@ struct StyleSourceSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Capsule()
-                .frame(width: 36, height: 4)
-                .foregroundColor(ShieldTheme.tertiary(scheme).opacity(0.5))
-                .padding(.top, 10)
-
             HStack {
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
                         .shieldFont(13, weight: .medium)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 44, height: 44)
                         .background(ShieldTheme.rowBackground(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(Circle())
                 }
+                .accessibilityLabel(LanguageManager.shared.common("common_close"))
                 .accessibilityIdentifier("gallery.styleSource.close")
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .padding(.top, 10)
+            .padding(.vertical, 4)
+            .background(ShieldTheme.background(scheme))
 
-            VStack(spacing: 4) {
-                Text(LanguageManager.shared.gallery("gallery_selected_style_header"))
-                    .shieldFont(11, weight: .semibold)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .tracking(0.6)
-                Text(style.label(lang: lang))
-                    .shieldFont(24, weight: .heavy)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 14)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    VStack(spacing: 4) {
+                        Text(LanguageManager.shared.gallery("gallery_selected_style_header"))
+                            .shieldFont(11, weight: .semibold)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                            .tracking(0.6)
+                        Text(style.label(lang: lang))
+                            .shieldFont(24, weight: .heavy)
+                            .foregroundColor(ShieldTheme.primary(scheme))
+                    }
+                    .frame(maxWidth: .infinity)
 
-            DocumentView(kind: kind, size: previewDocSize, redactions: previewRedaction)
-                .frame(width: previewDocSize.width, height: previewDocSize.height)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
-                .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
-                .padding(.top, 16)
-                .padding(.bottom, 20)
+                    DocumentView(kind: kind, size: previewDocSize, redactions: previewRedaction)
+                        .frame(width: previewDocSize.width, height: previewDocSize.height)
+                        .clipShape(.rect(cornerRadius: 10))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                        }
+                        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
+                        .padding(.vertical, 16)
 
-            Text(LanguageManager.shared.gallery("gallery_load_source_title"))
-                .shieldFont(14)
-                .foregroundColor(ShieldTheme.secondary(scheme))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 20)
-
-            Button(action: onConfirm) {
-                HStack(spacing: 10) {
-                    Image(systemName: "camera.viewfinder")
-                        .shieldFont(17, weight: .semibold)
-                Text(LanguageManager.shared.gallery("gallery_load_source_button"))
-                        .shieldFont(15, weight: .bold)
+                    Text(LanguageManager.shared.gallery("gallery_load_source_title"))
+                        .shieldFont(14)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
                 }
+                .padding(.top, 8)
+                .padding(.bottom, 20)
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button(action: onConfirm) {
+                Label(
+                    LanguageManager.shared.gallery("gallery_load_source_button"),
+                    systemImage: "camera.viewfinder"
+                )
+                .shieldFont(15, weight: .bold)
                 .frame(maxWidth: .infinity)
-                .frame(height: 52)
+                .frame(minHeight: 52)
                 .background(ShieldTheme.accent)
                 .foregroundColor(ShieldTheme.accentText)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(.rect(cornerRadius: 14))
             }
             .accessibilityIdentifier("gallery.styleSource.continue")
             .buttonStyle(ScaleButtonStyle())
             .padding(.horizontal, 20)
-            .padding(.bottom, 36)
+            .padding(.vertical, 12)
+            .background(ShieldTheme.background(scheme))
         }
         .background(ShieldTheme.background(scheme).ignoresSafeArea())
         .colorScheme(scheme)
-        .presentationDetents([.height(480)])
-        .presentationDragIndicator(.hidden)
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
         .presentationBackground(ShieldTheme.background(scheme))
     }
 }

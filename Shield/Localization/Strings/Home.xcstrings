@@ -1,6 +1,27 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "home_scan_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scan" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanear" } }
+      }
+    },
+    "home_tools_services": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tools and services" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Herramientas y servicios" } }
+      }
+    },
+    "home_tools_services_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quick modes, Vault and cloud" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Modos rápidos, Bóveda y nube" } }
+      }
+    },
     "home_all_documents": {
       "extractionState": "manual",
       "localizations": {

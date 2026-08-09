@@ -10,12 +10,11 @@ struct HomeTopBarView: View {
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 9) {
-                Image("MaskIDMark")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 30, height: 30)
-                    .clipShape(.rect(cornerRadius: 9))
-                    .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
+                MaskIDIdentityMark(
+                    size: 30,
+                    presentation: .staticMark,
+                    treatment: .compact
+                )
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(LanguageManager.shared.common("common_app_name"))
@@ -116,28 +115,29 @@ struct HomeHeroCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(heroTitle)
-                .font(.title2.weight(.heavy))
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(heroTitle)
+                    .font(.title3.weight(.heavy))
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                planBadge
+            }
 
             Text(heroSubtitle)
-                .font(.subheadline.weight(.medium))
+                .font(.subheadline)
                 .foregroundColor(ShieldTheme.secondary(scheme))
+                .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: 10) {
-                planBadge
-                localProcessingBadge
-            }
             actionRow
 
             if !isPro {
                 freePlanMeter
             }
         }
-        .padding(18)
+        .padding(16)
         .background(heroBackground)
         .overlay(
             RoundedRectangle(cornerRadius: 24)
@@ -167,57 +167,20 @@ struct HomeHeroCardView: View {
             .clipShape(Capsule())
     }
 
-    private var localProcessingBadge: some View {
-        Label(LanguageManager.shared.home("home_processing_local"), systemImage: "lock.fill")
-            .font(.caption.weight(.semibold))
-            .foregroundColor(ShieldTheme.success)
-            .lineLimit(1)
-            .minimumScaleFactor(0.82)
-            .padding(.horizontal, 10)
-            .frame(minHeight: 32)
-            .background(ShieldTheme.successDim)
-            .clipShape(Capsule())
-    }
-
     private var actionRow: some View {
         HStack(spacing: 10) {
-            Button(action: onPrimaryAction) {
-                HStack(spacing: 8) {
-                    Image(systemName: "camera.viewfinder")
-                        .shieldFont(14, weight: .bold)
-                    Text(LanguageManager.shared.capture("capture_scan_document"))
-                        .shieldFont(15, weight: .bold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.78)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(ShieldTheme.accent)
-                .foregroundColor(ShieldTheme.accentText)
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-            }
-            .buttonStyle(ScaleButtonStyle())
+            ShieldButton(
+                label: LanguageManager.shared.home("home_scan_action"),
+                icon: "camera.viewfinder",
+                action: onPrimaryAction
+            )
 
-            Button(action: onSecondaryAction) {
-                HStack(spacing: 8) {
-                    Image(systemName: "icloud.and.arrow.down")
-                        .shieldFont(14, weight: .bold)
-                    Text(cloudImportTitle)
-                        .shieldFont(15, weight: .bold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.78)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(ShieldTheme.cardBackground(scheme))
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 15))
-            }
-            .buttonStyle(ScaleButtonStyle())
+            ShieldButton(
+                label: cloudImportTitle,
+                icon: "square.and.arrow.down",
+                style: .secondary,
+                action: onSecondaryAction
+            )
         }
     }
 
@@ -227,7 +190,7 @@ struct HomeHeroCardView: View {
 
     private var freePlanMeter: some View {
         Button(action: onUpgrade) {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(usageState)
@@ -263,7 +226,7 @@ struct HomeHeroCardView: View {
                 }
                 .frame(height: 8)
             }
-            .padding(14)
+            .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(ShieldTheme.cardBackground(scheme).opacity(0.85))

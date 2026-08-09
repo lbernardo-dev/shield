@@ -538,16 +538,36 @@ struct ScanReviewView: View {
     var body: some View {
         GeometryReader { geo in
             let controlsHeight = min(max(geo.size.height * 0.48, 340), 470)
-            VStack(spacing: 0) {
-                previewArea
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Group {
+                if geo.size.width >= 820 {
+                    HStack(spacing: 0) {
+                        previewArea
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                VStack(spacing: 0) {
-                    pageStrip
-                    controls
+                        Rectangle()
+                            .fill(ShieldTheme.line(scheme))
+                            .frame(width: 0.5)
+
+                        VStack(spacing: 0) {
+                            pageStrip
+                            controls
+                        }
+                        .frame(width: min(430, geo.size.width * 0.42))
+                        .background(ShieldTheme.pageBackground(scheme))
+                    }
+                } else {
+                    VStack(spacing: 0) {
+                        previewArea
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        VStack(spacing: 0) {
+                            pageStrip
+                            controls
+                        }
+                        .frame(width: geo.size.width, height: controlsHeight)
+                        .background(ShieldTheme.pageBackground(scheme))
+                    }
                 }
-                .frame(width: geo.size.width, height: controlsHeight)
-                .background(ShieldTheme.pageBackground(scheme))
             }
             .frame(width: geo.size.width, height: geo.size.height)
             .safeAreaInset(edge: .top, spacing: 0) {

@@ -7,6 +7,7 @@ struct LockScreenView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var isAuthenticating = false
     @State private var verified = false
     @State private var authError: String? = nil
@@ -29,122 +30,27 @@ struct LockScreenView: View {
             lockBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                Spacer()
-
-                VStack(spacing: 22) {
-                    ZStack(alignment: .bottomTrailing) {
-                        Image("MaskIDMark")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 122, height: 122)
-                            .clipShape(.rect(cornerRadius: 34))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 34)
-                                    .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 1)
-                            )
-                            .symbolEffect(.pulse, isActive: isAuthenticating)
-                            .accessibilityHidden(true)
-
-                        if verified {
-                            Image(systemName: "checkmark.circle.fill")
-                                .shieldFont(30, weight: .semibold)
-                                .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
-                                .contentTransition(.symbolEffect(.replace))
-                                .accessibilityHidden(true)
-                        }
+            GeometryReader { proxy in
+                ScrollView {
+                    VStack(spacing: ShieldTheme.s5) {
+                        lockHeader
+                        accessCard
+                        protectionCard
+                        Spacer(minLength: ShieldTheme.s4)
+                        privacyNotice
                     }
-
-                    VStack(spacing: 10) {
-                        Text(LanguageManager.shared.common("common_app_name"))
-                            .shieldFont(32, weight: .heavy)
-                            .foregroundColor(ShieldTheme.primary(scheme))
-
-                        Text(lockSubtitle)
-                            .shieldFont(14, weight: .medium)
-                            .foregroundColor(ShieldTheme.tertiary(scheme))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 26)
-                    }
-
-                    Group {
-                        if let err = authError {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .accessibilityHidden(true)
-                                Text(err)
-                                    .lineLimit(3)
-                            }
-                            .foregroundColor(ShieldTheme.danger)
-                        } else {
-                            HStack(spacing: 8) {
-                                Image(systemName: lockStatusIcon)
-                                    .accessibilityHidden(true)
-                                Text(lockStatusMessage)
-                            }
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-                        }
-                    }
-                    .shieldFont(13, weight: .semibold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 12)
-                    .background(ShieldTheme.cardBackground(scheme))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-
-                    HStack(spacing: 10) {
-                        lockFeaturePill(icon: "iphone.gen3.radiowaves.left.and.right", label: lockPillOnDevice)
-                        lockFeaturePill(icon: "key.fill", label: lockPillEncrypted)
-                        lockFeaturePill(icon: "eye.slash.fill", label: lockPillPrivate)
-                    }
-
-                    VStack(spacing: 12) {
-                        primaryUnlockButton
-
-                        if showsSecondaryPINButton {
-                            Button { showPINEntry = true } label: {
-                                Text(LanguageManager.shared.auth("lock_use_pin"))
-                                    .shieldFont(15, weight: .semibold)
-                                    .foregroundColor(ShieldTheme.secondary(scheme))
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 46)
-                                    .background(ShieldTheme.cardBackground(scheme))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14)
-                                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                                    )
-                                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                        }
-
-                        if biometricEnabled && hasBiometrics && authError != nil {
-                            Button { authenticatePasscode() } label: {
-                                Text(LanguageManager.shared.auth("lock_use_passcode"))
-                                    .shieldFont(13, weight: .semibold)
-                                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                                    .frame(height: 34)
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                        }
-
-                        if let actionHint = lockActionHint {
-                            Text(actionHint)
-                                .shieldFont(12, weight: .medium)
-                                .foregroundColor(ShieldTheme.tertiary(scheme))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 10)
-                        }
-                    }
+                    .frame(minHeight: max(0, proxy.size.height - ShieldTheme.s8), alignment: .top)
+                    .frame(maxWidth: 560)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, ShieldTheme.s5)
+                    .padding(.top, ShieldTheme.topChromePadding)
+                    .padding(.bottom, ShieldTheme.s5)
                 }
-                .padding(.horizontal, 24)
-
-                Spacer().frame(height: 44)
+                .scrollIndicators(.hidden)
             }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            lockActions
         }
         .preferredColorScheme(appState.preferredScheme)
         .fullScreenCover(isPresented: $showPINEntry) {
@@ -171,20 +77,226 @@ struct LockScreenView: View {
         }
     }
 
+    private var lockHeader: some View {
+        HStack(spacing: ShieldTheme.s3) {
+            Text(LanguageManager.shared.common("common_app_name"))
+                .shieldFont(22, weight: .heavy)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+
+            Spacer(minLength: ShieldTheme.s2)
+
+            Label(
+                LanguageManager.shared.auth("lock_protection_active"),
+                systemImage: "lock.fill"
+            )
+            .shieldFont(12, weight: .bold)
+            .foregroundStyle(ShieldTheme.accentColor(scheme))
+            .padding(.horizontal, ShieldTheme.s3)
+            .frame(minHeight: 32)
+            .background(ShieldTheme.accentDim(scheme), in: Capsule())
+            .accessibilityElement(children: .combine)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var accessCard: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: ShieldTheme.s4) {
+                    identityMark(size: 92)
+                    accessCopy
+                }
+            } else {
+                HStack(spacing: ShieldTheme.s5) {
+                    identityMark(size: 116)
+                    accessCopy
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(ShieldTheme.s5)
+        .background {
+            LinearGradient(
+                colors: [
+                    ShieldTheme.cardBackground(scheme),
+                    ShieldTheme.accentDim(scheme).opacity(scheme == .dark ? 0.62 : 0.34)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: ShieldTheme.rLG)
+                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+        }
+        .compositingGroup()
+        .clipShape(.rect(cornerRadius: ShieldTheme.rLG))
+    }
+
+    private func identityMark(size: CGFloat) -> some View {
+        ZStack(alignment: .bottomTrailing) {
+            MaskIDIdentityMark(
+                size: size,
+                presentation: .animatedOnce,
+                treatment: .feature,
+                isEmphasized: isAuthenticating
+            )
+
+            if verified {
+                Image(systemName: "checkmark.circle.fill")
+                    .shieldFont(27, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
+                    .contentTransition(.symbolEffect(.replace))
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    private var accessCopy: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                Text(LanguageManager.shared.auth("lock_access_title"))
+                    .shieldFont(24, weight: .bold)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text(lockSubtitle)
+                    .shieldFont(14, weight: .medium)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            lockStatus
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var lockStatus: some View {
+        HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s2) {
+            if isAuthenticating {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(ShieldTheme.accentColor(scheme))
+                    .accessibilityHidden(true)
+            } else {
+                Image(systemName: authError == nil ? lockStatusIcon : "exclamationmark.triangle.fill")
+                    .accessibilityHidden(true)
+            }
+
+            Text(authError ?? lockStatusMessage)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .shieldFont(13, weight: .semibold)
+        .foregroundStyle(authError == nil ? ShieldTheme.secondary(scheme) : ShieldTheme.danger)
+        .padding(.horizontal, ShieldTheme.s3)
+        .padding(.vertical, ShieldTheme.s2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            authError == nil
+                ? ShieldTheme.elevatedBackground(scheme).opacity(0.8)
+                : ShieldTheme.errorBackground(scheme),
+            in: RoundedRectangle(cornerRadius: ShieldTheme.rSM)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("lock.status")
+    }
+
+    private var protectionCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(LanguageManager.shared.auth("lock_protection_title"))
+                .shieldFont(15, weight: .bold)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .padding(.bottom, ShieldTheme.s2)
+
+            LockProtectionRow(
+                icon: "iphone",
+                title: LanguageManager.shared.auth("lock_local_title"),
+                detail: LanguageManager.shared.auth("lock_local_detail")
+            )
+
+            Divider()
+                .overlay(ShieldTheme.line(scheme))
+                .padding(.leading, 44)
+
+            LockProtectionRow(
+                icon: "lock.shield.fill",
+                title: LanguageManager.shared.auth("lock_encryption_title"),
+                detail: LanguageManager.shared.auth("lock_encryption_detail")
+            )
+        }
+        .padding(ShieldTheme.s4)
+        .shieldCard()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(LanguageManager.shared.auth("lock_protection_title"))
+    }
+
+    private var privacyNotice: some View {
+        HStack(alignment: .top, spacing: ShieldTheme.s3) {
+            Image(systemName: "eye.slash.fill")
+                .shieldFont(15, weight: .semibold)
+                .foregroundStyle(ShieldTheme.accentColor(scheme))
+                .frame(width: 36, height: 36)
+                .background(ShieldTheme.accentDim(scheme), in: Circle())
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: ShieldTheme.s1) {
+                Text(LanguageManager.shared.auth("lock_privacy_title"))
+                    .shieldFont(14, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+
+                Text(LanguageManager.shared.auth("lock_privacy_detail"))
+                    .shieldFont(12, weight: .medium)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(ShieldTheme.s4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.cardBackground(scheme).opacity(0.72), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+        .accessibilityElement(children: .combine)
+    }
+
+    private var lockActions: some View {
+        ShieldStickyFooter {
+            VStack(spacing: ShieldTheme.s2) {
+                primaryUnlockButton
+
+                if showsSecondaryPINButton {
+                    ShieldButton(
+                        label: LanguageManager.shared.auth("lock_use_pin"),
+                        icon: "number",
+                        style: .secondary,
+                        height: 44
+                    ) {
+                        showPINEntry = true
+                    }
+                    .accessibilityIdentifier("lock.secondaryPIN")
+                }
+
+                if biometricEnabled && hasBiometrics && authError != nil {
+                    Button(LanguageManager.shared.auth("lock_use_passcode"), action: authenticatePasscode)
+                        .shieldFont(13, weight: .semibold)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .frame(minHeight: ShieldTheme.minimumTapTarget)
+                        .buttonStyle(ScaleButtonStyle())
+                }
+
+                if let actionHint = lockActionHint {
+                    Text(actionHint)
+                        .shieldFont(12, weight: .medium)
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity)
+        }
+    }
+
     private var lockSubtitle: String {
         LanguageManager.shared.auth("lock_verify_subtitle")
-    }
-
-    private var lockPillOnDevice: String {
-        LanguageManager.shared.home("home_on_device")
-    }
-
-    private var lockPillEncrypted: String {
-        LanguageManager.shared.auth("lock_pill_encrypted")
-    }
-
-    private var lockPillPrivate: String {
-        LanguageManager.shared.auth("lock_pill_private")
     }
 
     private var showsSecondaryPINButton: Bool {
@@ -206,7 +318,9 @@ struct LockScreenView: View {
             return LanguageManager.shared.auth("lock_verifying")
         }
         if PINManager.hasPIN {
-            return LanguageManager.shared.auth("lock_unlock_to_continue")
+            return LanguageManager.shared.auth(
+                biometricEnabled && hasBiometrics ? "lock_ready_faceid" : "lock_ready_pin"
+            )
         }
         return LanguageManager.shared.auth("lock_setup_passcode_message")
     }
@@ -218,22 +332,15 @@ struct LockScreenView: View {
 
     @ViewBuilder
     private var primaryUnlockButton: some View {
-        Button(action: primaryUnlockAction) {
-            HStack(spacing: 10) {
-                Image(systemName: primaryUnlockIcon)
-                    .shieldFont(18, weight: .medium)
-                    .accessibilityHidden(true)
-                Text(primaryUnlockTitle)
-                    .shieldFont(16, weight: .bold)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(ShieldTheme.accent(scheme))
-            .foregroundColor(ShieldTheme.accentText)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .buttonStyle(ScaleButtonStyle())
+        ShieldButton(
+            label: primaryUnlockTitle,
+            icon: primaryUnlockIcon,
+            height: 54,
+            isLoading: isAuthenticating,
+            action: primaryUnlockAction
+        )
         .disabled(isAuthenticating)
+        .accessibilityIdentifier("lock.primaryUnlock")
     }
 
     private var primaryUnlockTitle: String {
@@ -266,24 +373,6 @@ struct LockScreenView: View {
             return
         }
         showPINSetup = true
-    }
-
-    private func lockFeaturePill(icon: String, label: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .shieldFont(11, weight: .bold)
-                .accessibilityHidden(true)
-            Text(label)
-                .shieldFont(11, weight: .bold)
-        }
-        .foregroundColor(ShieldTheme.secondary(scheme))
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .background(ShieldTheme.cardBackground(scheme))
-        .overlay(
-            Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-        )
-        .clipShape(Capsule())
     }
 
     private var lockBackground: some View {
@@ -366,6 +455,9 @@ struct LockScreenView: View {
     }
 
     private func autoPromptIfNeeded() {
+#if DEBUG
+        guard !ASOScreenshotMode.isEnabled else { return }
+#endif
         guard !didTriggerAutoBiometric else { return }
         guard !appState.isAuthenticated else { return }
         guard scenePhase == .active else { return }
@@ -380,5 +472,38 @@ struct LockScreenView: View {
                 authenticate()
             }
         }
+    }
+}
+
+private struct LockProtectionRow: View {
+    let icon: String
+    let title: String
+    let detail: String
+
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        HStack(alignment: .top, spacing: ShieldTheme.s3) {
+            Image(systemName: icon)
+                .shieldFont(16, weight: .semibold)
+                .foregroundStyle(ShieldTheme.accentColor(scheme))
+                .frame(width: 32, height: 32)
+                .background(ShieldTheme.accentDim(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: ShieldTheme.s1) {
+                Text(title)
+                    .shieldFont(14, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+
+                Text(detail)
+                    .shieldFont(12, weight: .medium)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, ShieldTheme.s2)
+        .accessibilityElement(children: .combine)
     }
 }

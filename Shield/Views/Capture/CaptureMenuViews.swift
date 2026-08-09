@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CaptureMenuView: View {
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let bottomInset: CGFloat
     let selectedScanType: ScanDocumentType
     let showGuide: Bool
@@ -13,26 +14,12 @@ struct CaptureMenuView: View {
     let onFiles: () -> Void
     let onCloud: () -> Void
 
-    private var introEyebrow: String {
-        LanguageManager.shared.capture("capture_menu_eyebrow")
-    }
-
-    private var introTitle: String {
-        LanguageManager.shared.capture("capture_menu_title")
-    }
-
     private var introSubtitle: String {
         LanguageManager.shared.capture("capture_menu_subtitle")
     }
 
     private var scanHeroSubtitle: String {
         LanguageManager.shared.capture("capture_guide_frame", selectedScanType.label())
-    }
-
-    private var guideStateLabel: String {
-        showGuide
-            ? LanguageManager.shared.capture("capture_hide_guide")
-            : LanguageManager.shared.capture("capture_show_guide")
     }
 
     private var guideStateDescription: String {
@@ -46,10 +33,6 @@ struct CaptureMenuView: View {
         LanguageManager.shared.capture("capture_other_sources_title")
     }
 
-    private var importSectionSubtitle: String {
-        LanguageManager.shared.capture("capture_other_sources_subtitle")
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             CaptureTopBarView(
@@ -58,71 +41,69 @@ struct CaptureMenuView: View {
             )
 
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 24) {
-                    CapturePrimaryScanCard(
-                        title: LanguageManager.shared.capture("capture_scan_document"),
-                        subtitle: scanHeroSubtitle,
-                        selectedType: selectedScanType,
-                        showGuide: showGuide,
-                        onToggleGuide: onToggleGuide,
-                        onScan: onScan
-                    )
-
-                    CaptureTypeSectionCard(
-                        selectedScanType: selectedScanType,
-                        showGuide: showGuide,
-                        guideStateDescription: guideStateDescription,
-                        onToggleGuide: onToggleGuide,
-                        onSelectScanType: onSelectScanType
-                    )
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(importSectionTitle)
-                            .shieldFont(18, weight: .heavy)
-                            .foregroundColor(ShieldTheme.primary(scheme))
-
-                        Text(importSectionSubtitle)
-                            .shieldFont(13, weight: .medium)
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-
-                        VStack(spacing: 12) {
-                            CaptureSecondarySourceCard(
-                                icon: "photo.on.rectangle.angled",
-                                title: LanguageManager.shared.capture("capture_from_photos"),
-                                subtitle: LanguageManager.shared.capture("capture_pick_images"),
-                                accent: Color(hex: "7DD3FC"),
-                                action: onPhotos
-                            )
-
-                            CaptureSecondarySourceCard(
-                                icon: "folder.badge.person.crop",
-                                title: LanguageManager.shared.capture("capture_from_files"),
-                                subtitle: LanguageManager.shared.capture("capture_files_subtitle"),
-                                accent: Color(hex: "A78BFA"),
-                                action: onFiles
-                            )
-
-                            CaptureSecondarySourceCard(
-                                icon: "icloud.and.arrow.down.fill",
-                                title: LanguageManager.shared.capture("capture_from_cloud"),
-                                subtitle: "Google Drive, Dropbox",
-                                accent: Color(hex: "34D399"),
-                                action: onCloud
-                            )
+                Group {
+                    if horizontalSizeClass == .regular {
+                        HStack(alignment: .top, spacing: 18) {
+                            primaryScanCard
+                                .frame(maxWidth: .infinity)
+                            VStack(alignment: .leading, spacing: 18) {
+                                sourceSection
+                                typeSection
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 18) {
+                            primaryScanCard
+                            sourceSection
+                            typeSection
                         }
                     }
-
-                    CapturePrivacyCard(
-                        title: LanguageManager.shared.home("home_on_device"),
-                        subtitle: LanguageManager.shared.capture("capture_on_device_privacy")
-                    )
                 }
+                .frame(maxWidth: ShieldTheme.workspaceWidth)
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, max(24, bottomInset + 12))
             }
         }
         .background(ShieldTheme.pageBackground(scheme))
+        .sensoryFeedback(.selection, trigger: selectedScanType)
+    }
+
+    private var primaryScanCard: some View {
+        CapturePrimaryScanCard(
+            title: LanguageManager.shared.capture("capture_scan_document"),
+            subtitle: scanHeroSubtitle,
+            selectedType: selectedScanType,
+            showGuide: showGuide,
+            onToggleGuide: onToggleGuide,
+            onScan: onScan
+        )
+    }
+
+    private var sourceSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(importSectionTitle)
+                .font(.headline)
+                .foregroundColor(ShieldTheme.primary(scheme))
+
+            HStack(spacing: 10) {
+                CaptureSourceButton(icon: "photo.on.rectangle.angled", title: LanguageManager.shared.capture("capture_from_photos"), accent: Color(hex: "7DD3FC"), action: onPhotos)
+                CaptureSourceButton(icon: "folder.badge.person.crop", title: LanguageManager.shared.capture("capture_from_files"), accent: Color(hex: "A78BFA"), action: onFiles)
+                CaptureSourceButton(icon: "icloud.and.arrow.down.fill", title: LanguageManager.shared.capture("capture_from_cloud"), accent: Color(hex: "34D399"), action: onCloud)
+            }
+        }
+    }
+
+    private var typeSection: some View {
+        CaptureTypeSectionCard(
+            selectedScanType: selectedScanType,
+            showGuide: showGuide,
+            guideStateDescription: guideStateDescription,
+            onToggleGuide: onToggleGuide,
+            onSelectScanType: onSelectScanType
+        )
     }
 }
 
@@ -177,7 +158,7 @@ private struct CapturePrimaryScanCard: View {
     let onScan: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .center, spacing: 14) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
@@ -213,24 +194,11 @@ private struct CapturePrimaryScanCard: View {
                 )
             }
 
-            Button(action: onScan) {
-                HStack(spacing: 10) {
-                    Image(systemName: "camera.metering.center.weighted")
-                        .shieldFont(15, weight: .bold)
-                    Text(title)
-                        .shieldFont(16, weight: .bold)
-                    Spacer()
-                    Image(systemName: "arrow.right")
-                        .shieldFont(14, weight: .bold)
-                }
-                .foregroundColor(ShieldTheme.accentText)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .padding(.horizontal, 16)
-                .background(ShieldTheme.accent)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(ScaleButtonStyle())
+            ShieldButton(
+                label: LanguageManager.shared.home("home_scan_action"),
+                icon: "camera.metering.center.weighted",
+                action: onScan
+            )
             .accessibilityIdentifier("capture.scan")
         }
         .padding(16)
@@ -274,13 +242,8 @@ private struct CaptureTypeSectionCard: View {
     let onToggleGuide: () -> Void
     let onSelectScanType: (ScanDocumentType) -> Void
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(LanguageManager.shared.capture("capture_document_type"))
                     .shieldFont(12, weight: .bold)
@@ -303,13 +266,17 @@ private struct CaptureTypeSectionCard: View {
                 .accessibilityIdentifier("capture.toggleGuide")
             }
 
-            LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(ScanDocumentType.allCases) { type in
-                    CaptureTypeChip(
-                        type: type,
-                        isSelected: selectedScanType == type,
-                        onSelect: { onSelectScanType(type) }
-                    )
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(ScanDocumentType.allCases) { type in
+                        PillButton(
+                            label: type.label(),
+                            icon: type.icon,
+                            isActive: selectedScanType == type
+                        ) {
+                            onSelectScanType(type)
+                        }
+                    }
                 }
             }
 
@@ -323,7 +290,7 @@ private struct CaptureTypeSectionCard: View {
                     .foregroundColor(ShieldTheme.secondary(scheme))
             }
         }
-        .padding(18)
+        .padding(14)
         .background(ShieldTheme.cardBackground(scheme))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
@@ -364,51 +331,37 @@ private struct CaptureTypeChip: View {
     }
 }
 
-private struct CaptureSecondarySourceCard: View {
+private struct CaptureSourceButton: View {
     @Environment(\.colorScheme) private var scheme
     let icon: String
     let title: String
-    let subtitle: String
     let accent: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(accent.opacity(0.16))
-                        .frame(width: 52, height: 52)
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(accent)
+                    .frame(width: 44, height: 44)
+                    .background(accent.opacity(0.14), in: .rect(cornerRadius: 12))
 
-                    Image(systemName: icon)
-                        .shieldFont(20, weight: .bold)
-                        .foregroundColor(accent)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .shieldFont(16, weight: .bold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-
-                    Text(subtitle)
-                        .shieldFont(13, weight: .medium)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer()
-
-                Image(systemName: "arrow.up.right")
-                    .shieldFont(14, weight: .bold)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
-            .padding(16)
+            .frame(maxWidth: .infinity, minHeight: 94)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 10)
             .background(ShieldTheme.cardBackground(scheme))
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .clipShape(.rect(cornerRadius: 16))
         }
         .buttonStyle(ScaleButtonStyle())
     }

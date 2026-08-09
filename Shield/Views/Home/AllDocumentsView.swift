@@ -11,39 +11,23 @@ struct AllDocumentsView: View {
 
                 Group {
                     if appState.filteredDocuments.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: appState.hasActiveFilter ? "magnifyingglass" : "doc.badge.plus")
-                                .shieldFont(44, weight: .light)
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                            Text(appState.hasActiveFilter
-                                 ? LanguageManager.shared.home("home_no_results")
-                                 : LanguageManager.shared.home("home_no_documents"))
-                                .shieldFont(18, weight: .bold)
-                                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-                            Text(appState.hasActiveFilter
-                                 ? LanguageManager.shared.home("home_no_results_subtitle")
-                                 : LanguageManager.shared.home("home_no_documents_subtitle"))
-                                .shieldFont(14)
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 40)
-
+                        ShieldStateView(
+                            kind: .empty,
+                            title: appState.hasActiveFilter
+                                ? LanguageManager.shared.home("home_no_results")
+                                : LanguageManager.shared.home("home_no_documents"),
+                            message: appState.hasActiveFilter
+                                ? LanguageManager.shared.home("home_no_results_subtitle")
+                                : LanguageManager.shared.home("home_no_documents_subtitle"),
+                            actionLabel: appState.hasActiveFilter
+                                ? LanguageManager.shared.home("home_clear_filters")
+                                : nil
+                        ) {
                             if appState.hasActiveFilter {
-                                Button {
-                                    withAnimation {
-                                        appState.activeCategoryID = DocumentCategory.all.rawValue
-                                        appState.searchQuery = ""
-                                    }
-                                } label: {
-                                    Text(LanguageManager.shared.home("home_clear_filters"))
-                                        .shieldFont(15, weight: .semibold)
-                                        .foregroundColor(ShieldTheme.accent)
-                                        .padding(.horizontal, 20)
-                                        .frame(height: 44)
-                                        .background(ShieldTheme.accentDim)
-                                        .clipShape(Capsule())
+                                withAnimation(ShieldMotion.state) {
+                                    appState.activeCategoryID = DocumentCategory.all.rawValue
+                                    appState.searchQuery = ""
                                 }
-                                .buttonStyle(ScaleButtonStyle())
                             }
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -8,7 +8,7 @@ struct ContentView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var cloud = CloudSyncManager.shared
     @State private var asoOverlayPresented = true
-    @State private var showSplash = !LaunchSplashState.hasBeenPresented
+    @State private var showSplash = LaunchSplashState.shouldPresent
 
     var body: some View {
         ZStack {
@@ -31,7 +31,7 @@ struct ContentView: View {
             }
 
             if showSplash {
-                SplashView()
+                SplashView(onFinished: dismissSplash)
                     .transition(.opacity)
                     .zIndex(9_000)
             }
@@ -63,14 +63,6 @@ struct ContentView: View {
         .onAppear {
             guard showSplash else { return }
             LaunchSplashState.hasBeenPresented = true
-
-            Task {
-                try? await Task.sleep(nanoseconds: 650_000_000)
-                guard !Task.isCancelled else { return }
-                withAnimation(.easeInOut(duration: 0.45)) {
-                    showSplash = false
-                }
-            }
         }
     }
 
@@ -86,6 +78,12 @@ struct ContentView: View {
         guard newPhase == .active, sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
     }
+
+    private func dismissSplash() {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
+            showSplash = false
+        }
+    }
 }
 
 private struct PrivacySnapshotShield: View {
@@ -93,17 +91,11 @@ private struct PrivacySnapshotShield: View {
         ZStack {
             Color.black.ignoresSafeArea()
             VStack(spacing: 14) {
-                Image("MaskIDMark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 30))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30)
-                            .stroke(ShieldTheme.accent.opacity(0.25), lineWidth: 1)
-                    )
-                    .shadow(color: ShieldTheme.accent.opacity(0.3), radius: 10, x: 0, y: 0)
-                    .accessibilityHidden(true)
+                MaskIDIdentityMark(
+                    size: 162,
+                    presentation: .staticMark,
+                    treatment: .feature
+                )
             }
         }
         .accessibilityHidden(true)
@@ -144,7 +136,6 @@ private struct AuthenticatedShellView: View {
                             )
                         }
                     }
-                    .ignoresSafeArea(edges: .bottom)
             }
 
             if appState.showCapture {
@@ -187,6 +178,11 @@ private struct AuthenticatedShellView: View {
 private enum LaunchSplashState {
     /// Prevents root view reconstruction from replaying the launch overlay.
     static var hasBeenPresented = false
+
+    /// UI tests exercise the underlying controls and must not wait on decorative launch motion.
+    static var shouldPresent: Bool {
+        !hasBeenPresented && !ProcessInfo.processInfo.arguments.contains("-ui-testing")
+    }
 }
 
 // MARK: - Preview

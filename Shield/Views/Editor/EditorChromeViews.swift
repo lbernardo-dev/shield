@@ -71,7 +71,7 @@ struct EditorSensitiveBanner: View {
                         .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 12)
-                        .frame(height: 28)
+                        .frame(minHeight: 44)
                         .background(ShieldTheme.warning)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -83,7 +83,7 @@ struct EditorSensitiveBanner: View {
                         .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accent(scheme))
                         .padding(.horizontal, 10)
-                        .frame(height: 28)
+                        .frame(minHeight: 44)
                         .background(ShieldTheme.accentDim(scheme))
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
@@ -96,8 +96,9 @@ struct EditorSensitiveBanner: View {
                     Image(systemName: "xmark")
                         .shieldFont(13)
                         .foregroundColor(ShieldTheme.textTertiary)
-                        .padding(4)
+                        .frame(width: 44, height: 44)
                 }
+                .accessibilityLabel(LanguageManager.shared.common("common_close"))
             }
             .padding(.horizontal, ShieldTheme.s4)
             .padding(.vertical, 4)
@@ -150,7 +151,7 @@ struct EditorPropagateBanner: View {
                         .shieldFont(12, weight: .bold)
                         .foregroundColor(ShieldTheme.accentText)
                         .padding(.horizontal, 12)
-                        .frame(height: 28)
+                        .frame(minHeight: 44)
                         .background(ShieldTheme.accent(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
@@ -214,19 +215,21 @@ struct EditorBottomToolbar: View {
     let canUndo: Bool
     let canRedo: Bool
     let selectedTool: EditorTool
+    let activeMode: RedactionMode?
     let lang: AppLanguage
+    let isPro: Bool
     let watermarkActive: Bool
     let adjustActive: Bool
     let adjustDirty: Bool
-    let toolHelpText: String
     let onUndo: () -> Void
     let onRedo: () -> Void
+    let onModeSelect: (RedactionMode) -> Void
+    let onLockedModeTap: () -> Void
     let onToolTap: (EditorTool) -> Void
 
     var body: some View {
-        VStack(spacing: 2) {
-            HStack {
-                HStack(spacing: 4) {
+        HStack(spacing: 8) {
+            HStack(spacing: 4) {
                     toolbarActionButton(
                         icon: "arrow.uturn.backward",
                         isEnabled: canUndo,
@@ -238,11 +241,35 @@ struct EditorBottomToolbar: View {
                         isEnabled: canRedo,
                         action: onRedo
                     )
-                }
 
-                Spacer()
+                    Menu {
+                        ForEach(RedactionMode.allCases, id: \.self) { mode in
+                            let locked = mode.requiresPro && !isPro
+                            Button {
+                                locked ? onLockedModeTap() : onModeSelect(mode)
+                            } label: {
+                                Label(
+                                    mode.label(lang: lang),
+                                    systemImage: locked
+                                        ? "lock.fill"
+                                        : (activeMode == mode ? "checkmark" : mode.icon)
+                                )
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "shield.lefthalf.filled")
+                            .shieldFont(16, weight: .medium)
+                            .foregroundColor(activeMode == nil ? ShieldTheme.primary(scheme) : ShieldTheme.accent(scheme))
+                            .frame(width: 44, height: 44)
+                            .background(ShieldTheme.rowBackground(scheme))
+                            .clipShape(.rect(cornerRadius: 10))
+                    }
+                    .accessibilityLabel(LanguageManager.shared.home("home_quick_modes"))
+                    .accessibilityValue(activeMode?.label(lang: lang) ?? "")
+            }
 
-                HStack(spacing: 8) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
                     ForEach(EditorTool.allCases) { tool in
                         let isSelected = selectedTool == tool
                         let hasBadge = (tool == .watermark && watermarkActive) || (tool == .adjust && adjustDirty)
@@ -259,6 +286,13 @@ struct EditorBottomToolbar: View {
                                         .background(effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
+                                    if effectiveSelected {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.caption2.weight(.bold))
+                                            .foregroundStyle(ShieldTheme.accentText, ShieldTheme.accent(scheme))
+                                            .offset(x: 3, y: -3)
+                                    }
+
                                     if hasBadge {
                                         Circle()
                                             .fill(tool == .adjust && adjustDirty ? ShieldTheme.info : ShieldTheme.success)
@@ -272,27 +306,18 @@ struct EditorBottomToolbar: View {
                             }
                         }
                         .buttonStyle(ScaleButtonStyle())
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityValue(effectiveSelected
+                            ? LanguageManager.shared.common("common_selected")
+                            : "")
+                        .accessibilityAddTraits(effectiveSelected ? .isSelected : [])
                     }
                 }
             }
-
-            HStack(spacing: 8) {
-                Image(systemName: selectedTool == .rect ? "hand.draw" : "info.circle")
-                    .shieldFont(11, weight: .semibold)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                Text(toolHelpText)
-                    .shieldFont(11, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                Spacer()
-            }
-            .padding(.horizontal, 10)
-            .frame(height: 24)
-            .background(ShieldTheme.rowBackground(scheme))
-            .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .padding(.horizontal, ShieldTheme.s4)
         .padding(.top, 6)
-        .padding(.bottom, 0)
+        .padding(.bottom, 6)
         .background(ShieldTheme.cardBackground(scheme).ignoresSafeArea(edges: .bottom))
         .overlay(alignment: .top) { ShieldDivider() }
     }
@@ -302,7 +327,7 @@ struct EditorBottomToolbar: View {
             Image(systemName: icon)
                 .shieldFont(16, weight: .medium)
                 .foregroundColor(isEnabled ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
-                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
                 .background(ShieldTheme.rowBackground(scheme))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }

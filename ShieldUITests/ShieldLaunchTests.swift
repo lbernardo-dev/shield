@@ -36,6 +36,9 @@ final class ShieldLaunchTests: XCTestCase {
     func testOnboardingAccessibilityInEnglishAndSpanish() throws { try audit(scene: "onboarding") }
 
     @MainActor
+    func testLockAccessibilityInEnglishAndSpanish() throws { try audit(scene: "lock") }
+
+    @MainActor
     func testCaptureAccessibilityInEnglishAndSpanish() throws { try audit(scene: "capture") }
 
     @MainActor
@@ -175,7 +178,7 @@ final class ShieldLaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testRateAppOpensShieldReviewDestination() throws {
+    func testRateAppUsesInAppStoreKitFlow() throws {
         let app = XCUIApplication()
         app.launchArguments = [
             "-ui-testing",
@@ -190,10 +193,8 @@ final class ShieldLaunchTests: XCTestCase {
         scrollToElement(rateApp, in: app)
         XCTAssertTrue(rateApp.isHittable, rateApp.debugDescription)
         rateApp.tap()
-        XCTAssertTrue(
-            app.wait(for: .runningBackground, timeout: 5),
-            "Rate Shield should leave the app for its native or web App Store review destination"
-        )
+        XCTAssertEqual(app.state, .runningForeground, "StoreKit rating must remain inside MaskID")
+        XCTAssertTrue(rateApp.exists, "The Settings screen should remain available after requesting StoreKit review")
     }
 
     @MainActor
@@ -234,6 +235,26 @@ final class ShieldLaunchTests: XCTestCase {
         close.tap()
         XCTAssertTrue(close.waitForNonExistence(timeout: 3))
         XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
+
+    @MainActor
+    func testCaptureButtonProtrudesWithoutGrowingFooter() throws {
+        let app = launch(scene: "home")
+        let capture = app.buttons["tab.capture"]
+        let library = app.buttons["tab.0"]
+
+        XCTAssertTrue(capture.waitForExistence(timeout: 3))
+        XCTAssertTrue(library.waitForExistence(timeout: 3))
+        XCTAssertTrue(capture.isHittable)
+        XCTAssertGreaterThanOrEqual(capture.frame.height, 60, "The central scan target should be visibly larger")
+        XCTAssertLessThan(capture.frame.minY, library.frame.minY, "The scan control should protrude above the footer")
+        XCTAssertLessThanOrEqual(library.frame.height, 46, "The footer content height must remain compact")
+        XCTAssertLessThanOrEqual(capture.frame.maxY, library.frame.maxY + 1, "The larger control must grow upward, not deepen the footer")
+        XCTAssertLessThanOrEqual(
+            library.frame.minY - capture.frame.minY,
+            32,
+            "The footer surface must not stretch vertically between the scan control and tab items"
+        )
     }
 
     @MainActor
@@ -313,6 +334,75 @@ final class ShieldLaunchTests: XCTestCase {
         close.tap()
         XCTAssertTrue(close.waitForNonExistence(timeout: 3))
         XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
+
+    @MainActor
+    func testPaywallFooterGroupsCTAAndLegalActions() throws {
+        let app = launch(scene: "paywall")
+        let purchase = app.buttons["paywall.purchase"]
+        let legalIdentifiers = [
+            "paywall.restore",
+            "paywall.privacy",
+            "paywall.terms",
+            "paywall.subscriptionTerms"
+        ]
+
+        XCTAssertTrue(purchase.waitForExistence(timeout: 3))
+        let legalActions = legalIdentifiers.map { app.buttons[$0] }
+        for action in legalActions {
+            XCTAssertTrue(action.waitForExistence(timeout: 3), "Missing paywall footer action: \(action)")
+            XCTAssertGreaterThanOrEqual(
+                action.frame.minY,
+                purchase.frame.maxY,
+                "Every restore/legal action must sit below the purchase CTA"
+            )
+        }
+
+        let footerContentHeight = legalActions.map(\.frame.maxY).max()! - purchase.frame.minY
+        XCTAssertLessThanOrEqual(footerContentHeight, 112, "The default paywall footer should remain compact")
+    }
+
+    @MainActor
+    func testPersistentChromeAtAX5WithReducedMotion() throws {
+        let cases: [(scene: String, visible: [String], hittable: [String])] = [
+            ("lock", ["lock.primaryUnlock"], ["lock.primaryUnlock"]),
+            ("settings", ["settings.close"], ["settings.close"]),
+            ("editor", ["editor.close", "editor.export"], ["editor.close", "editor.export"]),
+            ("paywall", ["paywall.close", "paywall.purchase"], ["paywall.close"]),
+            ("capture", ["capture.close"], ["capture.close"])
+        ]
+
+        for testCase in cases {
+            let app = XCUIApplication()
+            app.launchArguments = [
+                "-ui-testing",
+                "-aso-screenshots",
+                "-aso-language", "es",
+                "-aso-scene", testCase.scene,
+                "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL",
+                "-UIAccessibilityReduceMotionEnabled", "YES",
+                "-UIAccessibilityReduceTransparencyEnabled", "YES",
+                "-UIAccessibilityDarkerSystemColorsEnabled", "YES"
+            ]
+            app.launch()
+            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+            let window = app.windows.firstMatch
+            XCTAssertTrue(window.waitForExistence(timeout: 5))
+
+            for identifier in testCase.visible {
+                let element = app.buttons[identifier]
+                XCTAssertTrue(element.waitForExistence(timeout: 5), "Missing \(identifier) in \(testCase.scene)")
+                XCTAssertTrue(
+                    window.frame.intersects(element.frame),
+                    "\(identifier) is outside the visible window in \(testCase.scene): \(element.frame)"
+                )
+            }
+
+            for identifier in testCase.hittable {
+                XCTAssertTrue(app.buttons[identifier].isHittable, "\(identifier) is not hittable in \(testCase.scene)")
+            }
+            app.terminate()
+        }
     }
 
     @MainActor

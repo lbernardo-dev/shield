@@ -33,6 +33,12 @@ enum ShieldTheme {
     static let dangerDim = Color(hex: "FF453A").opacity(0.16)
     static let info = Color(hex: "64D2FF")
 
+    // Layout
+    static let minimumTapTarget: CGFloat = 44
+    static let controlHeight: CGFloat = 50
+    static let readableWidth: CGFloat = 760
+    static let workspaceWidth: CGFloat = 1_100
+
     // Radii
     static let rXS: CGFloat = 6
     static let rSM: CGFloat = 10
@@ -81,6 +87,27 @@ extension ShieldTheme {
     static func line(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? surfaceLine : Color.black.opacity(0.14)
     }
+    static func strongLine(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? surfaceLineStrong : Color.black.opacity(0.24)
+    }
+    static func elevatedBackground(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? surface3 : Color(hex: "FDFDFE")
+    }
+    static func selectedBackground(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? accent.opacity(0.18) : accent.opacity(0.14)
+    }
+    static func successBackground(_ scheme: ColorScheme) -> Color {
+        success.opacity(scheme == .dark ? 0.16 : 0.12)
+    }
+    static func warningBackground(_ scheme: ColorScheme) -> Color {
+        warning.opacity(scheme == .dark ? 0.18 : 0.13)
+    }
+    static func errorBackground(_ scheme: ColorScheme) -> Color {
+        danger.opacity(scheme == .dark ? 0.18 : 0.12)
+    }
+    static func scrim(_ scheme: ColorScheme) -> Color {
+        Color.black.opacity(scheme == .dark ? 0.58 : 0.34)
+    }
     static func primary(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? textPrimary : Color(hex: "0A0A0B")
     }
@@ -116,6 +143,18 @@ extension ShieldTheme {
     static func selection(_ scheme: ColorScheme) -> Color {
         scheme == .dark ? Color(hex: "FFD60A") : Color(hex: "B8860B")
     }
+}
+
+// MARK: - Motion
+
+enum ShieldMotion {
+    static let fast: Double = 0.12
+    static let standard: Double = 0.22
+    static let contextual: Double = 0.36
+
+    static let press = Animation.easeOut(duration: fast)
+    static let state = Animation.smooth(duration: standard)
+    static let navigation = Animation.spring(duration: contextual, bounce: 0.08)
 }
 
 // MARK: - Color(hex:)
@@ -177,13 +216,32 @@ struct ShieldFontModifier: ViewModifier {
     let design: Font.Design
 
     init(size: CGFloat, weight: Font.Weight, design: Font.Design) {
-        _dynamicSize = ScaledMetric(wrappedValue: size, relativeTo: .body)
+        let legibleSize = max(size, 10)
+        _dynamicSize = ScaledMetric(
+            wrappedValue: legibleSize,
+            relativeTo: ShieldTypeSize.relativeStyle(for: legibleSize)
+        )
         self.weight = weight
         self.design = design
     }
 
     func body(content: Content) -> some View {
         content.font(.system(size: dynamicSize, weight: weight, design: design))
+    }
+}
+
+extension ShieldTypeSize {
+    static func relativeStyle(for size: CGFloat) -> Font.TextStyle {
+        switch size {
+        case ..<12: .caption2
+        case ..<14: .footnote
+        case ..<16: .subheadline
+        case ..<18: .body
+        case ..<21: .headline
+        case ..<24: .title3
+        case ..<30: .title2
+        default: .largeTitle
+        }
     }
 }
 
@@ -202,15 +260,32 @@ extension View {
 // MARK: - View modifiers
 
 struct ShieldCardStyle: ViewModifier {
-    @Environment(\.colorScheme) var scheme
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     func body(content: Content) -> some View {
         content
-            .background(ShieldTheme.cardBackground(scheme))
+            .background(
+                reduceTransparency
+                    ? ShieldTheme.elevatedBackground(scheme)
+                    : ShieldTheme.cardBackground(scheme)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: ShieldTheme.rMD)
-                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                    .stroke(
+                        contrast == .increased
+                            ? ShieldTheme.strongLine(scheme)
+                            : ShieldTheme.line(scheme),
+                        lineWidth: contrast == .increased ? 1 : 0.5
+                    )
             )
             .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+            .shadow(
+                color: Color.black.opacity(scheme == .dark ? 0.12 : 0.07),
+                radius: 8,
+                y: 3
+            )
     }
 }
 

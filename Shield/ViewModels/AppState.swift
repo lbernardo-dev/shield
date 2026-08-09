@@ -16,6 +16,10 @@ enum ASOScreenshotMode {
         AppLanguage(rawValue: value(after: "-aso-language") ?? "es") ?? .es
     }
 
+    static var colorScheme: ColorScheme {
+        value(after: "-aso-color-scheme") == "light" ? .light : .dark
+    }
+
     private static func value(after flag: String) -> String? {
         let arguments = ProcessInfo.processInfo.arguments
         guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else {
@@ -119,7 +123,7 @@ final class AppState: ObservableObject {
 #if DEBUG
         if ASOScreenshotMode.isEnabled {
             LanguageManager.shared.current = ASOScreenshotMode.language
-            preferredScheme = .dark
+            preferredScheme = ASOScreenshotMode.colorScheme
             session.isOnboarded = true
             session.isAuthenticated = true
             documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
@@ -127,6 +131,8 @@ final class AppState: ObservableObject {
             switch ASOScreenshotMode.scene {
             case "onboarding":
                 session.isOnboarded = false
+                session.isAuthenticated = false
+            case "lock":
                 session.isAuthenticated = false
             case "capture":
                 showCapture = true

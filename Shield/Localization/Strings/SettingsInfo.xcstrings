@@ -1707,13 +1707,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Opens MaskID's App Store review page"
+            "value" : "Uses Apple's secure in-app rating prompt"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abre la página de reseñas de MaskID en App Store"
+            "value" : "Usa el formulario seguro de valoración de Apple"
           }
         }
       }

@@ -9,6 +9,8 @@ struct HomeView: View {
     @ObservedObject private var cloud = CloudSyncManager.shared
     @ObservedObject private var directCloud = DirectCloudStorageManager.shared
     @Environment(\.colorScheme) var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var showAllDocs = false
     @State private var showFilters = false
@@ -16,6 +18,7 @@ struct HomeView: View {
     @State private var showCloudImport = false
     @State private var requestedCloudProvider: ExternalStorageProvider?
     @State private var showBatchRedact = false
+    @State private var showWorkspaceTools = false
     @FocusState private var searchFocused: Bool
 
     // Vault auth flow from recents
@@ -34,27 +37,45 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 topBarSection
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        heroSection
-                        searchSection
-                        categoryScroll
-                        Divider()
-                            .background(ShieldTheme.line(appState.preferredScheme))
-                            .padding(.horizontal, ShieldTheme.s5)
-                            .padding(.top, 4)
-                        modesSection
-                        Divider()
-                            .background(ShieldTheme.line(appState.preferredScheme))
-                            .padding(.horizontal, ShieldTheme.s5)
-                            .padding(.top, 8)
-                        recentsSection
-                        vaultSection
-                        cloudStorageSection
-                            .padding(.bottom, 110)
+                ScrollViewReader { proxy in
+                    ScrollView(showsIndicators: false) {
+                        Group {
+                            Color.clear
+                                .frame(height: 1)
+                                .id("home.top")
+                            if horizontalSizeClass == .regular {
+                                HStack(alignment: .top, spacing: 8) {
+                                    LazyVStack(spacing: 0) {
+                                        heroSection
+                                        searchSection
+                                        categoryScroll
+                                    }
+                                    .frame(maxWidth: .infinity)
+
+                                    LazyVStack(spacing: 0) {
+                                        recentsSection
+                                        workspaceSection
+                                            .padding(.bottom, 24)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                            } else {
+                                LazyVStack(spacing: 0) {
+                                    heroSection
+                                    searchSection
+                                    categoryScroll
+                                    recentsSection
+                                    workspaceSection
+                                        .padding(.bottom, 24)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: ShieldTheme.workspaceWidth)
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: 1_100)
-                    .frame(maxWidth: .infinity)
+                    .onAppear {
+                        proxy.scrollTo("home.top", anchor: .top)
+                    }
                 }
             }
         }
@@ -318,6 +339,50 @@ struct HomeView: View {
         .padding(.bottom, 8)
     }
 
+    private var workspaceSection: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(reduceMotion ? nil : ShieldMotion.state) {
+                    showWorkspaceTools.toggle()
+                }
+            } label: {
+                HStack(spacing: ShieldTheme.s3) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.accent(scheme))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(LanguageManager.shared.home("home_tools_services"))
+                            .font(.headline)
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        Text(LanguageManager.shared.home("home_tools_services_subtitle"))
+                            .font(.caption)
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .rotationEffect(.degrees(showWorkspaceTools ? 180 : 0))
+                }
+                .padding(ShieldTheme.s4)
+                .contentShape(.rect)
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityValue(LanguageManager.shared.common(
+                showWorkspaceTools ? "common_expanded" : "common_collapsed"
+            ))
+            .padding(.horizontal, ShieldTheme.s4)
+            .padding(.top, ShieldTheme.s4)
+
+            if showWorkspaceTools {
+                modesSection
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                vaultSection
+                cloudStorageSection
+            }
+        }
+    }
+
     // MARK: - Recents
 
     private var recentsSection: some View {
@@ -427,59 +492,29 @@ struct HomeView: View {
     }
 
     private var emptyLibraryState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: appState.hasActiveFilter ? "magnifyingglass" : "doc.badge.plus")
-                .shieldFont(44, weight: .light)
-                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                .padding(.top, 32)
-            Text(appState.hasActiveFilter
-                 ? LanguageManager.shared.home("home_no_results")
-                 : LanguageManager.shared.home("home_no_documents"))
-                .shieldFont(18, weight: .bold)
-                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
-            Text(appState.hasActiveFilter
-                 ? LanguageManager.shared.home("home_no_results_subtitle")
-                 : LanguageManager.shared.home("home_no_documents_subtitle"))
-                .shieldFont(14)
-                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            Spacer().frame(height: 16)
-
+        ShieldStateView(
+            kind: .empty,
+            title: appState.hasActiveFilter
+                ? LanguageManager.shared.home("home_no_results")
+                : LanguageManager.shared.home("home_no_documents"),
+            message: appState.hasActiveFilter
+                ? LanguageManager.shared.home("home_no_results_subtitle")
+                : LanguageManager.shared.home("home_no_documents_subtitle"),
+            actionLabel: appState.hasActiveFilter
+                ? LanguageManager.shared.home("home_clear_filters")
+                : LanguageManager.shared.home("home_scan_document")
+        ) {
             if appState.hasActiveFilter {
-                Button {
-                    withAnimation {
-                        appState.activeCategoryID = DocumentCategory.all.rawValue
-                        appState.searchQuery = ""
-                    }
-                } label: {
-                    Text(LanguageManager.shared.home("home_clear_filters"))
-                        .shieldFont(15, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accent)
-                        .padding(.horizontal, 20)
-                        .frame(height: 44)
-                        .background(ShieldTheme.accentDim)
-                        .clipShape(Capsule())
+                withAnimation(reduceMotion ? nil : ShieldMotion.state) {
+                    appState.activeCategoryID = DocumentCategory.all.rawValue
+                    appState.searchQuery = ""
                 }
-                .buttonStyle(ScaleButtonStyle())
             } else {
-                Button {
-                    appState.showCapture = true
-                } label: {
-                    Text(LanguageManager.shared.home("home_scan_document"))
-                        .shieldFont(15, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accentText)
-                        .padding(.horizontal, 20)
-                        .frame(height: 44)
-                        .background(ShieldTheme.accent)
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(ScaleButtonStyle())
+                appState.showCapture = true
             }
         }
-        .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s4)
-        .padding(.bottom, 90)
+        .padding(.bottom, 24)
     }
 
     // MARK: - Cloud Storage
@@ -1017,6 +1052,7 @@ struct DocumentRow: View {
                             Text(doc.dateLabelLocalized(lang: lang))
                                 .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .lineLimit(1)
                         } else {
                             Text(doc.category.label(lang: lang))
                                 .shieldFont(11, weight: .semibold)
@@ -1033,6 +1069,7 @@ struct DocumentRow: View {
                             Text(doc.dateLabelLocalized(lang: lang))
                                 .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .lineLimit(1)
 
                             if doc.redactionCount > 0 {
                                 Text("·")
@@ -1041,6 +1078,7 @@ struct DocumentRow: View {
                                 Text(appState.redactionsCount(doc.redactionCount))
                                     .shieldFont(12, weight: .semibold)
                                     .foregroundColor(ShieldTheme.accent)
+                                    .lineLimit(1)
                             }
                         }
                     }
@@ -1347,7 +1385,7 @@ struct BatchRedactView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 if showDone {
                     doneState

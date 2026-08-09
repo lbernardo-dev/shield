@@ -120,7 +120,6 @@ struct VaultView: View {
 
     private var vaultContent: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
@@ -142,27 +141,44 @@ struct VaultView: View {
                     Label(LanguageManager.shared.vault("vault_lock_button"), systemImage: "lock.fill")
                         .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.danger)
-                        .padding(.horizontal, 12).frame(height: 32)
+                        .padding(.horizontal, 12).frame(minHeight: ShieldTheme.minimumTapTarget)
                         .background(ShieldTheme.dangerDim)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .accessibilityIdentifier("vault.lock")
             }
-            .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 16)
+            .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 10)
+
+            securitySummary
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 8) {
+                Group {
                     if appState.vaultDocuments.isEmpty {
-                        emptyVaultState
+                        ShieldStateView(
+                            kind: .empty,
+                            title: LanguageManager.shared.vault("vault_empty_title"),
+                            message: LanguageManager.shared.vault("vault_empty_desc"),
+                            actionLabel: LanguageManager.shared.vault("vault_add_to_vault")
+                        ) {
+                            showAddToVault = true
+                        }
+                        .frame(minHeight: 260)
                     } else {
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 300, maximum: 480), spacing: 12)],
+                            alignment: .leading,
+                            spacing: 12
+                        ) {
                         ForEach(appState.vaultDocuments) { doc in
                             DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
                                 selectedDoc = doc
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            .contextMenu {
                                 Button(role: .destructive) {
                                     appState.deleteDocument(doc)
-                } label: {
+                                } label: {
                                     Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
                                 }
                                 Button {
@@ -170,26 +186,30 @@ struct VaultView: View {
                                 } label: {
                                     Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
                                 }
-                                .tint(.orange)
                             }
                         }
                     }
-
-                    // Add to vault CTA
-                    Button { showAddToVault = true } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "plus.circle.fill").shieldFont(18).foregroundColor(ShieldTheme.accent)
-                            Text(LanguageManager.shared.vault("vault_add_to_vault"))
-                                .shieldFont(14, weight: .semibold).foregroundColor(ShieldTheme.accent)
-                        }
-                        .frame(maxWidth: .infinity).frame(height: 52)
-                        .background(ShieldTheme.accentDim)
-                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(ShieldTheme.accent.opacity(0.3), lineWidth: 1))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .buttonStyle(ScaleButtonStyle())
                 }
-                .padding(.horizontal, 16).padding(.bottom, 100)
+                .frame(maxWidth: 1_100)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !appState.vaultDocuments.isEmpty {
+                ShieldStickyFooter {
+                    ShieldButton(
+                        label: LanguageManager.shared.vault("vault_add_to_vault"),
+                        icon: "plus.circle.fill",
+                        style: .secondary
+                    ) {
+                        showAddToVault = true
+                    }
+                    .frame(maxWidth: 520)
+                    .frame(maxWidth: .infinity)
+                }
             }
         }
         .sheet(isPresented: $showAddToVault) {
@@ -198,21 +218,19 @@ struct VaultView: View {
         }
     }
 
-    private var emptyVaultState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "lock.rectangle.stack")
-                .shieldFont(48, weight: .light)
-                .foregroundColor(ShieldTheme.tertiary(scheme))
-                .padding(.top, 40)
-            Text(LanguageManager.shared.vault("vault_empty_title"))
-                .shieldFont(18, weight: .bold)
-                .foregroundColor(ShieldTheme.secondary(scheme))
-            Text(LanguageManager.shared.vault("vault_empty_desc"))
-                .shieldFont(14)
-                .foregroundColor(ShieldTheme.tertiary(scheme))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+    private var securitySummary: some View {
+        HStack(spacing: 8) {
+            ShieldStatusLabel(
+                text: LanguageManager.shared.vault("vault_aes_badge"),
+                kind: .success
+            )
+            ShieldStatusLabel(
+                text: LanguageManager.shared.vault("vault_on_device"),
+                kind: .info
+            )
+            Spacer(minLength: 0)
         }
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Auth

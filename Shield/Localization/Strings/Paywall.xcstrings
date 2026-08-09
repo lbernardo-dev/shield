@@ -715,6 +715,23 @@
         }
       }
     },
+    "paywall_legal_actions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase and legal actions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acciones de compra e información legal"
+          }
+        }
+      }
+    },
     "paywall_privacy": {
       "extractionState": "manual",
       "localizations": {

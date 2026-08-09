@@ -1,6 +1,57 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "lock_access_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your private workspace is locked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu espacio privado está bloqueado"
+          }
+        }
+      }
+    },
+    "lock_encryption_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved files remain encrypted while MaskID is locked."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los archivos guardados permanecen cifrados mientras MaskID está bloqueado."
+          }
+        }
+      }
+    },
+    "lock_encryption_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted content"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenido cifrado"
+          }
+        }
+      }
+    },
     "lock_faceid_unavailable": {
       "extractionState": "manual",
       "localizations": {
@@ -14,6 +65,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Face ID no disponible en este dispositivo."
+          }
+        }
+      }
+    },
+    "lock_local_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access to your documents is protected locally on this device."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El acceso a tus documentos se protege localmente en este dispositivo."
+          }
+        }
+      }
+    },
+    "lock_local_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On this device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En este dispositivo"
           }
         }
       }
@@ -65,6 +150,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Privado"
+          }
+        }
+      }
+    },
+    "lock_protection_active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protection active"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protección activa"
+          }
+        }
+      }
+    },
+    "lock_protection_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protected before you open"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protegido antes de abrir"
+          }
+        }
+      }
+    },
+    "lock_privacy_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Document names and previews stay hidden until you verify your identity."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los nombres y las vistas previas permanecen ocultos hasta verificar tu identidad."
+          }
+        }
+      }
+    },
+    "lock_privacy_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private by design"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad desde el diseño"
+          }
+        }
+      }
+    },
+    "lock_ready_faceid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID is ready to verify your access."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID está listo para verificar tu acceso."
+          }
+        }
+      }
+    },
+    "lock_ready_pin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your PIN is ready to verify access."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu PIN está listo para verificar el acceso."
           }
         }
       }

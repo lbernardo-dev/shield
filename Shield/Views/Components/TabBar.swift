@@ -50,18 +50,24 @@ struct ShieldTabBar: View {
         HStack(spacing: 0) {
             tabItem(.library)
             tabItem(.gallery)
-            scanButton
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .accessibilityHidden(true)
             tabItem(.vault)
             tabItem(.settings)
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 4)
         .background(ShieldTheme.cardBackground(scheme))
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(ShieldTheme.line(scheme))
                 .frame(height: 0.5)
+        }
+        .overlay(alignment: .top) {
+            scanButton
+                .offset(y: -24)
+                .zIndex(1)
         }
     }
 
@@ -71,16 +77,23 @@ struct ShieldTabBar: View {
             ZStack {
                 Circle()
                     .fill(ShieldTheme.accent(scheme))
-                    .frame(width: 72, height: 72)
-                    .shadow(color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.45 : 0.24), radius: 12, x: 0, y: 5)
+                    .overlay {
+                        Circle()
+                            .stroke(ShieldTheme.cardBackground(scheme), lineWidth: 4)
+                    }
+                    .shadow(
+                        color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.38 : 0.22),
+                        radius: 9,
+                        y: 3
+                    )
                 Image(systemName: "camera.viewfinder")
-                    .shieldFont(26, weight: .semibold)
+                    .shieldFont(22, weight: .bold)
                     .foregroundColor(ShieldTheme.accentText)
             }
+            .frame(width: 64, height: 64)
+            .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
-        .frame(maxWidth: .infinity)
-        .offset(y: -24)
         .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
         .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
         .accessibilityIdentifier("tab.capture")
@@ -92,9 +105,9 @@ struct ShieldTabBar: View {
         Button {
             withAnimation(.easeInOut(duration: 0.15)) { selected = tab }
         } label: {
-            VStack(spacing: 4) {
+            VStack(spacing: 1) {
                 Image(systemName: isActive ? tab.filledIcon : tab.icon)
-                    .font(.body.weight(isActive ? .semibold : .regular))
+                    .font(.subheadline.weight(isActive ? .semibold : .regular))
                     .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .scaleEffect(isActive ? 1.05 : 1)
                     .animation(.spring(response: 0.25), value: isActive)
@@ -103,7 +116,7 @@ struct ShieldTabBar: View {
                     .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
+            .frame(minHeight: 44)
         }
         .buttonStyle(.plain)
         .frame(minHeight: 44)
@@ -133,6 +146,7 @@ struct ShieldSidebar: View {
             }
             .buttonStyle(ScaleButtonStyle())
             .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+            .keyboardShortcut("n", modifiers: .command)
             .padding(.bottom, 12)
 
             ForEach(AppTab.allCases) { tab in
@@ -153,8 +167,12 @@ struct ShieldSidebar: View {
                     .background(active ? ShieldTheme.accentDim(scheme) : .clear, in: RoundedRectangle(cornerRadius: 14))
                 }
                 .buttonStyle(.plain)
+                .hoverEffect(.highlight)
+                .keyboardShortcut(shortcut(for: tab), modifiers: .command)
                 .accessibilityLabel(tab.label(lang: lang))
+                .accessibilityValue(active ? LanguageManager.shared.common("common_selected") : "")
                 .accessibilityAddTraits(active ? .isSelected : [])
+                .accessibilityIdentifier("sidebar.\(tab.rawValue)")
             }
             Spacer()
         }
@@ -162,5 +180,9 @@ struct ShieldSidebar: View {
         .padding(.vertical, 16)
         .frame(width: 92)
         .background(ShieldTheme.cardBackground(scheme))
+    }
+
+    private func shortcut(for tab: AppTab) -> KeyEquivalent {
+        KeyEquivalent(Character(String(tab.rawValue + 1)))
     }
 }

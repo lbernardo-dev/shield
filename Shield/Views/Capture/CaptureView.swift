@@ -93,6 +93,7 @@ struct CaptureView: View {
     @State private var processingProgress: Double? = nil
     @State private var processingTask: Task<Void, Never>? = nil
     @State private var importErrorMessage: String? = nil
+    @State private var retryImportURL: URL? = nil
     @State private var stagedPages: [UIImage] = []
     @State private var stagedTitle: String? = nil
     @State private var stagedSourceType: ImportedDocumentSource = .image
@@ -206,12 +207,27 @@ struct CaptureView: View {
                 set: { if !$0 { importErrorMessage = nil } }
             )
         ) {
-            Button(LanguageManager.shared.common("common_ok"), role: .cancel) { importErrorMessage = nil }
+            if let retryImportURL {
+                Button(LanguageManager.shared.common("common_retry")) {
+                    importErrorMessage = nil
+                    processFile(retryImportURL)
+                }
+            }
+            Button(LanguageManager.shared.common("common_ok"), role: .cancel) {
+                if let retryImportURL {
+                    SharedImportStore.removeTemporaryFile(retryImportURL)
+                }
+                retryImportURL = nil
+                importErrorMessage = nil
+            }
         } message: {
             Text(importErrorMessage ?? "")
         }
         .onDisappear {
             processingTask?.cancel()
+            if let retryImportURL {
+                SharedImportStore.removeTemporaryFile(retryImportURL)
+            }
         }
         .onAppear(perform: consumePendingSharedImport)
         .onChange(of: appState.pendingSharedImportURL) { _, _ in
@@ -332,13 +348,19 @@ struct CaptureView: View {
             return
         }
         AppState.trackEvent("import_started", properties: ["source": "file"])
+        retryImportURL = url
         isProcessing = true
         processingMessage = LanguageManager.shared.capture("capture_importing_file")
         processingProgress = 0
 
         processingTask?.cancel()
         processingTask = Task {
-            defer { SharedImportStore.removeTemporaryFile(url) }
+            var shouldKeepForRetry = false
+            defer {
+                if !shouldKeepForRetry {
+                    SharedImportStore.removeTemporaryFile(url)
+                }
+            }
             let hasScopedAccess = url.isFileURL && url.startAccessingSecurityScopedResource()
             defer {
                 if hasScopedAccess { url.stopAccessingSecurityScopedResource() }
@@ -378,6 +400,7 @@ struct CaptureView: View {
                     sourceFileName = nil
                 }
                 processingTask = nil
+                retryImportURL = nil
                 stagePreparedPages(
                     prepared.pages,
                     title: prepared.title,
@@ -389,6 +412,7 @@ struct CaptureView: View {
                 isProcessing = false
                 processingProgress = nil
             } catch {
+                shouldKeepForRetry = true
                 failImport(error, source: "file")
             }
         }
@@ -658,6 +682,10 @@ struct CaptureView: View {
                     "detected_type": detectedType.rawValue,
                     "mrz_valid": (fields.ocrMRZValid == true) ? "true" : "false"
                 ])
+                AppReviewManager.shared.record(
+                    .documentCreated,
+                    isPremium: PremiumManager.shared.isPro
+                )
                 if risk.level != .low {
                     AppState.trackEvent("risk_detected", properties: [
                         "source": sourceType.rawValue,

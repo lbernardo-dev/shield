@@ -13,7 +13,6 @@ struct SettingsView: View {
     @State private var showPaywall = false
     @State private var showMailCompose = false
     @State private var showSupportUnavailable = false
-    @State private var showRatingUnavailable = false
 
     private var strings: LanguageManager { .shared }
 
@@ -22,9 +21,16 @@ struct SettingsView: View {
             ZStack {
                 ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: ShieldTheme.s5) {
-                        title
+                VStack(spacing: 0) {
+                    title
+                        .frame(maxWidth: 760)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, ShieldTheme.s4)
+                        .padding(.bottom, ShieldTheme.s3)
+                        .background(ShieldTheme.pageBackground(scheme))
+
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: ShieldTheme.s5) {
                         SettingsSummaryCard(
                             documentCount: appState.documents.count,
                             vaultedCount: appState.documents.filter(\.isVaulted).count,
@@ -96,7 +102,7 @@ struct SettingsView: View {
                                 title: strings.settings("settings_rate_app"),
                                 subtitle: strings.settings("settings_rate_app_subtitle"),
                                 accessibilityIdentifier: "settings.action.rateApp",
-                                action: openRatingPage
+                                action: requestRating
                             )
                         }
 
@@ -124,10 +130,11 @@ struct SettingsView: View {
 
                         SettingsFooter()
                             .padding(.top, ShieldTheme.s2)
-                            .padding(.bottom, 110)
+                            .padding(.bottom, 24)
+                        }
+                        .frame(maxWidth: 760)
+                        .padding(.horizontal, ShieldTheme.s4)
                     }
-                    .frame(maxWidth: 760)
-                    .padding(.horizontal, ShieldTheme.s4)
                 }
             }
             .toolbarVisibility(.hidden, for: .navigationBar)
@@ -155,14 +162,6 @@ struct SettingsView: View {
             Button(strings.common("common_ok"), role: .cancel) {}
         } message: {
             Text(strings.settings("settings_support_unavailable_message"))
-        }
-        .alert(
-            strings.settings("settings_rating_unavailable_title"),
-            isPresented: $showRatingUnavailable
-        ) {
-            Button(strings.common("common_ok"), role: .cancel) {}
-        } message: {
-            Text(strings.settings("settings_rating_unavailable_message"))
         }
     }
 
@@ -299,7 +298,7 @@ struct SettingsView: View {
         case .subscriptionTerms:
             SettingsArticleView(article: .subscriptionTerms)
         case .support:
-            SupportSettingsView(onSendFeedback: sendFeedback, onRate: openRatingPage)
+            SupportSettingsView(onSendFeedback: sendFeedback, onRate: requestRating)
         case .faq:
             FAQSettingsView()
         #if DEBUG && targetEnvironment(simulator)
@@ -348,25 +347,8 @@ struct SettingsView: View {
         }
     }
 
-    private func openRatingPage() {
-        guard let nativeURL = SettingsStoreConfiguration.nativeReviewURL else {
-            openRatingWebFallback()
-            return
-        }
-        openURL(nativeURL) { accepted in
-            guard !accepted else { return }
-            openRatingWebFallback()
-        }
-    }
-
-    private func openRatingWebFallback() {
-        guard let webURL = SettingsStoreConfiguration.webReviewURL else {
-            showRatingUnavailable = true
-            return
-        }
-        openURL(webURL) { accepted in
-            if !accepted { showRatingUnavailable = true }
-        }
+    private func requestRating() {
+        AppReviewManager.shared.requestFromSettings()
     }
 }
 
@@ -419,31 +401,6 @@ enum SettingsSupportConfiguration {
             URLQueryItem(name: "subject", value: subject),
             URLQueryItem(name: "body", value: body)
         ]
-        return components.url
-    }
-}
-
-enum SettingsStoreConfiguration {
-    private static var appID: String? {
-        Bundle.main.object(forInfoDictionaryKey: "ShieldAppStoreID") as? String
-    }
-
-    static var nativeReviewURL: URL? {
-        guard let appID else { return nil }
-        return reviewURL(appID: appID, scheme: "itms-apps")
-    }
-
-    static var webReviewURL: URL? {
-        guard let appID else { return nil }
-        return reviewURL(appID: appID, scheme: "https")
-    }
-
-    static func reviewURL(appID: String, scheme: String) -> URL? {
-        var components = URLComponents()
-        components.scheme = scheme
-        components.host = "apps.apple.com"
-        components.path = "/app/id\(appID)"
-        components.queryItems = [URLQueryItem(name: "action", value: "write-review")]
         return components.url
     }
 }

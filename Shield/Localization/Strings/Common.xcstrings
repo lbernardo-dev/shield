@@ -1,6 +1,51 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "common_more": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "More options" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Más opciones" } }
+      }
+    },
+    "common_retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Try again" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reintentar" } }
+      }
+    },
+    "common_collapsed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Collapsed" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Contraído" } }
+      }
+    },
+    "common_expanded": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Expanded" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Expandido" } }
+      }
+    },
+    "common_loading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando"
+          }
+        }
+      }
+    },
     "cloud_browser_back": {
       "extractionState": "manual",
       "localizations": {

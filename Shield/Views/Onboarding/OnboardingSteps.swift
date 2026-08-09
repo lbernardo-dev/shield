@@ -6,34 +6,17 @@ import LocalAuthentication
 
 struct OBWelcomeView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var state: OnboardingState
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .stroke(ShieldTheme.accent.opacity(0.12), lineWidth: 1)
-                    .frame(width: 176, height: 176)
-                    .scaleEffect(reduceMotion ? 1 : 1.08)
-                Circle()
-                    .stroke(ShieldTheme.accent.opacity(0.22), lineWidth: 1)
-                    .frame(width: 142, height: 142)
-                Image("MaskIDMark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 110, height: 110)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 28)
-                            .stroke(ShieldTheme.accent.opacity(0.35), lineWidth: 1.5)
-                    )
-                    .shadow(color: ShieldTheme.accent.opacity(0.4), radius: 10, x: 0, y: 0)
-                    .accessibilityHidden(true)
-            }
-            .symbolEffect(.pulse, options: reduceMotion ? .nonRepeating : .repeating, isActive: !reduceMotion)
+            MaskIDIdentityMark(
+                size: 176,
+                presentation: .animatedOnce,
+                treatment: .hero
+            )
             .padding(.bottom, 36)
 
             Text(LanguageManager.shared.onboarding("onboarding_welcome_title"))
@@ -813,6 +796,8 @@ struct OBCameraPermView: View {
 struct OBPaywallView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var pm = PremiumManager.shared
     @State private var selectedProductID = ShieldProduct.annual.rawValue
     var onBack: () -> Void
@@ -834,28 +819,40 @@ struct OBPaywallView: View {
             )
             .ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 22) {
-                    HStack {
-                        Button(action: onBack) {
-                            Image(systemName: "chevron.left")
-                                .shieldFont(16, weight: .semibold)
-                                .foregroundStyle(ShieldTheme.textPrimary)
-                                .frame(width: 44, height: 44)
-                                .background(ShieldTheme.surface2, in: Circle())
-                        }
-                        .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_back"))
-                        Spacer()
+            VStack(spacing: 0) {
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "chevron.left")
+                            .shieldFont(16, weight: .semibold)
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                            .frame(width: 44, height: 44)
+                            .background(ShieldTheme.cardBackground(scheme), in: Circle())
                     }
+                    .accessibilityLabel(LanguageManager.shared.onboarding("onboarding_back"))
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 22) {
                     paywallHero
                     valueRecap
                     planSelector
-                    purchaseSection
                     footer
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 24)
+                .padding(.top, 8)
                 .padding(.bottom, 30)
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            ShieldStickyFooter {
+                purchaseSection
+                    .frame(maxWidth: 560)
+                    .frame(maxWidth: .infinity)
             }
         }
         .task {
@@ -871,25 +868,35 @@ struct OBPaywallView: View {
 
     private var paywallHero: some View {
         VStack(spacing: 10) {
-            ZStack {
-                Circle()
-                    .fill(ShieldTheme.accentDim)
-                    .frame(width: 72, height: 72)
-                Image(systemName: "checkmark.shield.fill")
-                    .shieldFont(34, weight: .semibold)
-                    .foregroundStyle(ShieldTheme.accent)
+            Group {
+                if reduceMotion {
+                    paywallMark
+                } else {
+                    paywallMark
+                        .symbolEffect(.breathe, options: .repeating)
+                }
             }
-            .symbolEffect(.breathe, options: .repeating)
 
             Text(LanguageManager.shared.paywall("paywall_title"))
                 .shieldFont(29, weight: .heavy)
-                .foregroundStyle(ShieldTheme.textPrimary)
+                .foregroundStyle(ShieldTheme.primary(scheme))
                 .multilineTextAlignment(.center)
             Text(LanguageManager.shared.paywall("paywall_hero_subtitle"))
                 .font(.callout)
-                .foregroundStyle(ShieldTheme.textSecondary)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
         }
+    }
+
+    private var paywallMark: some View {
+        ZStack {
+                Circle()
+                    .fill(ShieldTheme.accentDim(scheme))
+                    .frame(width: 72, height: 72)
+                Image(systemName: "checkmark.shield.fill")
+                    .shieldFont(34, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+            }
     }
 
     private var valueRecap: some View {
@@ -903,7 +910,7 @@ struct OBPaywallView: View {
                         .background(Color(hex: feature.hex).opacity(0.14), in: .rect(cornerRadius: 8))
                     Text(LanguageManager.shared.paywall(feature.key))
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(ShieldTheme.textPrimary)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
                     Spacer()
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(ShieldTheme.success)
@@ -911,10 +918,10 @@ struct OBPaywallView: View {
             }
         }
         .padding(14)
-        .background(ShieldTheme.surface2, in: .rect(cornerRadius: 16))
+        .background(ShieldTheme.cardBackground(scheme), in: .rect(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)
-                .stroke(ShieldTheme.surfaceLine, lineWidth: 0.5)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
         }
     }
 
@@ -923,7 +930,7 @@ struct OBPaywallView: View {
             if pm.isLoadingProducts {
                 ForEach(0..<3, id: \.self) { _ in
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(ShieldTheme.surface2)
+                        .fill(ShieldTheme.cardBackground(scheme))
                         .frame(height: 84)
                         .redacted(reason: .placeholder)
                 }
@@ -940,7 +947,7 @@ struct OBPaywallView: View {
                         trialLabel: pm.trialLabels[product.id],
                         lang: appState.language
                     ) {
-                        withAnimation(.snappy(duration: 0.24)) {
+                        withAnimation(reduceMotion ? nil : .snappy(duration: 0.24)) {
                             selectedProductID = product.id
                         }
                         AppState.trackEvent("paywall_plan_selected", properties: [
@@ -980,11 +987,12 @@ struct OBPaywallView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(ShieldTheme.accent, in: .rect(cornerRadius: 16))
-                .foregroundStyle(ShieldTheme.accentText)
+                .background(canPurchase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme), in: .rect(cornerRadius: 16))
+                .foregroundStyle(canPurchase ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
             }
             .buttonStyle(ScaleButtonStyle())
-            .disabled(pm.isPurchasing || selectedPremiumProduct == nil)
+            .disabled(!canPurchase)
+            .accessibilityIdentifier("onboarding.paywall.purchase")
 
             if let error = pm.purchaseError {
                 Text(error)
@@ -998,9 +1006,13 @@ struct OBPaywallView: View {
                 onComplete()
             }
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(ShieldTheme.textSecondary)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
                 .frame(minHeight: 44)
         }
+    }
+
+    private var canPurchase: Bool {
+        !pm.isPurchasing && selectedPremiumProduct != nil
     }
 
     private var selectedPremiumProduct: PremiumProduct? {

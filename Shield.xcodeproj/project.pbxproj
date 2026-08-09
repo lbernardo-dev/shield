@@ -8,11 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
+		ALOT001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = LOTPROD001 /* Lottie */; };
+		BLOTJSON /* MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* MaskID_IdentityMask_v3.json */; };
 		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
 		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		7C3D808930272B990017854E /* Mask.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D808830272B990017854E /* Mask.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
+		AREVIEW /* AppReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FREVIEW /* AppReviewManager.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
 		A004 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Document.swift */; };
 		A005 /* Redaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005 /* Redaction.swift */; };
@@ -80,6 +83,7 @@
 		AT006 /* PerformanceBudgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T006 /* PerformanceBudgetTests.swift */; };
 		AT007 /* MetricPayloadStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T007 /* MetricPayloadStoreTests.swift */; };
 		AT008 /* LocalizationLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T008 /* LocalizationLanguageTests.swift */; };
+		AT009 /* AppReviewManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T009 /* AppReviewManagerTests.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -148,6 +152,7 @@
 		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FREVIEW /* AppReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManager.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
 		F004 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		F005 /* Redaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Redaction.swift; sourceTree = "<group>"; };
@@ -212,6 +217,7 @@
 		FEXTSTORY /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = MainInterface.storyboard; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		FIMP /* ImportPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipeline.swift; sourceTree = "<group>"; };
 		FINT /* ShieldAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldAppIntents.swift; sourceTree = "<group>"; };
+		FLOTJSON /* MaskID_IdentityMask_v3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Animations/MaskID_IdentityMask_v3.json; sourceTree = "<group>"; };
 		FMETRIC /* ShieldMetricSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldMetricSubscriber.swift; sourceTree = "<group>"; };
 		FSEC /* SecurityPrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyTests.swift; sourceTree = "<group>"; };
 		FSHARE /* SharedImportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStore.swift; sourceTree = "<group>"; };
@@ -240,6 +246,7 @@
 		T006 /* PerformanceBudgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceBudgetTests.swift; sourceTree = "<group>"; };
 		T007 /* MetricPayloadStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricPayloadStoreTests.swift; sourceTree = "<group>"; };
 		T008 /* LocalizationLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationLanguageTests.swift; sourceTree = "<group>"; };
+		T009 /* AppReviewManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +261,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ALOT001 /* Lottie in Frameworks */,
 				ARC001 /* RevenueCat in Frameworks */,
 				A099 /* StoreKit.framework in Frameworks */,
 				A100 /* Vision.framework in Frameworks */,
@@ -289,6 +297,7 @@
 			children = (
 				F001 /* ShieldApp.swift */,
 				F002 /* ContentView.swift */,
+				FREVIEW /* AppReviewManager.swift */,
 				FINT /* ShieldAppIntents.swift */,
 			);
 			path = App;
@@ -461,6 +470,7 @@
 		GRP_RESOURCES /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				FLOTJSON /* MaskID_IdentityMask_v3.json */,
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
 				F028 /* PrivacyInfo.xcprivacy */,
@@ -564,6 +574,7 @@
 				T006 /* PerformanceBudgetTests.swift */,
 				T007 /* MetricPayloadStoreTests.swift */,
 				T008 /* LocalizationLanguageTests.swift */,
+				T009 /* AppReviewManagerTests.swift */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -658,6 +669,7 @@
 			);
 			name = Shield;
 			packageProductDependencies = (
+				LOTPROD001 /* Lottie */,
 				RCPROD001 /* RevenueCat */,
 				38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */,
 				8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */,
@@ -737,6 +749,7 @@
 			);
 			mainGroup = GRP_ROOT;
 			packageReferences = (
+				LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
@@ -768,6 +781,7 @@
 				A024 /* Assets.xcassets in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
+				BLOTJSON /* MaskID_IdentityMask_v3.json in Resources */,
 				B002 /* Capture.xcstrings in Resources */,
 				7C3D808930272B990017854E /* Mask.icon in Resources */,
 				B003 /* Common.xcstrings in Resources */,
@@ -851,6 +865,7 @@
 			files = (
 				A001 /* ShieldApp.swift in Sources */,
 				A002 /* ContentView.swift in Sources */,
+				AREVIEW /* AppReviewManager.swift in Sources */,
 				A003 /* ShieldTheme.swift in Sources */,
 				A004 /* Document.swift in Sources */,
 				A005 /* Redaction.swift in Sources */,
@@ -918,6 +933,7 @@
 				AT006 /* PerformanceBudgetTests.swift in Sources */,
 				AT007 /* MetricPayloadStoreTests.swift in Sources */,
 				AT008 /* LocalizationLanguageTests.swift in Sources */,
+				AT009 /* AppReviewManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1310,6 +1326,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
+			};
+		};
 		A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1329,6 +1353,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		LOTPROD001 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
+		};
 		38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

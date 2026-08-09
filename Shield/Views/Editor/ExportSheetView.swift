@@ -282,6 +282,7 @@ struct ExportSheetView: View {
                         isExported = true
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
+                        AppReviewManager.shared.record(.secureExportCompleted, isPremium: pm.isPro)
                     }
                 } catch {
                     await MainActor.run {
@@ -305,6 +306,7 @@ struct ExportSheetView: View {
                         isExported = true
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
+                        AppReviewManager.shared.record(.secureExportCompleted, isPremium: pm.isPro)
                     } else {
                         exportErrorMessage = LanguageManager.shared.editor("editor_export_error_image_retry")
                         AppState.trackEvent("export_failed", properties: ["format": "image"])

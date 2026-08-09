@@ -154,68 +154,42 @@ struct SettingsSummaryCard: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
     }
 
-    private var build: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
-    }
-
     var body: some View {
-        VStack(spacing: ShieldTheme.s4) {
-            HStack(spacing: ShieldTheme.s4) {
-                Image("MaskIDMark")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 66, height: 66)
-                    .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
-                    .accessibilityHidden(true)
+        VStack(spacing: ShieldTheme.s3) {
+            HStack(spacing: ShieldTheme.s3) {
+                MaskIDIdentityMark(
+                    size: 48,
+                    presentation: .staticMark,
+                    treatment: .card
+                )
 
-                VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text("MaskID")
-                        .font(.title2.weight(.heavy))
+                        .font(.headline.weight(.heavy))
                         .foregroundStyle(ShieldTheme.primary(scheme))
-
-                    VStack(alignment: .leading, spacing: ShieldTheme.s2) {
-                        summaryPill(icon: "info.circle.fill", text: strings.settings("settings_version_value", version))
-                        summaryPill(icon: "hammer.fill", text: strings.settings("settings_build_value", build))
-                    }
+                    Text(strings.settings("settings_version_value", version))
+                        .font(.caption)
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
                 }
                 Spacer(minLength: 0)
+                Label(
+                    strings.settings(isPro ? "settings_plan_pro" : "settings_plan_free"),
+                    systemImage: isPro ? "crown.fill" : "checkmark.circle.fill"
+                )
+                .font(.caption.weight(.bold))
+                .foregroundStyle(isPro ? ShieldTheme.warning : ShieldTheme.success)
+                .padding(.horizontal, ShieldTheme.s3)
+                .padding(.vertical, ShieldTheme.s2)
+                .background(ShieldTheme.rowBackground(scheme), in: Capsule())
             }
-
-            SettingsRowDivider(inset: 0)
 
             HStack(spacing: 0) {
-                summaryMetric(
-                    icon: "doc.text.fill",
-                    value: documentCount.formatted(),
-                    label: strings.settings("settings_summary_documents")
-                )
-                Rectangle()
-                    .fill(ShieldTheme.line(scheme))
-                    .frame(width: 1, height: 46)
-                summaryMetric(
-                    icon: "lock.fill",
-                    value: vaultedCount.formatted(),
-                    label: strings.settings("settings_summary_vault")
-                )
-                Rectangle()
-                    .fill(ShieldTheme.line(scheme))
-                    .frame(width: 1, height: 46)
-                summaryMetric(
-                    icon: isPro ? "crown.fill" : "checkmark.circle.fill",
-                    value: strings.settings(isPro ? "settings_plan_pro" : "settings_plan_free"),
-                    label: strings.settings("settings_summary_plan")
-                )
+                summaryMetric(icon: "doc.text.fill", value: documentCount.formatted(), label: strings.settings("settings_summary_documents"))
+                Rectangle().fill(ShieldTheme.line(scheme)).frame(width: 1, height: 38)
+                summaryMetric(icon: "lock.fill", value: vaultedCount.formatted(), label: strings.settings("settings_summary_vault"))
             }
-
-            Label(strings.settings("settings_summary_privacy"), systemImage: "hand.raised.fill")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(ShieldTheme.secondary(scheme))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(ShieldTheme.s3)
-                .background(ShieldTheme.rowBackground(scheme))
-                .clipShape(.rect(cornerRadius: ShieldTheme.rSM))
         }
-        .padding(ShieldTheme.s4)
+        .padding(ShieldTheme.s3)
         .shieldSettingsCard()
         .accessibilityElement(children: .contain)
     }
@@ -432,19 +406,16 @@ private struct SettingsDetailScaffold<Content: View>: View {
                 }
                 .accessibilityIdentifier("settings.back")
                 Spacer()
+                SettingsCloseButton(action: closeSettings)
             }
             .padding(.horizontal, ShieldTheme.s4)
             .background(ShieldTheme.pageBackground(scheme))
 
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
-                    HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s3) {
-                        Text(title)
-                            .font(.largeTitle.weight(.bold))
-                            .foregroundStyle(ShieldTheme.primary(scheme))
-                        Spacer(minLength: ShieldTheme.s2)
-                        SettingsCloseButton(action: closeSettings)
-                    }
+                    Text(title)
+                        .font(.largeTitle.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
                     if let subtitle {
                         Text(subtitle)
                             .font(.subheadline)
@@ -452,10 +423,10 @@ private struct SettingsDetailScaffold<Content: View>: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     content
-                    Spacer().frame(height: 80)
                 }
                 .frame(maxWidth: 760)
                 .padding(ShieldTheme.s4)
+                .padding(.bottom, 24)
             }
         }
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
