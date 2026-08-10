@@ -1121,7 +1121,7 @@
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
@@ -1167,7 +1167,7 @@
 };
 		BC_TARGET_RELEASE /* Release */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;

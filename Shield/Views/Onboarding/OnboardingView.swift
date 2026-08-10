@@ -32,12 +32,12 @@ struct LockScreenView: View {
 
             GeometryReader { proxy in
                 ScrollView {
-                    VStack(spacing: ShieldTheme.s5) {
+                    VStack(spacing: ShieldTheme.s4) {
                         lockHeader
                         accessCard
-                        protectionCard
-                        Spacer(minLength: ShieldTheme.s4)
-                        privacyNotice
+                        vaultHasSection
+                        vaultNeedsSection
+                        vaultDoesSection
                     }
                     .frame(minHeight: max(0, proxy.size.height - ShieldTheme.s8), alignment: .top)
                     .frame(maxWidth: 560)
@@ -137,7 +137,7 @@ struct LockScreenView: View {
         ZStack(alignment: .bottomTrailing) {
             MaskIDIdentityMark(
                 size: size,
-                presentation: .animatedOnce,
+                presentation: .animatedLoop,
                 treatment: .feature,
                 isEmphasized: isAuthenticating
             )
@@ -201,60 +201,159 @@ struct LockScreenView: View {
         .accessibilityIdentifier("lock.status")
     }
 
-    private var protectionCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(LanguageManager.shared.auth("lock_protection_title"))
-                .shieldFont(15, weight: .bold)
-                .foregroundStyle(ShieldTheme.primary(scheme))
-                .padding(.bottom, ShieldTheme.s2)
+    // MARK: - Activity & Vault Real Summary Cards
 
-            LockProtectionRow(
-                icon: "iphone",
-                title: LanguageManager.shared.auth("lock_local_title"),
-                detail: LanguageManager.shared.auth("lock_local_detail")
+    private var totalVaultedCount: Int {
+        appState.documents.filter(\.isVaulted).count
+    }
+
+    private var totalMaskedCount: Int {
+        appState.documents.reduce(0) { $0 + $1.totalRedactionCount }
+    }
+
+    private var vaultHasSection: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            sectionHeader(
+                title: LanguageManager.shared.auth("lock_activity_summary_title"),
+                icon: "chart.bar.fill"
             )
 
-            Divider()
-                .overlay(ShieldTheme.line(scheme))
-                .padding(.leading, 44)
-
-            LockProtectionRow(
-                icon: "lock.shield.fill",
-                title: LanguageManager.shared.auth("lock_encryption_title"),
-                detail: LanguageManager.shared.auth("lock_encryption_detail")
-            )
+            HStack(spacing: ShieldTheme.s3) {
+                vaultMetricTile(
+                    icon: "doc.fill",
+                    title: "\(appState.documents.count)",
+                    subtitle: LanguageManager.shared.auth("lock_stat_processed_label"),
+                    detail: String(format: LanguageManager.shared.auth("lock_stat_processed_detail"), appState.documents.count)
+                )
+                vaultMetricTile(
+                    icon: "lock.shield.fill",
+                    title: "\(totalVaultedCount)",
+                    subtitle: LanguageManager.shared.auth("lock_stat_vaulted_label"),
+                    detail: String(format: LanguageManager.shared.auth("lock_stat_vaulted_detail"), totalVaultedCount)
+                )
+                vaultMetricTile(
+                    icon: "eye.slash.fill",
+                    title: "\(totalMaskedCount)",
+                    subtitle: LanguageManager.shared.auth("lock_stat_masked_label"),
+                    detail: String(format: LanguageManager.shared.auth("lock_stat_masked_detail"), totalMaskedCount)
+                )
+            }
         }
         .padding(ShieldTheme.s4)
         .shieldCard()
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(LanguageManager.shared.auth("lock_protection_title"))
     }
 
-    private var privacyNotice: some View {
-        HStack(alignment: .top, spacing: ShieldTheme.s3) {
-            Image(systemName: "eye.slash.fill")
-                .shieldFont(15, weight: .semibold)
-                .foregroundStyle(ShieldTheme.accentColor(scheme))
-                .frame(width: 36, height: 36)
-                .background(ShieldTheme.accentDim(scheme), in: Circle())
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: ShieldTheme.s1) {
-                Text(LanguageManager.shared.auth("lock_privacy_title"))
-                    .shieldFont(14, weight: .semibold)
+    private func vaultMetricTile(icon: String, title: String, subtitle: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .shieldFont(13, weight: .bold)
+                    .foregroundStyle(ShieldTheme.accentColor(scheme))
+                Text(title)
+                    .shieldFont(18, weight: .heavy)
                     .foregroundStyle(ShieldTheme.primary(scheme))
-
-                Text(LanguageManager.shared.auth("lock_privacy_detail"))
-                    .shieldFont(12, weight: .medium)
-                    .foregroundStyle(ShieldTheme.secondary(scheme))
-                    .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            Text(subtitle)
+                .shieldFont(12, weight: .bold)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .lineLimit(1)
+            Text(detail)
+                .shieldFont(10, weight: .medium)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(ShieldTheme.s3)
+        .background(ShieldTheme.elevatedBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+    }
+
+    // MARK: - Section 2: LO QUE NECESITA (Requirements)
+
+    private var vaultNeedsSection: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            sectionHeader(
+                title: LanguageManager.shared.auth("lock_section_needs"),
+                icon: "key.fill"
+            )
+
+            VStack(alignment: .leading, spacing: 0) {
+                LockProtectionRow(
+                    icon: biometricEnabled && hasBiometrics ? "faceid" : "number",
+                    title: LanguageManager.shared.auth("lock_needs_auth_title"),
+                    detail: lockStatusMessage
+                )
+
+                Divider()
+                    .overlay(ShieldTheme.line(scheme))
+                    .padding(.leading, 44)
+
+                LockProtectionRow(
+                    icon: "iphone",
+                    title: LanguageManager.shared.auth("lock_needs_local_title"),
+                    detail: LanguageManager.shared.auth("lock_local_detail")
+                )
+            }
         }
         .padding(ShieldTheme.s4)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(ShieldTheme.cardBackground(scheme).opacity(0.72), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD))
-        .accessibilityElement(children: .combine)
+        .shieldCard()
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Section 3: LO QUE HACE (Privacy & Protection Guarantees)
+
+    private var vaultDoesSection: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            sectionHeader(
+                title: LanguageManager.shared.auth("lock_section_does"),
+                icon: "checkmark.seal.fill"
+            )
+
+            VStack(alignment: .leading, spacing: 0) {
+                LockProtectionRow(
+                    icon: "lock.shield.fill",
+                    title: LanguageManager.shared.auth("lock_does_zk_title"),
+                    detail: LanguageManager.shared.auth("lock_does_zk_detail")
+                )
+
+                Divider()
+                    .overlay(ShieldTheme.line(scheme))
+                    .padding(.leading, 44)
+
+                LockProtectionRow(
+                    icon: "eye.slash.fill",
+                    title: LanguageManager.shared.auth("lock_does_shield_title"),
+                    detail: LanguageManager.shared.auth("lock_does_shield_detail")
+                )
+
+                Divider()
+                    .overlay(ShieldTheme.line(scheme))
+                    .padding(.leading, 44)
+
+                LockProtectionRow(
+                    icon: "sparkles",
+                    title: LanguageManager.shared.auth("lock_does_purge_title"),
+                    detail: LanguageManager.shared.auth("lock_does_purge_detail")
+                )
+            }
+        }
+        .padding(ShieldTheme.s4)
+        .shieldCard()
+        .accessibilityElement(children: .contain)
+    }
+
+    private func sectionHeader(title: String, icon: String) -> some View {
+        HStack(spacing: ShieldTheme.s2) {
+            Image(systemName: icon)
+                .shieldFont(13, weight: .bold)
+                .foregroundStyle(ShieldTheme.accentColor(scheme))
+            Text(title)
+                .shieldFont(13, weight: .bold)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .textCase(.uppercase)
+                .tracking(0.6)
+        }
     }
 
     private var lockActions: some View {

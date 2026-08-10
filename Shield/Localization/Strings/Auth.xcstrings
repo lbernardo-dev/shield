@@ -493,6 +493,174 @@
           }
         }
       }
+    },
+    "lock_section_has": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "What it holds" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Lo que tiene" } }
+      }
+    },
+    "lock_section_needs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "What it requires" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Lo que necesita" } }
+      }
+    },
+    "lock_section_does": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "What it does" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Lo que hace" } }
+      }
+    },
+    "lock_has_docs_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Protected documents" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Documentos protegidos" } }
+      }
+    },
+    "lock_has_docs_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "AES-256 encryption in zero-knowledge local storage." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cifrado AES-256 en almacenamiento de cero conocimiento." } }
+      }
+    },
+    "lock_has_encryption_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Encryption standard" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Grado de cifrado" } }
+      }
+    },
+    "lock_has_encryption_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Keys derived locally inside Secure Enclave / Keychain." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Claves derivadas localmente en Secure Enclave / Keychain." } }
+      }
+    },
+    "lock_has_privacy_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Metadata privacy" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privacidad de metadatos" } }
+      }
+    },
+    "lock_has_privacy_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Names, dates and previews remain 100% hidden while locked." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Nombres, fechas y vistas previas 100% ocultos mientras está bloqueado." } }
+      }
+    },
+    "lock_needs_auth_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Security authentication" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Autenticación de seguridad" } }
+      }
+    },
+    "lock_needs_local_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Device security chip" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Chip de seguridad local" } }
+      }
+    },
+    "lock_does_zk_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Zero-Knowledge Architecture" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Arquitectura Zero-Knowledge" } }
+      }
+    },
+    "lock_does_zk_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Your data never leaves the device or passes through external servers." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tus datos nunca salen del dispositivo ni pasan por servidores." } }
+      }
+    },
+    "lock_does_shield_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Anti-Snapshot Protection" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protección Anti-Snapshots" } }
+      }
+    },
+    "lock_does_shield_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Automatic privacy screen active in app switcher." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pantalla de privacidad activa en el conmutador de aplicaciones." } }
+      }
+    },
+    "lock_does_purge_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ephemeral Memory Purge" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Purga de memoria efímera" } }
+      }
+    },
+    "lock_does_purge_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Automatic cache cleanup immediately upon locking." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Limpieza automática de la caché tras bloquear la bóveda." } }
+      }
+    },
+    "lock_activity_summary_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Activity & Protection Summary" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Resumen de Actividad y Protección" } }
+      }
+    },
+    "lock_stat_processed_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Processed" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Procesados" } }
+      }
+    },
+    "lock_stat_processed_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d processed" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%d procesados" } }
+      }
+    },
+    "lock_stat_vaulted_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "In Vault" } },
+        "es": { "stringUnit": { "state": "translated", "value": "En Bóveda" } }
+      }
+    },
+    "lock_stat_vaulted_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d protected" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%d protegidos" } }
+      }
+    },
+    "lock_stat_masked_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Masked" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enmascarados" } }
+      }
+    },
+    "lock_stat_masked_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d items hidden" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%d datos ocultos" } }
+      }
     }
   },
   "version": "1.0"

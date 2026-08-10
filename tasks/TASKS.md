@@ -1025,3 +1025,34 @@
    Done by: CODEX
    Done at: 2026-08-10T13:45:44Z
 
+94. lock-screen-summary-redesign
+   Id: 94-lock-screen-summary-redesign
+   Scope: Rediseñar LockScreenView con 3 bloques claros: Lo que tiene, Lo que necesita, Lo que hace
+   Files: Shield/Views/Onboarding/OnboardingView.swift,Shield/Localization/Strings/Auth.xcstrings
+   Note: Finished: rediseño ejecutivo de LockScreenView con 3 bloques (Lo que tiene, Lo que necesita, Lo que hace). Compilación y ejecución en simulador OK
+   Detail: tasks/details/94-lock-screen-summary-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-10T16:14:23Z
+   Done by: CODEX
+   Done at: 2026-08-10T16:15:22Z
+
+95. lock-screen-activity-summary
+   Id: 95-lock-screen-activity-summary
+   Scope: Rediseño completo de LockScreenView con métricas reales de actividad (procesados, bóveda, enmascarados), Lottie hero y localización en Auth.xcstrings
+   Files: Shield/Views/Onboarding/OnboardingView.swift,Shield/Localization/Strings/Auth.xcstrings
+   Note: Iniciando rediseño de LockScreenView con métricas reales y Lottie
+   Detail: tasks/details/95-lock-screen-activity-summary.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-10T16:19:16Z
+
+96. fix-settings-icon-redundancy
+   Id: 96-fix-settings-icon-redundancy
+   Scope: Eliminar redundancia de iconos en Ajustes y fijar ASSETCATALOG_COMPILER_APPICON_NAME a MaskID en project.pbxproj
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Views/Settings/SettingsView.swift
+   Note: Finished: redundancia de Ajustes eliminada (tarjeta Pro usa badge de destellos) y ASSETCATALOG_COMPILER_APPICON_NAME fijado a MaskID en project.pbxproj
+   Detail: tasks/details/96-fix-settings-icon-redundancy.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-10T16:20:39Z
+   Done by: CODEX
+   Done at: 2026-08-10T16:21:27Z
+
