@@ -1003,3 +1003,14 @@
    Done by: CODEX
    Done at: 2026-08-09T10:30:18Z
 
+92. appstore-1-0-1-upload
+   Id: 92-appstore-1-0-1-upload
+   Scope: Create App Store Connect iOS version 1.0.1, set all local target versions/builds to 1.0.1/101202608091, archive/export/upload, wait for processing, attach the build, and update EN/ES What's New without submitting for review.
+   Files: Shield.xcodeproj/project.pbxproj,metadata/version/1.0.1/en-US.json,metadata/version/1.0.1/es-ES.json,.asc/artifacts/MaskID-1.0.1-101202608091.xcarchive,.asc/artifacts/MaskID-1.0.1-101202608091.ipa
+   Note: Created ASC iOS 1.0.1; updated Shield and ShieldShareExtension Debug/Release to 1.0.1 (101202608091); archived/exported/uploaded; Apple build VALID and attached; es-ES/en-US What’s New updated. No test suites run per user request; archive succeeded.
+   Detail: tasks/details/92-appstore-1-0-1-upload.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-09T10:31:36Z
+   Done by: CODEX
+   Done at: 2026-08-09T10:40:34Z
+
