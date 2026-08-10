@@ -124,7 +124,7 @@ struct ExternalStoragePickerSheet: View {
                 showPaywall = true
             } label: {
                 Label(LanguageManager.shared.paywall("paywall_unlock_pro"),
-                      systemImage: "crown.fill")
+                      systemImage: "sparkles")
                     .shieldFont(15, weight: .bold)
                     .frame(maxWidth: .infinity).frame(height: 50)
                     .background(ShieldTheme.accent)

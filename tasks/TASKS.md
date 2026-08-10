@@ -1014,3 +1014,14 @@
    Done by: CODEX
    Done at: 2026-08-09T10:40:34Z
 
+93. maskid-app-icon-unification
+   Id: 93-maskid-app-icon-unification
+   Scope: Sustituir icono antiguo por la mascara animada MaskID en Paywall, Ajustes e Inicio
+   Files: Shield/Views/Components/SplashView.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Home/HomeView.swift,Shield/Cloud/ExternalStorageManager.swift
+   Note: Finished: icono MaskID y animacion Lottie en Paywall, Ajustes, Inicio y Bóveda. Build y tests verdes
+   Detail: tasks/details/93-maskid-app-icon-unification.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-10T13:18:28Z
+   Done by: CODEX
+   Done at: 2026-08-10T13:45:44Z
+

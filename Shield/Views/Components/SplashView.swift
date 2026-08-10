@@ -5,6 +5,7 @@ import Lottie
 struct MaskIDIdentityMark: View {
     enum Presentation {
         case animatedOnce
+        case animatedLoop
         case staticMark
     }
 
@@ -69,18 +70,29 @@ struct MaskIDIdentityMark: View {
 
     @ViewBuilder
     private var mark: some View {
-        if presentation == .animatedOnce && !reduceMotion {
-            LottieView(animation: .named("MaskID_IdentityMask_v3"))
-                .configure { animationView in
-                    animationView.shouldRasterizeWhenIdle = true
-                }
-                .playing()
-                .animationDidFinish { completed in
-                    onAnimationFinished?(completed)
-                }
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: size, height: size)
+        if (presentation == .animatedOnce || presentation == .animatedLoop) && !reduceMotion {
+            if presentation == .animatedLoop {
+                LottieView(animation: .named("MaskID_IdentityMask_v3"))
+                    .configure { animationView in
+                        animationView.shouldRasterizeWhenIdle = true
+                    }
+                    .playing(loopMode: .loop)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+            } else {
+                LottieView(animation: .named("MaskID_IdentityMask_v3"))
+                    .configure { animationView in
+                        animationView.shouldRasterizeWhenIdle = true
+                    }
+                    .playing()
+                    .animationDidFinish { completed in
+                        onAnimationFinished?(completed)
+                    }
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+            }
         } else {
             staticMark
         }

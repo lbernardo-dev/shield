@@ -108,14 +108,7 @@ struct PaywallView: View {
 
     private var heroSection: some View {
         VStack(spacing: 12) {
-            Group {
-                if reduceMotion {
-                    heroMark
-                } else {
-                    heroMark
-                        .symbolEffect(.breathe, options: .repeating)
-                }
-            }
+            heroMark
             Text(LanguageManager.shared.paywall("paywall_title"))
                 .shieldFont(30, weight: .heavy)
                 .foregroundColor(ShieldTheme.primary(scheme))
@@ -128,14 +121,11 @@ struct PaywallView: View {
     }
 
     private var heroMark: some View {
-        ZStack {
-                Circle()
-                    .fill(ShieldTheme.accentDim(scheme))
-                    .frame(width: 80, height: 80)
-                Image(systemName: "crown.fill")
-                    .shieldFont(36, weight: .semibold)
-                    .foregroundColor(ShieldTheme.accent(scheme))
-            }
+        MaskIDIdentityMark(
+            size: 104,
+            presentation: .animatedLoop,
+            treatment: .hero
+        )
     }
 
     private var contextBanner: some View {
@@ -278,7 +268,7 @@ struct PaywallView: View {
             if pm.isPurchasing {
                 ProgressView().tint(ShieldTheme.accentText)
             } else {
-                Image(systemName: "crown.fill")
+                Image(systemName: "sparkles")
                 Text(LanguageManager.shared.paywall(
                     pm.trialLabels[selectedProductID] != nil
                         ? "paywall_free_trial"

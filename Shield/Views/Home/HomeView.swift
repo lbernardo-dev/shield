@@ -578,7 +578,7 @@ struct HomeView: View {
 
             if !pm.isPro {
                 HStack(spacing: 6) {
-                    Image(systemName: "crown.fill")
+                    Image(systemName: "sparkles")
                         .shieldFont(11, weight: .semibold)
                         .foregroundColor(ShieldTheme.accent)
                     Text(LanguageManager.shared.home("home_connect_cloud_description"))

@@ -186,7 +186,12 @@ struct SettingsView: View {
     private var premiumCard: some View {
         VStack(alignment: .leading, spacing: ShieldTheme.s4) {
             HStack(spacing: ShieldTheme.s3) {
-                SettingsIconBadge(icon: "crown.fill", color: Color(hex: "FF9F0A"), size: 48)
+                MaskIDIdentityMark(
+                    size: 48,
+                    presentation: .staticMark,
+                    treatment: .card,
+                    isEmphasized: true
+                )
                 VStack(alignment: .leading, spacing: 3) {
                     Text(strings.settings("settings_unlock_premium"))
                         .font(.headline.weight(.bold))

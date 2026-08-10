@@ -155,7 +155,7 @@ struct HomeHeroCardView: View {
     }
 
     private var planBadge: some View {
-        Label(isPro ? "PRO" : LanguageManager.shared.home("home_free_plan"), systemImage: isPro ? "crown.fill" : "person.crop.circle")
+        Label(isPro ? "PRO" : LanguageManager.shared.home("home_free_plan"), systemImage: isPro ? "sparkles" : "person.crop.circle")
             .font(.caption.weight(.bold))
             .foregroundColor(isPro ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
             .padding(.horizontal, 10)

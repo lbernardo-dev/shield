@@ -174,10 +174,10 @@ struct SettingsSummaryCard: View {
                 Spacer(minLength: 0)
                 Label(
                     strings.settings(isPro ? "settings_plan_pro" : "settings_plan_free"),
-                    systemImage: isPro ? "crown.fill" : "checkmark.circle.fill"
+                    systemImage: isPro ? "sparkles" : "checkmark.circle.fill"
                 )
                 .font(.caption.weight(.bold))
-                .foregroundStyle(isPro ? ShieldTheme.warning : ShieldTheme.success)
+                .foregroundStyle(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.success)
                 .padding(.horizontal, ShieldTheme.s3)
                 .padding(.vertical, ShieldTheme.s2)
                 .background(ShieldTheme.rowBackground(scheme), in: Capsule())
@@ -798,8 +798,8 @@ struct CloudSettingsView: View {
                     }
                 } else {
                     SettingsActionRow(
-                        icon: "crown.fill",
-                        color: Color(hex: "FF9F0A"),
+                        icon: "sparkles",
+                        color: ShieldTheme.accent(scheme),
                         title: strings.settings("settings_icloud_pro_only"),
                         subtitle: strings.settings("settings_icloud_pro_subtitle"),
                         action: { showPaywall = true }
@@ -1224,8 +1224,8 @@ struct DeveloperSettingsView: View {
         ) {
             SettingsCardSection(title: strings.settings("settings_developer"), icon: "hammer.fill") {
                 SettingsControlRow(
-                    icon: "crown.fill",
-                    color: Color(hex: "FF9F0A"),
+                    icon: "sparkles",
+                    color: ShieldTheme.accent(scheme),
                     title: strings.settings("settings_premium_override")
                 ) {
                     Toggle("", isOn: Binding(
