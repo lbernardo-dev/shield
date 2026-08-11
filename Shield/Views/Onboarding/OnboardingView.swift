@@ -250,6 +250,7 @@ struct LockScreenView: View {
                 Image(systemName: icon)
                     .shieldFont(13, weight: .bold)
                     .foregroundStyle(ShieldTheme.accentColor(scheme))
+                    .accessibilityHidden(true)
                 Text(title)
                     .shieldFont(18, weight: .heavy)
                     .foregroundStyle(ShieldTheme.primary(scheme))
@@ -267,6 +268,7 @@ struct LockScreenView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(ShieldTheme.s3)
         .background(ShieldTheme.elevatedBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Section 2: LO QUE NECESITA (Requirements)

@@ -144,6 +144,12 @@ private struct FieldOverlay: View {
                 .allowsHitTesting(false)
         }
         .position(x: sr.midX, y: sr.midY)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(box.label)
+        .accessibilityValue(LanguageManager.shared.editor(isSelected ? "editor_mask_selected" : "editor_mask_not_selected"))
+        .accessibilityHint(LanguageManager.shared.editor("editor_field_toggle_hint"))
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction { vm.toggleField(box) }
     }
 }
 
@@ -183,6 +189,11 @@ private struct RedactionOverlay: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                // Selection/move is already exposed via the parent's accessibilityLabel/actions
+                // below; without this, the invisible hit-target surfaces as its own unlabeled
+                // AXButton to accessibility inspection tools (VoiceOver focus order is unaffected
+                // by children:.ignore alone).
+                .accessibilityHidden(true)
                 .gesture(
                     isActive
                     ? DragGesture(minimumDistance: 3, coordinateSpace: .local)
@@ -231,9 +242,13 @@ private struct RedactionOverlay: View {
                 .offset(x: s.width / 2 + 10, y: -(s.height / 2 + 10))
                 .frame(minWidth: 44, minHeight: 44)
                 .accessibilityLabel(LanguageManager.shared.editor("editor_mask_delete"))
+                // Delete is already exposed via the parent's accessibilityActions; hide this
+                // duplicate so it doesn't surface as a second, redundant control.
+                .accessibilityHidden(true)
 
                 // SE resize — bottom-right
                 ResizeHandle()
+                    .accessibilityHidden(true)
                     .offset(x: s.width / 2 + 2, y: s.height / 2 + 2)
                     .gesture(
                         DragGesture(minimumDistance: 1, coordinateSpace: .local)
@@ -261,6 +276,7 @@ private struct RedactionOverlay: View {
 
                 // SW resize — bottom-left
                 ResizeHandle()
+                    .accessibilityHidden(true)
                     .offset(x: -(s.width / 2 + 2), y: s.height / 2 + 2)
                     .gesture(
                         DragGesture(minimumDistance: 1, coordinateSpace: .local)

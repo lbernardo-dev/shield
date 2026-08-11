@@ -157,7 +157,8 @@ final class AppState: ObservableObject {
         var identityFields = DocumentFields.empty
         identityFields.documentNumber = "X1234567T"
         identityFields.supportNumber = "SYN123456"
-        identityFields.fullName = language == .es ? "MARÍA GARCÍA LÓPEZ" : "ALEX MORGAN"
+        // DNISpainView expects "SURNAMES, GIVEN NAME" (comma-separated) to split correctly.
+        identityFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
         identityFields.dateOfBirth = "14/03/1990"
         identityFields.nationality = language == .es ? "ESPAÑOLA" : "SPANISH"
         identityFields.expires = "12/11/2031"

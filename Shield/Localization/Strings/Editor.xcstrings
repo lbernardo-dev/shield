@@ -1494,6 +1494,23 @@
         }
       }
     },
+    "editor_field_toggle_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to add or remove a redaction mask over this field"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca dos veces para añadir o quitar una máscara sobre este campo"
+          }
+        }
+      }
+    },
     "editor_mask_accessibility_label" : {
       "extractionState" : "stale",
       "localizations" : {
