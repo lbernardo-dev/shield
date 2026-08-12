@@ -20,6 +20,8 @@ struct EditorView: View {
     @State private var currentPageAspect: CGFloat? = nil
     @State private var zoomScale: CGFloat = 1
     @GestureState private var magnifyScale: CGFloat = 1
+    @State private var panOffset: CGSize = .zero
+    @GestureState private var dragPanOffset: CGSize = .zero
 
     init(doc: DocumentItem) {
         _vm = StateObject(wrappedValue: EditorViewModel(doc: doc))
@@ -416,6 +418,10 @@ struct EditorView: View {
             let currentPage = vm.currentPage
             let effectiveZoom = min(4, max(1, zoomScale * magnifyScale))
 
+            let effectivePan = (effectiveZoom > 1 || vm.tool == .pan)
+                ? CGSize(width: panOffset.width + dragPanOffset.width, height: panOffset.height + dragPanOffset.height)
+                : CGSize.zero
+
             ZStack {
                 RadialGradient(
                     colors: [
@@ -481,6 +487,7 @@ struct EditorView: View {
                             .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
                             .frame(width: canvasW, height: canvasH)
                             .scaleEffect(effectiveZoom)
+                            .offset(x: effectivePan.width, y: effectivePan.height)
                     }
                     .frame(
                         width: max(geo.size.width, canvasW * effectiveZoom),
@@ -496,11 +503,36 @@ struct EditorView: View {
                         }
                         .onEnded { value in
                             zoomScale = min(4, max(1, zoomScale * value.magnification))
+                            if zoomScale <= 1 {
+                                panOffset = .zero
+                            }
+                        }
+                )
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 2)
+                        .updating($dragPanOffset) { value, state, _ in
+                            guard effectiveZoom > 1.0 || vm.tool == .pan else { return }
+                            guard !vm.isDraggingRedaction, !vm.isResizingRedaction else { return }
+                            state = value.translation
+                        }
+                        .onEnded { value in
+                            guard effectiveZoom > 1.0 || vm.tool == .pan else { return }
+                            guard !vm.isDraggingRedaction, !vm.isResizingRedaction else { return }
+                            let maxPanX = max(0, (canvasW * effectiveZoom - geo.size.width) / 2 + 180)
+                            let maxPanY = max(0, (canvasH * effectiveZoom - geo.size.height) / 2 + 180)
+                            let newW = min(maxPanX, max(-maxPanX, panOffset.width + value.translation.width))
+                            let newH = min(maxPanY, max(-maxPanY, panOffset.height + value.translation.height))
+                            panOffset = CGSize(width: newW, height: newH)
                         }
                 )
                 .onTapGesture(count: 2) {
                     withAnimation(reduceMotion ? nil : .snappy) {
-                        zoomScale = zoomScale > 1 ? 1 : 2
+                        if zoomScale > 1 {
+                            zoomScale = 1
+                            panOffset = .zero
+                        } else {
+                            zoomScale = 2
+                        }
                     }
                 }
 
@@ -542,7 +574,6 @@ struct EditorView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(maxHeight: .infinity)
-        .layoutPriority(1)
     }
 
     // MARK: - Mode chips
@@ -617,6 +648,8 @@ struct EditorView: View {
             vm.tool = tool
         }
         switch tool {
+        case .pan:
+            break
         case .auto:
             vm.applyAutoDetect()
             withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }

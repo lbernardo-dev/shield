@@ -5,6 +5,7 @@ import Combine
 
 enum EditorTool: String, CaseIterable, Identifiable {
     case rect
+    case pan
     case fields
     case auto
     case text
@@ -16,6 +17,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
     func label(lang: AppLanguage) -> String {
         switch self {
         case .rect:      return LanguageManager.shared.t("editor_tool_rect", table: "Editor", language: lang)
+        case .pan:       return LanguageManager.shared.t("editor_tool_pan", table: "Editor", language: lang)
         case .fields:    return LanguageManager.shared.t("editor_tool_fields", table: "Editor", language: lang)
         case .auto:      return LanguageManager.shared.t("editor_tool_auto", table: "Editor", language: lang)
         case .text:      return LanguageManager.shared.t("editor_tool_text", table: "Editor", language: lang)
@@ -27,6 +29,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .rect:      return "rectangle.dashed"
+        case .pan:       return "hand.raised.fill"
         case .fields:    return "sparkles"
         case .auto:      return "checkmark.shield"
         case .text:      return "text.alignleft"
@@ -116,8 +119,12 @@ final class EditorViewModel: ObservableObject {
         currentPage = page
         redactions = doc.redactions(for: page)
         activeRedactionID = nil
-        history = [redactions]
-        historyIdx = 0
+        self.history = [EditorHistorySnapshot(
+            redactions: self.redactions,
+            imageAdjustment: self.imageAdjustment,
+            watermark: self.watermark
+        )]
+        self.historyIdx = 0
     }
 
     // Drawing state
@@ -125,7 +132,24 @@ final class EditorViewModel: ObservableObject {
     @Published var drawingCurrent: CGPoint? = nil
 
     // Undo/redo
-    private var history: [[Redaction]] = [[]]
+    struct EditorHistorySnapshot: Equatable {
+        var redactions: [Redaction]
+        var imageAdjustment: ImageAdjustment
+        var watermark: Watermark?
+
+        static func == (lhs: EditorHistorySnapshot, rhs: EditorHistorySnapshot) -> Bool {
+            guard lhs.redactions == rhs.redactions,
+                  lhs.imageAdjustment == rhs.imageAdjustment else { return false }
+            switch (lhs.watermark, rhs.watermark) {
+            case (nil, nil): return true
+            case let (l?, r?):
+                return l.text == r.text && l.opacity == r.opacity && l.isRepeating == r.isRepeating
+            default: return false
+            }
+        }
+    }
+
+    private var history: [EditorHistorySnapshot] = []
     private var historyIdx: Int = 0
     private var redactionTransformBaseline: [Redaction]? = nil
 
@@ -137,7 +161,6 @@ final class EditorViewModel: ObservableObject {
         self.baselineDoc = doc
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
-        self.history = [self.redactions]
         if let stored = doc.imageAdjustment {
             self.imageAdjustment = ImageAdjustment(
                 brightness: stored.brightness,
@@ -153,6 +176,12 @@ final class EditorViewModel: ObservableObject {
                 cropBottom: stored.cropBottom
             )
         }
+        self.history = [EditorHistorySnapshot(
+            redactions: self.redactions,
+            imageAdjustment: self.imageAdjustment,
+            watermark: self.watermark
+        )]
+        self.historyIdx = 0
         let suggestions = Self.suggestedRectsForBanner(in: doc)
         let hasOCRFields = doc.kind == .photo || doc.kind == .genericID
             ? !doc.fields.documentNumber.isEmpty || !doc.fields.fullName.isEmpty
@@ -168,26 +197,41 @@ final class EditorViewModel: ObservableObject {
 
     // MARK: - History
 
-    private func push(_ next: [Redaction]) {
-        guard next != redactions else { return }
+    func commitCurrentStateToHistory() {
+        let currentSnap = EditorHistorySnapshot(
+            redactions: redactions,
+            imageAdjustment: imageAdjustment,
+            watermark: watermark
+        )
+        guard history.isEmpty || history[historyIdx] != currentSnap else { return }
         history = Array(history.prefix(historyIdx + 1))
-        history.append(next)
+        history.append(currentSnap)
         historyIdx = history.count - 1
-        redactions = next
         persistCurrentPageState()
+    }
+
+    private func push(_ next: [Redaction]) {
+        redactions = next
+        commitCurrentStateToHistory()
     }
 
     func undo() {
         guard canUndo else { return }
         historyIdx -= 1
-        redactions = history[historyIdx]
+        let snap = history[historyIdx]
+        redactions = snap.redactions
+        imageAdjustment = snap.imageAdjustment
+        watermark = snap.watermark
         persistCurrentPageState()
     }
 
     func redo() {
         guard canRedo else { return }
         historyIdx += 1
-        redactions = history[historyIdx]
+        let snap = history[historyIdx]
+        redactions = snap.redactions
+        imageAdjustment = snap.imageAdjustment
+        watermark = snap.watermark
         persistCurrentPageState()
     }
 
@@ -378,28 +422,28 @@ final class EditorViewModel: ObservableObject {
 
     func resetAdjustment() {
         imageAdjustment = .default
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     func rotateImage90CW() {
         var adj = imageAdjustment
         adj.rotation = ((adj.rotation + 90).truncatingRemainder(dividingBy: 360))
         imageAdjustment = adj
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     func flipImageHorizontal() {
         var adj = imageAdjustment
         adj.flipHorizontal.toggle()
         imageAdjustment = adj
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     func flipImageVertical() {
         var adj = imageAdjustment
         adj.flipVertical.toggle()
         imageAdjustment = adj
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     private func sanitizedAdjustment(_ adjustment: ImageAdjustment) -> ImageAdjustment {
@@ -437,10 +481,7 @@ final class EditorViewModel: ObservableObject {
         guard let baseline = redactionTransformBaseline else { return }
         redactionTransformBaseline = nil
         guard baseline != redactions else { return }
-        history = Array(history.prefix(historyIdx + 1))
-        history.append(redactions)
-        historyIdx = history.count - 1
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     func moveRedaction(id: UUID, by delta: CGSize, canvasSize: CGSize) {
@@ -651,7 +692,7 @@ final class EditorViewModel: ObservableObject {
 
     func setWatermark(_ watermark: Watermark?) {
         self.watermark = watermark
-        persistCurrentPageState()
+        commitCurrentStateToHistory()
     }
 
     func markSaved() {

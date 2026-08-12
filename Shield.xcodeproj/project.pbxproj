@@ -8,14 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
-		ALOT001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = LOTPROD001 /* Lottie */; };
-		BLOTJSON /* MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* MaskID_IdentityMask_v3.json */; };
 		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
 		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		7C3D808930272B990017854E /* Mask.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D808830272B990017854E /* Mask.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
-		AREVIEW /* AppReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FREVIEW /* AppReviewManager.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
 		A004 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Document.swift */; };
 		A005 /* Redaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005 /* Redaction.swift */; };
@@ -72,8 +69,10 @@
 		A901 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F901 /* SplashView.swift */; };
 		AIMP /* ImportPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIMP /* ImportPipeline.swift */; };
 		AINT /* ShieldAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FINT /* ShieldAppIntents.swift */; };
+		ALOT001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = LOTPROD001 /* Lottie */; };
 		AMETRIC /* ShieldMetricSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FMETRIC /* ShieldMetricSubscriber.swift */; };
 		ARC001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCPROD001 /* RevenueCat */; };
+		AREVIEW /* AppReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FREVIEW /* AppReviewManager.swift */; };
 		ASHARE /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
 		AT001 /* RedactionCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T001 /* RedactionCodingTests.swift */; };
 		AT002 /* ShieldLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T002 /* ShieldLaunchTests.swift */; };
@@ -97,6 +96,7 @@
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
 		B013 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L013 /* AppShortcuts.xcstrings */; };
+		BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */; };
 		C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */; };
 		EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FEXTAPP /* ShieldShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EXTRES1 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FEXTSTORY /* MainInterface.storyboard */; };
@@ -152,7 +152,6 @@
 		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		FREVIEW /* AppReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManager.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
 		F004 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		F005 /* Redaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Redaction.swift; sourceTree = "<group>"; };
@@ -217,8 +216,9 @@
 		FEXTSTORY /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = MainInterface.storyboard; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		FIMP /* ImportPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipeline.swift; sourceTree = "<group>"; };
 		FINT /* ShieldAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldAppIntents.swift; sourceTree = "<group>"; };
-		FLOTJSON /* MaskID_IdentityMask_v3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Animations/MaskID_IdentityMask_v3.json; sourceTree = "<group>"; };
+		FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Animations/MaskID_IdentityMask_v3.json; sourceTree = "<group>"; };
 		FMETRIC /* ShieldMetricSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldMetricSubscriber.swift; sourceTree = "<group>"; };
+		FREVIEW /* AppReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManager.swift; sourceTree = "<group>"; };
 		FSEC /* SecurityPrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyTests.swift; sourceTree = "<group>"; };
 		FSHARE /* SharedImportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStore.swift; sourceTree = "<group>"; };
 		FTEST /* ShieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -470,7 +470,7 @@
 		GRP_RESOURCES /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				FLOTJSON /* MaskID_IdentityMask_v3.json */,
+				FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */,
 				F024 /* Assets.xcassets */,
 				F025 /* Shield.storekit */,
 				F028 /* PrivacyInfo.xcprivacy */,
@@ -781,7 +781,7 @@
 				A024 /* Assets.xcassets in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
-				BLOTJSON /* MaskID_IdentityMask_v3.json in Resources */,
+				BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */,
 				B002 /* Capture.xcstrings in Resources */,
 				7C3D808930272B990017854E /* Mask.icon in Resources */,
 				B003 /* Common.xcstrings in Resources */,
@@ -971,7 +971,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 102202608121;
+		"CURRENT_PROJECT_VERSION" = 102202608122;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -998,7 +998,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 102202608121;
+		"CURRENT_PROJECT_VERSION" = 102202608122;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1121,11 +1121,12 @@
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
+		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 102202608121;
+		"CURRENT_PROJECT_VERSION" = 102202608122;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1134,8 +1135,8 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\341mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\363veda.";
+		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\306mara para escanear documentos.";
+		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\372veda.";
 		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
@@ -1155,6 +1156,7 @@
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
 		"PRODUCT_MODULE_NAME" = Shield;
 		"PRODUCT_NAME" = MaskID;
+		"PROVISIONING_PROFILE_SPECIFIER" = "";
 		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 		"SUPPORTS_MACCATALYST" = NO;
 		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
@@ -1167,11 +1169,12 @@
 };
 		BC_TARGET_RELEASE /* Release */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = MaskID;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
+		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 102202608121;
+		"CURRENT_PROJECT_VERSION" = 102202608122;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1180,8 +1183,8 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\341mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\363veda.";
+		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\306mara para escanear documentos.";
+		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\372veda.";
 		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
@@ -1201,6 +1204,7 @@
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
 		"PRODUCT_MODULE_NAME" = Shield;
 		"PRODUCT_NAME" = MaskID;
+		"PROVISIONING_PROFILE_SPECIFIER" = "";
 		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 		"SUPPORTS_MACCATALYST" = NO;
 		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
@@ -1326,20 +1330,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.6.0;
-			};
-		};
 		A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 12.16.0;
+			};
+		};
+		LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
 			};
 		};
 		RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
@@ -1353,11 +1357,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		LOTPROD001 /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
-			productName = Lottie;
-		};
 		38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -1367,6 +1366,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
+		};
+		LOTPROD001 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
 		};
 		RCPROD001 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

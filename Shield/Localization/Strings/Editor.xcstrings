@@ -3038,6 +3038,23 @@
         }
       }
     },
+    "editor_tool_pan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover"
+          }
+        }
+      }
+    },
     "editor_tool_rect" : {
       "extractionState" : "manual",
       "localizations" : {

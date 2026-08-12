@@ -233,7 +233,11 @@ struct ImageAdjustToolbar: View {
                 }
                 .buttonStyle(ScaleButtonStyle())
             }
-            Slider(value: value, in: range)
+            Slider(value: value, in: range, onEditingChanged: { editing in
+                if !editing {
+                    vm.commitCurrentStateToHistory()
+                }
+            })
                 .tint(ShieldTheme.accent(scheme))
         }
         .padding(.top, 8)
@@ -270,7 +274,11 @@ struct ImageAdjustToolbar: View {
                 .shieldFont(11, weight: .semibold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .frame(width: 70, alignment: .leading)
-            Slider(value: binding, in: 0...0.4, step: 0.005)
+            Slider(value: binding, in: 0...0.4, step: 0.005, onEditingChanged: { editing in
+                if !editing {
+                    vm.commitCurrentStateToHistory()
+                }
+            })
                 .tint(ShieldTheme.accent(scheme))
             Text("\(Int((binding.wrappedValue * 100).rounded()))%")
                 .shieldFont(11, weight: .semibold, design: .monospaced)

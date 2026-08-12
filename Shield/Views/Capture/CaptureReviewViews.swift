@@ -535,47 +535,56 @@ struct ScanReviewView: View {
     @State private var isAdjustingSlider = false
     @State private var renderSequence = 0
 
+    private var topSafeAreaInset: CGFloat {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first else { return 59 }
+        return max(window.safeAreaInsets.top, 20)
+    }
+
     var body: some View {
         GeometryReader { geo in
-            let controlsHeight = min(max(geo.size.height * 0.48, 340), 470)
-            Group {
-                if geo.size.width >= 820 {
-                    HStack(spacing: 0) {
-                        previewArea
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            let contentHeight = geo.size.height - topSafeAreaInset
 
-                        Rectangle()
-                            .fill(ShieldTheme.line(scheme))
-                            .frame(width: 0.5)
+            VStack(spacing: 0) {
+                header()
 
-                        VStack(spacing: 0) {
-                            pageStrip
-                            controls
+                Group {
+                    if geo.size.width >= 820 {
+                        HStack(spacing: 0) {
+                            previewArea
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                            Rectangle()
+                                .fill(ShieldTheme.line(scheme))
+                                .frame(width: 0.5)
+
+                            VStack(spacing: 0) {
+                                pageStrip
+                                controls
+                            }
+                            .frame(width: min(430, geo.size.width * 0.42))
+                            .background(ShieldTheme.pageBackground(scheme))
                         }
-                        .frame(width: min(430, geo.size.width * 0.42))
-                        .background(ShieldTheme.pageBackground(scheme))
-                    }
-                } else {
-                    VStack(spacing: 0) {
-                        previewArea
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                    } else {
                         VStack(spacing: 0) {
-                            pageStrip
-                            controls
+                            previewArea
+                                .frame(maxWidth: .infinity)
+                                .frame(height: max(180, contentHeight * 0.35))
+
+                            VStack(spacing: 0) {
+                                pageStrip
+                                controls
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(ShieldTheme.pageBackground(scheme))
                         }
-                        .frame(width: geo.size.width, height: controlsHeight)
-                        .background(ShieldTheme.pageBackground(scheme))
                     }
                 }
             }
-            .frame(width: geo.size.width, height: geo.size.height)
-            .safeAreaInset(edge: .top, spacing: 0) {
-                header(topInset: geo.safeAreaInsets.top)
-            }
+            .padding(.top, topSafeAreaInset)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
+        .ignoresSafeArea(.container, edges: .top)
+        .background(ShieldTheme.pageBackground(scheme))
         .preferredColorScheme(appState.preferredScheme)
         .onAppear(perform: setupInitialState)
         .onChange(of: selectedPage) {
@@ -635,8 +644,8 @@ struct ScanReviewView: View {
         processingTask = task
     }
 
-    private func header(topInset: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+    private func header() -> some View {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Button(LanguageManager.shared.capture("capture_cancel")) {
                     onCancel()
@@ -662,30 +671,33 @@ struct ScanReviewView: View {
                 .foregroundColor((applying || showQuadEditor) ? ShieldTheme.tertiary(scheme) : ShieldTheme.accent(scheme))
             }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("\(selectedPage + 1)/\(max(1, pages.count))")
-                    .shieldFont(12, weight: .bold)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                    .padding(.horizontal, 10)
-                    .frame(height: 32)
-                    .background(ShieldTheme.rowBackground(scheme))
-                    .overlay(
-                        Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                    )
-                    .clipShape(Capsule())
-                Text(LanguageManager.shared.capture("capture_enhance_title"))
-                    .shieldFont(22, weight: .heavy)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                    .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text("\(selectedPage + 1)/\(max(1, pages.count))")
+                        .shieldFont(12, weight: .bold)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                        .padding(.horizontal, 10)
+                        .frame(height: 26)
+                        .background(ShieldTheme.rowBackground(scheme))
+                        .overlay(
+                            Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                        )
+                        .clipShape(Capsule())
+
+                    Text(LanguageManager.shared.capture("capture_enhance_title"))
+                        .shieldFont(20, weight: .heavy)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                }
+
                 Text(LanguageManager.shared.capture("capture_enhance_subtitle"))
-                    .shieldFont(13, weight: .medium)
+                    .shieldFont(12, weight: .medium)
                     .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .lineLimit(2)
+                    .lineLimit(1)
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, max(8, topInset > 0 ? 6 : 14))
-        .padding(.bottom, 10)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
         .background(ShieldTheme.pageBackground(scheme))
     }
 
@@ -771,63 +783,77 @@ struct ScanReviewView: View {
     }
 
     private var controls: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 10) {
-                presetSection
-                filterSection
-                quickGeometrySection
-                advancedControlsToggle
-                if showAdvancedControls {
-                    geometrySection
-                    cropSection
-                    imageSection
-                }
+        VStack(spacing: 0) {
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: 12) {
+                    presetSection
+                    filterSection
+                    quickGeometrySection
+                    advancedControlsToggle
+                    if showAdvancedControls {
+                        geometrySection
+                        cropSection
+                        imageSection
+                    }
 
-                HStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        Button {
+                            resetCurrentPage()
+                        } label: {
+                            Text(LanguageManager.shared.capture("capture_reset_page"))
+                                .shieldFont(13, weight: .semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .background(ShieldTheme.rowBackground(scheme))
+                                .foregroundColor(ShieldTheme.primary(scheme))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+
+                        Button {
+                            resetAllPages()
+                        } label: {
+                            Text(LanguageManager.shared.capture("capture_reset_all"))
+                                .shieldFont(13, weight: .semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .background(ShieldTheme.rowBackground(scheme))
+                                .foregroundColor(ShieldTheme.primary(scheme))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+
                     Button {
-                        resetCurrentPage()
-                } label: {
-                    Text(LanguageManager.shared.capture("capture_reset_page"))
-                        .shieldFont(13, weight: .semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 40)
-                        .background(ShieldTheme.rowBackground(scheme))
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                    .buttonStyle(ScaleButtonStyle())
-
-                    Button {
-                        resetAllPages()
-                } label: {
-                    Text(LanguageManager.shared.capture("capture_reset_all"))
-                        .shieldFont(13, weight: .semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 40)
-                        .background(ShieldTheme.rowBackground(scheme))
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                    .buttonStyle(ScaleButtonStyle())
-                }
-
-                Button {
-                    guard let current = adjustments[safe: selectedPage] else { return }
-                    adjustments = Array(repeating: current, count: pages.count)
-                    AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
-                } label: {
-                    Text(LanguageManager.shared.capture("capture_apply_all_pages"))
-                        .shieldFont(14, weight: .bold)
+                        guard let current = adjustments[safe: selectedPage] else { return }
+                        adjustments = Array(repeating: current, count: pages.count)
+                        AppState.trackEvent("scan_batch_applied", properties: ["pages": String(pages.count)])
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.3.layers.3d.down.right")
+                                .shieldFont(13, weight: .bold)
+                            Text(LanguageManager.shared.capture("capture_apply_all_pages"))
+                                .shieldFont(14, weight: .bold)
+                        }
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
-                        .background(ShieldTheme.accentDim(scheme))
-                        .foregroundColor(ShieldTheme.accent(scheme))
+                        .background(
+                            LinearGradient(
+                                colors: [Color(hex: "1591A3"), Color(hex: "20C7D9")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(color: Color(hex: "20C7D9").opacity(0.25), radius: 6, x: 0, y: 2)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
                 }
-                .buttonStyle(ScaleButtonStyle())
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
     }
 
@@ -958,6 +984,34 @@ struct ScanReviewView: View {
                 valueText: "\(Int(binding(\.straightenDegrees).wrappedValue))°"
             ) {
                 liveSlider(value: binding(\.straightenDegrees), in: -25...25, step: 1)
+            }
+
+            if adjustments[safe: selectedPage]?.quad != nil || showQuadEditor {
+                Button {
+                    if selectedPage < adjustments.count {
+                        adjustments[selectedPage].quad = nil
+                        adjustments[selectedPage].perspectiveTopInset = 0
+                        adjustments[selectedPage].perspectiveBottomInset = 0
+                        adjustments[selectedPage].perspectiveSkew = 0
+                        adjustments[selectedPage].perspectiveTopYOffset = 0
+                        adjustments[selectedPage].perspectiveBottomYOffset = 0
+                    }
+                    showQuadEditor = false
+                    updateProcessedImage()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.uturn.backward.circle.fill")
+                            .shieldFont(12, weight: .semibold)
+                        Text(LanguageManager.shared.capture("capture_reset"))
+                            .shieldFont(12, weight: .semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 38)
+                    .background(ShieldTheme.dangerDim)
+                    .foregroundColor(ShieldTheme.danger)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
             }
 
             HStack(spacing: 8) {
@@ -1281,6 +1335,21 @@ struct ScanReviewView: View {
         let tr = VNImagePointForNormalizedPoint(rect.topRight, Int(width), Int(height))
         let bl = VNImagePointForNormalizedPoint(rect.bottomLeft, Int(width), Int(height))
         let br = VNImagePointForNormalizedPoint(rect.bottomRight, Int(width), Int(height))
+
+        let normTL = CGPoint(x: tl.x / width, y: tl.y / height)
+        let normTR = CGPoint(x: tr.x / width, y: tr.y / height)
+        let normBR = CGPoint(x: br.x / width, y: br.y / height)
+        let normBL = CGPoint(x: bl.x / width, y: bl.y / height)
+
+        let quadArea = 0.5 * abs(
+            (normTL.x * normTR.y - normTR.x * normTL.y) +
+            (normTR.x * normBR.y - normBR.x * normTR.y) +
+            (normBR.x * normBL.y - normBL.x * normBR.y) +
+            (normBL.x * normTL.y - normTL.x * normBL.y)
+        )
+
+        // Reject rects that cover less than 35% of the image (internal features like SIM chip, logo, etc.)
+        guard quadArea >= 0.35 else { return nil }
 
         let leftTopInset = max(0, tl.x / width)
         let rightTopInset = max(0, (width - tr.x) / width)

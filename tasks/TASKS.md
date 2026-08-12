@@ -1056,3 +1056,124 @@
    Done by: CODEX
    Done at: 2026-08-10T16:21:27Z
 
+97. fix-scan-review-ui-bugs
+   Id: 97-fix-scan-review-ui-bugs
+   Scope: Fix scan review header status bar overlap, auto-crop chip selection, and bottom tools layout in ScanReviewView
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Fixed top header safe area, Vision quad area filtering, manual crop reset button, and scrollable controls with bottom CTA; build and tests passed
+   Detail: tasks/details/97-fix-scan-review-ui-bugs.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T08:56:37Z
+   Done by: CODEX
+   Done at: 2026-08-12T08:57:50Z
+
+98. fix-scan-review-layout-safearea-controls
+   Id: 98-fix-scan-review-layout-safearea-controls
+   Scope: Fix ScanReviewView header safe area double padding and expand bottom tools scroll height with sticky bottom action
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Refactored header safe area without topInset calculation, expanded bottom controls scroll area, and added pinned bottom bar for Continue CTA
+   Detail: tasks/details/98-fix-scan-review-layout-safearea-controls.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:05:19Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:06:07Z
+
+99. vibrant-apply-button-style
+   Id: 99-vibrant-apply-button-style
+   Scope: Enhance ScanReviewView apply buttons with vibrant electric cyan brand styling and subtle shadow glow
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Applied high-contrast electric cyan brand gradient, icon and subtle glow to Apply to all pages and Continue action buttons
+   Detail: tasks/details/99-vibrant-apply-button-style.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:07:51Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:08:26Z
+
+100. fix-editor-footer-toolbar-clipping
+   Id: 100-fix-editor-footer-toolbar-clipping
+   Scope: Fix EditorView bottom toolbar top clipping by removing layoutPriority(1) from canvasArea and adjusting EditorBottomToolbar padding
+   Files: Shield/Views/Editor/EditorView.swift,Shield/Views/Editor/EditorChromeViews.swift
+   Note: Removed layoutPriority(1) from canvasArea and adjusted EditorBottomToolbar top and bottom paddings to 10pt
+   Detail: tasks/details/100-fix-editor-footer-toolbar-clipping.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:10:37Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:11:18Z
+
+101. add-zoom-pan-hand-tool-canvas
+   Id: 101-add-zoom-pan-hand-tool-canvas
+   Scope: Implement 2D drag panning on zoomed canvas and add Hand (Pan) tool to EditorTool
+   Files: Shield/Views/Editor/EditorView.swift,Shield/ViewModels/EditorViewModel.swift,Shield/Localization/Strings/Editor.xcstrings
+   Note: Added 2D drag panning when zoomed in and dedicated Pan (Mover / hand.raised.fill) tool to EditorTool
+   Detail: tasks/details/101-add-zoom-pan-hand-tool-canvas.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:12:01Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:13:24Z
+
+102. center-align-increase-editor-footer-buttons
+   Id: 102-center-align-increase-editor-footer-buttons
+   Scope: Center-align EditorBottomToolbar vertically, increase tool and action button sizes, and keep outer footer height compact
+   Files: Shield/Views/Editor/EditorChromeViews.swift
+   Note: Increased tool and action button sizes, vertically centered all toolbar elements, and reduced outer footer padding to 4pt for compact container height
+   Detail: tasks/details/102-center-align-increase-editor-footer-buttons.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:15:33Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:16:11Z
+
+103. add-undo-redo-for-image-adjustments-and-filters
+   Id: 103-add-undo-redo-for-image-adjustments-and-filters
+   Scope: Expand EditorViewModel history system to snapshot imageAdjustment and watermark alongside redactions, enabling complete Undo/Redo for all image filters and adjustments
+   Files: Shield/ViewModels/EditorViewModel.swift,Shield/Views/Editor/ImageAdjustToolbar.swift
+   Note: Expanded EditorViewModel history to snapshot imageAdjustment and watermark alongside redactions, enabling complete Undo/Redo support before saving
+   Detail: tasks/details/103-add-undo-redo-for-image-adjustments-and-filters.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:17:51Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:19:50Z
+
+104. enlarge-and-lower-editor-footer-buttons
+   Id: 104-enlarge-and-lower-editor-footer-buttons
+   Scope: Enlarge EditorBottomToolbar action and tool buttons (48x48 / 40x40 with 20pt icons) and lower their vertical position with padding(.top, 8) and padding(.bottom, 2)
+   Files: Shield/Views/Editor/EditorChromeViews.swift
+   Note: Increased action buttons to 48x48 (20pt icons) and tool boxes to 40x40 (19pt icons, 10pt bold text) and set top padding 8pt, bottom padding 2pt to lower button position
+   Detail: tasks/details/104-enlarge-and-lower-editor-footer-buttons.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:26:33Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:27:20Z
+
+105. fix-scan-review-header-safe-area-overlap
+   Id: 105-fix-scan-review-header-safe-area-overlap
+   Scope: Refactor ScanReviewView layout to place header() at top of outer VStack(spacing: 0) outside GeometryReader so it never overlaps status bar or safe area
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Moved header() to outer VStack top level outside GeometryReader in ScanReviewView to permanently fix status bar overlap
+   Detail: tasks/details/105-fix-scan-review-header-safe-area-overlap.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:33:30Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:34:18Z
+
+106. fix-scan-review-safe-area-inset-outside-geometry-reader
+   Id: 106-fix-scan-review-safe-area-inset-outside-geometry-reader
+   Scope: Move safeAreaInset(edge: .top) { header() } outside GeometryReader in ScanReviewView body so SwiftUI top safe area is respected in fullScreenCover
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Moved safeAreaInset(edge: .top) { header() } outside GeometryReader in ScanReviewView body to force top safe area padding in fullScreenCover
+   Detail: tasks/details/106-fix-scan-review-safe-area-inset-outside-geometry-reader.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:41:33Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:42:21Z
+
+107. remove-footer-and-fix-scan-review-header
+   Id: 107-remove-footer-and-fix-scan-review-header
+   Scope: Remove pinned bottom continue footer from ScanReviewView and fix header top padding using geo.safeAreaInsets.top inside GeometryReader
+   Files: Shield/Views/Capture/CaptureReviewViews.swift
+   Note: Removed pinned bottom continue footer from ScanReviewView and applied geo.safeAreaInsets.top padding to header inside GeometryReader
+   Detail: tasks/details/107-remove-footer-and-fix-scan-review-header.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T09:48:01Z
+   Done by: CODEX
+   Done at: 2026-08-12T09:48:57Z
+
