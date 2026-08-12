@@ -57,6 +57,7 @@ struct ShieldTabBar: View {
             tabItem(.vault)
             tabItem(.settings)
         }
+        .frame(height: 46)
         .padding(.horizontal, 4)
         .background(ShieldTheme.cardBackground(scheme))
         .overlay(alignment: .top) {
@@ -66,7 +67,7 @@ struct ShieldTabBar: View {
         }
         .overlay(alignment: .top) {
             scanButton
-                .offset(y: -24)
+                .offset(y: -18)
                 .zIndex(1)
         }
     }
@@ -79,18 +80,18 @@ struct ShieldTabBar: View {
                     .fill(ShieldTheme.accent(scheme))
                     .overlay {
                         Circle()
-                            .stroke(ShieldTheme.cardBackground(scheme), lineWidth: 4)
+                            .stroke(ShieldTheme.cardBackground(scheme), lineWidth: 3.5)
                     }
                     .shadow(
                         color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.38 : 0.22),
-                        radius: 9,
-                        y: 3
+                        radius: 8,
+                        y: 2
                     )
                 Image(systemName: "camera.viewfinder")
-                    .shieldFont(22, weight: .bold)
+                    .shieldFont(20, weight: .bold)
                     .foregroundColor(ShieldTheme.accentText)
             }
-            .frame(width: 64, height: 64)
+            .frame(width: 58, height: 58)
             .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
@@ -105,21 +106,20 @@ struct ShieldTabBar: View {
         Button {
             withAnimation(.easeInOut(duration: 0.15)) { selected = tab }
         } label: {
-            VStack(spacing: 1) {
+            VStack(spacing: 1.5) {
                 Image(systemName: isActive ? tab.filledIcon : tab.icon)
-                    .font(.subheadline.weight(isActive ? .semibold : .regular))
+                    .font(.system(size: 18, weight: isActive ? .semibold : .regular))
                     .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .scaleEffect(isActive ? 1.05 : 1)
                     .animation(.spring(response: 0.25), value: isActive)
                 Text(tab.label(lang: lang))
-                    .font(.caption2.weight(isActive ? .semibold : .regular))
+                    .font(.system(size: 10, weight: isActive ? .bold : .medium))
                     .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
             }
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 44)
+            .padding(.top, 14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
         .buttonStyle(.plain)
-        .frame(minHeight: 44)
         .accessibilityLabel(tab.label(lang: lang))
         .accessibilityValue(isActive ? LanguageManager.shared.common("common_selected") : "")
         .accessibilityAddTraits(isActive ? .isSelected : [])
