@@ -59,13 +59,11 @@ struct VaultView: View {
     private var lockGate: some View {
         VStack(spacing: 28) {
             Spacer()
-            ZStack {
-                RoundedRectangle(cornerRadius: 32)
-                    .fill(ShieldTheme.selection(scheme).opacity(0.08))
-                    .overlay(RoundedRectangle(cornerRadius: 32).stroke(ShieldTheme.selection(scheme).opacity(0.25), lineWidth: 1.5))
-                    .frame(width: 120, height: 120)
-                Image(systemName: "faceid").shieldFont(54, weight: .light).foregroundColor(ShieldTheme.accent)
-            }
+            MaskIDIdentityMark(
+                size: 120,
+                presentation: .animatedLoop,
+                treatment: .feature
+            )
             VStack(spacing: 6) {
                 Text(LanguageManager.shared.vault("vault_locked_title"))
                     .shieldFont(22, weight: .bold).foregroundColor(ShieldTheme.primary(scheme))

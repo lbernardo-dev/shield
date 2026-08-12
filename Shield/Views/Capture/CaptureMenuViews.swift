@@ -374,15 +374,11 @@ private struct CapturePrivacyCard: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(ShieldTheme.successDim)
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: "lock.shield.fill")
-                    .shieldFont(18, weight: .bold)
-                    .foregroundColor(ShieldTheme.success)
-            }
+            MaskIDIdentityMark(
+                size: 44,
+                presentation: .staticMark,
+                treatment: .compact
+            )
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)

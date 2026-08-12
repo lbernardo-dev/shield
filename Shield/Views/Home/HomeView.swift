@@ -1266,15 +1266,11 @@ struct VaultAutoLockOverlay: View {
             // Card
             VStack(spacing: 24) {
                 // Icon
-                ZStack {
-                    Circle()
-                        .fill(ShieldTheme.accentDim)
-                        .frame(width: 72, height: 72)
-                    Image(systemName: "lock.shield.fill")
-                        .shieldFont(32, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accent)
-                        .accessibilityHidden(true)
-                }
+                MaskIDIdentityMark(
+                    size: 80,
+                    presentation: .animatedLoop,
+                    treatment: .feature
+                )
 
                 VStack(spacing: 8) {
                     Text(LanguageManager.shared.home("home_vault_mode"))

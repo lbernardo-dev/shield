@@ -11,9 +11,9 @@ struct HomeTopBarView: View {
         HStack(spacing: 12) {
             HStack(spacing: 9) {
                 MaskIDIdentityMark(
-                    size: 30,
-                    presentation: .staticMark,
-                    treatment: .compact
+                    size: 34,
+                    presentation: .animatedLoop,
+                    treatment: .feature
                 )
 
                 VStack(alignment: .leading, spacing: 1) {

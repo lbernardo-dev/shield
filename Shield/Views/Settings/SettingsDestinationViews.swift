@@ -146,6 +146,8 @@ struct SettingsSummaryCard: View {
     let documentCount: Int
     let vaultedCount: Int
     let isPro: Bool
+    var onUnlockPro: (() -> Void)? = nil
+    var onManageSubscription: (() -> Void)? = nil
 
     @Environment(\.colorScheme) private var scheme
     private var strings: LanguageManager { .shared }
@@ -154,13 +156,17 @@ struct SettingsSummaryCard: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
     }
 
+    private var manageText: String {
+        strings.currentLanguage == .es ? "Gestionar suscripción" : "Manage Subscription"
+    }
+
     var body: some View {
-        VStack(spacing: ShieldTheme.s3) {
+        VStack(spacing: ShieldTheme.s4) {
             HStack(spacing: ShieldTheme.s3) {
                 MaskIDIdentityMark(
-                    size: 48,
-                    presentation: .staticMark,
-                    treatment: .card
+                    size: 52,
+                    presentation: .animatedLoop,
+                    treatment: .feature
                 )
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -188,8 +194,61 @@ struct SettingsSummaryCard: View {
                 Rectangle().fill(ShieldTheme.line(scheme)).frame(width: 1, height: 38)
                 summaryMetric(icon: "lock.fill", value: vaultedCount.formatted(), label: strings.settings("settings_summary_vault"))
             }
+
+            Divider()
+                .overlay(ShieldTheme.line(scheme))
+
+            if isPro {
+                if let onManageSubscription {
+                    Button(action: onManageSubscription) {
+                        HStack(spacing: ShieldTheme.s2) {
+                            Image(systemName: "creditcard.fill")
+                                .font(.subheadline.weight(.bold))
+                                .foregroundStyle(ShieldTheme.accent(scheme))
+                            Text(manageText)
+                                .font(.subheadline.weight(.bold))
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                            Spacer()
+                            Image(systemName: "arrow.up.forward.app")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(ShieldTheme.secondary(scheme))
+                        }
+                        .padding(.horizontal, ShieldTheme.s3)
+                        .frame(minHeight: 46)
+                        .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+            } else {
+                if let onUnlockPro {
+                    VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+                        HStack(spacing: ShieldTheme.s3) {
+                            SettingsIconBadge(icon: "crown.fill", color: Color(hex: "FFD60A"), size: 40)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(strings.settings("settings_unlock_premium"))
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(ShieldTheme.primary(scheme))
+                                Text(strings.settings("settings_pro_unlock_features"))
+                                    .font(.caption)
+                                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                            }
+                        }
+
+                        Button(action: onUnlockPro) {
+                            Text(strings.settings("settings_view_options"))
+                                .font(.headline.weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 46)
+                                .foregroundStyle(ShieldTheme.accentText)
+                                .background(ShieldTheme.accent(scheme))
+                                .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+                }
+            }
         }
-        .padding(ShieldTheme.s3)
+        .padding(ShieldTheme.s4)
         .shieldSettingsCard()
         .accessibilityElement(children: .contain)
     }

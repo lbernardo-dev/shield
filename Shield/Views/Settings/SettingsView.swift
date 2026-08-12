@@ -34,12 +34,10 @@ struct SettingsView: View {
                         SettingsSummaryCard(
                             documentCount: appState.documents.count,
                             vaultedCount: appState.documents.filter(\.isVaulted).count,
-                            isPro: premium.isPro
+                            isPro: premium.isPro,
+                            onUnlockPro: { showPaywall = true },
+                            onManageSubscription: openManageSubscription
                         )
-
-                        if !premium.isPro {
-                            premiumCard
-                        }
 
                         SettingsCardSection(
                             title: strings.settings("settings_section_personalization"),
@@ -183,35 +181,10 @@ struct SettingsView: View {
         .padding(.top, ShieldTheme.topChromePadding)
     }
 
-    private var premiumCard: some View {
-        VStack(alignment: .leading, spacing: ShieldTheme.s4) {
-            HStack(spacing: ShieldTheme.s3) {
-                SettingsIconBadge(icon: "sparkles", color: ShieldTheme.accent(scheme), size: 48)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(strings.settings("settings_unlock_premium"))
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                    Text(strings.settings("settings_pro_unlock_features"))
-                        .font(.subheadline)
-                        .foregroundStyle(ShieldTheme.secondary(scheme))
-                }
-            }
-
-            Button {
-                showPaywall = true
-            } label: {
-                Text(strings.settings("settings_view_options"))
-                    .font(.headline.weight(.bold))
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 50)
-                    .foregroundStyle(ShieldTheme.accentText)
-                    .background(ShieldTheme.accent(scheme))
-                    .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
-            }
-            .buttonStyle(ScaleButtonStyle())
+    private func openManageSubscription() {
+        if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+            openURL(url)
         }
-        .padding(ShieldTheme.s4)
-        .shieldSettingsCard()
     }
 
     @ViewBuilder
