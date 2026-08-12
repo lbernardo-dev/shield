@@ -164,9 +164,9 @@ struct SettingsSummaryCard: View {
         VStack(spacing: ShieldTheme.s4) {
             HStack(spacing: ShieldTheme.s3) {
                 MaskIDIdentityMark(
-                    size: 52,
+                    size: 44,
                     presentation: .animatedLoop,
-                    treatment: .feature
+                    treatment: .compact
                 )
 
                 VStack(alignment: .leading, spacing: 3) {

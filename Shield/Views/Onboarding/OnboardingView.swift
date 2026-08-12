@@ -44,7 +44,7 @@ struct LockScreenView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, ShieldTheme.s5)
                     .padding(.top, ShieldTheme.topChromePadding)
-                    .padding(.bottom, ShieldTheme.s5)
+                    .padding(.bottom, 100)
                 }
                 .scrollIndicators(.hidden)
             }
@@ -103,12 +103,12 @@ struct LockScreenView: View {
         Group {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: ShieldTheme.s4) {
-                    identityMark(size: 92)
+                    identityMark(size: 64)
                     accessCopy
                 }
             } else {
-                HStack(spacing: ShieldTheme.s5) {
-                    identityMark(size: 116)
+                HStack(alignment: .top, spacing: ShieldTheme.s4) {
+                    identityMark(size: 72)
                     accessCopy
                 }
             }
@@ -119,7 +119,7 @@ struct LockScreenView: View {
             LinearGradient(
                 colors: [
                     ShieldTheme.cardBackground(scheme),
-                    ShieldTheme.accentDim(scheme).opacity(scheme == .dark ? 0.62 : 0.34)
+                    ShieldTheme.accentDim(scheme).opacity(scheme == .dark ? 0.62 : 0.28)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -138,30 +138,39 @@ struct LockScreenView: View {
             MaskIDIdentityMark(
                 size: size,
                 presentation: .animatedLoop,
-                treatment: .feature,
+                treatment: .compact,
                 isEmphasized: isAuthenticating
             )
 
             if verified {
                 Image(systemName: "checkmark.circle.fill")
-                    .shieldFont(27, weight: .semibold)
+                    .shieldFont(20, weight: .semibold)
                     .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
                     .contentTransition(.symbolEffect(.replace))
                     .accessibilityHidden(true)
             }
         }
+        .padding(ShieldTheme.s2)
+        .background(
+            ShieldTheme.accentDim(scheme),
+            in: RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
+                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+        )
     }
 
     private var accessCopy: some View {
         VStack(alignment: .leading, spacing: ShieldTheme.s3) {
             VStack(alignment: .leading, spacing: ShieldTheme.s2) {
                 Text(LanguageManager.shared.auth("lock_access_title"))
-                    .shieldFont(24, weight: .bold)
+                    .shieldFont(20, weight: .bold)
                     .foregroundStyle(ShieldTheme.primary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(lockSubtitle)
-                    .shieldFont(14, weight: .medium)
+                    .shieldFont(13, weight: .medium)
                     .foregroundStyle(ShieldTheme.secondary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -222,20 +231,17 @@ struct LockScreenView: View {
                 vaultMetricTile(
                     icon: "doc.fill",
                     title: "\(appState.documents.count)",
-                    subtitle: LanguageManager.shared.auth("lock_stat_processed_label"),
-                    detail: String(format: LanguageManager.shared.auth("lock_stat_processed_detail"), appState.documents.count)
+                    subtitle: LanguageManager.shared.auth("lock_stat_processed_label")
                 )
                 vaultMetricTile(
                     icon: "lock.shield.fill",
                     title: "\(totalVaultedCount)",
-                    subtitle: LanguageManager.shared.auth("lock_stat_vaulted_label"),
-                    detail: String(format: LanguageManager.shared.auth("lock_stat_vaulted_detail"), totalVaultedCount)
+                    subtitle: LanguageManager.shared.auth("lock_stat_vaulted_label")
                 )
                 vaultMetricTile(
                     icon: "eye.slash.fill",
                     title: "\(totalMaskedCount)",
-                    subtitle: LanguageManager.shared.auth("lock_stat_masked_label"),
-                    detail: String(format: LanguageManager.shared.auth("lock_stat_masked_detail"), totalMaskedCount)
+                    subtitle: LanguageManager.shared.auth("lock_stat_masked_label")
                 )
             }
         }
@@ -244,7 +250,7 @@ struct LockScreenView: View {
         .accessibilityElement(children: .contain)
     }
 
-    private func vaultMetricTile(icon: String, title: String, subtitle: String, detail: String) -> some View {
+    private func vaultMetricTile(icon: String, title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
@@ -256,14 +262,9 @@ struct LockScreenView: View {
                     .foregroundStyle(ShieldTheme.primary(scheme))
             }
             Text(subtitle)
-                .shieldFont(12, weight: .bold)
-                .foregroundStyle(ShieldTheme.primary(scheme))
-                .lineLimit(1)
-            Text(detail)
-                .shieldFont(10, weight: .medium)
+                .shieldFont(12, weight: .semibold)
                 .foregroundStyle(ShieldTheme.secondary(scheme))
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(ShieldTheme.s3)

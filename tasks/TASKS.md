@@ -1177,3 +1177,69 @@
    Done by: CODEX
    Done at: 2026-08-12T09:48:57Z
 
+108. update-splash-and-identity-icon-assets
+   Id: 108-update-splash-and-identity-icon-assets
+   Scope: Actualizar vista de carga/splash y componentes de identidad MaskIDIdentityMark para usar la nueva marca e icono (anillo neón cian/verde sobre fondo de documento) en lugar del icono antiguo de robot/visera
+   Files: Shield/Resources/Assets.xcassets/MaskIDMark.imageset/maskid-mark.png,Shield/Resources/Animations/MaskID_IdentityMask_v3.json,Shield/Views/Components/SplashView.swift
+   Note: Actualizados activos MaskIDMark.imageset (maskid-mark.png) y recurso Lottie (MaskID_IdentityMask_v3.json img_face) con el nuevo icono de marca (anillo cian/verde sobre fondo de documento identidad) coincidente con la app de iOS. Compilación y suite completa de tests de la app superados en verde (30/30).
+   Detail: tasks/details/108-update-splash-and-identity-icon-assets.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T11:56:23Z
+   Done by: CODEX
+   Done at: 2026-08-12T11:56:58Z
+
+109. fix-lock-screen-ui-layout
+   Id: 109-fix-lock-screen-ui-layout
+   Scope: Rediseñar y corregir la interfaz de LockScreenView: estilizar el icono de identidad para integrarlo armónicamente sin cuadrado oscuro brusco, eliminar redundancias en la tarjeta de resumen de actividad, mejorar espaciados/tipografía de secciones y añadir padding inferior para evitar solapamiento con el botón flotante
+   Files: Shield/Views/Onboarding/OnboardingView.swift
+   Note: Finalizado rediseño de LockScreenView sin cuadrado oscuro y con distribución limpia.
+   Detail: tasks/details/109-fix-lock-screen-ui-layout.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T11:59:22Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:02:05Z
+
+110. fix-appwide-identity-mark-clipping-and-card-layouts
+   Id: 110-fix-appwide-identity-mark-clipping-and-card-layouts
+   Scope: Corregir el recorte y estilo de MaskIDIdentityMark en toda la app para eliminar los cuadrados oscuros no recortados en LottieView (Home, Ajustes, Paywall) y estilizar las tarjetas de Ajustes y Paywall
+   Files: Shield/Views/Components/SplashView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Paywall/PaywallView.swift
+   Note: Corregido el problema de renderizado no recortado en MaskIDIdentityMark aplicándolo a LottieView y staticMark con esquinas redondeadas (.continuous), borde sutil y sombra. Actualizados HomeTopBarView, SettingsSummaryCard, PaywallView y LockScreenView con tratamientos compactos pulidos y padding de ScrollView adecuado. Pruebas y build estricto en verde (30/30).
+   Detail: tasks/details/110-fix-appwide-identity-mark-clipping-and-card-layouts.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T12:00:36Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:01:59Z
+
+111. remove-pixel-visor-from-lottie-animation
+   Id: 111-remove-pixel-visor-from-lottie-animation
+   Scope: Remover las capas de píxeles laterales (Mask pixel 1..72) en la animación Lottie MaskID_IdentityMask_v3.json para mantener únicamente el destello animado (Scan line) sobre la marca limpia
+   Files: Shield/Resources/Animations/MaskID_IdentityMask_v3.json
+   Note: Removidas las 72 capas de píxeles laterales (Mask pixel 1..72) en MaskID_IdentityMask_v3.json. Conservada la marca limpia (Face/img_face) con el destello animado (Scan line). Compilación y suite completa de unit tests aprobadas en verde (29/29).
+   Detail: tasks/details/111-remove-pixel-visor-from-lottie-animation.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T12:05:08Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:05:48Z
+
+112. clean-base-head-image-and-restore-lottie-pixel-animation
+   Id: 112-clean-base-head-image-and-restore-lottie-pixel-animation
+   Scope: Limpiar las alas estáticas de visera pixelada en los laterales de la imagen del modelo 3D y restaurar la animación Lottie completa para que la visera pixelada y la línea de escaneo se animen dinámicamente sobre la cabeza limpia sin dejar bloques estáticos
+   Files: Shield/Resources/Assets.xcassets/MaskIDMark.imageset/maskid-mark.png,Shield/Resources/Animations/MaskID_IdentityMask_v3.json
+   Note: Limpiadas las alas de visera estáticas en los laterales del modelo de cabeza 3D en la imagen base y restaurada la animación Lottie completa con la línea de escaneo y los bloques pixelados dinámicos. App reinstalada y abierta en el simulador.
+   Detail: tasks/details/112-clean-base-head-image-and-restore-lottie-pixel-animation.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T12:08:46Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:09:20Z
+
+113. restore-original-lottie-animation
+   Id: 113-restore-original-lottie-animation
+   Scope: Restaurar completamente la animación Lottie original MaskID_IdentityMask_v3.json y el recurso maskid-mark.png sin modificaciones
+   Files: Shield/Resources/Animations/MaskID_IdentityMask_v3.json,Shield/Resources/Assets.xcassets/MaskIDMark.imageset/maskid-mark.png
+   Note: Restaurados completamente la animación Lottie original MaskID_IdentityMask_v3.json y el recurso de imagen maskid-mark.png a su estado intacto inicial. Proyecto recompilado y app reinstalada en el simulador.
+   Detail: tasks/details/113-restore-original-lottie-animation.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T12:11:03Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:11:33Z
+

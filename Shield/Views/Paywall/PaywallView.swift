@@ -72,7 +72,7 @@ struct PaywallView: View {
                         planSelector
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, ShieldTheme.s5)
+                    .padding(.bottom, 100)
                 }
             }
         }
@@ -122,9 +122,9 @@ struct PaywallView: View {
 
     private var heroMark: some View {
         MaskIDIdentityMark(
-            size: 104,
+            size: 76,
             presentation: .animatedLoop,
-            treatment: .hero
+            treatment: .compact
         )
     }
 

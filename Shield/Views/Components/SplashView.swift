@@ -70,53 +70,49 @@ struct MaskIDIdentityMark: View {
 
     @ViewBuilder
     private var mark: some View {
-        if (presentation == .animatedOnce || presentation == .animatedLoop) && !reduceMotion {
-            if presentation == .animatedLoop {
-                LottieView(animation: .named("MaskID_IdentityMask_v3"))
-                    .configure { animationView in
-                        animationView.shouldRasterizeWhenIdle = true
-                    }
-                    .playing(loopMode: .loop)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: size, height: size)
-            } else {
-                LottieView(animation: .named("MaskID_IdentityMask_v3"))
-                    .configure { animationView in
-                        animationView.shouldRasterizeWhenIdle = true
-                    }
-                    .playing()
-                    .animationDidFinish { completed in
-                        onAnimationFinished?(completed)
-                    }
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: size, height: size)
-            }
-        } else {
-            staticMark
-        }
-    }
-
-    private var staticMark: some View {
         let markSize = staticMarkSize
         let radius = markSize * cornerRadiusRatio
 
-        return Image("MaskIDMark")
-            .resizable()
-            .scaledToFill()
-            .frame(width: markSize, height: markSize)
-            .compositingGroup()
-            .clipShape(.rect(cornerRadius: radius))
-            .overlay {
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(ShieldTheme.accentStroke(scheme), lineWidth: borderWidth)
+        Group {
+            if (presentation == .animatedOnce || presentation == .animatedLoop) && !reduceMotion {
+                if presentation == .animatedLoop {
+                    LottieView(animation: .named("MaskID_IdentityMask_v3"))
+                        .configure { animationView in
+                            animationView.shouldRasterizeWhenIdle = true
+                        }
+                        .playing(loopMode: .loop)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                } else {
+                    LottieView(animation: .named("MaskID_IdentityMask_v3"))
+                        .configure { animationView in
+                            animationView.shouldRasterizeWhenIdle = true
+                        }
+                        .playing()
+                        .animationDidFinish { completed in
+                            onAnimationFinished?(completed)
+                        }
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            } else {
+                Image("MaskIDMark")
+                    .resizable()
+                    .scaledToFill()
             }
-            .shadow(
-                color: ShieldTheme.accent.opacity(shadowOpacity),
-                radius: shadowRadius,
-                y: shadowRadius * 0.2
-            )
+        }
+        .frame(width: markSize, height: markSize)
+        .compositingGroup()
+        .clipShape(.rect(cornerRadius: radius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: borderWidth)
+        }
+        .shadow(
+            color: ShieldTheme.accent.opacity(shadowOpacity),
+            radius: shadowRadius,
+            y: shadowRadius * 0.2
+        )
     }
 
     private var showsHalo: Bool {
