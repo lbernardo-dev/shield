@@ -765,6 +765,40 @@
           }
         }
       }
+    },
+    "vault_all_vaulted_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All documents are secured"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los documentos están protegidos"
+          }
+        }
+      }
+    },
+    "vault_all_vaulted_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All your documents are already in the vault."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos tus documentos ya están en la bóveda."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -1346,8 +1346,10 @@
    Id: 123-archive-upload-and-attach-build-103202608161
    Scope: Update build number to 103202608161, archive, upload to App Store Connect and link to version 1.0.3
    Files: Shield.xcodeproj/project.pbxproj
-   Note: Starting build update, archive, and upload to App Store Connect
+   Note: Build 103202608161 archived, IPA exported, uploaded to App Store Connect, and attached to version 1.0.3 with 0 blockers
    Detail: tasks/details/123-archive-upload-and-attach-build-103202608161.md
    Claimed by: CODEX
    Claimed at: 2026-08-16T07:51:47Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:57:13Z
 

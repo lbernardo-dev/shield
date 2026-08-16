@@ -317,49 +317,61 @@ struct AddToVaultSheet: View {
                 ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
                 if eligibleDocuments.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "checkmark.seal.fill")
-                            .shieldFont(36, weight: .bold)
-                            .foregroundColor(ShieldTheme.success)
-                        Text(LanguageManager.shared.vault("vault_all_vaulted_title"))
-                            .shieldFont(17, weight: .bold)
-                            .foregroundColor(ShieldTheme.primary(scheme))
-                        Text(LanguageManager.shared.vault("vault_all_vaulted_desc"))
-                            .shieldFont(13)
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
+                    // All-vaulted empty state
+                    VStack(spacing: 20) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [ShieldTheme.success.opacity(0.25), ShieldTheme.accent.opacity(0.15)],
+                                        startPoint: .topLeading, endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 96, height: 96)
+                            Image(systemName: "checkmark.shield.fill")
+                                .font(.system(size: 44, weight: .bold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [ShieldTheme.success, ShieldTheme.accent],
+                                        startPoint: .topLeading, endPoint: .bottomTrailing
+                                    )
+                                )
+                        }
+                        VStack(spacing: 8) {
+                            Text(LanguageManager.shared.vault("vault_all_vaulted_title"))
+                                .shieldFont(18, weight: .bold)
+                                .foregroundColor(ShieldTheme.primary(scheme))
+                            Text(LanguageManager.shared.vault("vault_all_vaulted_desc"))
+                                .shieldFont(14)
+                                .foregroundColor(ShieldTheme.secondary(scheme))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                        }
                     }
                 } else {
-                    List {
-                        ForEach(eligibleDocuments) { doc in
-                            HStack(spacing: 12) {
-                                Image(systemName: selectedDocs.contains(doc.id) ? "checkmark.circle.fill" : "circle")
-                                    .shieldFont(18, weight: .bold)
-                                    .foregroundColor(selectedDocs.contains(doc.id) ? ShieldTheme.accent : ShieldTheme.tertiary(scheme))
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(doc.title)
-                                        .shieldFont(14, weight: .semibold)
-                                        .foregroundColor(ShieldTheme.primary(scheme))
-                                        .lineLimit(1)
-                                    Text(doc.category.label(lang: appState.language))
-                                        .shieldFont(11)
-                                        .foregroundColor(ShieldTheme.tertiary(scheme))
-                                }
-                                Spacer()
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if selectedDocs.contains(doc.id) {
-                                    selectedDocs.remove(doc.id)
-                                } else {
-                                    selectedDocs.insert(doc.id)
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            ForEach(eligibleDocuments) { doc in
+                                VaultPickerRow(
+                                    doc: doc,
+                                    isSelected: selectedDocs.contains(doc.id),
+                                    language: appState.language,
+                                    scheme: scheme
+                                )
+                                .onTapGesture {
+                                    withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                                        if selectedDocs.contains(doc.id) {
+                                            selectedDocs.remove(doc.id)
+                                        } else {
+                                            selectedDocs.insert(doc.id)
+                                        }
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal, ShieldTheme.s5)
+                        .padding(.vertical, ShieldTheme.s4)
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle(LanguageManager.shared.vault("vault_add_to_vault"))
@@ -369,6 +381,7 @@ struct AddToVaultSheet: View {
                     Button(LanguageManager.shared.common("common_cancel")) {
                         isPresented = false
                     }
+                    .foregroundColor(ShieldTheme.accent)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(LanguageManager.shared.vault("vault_move_to_vault")) {
@@ -380,8 +393,128 @@ struct AddToVaultSheet: View {
                         isPresented = false
                     }
                     .disabled(selectedDocs.isEmpty)
+                    .fontWeight(.semibold)
                 }
             }
+        }
+    }
+}
+
+// MARK: - VaultPickerRow
+
+private struct VaultPickerRow: View {
+    let doc: DocumentItem
+    let isSelected: Bool
+    let language: AppLanguage
+    let scheme: ColorScheme
+
+    @State private var thumbnail: UIImage? = nil
+
+    var body: some View {
+        HStack(spacing: 14) {
+            // Thumbnail
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(ShieldTheme.cardBackground(scheme))
+                    .frame(width: 60, height: 72)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(
+                                isSelected
+                                    ? ShieldTheme.accent
+                                    : ShieldTheme.surfaceLine,
+                                lineWidth: isSelected ? 2 : 1
+                            )
+                    )
+
+                if let img = thumbnail {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    Image(systemName: doc.sourceType == .pdf ? "doc.richtext" : "photo")
+                        .font(.system(size: 22))
+                        .foregroundColor(ShieldTheme.tertiary(scheme))
+                }
+            }
+            .shadow(color: Color.black.opacity(isSelected ? 0.18 : 0.06), radius: isSelected ? 6 : 3, y: 2)
+            .animation(.spring(response: 0.3), value: isSelected)
+
+            // Info
+            VStack(alignment: .leading, spacing: 5) {
+                Text(doc.title)
+                    .shieldFont(15, weight: .semibold)
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .lineLimit(2)
+
+                HStack(spacing: 6) {
+                    // Category badge
+                    Text(doc.category.label(lang: language))
+                        .shieldFont(11, weight: .medium)
+                        .foregroundColor(ShieldTheme.accent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(ShieldTheme.accent.opacity(0.12))
+                        .clipShape(Capsule())
+
+                    // Page count
+                    if doc.pageCount > 1 {
+                        Text("\(doc.pageCount) págs.")
+                            .shieldFont(11)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                    }
+                }
+
+                // Date
+                Text(doc.compactDateLabel(lang: language))
+                    .shieldFont(11)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
+            }
+
+            Spacer()
+
+            // Selection indicator
+            ZStack {
+                Circle()
+                    .stroke(isSelected ? ShieldTheme.accent : ShieldTheme.surfaceLineStrong, lineWidth: 2)
+                    .frame(width: 26, height: 26)
+                if isSelected {
+                    Circle()
+                        .fill(ShieldTheme.accent)
+                        .frame(width: 26, height: 26)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(ShieldTheme.cardBackground(scheme))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            isSelected ? ShieldTheme.accent.opacity(0.4) : ShieldTheme.surfaceLine,
+                            lineWidth: 1
+                        )
+                )
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
+        .onAppear { loadThumbnail() }
+    }
+
+    private func loadThumbnail() {
+        guard thumbnail == nil else { return }
+        let fileName = doc.imageFileName(for: 0)
+        guard let name = fileName else { return }
+        Task.detached(priority: .background) {
+            let img = AppState.loadImage(fileName: name, isVaulted: doc.isVaulted)
+            await MainActor.run { thumbnail = img }
         }
     }
 }
