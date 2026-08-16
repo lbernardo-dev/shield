@@ -422,11 +422,15 @@ final class AppState: ObservableObject {
     func saveImage(_ image: UIImage, id: String, isVaulted: Bool = false) -> String? {
         let fileName = "\(id).jpg"
         let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
-        guard let data = image.jpegData(compressionQuality: 0.85) else { return nil }
+        guard let data = image.jpegData(compressionQuality: 0.85) else {
+            print("[Shield] saveImage: jpegData failed for id=\(id)")
+            return nil
+        }
         do {
             try SecureFileStore.shared.write(data, to: url)
             return fileName
         } catch {
+            print("[Shield] saveImage: write failed for id=\(id), url=\(url.lastPathComponent), error=\(error)")
             return nil
         }
     }
@@ -740,12 +744,19 @@ final class SecureFileStore: Sendable {
     private init() {}
 
     func write(_ data: Data, to url: URL) throws {
-        let encrypted = magicHeader + (try encrypt(data, for: url))
-        try encrypted.write(to: url, options: .atomic)
-        try FileManager.default.setAttributes(
-            [.protectionKey: FileProtectionType.complete],
-            ofItemAtPath: url.path
-        )
+        do {
+            let encrypted = magicHeader + (try encrypt(data, for: url))
+            try encrypted.write(to: url, options: .atomic)
+            // Data Protection is not available on the Simulator; ignore the error
+            // on unsupported platforms rather than aborting the whole write.
+            try? FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+        } catch {
+            print("[Shield] SecureFileStore.write FAILED url=\(url.lastPathComponent) error=\(error) domain=\((error as NSError).domain) code=\((error as NSError).code)")
+            throw error
+        }
     }
 
     func read(from url: URL) throws -> Data {
@@ -855,24 +866,25 @@ enum KeychainStore {
             kSecAttrAccount as String: account
         ]
 
-        let attributes: [String: Any] = [
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: accessible
-        ]
-
         let status = SecItemCopyMatching(baseQuery as CFDictionary, nil)
         if status == errSecSuccess {
-            let updateStatus = SecItemUpdate(baseQuery as CFDictionary, attributes as CFDictionary)
-            guard updateStatus == errSecSuccess else {
-                throw NSError(domain: NSOSStatusErrorDomain, code: Int(updateStatus))
-            }
-            return
+            // NOTE: kSecAttrAccessible cannot be changed via SecItemUpdate.
+            // Only update the data value; accessibility class is immutable after creation.
+            let updateAttributes: [String: Any] = [kSecValueData as String: data]
+            let updateStatus = SecItemUpdate(baseQuery as CFDictionary, updateAttributes as CFDictionary)
+            if updateStatus == errSecSuccess { return }
+
+            // If update failed (e.g., existing item has different accessibility class),
+            // delete and re-add with the correct accessibility.
+            SecItemDelete(baseQuery as CFDictionary)
         }
 
         var addQuery = baseQuery
-        attributes.forEach { addQuery[$0.key] = $0.value }
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = accessible
         let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
         guard addStatus == errSecSuccess else {
+            print("[Shield] KeychainStore.save failed: status=\(addStatus) account=\(account)")
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(addStatus))
         }
     }
