@@ -213,28 +213,26 @@ struct SectionHeader: View {
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center) {
             Text(title.uppercased())
-                .shieldFont(11, weight: .semibold)
+                .shieldFont(11, weight: .bold)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
-                .tracking(0.4)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.vertical, 4)
+                .tracking(0.6)
+                .lineLimit(1)
             Spacer()
             if let action {
                 Button(action: action) {
                     Text(actionLabel)
-                        .shieldFont(14, weight: .semibold)
+                        .shieldFont(13, weight: .bold)
                         .foregroundColor(ShieldTheme.accent(scheme))
-                        .frame(minWidth: 44, minHeight: 44)
-                        .contentShape(Rectangle())
+                        .padding(.vertical, 4)
                 }
                 .buttonStyle(.plain)
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s5)
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isHeader)
     }
@@ -468,6 +466,8 @@ struct ShieldStatusLabel: View {
         Label(text, systemImage: icon)
             .font(.footnote.weight(.semibold))
             .foregroundStyle(color)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
             .padding(.horizontal, ShieldTheme.s3)
             .padding(.vertical, ShieldTheme.s2)
             .background(background, in: Capsule())

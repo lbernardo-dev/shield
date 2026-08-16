@@ -5,11 +5,12 @@ import SwiftUI
 struct DocumentCanvas: View {
     @ObservedObject var vm: EditorViewModel
     let canvasSize: CGSize
+    var effectiveZoom: CGFloat = 1.0
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         ZStack {
-            // Document render — no hit testing so the canvas DragGesture fires
+            // Document render — no hit testing so the canvas gestures fire
             DocumentView(
                 kind: vm.doc.kind,
                 size: canvasSize,
@@ -32,8 +33,10 @@ struct DocumentCanvas: View {
                 Rectangle()
                     .fill(ShieldTheme.selection(scheme).opacity(0.20))
                     .overlay(
-                        Rectangle().stroke(ShieldTheme.selection(scheme),
-                                          style: StrokeStyle(lineWidth: 1.5, dash: [5, 3]))
+                        Rectangle().stroke(
+                            ShieldTheme.selection(scheme),
+                            style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
+                        )
                     )
                     .frame(width: s.width, height: s.height)
                     .position(x: s.midX, y: s.midY)
@@ -53,14 +56,14 @@ struct DocumentCanvas: View {
                     redaction: redaction,
                     isActive: vm.activeRedactionID == redaction.id,
                     canvasSize: canvasSize,
+                    effectiveZoom: effectiveZoom,
                     vm: vm
                 )
             }
         }
         .frame(width: canvasSize.width, height: canvasSize.height)
         .contentShape(Rectangle())
-        // Draw gesture has priority so users can start drawing even over existing masks.
-        .highPriorityGesture(
+        .gesture(
             DragGesture(minimumDistance: 4, coordinateSpace: .local)
                 .onChanged { value in
                     guard vm.tool == .rect,
@@ -80,21 +83,23 @@ struct DocumentCanvas: View {
                     vm.endDraw()
                 }
         )
-        // Tap on empty area deselects. Uses simultaneousGesture so overlay taps still fire,
-        // but the overlay's onTapGesture runs AFTER and toggles back to the correct selection.
         .simultaneousGesture(
             TapGesture().onEnded {
                 AppState.markUserActivity()
-                vm.activeRedactionID = nil
+                if !vm.isDraggingRedaction && !vm.isResizingRedaction {
+                    vm.activeRedactionID = nil
+                }
             }
         )
     }
 
     func scaledRect(_ r: CGRect) -> CGRect {
-        CGRect(x: r.origin.x * canvasSize.width,
-               y: r.origin.y * canvasSize.height,
-               width: r.width * canvasSize.width,
-               height: r.height * canvasSize.height)
+        CGRect(
+            x: r.origin.x * canvasSize.width,
+            y: r.origin.y * canvasSize.height,
+            width: r.width * canvasSize.width,
+            height: r.height * canvasSize.height
+        )
     }
 
     func norm(_ pt: CGPoint) -> CGPoint {
@@ -111,10 +116,12 @@ private struct FieldOverlay: View {
     @Environment(\.colorScheme) private var scheme
 
     private var sr: CGRect {
-        CGRect(x: box.rect.origin.x * canvasSize.width,
-               y: box.rect.origin.y * canvasSize.height,
-               width: box.rect.width * canvasSize.width,
-               height: box.rect.height * canvasSize.height)
+        CGRect(
+            x: box.rect.origin.x * canvasSize.width,
+            y: box.rect.origin.y * canvasSize.height,
+            width: box.rect.width * canvasSize.width,
+            height: box.rect.height * canvasSize.height
+        )
     }
     private var isSelected: Bool {
         vm.redactions.contains {
@@ -159,125 +166,163 @@ private struct RedactionOverlay: View {
     let redaction: Redaction
     let isActive: Bool
     let canvasSize: CGSize
+    let effectiveZoom: CGFloat
     @ObservedObject var vm: EditorViewModel
     @Environment(\.colorScheme) private var scheme
 
-    // Start-of-gesture snapshots — prevents using the live-updated redaction.rect as delta base
+    // Start-of-gesture snapshots — prevents using live-updated redaction.rect as delta base
     @State private var moveStart: CGRect? = nil
-    @State private var resizeSEStart: CGRect? = nil
+    @State private var resizeNWStart: CGRect? = nil
+    @State private var resizeNEStart: CGRect? = nil
     @State private var resizeSWStart: CGRect? = nil
+    @State private var resizeSEStart: CGRect? = nil
 
     private var sr: CGRect {
-        CGRect(x: redaction.rect.origin.x * canvasSize.width,
-               y: redaction.rect.origin.y * canvasSize.height,
-               width: redaction.rect.width * canvasSize.width,
-               height: redaction.rect.height * canvasSize.height)
+        CGRect(
+            x: redaction.rect.origin.x * canvasSize.width,
+            y: redaction.rect.origin.y * canvasSize.height,
+            width: redaction.rect.width * canvasSize.width,
+            height: redaction.rect.height * canvasSize.height
+        )
+    }
+
+    private var zoom: CGFloat {
+        max(effectiveZoom, 0.5)
     }
 
     var body: some View {
         let s = sr
         ZStack {
             // Tap-to-select & drag-to-move
-            Button {
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: max(s.width, 36), height: max(s.height, 36))
+                .contentShape(Rectangle())
+                .onTapGesture {
                     withAnimation(.easeInOut(duration: 0.15)) {
                         vm.activeRedactionID = isActive ? nil : redaction.id
                     }
-            } label: {
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(width: max(s.width, 28), height: max(s.height, 28))
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                // Selection/move is already exposed via the parent's accessibilityLabel/actions
-                // below; without this, the invisible hit-target surfaces as its own unlabeled
-                // AXButton to accessibility inspection tools (VoiceOver focus order is unaffected
-                // by children:.ignore alone).
-                .accessibilityHidden(true)
                 .gesture(
                     isActive
-                    ? DragGesture(minimumDistance: 3, coordinateSpace: .local)
-                        .onChanged { value in
-                            AppState.markUserActivity()
-                            vm.isDraggingRedaction = true
-                            // Snapshot at gesture start so delta is always from original position
-                            if moveStart == nil {
-                                moveStart = redaction.rect
-                                vm.beginRedactionTransform()
+                        ? DragGesture(minimumDistance: 2, coordinateSpace: .local)
+                            .onChanged { value in
+                                AppState.markUserActivity()
+                                vm.isDraggingRedaction = true
+                                if moveStart == nil {
+                                    moveStart = redaction.rect
+                                    vm.beginRedactionTransform()
+                                }
+                                guard let start = moveStart else { return }
+                                let dx = (value.translation.width / zoom) / canvasSize.width
+                                let dy = (value.translation.height / zoom) / canvasSize.height
+                                let newX = max(0, min(1 - start.width, start.origin.x + dx))
+                                let newY = max(0, min(1 - start.height, start.origin.y + dy))
+                                vm.resizeRedaction(
+                                    id: redaction.id,
+                                    newRect: CGRect(x: newX, y: newY, width: start.width, height: start.height)
+                                )
                             }
-                            guard let start = moveStart else { return }
-                            // translation is always relative to startLocation, stable across updates
-                            let dx = value.translation.width / canvasSize.width
-                            let dy = value.translation.height / canvasSize.height
-                            let newX = max(0, min(1 - start.width, start.origin.x + dx))
-                            let newY = max(0, min(1 - start.height, start.origin.y + dy))
-                            vm.resizeRedaction(id: redaction.id,
-                                newRect: CGRect(x: newX, y: newY,
-                                               width: start.width, height: start.height))
-                        }
-                        .onEnded { _ in
-                            vm.isDraggingRedaction = false
-                            moveStart = nil
-                            vm.commitRedactionTransform()
-                        }
-                    : nil
+                            .onEnded { _ in
+                                vm.isDraggingRedaction = false
+                                moveStart = nil
+                                vm.commitRedactionTransform()
+                            }
+                        : nil
                 )
-
-            if isActive {
-                // Selection ring
-                Rectangle()
-                    .stroke(ShieldTheme.selection(scheme), lineWidth: 2)
-                    .frame(width: s.width + 6, height: s.height + 6)
-                    .allowsHitTesting(false)
-
-                // Delete — top-right
-                Button { vm.removeRedaction(id: redaction.id) } label: {
-                    ZStack {
-                        Circle().fill(ShieldTheme.danger).frame(width: 26, height: 26)
-                        Circle().stroke(Color.white, lineWidth: 2).frame(width: 26, height: 26)
-                        Image(systemName: "xmark")
-                            .shieldFont(11, weight: .bold).foregroundColor(.white)
-                    }
-                }
-                .offset(x: s.width / 2 + 10, y: -(s.height / 2 + 10))
-                .frame(minWidth: 44, minHeight: 44)
-                .accessibilityLabel(LanguageManager.shared.editor("editor_mask_delete"))
-                // Delete is already exposed via the parent's accessibilityActions; hide this
-                // duplicate so it doesn't surface as a second, redundant control.
                 .accessibilityHidden(true)
 
-                // SE resize — bottom-right
+            if isActive {
+                // Selection border
+                Rectangle()
+                    .stroke(ShieldTheme.selection(scheme), lineWidth: 2.5)
+                    .frame(width: s.width + 4, height: s.height + 4)
+                    .allowsHitTesting(false)
+
+                // Delete button — top center-right
+                Button {
+                    vm.removeRedaction(id: redaction.id)
+                } label: {
+                    ZStack {
+                        Circle().fill(ShieldTheme.danger).frame(width: 24, height: 24)
+                        Circle().stroke(Color.white, lineWidth: 2).frame(width: 24, height: 24)
+                        Image(systemName: "xmark")
+                            .shieldFont(10, weight: .bold).foregroundColor(.white)
+                    }
+                }
+                .offset(x: s.width / 2 + 14, y: -(s.height / 2 + 14))
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+                .accessibilityLabel(LanguageManager.shared.editor("editor_mask_delete"))
+                .accessibilityHidden(true)
+
+                // NW resize handle (Top-Left)
                 ResizeHandle()
-                    .accessibilityHidden(true)
-                    .offset(x: s.width / 2 + 2, y: s.height / 2 + 2)
+                    .offset(x: -(s.width / 2), y: -(s.height / 2))
                     .gesture(
                         DragGesture(minimumDistance: 1, coordinateSpace: .local)
                             .onChanged { value in
                                 AppState.markUserActivity()
                                 vm.isResizingRedaction = true
-                                if resizeSEStart == nil {
-                                    resizeSEStart = redaction.rect
+                                if resizeNWStart == nil {
+                                    resizeNWStart = redaction.rect
                                     vm.beginRedactionTransform()
                                 }
-                                guard let start = resizeSEStart else { return }
-                                let dw = value.translation.width / canvasSize.width
-                                let dh = value.translation.height / canvasSize.height
-                                vm.resizeRedaction(id: redaction.id,
-                                    newRect: CGRect(x: start.origin.x, y: start.origin.y,
-                                                    width: max(0.04, start.width + dw),
-                                                    height: max(0.04, start.height + dh)))
+                                guard let start = resizeNWStart else { return }
+                                let dx = (value.translation.width / zoom) / canvasSize.width
+                                let dy = (value.translation.height / zoom) / canvasSize.height
+                                let rawX = start.origin.x + dx
+                                let rawY = start.origin.y + dy
+                                let clampedX = min(start.maxX - 0.03, max(0, rawX))
+                                let clampedY = min(start.maxY - 0.03, max(0, rawY))
+                                let newW = start.maxX - clampedX
+                                let newH = start.maxY - clampedY
+                                vm.resizeRedaction(
+                                    id: redaction.id,
+                                    newRect: CGRect(x: clampedX, y: clampedY, width: newW, height: newH)
+                                )
                             }
                             .onEnded { _ in
                                 vm.isResizingRedaction = false
-                                resizeSEStart = nil
+                                resizeNWStart = nil
                                 vm.commitRedactionTransform()
                             }
                     )
 
-                // SW resize — bottom-left
+                // NE resize handle (Top-Right)
                 ResizeHandle()
-                    .accessibilityHidden(true)
-                    .offset(x: -(s.width / 2 + 2), y: s.height / 2 + 2)
+                    .offset(x: s.width / 2, y: -(s.height / 2))
+                    .gesture(
+                        DragGesture(minimumDistance: 1, coordinateSpace: .local)
+                            .onChanged { value in
+                                AppState.markUserActivity()
+                                vm.isResizingRedaction = true
+                                if resizeNEStart == nil {
+                                    resizeNEStart = redaction.rect
+                                    vm.beginRedactionTransform()
+                                }
+                                guard let start = resizeNEStart else { return }
+                                let dx = (value.translation.width / zoom) / canvasSize.width
+                                let dy = (value.translation.height / zoom) / canvasSize.height
+                                let rawY = start.origin.y + dy
+                                let clampedY = min(start.maxY - 0.03, max(0, rawY))
+                                let newH = start.maxY - clampedY
+                                let newW = max(0.03, min(1 - start.origin.x, start.width + dx))
+                                vm.resizeRedaction(
+                                    id: redaction.id,
+                                    newRect: CGRect(x: start.origin.x, y: clampedY, width: newW, height: newH)
+                                )
+                            }
+                            .onEnded { _ in
+                                vm.isResizingRedaction = false
+                                resizeNEStart = nil
+                                vm.commitRedactionTransform()
+                            }
+                    )
+
+                // SW resize handle (Bottom-Left)
+                ResizeHandle()
+                    .offset(x: -(s.width / 2), y: s.height / 2)
                     .gesture(
                         DragGesture(minimumDistance: 1, coordinateSpace: .local)
                             .onChanged { value in
@@ -288,18 +333,49 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = resizeSWStart else { return }
-                                let dx = value.translation.width / canvasSize.width
-                                let dh = value.translation.height / canvasSize.height
-                                let newX = min(start.maxX - 0.04, start.origin.x + dx)
-                                let newW = max(0.04, start.maxX - newX)
-                                let newH = max(0.04, start.height + dh)
-                                vm.resizeRedaction(id: redaction.id,
-                                    newRect: CGRect(x: newX, y: start.origin.y,
-                                                    width: newW, height: newH))
+                                let dx = (value.translation.width / zoom) / canvasSize.width
+                                let dy = (value.translation.height / zoom) / canvasSize.height
+                                let rawX = start.origin.x + dx
+                                let clampedX = min(start.maxX - 0.03, max(0, rawX))
+                                let newW = start.maxX - clampedX
+                                let newH = max(0.03, min(1 - start.origin.y, start.height + dy))
+                                vm.resizeRedaction(
+                                    id: redaction.id,
+                                    newRect: CGRect(x: clampedX, y: start.origin.y, width: newW, height: newH)
+                                )
                             }
                             .onEnded { _ in
                                 vm.isResizingRedaction = false
                                 resizeSWStart = nil
+                                vm.commitRedactionTransform()
+                            }
+                    )
+
+                // SE resize handle (Bottom-Right)
+                ResizeHandle()
+                    .offset(x: s.width / 2, y: s.height / 2)
+                    .gesture(
+                        DragGesture(minimumDistance: 1, coordinateSpace: .local)
+                            .onChanged { value in
+                                AppState.markUserActivity()
+                                vm.isResizingRedaction = true
+                                if resizeSEStart == nil {
+                                    resizeSEStart = redaction.rect
+                                    vm.beginRedactionTransform()
+                                }
+                                guard let start = resizeSEStart else { return }
+                                let dw = (value.translation.width / zoom) / canvasSize.width
+                                let dh = (value.translation.height / zoom) / canvasSize.height
+                                let newW = max(0.03, min(1 - start.origin.x, start.width + dw))
+                                let newH = max(0.03, min(1 - start.origin.y, start.height + dh))
+                                vm.resizeRedaction(
+                                    id: redaction.id,
+                                    newRect: CGRect(x: start.origin.x, y: start.origin.y, width: newW, height: newH)
+                                )
+                            }
+                            .onEnded { _ in
+                                vm.isResizingRedaction = false
+                                resizeSEStart = nil
                                 vm.commitRedactionTransform()
                             }
                     )
@@ -368,11 +444,13 @@ private struct ResizeHandle: View {
             Circle()
                 .fill(Color.white)
                 .frame(width: 18, height: 18)
-                .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.40), radius: 3, x: 0, y: 1)
             Circle()
-                .stroke(ShieldTheme.selection(scheme), lineWidth: 2.5)
+                .stroke(ShieldTheme.selection(scheme), lineWidth: 3)
                 .frame(width: 18, height: 18)
         }
-        .contentShape(Circle().scale(1.8))
+        .frame(width: 44, height: 44)
+        .contentShape(Rectangle())
+        .accessibilityHidden(true)
     }
 }

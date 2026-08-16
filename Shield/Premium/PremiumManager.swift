@@ -83,6 +83,9 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     @Published var isPurchasing: Bool = false
     @Published var isRestoring: Bool = false
 
+    @Published private(set) var freeDocumentsProcessedCount: Int = 0
+    static let processedDocumentsKey = "shield.free.processedDocumentsCount"
+
     #if DEBUG && targetEnvironment(simulator)
     @Published private(set) var isDebugProOverride: Bool = false
     #endif
@@ -107,6 +110,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         super.init()
         // Restore from cache immediately
         isPro = UserDefaults.standard.bool(forKey: "shield.isPro")
+        freeDocumentsProcessedCount = UserDefaults.standard.integer(forKey: Self.processedDocumentsKey)
         #if DEBUG && targetEnvironment(simulator)
         let override = UserDefaults.standard.bool(forKey: "shield.devProOverride")
         isDebugProOverride = override
@@ -264,9 +268,34 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     static let freeWeeklyExportLimit = 0 // Secure export is never paywalled.
     private static let exportHistoryKey = "shield.free.exportHistoryTimestamps"
 
-    func canAddDocument(currentCount: Int) -> Bool {
-        isPro || currentCount < PremiumManager.freeDocumentLimit
+    func syncProcessedDocumentCountIfNeeded(existingCount: Int) {
+        if existingCount > freeDocumentsProcessedCount {
+            freeDocumentsProcessedCount = existingCount
+            UserDefaults.standard.set(existingCount, forKey: Self.processedDocumentsKey)
+        }
     }
+
+    func recordDocumentProcessed() {
+        freeDocumentsProcessedCount += 1
+        UserDefaults.standard.set(freeDocumentsProcessedCount, forKey: Self.processedDocumentsKey)
+    }
+
+    func canAddDocument(currentCount: Int? = nil) -> Bool {
+        if isPro { return true }
+        let count = max(freeDocumentsProcessedCount, currentCount ?? 0)
+        return count < PremiumManager.freeDocumentLimit
+    }
+
+    var remainingFreeDocuments: Int {
+        max(0, PremiumManager.freeDocumentLimit - freeDocumentsProcessedCount)
+    }
+
+    #if DEBUG
+    func resetFreeProcessedCountForTesting(to value: Int = 0) {
+        freeDocumentsProcessedCount = value
+        UserDefaults.standard.set(value, forKey: Self.processedDocumentsKey)
+    }
+    #endif
 
     func canUseStyle(_ style: MaskStyle) -> Bool {
         isPro || !style.isPremium

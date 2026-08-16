@@ -58,6 +58,13 @@
 		A047 /* SecureExportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F047 /* SecureExportModels.swift */; };
 		A048 /* ExportVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048 /* ExportVerifier.swift */; };
 		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
+		A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_PREP /* OCRImagePreprocessor.swift */; };
+		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
+		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
+		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
+		A_OCR_SETT /* OCREngineSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_SETT /* OCREngineSettingsView.swift */; };
+		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
+		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
@@ -198,6 +205,13 @@
 		F047 /* SecureExportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureExportModels.swift; sourceTree = "<group>"; };
 		F048 /* ExportVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportVerifier.swift; sourceTree = "<group>"; };
 		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
+		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
+		F_OCR_FUSION /* OCRFusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRFusionEngine.swift; sourceTree = "<group>"; };
+		F_OCR_CORR /* OCRErrorCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRErrorCorrector.swift; sourceTree = "<group>"; };
+		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
+		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
+		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
+		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
@@ -496,8 +510,20 @@
 			children = (
 				F022 /* SettingsView.swift */,
 				F049 /* SettingsDestinationViews.swift */,
+				F_OCR_SETT /* OCREngineSettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		GRP_OCR /* OCR */ = {
+			isa = PBXGroup;
+			children = (
+				F_OCR_PREP /* OCRImagePreprocessor.swift */,
+				F_OCR_FUSION /* OCRFusionEngine.swift */,
+				F_OCR_CORR /* OCRErrorCorrector.swift */,
+				F_OCR_MGR /* OCREngineManager.swift */,
+			);
+			path = OCR;
 			sourceTree = "<group>";
 		};
 		GRP_SHARE /* Share */ = {
@@ -530,6 +556,7 @@
 				GRP_MODELS /* Models */,
 				GRP_VIEWMODELS /* ViewModels */,
 				GRP_VIEWS /* Views */,
+				GRP_OCR /* OCR */,
 				GRP_CLOUD /* Cloud */,
 				GRP_PREMIUM /* Premium */,
 				GRP_EXPORT /* Export */,
@@ -575,6 +602,8 @@
 				T007 /* MetricPayloadStoreTests.swift */,
 				T008 /* LocalizationLanguageTests.swift */,
 				T009 /* AppReviewManagerTests.swift */,
+				F_TEST_QUOTA /* FreeQuotaTests.swift */,
+				F_TEST_OCR /* OCREnginePrecisionTests.swift */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -891,6 +920,11 @@
 				A021 /* StyleGalleryView.swift in Sources */,
 				A022 /* SettingsView.swift in Sources */,
 				A049 /* SettingsDestinationViews.swift in Sources */,
+				A_OCR_SETT /* OCREngineSettingsView.swift in Sources */,
+				A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */,
+				A_OCR_FUSION /* OCRFusionEngine.swift in Sources */,
+				A_OCR_CORR /* OCRErrorCorrector.swift in Sources */,
+				A_OCR_MGR /* OCREngineManager.swift in Sources */,
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
@@ -934,6 +968,8 @@
 				AT007 /* MetricPayloadStoreTests.swift in Sources */,
 				AT008 /* LocalizationLanguageTests.swift in Sources */,
 				AT009 /* AppReviewManagerTests.swift in Sources */,
+				AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */,
+				AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -982,7 +1018,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0.2";
+		"MARKETING_VERSION" = "1.0.3";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1009,7 +1045,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0.2";
+		"MARKETING_VERSION" = "1.0.3";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1148,7 +1184,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0.2";
+		"MARKETING_VERSION" = "1.0.3";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",
@@ -1196,7 +1232,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0.2";
+		"MARKETING_VERSION" = "1.0.3";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",

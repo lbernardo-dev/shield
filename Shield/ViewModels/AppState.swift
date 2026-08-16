@@ -118,6 +118,7 @@ final class AppState: ObservableObject {
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
 
         documents = AppState.loadDocuments()
+        PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
         customCategories = AppState.loadCustomCategories()
 
 #if DEBUG
@@ -136,15 +137,25 @@ final class AppState: ObservableObject {
                 session.isAuthenticated = false
             case "capture":
                 showCapture = true
-            case "editor", "ocr", "export":
+            case "01-editor-protected", "01", "editor", "02-editor-manipulating-mask", "02", "03-watermark-config", "03", "04-ocr-results", "04", "ocr", "06-export-verification", "06", "export", "07-exif-gps", "07":
                 selectedDoc = documents.first
-            case "gallery":
+            case "08-multipage-pdf", "08":
+                selectedDoc = documents.first(where: { $0.id == "aso-rental" }) ?? documents.first
+            case "05-library", "05", "home", "library":
+                selectedDoc = nil
+                activeTab = .library
+            case "09-templates", "09", "gallery":
+                selectedDoc = nil
                 activeTab = .gallery
-            case "vault":
+            case "10-vault-security", "10", "vault":
+                selectedDoc = nil
                 activeTab = .vault
+                session.isAuthenticated = true
             case "settings":
+                selectedDoc = nil
                 activeTab = .settings
             default:
+                selectedDoc = nil
                 activeTab = .library
             }
         }
@@ -327,6 +338,7 @@ final class AppState: ObservableObject {
         document.modifiedAt = Date()
         documents.insert(document, at: 0)
         persistDocuments()
+        PremiumManager.shared.recordDocumentProcessed()
     }
 
     func updateDocument(_ doc: DocumentItem) {

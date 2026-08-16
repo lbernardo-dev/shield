@@ -89,13 +89,41 @@ struct ContentView: View {
 private struct PrivacySnapshotShield: View {
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            VStack(spacing: 14) {
+            RadialGradient(
+                colors: [
+                    Color(hex: "061E33"),
+                    Color(hex: "030E1A"),
+                    Color(hex: "01050A")
+                ],
+                center: .center,
+                startRadius: 20,
+                endRadius: 420
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: ShieldTheme.s4) {
                 MaskIDIdentityMark(
-                    size: 162,
-                    presentation: .staticMark,
-                    treatment: .feature
+                    size: 200,
+                    presentation: .animatedLoop,
+                    treatment: .splash
                 )
+
+                VStack(spacing: 6) {
+                    Text(LanguageManager.shared.common("common_app_name"))
+                        .shieldFont(22, weight: .heavy, design: .rounded)
+                        .foregroundStyle(Color.white)
+
+                    Text(LanguageManager.shared.auth("lock_protection_active"))
+                        .shieldFont(12, weight: .bold)
+                        .foregroundStyle(Color(hex: "00E5FF"))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 5)
+                        .background(Color(hex: "00B4D8").opacity(0.16), in: Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(Color(hex: "00B4D8").opacity(0.35), lineWidth: 0.8)
+                        )
+                }
             }
         }
         .accessibilityHidden(true)
@@ -179,9 +207,11 @@ private enum LaunchSplashState {
     /// Prevents root view reconstruction from replaying the launch overlay.
     static var hasBeenPresented = false
 
-    /// UI tests exercise the underlying controls and must not wait on decorative launch motion.
+    /// UI tests and ASO screenshot capture exercise underlying screens and must not wait on decorative launch motion.
     static var shouldPresent: Bool {
-        !hasBeenPresented && !ProcessInfo.processInfo.arguments.contains("-ui-testing")
+        !hasBeenPresented
+            && !ProcessInfo.processInfo.arguments.contains("-ui-testing")
+            && !ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
     }
 }
 

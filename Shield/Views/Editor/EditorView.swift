@@ -55,11 +55,22 @@ struct EditorView: View {
             vm.bootstrapOCRSuggestionsIfNeeded()
 #if DEBUG
             if ASOScreenshotMode.isEnabled {
-                if ASOScreenshotMode.scene == "ocr" {
+                let scene = ASOScreenshotMode.scene
+                if scene == "02-editor-manipulating-mask" || scene == "02" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        if let firstID = vm.redactions.first?.id {
+                            vm.activeRedactionID = firstID
+                        }
+                    }
+                } else if scene == "03-watermark-config" || scene == "03" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        showWatermarkConfig = true
+                    }
+                } else if scene == "04-ocr-results" || scene == "04" || scene == "ocr" {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         vm.showOCRSheet = true
                     }
-                } else if ASOScreenshotMode.scene == "export" {
+                } else if scene == "06-export-verification" || scene == "06" || scene == "export" || scene == "07-exif-gps" || scene == "07" {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         vm.showExportSheet = true
                     }
@@ -483,19 +494,24 @@ struct EditorView: View {
 
                 ScrollView([.horizontal, .vertical]) {
                     ZStack {
-                        DocumentCanvas(vm: vm, canvasSize: CGSize(width: canvasW, height: canvasH))
-                            .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
-                            .frame(width: canvasW, height: canvasH)
-                            .scaleEffect(effectiveZoom)
-                            .offset(x: effectivePan.width, y: effectivePan.height)
+                        DocumentCanvas(
+                            vm: vm,
+                            canvasSize: CGSize(width: canvasW, height: canvasH),
+                            effectiveZoom: effectiveZoom
+                        )
+                        .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
+                        .frame(width: canvasW, height: canvasH)
+                        .scaleEffect(effectiveZoom)
+                        .offset(x: effectivePan.width, y: effectivePan.height)
                     }
                     .frame(
                         width: max(geo.size.width, canvasW * effectiveZoom),
                         height: max(geo.size.height, canvasH * effectiveZoom)
                     )
                 }
+                .scrollDisabled(vm.tool == .rect || vm.tool == .fields || vm.isDraggingRedaction || vm.isResizingRedaction)
                 .scrollEdgeEffectStyleIfAvailable()
-                .scrollIndicators(effectiveZoom > 1 ? .visible : .hidden)
+                .scrollIndicators(effectiveZoom > 1 && vm.tool == .pan ? .visible : .hidden)
                 .simultaneousGesture(
                     MagnifyGesture(minimumScaleDelta: 0.01)
                         .updating($magnifyScale) { value, state, _ in
@@ -509,15 +525,14 @@ struct EditorView: View {
                         }
                 )
                 .simultaneousGesture(
-                    DragGesture(minimumDistance: 2)
+                    DragGesture(minimumDistance: 8)
                         .updating($dragPanOffset) { value, state, _ in
-                            guard effectiveZoom > 1.0 || vm.tool == .pan else { return }
-                            guard !vm.isDraggingRedaction, !vm.isResizingRedaction else { return }
+                            // Only 1-finger pan if the tool is explicitly Pan / Mover
+                            guard vm.tool == .pan else { return }
                             state = value.translation
                         }
                         .onEnded { value in
-                            guard effectiveZoom > 1.0 || vm.tool == .pan else { return }
-                            guard !vm.isDraggingRedaction, !vm.isResizingRedaction else { return }
+                            guard vm.tool == .pan else { return }
                             let maxPanX = max(0, (canvasW * effectiveZoom - geo.size.width) / 2 + 180)
                             let maxPanY = max(0, (canvasH * effectiveZoom - geo.size.height) / 2 + 180)
                             let newW = min(maxPanX, max(-maxPanX, panOffset.width + value.translation.width))
@@ -536,38 +551,75 @@ struct EditorView: View {
                     }
                 }
 
-                HStack(spacing: 0) {
-                    Button {
-                        withAnimation(reduceMotion ? nil : .snappy) { zoomScale = max(1, zoomScale - 0.5) }
-                    } label: {
-                        Image(systemName: "minus.magnifyingglass")
-                            .frame(width: 36, height: 34)
+                HStack(spacing: 8) {
+                    if effectiveZoom > 1 {
+                        Button {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                                if vm.tool == .rect {
+                                    vm.tool = .pan
+                                } else {
+                                    vm.tool = .rect
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: vm.tool == .pan ? "hand.raised.fill" : "rectangle.dashed")
+                                    .shieldFont(12, weight: .bold)
+                                Text(vm.tool == .pan ? LanguageManager.shared.editor("editor_tool_pan") : LanguageManager.shared.editor("editor_tool_rect"))
+                                    .shieldFont(11, weight: .bold)
+                            }
+                            .foregroundColor(vm.tool == .pan ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(vm.tool == .pan ? ShieldTheme.accent(scheme) : ShieldTheme.cardBackground(scheme), in: Capsule())
+                            .overlay(Capsule().stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8))
+                        }
+                        .buttonStyle(ScaleButtonStyle())
                     }
-                    .disabled(zoomScale <= 1)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_out"))
-                    .keyboardShortcut("-", modifiers: .command)
 
-                    Text("\(Int(effectiveZoom * 100))%")
-                        .shieldFont(11, weight: .semibold, design: .monospaced)
-                        .frame(minWidth: 48)
+                    HStack(spacing: 0) {
+                        Button {
+                            withAnimation(reduceMotion ? nil : .snappy) { zoomScale = max(1, zoomScale - 0.5) }
+                        } label: {
+                            Image(systemName: "minus.magnifyingglass")
+                                .frame(width: 36, height: 34)
+                        }
+                        .disabled(zoomScale <= 1)
+                        .frame(minWidth: 40, minHeight: 40)
+                        .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_out"))
+                        .keyboardShortcut("-", modifiers: .command)
 
-                    Button {
-                        withAnimation(reduceMotion ? nil : .snappy) { zoomScale = min(4, zoomScale + 0.5) }
-                    } label: {
-                        Image(systemName: "plus.magnifyingglass")
-                            .frame(width: 36, height: 34)
+                        Button {
+                            withAnimation(reduceMotion ? nil : .snappy) {
+                                zoomScale = 1
+                                panOffset = .zero
+                            }
+                        } label: {
+                            Text("\(Int(effectiveZoom * 100))%")
+                                .shieldFont(11, weight: .semibold, design: .monospaced)
+                                .foregroundColor(ShieldTheme.primary(scheme))
+                                .frame(minWidth: 44)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(LanguageManager.shared.editor("editor_reset_zoom"))
+
+                        Button {
+                            withAnimation(reduceMotion ? nil : .snappy) { zoomScale = min(4, zoomScale + 0.5) }
+                        } label: {
+                            Image(systemName: "plus.magnifyingglass")
+                                .frame(width: 36, height: 34)
+                        }
+                        .disabled(zoomScale >= 4)
+                        .frame(minWidth: 40, minHeight: 40)
+                        .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_in"))
+                        .keyboardShortcut("+", modifiers: .command)
                     }
-                    .disabled(zoomScale >= 4)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_in"))
-                    .keyboardShortcut("+", modifiers: .command)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_controls"))
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .background(ShieldTheme.cardBackground(scheme), in: Capsule())
+                    .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                 }
-                .accessibilityElement(children: .contain)
-                .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_controls"))
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .background(ShieldTheme.cardBackground(scheme), in: Capsule())
-                .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(ShieldTheme.s4)
             }

@@ -1243,3 +1243,102 @@
    Done by: CODEX
    Done at: 2026-08-12T12:11:33Z
 
+114. archive-upload-and-attach-build-102202608124
+   Id: 114-archive-upload-and-attach-build-102202608124
+   Scope: Actualizar versión de build a 102202608124 en project.pbxproj, generar archivo .xcarchive e IPA, subir a App Store Connect y enlazar el build a la versión 1.0.2
+   Files: Shield.xcodeproj/project.pbxproj
+   Note: Actualizado el build number a 102202608124 en project.pbxproj, generado el archivo .xcarchive e IPA, subida completada a App Store Connect y build 102202608124 enlazado exitosamente a la versión 1.0.2.
+   Detail: tasks/details/114-archive-upload-and-attach-build-102202608124.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-12T12:16:57Z
+   Done by: CODEX
+   Done at: 2026-08-12T12:21:11Z
+
+115. raw-captures-automation
+   Id: 115-raw-captures-automation
+   Scope: Capturar 10 capturas brutas de la app en español e inglés (20 en total) según los 10 requisitos de pantalla especificados
+   Files: .asc/screenshots,Shield/ViewModels/AppState.swift,ShieldUITests/ShieldLaunchTests.swift,scripts
+   Note: Re-captured 10 distinct raw screenshots in ES and EN using fixed CODEX binary
+   Detail: tasks/details/115-raw-captures-automation.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T06:23:10Z
+   Done by: CODEX
+   Done at: 2026-08-16T06:28:12Z
+
+116. free-quota-icon-zoom-interaction-ui-polish
+   Id: 116-free-quota-icon-zoom-interaction-ui-polish
+   Scope: Fix free document quota leak, update app icon asset & identity mark, fix mask editing/interaction during zoom, and elevate main views UI/fluidity
+   Files: Shield/Premium/PremiumManager.swift,Shield/ViewModels/AppState.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Editor/DocumentCanvas.swift,Shield/Views/Editor/EditorView.swift,Shield/Views/Components/SplashView.swift,Shield/Resources/Assets.xcassets/MaskIDMark.imageset/maskid-mark.png
+   Note: Fixed free quota persistence (anti-leak on deletion), composited and updated master app icon across splash and all views, fixed zoom-aware mask handles (4-corners with accurate delta scaling), and polished UI fluidity
+   Detail: tasks/details/116-free-quota-icon-zoom-interaction-ui-polish.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T06:39:51Z
+   Done by: CODEX
+   Done at: 2026-08-16T06:48:02Z
+
+117. ocr-precision-multienvironment-local-models
+   Id: 117-ocr-precision-multienvironment-local-models
+   Scope: Mejora integral de precisión y calidad del motor OCR, preprocesamiento neuro-gráfico (CLAHE, deskew, binarización adaptativa, eliminación de sombras), fusión multi-paso, corrección de PII por dígitos de control (DNI/NIE/MRZ/IBAN), gestor de motores locales y catálogo de modelos libres descargables
+   Files: Shield/OCR/**,Shield/Views/Capture/CaptureOCRServices.swift,Shield/Views/Settings/**,ShieldTests/**
+   Note: Implemented multi-pass OCR image preprocessor (shadows/contrast/binarization), spatial IoU fusion engine, mathematical check-digit auto-repair (DNI/NIE Modulo 23, MRZ ICAO 9303, IBAN Modulo 97), local language pack catalog and OCREngineSettingsView
+   Detail: tasks/details/117-ocr-precision-multienvironment-local-models.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T06:51:06Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:02:11Z
+
+118. lock-and-splash-redesign
+   Id: 118-lock-and-splash-redesign
+   Scope: Redesign lock screen and splash/privacy snapshot view with integrated lighting and minimalist unlock flow
+   Files: Shield/Views/Onboarding/OnboardingView.swift,Shield/Views/Components/SplashView.swift,Shield/App/ContentView.swift
+   Note: Redesigned LockScreenView to a clean, elegant layout with integrated avatar and unlock actions, and enhanced MaskIDIdentityMark/SplashView/PrivacySnapshotShield with ambient radial halo, glass bezel, and scanning sheen
+   Detail: tasks/details/118-lock-and-splash-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T07:10:05Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:14:42Z
+
+119. zoom-drawing-gesture-deconfliction
+   Id: 119-zoom-drawing-gesture-deconfliction
+   Scope: Resolve drag gesture conflict between canvas drawing and viewport panning when zoomed
+   Files: Shield/Views/Editor/EditorView.swift,Shield/Views/Editor/DocumentCanvas.swift
+   Note: Deconflicted drag-to-draw vs drag-to-pan when zoomed in EditorView by disabling scrollview during drawing and scoping 1-finger pan strictly to .pan tool
+   Detail: tasks/details/119-zoom-drawing-gesture-deconfliction.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T07:16:43Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:20:36Z
+
+120. circular-gradient-fused-avatar
+   Id: 120-circular-gradient-fused-avatar
+   Scope: Make avatar mark circular with feathered radial gradient edges that melt smoothly into the background
+   Files: Shield/Views/Components/SplashView.swift
+   Note: Made avatar round with feathered radial gradient edges that blend seamlessly into the background view, and eliminated launch splash overlay race condition
+   Detail: tasks/details/120-circular-gradient-fused-avatar.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T07:21:20Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:24:40Z
+
+121. vault-ui-and-text-overflow-improvements
+   Id: 121-vault-ui-and-text-overflow-improvements
+   Scope: Improve Vault UI, eliminate text wrapping/truncation on category badges and security pills, and simplify encryption labels to 'Cifrado'
+   Files: Shield/Views/Vault/VaultView.swift,Shield/Views/Home/HomeView.swift,Shield/Localization/Strings/Vault.xcstrings
+   Note: Refined Vault UI: simplified encryption labels to Cifrado, fixed multi-line badge wrapping and text truncation in DocumentRow, and elevated header and card styling
+   Detail: tasks/details/121-vault-ui-and-text-overflow-improvements.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T07:28:03Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:37:30Z
+
+122. recent-documents-ui-redesign
+   Id: 122-recent-documents-ui-redesign
+   Scope: Fix recent documents layout, unified card styling, consistent horizontal padding, and section alignment on Home screen
+   Files: Shield/Views/Home/HomeView.swift,Shield/Views/Components/Components.swift,Shield/Views/Home/HomeSectionViews.swift
+   Note: Unified recent documents card styling, fixed margins to 20pt, resolved SectionHeader alignment and overflow truncation
+   Detail: tasks/details/122-recent-documents-ui-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-16T07:39:46Z
+   Done by: CODEX
+   Done at: 2026-08-16T07:45:43Z
+

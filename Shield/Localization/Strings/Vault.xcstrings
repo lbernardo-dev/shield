@@ -126,13 +126,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "AES-256 encrypted"
+            "value": "Encrypted"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cifrado AES-256"
+            "value": "Cifrado"
           }
         }
       }
@@ -143,13 +143,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stored on-device only"
+            "value": "On-device only"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Almacenado solo en dispositivo"
+            "value": "Solo en dispositivo"
           }
         }
       }
@@ -534,13 +534,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d documents · AES-256 · Face ID"
+            "value": "%d documents · Encrypted · Face ID"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d documentos · AES-256 · Face ID"
+            "value": "%d documentos · Cifrado · Face ID"
           }
         }
       }

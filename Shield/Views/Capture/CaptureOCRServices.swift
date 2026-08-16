@@ -108,20 +108,22 @@ enum OCRService {
     ) async -> [TextObservation] {
         let languages = recognitionLanguages(extraLanguages: extraLanguages)
         let original = await performRecognition(in: image, languages: languages)
-        let needsFallback = original.count < 8 || recognizedCharacterCount(in: original) < 80
-        guard needsFallback else { return original }
 
-        let enhanced = makeOCRVariants(from: image)
-        guard !enhanced.isEmpty else { return original }
+        // Preprocess image with neuro-graphic filters (shadow removal, adaptive contrast, binarization)
+        let variants = OCRImagePreprocessor.generateOptimizedVariants(from: image)
+        guard !variants.isEmpty else { return original }
 
-        var best = original
-        for variant in enhanced {
+        var allPasses: [[TextObservation]] = [original]
+        for variant in variants {
             let candidate = await performRecognition(in: variant, languages: languages)
-            if score(candidate) > score(best) {
-                best = candidate
+            if !candidate.isEmpty {
+                allPasses.append(candidate)
             }
         }
-        return best
+
+        // Spatial IoU Fusion of all passes to preserve fine details and eliminate blind spots
+        let fused = OCRFusionEngine.fuseObservations(passes: allPasses)
+        return fused.isEmpty ? original : fused
     }
 
     private static func recognitionLanguages(extraLanguages: [String]) -> [String] {
@@ -1303,34 +1305,8 @@ enum OCRService {
     }
 
     private static func validateSpanishID(_ raw: String) -> (value: String, confidence: Double)? {
-        let value = raw.replacingOccurrences(of: " ", with: "").uppercased()
-        let map = Array("TRWAGMYFPDXBNJZSQVHLCKE")
-
-        if value.count == 9, value.first?.isNumber == true {
-            let numberPart = String(value.prefix(8))
-            guard let number = Int(numberPart), let last = value.last else { return nil }
-            let expected = map[number % 23]
-            if last == expected {
-                return (value, 0.96)
-            }
-            return nil
-        }
-
-        if value.count == 9, let prefix = value.first, ["X", "Y", "Z"].contains(String(prefix)) {
-            let body = String(value.dropFirst().prefix(7))
-            guard body.allSatisfy(\.isNumber), let last = value.last else { return nil }
-            let replacedPrefix: String
-            switch prefix {
-            case "X": replacedPrefix = "0"
-            case "Y": replacedPrefix = "1"
-            case "Z": replacedPrefix = "2"
-            default: return nil
-            }
-            guard let number = Int(replacedPrefix + body) else { return nil }
-            let expected = map[number % 23]
-            if last == expected {
-                return (value, 0.94)
-            }
+        if let res = OCRErrorCorrector.correctSpanishID(raw) {
+            return (res.corrected, res.confidence)
         }
         return nil
     }

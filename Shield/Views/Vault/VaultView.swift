@@ -60,45 +60,54 @@ struct VaultView: View {
         VStack(spacing: 28) {
             Spacer()
             MaskIDIdentityMark(
-                size: 120,
+                size: 160,
                 presentation: .animatedLoop,
-                treatment: .feature
+                treatment: .hero
             )
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 Text(LanguageManager.shared.vault("vault_locked_title"))
-                    .shieldFont(22, weight: .bold).foregroundColor(ShieldTheme.primary(scheme))
+                    .shieldFont(24, weight: .heavy, design: .rounded)
+                    .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.vault("vault_locked_desc"))
-                    .shieldFont(14).foregroundColor(ShieldTheme.secondary(scheme))
+                    .shieldFont(14, weight: .medium)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
             }
             if let err = authError {
-                Text(err).shieldFont(13).foregroundColor(ShieldTheme.danger)
+                Text(err)
+                    .shieldFont(13, weight: .semibold)
+                    .foregroundColor(ShieldTheme.danger)
             }
 
-            VStack(spacing: 10) {
-                Button { authenticate() } label: {
-                    Label(LanguageManager.shared.vault("vault_unlock_faceid"), systemImage: "faceid")
-                        .shieldFont(16, weight: .bold)
-                        .frame(maxWidth: .infinity).frame(height: 52)
-                        .background(ShieldTheme.accent).foregroundColor(ShieldTheme.accentText)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+            VStack(spacing: 12) {
+                ShieldButton(
+                    label: LanguageManager.shared.vault("vault_unlock_faceid"),
+                    icon: "faceid",
+                    height: 52
+                ) {
+                    authenticate()
                 }
-                .buttonStyle(ScaleButtonStyle()).padding(.horizontal, 40)
+                .padding(.horizontal, 36)
                 .accessibilityIdentifier("vault.unlock")
 
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
                         Text(LanguageManager.shared.vault("vault_use_pin"))
-                            .shieldFont(14, weight: .semibold)
-                            .foregroundColor(ShieldTheme.accent)
+                            .shieldFont(14, weight: .bold)
+                            .foregroundColor(ShieldTheme.accent(scheme))
+                            .padding(.vertical, 4)
                     }
                 } else {
                     Button { showPINSetup = true } label: {
                         Text(LanguageManager.shared.vault("vault_setup_pin"))
                             .shieldFont(14, weight: .semibold)
                             .foregroundColor(ShieldTheme.tertiary(scheme))
+                            .padding(.vertical, 4)
                     }
                 }
             }
+            .frame(maxWidth: 480)
             Spacer()
         }
         .onAppear {
@@ -118,38 +127,50 @@ struct VaultView: View {
 
     private var vaultContent: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 8) {
-                        Image(systemName: "lock.fill")
-                            .shieldFont(14, weight: .semibold)
+                        Image(systemName: "lock.shield.fill")
+                            .shieldFont(18, weight: .bold)
                             .foregroundColor(ShieldTheme.success)
                         Text(LanguageManager.shared.vault("vault_title"))
-                            .shieldFont(28, weight: .heavy)
+                            .shieldFont(28, weight: .heavy, design: .rounded)
                             .foregroundColor(ShieldTheme.primary(scheme))
                     }
                     Text(LanguageManager.shared.vault("vault_status_count", appState.vaultDocuments.count))
-                        .shieldFont(12)
-                        .foregroundColor(ShieldTheme.success)
+                        .shieldFont(12, weight: .medium)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
+                        .lineLimit(1)
                 }
-                Spacer()
+                Spacer(minLength: ShieldTheme.s2)
+
                 Button {
                     lockVault()
                 } label: {
-                    Label(LanguageManager.shared.vault("vault_lock_button"), systemImage: "lock.fill")
-                        .shieldFont(12, weight: .semibold)
-                        .foregroundColor(ShieldTheme.danger)
-                        .padding(.horizontal, 12).frame(minHeight: ShieldTheme.minimumTapTarget)
-                        .background(ShieldTheme.dangerDim)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    HStack(spacing: 5) {
+                        Image(systemName: "lock.fill")
+                            .shieldFont(11, weight: .bold)
+                        Text(LanguageManager.shared.vault("vault_lock_button"))
+                            .shieldFont(12, weight: .bold)
+                    }
+                    .foregroundColor(Color(hex: "FF6B6B"))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color(hex: "FF3B30").opacity(0.14), in: Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color(hex: "FF3B30").opacity(0.35), lineWidth: 0.8)
+                    )
                 }
                 .accessibilityIdentifier("vault.lock")
             }
-            .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 10)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
 
             securitySummary
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 14)
 
             ScrollView(showsIndicators: false) {
                 Group {
@@ -165,28 +186,28 @@ struct VaultView: View {
                         .frame(minHeight: 260)
                     } else {
                         LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 300, maximum: 480), spacing: 12)],
+                            columns: [GridItem(.adaptive(minimum: 300, maximum: 540), spacing: 12)],
                             alignment: .leading,
                             spacing: 12
                         ) {
-                        ForEach(appState.vaultDocuments) { doc in
-                            DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
-                                selectedDoc = doc
-                            }
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    appState.deleteDocument(doc)
-                                } label: {
-                                    Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+                            ForEach(appState.vaultDocuments) { doc in
+                                DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
+                                    selectedDoc = doc
                                 }
-                                Button {
-                                    appState.toggleVault(doc)
-                                } label: {
-                                    Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        appState.deleteDocument(doc)
+                                    } label: {
+                                        Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+                                    }
+                                    Button {
+                                        appState.toggleVault(doc)
+                                    } label: {
+                                        Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
+                                    }
                                 }
                             }
                         }
-                    }
                     }
                 }
                 .frame(maxWidth: 1_100)
@@ -222,10 +243,14 @@ struct VaultView: View {
                 text: LanguageManager.shared.vault("vault_aes_badge"),
                 kind: .success
             )
+            .fixedSize(horizontal: true, vertical: true)
+
             ShieldStatusLabel(
                 text: LanguageManager.shared.vault("vault_on_device"),
                 kind: .info
             )
+            .fixedSize(horizontal: true, vertical: true)
+
             Spacer(minLength: 0)
         }
         .accessibilityElement(children: .combine)
@@ -250,17 +275,16 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: LanguageManager.shared.vault("vault_biometric_reason")
-        ) { success, err in
+            localizedReason: LanguageManager.shared.vault("vault_reason")
+        ) { success, evalError in
             DispatchQueue.main.async {
                 if success {
-                    withAnimation { isUnlocked = true; authError = nil }
+                    self.isUnlocked = true
+                    self.authError = nil
                     AppState.trackEvent("vault_unlocked", properties: ["method": "biometric"])
                 } else {
-                    authError = err?.localizedDescription
-                    if let laError = err as? LAError, laError.code != .userCancel, laError.code != .appCancel {
-                        presentPINFallback()
-                    }
+                    self.authError = evalError?.localizedDescription
+                    self.presentPINFallback()
                 }
             }
         }
@@ -269,85 +293,96 @@ struct VaultView: View {
     private func presentPINFallback() {
         if PINManager.hasPIN {
             showPINEntry = true
-            authError = nil
-            return
+        } else {
+            showPINSetup = true
         }
-        showPINSetup = true
-        authError = LanguageManager.shared.vault("vault_pin_setup_help")
     }
 }
 
 // MARK: - AddToVaultSheet
 
 struct AddToVaultSheet: View {
+    @Binding var isPresented: Bool
     @EnvironmentObject var appState: AppState
     @Environment(\.colorScheme) var scheme
-    @Binding var isPresented: Bool
+    @State private var selectedDocs: Set<String> = []
 
-    var libraryDocs: [DocumentItem] {
+    private var eligibleDocuments: [DocumentItem] {
         appState.documents.filter { !$0.isVaulted }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(LanguageManager.shared.vault("vault_move_to_vault"))
-                    .shieldFont(18, weight: .bold)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                Spacer()
-                Button { isPresented = false } label: {
-                    Image(systemName: "xmark")
-                        .shieldFont(14, weight: .medium)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
-                        .frame(width: 30, height: 30)
-                        .background(ShieldTheme.rowBackground(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-            }
-            .padding()
+        NavigationView {
+            ZStack {
+                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
 
-            if libraryDocs.isEmpty {
-                Spacer()
-                Text(LanguageManager.shared.vault("vault_no_docs_library"))
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .shieldFont(14)
-                Spacer()
-            } else {
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(libraryDocs) { doc in
-                            Button {
-                                appState.toggleVault(doc)
-                                isPresented = false
-                            } label: {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(doc.title)
-                                            .shieldFont(14, weight: .semibold)
-                                            .foregroundColor(ShieldTheme.primary(scheme))
-                                        Text(doc.dateLabelLocalized(lang: appState.language))
-                                            .shieldFont(12)
-                                            .foregroundColor(ShieldTheme.tertiary(scheme))
-                                    }
-                                    Spacer()
-                                    Image(systemName: "lock.fill")
-                                        .foregroundColor(ShieldTheme.accent)
+                if eligibleDocuments.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .shieldFont(36, weight: .bold)
+                            .foregroundColor(ShieldTheme.success)
+                        Text(LanguageManager.shared.vault("vault_all_vaulted_title"))
+                            .shieldFont(17, weight: .bold)
+                            .foregroundColor(ShieldTheme.primary(scheme))
+                        Text(LanguageManager.shared.vault("vault_all_vaulted_desc"))
+                            .shieldFont(13)
+                            .foregroundColor(ShieldTheme.secondary(scheme))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                } else {
+                    List {
+                        ForEach(eligibleDocuments) { doc in
+                            HStack(spacing: 12) {
+                                Image(systemName: selectedDocs.contains(doc.id) ? "checkmark.circle.fill" : "circle")
+                                    .shieldFont(18, weight: .bold)
+                                    .foregroundColor(selectedDocs.contains(doc.id) ? ShieldTheme.accent : ShieldTheme.tertiary(scheme))
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(doc.title)
+                                        .shieldFont(14, weight: .semibold)
+                                        .foregroundColor(ShieldTheme.primary(scheme))
+                                        .lineLimit(1)
+                                    Text(doc.category.label(lang: appState.language))
+                                        .shieldFont(11)
+                                        .foregroundColor(ShieldTheme.tertiary(scheme))
                                 }
-                                .padding(14)
-                                .background(ShieldTheme.rowBackground(scheme))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                Spacer()
                             }
-                            .buttonStyle(ScaleButtonStyle())
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if selectedDocs.contains(doc.id) {
+                                    selectedDocs.remove(doc.id)
+                                } else {
+                                    selectedDocs.insert(doc.id)
+                                }
+                            }
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 32)
+                    .listStyle(.insetGrouped)
+                }
+            }
+            .navigationTitle(LanguageManager.shared.vault("vault_add_to_vault"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(LanguageManager.shared.common("common_cancel")) {
+                        isPresented = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(LanguageManager.shared.vault("vault_move_to_vault")) {
+                        for id in selectedDocs {
+                            if let doc = appState.documents.first(where: { $0.id == id }) {
+                                appState.toggleVault(doc)
+                            }
+                        }
+                        isPresented = false
+                    }
+                    .disabled(selectedDocs.isEmpty)
                 }
             }
         }
-        .background(ShieldTheme.cardBackground(scheme))
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
     }
 }
 

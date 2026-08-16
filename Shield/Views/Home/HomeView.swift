@@ -191,7 +191,7 @@ struct HomeView: View {
             scheme: appState.preferredScheme,
             language: appState.language,
             isPro: pm.isPro,
-            freeUsed: appState.documents.count,
+            freeUsed: max(pm.freeDocumentsProcessedCount, appState.documents.count),
             freeLimit: PremiumManager.freeDocumentLimit,
             onUpgrade: { showPaywall = true },
             onPrimaryAction: { appState.showCapture = true },
@@ -371,7 +371,7 @@ struct HomeView: View {
             .accessibilityValue(LanguageManager.shared.common(
                 showWorkspaceTools ? "common_expanded" : "common_collapsed"
             ))
-            .padding(.horizontal, ShieldTheme.s4)
+            .padding(.horizontal, ShieldTheme.s5)
             .padding(.top, ShieldTheme.s4)
 
             if showWorkspaceTools {
@@ -440,7 +440,7 @@ struct HomeView: View {
                         }
                     }
                 }
-                .padding(.horizontal, ShieldTheme.s4)
+                .padding(.horizontal, ShieldTheme.s5)
 
                 // Pagination controls
                 if appState.recentDocsTotalPages > 1 {
@@ -448,7 +448,8 @@ struct HomeView: View {
                 }
             }
         }
-        .padding(.top, 20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 16)
         .padding(.bottom, 8)
     }
 
@@ -464,7 +465,7 @@ struct HomeView: View {
                 withAnimation { appState.recentDocsPage = min(appState.recentDocsTotalPages - 1, appState.recentDocsPage + 1) }
             }
         )
-        .padding(.horizontal, ShieldTheme.s4)
+        .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 4)
     }
 
@@ -997,34 +998,33 @@ struct DocumentRow: View {
             HStack(spacing: 12) {
                 // Thumbnail
                 ZStack {
-                    DocumentView(kind: doc.kind, size: CGSize(width: 64, height: 44),
+                    DocumentView(kind: doc.kind, size: CGSize(width: 60, height: 44),
                                  fields: doc.fields, redactions: doc.redactions(for: 0), watermark: doc.watermark,
                                  imageFileName: doc.imageFileName, isVaulted: doc.isVaulted,
                                  imageAdjustment: doc.imageAdjustment)
-                        .frame(width: 64, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .frame(width: 60, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                         .blur(radius: shouldMask ? 4 : 0)
 
-                    if doc.isLocked {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.black.opacity(0.7))
+                    if doc.isLocked || shouldMask {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.black.opacity(0.4))
                         Image(systemName: "lock.fill")
-                            .shieldFont(14, weight: .medium)
+                            .shieldFont(13, weight: .semibold)
                             .foregroundColor(.white)
                     }
                 }
-                .frame(width: 64, height: 44)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .frame(width: 60, height: 44)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 // Content
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         if shouldMask {
                             Text(LanguageManager.shared.home("home_protected_document"))
                                 .shieldFont(14, weight: .semibold)
-                                .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
                                 .lineLimit(1)
-                                .redacted(reason: .placeholder)
                         } else {
                             Text(doc.title)
                                 .shieldFont(14, weight: .semibold)
@@ -1040,25 +1040,30 @@ struct DocumentRow: View {
                     }
                     HStack(spacing: 6) {
                         if shouldMask {
-                            Text("••••••")
+                            Text(LanguageManager.shared.vault("vault_aes_badge"))
                                 .shieldFont(11, weight: .semibold)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: true)
                                 .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
-                                .background(ShieldTheme.accentDim)
+                                .padding(.vertical, 2.5)
+                                .background(ShieldTheme.accentDim(appState.preferredScheme))
                                 .foregroundColor(ShieldTheme.accent)
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
                             Text("·")
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                                 .shieldFont(12)
-                            Text(doc.dateLabelLocalized(lang: lang))
+                            Text(doc.compactDateLabel(lang: lang))
                                 .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                                 .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
                         } else {
                             Text(doc.category.label(lang: lang))
                                 .shieldFont(11, weight: .semibold)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: true)
                                 .padding(.horizontal, 7)
-                                .padding(.vertical, 2)
+                                .padding(.vertical, 2.5)
                                 .background(ShieldTheme.rowBackground(appState.preferredScheme))
                                 .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
@@ -1067,10 +1072,11 @@ struct DocumentRow: View {
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                                 .shieldFont(12)
 
-                            Text(doc.dateLabelLocalized(lang: lang))
+                            Text(doc.compactDateLabel(lang: lang))
                                 .shieldFont(12)
                                 .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                                 .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
 
                             if doc.redactionCount > 0 {
                                 Text("·")
@@ -1080,12 +1086,14 @@ struct DocumentRow: View {
                                     .shieldFont(12, weight: .semibold)
                                     .foregroundColor(ShieldTheme.accent)
                                     .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
                             }
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer()
+                Spacer(minLength: 4)
 
                 // Vault badge or chevron
                 if doc.isVaulted {
@@ -1095,33 +1103,21 @@ struct DocumentRow: View {
                         .accessibilityHidden(true)
                 } else {
                     Image(systemName: "chevron.right")
-                        .shieldFont(12, weight: .medium)
+                        .shieldFont(12, weight: .semibold)
                         .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                         .accessibilityHidden(true)
                 }
             }
             .padding(12)
+            .frame(maxWidth: .infinity)
             .background(ShieldTheme.cardBackground(appState.preferredScheme))
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(doc.isVaulted
-                        ? ShieldTheme.accent.opacity(0.35)
-                        : ShieldTheme.line(appState.preferredScheme),
-                            lineWidth: doc.isVaulted ? 1 : 0.5)
+                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(alignment: .trailing) {
-                if doc.isVaulted {
-                    LinearGradient(
-                        colors: [Color.clear, ShieldTheme.accent.opacity(0.08)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .allowsHitTesting(false)
-                }
-            }
         }
+        .frame(maxWidth: .infinity)
         .buttonStyle(ScaleButtonStyle())
         .disabled(doc.isLocked)
         .opacity(doc.isLocked ? 0.7 : 1)

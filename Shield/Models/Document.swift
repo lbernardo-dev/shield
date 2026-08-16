@@ -370,6 +370,27 @@ struct DocumentItem: Identifiable, Codable {
         return formatter.string(from: date)
     }
 
+    func shortDateLabelLocalized(lang: AppLanguage) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: lang.rawValue)
+        return formatter.string(from: date)
+    }
+
+    func compactDateLabel(lang: AppLanguage) -> String {
+        let calendar = Calendar.current
+        let isCurrentYear = calendar.component(.year, from: date) == calendar.component(.year, from: Date())
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: lang.rawValue)
+        if isCurrentYear {
+            formatter.setLocalizedDateFormatFromTemplate("dMMM")
+        } else {
+            formatter.setLocalizedDateFormatFromTemplate("dMMMyyyy")
+        }
+        return formatter.string(from: date)
+    }
+
     init(id: String = UUID().uuidString,
          kind: DocumentKind,
          title: String,

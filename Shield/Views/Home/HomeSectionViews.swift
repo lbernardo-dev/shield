@@ -59,11 +59,11 @@ struct HomePaginationControls: View {
         HStack(spacing: 12) {
             Button(action: onPrevious) {
                 Image(systemName: "chevron.left")
-                    .shieldFont(13, weight: .semibold)
-                    .foregroundColor(currentPage > 0 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
-                    .frame(width: 32, height: 32)
+                    .shieldFont(12, weight: .bold)
+                    .foregroundColor(currentPage > 0 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme).opacity(0.35))
+                    .frame(width: 36, height: 32)
                     .background(ShieldTheme.cardBackground(scheme))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .disabled(currentPage == 0)
@@ -71,18 +71,18 @@ struct HomePaginationControls: View {
             Spacer()
 
             Text("\(currentPage + 1) / \(totalPages)")
-                .shieldFont(13, weight: .semibold)
+                .shieldFont(12, weight: .bold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
 
             Spacer()
 
             Button(action: onNext) {
                 Image(systemName: "chevron.right")
-                    .shieldFont(13, weight: .semibold)
-                    .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
-                    .frame(width: 32, height: 32)
+                    .shieldFont(12, weight: .bold)
+                    .foregroundColor(currentPage < totalPages - 1 ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme).opacity(0.35))
+                    .frame(width: 36, height: 32)
                     .background(ShieldTheme.cardBackground(scheme))
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .disabled(currentPage >= totalPages - 1)

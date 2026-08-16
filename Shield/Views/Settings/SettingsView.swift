@@ -57,6 +57,14 @@ struct SettingsView: View {
                             icon: "lock.shield.fill"
                         ) {
                             SettingsNavigationRow(
+                                route: .ocrSettings,
+                                icon: "text.viewfinder",
+                                color: Color(hex: "00B4D8"),
+                                title: strings.settings("settings_ocr_engine_title"),
+                                subtitle: strings.settings("settings_ocr_engine_subtitle")
+                            )
+                            SettingsRowDivider()
+                            SettingsNavigationRow(
                                 route: .security,
                                 icon: "lock.fill",
                                 color: Color(hex: "30D158"),
@@ -249,6 +257,8 @@ struct SettingsView: View {
     @ViewBuilder
     private func destination(for route: SettingsRoute) -> some View {
         switch route {
+        case .ocrSettings:
+            OCREngineSettingsView()
         case .appPreferences:
             AppPreferencesSettingsView()
                 .environmentObject(appState)
@@ -328,6 +338,7 @@ struct SettingsView: View {
 // MARK: - Routing and configuration
 
 enum SettingsRoute: Hashable {
+    case ocrSettings
     case appPreferences
     case security
     case cloud
@@ -345,6 +356,7 @@ enum SettingsRoute: Hashable {
 
     var accessibilityIdentifier: String {
         switch self {
+        case .ocrSettings: "settings.route.ocrSettings"
         case .appPreferences: "settings.route.appPreferences"
         case .security: "settings.route.security"
         case .cloud: "settings.route.cloud"

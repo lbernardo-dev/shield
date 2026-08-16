@@ -43,6 +43,20 @@ struct ExportSheetView: View {
                 exportForm
             }
         }
+        .onAppear {
+#if DEBUG
+            if ASOScreenshotMode.isEnabled {
+                let scene = ASOScreenshotMode.scene
+                if scene == "07-exif-gps" || scene == "07" {
+                    format = .image
+                    showVerificationDetails = true
+                } else if scene == "06-export-verification" || scene == "06" || scene == "export" {
+                    format = .pdf
+                    showVerificationDetails = true
+                }
+            }
+#endif
+        }
         .onDisappear {
             cleanupTemporaryExport()
         }

@@ -134,6 +134,10 @@ final class LanguageManager {
             }
         }
         
+        if let dynamic = Self.dynamicFallbackText(key, language: current) {
+            return dynamic
+        }
+
         return key
     }
 
@@ -143,9 +147,7 @@ final class LanguageManager {
     }
 
     /// Resolves a catalog key against an explicit language rather than the
-    /// current app language. Used by model types whose `label(lang:)` API
-    /// promises a specific locale (e.g. renderers that must not depend on the
-    /// in-app toggle) and mirrors the runtime preference ranking.
+    /// current app language.
     func t(_ key: String, table: String, language: AppLanguage) -> String {
         let locale = Locale(identifier: language.rawValue)
         let resource = LocalizedStringResource(
@@ -165,7 +167,56 @@ final class LanguageManager {
                 return bundled
             }
         }
+        if let dynamic = Self.dynamicFallbackText(key, language: language) {
+            return dynamic
+        }
         return key
+    }
+
+    nonisolated private static func dynamicFallbackText(_ key: String, language: AppLanguage) -> String? {
+        let isSpanish = language == .es
+        switch key {
+        case "settings_ocr_engine_title":
+            return isSpanish ? "Motor OCR y Calidad" : "OCR Engine & Quality"
+        case "settings_ocr_engine_subtitle":
+            return isSpanish ? "Motores locales, preprocesamiento y modelos" : "Local engines, pre-processing and models"
+        case "settings_ocr_engine_header_title":
+            return isSpanish ? "Reconocimiento OCR 100% Local" : "100% On-Device OCR Recognition"
+        case "settings_ocr_engine_header_desc":
+            return isSpanish ? "Privacidad absoluta. Ninguna imagen o texto sale de tu dispositivo." : "Zero-knowledge privacy. No images or text leave your device."
+        case "settings_ocr_active_engine":
+            return isSpanish ? "Motor de Reconocimiento Activo" : "Active Recognition Engine"
+        case "settings_ocr_enhancement_title":
+            return isSpanish ? "Preprocesamiento Neuro-Gráfico" : "Neuro-Graphic Pre-Processing"
+        case "settings_ocr_shadow_removal":
+            return isSpanish ? "Eliminación de sombras y reflejos" : "Shadow and glare removal"
+        case "settings_ocr_shadow_removal_desc":
+            return isSpanish ? "Normaliza la iluminación en fotos de documentos" : "Normalizes document lighting across surface"
+        case "settings_ocr_contrast":
+            return isSpanish ? "Realce adaptativo de contraste" : "Adaptive contrast enhancement"
+        case "settings_ocr_contrast_desc":
+            return isSpanish ? "Aumenta la legibilidad en fondos con patrones y marcas" : "Boosts readability on patterned ID backgrounds"
+        case "settings_ocr_deskew":
+            return isSpanish ? "Auto-orientación y corrección angular" : "Auto-orientation and deskew"
+        case "settings_ocr_deskew_desc":
+            return isSpanish ? "Corrige documentos inclinados o fotografiados de lado" : "Corrects tilted or rotated document captures"
+        case "settings_ocr_math_correction":
+            return isSpanish ? "Auto-corrección matemática de PII" : "Mathematical PII auto-repair"
+        case "settings_ocr_math_correction_desc":
+            return isSpanish ? "Verifica y repara DNI, NIE, MRZ e IBAN por dígito de control" : "Verifies and repairs DNI, NIE, MRZ and IBAN checksums"
+        case "settings_ocr_local_models":
+            return isSpanish ? "Modelos Libres y Paquetes de Idioma" : "Free Open Models & Language Packs"
+        case "settings_ocr_download":
+            return isSpanish ? "Descargar" : "Download"
+        case "settings_ocr_diagnostics":
+            return isSpanish ? "Diagnóstico y Prueba de Motor" : "Diagnostics & Engine Test"
+        case "settings_ocr_diagnostics_desc":
+            return isSpanish ? "Verifica la precisión y el tiempo de respuesta del pipeline OCR en tu dispositivo" : "Validates precision and latency of the on-device OCR pipeline"
+        case "settings_ocr_run_test":
+            return isSpanish ? "Ejecutar Diagnóstico Local" : "Run Local Diagnostic"
+        default:
+            return nil
+        }
     }
 
     /// Internal resolver that takes an array of arguments
@@ -220,6 +271,14 @@ final class LanguageManager {
             bundle: .atURL(Bundle.main.bundleURL)
         )
         let format = String(localized: resource)
+        if format != key {
+            guard !args.isEmpty else { return format }
+            return String(format: format, locale: locale, arguments: args)
+        }
+        if let dynamic = dynamicFallbackText(key, language: language) {
+            guard !args.isEmpty else { return dynamic }
+            return String(format: dynamic, locale: locale, arguments: args)
+        }
         guard !args.isEmpty else { return format }
         return String(format: format, locale: locale, arguments: args)
     }
