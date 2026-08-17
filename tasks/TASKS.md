@@ -1353,3 +1353,14 @@
    Done by: CODEX
    Done at: 2026-08-16T07:57:13Z
 
+124. fix-app-review-eula-metadata
+   Id: 124-fix-app-review-eula-metadata
+   Scope: Add functional Terms of Use (EULA) and Privacy links to App Store description metadata for 1.0.3 and sync to App Store Connect
+   Files: metadata/version/1.0.3/en-US.json,metadata/version/1.0.3/es-ES.json
+   Note: Added EULA, terms and privacy links to metadata 1.0.3, synced to App Store Connect, marked rejection item as resolved and resubmitted to review (now WAITING_FOR_REVIEW)
+   Detail: tasks/details/124-fix-app-review-eula-metadata.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-17T06:11:31Z
+   Done by: CODEX
+   Done at: 2026-08-17T06:12:46Z
+
