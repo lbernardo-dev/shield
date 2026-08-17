@@ -65,6 +65,8 @@ struct HomePaginationControls: View {
                     .background(ShieldTheme.cardBackground(scheme))
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .disabled(currentPage == 0)
 
@@ -84,6 +86,8 @@ struct HomePaginationControls: View {
                     .background(ShieldTheme.cardBackground(scheme))
                     .overlay(RoundedRectangle(cornerRadius: 8).stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .disabled(currentPage >= totalPages - 1)
         }

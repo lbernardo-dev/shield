@@ -22,6 +22,9 @@ enum OCRImagePreprocessor {
     /// Generates high-accuracy pre-processed image variants optimized for OCR recognition.
     static func generateOptimizedVariants(
         from image: UIImage,
+        enableShadowRemoval: Bool = true,
+        enableAdaptiveContrast: Bool = true,
+        enableBinarization: Bool = true,
         includeRotations: Bool = false
     ) -> [UIImage] {
         guard let cgImage = image.cgImage else { return [] }
@@ -34,24 +37,27 @@ enum OCRImagePreprocessor {
         }
 
         // 1. Shadow Removal & Background Equalization
-        if let shadowRemoved = removeShadows(from: ciImage),
+        if enableShadowRemoval,
+           let shadowRemoved = removeShadows(from: ciImage),
            let rendered = render(shadowRemoved) {
             variants.append(rendered)
         }
 
         // 2. Adaptive High-Contrast & Sharpen (for low-light and patterned backgrounds)
-        if let highContrast = enhanceAdaptiveContrast(from: ciImage),
+        if enableAdaptiveContrast,
+           let highContrast = enhanceAdaptiveContrast(from: ciImage),
            let rendered = render(highContrast) {
             variants.append(rendered)
         }
 
         // 3. Document Binarization & Tone Flattening (for fine text and MRZ zones)
-        if let binarized = binarizeDocument(from: ciImage),
+        if enableBinarization,
+           let binarized = binarizeDocument(from: ciImage),
            let rendered = render(binarized) {
             variants.append(rendered)
         }
 
-        // 4. If requested (e.g. low initial confidence), generate orientation variants
+        // 4. If requested (e.g. low initial confidence or deskew enabled), generate orientation variants
         if includeRotations {
             let orientations: [CGImagePropertyOrientation] = [.right, .left, .down]
             for orient in orientations {

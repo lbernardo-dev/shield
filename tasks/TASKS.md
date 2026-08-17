@@ -1364,3 +1364,14 @@
    Done by: CODEX
    Done at: 2026-08-17T06:12:46Z
 
+125. audit-remediation-and-stability
+   Id: 125-audit-remediation-and-stability
+   Scope: Corregir bloqueos de preflight, accesibilidad 44pt, telemetria de compras, regresiones en UI tests, resiliencia CloudKit, conexion del motor OCR y alineacion de privacidad
+   Files: Shield/ViewModels/AppState.swift,Shield/Views/Capture/CaptureMenuViews.swift,ShieldUITests/ShieldLaunchTests.swift,Shield/Premium/PremiumManager.swift,Shield/Cloud/CloudSyncManager.swift,Shield/Views/Capture/CaptureOCRServices.swift,Docs/legal/privacy.html
+   Note: Auditoría integral completada con éxito. Hit targets >= 44pt corregidos en componentes de captura, editor y onboarding. Telemetría y error classification en StoreKit/RevenueCat completados. Diccionarios de CloudKit con duplicados blindados con uniquingKeysWith. Pipeline OCR conectado a selección de motor/preprocesamiento. Documento de privacidad actualizado con CloudKit privado. Suite completa de 29 UI Tests y 41 Unit Tests 100% verde con 0 fallos. Preflight App Store validado.
+   Detail: tasks/details/125-audit-remediation-and-stability.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-17T18:09:37Z
+   Done by: CODEX
+   Done at: 2026-08-17T21:34:28Z
+

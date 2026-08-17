@@ -423,14 +423,12 @@ final class AppState: ObservableObject {
         let fileName = "\(id).jpg"
         let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
         guard let data = image.jpegData(compressionQuality: 0.85) else {
-            print("[Shield] saveImage: jpegData failed for id=\(id)")
             return nil
         }
         do {
             try SecureFileStore.shared.write(data, to: url)
             return fileName
         } catch {
-            print("[Shield] saveImage: write failed for id=\(id), url=\(url.lastPathComponent), error=\(error)")
             return nil
         }
     }
@@ -754,7 +752,6 @@ final class SecureFileStore: Sendable {
                 ofItemAtPath: url.path
             )
         } catch {
-            print("[Shield] SecureFileStore.write FAILED url=\(url.lastPathComponent) error=\(error) domain=\((error as NSError).domain) code=\((error as NSError).code)")
             throw error
         }
     }
@@ -884,7 +881,6 @@ enum KeychainStore {
         addQuery[kSecAttrAccessible as String] = accessible
         let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
         guard addStatus == errSecSuccess else {
-            print("[Shield] KeychainStore.save failed: status=\(addStatus) account=\(account)")
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(addStatus))
         }
     }

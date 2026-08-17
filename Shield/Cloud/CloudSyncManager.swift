@@ -120,7 +120,7 @@ final class CloudSyncManager: ObservableObject {
                 removePendingDeletion(id)
             }
             let remote = try await fetchRemoteDocuments(in: database)
-            var localByID = Dictionary(uniqueKeysWithValues: appState.documents.map { ($0.id, $0) })
+            var localByID = Dictionary(appState.documents.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
             // Pull remote creations and newer edits first so a new device never
             // erases an existing cloud library merely because its local library is empty.

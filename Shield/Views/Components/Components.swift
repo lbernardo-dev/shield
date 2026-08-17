@@ -226,6 +226,8 @@ struct SectionHeader: View {
                         .shieldFont(13, weight: .bold)
                         .foregroundColor(ShieldTheme.accent(scheme))
                         .padding(.vertical, 4)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }

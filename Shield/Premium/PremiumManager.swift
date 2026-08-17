@@ -206,7 +206,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             purchaseError = error.localizedDescription
             AppState.trackEvent("purchase_failed", properties: [
                 "product_id": product.id,
-                "error": error.localizedDescription
+                "error_type": Self.errorType(for: error)
             ])
         }
     }
@@ -222,8 +222,28 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             AppState.trackEvent("restore_success")
         } catch {
             purchaseError = error.localizedDescription
-            AppState.trackEvent("restore_failed", properties: ["error": error.localizedDescription])
+            AppState.trackEvent("restore_failed", properties: [
+                "error_type": Self.errorType(for: error)
+            ])
         }
+    }
+
+    private static func errorType(for error: Error) -> String {
+        if let purchasesError = error as? RevenueCat.ErrorCode {
+            switch purchasesError {
+            case .purchaseCancelledError: return "cancelled"
+            case .storeProblemError: return "store_problem"
+            case .networkError: return "network"
+            case .receiptAlreadyInUseError: return "receipt_in_use"
+            case .invalidReceiptError: return "invalid_receipt"
+            case .missingReceiptFileError: return "missing_receipt"
+            case .productNotAvailableForPurchaseError: return "product_unavailable"
+            case .paymentPendingError: return "payment_pending"
+            default: return "rc_\(purchasesError.rawValue)"
+            }
+        }
+        let ns = error as NSError
+        return "err_\(ns.code)"
     }
 
     // MARK: - Update pro status

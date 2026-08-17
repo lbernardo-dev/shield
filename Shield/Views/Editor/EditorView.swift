@@ -582,10 +582,11 @@ struct EditorView: View {
                             withAnimation(reduceMotion ? nil : .snappy) { zoomScale = max(1, zoomScale - 0.5) }
                         } label: {
                             Image(systemName: "minus.magnifyingglass")
-                                .frame(width: 36, height: 34)
+                                .frame(width: 44, height: 44)
                         }
                         .disabled(zoomScale <= 1)
-                        .frame(minWidth: 40, minHeight: 40)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                         .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_out"))
                         .keyboardShortcut("-", modifiers: .command)
 
@@ -598,19 +599,22 @@ struct EditorView: View {
                             Text("\(Int(effectiveZoom * 100))%")
                                 .shieldFont(11, weight: .semibold, design: .monospaced)
                                 .foregroundColor(ShieldTheme.primary(scheme))
-                                .frame(minWidth: 44)
+                                .frame(minWidth: 44, minHeight: 44)
                         }
                         .buttonStyle(.plain)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                         .accessibilityLabel(LanguageManager.shared.editor("editor_reset_zoom"))
 
                         Button {
                             withAnimation(reduceMotion ? nil : .snappy) { zoomScale = min(4, zoomScale + 0.5) }
                         } label: {
                             Image(systemName: "plus.magnifyingglass")
-                                .frame(width: 36, height: 34)
+                                .frame(width: 44, height: 44)
                         }
                         .disabled(zoomScale >= 4)
-                        .frame(minWidth: 40, minHeight: 40)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                         .accessibilityLabel(LanguageManager.shared.editor("editor_zoom_in"))
                         .keyboardShortcut("+", modifiers: .command)
                     }

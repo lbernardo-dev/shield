@@ -118,7 +118,7 @@ private struct CaptureTopBarView: View {
                 Image(systemName: "xmark")
                     .shieldFont(16, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
-                    .frame(width: 42, height: 42)
+                    .frame(width: 44, height: 44)
                     .background(ShieldTheme.cardBackground(scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
@@ -128,6 +128,7 @@ private struct CaptureTopBarView: View {
             }
             .buttonStyle(ScaleButtonStyle())
             .accessibilityIdentifier("capture.close")
+            .accessibilityLabel(LanguageManager.shared.common("common_close"))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(LanguageManager.shared.capture("capture_add_document"))

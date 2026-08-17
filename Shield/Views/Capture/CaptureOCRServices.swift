@@ -109,8 +109,25 @@ enum OCRService {
         let languages = recognitionLanguages(extraLanguages: extraLanguages)
         let original = await performRecognition(in: image, languages: languages)
 
-        // Preprocess image with neuro-graphic filters (shadow removal, adaptive contrast, binarization)
-        let variants = OCRImagePreprocessor.generateOptimizedVariants(from: image)
+        let defaults = UserDefaults.standard
+        let modeString = defaults.string(forKey: "shield.ocr.engineMode") ?? "vision_ultra"
+        if modeString == "vision_standard" {
+            // High-efficiency single-pass mode
+            return original
+        }
+
+        let shadowRemoval = defaults.object(forKey: "shield.ocr.enableShadowRemoval") as? Bool ?? true
+        let adaptiveContrast = defaults.object(forKey: "shield.ocr.enableAdaptiveContrast") as? Bool ?? true
+        let deskew = defaults.object(forKey: "shield.ocr.enableDeskew") as? Bool ?? true
+
+        // Preprocess image with neuro-graphic filters according to preferences
+        let variants = OCRImagePreprocessor.generateOptimizedVariants(
+            from: image,
+            enableShadowRemoval: shadowRemoval,
+            enableAdaptiveContrast: adaptiveContrast,
+            enableBinarization: true,
+            includeRotations: deskew
+        )
         guard !variants.isEmpty else { return original }
 
         var allPasses: [[TextObservation]] = [original]
