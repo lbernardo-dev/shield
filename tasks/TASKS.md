@@ -1401,8 +1401,10 @@
    Id: 128-update-build-103202608182-fix-appicon-zero-warnings
    Scope: build,assets,archive,appstore
    Files: Shield.xcodeproj/project.pbxproj,Shield/Resources/Info.plist,Shield/Resources/Assets.xcassets
-   Note: Starting archive and upload with clean AppIcon and zero ITMS warnings
+   Note: Build 103202608182 archived, exported, uploaded to App Store Connect, and linked to version 1.0.3 successfully with modern .icon and zero ITMS warnings
    Detail: tasks/details/128-update-build-103202608182-fix-appicon-zero-warnings.md
    Claimed by: CODEX
    Claimed at: 2026-08-18T19:08:07Z
+   Done by: CODEX
+   Done at: 2026-08-18T19:24:29Z
 
