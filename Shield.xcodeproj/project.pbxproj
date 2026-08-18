@@ -9,6 +9,18 @@
 /* Begin PBXBuildFile section */
 		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
 		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
+		7C1543923034D36100A8C080 /* MaskIDRed.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438F3034D36100A8C080 /* MaskIDRed.icon */; };
+		7C1543933034D36100A8C080 /* MaskIDBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543833034D36100A8C080 /* MaskIDBlue.png */; };
+		7C1543943034D36100A8C080 /* MaskIDOcean.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543863034D36100A8C080 /* MaskIDOcean.png */; };
+		7C1543953034D36100A8C080 /* MaskIDRed.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543883034D36100A8C080 /* MaskIDRed.png */; };
+		7C1543963034D36100A8C080 /* MaskIDBlue.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438A3034D36100A8C080 /* MaskIDBlue.icon */; };
+		7C1543973034D36100A8C080 /* MaskIDGreen.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438C3034D36100A8C080 /* MaskIDGreen.icon */; };
+		7C1543983034D36100A8C080 /* MaskIDGold.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438B3034D36100A8C080 /* MaskIDGold.icon */; };
+		7C1543993034D36100A8C080 /* MaskIDPurple.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543873034D36100A8C080 /* MaskIDPurple.png */; };
+		7C15439A3034D36100A8C080 /* MaskIDPurple.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438E3034D36100A8C080 /* MaskIDPurple.icon */; };
+		7C15439B3034D36100A8C080 /* MaskIDGold.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543843034D36100A8C080 /* MaskIDGold.png */; };
+		7C15439C3034D36100A8C080 /* MaskIDGreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543853034D36100A8C080 /* MaskIDGreen.png */; };
+		7C15439D3034D36100A8C080 /* MaskIDOcean.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438D3034D36100A8C080 /* MaskIDOcean.icon */; };
 		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
 		7C3D808930272B990017854E /* Mask.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D808830272B990017854E /* Mask.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
@@ -58,13 +70,6 @@
 		A047 /* SecureExportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F047 /* SecureExportModels.swift */; };
 		A048 /* ExportVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048 /* ExportVerifier.swift */; };
 		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
-		A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_PREP /* OCRImagePreprocessor.swift */; };
-		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
-		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
-		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
-		A_OCR_SETT /* OCREngineSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_SETT /* OCREngineSettingsView.swift */; };
-		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
-		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
@@ -90,6 +95,13 @@
 		AT007 /* MetricPayloadStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T007 /* MetricPayloadStoreTests.swift */; };
 		AT008 /* LocalizationLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T008 /* LocalizationLanguageTests.swift */; };
 		AT009 /* AppReviewManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T009 /* AppReviewManagerTests.swift */; };
+		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
+		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
+		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
+		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
+		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
+		A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_PREP /* OCRImagePreprocessor.swift */; };
+		A_OCR_SETT /* OCREngineSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_SETT /* OCREngineSettingsView.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -154,6 +166,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7C1543833034D36100A8C080 /* MaskIDBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDBlue.png; sourceTree = "<group>"; };
+		7C1543843034D36100A8C080 /* MaskIDGold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDGold.png; sourceTree = "<group>"; };
+		7C1543853034D36100A8C080 /* MaskIDGreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDGreen.png; sourceTree = "<group>"; };
+		7C1543863034D36100A8C080 /* MaskIDOcean.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDOcean.png; sourceTree = "<group>"; };
+		7C1543873034D36100A8C080 /* MaskIDPurple.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDPurple.png; sourceTree = "<group>"; };
+		7C1543883034D36100A8C080 /* MaskIDRed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDRed.png; sourceTree = "<group>"; };
+		7C15438A3034D36100A8C080 /* MaskIDBlue.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDBlue.icon; sourceTree = "<group>"; };
+		7C15438B3034D36100A8C080 /* MaskIDGold.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDGold.icon; sourceTree = "<group>"; };
+		7C15438C3034D36100A8C080 /* MaskIDGreen.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDGreen.icon; sourceTree = "<group>"; };
+		7C15438D3034D36100A8C080 /* MaskIDOcean.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDOcean.icon; sourceTree = "<group>"; };
+		7C15438E3034D36100A8C080 /* MaskIDPurple.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDPurple.icon; sourceTree = "<group>"; };
+		7C15438F3034D36100A8C080 /* MaskIDRed.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDRed.icon; sourceTree = "<group>"; };
 		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
 		7C3D808830272B990017854E /* Mask.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Mask.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
@@ -206,13 +230,6 @@
 		F047 /* SecureExportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureExportModels.swift; sourceTree = "<group>"; };
 		F048 /* ExportVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportVerifier.swift; sourceTree = "<group>"; };
 		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
-		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
-		F_OCR_FUSION /* OCRFusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRFusionEngine.swift; sourceTree = "<group>"; };
-		F_OCR_CORR /* OCRErrorCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRErrorCorrector.swift; sourceTree = "<group>"; };
-		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
-		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
-		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
-		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
@@ -240,6 +257,13 @@
 		FTIM /* ImportPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipelineTests.swift; sourceTree = "<group>"; };
 		FTOC /* OCREvidenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREvidenceTests.swift; sourceTree = "<group>"; };
 		FUITEST /* ShieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F_OCR_CORR /* OCRErrorCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRErrorCorrector.swift; sourceTree = "<group>"; };
+		F_OCR_FUSION /* OCRFusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRFusionEngine.swift; sourceTree = "<group>"; };
+		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
+		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
+		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
+		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
+		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -308,6 +332,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7C1543893034D36100A8C080 /* ASSETS */ = {
+			isa = PBXGroup;
+			children = (
+				7C1543833034D36100A8C080 /* MaskIDBlue.png */,
+				7C1543843034D36100A8C080 /* MaskIDGold.png */,
+				7C1543853034D36100A8C080 /* MaskIDGreen.png */,
+				7C1543863034D36100A8C080 /* MaskIDOcean.png */,
+				7C1543873034D36100A8C080 /* MaskIDPurple.png */,
+				7C1543883034D36100A8C080 /* MaskIDRed.png */,
+			);
+			path = ASSETS;
+			sourceTree = "<group>";
+		};
+		7C1543903034D36100A8C080 /* ICONS */ = {
+			isa = PBXGroup;
+			children = (
+				7C15438A3034D36100A8C080 /* MaskIDBlue.icon */,
+				7C15438B3034D36100A8C080 /* MaskIDGold.icon */,
+				7C15438C3034D36100A8C080 /* MaskIDGreen.icon */,
+				7C15438D3034D36100A8C080 /* MaskIDOcean.icon */,
+				7C15438E3034D36100A8C080 /* MaskIDPurple.icon */,
+				7C15438F3034D36100A8C080 /* MaskIDRed.icon */,
+			);
+			path = ICONS;
+			sourceTree = "<group>";
+		};
+		7C1543913034D36100A8C080 /* MaskID */ = {
+			isa = PBXGroup;
+			children = (
+				7C1543893034D36100A8C080 /* ASSETS */,
+				7C1543903034D36100A8C080 /* ICONS */,
+			);
+			path = MaskID;
+			sourceTree = "<group>";
+		};
 		GRP_APP /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -446,6 +505,17 @@
 			path = Observability;
 			sourceTree = "<group>";
 		};
+		GRP_OCR /* OCR */ = {
+			isa = PBXGroup;
+			children = (
+				F_OCR_PREP /* OCRImagePreprocessor.swift */,
+				F_OCR_FUSION /* OCRFusionEngine.swift */,
+				F_OCR_CORR /* OCRErrorCorrector.swift */,
+				F_OCR_MGR /* OCREngineManager.swift */,
+			);
+			path = OCR;
+			sourceTree = "<group>";
+		};
 		GRP_ONBOARDING /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
@@ -517,17 +587,6 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		GRP_OCR /* OCR */ = {
-			isa = PBXGroup;
-			children = (
-				F_OCR_PREP /* OCRImagePreprocessor.swift */,
-				F_OCR_FUSION /* OCRFusionEngine.swift */,
-				F_OCR_CORR /* OCRErrorCorrector.swift */,
-				F_OCR_MGR /* OCREngineManager.swift */,
-			);
-			path = OCR;
-			sourceTree = "<group>";
-		};
 		GRP_SHARE /* Share */ = {
 			isa = PBXGroup;
 			children = (
@@ -550,6 +609,7 @@
 		GRP_SHIELD /* Shield */ = {
 			isa = PBXGroup;
 			children = (
+				7C1543913034D36100A8C080 /* MaskID */,
 				7C3D808830272B990017854E /* Mask.icon */,
 				7C1D5E4F2FA7392000E171B4 /* MaskID.icon */,
 				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
@@ -810,6 +870,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C1543923034D36100A8C080 /* MaskIDRed.icon in Resources */,
+				7C1543933034D36100A8C080 /* MaskIDBlue.png in Resources */,
+				7C1543943034D36100A8C080 /* MaskIDOcean.png in Resources */,
+				7C1543953034D36100A8C080 /* MaskIDRed.png in Resources */,
+				7C1543963034D36100A8C080 /* MaskIDBlue.icon in Resources */,
+				7C1543973034D36100A8C080 /* MaskIDGreen.icon in Resources */,
+				7C1543983034D36100A8C080 /* MaskIDGold.icon in Resources */,
+				7C1543993034D36100A8C080 /* MaskIDPurple.png in Resources */,
+				7C15439A3034D36100A8C080 /* MaskIDPurple.icon in Resources */,
+				7C15439B3034D36100A8C080 /* MaskIDGold.png in Resources */,
+				7C15439C3034D36100A8C080 /* MaskIDGreen.png in Resources */,
+				7C15439D3034D36100A8C080 /* MaskIDOcean.icon in Resources */,
 				A024 /* Assets.xcassets in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
@@ -1007,59 +1079,59 @@
 
 /* Begin XCBuildConfiguration section */
 		BC_EXT_DEBUG /* Debug */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 103202608162;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.3";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 103202608162;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_EXT_RELEASE /* Release */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 103202608162;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.3";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 103202608162;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1160,95 +1232,95 @@
 			name = Release;
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_IDENTITY" = "Apple Development";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 103202608162;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.3";
-		"OTHER_LDFLAGS" = (
-			"$(inherited)",
-			"-ObjC",
-		);
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"PROVISIONING_PROFILE_SPECIFIER" = "";
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 103202608162;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_TARGET_RELEASE /* Release */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = Mask;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_IDENTITY" = "Apple Development";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 103202608162;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.3";
-		"OTHER_LDFLAGS" = (
-			"$(inherited)",
-			"-ObjC",
-		);
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"PROVISIONING_PROFILE_SPECIFIER" = "";
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 103202608162;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.3;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_TEST_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
