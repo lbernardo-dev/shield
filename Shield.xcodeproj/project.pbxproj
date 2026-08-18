@@ -103,6 +103,7 @@
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
 		B013 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L013 /* AppShortcuts.xcstrings */; };
+		B014 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L014 /* InfoPlist.xcstrings */; };
 		BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */; };
 		C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */; };
 		EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FEXTAPP /* ShieldShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -252,6 +253,7 @@
 		L011 /* Vault.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Vault.xcstrings; sourceTree = "<group>"; };
 		L012 /* SettingsInfo.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = SettingsInfo.xcstrings; sourceTree = "<group>"; };
 		L013 /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
+		L014 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		T001 /* RedactionCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionCodingTests.swift; sourceTree = "<group>"; };
 		T002 /* ShieldLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldLaunchTests.swift; sourceTree = "<group>"; };
 		T003 /* Export/ExportVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Export/ExportVerifierTests.swift; sourceTree = "<group>"; };
@@ -583,6 +585,7 @@
 				L010 /* Settings.xcstrings */,
 				L012 /* SettingsInfo.xcstrings */,
 				L013 /* AppShortcuts.xcstrings */,
+				L014 /* InfoPlist.xcstrings */,
 				L011 /* Vault.xcstrings */,
 			);
 			path = Strings;
@@ -823,6 +826,7 @@
 				B010 /* Settings.xcstrings in Resources */,
 				B012 /* SettingsInfo.xcstrings in Resources */,
 				B013 /* AppShortcuts.xcstrings in Resources */,
+				B014 /* InfoPlist.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
 				7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */,
 			);
@@ -1171,9 +1175,6 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\306mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\372veda.";
-		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
 		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
@@ -1219,9 +1220,6 @@
 		"INFOPLIST_KEY_CFBundleName" = MaskID;
 		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
 		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_NSCameraUsageDescription" = "MaskID necesita la c\306mara para escanear documentos.";
-		"INFOPLIST_KEY_NSFaceIDUsageDescription" = "MaskID usa Face ID para proteger tu B\372veda.";
-		"INFOPLIST_KEY_NSPhotoLibraryUsageDescription" = "MaskID necesita acceso a Fotos para importar documentos.";
 		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
 		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
 		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
