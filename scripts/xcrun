@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Shim for xcrun to bypass arm64e dynamic library mismatch on macOS beta
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -f|--find)
+            shift
+            tool="$1"
+            if [ -x "/Applications/Xcode.app/Contents/Developer/usr/bin/$tool" ]; then
+                echo "/Applications/Xcode.app/Contents/Developer/usr/bin/$tool"
+                exit 0
+            elif [ -x "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/$tool" ]; then
+                echo "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/$tool"
+                exit 0
+            fi
+            which "$tool"
+            exit 0
+            ;;
+        --sdk)
+            shift 2
+            ;;
+        --toolchain)
+            shift 2
+            ;;
+        --version)
+            echo "xcrun version 1.0.0 (shim)"
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+tool="$1"
+shift
+if [ -x "/Applications/Xcode.app/Contents/Developer/usr/bin/$tool" ]; then
+    exec "/Applications/Xcode.app/Contents/Developer/usr/bin/$tool" "$@"
+elif [ -x "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/$tool" ]; then
+    exec "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/$tool" "$@"
+elif command -v "$tool" >/dev/null 2>&1; then
+    exec "$tool" "$@"
+else
+    echo "xcrun shim: tool not found: $tool" >&2
+    exit 1
+fi

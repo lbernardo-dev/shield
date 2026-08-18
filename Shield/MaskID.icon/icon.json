@@ -4,14 +4,12 @@
   },
   "groups" : [
     {
-      "blur-material" : 0.5,
       "layers" : [
         {
-          "glass" : true,
-          "image-name" : "MaskID-icon-master.png",
-          "name" : "MaskID identity protection",
+          "image-name" : "MaskIDBlue.png",
+          "name" : "MaskIDBlue",
           "position" : {
-            "scale" : 0.89,
+            "scale" : 0.85,
             "translation-in-points" : [
               0,
               0

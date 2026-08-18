@@ -328,7 +328,6 @@ struct OCREngineSettingsView: View {
 
         Task {
             // Test Spanish DNI with OCR letter confusion (e.g. 12345678Z vs 123456782)
-            let testRaw = "12345678Z"
             let testRawWithConfusion = "I2345678Z" // 'I' instead of '1'
             let corrected = OCRErrorCorrector.correctSpanishID(testRawWithConfusion)
 

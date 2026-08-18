@@ -97,9 +97,9 @@
 		AT007 /* MetricPayloadStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T007 /* MetricPayloadStoreTests.swift */; };
 		AT008 /* LocalizationLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T008 /* LocalizationLanguageTests.swift */; };
 		AT009 /* AppReviewManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T009 /* AppReviewManagerTests.swift */; };
+		AT_TEST_APPICON /* AppIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_APPICON /* AppIconTests.swift */; };
 		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
-		AT_TEST_APPICON /* AppIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_APPICON /* AppIconTests.swift */; };
 		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
 		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
 		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
@@ -117,7 +117,6 @@
 		B010 /* Settings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L010 /* Settings.xcstrings */; };
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
-		B013 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L013 /* AppShortcuts.xcstrings */; };
 		B014 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L014 /* InfoPlist.xcstrings */; };
 		BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */; };
 		C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */; };
@@ -267,9 +266,9 @@
 		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
 		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
 		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
+		F_TEST_APPICON /* AppIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconTests.swift; sourceTree = "<group>"; };
 		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
-		F_TEST_APPICON /* AppIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconTests.swift; sourceTree = "<group>"; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -906,7 +905,6 @@
 				B009 /* Paywall.xcstrings in Resources */,
 				B010 /* Settings.xcstrings in Resources */,
 				B012 /* SettingsInfo.xcstrings in Resources */,
-				B013 /* AppShortcuts.xcstrings in Resources */,
 				B014 /* InfoPlist.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
 				7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */,
@@ -1096,7 +1094,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608181;
+				CURRENT_PROJECT_VERSION = 103202608182;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1123,7 +1121,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608181;
+				CURRENT_PROJECT_VERSION = 103202608182;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1148,6 +1146,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1200,6 +1199,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1246,15 +1246,14 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
-				ASSETCATALOG_COMPILER_APPICON_NAME = MaskIDBlue;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608181;
+				CURRENT_PROJECT_VERSION = 103202608182;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1294,14 +1293,14 @@
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
-				ASSETCATALOG_COMPILER_APPICON_NAME = MaskIDBlue;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608181;
+				CURRENT_PROJECT_VERSION = 103202608182;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

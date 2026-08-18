@@ -1390,8 +1390,19 @@
    Id: 127-update-build-103202608181-archive-upload
    Scope: Update build number to 103202608181, archive, upload to App Store Connect and link to version 1.0.3
    Files: Shield.xcodeproj/project.pbxproj
-   Note: Starting build update, archive, upload, and linking to version 1.0.3
+   Note: Build 103202608181 archived, uploaded, processed, and successfully attached to version 1.0.3
    Detail: tasks/details/127-update-build-103202608181-archive-upload.md
    Claimed by: CODEX
    Claimed at: 2026-08-18T18:33:17Z
+   Done by: CODEX
+   Done at: 2026-08-18T19:05:33Z
+
+128. update-build-103202608182-fix-appicon-zero-warnings
+   Id: 128-update-build-103202608182-fix-appicon-zero-warnings
+   Scope: build,assets,archive,appstore
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Resources/Info.plist,Shield/Resources/Assets.xcassets
+   Note: Starting archive and upload with clean AppIcon and zero ITMS warnings
+   Detail: tasks/details/128-update-build-103202608182-fix-appicon-zero-warnings.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-18T19:08:07Z
 

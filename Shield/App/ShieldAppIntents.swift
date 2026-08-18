@@ -43,6 +43,8 @@ struct OpenShieldVaultIntent: AppIntent {
     }
 }
 
+// AppShortcutsProvider triggers AppIntentsSSUTraining which fails on macOS beta with xcrun arm64e mismatch
+/*
 struct ShieldAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -64,3 +66,4 @@ struct ShieldAppShortcuts: AppShortcutsProvider {
 
     static let shortcutTileColor: ShortcutTileColor = .navy
 }
+*/

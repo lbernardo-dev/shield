@@ -50,7 +50,7 @@ enum OCRErrorCorrector {
         }
 
         // 2. Permutation testing for single OCR character errors
-        var chars = Array(clean)
+        let chars = Array(clean)
         if chars.count == 9 {
             // Test letter-to-digit in numeric positions (indices 0..7 for DNI, 1..7 for NIE)
             let startIdx = (chars[0] == "X" || chars[0] == "Y" || chars[0] == "Z") ? 1 : 0
@@ -190,7 +190,7 @@ enum OCRErrorCorrector {
     // MARK: - IBAN Formatter and Corrector
 
     static func correctIBAN(_ rawText: String) -> String? {
-        var clean = rawText.uppercased().replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
+        let clean = rawText.uppercased().replacingOccurrences(of: "[^A-Z0-9]", with: "", options: .regularExpression)
         guard clean.count >= 15 && clean.count <= 34 else { return nil }
 
         // Replace common OCR errors in country code (first 2 characters)

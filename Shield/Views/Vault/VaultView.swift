@@ -512,10 +512,7 @@ private struct VaultPickerRow: View {
         guard thumbnail == nil else { return }
         let fileName = doc.imageFileName(for: 0)
         guard let name = fileName else { return }
-        Task.detached(priority: .background) {
-            let img = AppState.loadImage(fileName: name, isVaulted: doc.isVaulted)
-            await MainActor.run { thumbnail = img }
-        }
+        thumbnail = AppState.loadImage(fileName: name, isVaulted: doc.isVaulted)
     }
 }
 

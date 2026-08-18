@@ -97,7 +97,9 @@ export \
   SWIFT_PACKAGE_CACHE_PATH \
   SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR \
   XDG_CACHE_HOME \
-  TMPDIR
+  TMPDIR \
+  DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer" \
+  PATH="/Applications/Xcode.app/Contents/Developer/usr/bin:$PATH"
 
 if command -v xcbeautify >/dev/null 2>&1; then
   FILTER_CMD=(xcbeautify --is-ci)
@@ -105,10 +107,12 @@ else
   FILTER_CMD=(cat)
 fi
 
+XCODEBUILD_BIN="/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild"
+
 set +e
 {
   SWIFT_OTHER_FLAGS="\$(inherited) -Xfrontend -module-cache-path -Xfrontend $SWIFT_MODULE_CACHE_PATH -Xfrontend -disable-sandbox"
-  xcodebuild \
+  "$XCODEBUILD_BIN" \
     "$@" \
     -clonedSourcePackagesDirPath "$SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR" \
     CLANG_MODULE_CACHE_PATH="$CLANG_MODULE_CACHE_PATH" \
