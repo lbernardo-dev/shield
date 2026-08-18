@@ -72,6 +72,11 @@ final class AppState: ObservableObject {
     @Published var preferredScheme: ColorScheme {
         didSet { UserDefaults.standard.set(preferredScheme == .dark, forKey: "shield.darkMode") }
     }
+    @Published var currentAppIcon: AppIconOption = .blue {
+        didSet {
+            UserDefaults.standard.set(currentAppIcon.rawValue, forKey: "shield.selectedAppIcon")
+        }
+    }
 
     // MARK: - Navigation
     @Published var selectedDoc: DocumentItem? = nil
@@ -116,6 +121,13 @@ final class AppState: ObservableObject {
         preferredScheme = ud.object(forKey: "shield.darkMode") == nil
             ? .dark
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
+
+        if let savedIconRaw = ud.string(forKey: "shield.selectedAppIcon"),
+           let icon = AppIconOption(rawValue: savedIconRaw) {
+            currentAppIcon = icon
+        } else {
+            currentAppIcon = .blue
+        }
 
         documents = AppState.loadDocuments()
         PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
@@ -263,6 +275,59 @@ final class AppState: ObservableObject {
         ]
     }
 #endif
+
+    // MARK: - Alternate App Icon Management
+
+    enum AppIconError: LocalizedError {
+        case proRequired
+        case unsupportedPlatform
+        case changeFailed(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .proRequired:
+                return "MaskID Pro is required to use custom icons."
+            case .unsupportedPlatform:
+                return "Alternate icons are not supported on this platform."
+            case .changeFailed(let msg):
+                return msg
+            }
+        }
+    }
+
+    @MainActor
+    func setAppIcon(_ icon: AppIconOption, isPro: Bool) async throws {
+        if icon.isPro && !isPro {
+            throw AppIconError.proRequired
+        }
+
+        #if os(iOS)
+        if UIApplication.shared.supportsAlternateIcons {
+            do {
+                try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
+            } catch {
+                #if !targetEnvironment(simulator)
+                throw AppIconError.changeFailed(error.localizedDescription)
+                #endif
+            }
+        }
+        #endif
+
+        currentAppIcon = icon
+    }
+
+    @MainActor
+    func syncAppIconWithSystem() {
+        #if os(iOS)
+        if UIApplication.shared.supportsAlternateIcons {
+            let currentSystemName = UIApplication.shared.alternateIconName
+            let systemOption = AppIconOption.from(alternateIconName: currentSystemName)
+            if currentAppIcon != systemOption {
+                currentAppIcon = systemOption
+            }
+        }
+        #endif
+    }
 
     // MARK: - Computed
 
@@ -839,9 +904,7 @@ final class SecureFileStore: Sendable {
             keyData,
             service: service,
             account: account,
-            accessible: account == vaultKeyAccount
-                ? kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
-                : kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         )
         return key
     }
@@ -856,7 +919,7 @@ final class SecureFileStore: Sendable {
 }
 
 enum KeychainStore {
-    static func save(_ data: Data, service: String, account: String, accessible: CFString) throws {
+    static func save(_ data: Data, service: String, account: String, accessible: CFString = kSecAttrAccessibleWhenUnlockedThisDeviceOnly) throws {
         let baseQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -879,7 +942,11 @@ enum KeychainStore {
         var addQuery = baseQuery
         addQuery[kSecValueData as String] = data
         addQuery[kSecAttrAccessible as String] = accessible
-        let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+        var addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+        if addStatus != errSecSuccess && (accessible as String) == (kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly as String) {
+            addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+        }
         guard addStatus == errSecSuccess else {
             throw NSError(domain: NSOSStatusErrorDomain, code: Int(addStatus))
         }

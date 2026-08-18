@@ -593,6 +593,13 @@ struct AppPreferencesSettingsView: View {
                     .tint(ShieldTheme.accent(scheme))
                 }
             }
+
+            SettingsCardSection(
+                title: strings.settings("settings_app_icon"),
+                icon: "app.badge.checkmark"
+            ) {
+                AppIconPickerSection()
+            }
         }
         .onAppear { selectedLanguage = appState.language }
         .onChange(of: selectedLanguage) { _, newValue in

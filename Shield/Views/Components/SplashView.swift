@@ -27,7 +27,17 @@ struct MaskIDIdentityMark: View {
     var presentation: Presentation = .animatedOnce
     var treatment: Treatment = .hero
     var isEmphasized = false
+    var icon: AppIconOption? = nil
     var onAnimationFinished: ((Bool) -> Void)?
+
+    private var resolvedIcon: AppIconOption {
+        if let icon { return icon }
+        if let raw = UserDefaults.standard.string(forKey: "shield.selectedAppIcon"),
+           let saved = AppIconOption(rawValue: raw) {
+            return saved
+        }
+        return .defaultIcon
+    }
 
     var body: some View {
         ZStack {
@@ -59,14 +69,17 @@ struct MaskIDIdentityMark: View {
     @ViewBuilder
     private var ambientHaloLayers: some View {
         let isDark = scheme == .dark
+        let haloColors = resolvedIcon.haloColors
+        let primaryGlow = haloColors.first ?? Color(hex: "00B4D8")
+        let secondaryGlow = haloColors.last ?? Color(hex: "0077B6")
 
         // Deep soft radial glow backlight
         Circle()
             .fill(
                 RadialGradient(
                     colors: [
-                        Color(hex: "00B4D8").opacity(isDark ? 0.38 : 0.24),
-                        Color(hex: "0077B6").opacity(isDark ? 0.18 : 0.10),
+                        primaryGlow.opacity(isDark ? 0.38 : 0.24),
+                        secondaryGlow.opacity(isDark ? 0.18 : 0.10),
                         Color.clear
                     ],
                     center: .center,
@@ -79,7 +92,7 @@ struct MaskIDIdentityMark: View {
         // Outer slow-rotating dashed orbital ring
         Circle()
             .stroke(
-                ShieldTheme.accent(scheme).opacity(isDark ? 0.20 : 0.14),
+                primaryGlow.opacity(isDark ? 0.20 : 0.14),
                 style: StrokeStyle(lineWidth: 1.2, dash: [6, 12])
             )
             .padding(size * 0.04)
@@ -90,9 +103,9 @@ struct MaskIDIdentityMark: View {
             .stroke(
                 LinearGradient(
                     colors: [
-                        ShieldTheme.accent(scheme).opacity(isDark ? 0.45 : 0.30),
+                        primaryGlow.opacity(isDark ? 0.45 : 0.30),
                         Color.clear,
-                        ShieldTheme.accent(scheme).opacity(isDark ? 0.30 : 0.18)
+                        secondaryGlow.opacity(isDark ? 0.30 : 0.18)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -104,7 +117,7 @@ struct MaskIDIdentityMark: View {
         // Inner soft rim ring
         Circle()
             .stroke(
-                ShieldTheme.accent(scheme).opacity(isDark ? 0.28 : 0.16),
+                primaryGlow.opacity(isDark ? 0.28 : 0.16),
                 lineWidth: 1
             )
             .padding(size * 0.20)
@@ -141,29 +154,29 @@ struct MaskIDIdentityMark: View {
             }
 
             // High-Resolution Master Icon
-            Image("MaskIDMark")
+            resolvedIcon.image
                 .resizable()
                 .scaledToFill()
                 .frame(width: markSize, height: markSize)
-                // Feathered radial mask to blend edges smoothly into the view
-                .mask {
-                    if isCircular {
-                        RadialGradient(
-                            stops: [
-                                .init(color: .white, location: 0.0),
-                                .init(color: .white, location: 0.74),
-                                .init(color: .white.opacity(0.85), location: 0.86),
-                                .init(color: .white.opacity(0.35), location: 0.94),
-                                .init(color: .clear, location: 1.0)
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: markSize * 0.50
-                        )
-                    } else {
-                        RoundedRectangle(cornerRadius: markSize * 0.28, style: .continuous)
-                    }
+            // Feathered radial mask to blend edges smoothly into the view
+            .mask {
+                if isCircular {
+                    RadialGradient(
+                        stops: [
+                            .init(color: .white, location: 0.0),
+                            .init(color: .white, location: 0.74),
+                            .init(color: .white.opacity(0.85), location: 0.86),
+                            .init(color: .white.opacity(0.35), location: 0.94),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: markSize * 0.50
+                    )
+                } else {
+                    RoundedRectangle(cornerRadius: markSize * 0.28, style: .continuous)
                 }
+            }
 
             // Active Laser Scan Sheen Wave
             if (presentation == .animatedOnce || presentation == .animatedLoop) && !reduceMotion {
@@ -347,7 +360,8 @@ struct SplashView: View {
                 MaskIDIdentityMark(
                     size: markSize,
                     presentation: .animatedOnce,
-                    treatment: .splash
+                    treatment: .splash,
+                    icon: .blue
                 ) { completed in
                     guard completed else { return }
                     finish()

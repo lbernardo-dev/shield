@@ -1375,3 +1375,14 @@
    Done by: CODEX
    Done at: 2026-08-17T21:34:28Z
 
+126. premium-icon-composer-selector
+   Id: 126-premium-icon-composer-selector
+   Scope: Settings, AppIcon, Premium, Homogeneous UI
+   Files: Shield/Models/AppIconOption.swift,Shield/ViewModels/AppState.swift,Shield/Views/Settings/AppIconPickerView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Components/SplashView.swift,Shield/Resources/Info.plist,Shield.xcodeproj/project.pbxproj,ShieldTests/AppIconTests.swift
+   Note: Finished: Pro icon composer alternate app icon system with free preview, settings picker, and dynamic in-app brand identity
+   Detail: tasks/details/126-premium-icon-composer-selector.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-18T17:58:12Z
+   Done by: CODEX
+   Done at: 2026-08-18T18:08:14Z
+

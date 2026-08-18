@@ -568,7 +568,7 @@ enum PINManager {
             encoded,
             service: service,
             account: account,
-            accessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
+            accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         )
         resetLockout()
     }
@@ -650,7 +650,7 @@ enum PINManager {
             data,
             service: service,
             account: lockoutAccount,
-            accessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
+            accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         )
     }
 

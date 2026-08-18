@@ -71,6 +71,8 @@
 		A048 /* ExportVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048 /* ExportVerifier.swift */; };
 		A049 /* SettingsDestinationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049 /* SettingsDestinationViews.swift */; };
 		A060 /* DirectCloudStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F060 /* DirectCloudStorageManager.swift */; };
+		A061 /* AppIconOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F061 /* AppIconOption.swift */; };
+		A062 /* AppIconPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062 /* AppIconPickerView.swift */; };
 		A099 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F099 /* StoreKit.framework */; };
 		A100 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100 /* Vision.framework */; };
 		A101 /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F101 /* PhotosUI.framework */; };
@@ -97,6 +99,7 @@
 		AT009 /* AppReviewManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T009 /* AppReviewManagerTests.swift */; };
 		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
+		AT_TEST_APPICON /* AppIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_APPICON /* AppIconTests.swift */; };
 		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
 		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
 		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
@@ -231,6 +234,8 @@
 		F048 /* ExportVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportVerifier.swift; sourceTree = "<group>"; };
 		F049 /* SettingsDestinationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDestinationViews.swift; sourceTree = "<group>"; };
 		F060 /* DirectCloudStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectCloudStorageManager.swift; sourceTree = "<group>"; };
+		F061 /* AppIconOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconOption.swift; sourceTree = "<group>"; };
+		F062 /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
 		F099 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		F100 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
 		F101 /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = System/Library/Frameworks/PhotosUI.framework; sourceTree = SDKROOT; };
@@ -264,6 +269,7 @@
 		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
 		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
+		F_TEST_APPICON /* AppIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconTests.swift; sourceTree = "<group>"; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -492,6 +498,7 @@
 			children = (
 				F004 /* Document.swift */,
 				F005 /* Redaction.swift */,
+				F061 /* AppIconOption.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -583,6 +590,7 @@
 				F022 /* SettingsView.swift */,
 				F049 /* SettingsDestinationViews.swift */,
 				F_OCR_SETT /* OCREngineSettingsView.swift */,
+				F062 /* AppIconPickerView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -667,6 +675,7 @@
 				T009 /* AppReviewManagerTests.swift */,
 				F_TEST_QUOTA /* FreeQuotaTests.swift */,
 				F_TEST_OCR /* OCREnginePrecisionTests.swift */,
+				F_TEST_APPICON /* AppIconTests.swift */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -1026,6 +1035,8 @@
 				ASHARE /* SharedImportStore.swift in Sources */,
 				AMETRIC /* ShieldMetricSubscriber.swift in Sources */,
 				31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */,
+				A061 /* AppIconOption.swift in Sources */,
+				A062 /* AppIconPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1046,6 +1057,7 @@
 				AT009 /* AppReviewManagerTests.swift in Sources */,
 				AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */,
 				AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */,
+				AT_TEST_APPICON /* AppIconTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1234,8 +1246,10 @@
 		BC_TARGET_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskIDBlue;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1279,8 +1293,10 @@
 		BC_TARGET_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = Mask;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+				ASSETCATALOG_COMPILER_APPICON_NAME = MaskIDBlue;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

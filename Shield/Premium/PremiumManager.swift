@@ -260,7 +260,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     }
 
     private func apply(_ customerInfo: CustomerInfo) {
-        #if DEBUG
+        #if DEBUG && targetEnvironment(simulator)
         if isDebugProOverride { return }
         #endif
         let hasPro = customerInfo.entitlements[entitlementIdentifier]?.isActive == true

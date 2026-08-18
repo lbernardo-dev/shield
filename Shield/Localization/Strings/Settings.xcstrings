@@ -35,6 +35,431 @@
         }
       }
     },
+    "settings_app_icon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Icon"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono de la app"
+          }
+        }
+      }
+    },
+    "settings_app_icon_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customize the app icon style on your Home Screen and across the app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personaliza el estilo del icono en tu pantalla de inicio y en toda la app."
+          }
+        }
+      }
+    },
+    "settings_app_icon_active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activo"
+          }
+        }
+      }
+    },
+    "settings_app_icon_default": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por defecto"
+          }
+        }
+      }
+    },
+    "settings_app_icon_pro_locked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exclusive to MaskID Pro. Upgrade to unlock all custom icons."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exclusivo de MaskID Pro. Actualiza para desbloquear todos los iconos."
+          }
+        }
+      }
+    },
+    "settings_app_icon_preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon Preview"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa del icono"
+          }
+        }
+      }
+    },
+    "settings_app_icon_unlock_pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Pro"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear con Pro"
+          }
+        }
+      }
+    },
+    "settings_app_icon_blue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic Blue"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azul Clásico"
+          }
+        }
+      }
+    },
+    "settings_app_icon_blue_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The signature MaskID sapphire icon with high-contrast privacy shield."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El icono azul zafiro insignia de MaskID con escudo de privacidad de alto contraste."
+          }
+        }
+      }
+    },
+    "settings_app_icon_gold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Royal Gold"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oro Imperial"
+          }
+        }
+      }
+    },
+    "settings_app_icon_gold_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radiant metallic gold icon crafted for executive distinction."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono dorado metálico radiante diseñado con distinción ejecutiva."
+          }
+        }
+      }
+    },
+    "settings_app_icon_green": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emerald Green"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verde Esmeralda"
+          }
+        }
+      }
+    },
+    "settings_app_icon_green_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibrant cyber emerald icon reflecting security and precision."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono verde esmeralda ciber vibrante que refleja seguridad y precisión."
+          }
+        }
+      }
+    },
+    "settings_app_icon_ocean": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deep Ocean"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Océano Profundo"
+          }
+        }
+      }
+    },
+    "settings_app_icon_ocean_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serene deep teal-cyan icon inspired by oceanic tranquility."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono turquesa y cian profundo inspirado en la tranquilidad oceánica."
+          }
+        }
+      }
+    },
+    "settings_app_icon_purple": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neon Purple"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Púrpura Neón"
+          }
+        }
+      }
+    },
+    "settings_app_icon_purple_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Electric futuristic purple icon with synthwave ambient glow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono púrpura futurista eléctrico con brillo ambiental synthwave."
+          }
+        }
+      }
+    },
+    "settings_app_icon_red": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crimson Red"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rojo Carmín"
+          }
+        }
+      }
+    },
+    "settings_app_icon_red_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bold tactical crimson icon signaling uncompromising protection."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono rojo carmín táctico audaz que denota protección incondicional."
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_composer_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon Composer Native"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nativo de Icon Composer"
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_composer_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multi-layer vector gradients rendered with modern Apple icon technology."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gradientes vectoriales multicapa renderizados con la tecnología moderna de iconos de Apple."
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_watch_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multi-Platform & Watch Ready"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multiplataforma y adaptado a Watch"
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_watch_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optimized for iOS home screen, iPadOS, and circular watchOS targets."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optimizado para la pantalla de inicio de iOS, iPadOS y objetivos circulares de watchOS."
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_sync_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Homogeneous Brand Sync"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronización homogénea de marca"
+          }
+        }
+      }
+    },
+    "settings_app_icon_benefit_sync_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your chosen icon automatically updates Settings, Paywall, Vault, and headers across the entire app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El icono que elijas actualiza automáticamente Ajustes, Paywall, Bóveda y cabeceras en toda la app."
+          }
+        }
+      }
+    },
     "settings_dark_mode": {
       "extractionState": "manual",
       "localizations": {

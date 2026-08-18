@@ -75,7 +75,10 @@ struct ContentView: View {
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
         appState.handleScenePhaseChange(newPhase)
 
-        guard newPhase == .active, sessionStage == .ready else { return }
+        guard newPhase == .active else { return }
+        appState.syncAppIconWithSystem()
+
+        guard sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
     }
 
