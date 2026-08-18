@@ -1386,3 +1386,12 @@
    Done by: CODEX
    Done at: 2026-08-18T18:08:14Z
 
+127. update-build-103202608181-archive-upload
+   Id: 127-update-build-103202608181-archive-upload
+   Scope: Update build number to 103202608181, archive, upload to App Store Connect and link to version 1.0.3
+   Files: Shield.xcodeproj/project.pbxproj
+   Note: Starting build update, archive, upload, and linking to version 1.0.3
+   Detail: tasks/details/127-update-build-103202608181-archive-upload.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-18T18:33:17Z
+
