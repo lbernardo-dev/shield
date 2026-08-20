@@ -1408,3 +1408,12 @@
    Done by: CODEX
    Done at: 2026-08-18T19:24:29Z
 
+129. remove-legacy-maskid-icons
+   Id: 129-remove-legacy-maskid-icons
+   Scope: Eliminar referencias y paquetes de iconos antiguos MaskID.icon, Mask.icon y GhostDocInFormal.icon del proyecto Xcode y del repositorio
+   Files: Shield.xcodeproj/project.pbxproj
+   Note: Starting work to remove legacy MaskID.icon and related old icon references
+   Detail: tasks/details/129-remove-legacy-maskid-icons.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T07:36:36Z
+

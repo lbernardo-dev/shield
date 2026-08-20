@@ -21,8 +21,6 @@
 		7C15439B3034D36100A8C080 /* MaskIDGold.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543843034D36100A8C080 /* MaskIDGold.png */; };
 		7C15439C3034D36100A8C080 /* MaskIDGreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543853034D36100A8C080 /* MaskIDGreen.png */; };
 		7C15439D3034D36100A8C080 /* MaskIDOcean.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438D3034D36100A8C080 /* MaskIDOcean.icon */; };
-		7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C1D5E4F2FA7392000E171B4 /* MaskID.icon */; };
-		7C3D808930272B990017854E /* Mask.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D808830272B990017854E /* Mask.icon */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -180,8 +178,6 @@
 		7C15438D3034D36100A8C080 /* MaskIDOcean.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDOcean.icon; sourceTree = "<group>"; };
 		7C15438E3034D36100A8C080 /* MaskIDPurple.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDPurple.icon; sourceTree = "<group>"; };
 		7C15438F3034D36100A8C080 /* MaskIDRed.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDRed.icon; sourceTree = "<group>"; };
-		7C1D5E4F2FA7392000E171B4 /* MaskID.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskID.icon; sourceTree = "<group>"; };
-		7C3D808830272B990017854E /* Mask.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Mask.icon; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
 		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
@@ -617,8 +613,6 @@
 			isa = PBXGroup;
 			children = (
 				7C1543913034D36100A8C080 /* MaskID */,
-				7C3D808830272B990017854E /* Mask.icon */,
-				7C1D5E4F2FA7392000E171B4 /* MaskID.icon */,
 				7C8EF8582FA4654E00F78E79 /* Shield.entitlements */,
 				GRP_APP /* App */,
 				GRP_THEME /* Theme */,
@@ -895,7 +889,6 @@
 				B001 /* Auth.xcstrings in Resources */,
 				BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */,
 				B002 /* Capture.xcstrings in Resources */,
-				7C3D808930272B990017854E /* Mask.icon in Resources */,
 				B003 /* Common.xcstrings in Resources */,
 				B004 /* Editor.xcstrings in Resources */,
 				B005 /* Gallery.xcstrings in Resources */,
@@ -907,7 +900,6 @@
 				B012 /* SettingsInfo.xcstrings in Resources */,
 				B014 /* InfoPlist.xcstrings in Resources */,
 				B011 /* Vault.xcstrings in Resources */,
-				7C1D5E502FA7392000E171B4 /* MaskID.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
