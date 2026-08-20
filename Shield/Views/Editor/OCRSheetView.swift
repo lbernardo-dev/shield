@@ -415,6 +415,9 @@ struct OCRSheetView: View {
 
     private var extraSections: some View {
         VStack(spacing: 0) {
+            // Barcode & QR Block
+            barcodeSection
+
             // MRZ block
             if let mrz = resolvedFields.mrz {
                 VStack(alignment: .leading, spacing: 6) {
@@ -466,6 +469,57 @@ struct OCRSheetView: View {
                             .padding(.bottom, 8)
                     }
                 }
+            }
+        }
+    }
+
+    private var barcodeSection: some View {
+        let barcodes = (resolvedFields.ocrPageEvidence ?? []).flatMap(\.entities).filter { $0.kind == .barcode }
+        return Group {
+            if !barcodes.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    sectionHeader(
+                        title: lang == .es ? "Códigos QR y Barras (Riesgo)" : "QR & Barcodes (Risk)",
+                        count: barcodes.count,
+                        color: ShieldTheme.warning
+                    )
+                    ForEach(barcodes, id: \.id) { bc in
+                        HStack {
+                            Image(systemName: "qrcode.viewfinder")
+                                .shieldFont(16, weight: .semibold)
+                                .foregroundColor(ShieldTheme.warning)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(bc.validator ?? "Código de barras")
+                                    .shieldFont(12, weight: .bold)
+                                    .foregroundColor(ShieldTheme.primary(scheme))
+                                Text(bc.value)
+                                    .shieldFont(10, design: .monospaced)
+                                    .foregroundColor(ShieldTheme.secondary(scheme))
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+
+                            Button {
+                                if let rect = effectiveObservations.first?.boundingRect {
+                                    onMaskField(rect)
+                                }
+                            } label: {
+                                Image(systemName: "eye.slash.fill")
+                                    .shieldFont(12)
+                                    .foregroundColor(ShieldTheme.warning)
+                                    .frame(width: 32, height: 32)
+                                    .background(ShieldTheme.warning.opacity(0.15))
+                                    .clipShape(Circle())
+                            }
+                        }
+                        .padding(10)
+                        .background(ShieldTheme.rowBackground(scheme))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal, ShieldTheme.s5)
+                    }
+                }
+                .padding(.bottom, 8)
             }
         }
     }

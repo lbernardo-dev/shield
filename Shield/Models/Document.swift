@@ -96,6 +96,7 @@ enum OCRSensitiveEntityKind: String, Codable, CaseIterable, Sendable {
     case phoneNumber
     case iban
     case paymentCard
+    case barcode
 }
 
 struct OCRTextEvidence: Identifiable, Codable, Equatable, Sendable {

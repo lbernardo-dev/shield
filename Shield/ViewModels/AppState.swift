@@ -713,6 +713,7 @@ final class AppState: ObservableObject {
     }
 
     private func persistDocuments() {
+        DocumentStore.shared.saveAllDocuments(documents)
         if let data = try? JSONEncoder().encode(documents) {
             try? SecureFileStore.shared.write(data, to: AppState.docsURL)
         }
@@ -725,6 +726,14 @@ final class AppState: ObservableObject {
     }
 
     private static func loadDocuments() -> [DocumentItem] {
+        let storeDocs = DocumentStore.shared.loadAllDocuments()
+        if !storeDocs.isEmpty {
+            return storeDocs.map { document in
+                var migrated = document
+                migrated.migrateToCurrentSchema()
+                return migrated
+            }
+        }
         if let data = try? SecureFileStore.shared.read(from: docsURL),
            let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) {
             return docs.map { document in

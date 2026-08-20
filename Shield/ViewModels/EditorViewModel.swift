@@ -87,6 +87,8 @@ final class EditorViewModel: ObservableObject {
     @Published var isDraggingRedaction: Bool = false
     @Published var isResizingRedaction: Bool = false
     @Published var isAnalyzingOCRSuggestions: Bool = false
+    @Published var isPeekingOriginal: Bool = false
+    @Published var showPresetPicker: Bool = false
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
@@ -396,6 +398,45 @@ final class EditorViewModel: ObservableObject {
         ])
         activeMode = mode
         showSensitiveBanner = false
+    }
+
+    func applyPreset(_ preset: RedactionPreset, lang: AppLanguage) {
+        var newRedactions = redactions
+        if let pageEvidence = doc.fields.ocrPageEvidence?.first(where: { $0.pageIndex == currentPage }) {
+            let obsMap = Dictionary(uniqueKeysWithValues: pageEvidence.observations.map { ($0.id, $0) })
+            for entity in pageEvidence.entities where preset.maskedEntities.contains(entity.kind) {
+                for evID in entity.evidenceIDs {
+                    if let obs = obsMap[evID] {
+                        let overlaps = newRedactions.contains { r in
+                            r.rect.intersects(obs.boundingRect)
+                        }
+                        if !overlaps {
+                            let redaction = Redaction(rect: obs.boundingRect, style: maskStyle)
+                            newRedactions.append(redaction)
+                        }
+                    }
+                }
+            }
+        }
+
+        if newRedactions == redactions {
+            let suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
+            newRedactions = suggested
+        }
+
+        push(newRedactions)
+
+        let text = preset.defaultWatermarkText(lang: lang)
+        self.watermark = Watermark(
+            text: text,
+            opacity: 0.28,
+            isRepeating: true,
+            colorHex: "000000"
+        )
+
+        AppState.trackEvent("preset_applied", properties: [
+            "preset": preset.rawValue
+        ])
     }
 
     /// Whether Vision OCR found real identifiable text in this document.

@@ -998,13 +998,20 @@ struct DocumentRow: View {
             HStack(spacing: 12) {
                 // Thumbnail
                 ZStack {
-                    DocumentView(kind: doc.kind, size: CGSize(width: 60, height: 44),
-                                 fields: doc.fields, redactions: doc.redactions(for: 0), watermark: doc.watermark,
-                                 imageFileName: doc.imageFileName, isVaulted: doc.isVaulted,
-                                 imageAdjustment: doc.imageAdjustment)
-                        .frame(width: 60, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .blur(radius: shouldMask ? 4 : 0)
+                    if doc.kind == .photo {
+                        DocumentThumbnailView(doc: doc, maxPixelSize: 180, contentMode: .fill)
+                            .frame(width: 60, height: 44)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .blur(radius: shouldMask ? 4 : 0)
+                    } else {
+                        DocumentView(kind: doc.kind, size: CGSize(width: 60, height: 44),
+                                     fields: doc.fields, redactions: doc.redactions(for: 0), watermark: doc.watermark,
+                                     imageFileName: doc.imageFileName, isVaulted: doc.isVaulted,
+                                     imageAdjustment: doc.imageAdjustment)
+                            .frame(width: 60, height: 44)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .blur(radius: shouldMask ? 4 : 0)
+                    }
 
                     if doc.isLocked || shouldMask {
                         RoundedRectangle(cornerRadius: 8)

@@ -65,11 +65,17 @@ struct PaywallView: View {
                         // Context banner
                         contextBanner
 
+                        // Trust Badges
+                        trustBadgesSection
+
                         // Features grid
                         featuresGrid
 
                         // Plan selector
                         planSelector
+
+                        // FAQ
+                        faqSection
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 100)
@@ -236,6 +242,85 @@ struct PaywallView: View {
         default:
             return nil
         }
+    }
+
+    // MARK: - Trust Badges
+
+    private var trustBadgesSection: some View {
+        HStack(spacing: 10) {
+            trustBadgeItem(icon: "lock.shield.fill", title: appState.language == .es ? "100% Local" : "100% On-Device", subtitle: appState.language == .es ? "Sin servidores" : "No cloud servers")
+            trustBadgeItem(icon: "faceid", title: appState.language == .es ? "Face ID Vault" : "Face ID Vault", subtitle: appState.language == .es ? "Cifrado local" : "Encrypted storage")
+            trustBadgeItem(icon: "arrow.uturn.backward.circle.fill", title: appState.language == .es ? "Cancela fácil" : "Cancel anytime", subtitle: appState.language == .es ? "En 1 toque" : "In 1 tap")
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func trustBadgeItem(icon: String, title: String, subtitle: String) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .shieldFont(16, weight: .semibold)
+                .foregroundColor(ShieldTheme.accent(scheme))
+            Text(title)
+                .shieldFont(11, weight: .bold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+            Text(subtitle)
+                .shieldFont(9)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(ShieldTheme.cardBackground(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - FAQ Section
+
+    private var faqSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(appState.language == .es ? "Preguntas Frecuentes" : "Frequently Asked Questions")
+                .shieldFont(15, weight: .bold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .padding(.top, 6)
+
+            faqItem(
+                q: appState.language == .es ? "¿Mis documentos se envían a algún servidor?" : "Are my documents sent to any server?",
+                a: appState.language == .es ? "No. Todo el procesamiento de OCR, censura y exportación ocurre 100% dentro de tu dispositivo. Nada sale de tu iPhone." : "No. All OCR detection, masking, and verification happen 100% on your device. Nothing leaves your iPhone."
+            )
+
+            faqItem(
+                q: appState.language == .es ? "¿Puedo cancelar mi suscripción en cualquier momento?" : "Can I cancel my subscription anytime?",
+                a: appState.language == .es ? "Sí, puedes cancelar en cualquier momento desde Ajustes > Apple ID > Suscripciones con un solo toque y sin penalizaciones." : "Yes, you can cancel anytime from Settings > Apple ID > Subscriptions with 1 tap."
+            )
+
+            faqItem(
+                q: appState.language == .es ? "¿Qué incluye el periodo de prueba gratuito?" : "What does the free trial include?",
+                a: appState.language == .es ? "Acceso ilimitado a todas las funciones Pro durante 7 días. Si cancelas antes de que termine, no se te cobrará nada." : "Full unlimited access to all Pro features for 7 days. If you cancel before it ends, you won't be charged."
+            )
+        }
+    }
+
+    private func faqItem(q: String, a: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(q)
+                .shieldFont(12, weight: .semibold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+            Text(a)
+                .shieldFont(11)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(ShieldTheme.cardBackground(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+        )
     }
 
     // MARK: - CTA

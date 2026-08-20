@@ -98,11 +98,20 @@
 		AT_TEST_APPICON /* AppIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_APPICON /* AppIconTests.swift */; };
 		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
+		AT_TEST_ENHANCE /* EnhancementFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */; };
 		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
 		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
 		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
 		A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_PREP /* OCRImagePreprocessor.swift */; };
 		A_OCR_SETT /* OCREngineSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_SETT /* OCREngineSettingsView.swift */; };
+		A_THUMB_MGR /* ThumbnailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_THUMB_MGR /* ThumbnailManager.swift */; };
+		A_DOC_PROC /* DocumentProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_PROC /* DocumentProcessor.swift */; };
+		A_DOC_THUMB_VIEW /* DocumentThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */; };
+		A_RED_PRESETS /* RedactionPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_RED_PRESETS /* RedactionPresets.swift */; };
+		A_DOC_STORE /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_STORE /* DocumentStore.swift */; };
+		A_PRESET_PICKER /* RedactionPresetPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_PRESET_PICKER /* RedactionPresetPicker.swift */; };
+		A_BARCODE_DET /* BarcodeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_BARCODE_DET /* BarcodeDetector.swift */; };
+		A_HOME_VM /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_HOME_VM /* HomeViewModel.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -262,9 +271,18 @@
 		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
 		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
 		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
+		F_THUMB_MGR /* ThumbnailManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailManager.swift; sourceTree = "<group>"; };
+		F_DOC_PROC /* DocumentProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessor.swift; sourceTree = "<group>"; };
+		F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentThumbnailView.swift; sourceTree = "<group>"; };
+		F_RED_PRESETS /* RedactionPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionPresets.swift; sourceTree = "<group>"; };
+		F_DOC_STORE /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
+		F_PRESET_PICKER /* RedactionPresetPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionPresetPicker.swift; sourceTree = "<group>"; };
+		F_BARCODE_DET /* BarcodeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeDetector.swift; sourceTree = "<group>"; };
+		F_HOME_VM /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		F_TEST_APPICON /* AppIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconTests.swift; sourceTree = "<group>"; };
 		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
+		F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancementFeaturesTests.swift; sourceTree = "<group>"; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -408,6 +426,7 @@
 				F009 /* Components.swift */,
 				F023 /* TabBar.swift */,
 				F901 /* SplashView.swift */,
+				F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -433,6 +452,7 @@
 				F045 /* ExportFormViews.swift */,
 				F027 /* WatermarkConfigView.swift */,
 				F032 /* ImageAdjustToolbar.swift */,
+				F_PRESET_PICKER /* RedactionPresetPicker.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -442,6 +462,8 @@
 			children = (
 				F047 /* SecureExportModels.swift */,
 				F048 /* ExportVerifier.swift */,
+				F_THUMB_MGR /* ThumbnailManager.swift */,
+				F_DOC_PROC /* DocumentProcessor.swift */,
 			);
 			path = Export;
 			sourceTree = "<group>";
@@ -494,6 +516,8 @@
 				F004 /* Document.swift */,
 				F005 /* Redaction.swift */,
 				F061 /* AppIconOption.swift */,
+				F_RED_PRESETS /* RedactionPresets.swift */,
+				F_DOC_STORE /* DocumentStore.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -514,6 +538,7 @@
 				F_OCR_FUSION /* OCRFusionEngine.swift */,
 				F_OCR_CORR /* OCRErrorCorrector.swift */,
 				F_OCR_MGR /* OCREngineManager.swift */,
+				F_BARCODE_DET /* BarcodeDetector.swift */,
 			);
 			path = OCR;
 			sourceTree = "<group>";
@@ -669,6 +694,7 @@
 				F_TEST_QUOTA /* FreeQuotaTests.swift */,
 				F_TEST_OCR /* OCREnginePrecisionTests.swift */,
 				F_TEST_APPICON /* AppIconTests.swift */,
+				F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -702,6 +728,7 @@
 			children = (
 				F006 /* AppState.swift */,
 				F007 /* EditorViewModel.swift */,
+				F_HOME_VM /* HomeViewModel.swift */,
 				F035 /* OnboardingState.swift */,
 				F037 /* AppSessionCoordinator.swift */,
 			);
@@ -1000,6 +1027,14 @@
 				A_OCR_FUSION /* OCRFusionEngine.swift in Sources */,
 				A_OCR_CORR /* OCRErrorCorrector.swift in Sources */,
 				A_OCR_MGR /* OCREngineManager.swift in Sources */,
+				A_THUMB_MGR /* ThumbnailManager.swift in Sources */,
+				A_DOC_PROC /* DocumentProcessor.swift in Sources */,
+				A_DOC_THUMB_VIEW /* DocumentThumbnailView.swift in Sources */,
+				A_RED_PRESETS /* RedactionPresets.swift in Sources */,
+				A_DOC_STORE /* DocumentStore.swift in Sources */,
+				A_PRESET_PICKER /* RedactionPresetPicker.swift in Sources */,
+				A_BARCODE_DET /* BarcodeDetector.swift in Sources */,
+				A_HOME_VM /* HomeViewModel.swift in Sources */,
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
@@ -1048,6 +1083,7 @@
 				AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */,
 				AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */,
 				AT_TEST_APPICON /* AppIconTests.swift in Sources */,
+				AT_TEST_ENHANCE /* EnhancementFeaturesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1086,7 +1122,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608182;
+				CURRENT_PROJECT_VERSION = 104202608202;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1097,7 +1133,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1113,7 +1149,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608182;
+				CURRENT_PROJECT_VERSION = 104202608202;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1124,7 +1160,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1245,7 +1281,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608182;
+				CURRENT_PROJECT_VERSION = 104202608202;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1264,7 +1300,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1292,7 +1328,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 103202608182;
+				CURRENT_PROJECT_VERSION = 104202608202;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1311,7 +1347,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

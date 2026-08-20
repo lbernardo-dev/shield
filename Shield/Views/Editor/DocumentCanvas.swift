@@ -15,9 +15,9 @@ struct DocumentCanvas: View {
                 kind: vm.doc.kind,
                 size: canvasSize,
                 fields: vm.doc.fields,
-                redactions: vm.redactions,
-                watermark: vm.watermark,
-                showFieldOverlays: vm.tool == .fields || vm.showFieldOverlays,
+                redactions: vm.isPeekingOriginal ? [] : vm.redactions,
+                watermark: vm.isPeekingOriginal ? nil : vm.watermark,
+                showFieldOverlays: (vm.tool == .fields || vm.showFieldOverlays) && !vm.isPeekingOriginal,
                 imageFileName: vm.currentImageFileName,
                 isVaulted: vm.doc.isVaulted,
                 imageAdjustment: vm.doc.imageAdjustment
@@ -28,7 +28,7 @@ struct DocumentCanvas: View {
             .accessibilityAddTraits(.isImage)
 
             // Drawing preview
-            if let dr = vm.drawingRect {
+            if let dr = vm.drawingRect, !vm.isPeekingOriginal {
                 let s = scaledRect(dr)
                 Rectangle()
                     .fill(ShieldTheme.selection(scheme).opacity(0.20))
@@ -44,21 +44,23 @@ struct DocumentCanvas: View {
             }
 
             // Field overlays (tool == .fields)
-            if vm.tool == .fields {
+            if vm.tool == .fields && !vm.isPeekingOriginal {
                 ForEach(DocumentFieldBoxes.boxes(for: vm.doc.kind)) { box in
                     FieldOverlay(box: box, vm: vm, canvasSize: canvasSize)
                 }
             }
 
             // Redaction overlays
-            ForEach(vm.redactions) { redaction in
-                RedactionOverlay(
-                    redaction: redaction,
-                    isActive: vm.activeRedactionID == redaction.id,
-                    canvasSize: canvasSize,
-                    effectiveZoom: effectiveZoom,
-                    vm: vm
-                )
+            if !vm.isPeekingOriginal {
+                ForEach(vm.redactions) { redaction in
+                    RedactionOverlay(
+                        redaction: redaction,
+                        isActive: vm.activeRedactionID == redaction.id,
+                        canvasSize: canvasSize,
+                        effectiveZoom: effectiveZoom,
+                        vm: vm
+                    )
+                }
             }
         }
         .frame(width: canvasSize.width, height: canvasSize.height)

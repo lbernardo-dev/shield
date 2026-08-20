@@ -144,6 +144,11 @@ struct EditorView: View {
                 }
             }
         }
+        .sheet(isPresented: $vm.showPresetPicker) {
+            RedactionPresetPickerSheet(lang: appState.language) { preset in
+                vm.applyPreset(preset, lang: appState.language)
+            }
+        }
         .fullScreenCover(isPresented: $showReadjustReview) {
             ScanReviewView(
                 pages: readjustPages,
@@ -271,8 +276,37 @@ struct EditorView: View {
 
             Spacer()
 
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                // Toggle Original Document View Button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        vm.isPeekingOriginal.toggle()
+                    }
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                } label: {
+                    Image(systemName: vm.isPeekingOriginal ? "eye.slash.fill" : "eye.fill")
+                        .shieldFont(15, weight: .semibold)
+                        .foregroundColor(vm.isPeekingOriginal ? ShieldTheme.warning : ShieldTheme.secondary(scheme))
+                        .frame(width: 40, height: 40)
+                        .background(vm.isPeekingOriginal ? ShieldTheme.warning.opacity(0.22) : ShieldTheme.rowBackground(scheme))
+                        .overlay(
+                            Circle()
+                                .stroke(vm.isPeekingOriginal ? ShieldTheme.warning : Color.clear, lineWidth: 1.5)
+                        )
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel(appState.language == .es ? "Ver documento original" : "View original document")
+
                 Menu {
+                    Button {
+                        vm.showPresetPicker = true
+                    } label: {
+                        Label(
+                            appState.language == .es ? "Plantillas de Trámite" : "Procedure Presets",
+                            systemImage: "wand.and.stars"
+                        )
+                    }
+
                     Button {
                         vm.showOCRSheet = true
                     } label: {
@@ -491,6 +525,38 @@ struct EditorView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(ShieldTheme.s4)
                 .zIndex(2)
+
+                if vm.isPeekingOriginal {
+                    HStack(spacing: 8) {
+                        Image(systemName: "eye.fill")
+                            .shieldFont(12, weight: .bold)
+                        Text(appState.language == .es ? "Viendo original sin marcas" : "Viewing unredacted original")
+                            .shieldFont(12, weight: .bold)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                vm.isPeekingOriginal = false
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .shieldFont(14, weight: .bold)
+                                .foregroundColor(ShieldTheme.warning)
+                        }
+                    }
+                    .foregroundColor(ShieldTheme.warning)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(ShieldTheme.cardBackground(scheme).opacity(0.95))
+                    .overlay(
+                        Capsule().stroke(ShieldTheme.warning.opacity(0.5), lineWidth: 1.2)
+                    )
+                    .clipShape(Capsule())
+                    .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 5)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 10)
+                    .zIndex(3)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
 
                 ScrollView([.horizontal, .vertical]) {
                     ZStack {

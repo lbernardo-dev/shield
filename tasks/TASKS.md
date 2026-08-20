@@ -1419,3 +1419,58 @@
    Done by: CODEX
    Done at: 2026-08-20T07:50:16Z
 
+130. aso-metadata-optimization
+   Id: 130-aso-metadata-optimization
+   Scope: App Store Connect metadata optimization
+   Files: metadata/app-info/en-US.json,metadata/app-info/es-ES.json,metadata/version/1.0.3/en-US.json,metadata/version/1.0.3/es-ES.json
+   Note: Finished ASO metadata optimization and validated with asc
+   Detail: tasks/details/130-aso-metadata-optimization.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T07:58:07Z
+   Done by: CODEX
+   Done at: 2026-08-20T07:59:34Z
+
+131. create-version-104-and-apply-aso
+   Id: 131-create-version-104-and-apply-aso
+   Scope: Create version 1.0.4 in ASC and apply ASO metadata
+   Files: metadata/app-info/en-US.json,metadata/app-info/es-ES.json,metadata/version/1.0.4/en-US.json,metadata/version/1.0.4/es-ES.json
+   Note: Version 1.0.4 created and ASO metadata live in App Store Connect
+   Detail: tasks/details/131-create-version-104-and-apply-aso.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T08:12:24Z
+   Done by: CODEX
+   Done at: 2026-08-20T08:14:10Z
+
+132. update-aso-option-2
+   Id: 132-update-aso-option-2
+   Scope: Update ASO Title, Subtitle and Keywords for Option 2 (Identity & Control)
+   Files: metadata/app-info/en-US.json,metadata/app-info/es-ES.json,metadata/version/1.0.4/en-US.json,metadata/version/1.0.4/es-ES.json
+   Note: Option 2 ASO metadata live on App Store Connect version 1.0.4
+   Detail: tasks/details/132-update-aso-option-2.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T08:46:27Z
+   Done by: CODEX
+   Done at: 2026-08-20T08:47:23Z
+
+133. comprehensive-enhancements
+   Id: 133-comprehensive-enhancements
+   Scope: Technical and functional overhaul of MaskID
+   Files: Shield/Export/ThumbnailManager.swift,Shield/Views/Components/DocumentThumbnailView.swift,Shield/Models/RedactionPresets.swift,Shield/Views/Editor/RedactionPresetPicker.swift,Shield/OCR/BarcodeDetector.swift,Shield/Views/Editor/EditorChromeViews.swift,Shield/Views/Editor/EditorView.swift,Shield/ViewModels/HomeViewModel.swift,Shield/Views/Home/HomeView.swift,Shield/Models/DocumentStore.swift,Shield/Export/DocumentProcessor.swift,Shield/Views/Paywall/PaywallView.swift
+   Note: All technical and functional enhancements implemented, integrated, built, and verified with 100% passing unit & UI tests
+   Detail: tasks/details/133-comprehensive-enhancements.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T08:56:25Z
+   Done by: CODEX
+   Done at: 2026-08-20T09:21:53Z
+
+134. release-104-build-104202608201
+   Id: 134-release-104-build-104202608201
+   Scope: Update project to 1.0.4 (104202608201), update whatsNew, archive, upload to App Store Connect, and link build to 1.0.4 without submitting
+   Files: Shield.xcodeproj/project.pbxproj,metadata/version/1.0.4/es-ES.json,metadata/version/1.0.4/en-US.json
+   Note: Build 104202608201 for MaskID (Shield) version 1.0.4 archived, exported, uploaded to App Store Connect, whatsNew synced for es-ES/en-US, and build linked to 1.0.4 without submitting for review
+   Detail: tasks/details/134-release-104-build-104202608201.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T09:26:00Z
+   Done by: CODEX
+   Done at: 2026-08-20T09:35:11Z
+
