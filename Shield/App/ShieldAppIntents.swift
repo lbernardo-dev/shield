@@ -15,7 +15,7 @@ struct OpenShieldCaptureIntent: AppIntent {
     static let openAppWhenRun = true
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        UserDefaults.standard.set(true, forKey: "shield.intent.openCapture")
+        await ShieldSystemRequestStore.request(.openCapture)
         return .result(dialog: IntentDialog(stringLiteral: String(localized: LocalizedStringResource(
 "MaskID is ready to protect your document.",
             table: "AppShortcuts"
@@ -35,7 +35,7 @@ struct OpenShieldVaultIntent: AppIntent {
     static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        UserDefaults.standard.set(true, forKey: "shield.intent.openVault")
+        await ShieldSystemRequestStore.request(.openVault)
         return .result(dialog: IntentDialog(stringLiteral: String(localized: LocalizedStringResource(
             "Opening the secure vault.",
             table: "AppShortcuts"
@@ -43,8 +43,6 @@ struct OpenShieldVaultIntent: AppIntent {
     }
 }
 
-// AppShortcutsProvider triggers AppIntentsSSUTraining which fails on macOS beta with xcrun arm64e mismatch
-/*
 struct ShieldAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -64,6 +62,5 @@ struct ShieldAppShortcuts: AppShortcutsProvider {
         )
     }
 
-    static let shortcutTileColor: ShortcutTileColor = .navy
+    static var shortcutTileColor: ShortcutTileColor { .navy }
 }
-*/

@@ -103,7 +103,8 @@ struct OnboardingFlowView: View {
         case 2:  OBPainPointsView(state: state)
         case 3:  OBDemoView(state: state)
         case 4:  OBCameraPermView(state: state)
-        case 5:  OBPaywallView(onBack: moveBack, onComplete: { completeOnboarding(source: "paywall") })
+        case 5:  OBSecuritySetupView(state: state)
+        case 6:  OBPaywallView(onBack: moveBack, onComplete: { completeOnboarding(source: "paywall") })
         default: EmptyView()
         }
     }
@@ -116,7 +117,7 @@ struct OnboardingFlowView: View {
         ])
         withAnimation {
             appState.isOnboarded = true
-            appState.isAuthenticated = true
+            appState.completeSuccessfulUnlock()
         }
     }
 
@@ -142,7 +143,8 @@ struct OnboardingFlowView: View {
         case 2: "privacy_concerns"
         case 3: "interactive_demo"
         case 4: "camera_permission"
-        case 5: "paywall"
+        case 5: "security_setup"
+        case 6: "paywall"
         default: "unknown"
         }
     }

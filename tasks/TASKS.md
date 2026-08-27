@@ -1474,3 +1474,67 @@
    Done by: CODEX
    Done at: 2026-08-20T09:35:11Z
 
+135. fix-peek-original-build-104202608202
+   Id: 135-fix-peek-original-build-104202608202
+   Scope: Fix hold/toggle peek original document button in EditorView and publish build 104202608202 to App Store Connect
+   Files: Shield/Views/Editor/EditorView.swift,Shield.xcodeproj/project.pbxproj
+   Note: Fixed eye button gesture, added visual pill badge and uploaded build 104202608202 to App Store Connect linked to 1.0.4
+   Detail: tasks/details/135-fix-peek-original-build-104202608202.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-20T10:04:46Z
+   Done by: CODEX
+   Done at: 2026-08-20T10:04:46Z
+
+136. universal-apple-surfaces
+   Id: 136-universal-apple-surfaces
+   Scope: Completar preparación universal de Shield para iPad, Widgets y Atajos/App Intents, y dejar la ficha de App Store Connect alineada con capacidades, metadatos, capturas y checklist de revisión
+   Files: Shield.xcodeproj/**,Shield/**,ShieldWidgetExtension/**,ShieldIntents/**,metadata/**,Docs/**,scripts/**,tasks/**
+   Note: Finished: iPad universal surface, WidgetKit extension, Siri/Apple Shortcuts, App Store metadata/docs, preflight and IPA checks. metadata validate, dry-run, build, explicit iPad build and tests passed.
+   Detail: tasks/details/136-universal-apple-surfaces.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-26T12:04:36Z
+   Done by: CODEX
+   Done at: 2026-08-26T12:43:43Z
+
+137. release-1-0-5
+   Id: 137-release-1-0-5
+   Scope: Create App Store version 1.0.5, update every target to build 105202608261, archive/export/upload to App Store Connect, attach the processed build to 1.0.5, and stop before review submission
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Resources/Info.plist,ShareExtension/Info.plist,ShieldWidgetExtension/Info.plist,metadata/version/1.0.5,Docs/APPLE_SURFACES_AND_APP_STORE_CONNECT.md,.asc/artifacts
+   Note: Release 1.0.5 completada: build 105202608261 subido y VALID, asociado a la versión 1.0.5 con metadata aplicada; versión queda PREPARE_FOR_SUBMISSION y no se envió a revisión.
+   Detail: tasks/details/137-release-1-0-5.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-26T12:44:49Z
+   Done by: CODEX
+   Done at: 2026-08-26T16:32:27Z
+
+138. cleanup-xcode-and-project-storage
+   Id: 138-cleanup-xcode-and-project-storage
+   Scope: Auditar almacenamiento del proyecto Shield y proponer limpieza segura de caches, temporales y artefactos regenerables; aplicar solo IDs aprobados
+   Files: .xcode-disk-cleanup-audit/**, tasks/details/
+   Note: Starting read-only storage audit; deletion deferred pending itemized approval.
+   Detail: tasks/details/138-cleanup-xcode-and-project-storage.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-26T16:33:09Z
+
+139. fix-pin-security-and-faceid-unlock
+   Id: 139-fix-pin-security-and-faceid-unlock
+   Scope: Sanitizar residuos de PIN de desarrollo en Keychain, añadir paso de configuración de PIN personal y Face ID en Onboarding, y habilitar desbloqueo con Face ID y PIN personal en LockScreenView
+   Files: Shield/ViewModels/AppSessionCoordinator.swift,Shield/ViewModels/OnboardingState.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Views/Onboarding/OnboardingFlowView.swift,Shield/Views/Onboarding/OnboardingView.swift,Shield/Views/Vault/VaultView.swift,Shield/Localization/Strings/Onboarding.xcstrings,Shield/Localization/Strings/Auth.xcstrings,ShieldTests/SecurityPrivacyTests.swift
+   Note: Finished: Dev Keychain PIN purged on fresh install, personal PIN setup added to Onboarding, Face ID unlocking enabled with auto-prompt and fallbacks, all unit and UI tests passing.
+   Detail: tasks/details/139-fix-pin-security-and-faceid-unlock.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-27T09:10:21Z
+   Done by: CODEX
+   Done at: 2026-08-27T09:41:40Z
+
+140. release-1-0-6-build-106202608271
+   Id: 140-release-1-0-6-build-106202608271
+   Scope: Update build number to 106202608271, version 1.0.6, build archive, upload to App Store Connect, create version 1.0.6 with EN/ES release notes and attach build.
+   Files: Shield.xcodeproj/project.pbxproj, metadata/version/1.0.6
+   Note: Version 1.0.6 (build 106202608271) created, archived, exported, uploaded to App Store Connect, What's New completed in EN and ES, and build attached.
+   Detail: tasks/details/140-release-1-0-6-build-106202608271.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-27T10:14:37Z
+   Done by: CODEX
+   Done at: 2026-08-27T10:23:28Z
+

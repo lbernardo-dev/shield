@@ -29,6 +29,16 @@ final class AppSessionCoordinator: ObservableObject {
         bypassAutoLockForAutomation = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
         isOnboarded = userDefaults.bool(forKey: "shield.onboarded")
 
+        let hasInstalled = userDefaults.bool(forKey: "shield.installed")
+        if !hasInstalled {
+            userDefaults.set(true, forKey: "shield.installed")
+            if !isOnboarded {
+                PINManager.clear()
+                userDefaults.removeObject(forKey: "shield.biometric")
+                userDefaults.removeObject(forKey: "shield.pin_configured")
+            }
+        }
+
         if userDefaults.object(forKey: "shield.autoLock") == nil {
             userDefaults.set(1, forKey: "shield.autoLock")
         }

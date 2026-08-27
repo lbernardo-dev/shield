@@ -1,0 +1,14 @@
+{
+  "applied_at": "2026-08-26T17:05:23.351577+00:00",
+  "results": [
+    {
+      "id": "project-build:Work:DESARROLLO:SWIFT:Shield:.build",
+      "result": "moved-to-trash",
+      "path": "/Users/romerosoft/.Trash/.build-20260826-190523"
+    }
+  ],
+  "free_bytes_before": 84356513792,
+  "free_bytes_after": 84356501504,
+  "immediate_reclaimed_bytes": 0,
+  "note": "Items moved to Trash do not reclaim blocks until Trash is emptied."
+}

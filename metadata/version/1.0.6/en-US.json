@@ -4,5 +4,5 @@
   "marketingUrl": "https://lbernardo-dev.github.io/apps/en/case-studies/shield/",
   "promotionalText": "Protect documents before sharing. Hide sensitive details, add purpose-specific watermarks, remove hidden metadata and export a safer copy on iPhone or iPad.",
   "supportUrl": "https://lbernardo-dev.github.io/apps/en/case-studies/shield/support/",
-  "whatsNew": "What's New in MaskID 1.0.4:\n• Protection-status widget for iPhone and iPad Home Screen, with a one-tap route to capture.\n• Siri and Apple Shortcuts actions to start document protection or open the authenticated Vault.\n• Adaptive iPad workspace for portrait, landscape, keyboard and pointer workflows.\n• Smart redaction presets, QR and barcode detection, hold-to-peek comparison and faster persistence."
+  "whatsNew": "What's New in MaskID 1.0.6:\n• Enhanced Security & Biometric Unlock: Seamless Face ID unlocking upon reopening the app with instant auto-authentication.\n• Personal PIN Setup: Set up and confirm your custom 6-digit personal PIN during onboarding or manage it anytime in Settings.\n• Zero-Knowledge Privacy: Complete purge of residual data ensuring your private workspace remains 100% user-owned and secure.\n• Build 106202608271 includes security hardening, localization improvements, and overall performance optimizations."
 }

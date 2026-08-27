@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Documents" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Documents" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Documentos" } }
+      }
+    },
+    "Protection status" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protection status" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estado de protección" } }
+      }
+    },
+    "Protected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protected" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Protegidos" } }
+      }
+    },
+    "Vault" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vault" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bóveda" } }
+      }
+    },
+    "documents" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "documents" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "documentos" } }
+      }
+    },
+    "protected documents" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "protected documents" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "documentos protegidos" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

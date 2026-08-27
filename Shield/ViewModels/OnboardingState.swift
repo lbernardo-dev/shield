@@ -100,9 +100,9 @@ final class OnboardingState: ObservableObject {
     @Published var selectedPainPoints: Set<OBPainPoint> = []
     @Published var selectedDocTypes: Set<OBDocType> = []
 
-    // Keep the first-run path short: two personalization choices, one real
-    // interaction, the essential camera permission, then the post-value offer.
-    let totalSteps = 6
+    // Six onboarding steps + post-value paywall offer:
+    // 0: Welcome, 1: Goal, 2: Pain points, 3: Demo, 4: Camera, 5: Security/PIN, 6: Paywall
+    let totalSteps = 7
 
     var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
     var showTopBar: Bool { currentStep < totalSteps - 1 }

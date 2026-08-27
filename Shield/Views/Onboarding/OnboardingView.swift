@@ -16,7 +16,10 @@ struct LockScreenView: View {
     @State private var didTriggerAutoBiometric = false
 
     private var biometricEnabled: Bool {
-        UserDefaults.standard.bool(forKey: "shield.biometric")
+        if UserDefaults.standard.object(forKey: "shield.biometric") != nil {
+            return UserDefaults.standard.bool(forKey: "shield.biometric")
+        }
+        return hasBiometrics
     }
 
     private var hasBiometrics: Bool {
@@ -178,12 +181,18 @@ struct LockScreenView: View {
 
             if showsSecondaryPINButton {
                 ShieldButton(
-                    label: LanguageManager.shared.auth("lock_use_pin"),
-                    icon: "number",
+                    label: PINManager.hasPIN
+                        ? LanguageManager.shared.auth("lock_use_pin")
+                        : LanguageManager.shared.auth("lock_setup_pin"),
+                    icon: PINManager.hasPIN ? "number" : "key.fill",
                     style: .secondary,
                     height: 50
                 ) {
-                    showPINEntry = true
+                    if PINManager.hasPIN {
+                        showPINEntry = true
+                    } else {
+                        showPINSetup = true
+                    }
                 }
                 .accessibilityIdentifier("lock.secondaryPIN")
             }
@@ -220,7 +229,7 @@ struct LockScreenView: View {
     }
 
     private var primaryUnlockTitle: String {
-        if biometricEnabled && hasBiometrics && PINManager.hasPIN {
+        if biometricEnabled && hasBiometrics {
             return LanguageManager.shared.auth("lock_unlock_faceid")
         }
         if PINManager.hasPIN {
@@ -230,7 +239,7 @@ struct LockScreenView: View {
     }
 
     private var primaryUnlockIcon: String {
-        if biometricEnabled && hasBiometrics && PINManager.hasPIN {
+        if biometricEnabled && hasBiometrics {
             return "faceid"
         }
         if PINManager.hasPIN {
@@ -240,7 +249,7 @@ struct LockScreenView: View {
     }
 
     private func primaryUnlockAction() {
-        if biometricEnabled && hasBiometrics && PINManager.hasPIN {
+        if biometricEnabled && hasBiometrics {
             authenticate()
             return
         }
@@ -252,15 +261,18 @@ struct LockScreenView: View {
     }
 
     private var showsSecondaryPINButton: Bool {
-        biometricEnabled && hasBiometrics && PINManager.hasPIN
+        biometricEnabled && hasBiometrics
     }
 
     private var lockStatusIcon: String {
         if isAuthenticating {
             return "faceid"
         }
+        if biometricEnabled && hasBiometrics {
+            return "faceid"
+        }
         if PINManager.hasPIN {
-            return biometricEnabled && hasBiometrics ? "lock.shield.fill" : "number.square.fill"
+            return "number.square.fill"
         }
         return "key.horizontal.fill"
     }
@@ -269,10 +281,11 @@ struct LockScreenView: View {
         if isAuthenticating {
             return LanguageManager.shared.auth("lock_verifying")
         }
+        if biometricEnabled && hasBiometrics {
+            return LanguageManager.shared.auth("lock_ready_faceid")
+        }
         if PINManager.hasPIN {
-            return LanguageManager.shared.auth(
-                biometricEnabled && hasBiometrics ? "lock_ready_faceid" : "lock_ready_pin"
-            )
+            return LanguageManager.shared.auth("lock_ready_pin")
         }
         return LanguageManager.shared.auth("lock_setup_passcode_message")
     }
@@ -340,7 +353,7 @@ struct LockScreenView: View {
         guard !didTriggerAutoBiometric else { return }
         guard !appState.isAuthenticated else { return }
         guard scenePhase == .active else { return }
-        guard biometricEnabled, hasBiometrics, PINManager.hasPIN else { return }
+        guard biometricEnabled, hasBiometrics else { return }
         guard !showPINEntry, !showPINSetup, !isAuthenticating else { return }
 
         didTriggerAutoBiometric = true

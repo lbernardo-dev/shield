@@ -3,6 +3,7 @@ import Combine
 import CryptoKit
 import Security
 import UIKit
+import WidgetKit
 
 #if DEBUG
 enum ASOScreenshotMode {
@@ -173,6 +174,7 @@ final class AppState: ObservableObject {
         }
 #endif
         bindSession()
+        updateWidgetSnapshot(reload: false)
     }
 
 #if DEBUG
@@ -302,7 +304,8 @@ final class AppState: ObservableObject {
         }
 
         #if os(iOS)
-        if UIApplication.shared.supportsAlternateIcons {
+        let isTesting = NSClassFromString("XCTest") != nil || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        if UIApplication.shared.supportsAlternateIcons && !isTesting {
             do {
                 try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
             } catch {
@@ -716,6 +719,19 @@ final class AppState: ObservableObject {
         DocumentStore.shared.saveAllDocuments(documents)
         if let data = try? JSONEncoder().encode(documents) {
             try? SecureFileStore.shared.write(data, to: AppState.docsURL)
+        }
+        updateWidgetSnapshot(reload: true)
+    }
+
+    private func updateWidgetSnapshot(reload: Bool) {
+        let snapshot = ShieldWidgetSnapshot(
+            totalDocuments: documents.count,
+            protectedDocuments: documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }.count,
+            vaultedDocuments: documents.filter(\.isVaulted).count
+        )
+        ShieldWidgetSnapshotStore.save(snapshot)
+        if reload {
+            WidgetCenter.shared.reloadTimelines(ofKind: "ShieldProtectionStatusWidget")
         }
     }
 

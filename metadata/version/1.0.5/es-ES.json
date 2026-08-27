@@ -4,5 +4,5 @@
   "marketingUrl": "https://lbernardo-dev.github.io/apps/es/casos/shield/",
   "promotionalText": "Protege tus documentos antes de compartirlos. Oculta datos, añade marcas de agua, elimina metadatos y exporta una copia más segura en iPhone o iPad.",
   "supportUrl": "https://lbernardo-dev.github.io/apps/es/casos/shield/soporte/",
-  "whatsNew": "Novedades en MaskID 1.0.4:\n• Widget de estado de protección para la pantalla de inicio de iPhone y iPad, con acceso directo a Captura.\n• Acciones de Siri y Atajos de Apple para proteger documentos o abrir la Bóveda autenticada.\n• Espacio de trabajo adaptativo para iPad en retrato, paisaje, teclado y puntero.\n• Plantillas de redacción, detección de QR y códigos de barras, comparación al mantener pulsado y persistencia más rápida."
+  "whatsNew": "Novedades en MaskID 1.0.5:\n• Lanzamiento universal para iPhone y iPad con el widget de estado de protección incluido en la build de producción.\n• Acciones de Siri y Atajos de Apple para proteger documentos o abrir la Bóveda autenticada.\n• Espacio de trabajo adaptativo para iPad en retrato, paisaje, teclado y puntero.\n• El build 105202608261 incluye las últimas mejoras de redacción, QR/códigos de barras, comparación y persistencia."
 }

@@ -16,29 +16,37 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/shield-ipa-audit.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 unzip -qq "$IPA" -d "$WORK"
 
-APP="$WORK/Payload/Shield.app"
+APP="$(ls -d "$WORK/Payload/"*.app | head -n 1)"
 EXT="$APP/PlugIns/ShieldShareExtension.appex"
+WIDGET="$APP/PlugIns/ShieldWidgetExtension.appex"
 APP_ENTITLEMENTS="$WORK/app-entitlements.plist"
 EXT_ENTITLEMENTS="$WORK/extension-entitlements.plist"
+WIDGET_ENTITLEMENTS="$WORK/widget-entitlements.plist"
 
 test -d "$APP"
 test -d "$EXT"
+test -d "$WIDGET"
 test -f "$APP/PrivacyInfo.xcprivacy"
+test -f "$WIDGET/PrivacyInfo.xcprivacy"
 test -f "$APP/embedded.mobileprovision"
 test -f "$EXT/embedded.mobileprovision"
+test -f "$WIDGET/embedded.mobileprovision"
 test ! -e "$APP/Shield.storekit"
 
 codesign --verify --deep --strict "$APP"
 codesign -d --entitlements :- "$APP" > "$APP_ENTITLEMENTS" 2>/dev/null
 codesign -d --entitlements :- "$EXT" > "$EXT_ENTITLEMENTS" 2>/dev/null
+codesign -d --entitlements :- "$WIDGET" > "$WIDGET_ENTITLEMENTS" 2>/dev/null
 
 [[ "$(plutil -extract get-task-allow raw -o - "$APP_ENTITLEMENTS")" == "false" ]]
 [[ "$(plutil -extract get-task-allow raw -o - "$EXT_ENTITLEMENTS")" == "false" ]]
+[[ "$(plutil -extract get-task-allow raw -o - "$WIDGET_ENTITLEMENTS")" == "false" ]]
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.icloud-container-environment' "$APP_ENTITLEMENTS")" == "Production" ]]
 plutil -p "$APP_ENTITLEMENTS" | rg -q 'group\.com\.romerodev\.shield'
 plutil -p "$APP_ENTITLEMENTS" | rg -q 'L2B56644F5\.com\.romerodev\.shield\.shared'
 plutil -p "$EXT_ENTITLEMENTS" | rg -q 'group\.com\.romerodev\.shield'
 plutil -p "$EXT_ENTITLEMENTS" | rg -q 'L2B56644F5\.com\.romerodev\.shield\.shared'
+plutil -p "$WIDGET_ENTITLEMENTS" | rg -q 'group\.com\.romerodev\.shield'
 
 MINIMUM_OS="$(plutil -extract MinimumOSVersion raw -o - "$APP/Info.plist")"
 [[ "$MINIMUM_OS" == "18.0" ]]

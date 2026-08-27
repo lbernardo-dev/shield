@@ -791,7 +791,173 @@ struct OBCameraPermView: View {
     }
 }
 
-// MARK: - Screen 6: Paywall
+// MARK: - Screen 6: Security & PIN Setup
+
+struct OBSecuritySetupView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ObservedObject var state: OnboardingState
+
+    @State private var pin = ""
+    @State private var confirmPin = ""
+    @State private var step = 0 // 0 = enter, 1 = confirm
+    @State private var errorMsg = ""
+
+    private var hasBiometrics: Bool {
+        let ctx = LAContext()
+        var err: NSError?
+        return ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer().frame(height: 12)
+
+            VStack(spacing: 8) {
+                Text(LanguageManager.shared.onboarding("onboarding_security_title"))
+                    .shieldFont(26, weight: .heavy)
+                    .foregroundColor(ShieldTheme.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+
+                Text(LanguageManager.shared.onboarding("onboarding_security_subtitle"))
+                    .shieldFont(14)
+                    .foregroundColor(ShieldTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            Spacer().frame(height: 18)
+
+            // Step prompt
+            Text(step == 0
+                 ? LanguageManager.shared.onboarding("onboarding_security_enter_pin")
+                 : LanguageManager.shared.onboarding("onboarding_security_confirm_pin"))
+                .shieldFont(16, weight: .bold)
+                .foregroundColor(ShieldTheme.accent)
+                .padding(.bottom, 12)
+
+            // 6 PIN Dots
+            HStack(spacing: 16) {
+                ForEach(0..<6, id: \.self) { i in
+                    Circle()
+                        .fill(i < currentPin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                        .frame(width: 16, height: 16)
+                        .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
+                }
+            }
+            .padding(.bottom, 6)
+
+            if !errorMsg.isEmpty {
+                Text(errorMsg)
+                    .shieldFont(13, weight: .semibold)
+                    .foregroundColor(ShieldTheme.danger)
+                    .padding(.horizontal, 24)
+                    .multilineTextAlignment(.center)
+                    .transition(.opacity)
+            } else if hasBiometrics {
+                HStack(spacing: 6) {
+                    Image(systemName: "faceid")
+                        .foregroundColor(ShieldTheme.accent)
+                    Text(LanguageManager.shared.onboarding("onboarding_security_faceid_prompt"))
+                        .shieldFont(12, weight: .medium)
+                        .foregroundColor(ShieldTheme.textSecondary)
+                }
+                .padding(.top, 4)
+            }
+
+            Spacer()
+
+            // Numpad
+            PINNumpad(onDigit: handleDigit, onDelete: handleDelete)
+                .padding(.bottom, 8)
+
+            Button {
+                skipPIN()
+            } label: {
+                Text(LanguageManager.shared.onboarding("onboarding_security_skip"))
+                    .shieldFont(14, weight: .medium)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .frame(minHeight: 44)
+            }
+            .padding(.bottom, 24)
+        }
+        .padding(.horizontal, 20)
+        .sensoryFeedback(.selection, trigger: currentPin.count)
+    }
+
+    private var currentPin: String { step == 0 ? pin : confirmPin }
+
+    private func handleDigit(_ d: String) {
+        guard currentPin.count < 6 else { return }
+        errorMsg = ""
+        if step == 0 {
+            pin += d
+        } else {
+            confirmPin += d
+        }
+        if currentPin.count == 6 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { advance() }
+        }
+    }
+
+    private func handleDelete() {
+        if step == 0 {
+            if !pin.isEmpty { pin.removeLast() }
+        } else {
+            if !confirmPin.isEmpty { confirmPin.removeLast() }
+        }
+    }
+
+    private func advance() {
+        if step == 0 {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                step = 1
+            }
+        } else {
+            if pin == confirmPin {
+                // Save user personal PIN
+                PINManager.save(pin: pin)
+                UserDefaults.standard.set(true, forKey: "shield.pin_configured")
+                AppState.trackEvent("onboarding_pin_configured")
+
+                if hasBiometrics {
+                    enableBiometricsAndProceed()
+                } else {
+                    state.next()
+                }
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    errorMsg = LanguageManager.shared.onboarding("onboarding_security_mismatch")
+                    pin = ""
+                    confirmPin = ""
+                    step = 0
+                }
+            }
+        }
+    }
+
+    private func enableBiometricsAndProceed() {
+        let ctx = LAContext()
+        ctx.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: LanguageManager.shared.auth("lock_reason")
+        ) { success, _ in
+            DispatchQueue.main.async {
+                UserDefaults.standard.set(success, forKey: "shield.biometric")
+                state.next()
+            }
+        }
+    }
+
+    private func skipPIN() {
+        AppState.trackEvent("onboarding_pin_skipped")
+        state.next()
+    }
+}
+
+// MARK: - Screen 7: Paywall
 
 struct OBPaywallView: View {
     @EnvironmentObject var appState: AppState

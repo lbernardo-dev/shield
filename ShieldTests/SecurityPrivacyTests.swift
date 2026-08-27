@@ -68,21 +68,42 @@ struct SecurityPrivacyTests {
         PINManager.clear()
         defer { PINManager.clear() }
 
-        PINManager.save(pin: "482951")
+        let userPersonalPIN = "928371"
+        PINManager.save(pin: userPersonalPIN)
         #expect(PINManager.hasPIN)
-        #expect(PINManager.verify(pin: "482951"))
-        #expect(!PINManager.verify(pin: "482950"))
+        #expect(PINManager.verify(pin: userPersonalPIN))
+        #expect(!PINManager.verify(pin: "000000"))
+        #expect(!PINManager.verify(pin: "123456"))
 
         let storedCredential = try KeychainStore.read(
             service: "com.romerodev.shield.vault",
             account: "vault-pin"
         )
         let stored = try #require(storedCredential)
-        #expect(stored != Data("482951".utf8))
-        #expect(stored != Data(SHA256.hash(data: Data("482951".utf8))))
+        #expect(stored != Data(userPersonalPIN.utf8))
+        #expect(stored != Data(SHA256.hash(data: Data(userPersonalPIN.utf8))))
 
         PINManager.clear()
         #expect(!PINManager.hasPIN)
+    }
+
+    @Test("Fresh installation sanitizes orphaned dev keychain credentials")
+    @MainActor
+    func freshInstallPurgesOrphanedKeychainData() {
+        let suiteName = "test-session-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        // Simulate stale dev PIN left in Keychain prior to fresh install
+        PINManager.save(pin: "999888")
+        #expect(PINManager.hasPIN)
+
+        // Fresh install: shield.installed is false, shield.onboarded is false
+        _ = AppSessionCoordinator(userDefaults: defaults)
+
+        #expect(!PINManager.hasPIN)
+        #expect(defaults.bool(forKey: "shield.installed"))
+        #expect(!defaults.bool(forKey: "shield.onboarded"))
     }
 
     @Test("Feedback mail URL preserves recipient and safely encodes localized content")

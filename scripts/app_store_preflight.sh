@@ -10,9 +10,15 @@ plutil -lint Shield/Resources/PrivacyInfo.xcprivacy
 plutil -lint Shield/Shield.entitlements
 plutil -lint ShareExtension/Info.plist
 plutil -lint ShareExtension/ShareExtension.entitlements
+plutil -lint ShieldWidgetExtension/Info.plist
+plutil -lint ShieldWidgetExtension/ShieldWidgetExtension.entitlements
+plutil -lint ShieldWidgetExtension/PrivacyInfo.xcprivacy
 
 rg -q 'TARGET_SHARE_EXTENSION.*ShieldShareExtension' Shield.xcodeproj/project.pbxproj
+rg -q '29A73D6E1D8C8A2BBD6C5ED7.*ShieldWidgetExtension' Shield.xcodeproj/project.pbxproj
+rg -q 'PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets' Shield.xcodeproj/project.pbxproj
 rg -q 'group.com.romerodev.shield' Shield/Shield.entitlements ShareExtension/ShareExtension.entitlements
+rg -q 'group.com.romerodev.shield' ShieldWidgetExtension/ShieldWidgetExtension.entitlements
 rg -q '<string>shield</string>' Shield/Resources/Info.plist
 rg -q 'NSCameraUsageDescription' Shield.xcodeproj/project.pbxproj
 rg -q 'NSPhotoLibraryUsageDescription' Shield.xcodeproj/project.pbxproj

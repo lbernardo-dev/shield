@@ -26,6 +26,8 @@ struct ShieldApp: App {
                     if url.isFileURL {
                         appState.pendingSharedImportURL = url
                         appState.showCapture = true
+                    } else if url.scheme == "shield", url.host == "capture" {
+                        appState.showCapture = true
                     } else if url.scheme == "shield", url.host == "import-shared" {
                         consumeSharedImport()
                     }
@@ -36,15 +38,21 @@ struct ShieldApp: App {
 
     private func consumeSystemRequest() {
         SharedImportStore.removeExpiredItems()
-        if UserDefaults.standard.bool(forKey: "shield.intent.openCapture") {
+        if ShieldSystemRequestStore.consume(.openCapture)
+            || consumeLegacySystemRequest(key: "shield.intent.openCapture") {
             UserDefaults.standard.removeObject(forKey: "shield.intent.openCapture")
             appState.showCapture = true
         }
-        if UserDefaults.standard.bool(forKey: "shield.intent.openVault") {
+        if ShieldSystemRequestStore.consume(.openVault)
+            || consumeLegacySystemRequest(key: "shield.intent.openVault") {
             UserDefaults.standard.removeObject(forKey: "shield.intent.openVault")
             appState.activeTab = .vault
         }
         consumeSharedImport()
+    }
+
+    private func consumeLegacySystemRequest(key: String) -> Bool {
+        UserDefaults.standard.bool(forKey: key)
     }
 
     private func consumeSharedImport() {

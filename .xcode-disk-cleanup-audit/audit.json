@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-26T16:33:36.955923+00:00",
+  "host": "Mac",
+  "home": "/Users/romerosoft",
+  "applications": "/Applications",
+  "candidate_bytes": 41455198544,
+  "actionable_bytes": 14102069841,
+  "bytes_by_risk": {
+    "regenerable": 5263814656,
+    "destructive": 8838255185,
+    "preserve": 27353128703
+  },
+  "candidates": [
+    {
+      "id": "runtime-stale:E867ABCB-D951-4040-8DDC-AA24D355CB7B",
+      "category": "Stale simulator runtime",
+      "label": "iphonesimulator 18.6 (22G86)",
+      "path": null,
+      "bytes": 8838255185,
+      "risk": "destructive",
+      "action": "simctl-runtime-delete",
+      "reason": "No installed Xcode SDK uses this runtime and a newer one is installed.",
+      "evidence": [
+        "Runtime: com.apple.CoreSimulator.SimRuntime.iOS-18-6",
+        "Version: 18.6 (22G86)",
+        "Platform: com.apple.platform.iphonesimulator",
+        "Last used: 2026-08-26T11:57:54Z",
+        "Deletable via simctl: True",
+        "Superseded by 26.5 (23F77) on the same platform.",
+        "No installed Xcode SDK resolves to this runtime build."
+      ],
+      "regeneration_cost": "Devices on this runtime stop booting, and restoring it requires a multi-gigabyte download.",
+      "identifier": "E867ABCB-D951-4040-8DDC-AA24D355CB7B",
+      "device_set": null,
+      "fingerprint": null
+    },
+    {
+      "id": "runtime:3DF9FA21-60E6-4714-972F-4005444C6A6A",
+      "category": "Simulator runtime",
+      "label": "iphonesimulator 26.5 (23F77)",
+      "path": null,
+      "bytes": 8494282293,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "An installed Xcode SDK may rely on this runtime.",
+      "evidence": [
+        "Runtime: com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+        "Version: 26.5 (23F77)",
+        "Platform: com.apple.platform.iphonesimulator",
+        "Last used: 2026-08-26T16:30:25Z",
+        "Deletable via simctl: True",
+        "An installed SDK targets this platform version without an exact runtime build match; protected conservatively."
+      ],
+      "regeneration_cost": "The platform runtime must be downloaded again before compatible simulators can boot.",
+      "identifier": "3DF9FA21-60E6-4714-972F-4005444C6A6A",
+      "device_set": null,
+      "fingerprint": null
+    },
+    {
+      "id": "managed-component:AppleDeveloperDocumentation",
+      "category": "Xcode-managed component",
+      "label": "AppleDeveloperDocumentation",
+      "path": "/System/Library/AssetsV2/com_apple_MobileAsset_AppleDeveloperDocumentation",
+      "bytes": 6227808256,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "Managed by Xcode and macOS asset services.",
+      "evidence": [
+        "Remove through Xcode Settings \u2192 Components, never from disk."
+      ],
+      "regeneration_cost": "Xcode redownloads components on demand.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": null
+    },
+    {
+      "id": "xctest-devices",
+      "category": "XCTest devices",
+      "label": "Cloned simulators from test runs",
+      "path": "/Users/romerosoft/Library/Developer/XCTestDevices",
+      "bytes": 4774690816,
+      "risk": "regenerable",
+      "action": "trash-path",
+      "reason": "Test-run simulator clones are recreated on the next test run.",
+      "evidence": [
+        "Skip while a test run is in progress."
+      ],
+      "regeneration_cost": "The next parallel test run re-clones its simulators.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293197657,
+        "modified_ns": 1787748203559702681,
+        "bytes": 4774690816
+      }
+    },
+    {
+      "id": "runtime:4DE84E81-965C-45DB-833B-5FD4712E15E9",
+      "category": "Simulator runtime",
+      "label": "watchsimulator 26.5 (23T570)",
+      "path": null,
+      "bytes": 3935033546,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "An installed Xcode SDK may rely on this runtime.",
+      "evidence": [
+        "Runtime: com.apple.CoreSimulator.SimRuntime.watchOS-26-5",
+        "Version: 26.5 (23T570)",
+        "Platform: com.apple.platform.watchsimulator",
+        "Last used: 2026-08-26T12:45:19Z",
+        "Deletable via simctl: True",
+        "Chosen by an installed Xcode SDK."
+      ],
+      "regeneration_cost": "The platform runtime must be downloaded again before compatible simulators can boot.",
+      "identifier": "4DE84E81-965C-45DB-833B-5FD4712E15E9",
+      "device_set": null,
+      "fingerprint": null
+    },
+    {
+      "id": "xcode-app:Xcode.app",
+      "category": "Installed Xcode",
+      "label": "Xcode.app",
+      "path": "/Applications/Xcode.app",
+      "bytes": 3756183552,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "This is the active command-line Xcode.",
+      "evidence": [
+        "Version: 26.6",
+        "Build: 17F112",
+        "Spotlight last used: 2026-08-26 10:28:40 +0000",
+        "Protected: selected by xcode-select."
+      ],
+      "regeneration_cost": "SDKs and toolchains may be unavailable until this exact Xcode is reinstalled.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 292990830,
+        "modified_ns": 1787292553781672000,
+        "bytes": 3756183552
+      }
+    },
+    {
+      "id": "device-support:watchOS:26.6 (23U67) universal",
+      "category": "DeviceSupport",
+      "label": "watchOS 26.6 (23U67) universal",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/watchOS DeviceSupport/26.6 (23U67) universal",
+      "bytes": 3134857216,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "Newest watchOS symbol set; needed for current devices.",
+      "evidence": [
+        "Newest version folder under watchOS DeviceSupport."
+      ],
+      "regeneration_cost": "Requires reconnecting a compatible device.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293172472,
+        "modified_ns": 1787292649913145276,
+        "bytes": 3134857216
+      }
+    },
+    {
+      "id": "managed-component:MetalToolchain",
+      "category": "Xcode-managed component",
+      "label": "MetalToolchain",
+      "path": "/System/Library/AssetsV2/com_apple_MobileAsset_MetalToolchain",
+      "bytes": 698728448,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "Managed by Xcode and macOS asset services.",
+      "evidence": [
+        "Remove through Xcode Settings \u2192 Components, never from disk."
+      ],
+      "regeneration_cost": "Xcode redownloads components on demand.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": null
+    },
+    {
+      "id": "archive:2026-08-21:personalcare 21-08-2026, 09.59.37.xcarchive",
+      "category": "Archive",
+      "label": "personalcare 2.2.0 (220202608214)",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/Archives/2026-08-21/personalcare 21-08-2026, 09.59.37.xcarchive",
+      "bytes": 579457024,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "This build was uploaded or exported; its dSYMs may be needed for crash symbolication.",
+      "evidence": [
+        "Archive: personalcare 21-08-2026, 09.59.37.xcarchive",
+        "Archived: 2026-08-21",
+        "Distributed: App Store 2026-08-21T08:03:20Z"
+      ],
+      "regeneration_cost": "Irreplaceable for a distributed build unless an immutable backup exists.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293567123,
+        "modified_ns": 1787299400616977522,
+        "bytes": 579457024
+      }
+    },
+    {
+      "id": "device-support:iOS:iPhone16,2 26.6 (23G71)",
+      "category": "DeviceSupport",
+      "label": "iOS iPhone16,2 26.6 (23G71)",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,2 26.6 (23G71)",
+      "bytes": 526778368,
+      "risk": "preserve",
+      "action": "report-only",
+      "reason": "Newest iOS symbol set; needed for current devices.",
+      "evidence": [
+        "Newest version folder under iOS DeviceSupport."
+      ],
+      "regeneration_cost": "Requires reconnecting a compatible device.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293475069,
+        "modified_ns": 1787297072789792980,
+        "bytes": 526778368
+      }
+    },
+    {
+      "id": "project-build:Work:DESARROLLO:SWIFT:Shield:.build",
+      "category": "Project-local build data",
+      "label": "Work/DESARROLLO/SWIFT/Shield/.build",
+      "path": "/Users/romerosoft/Work/DESARROLLO/SWIFT/Shield/.build",
+      "bytes": 277594112,
+      "risk": "regenerable",
+      "action": "trash-path",
+      "reason": "Generated project-local build or DerivedData directory.",
+      "evidence": [
+        "Discovered under scan root: /Users/romerosoft/Work/DESARROLLO/SWIFT/Shield"
+      ],
+      "regeneration_cost": "The project or package must rebuild and resolve dependencies.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 257230615,
+        "modified_ns": 1784443125539437616,
+        "bytes": 277594112
+      }
+    },
+    {
+      "id": "derived-missing:Expirely-dtipbvzjmfsygdcwcaclubcxhwtv",
+      "category": "DerivedData",
+      "label": "DerivedData for missing workspace: Expirely-dtipbvzjmfsygdcwcaclubcxhwtv",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/DerivedData/Expirely-dtipbvzjmfsygdcwcaclubcxhwtv",
+      "bytes": 211509248,
+      "risk": "regenerable",
+      "action": "trash-path",
+      "reason": "The recorded workspace no longer exists.",
+      "evidence": [
+        "Last accessed: 2026-08-21 13:24:19",
+        "Unchanged for 5 days.",
+        "Recorded workspace: /Users/romerosoft/.codex/worktrees/431e/expirely-ios/Expirely.xcodeproj"
+      ],
+      "regeneration_cost": "Rebuild and package resolution if the project returns.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293931939,
+        "modified_ns": 1787318659421475803,
+        "bytes": 211509248
+      }
+    },
+    {
+      "id": "derived-packages-only:Expirely-cchlzhwedbefqxgjygowgnuwvjlx",
+      "category": "DerivedData",
+      "label": "Metadata-free package cache: Expirely-cchlzhwedbefqxgjygowgnuwvjlx",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/DerivedData/Expirely-cchlzhwedbefqxgjygowgnuwvjlx",
+      "bytes": 20480,
+      "risk": "regenerable",
+      "action": "trash-path",
+      "reason": "No Xcode workspace metadata or build products were found.",
+      "evidence": [
+        "Contents: Logs",
+        "Unchanged for 0 days."
+      ],
+      "regeneration_cost": "Dependencies must be resolved or downloaded again.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 299433543,
+        "modified_ns": 1787761985935865444,
+        "bytes": 20480
+      }
+    },
+    {
+      "id": "device-support:watchOS:Watch6,18 26.6 (23U67)",
+      "category": "DeviceSupport",
+      "label": "watchOS Watch6,18 26.6 (23U67)",
+      "path": "/Users/romerosoft/Library/Developer/Xcode/watchOS DeviceSupport/Watch6,18 26.6 (23U67)",
+      "bytes": 0,
+      "risk": "destructive",
+      "action": "trash-path",
+      "reason": "Older than the newest watchOS symbol set (26.6 (23U67) universal).",
+      "evidence": [
+        "Newest sibling: 26.6 (23U67) universal",
+        "Symbols for retired OS builds may be unrecoverable once removed."
+      ],
+      "regeneration_cost": "Symbolicating crashes from this exact OS build needs a device on that build; old symbols may be unavailable.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 293172469,
+        "modified_ns": 1787292599587024807,
+        "bytes": 0
+      }
+    },
+    {
+      "id": "logs:coresimulator-logs",
+      "category": "Diagnostic logs",
+      "label": "CoreSimulator logs",
+      "path": "/Users/romerosoft/Library/Logs/CoreSimulator",
+      "bytes": 0,
+      "risk": "regenerable",
+      "action": "trash-path",
+      "reason": "Diagnostic logs accumulate indefinitely and regrow on demand.",
+      "evidence": [
+        "Keep only if an active bug investigation depends on them."
+      ],
+      "regeneration_cost": "Historical diagnostics are lost; new logs are written automatically.",
+      "identifier": null,
+      "device_set": null,
+      "fingerprint": {
+        "device": 16777233,
+        "inode": 299324395,
+        "modified_ns": 1787761543638991023,
+        "bytes": 0
+      }
+    }
+  ]
+}

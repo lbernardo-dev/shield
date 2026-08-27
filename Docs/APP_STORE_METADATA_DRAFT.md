@@ -1,6 +1,8 @@
 # MaskID — App Store metadata
 
-Status: synchronized with App Store Connect for app `6790398619`, version `1.0.0`. The app has not been submitted for review.
+Status: canonical metadata reference for app `6790398619`; the current local release is version `1.0.4`, build `104202608260`. The app has not been submitted for review.
+
+The complete iPad, WidgetKit, Siri/Shortcuts, App Review and release checklist is in [APPLE_SURFACES_AND_APP_STORE_CONNECT.md](APPLE_SURFACES_AND_APP_STORE_CONNECT.md).
 
 ## Positioning
 
@@ -19,8 +21,8 @@ It is not positioned as a generic PDF/photo editor.
 - Secondary category: Productivity
 - Subcategories: none; Apple does not offer subcategories for Utilities or Productivity
 - Age rating: 4+
-- Version: `1.0.0`
-- Current valid build: `100202607202`
+- Version: `1.0.4`
+- Current local release build: `104202608260`
 - Release type: manual
 
 ## Localized ASO

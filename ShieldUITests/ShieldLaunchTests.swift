@@ -585,6 +585,10 @@ final class ShieldLaunchTests: XCTestCase {
             if notNow.waitForExistence(timeout: 5) && notNow.isHittable {
                 notNow.tap()
             }
+            let skipSecurity = app.buttons["Configurar luego en Ajustes"]
+            if skipSecurity.waitForExistence(timeout: 5) && skipSecurity.isHittable {
+                skipSecurity.tap()
+            }
             reached = isPaywall() ||
                       app.buttons["onboarding.paywall.purchase"].waitForExistence(timeout: 8) ||
                       app.buttons["paywall.plan.$rc_annual"].waitForExistence(timeout: 8)
@@ -628,10 +632,16 @@ final class ShieldLaunchTests: XCTestCase {
 
         var reached = isPaywall()
         if !reached {
-            if app.buttons["Continuar"].waitForExistence(timeout: 3) && app.buttons["Continuar"].isHittable {
-                app.buttons["Continuar"].tap()
-            } else if app.buttons["Activar cámara"].waitForExistence(timeout: 3) && app.buttons["Activar cámara"].isHittable {
-                app.buttons["Activar cámara"].tap()
+            let cameraBtn = app.buttons["Continuar"].exists ? app.buttons["Continuar"] :
+                            app.buttons["Habilitar cámara"].exists ? app.buttons["Habilitar cámara"] :
+                            app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "cámara")).firstMatch.exists ? app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "cámara")).firstMatch :
+                            app.buttons["Ahora no"]
+            if cameraBtn.waitForExistence(timeout: 5) && cameraBtn.isHittable {
+                cameraBtn.tap()
+            }
+            let skipSecurity = app.buttons["Configurar luego en Ajustes"]
+            if skipSecurity.waitForExistence(timeout: 5) && skipSecurity.isHittable {
+                skipSecurity.tap()
             }
             reached = isPaywall() ||
                       app.buttons["onboarding.paywall.purchase"].waitForExistence(timeout: 8) ||
