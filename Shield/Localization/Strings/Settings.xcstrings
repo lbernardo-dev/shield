@@ -358,6 +358,118 @@
         }
       }
     },
+    "settings_app_icon_aurora": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Aurora" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aurora Boreal" } }
+      }
+    },
+    "settings_app_icon_aurora_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Teal and violet aurora glow for calm, intelligent protection." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Brillo aurora turquesa y violeta para una protección serena e inteligente." } }
+      }
+    },
+    "settings_app_icon_forest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Forest" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Bosque" } }
+      }
+    },
+    "settings_app_icon_forest_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Grounded emerald protection with a subtle botanical texture." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protección esmeralda inspirada en la naturaleza con textura botánica sutil." } }
+      }
+    },
+    "settings_app_icon_tide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tide" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Marea" } }
+      }
+    },
+    "settings_app_icon_tide_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cobalt and cyan clarity inspired by moving water." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Claridad cobalto y cian inspirada en el movimiento del agua." } }
+      }
+    },
+    "settings_app_icon_halloween": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Halloween Night" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Noche Halloween" } }
+      }
+    },
+    "settings_app_icon_halloween_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Obsidian and ember-orange protection for a mysterious season." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protección de obsidiana y naranja ascua para una temporada misteriosa." } }
+      }
+    },
+    "settings_app_icon_christmas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Christmas" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Navidad" } }
+      }
+    },
+    "settings_app_icon_christmas_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ruby, evergreen, and champagne-gold holiday protection." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protección festiva en rubí, verde abeto y dorado champán." } }
+      }
+    },
+    "settings_app_icon_lunar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Lunar New Year" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Año Nuevo Lunar" } }
+      }
+    },
+    "settings_app_icon_lunar_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Vermilion lacquer and gold for a celebratory global season." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Laca bermellón y oro para una temporada global de celebración." } }
+      }
+    },
+    "settings_app_icon_pride": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pride" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Orgullo" } }
+      }
+    },
+    "settings_app_icon_pride_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "A smooth spectral finish celebrating identity and inclusion." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Acabado espectral suave que celebra la identidad y la inclusión." } }
+      }
+    },
+    "settings_app_icon_space": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cosmic" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cosmos" } }
+      }
+    },
+    "settings_app_icon_space_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Deep sapphire and ultraviolet depth for focused privacy." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Profundidad zafiro y ultravioleta para una privacidad concentrada." } }
+      }
+    },
     "settings_app_icon_benefit_composer_title": {
       "extractionState": "manual",
       "localizations": {

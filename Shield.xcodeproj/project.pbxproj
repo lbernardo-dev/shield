@@ -28,6 +28,14 @@
 		7C15439B3034D36100A8C080 /* MaskIDGold.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543843034D36100A8C080 /* MaskIDGold.png */; };
 		7C15439C3034D36100A8C080 /* MaskIDGreen.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543853034D36100A8C080 /* MaskIDGreen.png */; };
 		7C15439D3034D36100A8C080 /* MaskIDOcean.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438D3034D36100A8C080 /* MaskIDOcean.icon */; };
+		7C1543A03034D36100A8C080 /* MaskIDAurora.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B03034D36100A8C080 /* MaskIDAurora.png */; };
+		7C1543A13034D36100A8C080 /* MaskIDForest.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B13034D36100A8C080 /* MaskIDForest.png */; };
+		7C1543A23034D36100A8C080 /* MaskIDTide.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B23034D36100A8C080 /* MaskIDTide.png */; };
+		7C1543A33034D36100A8C080 /* MaskIDHalloween.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B33034D36100A8C080 /* MaskIDHalloween.png */; };
+		7C1543A43034D36100A8C080 /* MaskIDChristmas.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B43034D36100A8C080 /* MaskIDChristmas.png */; };
+		7C1543A53034D36100A8C080 /* MaskIDLunar.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B53034D36100A8C080 /* MaskIDLunar.png */; };
+		7C1543A63034D36100A8C080 /* MaskIDPride.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B63034D36100A8C080 /* MaskIDPride.png */; };
+		7C1543A73034D36100A8C080 /* MaskIDSpace.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B73034D36100A8C080 /* MaskIDSpace.png */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
@@ -271,6 +279,14 @@
 		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
 		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		7C1543B03034D36100A8C080 /* MaskIDAurora.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDAurora.png; sourceTree = "<group>"; };
+		7C1543B13034D36100A8C080 /* MaskIDForest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDForest.png; sourceTree = "<group>"; };
+		7C1543B23034D36100A8C080 /* MaskIDTide.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDTide.png; sourceTree = "<group>"; };
+		7C1543B33034D36100A8C080 /* MaskIDHalloween.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDHalloween.png; sourceTree = "<group>"; };
+		7C1543B43034D36100A8C080 /* MaskIDChristmas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDChristmas.png; sourceTree = "<group>"; };
+		7C1543B53034D36100A8C080 /* MaskIDLunar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDLunar.png; sourceTree = "<group>"; };
+		7C1543B63034D36100A8C080 /* MaskIDPride.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDPride.png; sourceTree = "<group>"; };
+		7C1543B73034D36100A8C080 /* MaskIDSpace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDSpace.png; sourceTree = "<group>"; };
 		F901 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		FAPP /* MaskID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaskID.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAPPINFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -411,6 +427,14 @@
 				7C1543863034D36100A8C080 /* MaskIDOcean.png */,
 				7C1543873034D36100A8C080 /* MaskIDPurple.png */,
 				7C1543883034D36100A8C080 /* MaskIDRed.png */,
+				7C1543B03034D36100A8C080 /* MaskIDAurora.png */,
+				7C1543B13034D36100A8C080 /* MaskIDForest.png */,
+				7C1543B23034D36100A8C080 /* MaskIDTide.png */,
+				7C1543B33034D36100A8C080 /* MaskIDHalloween.png */,
+				7C1543B43034D36100A8C080 /* MaskIDChristmas.png */,
+				7C1543B53034D36100A8C080 /* MaskIDLunar.png */,
+				7C1543B63034D36100A8C080 /* MaskIDPride.png */,
+				7C1543B73034D36100A8C080 /* MaskIDSpace.png */,
 			);
 			path = ASSETS;
 			sourceTree = "<group>";
@@ -997,6 +1021,14 @@
 				7C15439B3034D36100A8C080 /* MaskIDGold.png in Resources */,
 				7C15439C3034D36100A8C080 /* MaskIDGreen.png in Resources */,
 				7C15439D3034D36100A8C080 /* MaskIDOcean.icon in Resources */,
+				7C1543A03034D36100A8C080 /* MaskIDAurora.png in Resources */,
+				7C1543A13034D36100A8C080 /* MaskIDForest.png in Resources */,
+				7C1543A23034D36100A8C080 /* MaskIDTide.png in Resources */,
+				7C1543A33034D36100A8C080 /* MaskIDHalloween.png in Resources */,
+				7C1543A43034D36100A8C080 /* MaskIDChristmas.png in Resources */,
+				7C1543A53034D36100A8C080 /* MaskIDLunar.png in Resources */,
+				7C1543A63034D36100A8C080 /* MaskIDPride.png in Resources */,
+				7C1543A73034D36100A8C080 /* MaskIDSpace.png in Resources */,
 				A024 /* Assets.xcassets in Resources */,
 				A028 /* PrivacyInfo.xcprivacy in Resources */,
 				B001 /* Auth.xcstrings in Resources */,
@@ -1419,7 +1451,7 @@
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;
@@ -1466,7 +1498,7 @@
 };
 		BC_TARGET_RELEASE /* Release */ = {
 	buildSettings = {
-		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed";
+		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
 		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;

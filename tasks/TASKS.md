@@ -1538,3 +1538,25 @@
    Done by: CODEX
    Done at: 2026-08-27T10:23:28Z
 
+141. premium-icon-pack-3d
+   Id: 141-premium-icon-pack-3d
+   Scope: App icons, visual design, Apple compliance, premium alternate icons
+   Files: Shield/Resources/AppIcons,Shield/Resources/Assets.xcassets,Shield/Models/AppIconOption.swift,Shield/Resources/Info.plist,Shield.xcodeproj/project.pbxproj,ShieldTests/AppIconTests.swift,tasks/details
+   Note: Analysis completed; 12 themed 3D directions plus strict refined pass proposed. No production assets integrated; Apple dark/clear/tinted variant work deferred until user selects candidates.
+   Detail: tasks/details/141-premium-icon-pack-3d.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-28T11:39:40Z
+   Done by: CODEX
+   Done at: 2026-08-28T11:54:01Z
+
+142. integrate-premium-icon-pack
+   Id: 142-integrate-premium-icon-pack
+   Scope: Integrate selected 3D alternate icons with Apple dark/clear/tinted variants, localization, tests, and build validation
+   Files: Shield/Resources/AppIcons,Shield/Resources/Assets.xcassets,Shield/Models/AppIconOption.swift,Shield/Resources/Info.plist,Shield.xcodeproj/project.pbxproj,Shield/Localization/Strings/Settings.xcstrings,ShieldTests/AppIconTests.swift,tasks/details
+   Note: Integrated 8 3D premium icons, asset catalogs, dark/tinted variants, localization, Info.plist and tests. Build and build-for-testing pass; runtime test blocked by Xcode DebuggerVersionStore on local simulator.
+   Detail: tasks/details/142-integrate-premium-icon-pack.md
+   Claimed by: CODEX
+   Claimed at: 2026-08-28T15:31:44Z
+   Done by: CODEX
+   Done at: 2026-08-28T15:55:43Z
+

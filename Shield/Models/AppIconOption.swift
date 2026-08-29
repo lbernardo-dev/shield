@@ -11,6 +11,14 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     case ocean = "MaskIDOcean"
     case purple = "MaskIDPurple"
     case red = "MaskIDRed"
+    case aurora = "MaskIDAurora"
+    case forest = "MaskIDForest"
+    case tide = "MaskIDTide"
+    case halloween = "MaskIDHalloween"
+    case christmas = "MaskIDChristmas"
+    case lunar = "MaskIDLunar"
+    case pride = "MaskIDPride"
+    case space = "MaskIDSpace"
 
     var id: String { rawValue }
 
@@ -61,6 +69,14 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
         case .ocean:  return Color(hex: "06B6D4")
         case .purple: return Color(hex: "A855F7")
         case .red:    return Color(hex: "EF4444")
+        case .aurora: return Color(hex: "14B8A6")
+        case .forest: return Color(hex: "65A30D")
+        case .tide:   return Color(hex: "0EA5E9")
+        case .halloween: return Color(hex: "F97316")
+        case .christmas: return Color(hex: "DC2626")
+        case .lunar:  return Color(hex: "F59E0B")
+        case .pride:  return Color(hex: "EC4899")
+        case .space:  return Color(hex: "7C3AED")
         }
     }
 
@@ -79,6 +95,22 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
             return [Color(hex: "BF5AF2"), Color(hex: "5E5CE6")]
         case .red:
             return [Color(hex: "FF453A"), Color(hex: "C92A2A")]
+        case .aurora:
+            return [Color(hex: "2DD4BF"), Color(hex: "2563EB")]
+        case .forest:
+            return [Color(hex: "A3E635"), Color(hex: "166534")]
+        case .tide:
+            return [Color(hex: "22D3EE"), Color(hex: "1D4ED8")]
+        case .halloween:
+            return [Color(hex: "FB923C"), Color(hex: "7C2D12")]
+        case .christmas:
+            return [Color(hex: "F87171"), Color(hex: "166534")]
+        case .lunar:
+            return [Color(hex: "FDE047"), Color(hex: "B91C1C")]
+        case .pride:
+            return [Color(hex: "F472B6"), Color(hex: "2563EB")]
+        case .space:
+            return [Color(hex: "A78BFA"), Color(hex: "1D4ED8")]
         }
     }
 
@@ -92,6 +124,14 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
         case .ocean:  key = "settings_app_icon_ocean"
         case .purple: key = "settings_app_icon_purple"
         case .red:    key = "settings_app_icon_red"
+        case .aurora: key = "settings_app_icon_aurora"
+        case .forest: key = "settings_app_icon_forest"
+        case .tide:   key = "settings_app_icon_tide"
+        case .halloween: key = "settings_app_icon_halloween"
+        case .christmas: key = "settings_app_icon_christmas"
+        case .lunar:  key = "settings_app_icon_lunar"
+        case .pride:  key = "settings_app_icon_pride"
+        case .space:  key = "settings_app_icon_space"
         }
         return LanguageManager.shared.t(key, table: "Settings", language: language)
     }
@@ -106,6 +146,14 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
         case .ocean:  key = "settings_app_icon_ocean_desc"
         case .purple: key = "settings_app_icon_purple_desc"
         case .red:    key = "settings_app_icon_red_desc"
+        case .aurora: key = "settings_app_icon_aurora_desc"
+        case .forest: key = "settings_app_icon_forest_desc"
+        case .tide:   key = "settings_app_icon_tide_desc"
+        case .halloween: key = "settings_app_icon_halloween_desc"
+        case .christmas: key = "settings_app_icon_christmas_desc"
+        case .lunar:  key = "settings_app_icon_lunar_desc"
+        case .pride:  key = "settings_app_icon_pride_desc"
+        case .space:  key = "settings_app_icon_space_desc"
         }
         return LanguageManager.shared.t(key, table: "Settings", language: language)
     }

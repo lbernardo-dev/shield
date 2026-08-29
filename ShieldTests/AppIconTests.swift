@@ -18,7 +18,7 @@ struct AppIconTests {
     @Test("All non-default icons are flagged as Pro and have valid alternate icon names")
     func testProIconsProperties() {
         let proIcons = AppIconOption.allCases.filter { !$0.isDefault }
-        #expect(proIcons.count == 5)
+        #expect(proIcons.count == 13)
 
         for icon in proIcons {
             #expect(icon.isPro == true)
@@ -36,6 +36,14 @@ struct AppIconTests {
         #expect(AppIconOption.from(alternateIconName: "MaskIDOcean") == .ocean)
         #expect(AppIconOption.from(alternateIconName: "MaskIDPurple") == .purple)
         #expect(AppIconOption.from(alternateIconName: "MaskIDRed") == .red)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDAurora") == .aurora)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDForest") == .forest)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDTide") == .tide)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDHalloween") == .halloween)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDChristmas") == .christmas)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDLunar") == .lunar)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDPride") == .pride)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDSpace") == .space)
         #expect(AppIconOption.from(alternateIconName: "UnknownNonExistentIcon") == .blue)
     }
 
