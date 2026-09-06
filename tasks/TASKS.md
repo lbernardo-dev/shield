@@ -1593,3 +1593,14 @@
    Done by: CODEX
    Done at: 2026-09-06T06:57:08Z
 
+146. audit-remediation-preflight
+   Id: 146-audit-remediation-preflight
+   Scope: Fix preflight checks, align privacy policy with CloudKit, validate gates and submit 1.0.7
+   Files: scripts/app_store_preflight.sh,Docs/legal/privacy.html
+   Note: Preflight fixes applied, legal policy synced, gates green, version 1.0.7 submitted to App Store review (WAITING_FOR_REVIEW)
+   Detail: tasks/details/146-audit-remediation-preflight.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-06T13:11:09Z
+   Done by: CODEX
+   Done at: 2026-09-06T13:13:06Z
+
