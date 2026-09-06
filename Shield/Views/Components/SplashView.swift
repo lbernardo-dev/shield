@@ -371,7 +371,7 @@ struct SplashView: View {
         }
         .accessibilityHidden(true)
         .task {
-            let delay = reduceMotion ? 500_000_000 : 1_800_000_000
+            let delay = reduceMotion ? 150_000_000 : 400_000_000
             try? await Task.sleep(nanoseconds: UInt64(delay))
             guard !Task.isCancelled else { return }
             finish()

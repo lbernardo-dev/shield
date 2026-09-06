@@ -148,22 +148,32 @@ final class AppState: ObservableObject {
                 session.isAuthenticated = false
             case "lock":
                 session.isAuthenticated = false
-            case "capture":
+            case "capture", "03-smart-scanner", "03":
                 showCapture = true
-            case "01-editor-protected", "01", "editor", "02-editor-manipulating-mask", "02", "03-watermark-config", "03", "04-ocr-results", "04", "ocr", "06-export-verification", "06", "export", "07-exif-gps", "07":
+                selectedDoc = nil
+            case "01-identity-dni", "01", "01-editor-protected", "editor":
                 selectedDoc = documents.first
-            case "08-multipage-pdf", "08":
+            case "02-passport-international", "02", "02-editor-manipulating-mask":
+                selectedDoc = documents.first(where: { $0.id == "aso-passport" }) ?? documents.first
+            case "04-ai-ocr-detection", "04", "04-ocr-results", "ocr":
+                selectedDoc = documents.first
+            case "05-antifraud-watermark", "05", "03-watermark-config", "03":
                 selectedDoc = documents.first(where: { $0.id == "aso-rental" }) ?? documents.first
-            case "05-library", "05", "home", "library":
-                selectedDoc = nil
-                activeTab = .library
-            case "09-templates", "09", "gallery":
-                selectedDoc = nil
-                activeTab = .gallery
-            case "10-vault-security", "10", "vault":
+            case "06-vault-security", "06", "10-vault-security", "10", "vault":
                 selectedDoc = nil
                 activeTab = .vault
                 session.isAuthenticated = true
+            case "07-library-dashboard", "07", "05-library", "home", "library":
+                selectedDoc = nil
+                activeTab = .library
+            case "08-batch-processing", "08", "08-multipage-pdf", "batch":
+                selectedDoc = nil
+                activeTab = .library
+            case "09-mask-styles", "09", "09-templates", "gallery":
+                selectedDoc = nil
+                activeTab = .gallery
+            case "10-irreversible-export", "06-export-verification", "07-exif-gps", "export":
+                selectedDoc = documents.first
             case "settings":
                 selectedDoc = nil
                 activeTab = .settings
@@ -213,6 +223,19 @@ final class AppState: ObservableObject {
             ("Informe médico", "Medical report")
         ]
 
+        var passportFields = DocumentFields.empty
+        passportFields.documentNumber = "518749632"
+        passportFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
+        passportFields.dateOfBirth = "14/03/1990"
+        passportFields.nationality = language == .es ? "ESP" : "USA"
+        passportFields.expires = "03/09/2034"
+        passportFields.sex = "F"
+        passportFields.mrz = language == .es
+            ? "P<ESPGARCIA<LOPEZ<<MARIA<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325ESP9003142F3409034<<<<<<<<<<<<<<02"
+            : "P<USAMORGAN<<ALEX<<<<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325USA9003142F3409034<<<<<<<<<<<<<<00"
+
+        let passportRedactions = AutoRedactions.suggested(for: .passportUSA, style: .pixelate)
+
         return [
             DocumentItem(
                 id: "aso-identity",
@@ -232,9 +255,13 @@ final class AppState: ObservableObject {
                 title: language == .es ? titles[1].0 : titles[1].1,
                 category: .travel,
                 date: now.addingTimeInterval(-3_600),
-                redactionCount: 7,
+                redactionCount: 4,
+                isFavorite: true,
                 isVaulted: true,
-                pageFileNames: ["aso-passport"]
+                pageFileNames: ["aso-passport"],
+                fields: passportFields,
+                pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: passportRedactions)],
+                watermark: Watermark(text: language == .es ? "SOLO PARA TRÁMITE DE VIAJE" : "FOR TRAVEL PURPOSES ONLY")
             ),
             DocumentItem(
                 id: "aso-rental",

@@ -48,7 +48,7 @@ struct ContentView: View {
                     .zIndex(20_000)
             }
 
-            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "batch", asoOverlayPresented {
+            if ASOScreenshotMode.isEnabled, (ASOScreenshotMode.scene == "batch" || ASOScreenshotMode.scene == "08-batch-processing" || ASOScreenshotMode.scene == "08"), asoOverlayPresented {
                 BatchRedactView(isPresented: $asoOverlayPresented)
                     .environmentObject(appState)
                     .zIndex(20_000)

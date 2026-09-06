@@ -1560,3 +1560,14 @@
    Done by: CODEX
    Done at: 2026-08-28T15:55:43Z
 
+143. turnaround-ux-aso-growth
+   Id: 143-turnaround-ux-aso-growth
+   Scope: Eliminar barrera de reseñas en AppReviewManager, agilizar onboarding y splash, elevar modos de uso rápido en HomeView, y actualizar metadatos ASO para 1.0.7
+   Files: Shield/App/AppReviewManager.swift,Shield/Views/Components/SplashView.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Views/Home/HomeView.swift,metadata/**
+   Note: Finished turnaround UX, AppReview and ASO; build/tests ok
+   Detail: tasks/details/143-turnaround-ux-aso-growth.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-05T21:43:52Z
+   Done by: CODEX
+   Done at: 2026-09-06T05:07:50Z
+

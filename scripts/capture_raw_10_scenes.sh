@@ -16,7 +16,10 @@ echo "Iniciando simulador iPhone UDID: $IPHONE_ID"
 xcrun simctl boot "$IPHONE_ID" 2>/dev/null || true
 xcrun simctl bootstatus "$IPHONE_ID" -b
 
-APP_PATH="build/DerivedData/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
+APP_PATH="/tmp/DerivedData-MaskID/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
+if [[ ! -d "$APP_PATH" ]]; then
+  APP_PATH="build/DerivedData/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
+fi
 if [[ ! -d "$APP_PATH" ]]; then
   APP_PATH="build/DerivedData/Build/Products/Debug-iphonesimulator/MaskID.app"
 fi
@@ -30,16 +33,16 @@ echo "Instalando app desde: $APP_PATH"
 xcrun simctl install "$IPHONE_ID" "$APP_PATH"
 
 SCENES=(
-  "01-editor-protected"
-  "02-editor-manipulating-mask"
-  "03-watermark-config"
-  "04-ocr-results"
-  "05-library"
-  "06-export-verification"
-  "07-exif-gps"
-  "08-multipage-pdf"
-  "09-templates"
-  "10-vault-security"
+  "01-identity-dni"
+  "02-passport-international"
+  "03-smart-scanner"
+  "04-ai-ocr-detection"
+  "05-antifraud-watermark"
+  "06-vault-security"
+  "07-library-dashboard"
+  "08-batch-processing"
+  "09-mask-styles"
+  "10-irreversible-export"
 )
 
 LOCALES=(
@@ -66,8 +69,10 @@ for item in "${LOCALES[@]}"; do
       -aso-scene "$scene" >/dev/null
     
     # Pausa para permitir el renderizado de la UI y apertura de hojas (sheets)
-    sleep 1.5
-    xcrun simctl io "$IPHONE_ID" screenshot "$output_file" >/dev/null
+    sleep 2.5
+    tmp_shot="/tmp/simctl_shot_$$.png"
+    xcrun simctl io "$IPHONE_ID" screenshot "$tmp_shot" >/dev/null
+    mv "$tmp_shot" "$output_file"
     echo "  -> Guardado: $output_file ($(du -h "$output_file" | cut -f1))"
   done
 done

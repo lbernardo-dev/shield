@@ -877,8 +877,8 @@ struct OBSecuritySetupView: View {
                 skipPIN()
             } label: {
                 Text(LanguageManager.shared.onboarding("onboarding_security_skip"))
-                    .shieldFont(14, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .shieldFont(14, weight: .semibold)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
                     .frame(minHeight: 44)
             }
             .padding(.bottom, 24)

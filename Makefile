@@ -31,11 +31,11 @@ ifeq ($(origin AGENT_NAME), undefined)
 AGENT_NAME := $(shell $(SCRIPTS_DIR)/resolve_agent_name.sh)
 endif
 
-DERIVED_BASE := build/DerivedData
+DERIVED_BASE ?= $(if $(findstring /Volumes/,$(CURDIR)),/tmp/DerivedData-MaskID,build/DerivedData)
 DERIVED := $(DERIVED_BASE)/$(AGENT_NAME)
 LOG_DIR := build/logs/$(AGENT_NAME)
 CACHE_ROOT := $(CURDIR)/build/cache/$(AGENT_NAME)
-TMPDIR_PATH := $(CURDIR)/build/tmp/$(AGENT_NAME)
+TMPDIR_PATH := /tmp
 
 ifeq ($(APP_PLATFORM),ios)
 PLATFORM_SUFFIX := -iphonesimulator

@@ -73,9 +73,9 @@ SWIFT_MODULE_CACHE_PATH="${SWIFT_MODULE_CACHE_PATH:-$CACHE_ROOT/swift/ModuleCach
 SWIFT_PACKAGE_CACHE_PATH="${SWIFT_PACKAGE_CACHE_PATH:-$CACHE_ROOT/swiftpm}"
 SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR="${SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR:-$CACHE_ROOT/swiftpm/SourcePackages}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$CACHE_ROOT/xdg}"
-HOME_PATH="${HOME_PATH:-$PWD/build/home/$SANITIZED_LABEL}"
+HOME_PATH="${HOME_PATH:-$HOME}"
 CFFIXED_USER_HOME="${CFFIXED_USER_HOME:-$HOME_PATH}"
-TMPDIR="${TMPDIR:-$PWD/build/tmp/$SANITIZED_LABEL}"
+TMPDIR="${TMPDIR:-/tmp}"
 
 mkdir -p \
   "$HOME_PATH" \
@@ -98,6 +98,7 @@ export \
   SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR \
   XDG_CACHE_HOME \
   TMPDIR \
+  COPYFILE_DISABLE=1 \
   DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer" \
   PATH="/Applications/Xcode.app/Contents/Developer/usr/bin:$PATH"
 
@@ -111,7 +112,7 @@ XCODEBUILD_BIN="/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild"
 
 set +e
 {
-  SWIFT_OTHER_FLAGS="\$(inherited) -Xfrontend -module-cache-path -Xfrontend $SWIFT_MODULE_CACHE_PATH -Xfrontend -disable-sandbox"
+  SWIFT_OTHER_FLAGS="\$(inherited) -Xfrontend -module-cache-path -Xfrontend \"$SWIFT_MODULE_CACHE_PATH\" -Xfrontend -disable-sandbox"
   "$XCODEBUILD_BIN" \
     "$@" \
     -clonedSourcePackagesDirPath "$SWIFT_PACKAGE_CLONED_SOURCE_PACKAGES_DIR" \

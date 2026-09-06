@@ -47,6 +47,7 @@ struct HomeView: View {
                                 HStack(alignment: .top, spacing: 8) {
                                     LazyVStack(spacing: 0) {
                                         heroSection
+                                        modesSection
                                         searchSection
                                         categoryScroll
                                     }
@@ -62,6 +63,7 @@ struct HomeView: View {
                             } else {
                                 LazyVStack(spacing: 0) {
                                     heroSection
+                                    modesSection
                                     searchSection
                                     categoryScroll
                                     recentsSection
@@ -375,8 +377,6 @@ struct HomeView: View {
             .padding(.top, ShieldTheme.s4)
 
             if showWorkspaceTools {
-                modesSection
-                    .transition(.opacity.combined(with: .move(edge: .top)))
                 vaultSection
                 cloudStorageSection
             }
@@ -1405,6 +1405,13 @@ struct BatchRedactView: View {
             }
         }
         .preferredColorScheme(appState.preferredScheme)
+        .onAppear {
+#if DEBUG
+            if ASOScreenshotMode.isEnabled {
+                selectedIDs = Set(selectableDocs.prefix(3).map { $0.id })
+            }
+#endif
+        }
     }
 
     private var form: some View {

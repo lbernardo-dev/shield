@@ -31,18 +31,18 @@ struct AppReviewPolicy {
     static let day: TimeInterval = 24 * 60 * 60
     static let year: TimeInterval = 365 * day
 
-    // Free users are asked earlier and can be asked more often, but only after
-    // completing useful work. Premium users receive a deliberately quieter cadence.
+    // Users are asked at their primary value moment (completing a secure export).
+    // StoreKit enforces its own system limit (max 3 prompts per year).
     static let free = Tier(
-        minimumAppAge: 2 * day,
-        valueThreshold: 3,
+        minimumAppAge: 0,
+        valueThreshold: 2,
         cooldown: 45 * day,
         annualRequestLimit: 3
     )
     static let premium = Tier(
-        minimumAppAge: 14 * day,
-        valueThreshold: 8,
-        cooldown: 120 * day,
+        minimumAppAge: 3 * day,
+        valueThreshold: 4,
+        cooldown: 90 * day,
         annualRequestLimit: 2
     )
 

@@ -1,4 +1,7 @@
 .DS_Store
+._*
+.AppleDouble
+.LSOverride
 
 # Xcode user state
 xcuserdata/

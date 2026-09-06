@@ -56,21 +56,15 @@ struct EditorView: View {
 #if DEBUG
             if ASOScreenshotMode.isEnabled {
                 let scene = ASOScreenshotMode.scene
-                if scene == "02-editor-manipulating-mask" || scene == "02" {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                        if let firstID = vm.redactions.first?.id {
-                            vm.activeRedactionID = firstID
-                        }
-                    }
-                } else if scene == "03-watermark-config" || scene == "03" {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                        showWatermarkConfig = true
-                    }
-                } else if scene == "04-ocr-results" || scene == "04" || scene == "ocr" {
+                if scene == "04-ai-ocr-detection" || scene == "04" || scene == "04-ocr-results" || scene == "ocr" {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         vm.showOCRSheet = true
                     }
-                } else if scene == "06-export-verification" || scene == "06" || scene == "export" || scene == "07-exif-gps" || scene == "07" {
+                } else if scene == "05-antifraud-watermark" || scene == "05" || scene == "03-watermark-config" || scene == "03" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        showWatermarkConfig = true
+                    }
+                } else if scene == "10-irreversible-export" || scene == "10" || scene == "06-export-verification" || scene == "06" || scene == "export" {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         vm.showExportSheet = true
                     }

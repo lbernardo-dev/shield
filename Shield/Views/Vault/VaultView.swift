@@ -11,7 +11,7 @@ struct VaultView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var isUnlocked: Bool = {
 #if DEBUG
-        ASOScreenshotMode.isEnabled && ASOScreenshotMode.scene == "vault"
+        ASOScreenshotMode.isEnabled && (ASOScreenshotMode.scene == "vault" || ASOScreenshotMode.scene == "06-vault-security" || ASOScreenshotMode.scene == "06" || ASOScreenshotMode.scene == "10-vault-security" || ASOScreenshotMode.scene == "10")
 #else
         false
 #endif

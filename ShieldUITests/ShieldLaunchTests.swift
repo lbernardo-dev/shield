@@ -475,7 +475,7 @@ final class ShieldLaunchTests: XCTestCase {
         let scrollView = app.scrollViews.firstMatch
         XCTAssertTrue(scrollView.waitForExistence(timeout: 3))
         let threshold = app.frame.maxY - 110 // Clear custom tab bar
-        let topThreshold: CGFloat = 80 // Clear navigation bar
+        let topThreshold: CGFloat = 90 // Clear navigation bar & dynamic island
         var attempts = 0
         while attempts < 15 {
             if element.exists && element.isHittable {
@@ -486,12 +486,18 @@ final class ShieldLaunchTests: XCTestCase {
             }
             if element.exists {
                 if element.frame.minY < topThreshold {
-                    scrollView.swipeDown()
+                    let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                    let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+                    start.press(forDuration: 0.05, thenDragTo: end)
                 } else {
-                    scrollView.swipeUp()
+                    let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+                    let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                    start.press(forDuration: 0.05, thenDragTo: end)
                 }
             } else {
-                scrollView.swipeUp()
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+                let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                start.press(forDuration: 0.05, thenDragTo: end)
             }
             attempts += 1
         }
