@@ -1586,8 +1586,10 @@
    Id: 145-release-1-0-7-build-107202609062
    Scope: Release
    Files: Shield.xcodeproj/project.pbxproj
-   Note: Bumping build to 107202609062 and archiving for ASC
+   Note: Build 107202609062 uploaded (VALID), attached to 1.0.7, WhatsNew synced in ES/EN, and validated with 0 errors
    Detail: tasks/details/145-release-1-0-7-build-107202609062.md
    Claimed by: CODEX
    Claimed at: 2026-09-06T06:21:39Z
+   Done by: CODEX
+   Done at: 2026-09-06T06:57:08Z
 
