@@ -751,14 +751,24 @@ final class AppState: ObservableObject {
     }
 
     private func updateWidgetSnapshot(reload: Bool) {
+        let protectedDocs = documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }
+        let watermarkedCount = documents.filter { doc in
+            guard let text = doc.watermark?.text else { return false }
+            return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }.count
+        let lastDate = protectedDocs.map(\.modifiedAt).max()
+
         let snapshot = ShieldWidgetSnapshot(
             totalDocuments: documents.count,
-            protectedDocuments: documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }.count,
-            vaultedDocuments: documents.filter(\.isVaulted).count
+            protectedDocuments: protectedDocs.count,
+            vaultedDocuments: documents.filter(\.isVaulted).count,
+            watermarkedDocuments: watermarkedCount,
+            securityScore: nil,
+            lastProtectedDate: lastDate
         )
         ShieldWidgetSnapshotStore.save(snapshot)
         if reload {
-            WidgetCenter.shared.reloadTimelines(ofKind: "ShieldProtectionStatusWidget")
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 

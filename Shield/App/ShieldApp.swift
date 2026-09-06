@@ -26,10 +26,29 @@ struct ShieldApp: App {
                     if url.isFileURL {
                         appState.pendingSharedImportURL = url
                         appState.showCapture = true
-                    } else if url.scheme == "shield", url.host == "capture" {
-                        appState.showCapture = true
-                    } else if url.scheme == "shield", url.host == "import-shared" {
-                        consumeSharedImport()
+                    } else if url.scheme == "shield" {
+                        switch url.host {
+                        case "capture":
+                            appState.showCapture = true
+                        case "vault":
+                            appState.activeTab = .vault
+                        case "preset":
+                            let preset = url.pathComponents.dropFirst().first?.lowercased()
+                            if preset == "verify" || preset == "dni" || preset == "id" {
+                                appState.pendingRedactionMode = .verify
+                            } else if preset == "job" || preset == "payroll" || preset == "nomina" {
+                                appState.pendingRedactionMode = .job
+                            } else if preset == "rental" || preset == "alquiler" {
+                                appState.pendingRedactionMode = .rental
+                            } else if preset == "banking" {
+                                appState.pendingRedactionMode = .banking
+                            }
+                            appState.showCapture = true
+                        case "import-shared":
+                            consumeSharedImport()
+                        default:
+                            break
+                        }
                     }
                 }
                 .onAppear(perform: consumeSystemRequest)
@@ -38,7 +57,16 @@ struct ShieldApp: App {
 
     private func consumeSystemRequest() {
         SharedImportStore.removeExpiredItems()
-        if ShieldSystemRequestStore.consume(.openCapture)
+        if ShieldSystemRequestStore.consume(.presetVerify) {
+            appState.pendingRedactionMode = .verify
+            appState.showCapture = true
+        } else if ShieldSystemRequestStore.consume(.presetJob) {
+            appState.pendingRedactionMode = .job
+            appState.showCapture = true
+        } else if ShieldSystemRequestStore.consume(.presetRental) {
+            appState.pendingRedactionMode = .rental
+            appState.showCapture = true
+        } else if ShieldSystemRequestStore.consume(.openCapture)
             || consumeLegacySystemRequest(key: "shield.intent.openCapture") {
             UserDefaults.standard.removeObject(forKey: "shield.intent.openCapture")
             appState.showCapture = true

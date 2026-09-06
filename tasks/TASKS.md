@@ -1571,3 +1571,14 @@
    Done by: CODEX
    Done at: 2026-09-06T05:07:50Z
 
+144. widgets-ux-informative-operative
+   Id: 144-widgets-ux-informative-operative
+   Scope: Widgets
+   Files: ShieldWidgetExtension/ShieldWidgetExtension.swift,Shield/Shared/ShieldWidgetSnapshot.swift
+   Note: Completed widgets overhaul: operative QuickActions widget, informative ProtectionStatus widget, iOS 18 ControlWidgets, snapshot model expansion, tests passing
+   Detail: tasks/details/144-widgets-ux-informative-operative.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-06T06:11:30Z
+   Done by: CODEX
+   Done at: 2026-09-06T06:18:13Z
+
