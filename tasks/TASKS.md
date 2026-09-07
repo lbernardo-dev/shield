@@ -1615,3 +1615,36 @@
    Done by: CODEX
    Done at: 2026-09-07T20:49:10Z
 
+148. aso-metadata-1-0-8
+   Id: 148-aso-metadata-1-0-8
+   Scope: Crear versión 1.0.8 en App Store Connect y elevar metadata ASO localizada con claims verificables
+   Files: metadata/app-info,metadata/version/1.0.8,Docs/APP_STORE_METADATA_DRAFT.md,Docs/AUDITORIA_INTEGRAL_MAESTRO_2026-09-07.md,.asc/metadata/review/1.0.8
+   Note: Created App Store Connect version 1.0.8 in PREPARE_FOR_SUBMISSION with manual release. Applied and remotely verified 12 ASO metadata changes across en-US and es-ES: names, subtitles, descriptions, keywords, promotional text, and whatsNew. Metadata validation passed with 0 errors and 0 warnings. No build uploaded or review submission created; remaining blocker is the required 1.0.8 build attachment.
+   Detail: tasks/details/148-aso-metadata-1-0-8.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-07T21:10:57Z
+   Done by: CODEX
+   Done at: 2026-09-07T21:11:24Z
+
+149. release-1-0-8-build-108202609071
+   Id: 149-release-1-0-8-build-108202609071
+   Scope: Preparar, archivar y subir el build 108202609071 de MaskID 1.0.8 a App Store Connect
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts,Docs/APP_STORE_METADATA_DRAFT.md,metadata/version/1.0.8,scripts
+   Note: Finished build 108202609071. Updated project configs to 1.0.8; Release archive succeeded; native Xcode export workaround produced IPA after helper hard-link limitation on external volume; uploaded and processed build is VALID, encryption exempt, attached to App Store version 1.0.8. Readiness: 0 errors, 0 warnings, 2 informational notices; no review submission created.
+   Detail: tasks/details/149-release-1-0-8-build-108202609071.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-07T21:28:56Z
+   Done by: CODEX
+   Done at: 2026-09-07T21:39:59Z
+
+150. zero-temporaries-policy
+   Id: 150-zero-temporaries-policy
+   Scope: Auditar y formalizar política de cero temporales al finalizar sesiones, preservando artefactos de release y exigiendo revisión previa
+   Files: Docs/POLITICA_CERO_TEMPORALES.md,scripts/cleanup_temporaries.sh,AGENTS.md
+   Note: Finished: zero-temporary policy created; dry-run validated; approved build roots and 23 sidecars moved to Trash; bash syntax passed; post-cleanup audit found 0 candidates; .asc/artifacts release archive preserved.
+   Detail: tasks/details/150-zero-temporaries-policy.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-07T21:44:04Z
+   Done by: CODEX
+   Done at: 2026-09-07T21:55:09Z
+

@@ -17,7 +17,7 @@ Auditoría posterior al build 1.0.7 (107202609062), con revisión de código, pr
 - **Principal riesgo:** la ficha y dos creativos prometen “sin nube” y “Secure Enclave” mientras el producto implementa iCloud opcional con paquetes completos y guarda sus claves de datos en Keychain convencional.
 - **Principal acción recomendada:** congelar claims de seguridad/privacidad, publicar una metadata corregida en la próxima versión, reemplazar las capturas 6 y 10, y después medir activación y exportación real.
 
-**FACT:** `scripts/app_store_preflight.sh --remote` pasó; `xcodebuild` Debug con `SWIFT_STRICT_CONCURRENCY=complete` compiló; el result bundle local registra 93 pruebas pasadas, 1 omitida y 0 fallidas. **FACT:** el gate UI/UX pasó en iPhone y iPad (12 pruebas por dispositivo, 0 fallos). **FACT:** la revisión enviada de 1.0.7 figura como `WAITING_FOR_REVIEW` en `tasks/details/146-audit-remediation-preflight.md`. **INFERENCE:** el cuello de botella inmediato es de veracidad comercial/compliance y no una reescritura de arquitectura.
+**FACT:** `scripts/app_store_preflight.sh --remote` pasó; `xcodebuild` Debug con `SWIFT_STRICT_CONCURRENCY=complete` compiló; el result bundle local registra 93 pruebas pasadas, 1 omitida y 0 fallidas. **FACT:** el gate UI/UX pasó en iPhone y iPad (12 pruebas por dispositivo, 0 fallos). **FACT:** App Store Connect devuelve `COMPLETE/approved`, versión `READY_FOR_DISTRIBUTION`, build `VALID` y cero bloqueos; la ficha pública de [MaskID en el App Store](https://apps.apple.com/es/app/maskid-protege-tu-identidad/id6790398619) ya muestra la versión 1.0.7. **INFERENCE:** el cuello de botella inmediato es de veracidad comercial/compliance y no una reescritura de arquitectura.
 
 # 2. CURRENT PRODUCT UNDERSTANDING
 
@@ -234,13 +234,13 @@ Apple indica que la metadata debe ser precisa y que puede rechazar/retirar apps 
 - el App Preview final sólo está inventariado en en-US;
 - no hay rating/review propio fiable con el que optimizar social proof.
 
-**RECOMMENDATION:** mantener nombre/subtitle por ahora, corregir description/promotional/what’s new y priorizar el test de screenshot 1/2. Apple explica cómo gestionar tamaños y escalado en [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots).
+**RECOMMENDATION:** mantener un nombre/subtitle centrado en proteger datos privados al compartir, corregir description/promotional/what’s new y priorizar el test de screenshot 1/2. Apple explica cómo gestionar tamaños y escalado en [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots).
 
 # 18. ASO KEYWORD STRATEGY
 
 | Cluster | EN | ES | Tipo |
 |---|---|---|---|
-| Problema | privacy, redact, protect, sensitive | privacidad, proteger, ocultar, sensibles | PRIMARY/PROBLEM |
+| Problema | privacy, protect, private data, sharing | privacidad, proteger, datos privados, compartir | PRIMARY/PROBLEM |
 | Objeto | document, passport, pdf, photo | documentos, pasaporte, dni, pdf, fotos | PRIMARY/FEATURE |
 | Resultado | blackout, blur, metadata, vault | ofuscar, firma, metadatos, bóveda | SECONDARY |
 | Intento profesional | secure sharing, identity protection | compartir seguro, protección identidad | LONG-TAIL en description/creative |
@@ -248,24 +248,24 @@ Apple indica que la metadata debe ser precisa y que puede rechazar/retirar apps 
 
 **Campos propuestos:**
 
-- EN: `privacy,redact,protect,sensitive,document,passport,pdf,photo,vault,offline,metadata,blackout,blur`
-- ES: `privacidad,redactar,proteger,sensibles,documentos,pasaporte,dni,pdf,fotos,bóveda,ofuscar,metadatos,firma`
+- EN: `privacy,identity,documents,passport,license,forms,watermark,vault,offline,photo,signature,mask,id`
+- ES: `identidad,privacidad,documentos,ocultar,compartir,dni,pasaporte,trámites,marca,bóveda,offline,pdf`
 
 No usar nombres de competidores ni keyword stuffing. Revisar bytes reales con App Store Connect tras la transcreación, no asumir que caracteres acentuados ocupan un byte.
 
 # 19. FINAL APP STORE METADATA
 
-Propuesta corregida para una próxima versión (no afirmar que modifica el binario 1.0.7 que ya está en review).
+Metadata ASO aplicada a la versión 1.0.8 en App Store Connect. La versión está en `PREPARE_FOR_SUBMISSION`, con build `108202609071` adjunto y `VALID`, sin envío a revisión; el directorio `metadata/` es la fuente canónica local.
 
 ## English (U.S.)
 
-**APP NAME:** `MaskID: Protect Your Identity`
+**APP NAME:** `MaskID: Protect Private Data`
 
-**SUBTITLE:** `Mask Sensitive Data in Docs`
+**SUBTITLE:** `Hide Details Before Sharing`
 
-**PROMOTIONAL TEXT:** `Protect your identity before you share. Mask sensitive details on-device and export a copy you can review.`
+**PROMOTIONAL TEXT:** `Protect private data before sharing. Hide only what others do not need to see.`
 
-**KEYWORDS:** `privacy,redact,protect,sensitive,document,passport,pdf,photo,vault,offline,metadata,blackout,blur`
+**KEYWORDS:** `privacy,identity,passport,photo,blackout,blur,vault,offline,watermark,ocr,metadata,signature,fraud`
 
 **DESCRIPTION:**
 
@@ -277,7 +277,7 @@ Cover private details, add a purpose-limited watermark and keep the useful parts
 
 ON-DEVICE PROCESSING
 • Capture or import from Camera, Photos, Files, or an optional direct Google Drive/Dropbox connection.
-• OCR and redaction suggestions run on your device and can work without an internet connection.
+• OCR and masking suggestions run on your device and can work without an internet connection.
 • Review every suggested field before sharing. Automated recognition can miss sensitive information.
 
 VERIFIED EXPORT
@@ -301,7 +301,7 @@ Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/st
 Privacy Policy: https://lbernardo-dev.github.io/apps/en/case-studies/shield/privacy/
 ```
 
-**WHAT’S NEW:** `MaskID 1.0.8 adds a faster protection flow, clearer field review, improved multipage export feedback, and more transparent optional iCloud backup for non-Vault documents. OCR and redaction continue to run on-device.`
+**WHAT’S NEW:** `Clearer privacy guidance, more transparent optional iCloud controls, and a smoother way to review protected copies before sharing.`
 
 **PRIMARY CATEGORY:** Utilities
 
@@ -309,13 +309,13 @@ Privacy Policy: https://lbernardo-dev.github.io/apps/en/case-studies/shield/priv
 
 ## Español (España)
 
-**APP NAME:** `MaskID: Protege tu Identidad`
+**APP NAME:** `MaskID: Protege Datos Privados`
 
-**SUBTITLE:** `Enmascara Datos en Documentos`
+**SUBTITLE:** `Oculta Datos al Compartir`
 
-**PROMOTIONAL TEXT:** `Protege tu identidad antes de compartir. Oculta datos sensibles en el dispositivo y exporta copias que puedes revisar.`
+**PROMOTIONAL TEXT:** `Protege tus datos privados antes de compartir. Oculta sólo lo que no deben ver.`
 
-**KEYWORDS:** `privacidad,redactar,proteger,sensibles,documentos,pasaporte,dni,pdf,fotos,bóveda,ofuscar,metadatos,firma`
+**KEYWORDS:** `privacidad,identidad,pasaporte,fotos,bóveda,ofuscar,metadatos,firma,fraude,marca,ocr,local,seguro`
 
 **DESCRIPTION:**
 
@@ -327,7 +327,7 @@ Oculta datos privados, añade una marca de agua con el propósito de la copia y 
 
 PROCESAMIENTO EN EL DISPOSITIVO
 • Captura o importa desde Cámara, Fotos, Archivos o una conexión directa opcional con Google Drive/Dropbox.
-• El OCR y las sugerencias de redacción se ejecutan en el dispositivo y pueden funcionar sin conexión.
+• El OCR y las sugerencias para ocultar datos se ejecutan en el dispositivo y pueden funcionar sin conexión.
 • Revisa cada campo sugerido antes de compartir. El reconocimiento automático puede omitir información sensible.
 
 EXPORTACIÓN VERIFICADA
@@ -351,7 +351,7 @@ Términos de uso (EULA): https://www.apple.com/legal/internet-services/itunes/de
 Política de privacidad: https://lbernardo-dev.github.io/apps/es/casos/shield/privacidad/
 ```
 
-**WHAT’S NEW:** `MaskID 1.0.8 mejora el flujo de protección, la revisión de campos, el feedback de exportación multipágina y la explicación de la copia opcional de iCloud para documentos fuera de la Bóveda. El OCR y el enmascaramiento siguen ejecutándose en el dispositivo.`
+**WHAT’S NEW:** `Explicaciones de privacidad más claras, controles de iCloud opcionales más transparentes y una revisión más sencilla de las copias protegidas.`
 
 **PRIMARY CATEGORY:** Utilidades
 

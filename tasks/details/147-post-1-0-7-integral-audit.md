@@ -13,5 +13,6 @@
 - Removed unsupported “zero-knowledge”, “device security chip” and Secure Enclave wording from the user-facing Auth strings; the copy now states AES-GCM, device-bound Keychain storage and user-controlled optional iCloud sync.
 - Identified, but did not silently rewrite, the already-submitted 1.0.7 metadata's unsupported `no cloud` and `Secure Enclave` claims. The audit contains corrected next-version metadata and identifies screenshots 6/10 for re-rendering.
 - Softened the Vault lock description from an absolute “100% hidden” claim to a behaviorally scoped statement: previews stay hidden while locked.
+- Re-checked publication after the user confirmed release: App Store Connect reports review `COMPLETE/approved`, version `READY_FOR_DISTRIBUTION`, build `VALID`, zero blockers, and the public App Store listing is live. The published listing still contains legacy privacy/security claims and is now the immediate metadata follow-up.
 
 ## Notes
