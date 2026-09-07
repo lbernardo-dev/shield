@@ -6,8 +6,10 @@ cd "$ROOT"
 
 MODE="${1:-all}"
 OUTPUT_ROOT="${UI_GATE_OUTPUT:-build/ui-ux-release-gate}"
-IPHONE_ID="${UI_IPHONE_ID:-$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/{print $2; exit}')}"
-IPAD_ID="${UI_IPAD_ID:-$(xcrun simctl list devices available | awk -F '[()]' '/iPad/{print $2; exit}')}"
+UI_GATE_AGENT_NAME="${UI_GATE_AGENT_NAME:-UI-GATE}"
+PACKAGE_CACHE="${UI_GATE_PACKAGE_CACHE:-build/cache/${UI_GATE_AGENT_NAME}/swiftpm/SourcePackages}"
+IPHONE_ID="${UI_IPHONE_ID:-$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $(NF-1)); print $(NF-1); exit}')}"
+IPAD_ID="${UI_IPAD_ID:-$(xcrun simctl list devices available | awk -F '[()]' '/iPad/{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $(NF-1)); print $(NF-1); exit}')}"
 SELECTED_TESTS=(
   testHomeAccessibilityInEnglishAndSpanish
   testOnboardingAccessibilityInEnglishAndSpanish
@@ -47,7 +49,7 @@ xcrun simctl bootstatus "$IPAD_ID" -b
 run_tests() {
   local device_id="$1"
   local label="$2"
-  local derived="build/DerivedData/UI-GATE-${label:u}"
+  local derived="${UI_GATE_DERIVED_BASE:-/tmp/DerivedData-MaskID/UI-GATE}-${label:u}"
   local result="$OUTPUT_ROOT/${label}.xcresult"
   local args=()
 
@@ -62,7 +64,7 @@ run_tests() {
     -configuration Debug \
     -destination "platform=iOS Simulator,id=$device_id" \
     -derivedDataPath "$derived" \
-    -clonedSourcePackagesDirPath build/cache/UI-GATE/swiftpm/SourcePackages \
+    -clonedSourcePackagesDirPath "$PACKAGE_CACHE" \
     -resultBundlePath "$result" \
     SWIFT_STRICT_CONCURRENCY=complete \
     -parallel-testing-enabled NO \
@@ -95,14 +97,14 @@ capture_matrix() {
 }
 
 if [[ "$MODE" == "all" || "$MODE" == "test" ]]; then
-  AGENT_NAME=UI-GATE make build
+  AGENT_NAME="$UI_GATE_AGENT_NAME" make build
   run_tests "$IPHONE_ID" iphone
   run_tests "$IPAD_ID" ipad
 fi
 
 if [[ "$MODE" == "all" || "$MODE" == "capture" ]]; then
   if [[ "$MODE" == "capture" ]]; then
-    AGENT_NAME=UI-GATE make build
+    AGENT_NAME="$UI_GATE_AGENT_NAME" make build
     APP_PATH="build/DerivedData/UI-GATE/Build/Products/Debug-iphonesimulator/MaskID.app"
     xcrun simctl install "$IPHONE_ID" "$APP_PATH"
     xcrun simctl install "$IPAD_ID" "$APP_PATH"

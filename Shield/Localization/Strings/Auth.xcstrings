@@ -525,8 +525,8 @@
     "lock_has_docs_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "AES-256 encryption in zero-knowledge local storage." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Cifrado AES-256 en almacenamiento de cero conocimiento." } }
+        "en": { "stringUnit": { "state": "translated", "value": "AES-GCM encryption in device-bound local storage." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cifrado AES-GCM en almacenamiento local vinculado al dispositivo." } }
       }
     },
     "lock_has_encryption_title": {
@@ -539,8 +539,8 @@
     "lock_has_encryption_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Keys derived locally inside Secure Enclave / Keychain." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Claves derivadas localmente en Secure Enclave / Keychain." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Encryption keys are stored in the device Keychain." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Las claves de cifrado se guardan en el Llavero del dispositivo." } }
       }
     },
     "lock_has_privacy_title": {
@@ -553,8 +553,8 @@
     "lock_has_privacy_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Names, dates and previews remain 100% hidden while locked." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Nombres, fechas y vistas previas 100% ocultos mientras está bloqueado." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Names, dates and previews stay hidden while the Vault is locked." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Nombres, fechas y vistas previas permanecen ocultos mientras la Bóveda está bloqueada." } }
       }
     },
     "lock_needs_auth_title": {
@@ -567,22 +567,22 @@
     "lock_needs_local_title": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Device security chip" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Chip de seguridad local" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Device-bound storage" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Almacenamiento vinculado al dispositivo" } }
       }
     },
     "lock_does_zk_title": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Zero-Knowledge Architecture" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Arquitectura Zero-Knowledge" } }
+        "en": { "stringUnit": { "state": "translated", "value": "On-device privacy" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privacidad en el dispositivo" } }
       }
     },
     "lock_does_zk_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Your data never leaves the device or passes through external servers." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Tus datos nunca salen del dispositivo ni pasan por servidores." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Document processing stays on device by default; optional iCloud sync is controlled by you." } },
+        "es": { "stringUnit": { "state": "translated", "value": "El procesamiento permanece en el dispositivo; tú controlas la sincronización opcional con iCloud." } }
       }
     },
     "lock_does_shield_title": {

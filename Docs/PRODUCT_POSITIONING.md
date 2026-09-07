@@ -17,7 +17,7 @@ MaskID is the on-device identity-protection workspace for people and teams that 
 - Unlimited active projects.
 - Batch processing and reusable semantic templates.
 - Advanced mask styles, image controls and custom watermarks.
-- Productivity automations, Files-provider workflows and opt-in minimized iCloud index.
+- Productivity automations, Files-provider workflows, optional direct Google Drive/Dropbox import and opt-in complete iCloud backup for non-Vault documents.
 - Future team-oriented review tools.
 
 Security correctness, privacy shielding, encryption, output verification and accessibility are product guarantees and never subscription gates.

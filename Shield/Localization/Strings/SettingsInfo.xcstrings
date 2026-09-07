@@ -466,13 +466,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete individual projects or use Delete all documents under Security and privacy. You can also disable the optional iCloud index. Removing the app deletes its local container subject to iOS backup behavior."
+            "value" : "Delete individual projects or use Delete all documents under Security and privacy. You can also disable optional iCloud sync. Removing the app deletes its local container subject to iOS backup behavior."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elimina proyectos o usa Eliminar todos en Seguridad y privacidad. También puedes desactivar el índice de iCloud. Desinstalar borra el contenedor local según el funcionamiento de las copias de iOS."
+            "value" : "Elimina proyectos o usa Eliminar todos en Seguridad y privacidad. También puedes desactivar la sincronización opcional de iCloud. Desinstalar borra el contenedor local según el funcionamiento de las copias de iOS."
           }
         }
       }
@@ -1537,7 +1537,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can deny or revoke optional permissions in iOS Settings, disable iCloud index sync, delete projects, and contact the developer about applicable privacy rights. Because core document content stays on device, the developer normally cannot access, export, correct, or recover it for you."
+            "value" : "You can deny or revoke optional permissions in iOS Settings, disable iCloud sync, disconnect direct storage providers, delete projects, and contact the developer about applicable privacy rights. Because core document content stays on device, the developer normally cannot access, export, correct, or recover it for you."
           }
         },
         "es" : {
@@ -3101,13 +3101,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optional minimized iCloud index synchronization for Pro."
+            "value" : "Optional complete iCloud backup and restore for Pro non-Vault documents."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sincronización opcional del índice mínimo de iCloud para Pro."
+            "value" : "Copia y restauración completa opcional en iCloud para documentos Pro fuera de la Bóveda."
           }
         }
       }

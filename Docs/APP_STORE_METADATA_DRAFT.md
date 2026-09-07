@@ -1,6 +1,6 @@
 # MaskID — App Store metadata
 
-Status: canonical metadata reference for app `6790398619`; the current local release is version `1.0.4`, build `104202608260`. The app has not been submitted for review.
+Status: canonical metadata reference for app `6790398619`; version `1.0.7`, build `107202609062`, was submitted and is currently documented as `WAITING_FOR_REVIEW`. Treat the corrected copy in the next-version audit as the source for the next metadata submission.
 
 The complete iPad, WidgetKit, Siri/Shortcuts, App Review and release checklist is in [APPLE_SURFACES_AND_APP_STORE_CONNECT.md](APPLE_SURFACES_AND_APP_STORE_CONNECT.md).
 
@@ -32,14 +32,14 @@ Canonical metadata lives in `metadata/`.
 ### English (U.S.)
 
 - Name: `MaskID: Protect Your Identity`
-- Subtitle: `Hide sensitive data safely`
-- Keywords: `privacy,passport,license,scanner,OCR,PII,documents,photo,PDF,redact,blackout,offline,vault,metadata`
+- Subtitle: `Mask Sensitive Data in Docs`
+- Keywords: `identity,privacy,mask,protect,document,security,sensitive,passport,pdf,redact,blackout,vault,metadata,offline`
 
 ### Spanish (Spain)
 
 - Name: `MaskID: Protege tu identidad`
-- Subtitle: `Oculta datos antes de enviar`
-- Keywords: `privacidad,DNI,NIE,pasaporte,escáner,OCR,IBAN,firma,dirección,fotos,PDF,tachar,censurar,bóveda`
+- Subtitle: `Enmascara Datos en Documentos`
+- Keywords: `identidad,enmascarar,privacidad,documentos,proteger,dni,pdf,datos,seguridad,sensibles,ofuscar,firma`
 
 The localized descriptions lead with identity protection and explain on-device OCR, manual masking, multi-page documents, encrypted Vault, metadata removal and residual-text verification. They also state that automatic suggestions require user review.
 
@@ -76,7 +76,7 @@ Suggested review path:
 4. Export a rasterized PDF or image and inspect the verification result.
 5. Test the Share Extension from Photos or Files using Share > MaskID.
 
-Camera access is used only for user-initiated capture and scanning. Photos and Files access is user initiated. Face ID or Touch ID protects the encrypted Vault. App Groups move user-selected documents from the Share Extension through an encrypted inbox. CloudKit is optional and synchronizes only a minimized private index; document images, imported files, OCR text and user-entered titles remain on device.
+Camera access is used only for user-initiated capture and scanning. Photos and Files access is user initiated. Face ID or Touch ID gates the encrypted Vault. App Groups move user-selected documents from the Share Extension through an encrypted inbox. Optional Pro iCloud sync stores complete restorable non-Vault document packages in the user's private CloudKit database. Google Drive and Dropbox direct import use OAuth 2.0 + PKCE and device Keychain tokens; the local pipeline receives only the selected file.
 
 ## StoreKit products
 
@@ -95,6 +95,6 @@ Product IDs are immutable legacy identifiers and are never shown as the customer
 - Third-party analytics: Firebase Analytics and Crashlytics, with sanitized technical/product telemetry only
 - RevenueCat processes anonymous purchase history to validate transactions and enable entitlements
 - Documents, images, OCR text, titles, Vault contents, file paths, and error-message text are not transmitted to Firebase or RevenueCat
-- Optional private CloudKit index is used only for app functionality
+- Optional private CloudKit backup is used only for app functionality and non-Vault document restoration
 
 App Privacy publication must be confirmed using an authenticated App Store Connect web session before review submission; the public API cannot verify its publish state.

@@ -68,8 +68,8 @@ Shield/
 │   └── EditorViewModel.swift    — Estado del editor, historial undo/redo, ajuste imagen
 │
 ├── Cloud/
-│   ├── CloudSyncManager.swift   — Sync de índice vía CloudKit (Pro)
-│   └── ExternalStorageManager.swift — OAuth2 Google Drive/Dropbox/OneDrive (Pro)
+│   ├── CloudSyncManager.swift   — Backup/restauración de paquetes vía CloudKit (Pro)
+│   └── ExternalStorageManager.swift — Files + OAuth2 Google Drive/Dropbox (Pro)
 │
 ├── Premium/
 │   └── PremiumManager.swift     — StoreKit 2, límites Free/Pro, historial de exportaciones
@@ -382,7 +382,6 @@ Muestra el estado de todos los proveedores de nube con indicador visual:
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
 │ 🔵 Dropbox         ● No conectado                  +│
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
-│ 🔵 OneDrive        ● No conectado                  +│
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -393,7 +392,7 @@ Muestra el estado de todos los proveedores de nube con indicador visual:
 
 **Comportamiento por tier:**
 - **Free:** iconos semi-opacos, estado "Requiere Pro", toca → paywall
-- **Pro — no conectado:** toca → OAuth2 del proveedor / settings para iCloud
+- **Pro — no conectado:** toca → OAuth2 del proveedor / ajustes para iCloud
 - **Pro — conectado:** toca → `ExternalStoragePickerSheet` para importar archivo
 - **Long press en conectado:** context menu "Desconectar"
 
@@ -550,7 +549,7 @@ func setSyncEnabled(_ enabled: Bool)
 **Archivo:** [Cloud/ExternalStorageManager.swift](../Shield/Cloud/ExternalStorageManager.swift)  
 **Patrón:** `@MainActor` singleton + `NSObject` (para `ASWebAuthenticationPresentationContextProviding`)
 
-Gestiona la autenticación OAuth 2.0 y la conexión a proveedores externos.
+Gestiona la autenticación OAuth 2.0 + PKCE y la conexión directa a proveedores externos. Los tokens se guardan en Keychain.
 
 **Proveedores (`ExternalStorageProvider`):**
 
@@ -558,25 +557,19 @@ Gestiona la autenticación OAuth 2.0 y la conexión a proveedores externos.
 |-----------|----------|-------|----------|
 | Google Drive | `accounts.google.com/o/oauth2/v2/auth` | `drive.readonly` | `shield://oauth/googleDrive` |
 | Dropbox | `dropbox.com/oauth2/authorize` | `files.content.read` | `shield://oauth/dropbox` |
-| OneDrive | `login.microsoftonline.com/.../authorize` | `Files.Read offline_access` | `shield://oauth/oneDrive` |
 
-**Flujo OAuth (Implicit flow):**
-1. `ASWebAuthenticationSession` abre el portal del proveedor
-2. Tras login, redirige a `shield://oauth/<provider>#access_token=...`
-3. Se parsea el fragment de la URL de callback
-4. Token almacenado en `UserDefaults` (clave `shield.cloud.<provider>.token`)
-5. Estado de conexión en `UserDefaults` (clave `shield.cloud.<provider>.connected`)
+**Flujo OAuth (Authorization Code + PKCE):**
+1. `ASWebAuthenticationSession` abre el portal del proveedor con `state` y `code_challenge`
+2. Tras login, redirige a `shield://oauth/<provider>?code=...&state=...`
+3. Se valida `state` y se intercambia el código por access/refresh token
+4. Los tokens se almacenan en Keychain con `AfterFirstUnlockThisDeviceOnly`
+5. La app lista y descarga únicamente archivos elegidos por el usuario; los archivos siguen el pipeline local cifrado
 
-**Nota de seguridad:** En producción el token debería almacenarse en Keychain, no en `UserDefaults`.
-
-**Importación de archivos:** La importación real usa `UIDocumentPickerViewController` (selector nativo de iOS), que incluye Google Drive, Dropbox y OneDrive si sus apps están instaladas — sin necesidad de OAuth. El OAuth añade conexión directa sin app instalada.
+**Importación de archivos:** La app mantiene el selector nativo `UIDocumentPickerViewController`, que integra los File Providers instalados. Google Drive y Dropbox también ofrecen un navegador directo opcional cuando el usuario conecta el proveedor.
 
 **Requisitos de configuración:**
 - URL scheme `shield` en `Info.plist` (`CFBundleURLSchemes`)
-- Client IDs registrados en cada portal de desarrollador:
-  - Google: `UserDefaults["shield.oauth.google.clientID"]`
-  - Dropbox: `UserDefaults["shield.oauth.dropbox.appKey"]`
-  - OneDrive: `UserDefaults["shield.oauth.onedrive.clientID"]`
+- Client IDs públicos y callbacks registrados en cada portal de desarrollador; no se incluyen client secrets en el binario.
 
 ---
 
