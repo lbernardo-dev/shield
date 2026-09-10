@@ -514,36 +514,33 @@ Auto-disparo biométrico controlado por `didTriggerAutoBiometric` — un solo in
 **Archivo:** [Cloud/CloudSyncManager.swift](../Shield/Cloud/CloudSyncManager.swift)  
 **Patrón:** `@MainActor` singleton, observado con `@ObservedObject`
 
-Sincroniza el **índice de documentos** (metadatos) vía CloudKit Private Database. Los archivos de imagen/PDF nunca salen del dispositivo.
+Sincroniza paquetes completos y restaurables de documentos vía CloudKit Private Database. La función es opt-in para Pro; los documentos de la Bóveda permanecen locales.
 
 **Container:** `iCloud.com.romerodev.shield`  
-**Record type:** `ShieldDocument`
+**Record type activo:** `ShieldDocumentV2`  
+**Record type legado:** `ShieldDocument` (se conserva para no romper datos históricos)
 
-Campos sincronizados:
+Campos del paquete sincronizado:
 
 | Campo CKRecord | Tipo | Descripción |
 |----------------|------|-------------|
-| `docID` | `String` | UUID del documento |
-| `title` | `String` | Título |
-| `kind` | `String` | `DocumentKind.rawValue` |
-| `category` | `String` | `DocumentCategory.rawValue` |
-| `date` | `Date` | Fecha de creación |
-| `redactionCount` | `Int` | Total de redacciones |
-| `isFavorite` | `Int` | 0/1 |
-| `isVaulted` | `Int` | 0/1 |
-| `sourceType` | `String` | `ImportedDocumentSource.rawValue` |
+| `docID` | `String` | UUID para identificar el documento |
+| `modifiedAt` | `Date` | Marca de edición usada para reconciliación bidireccional |
+| `package` | `CKAsset` | Paquete Property List con modelo, imágenes originales/de trabajo y fuente |
 
 **Diseño de seguridad:** `ckContainer` es lazy y solo se instancia si `shield.icloud.enabled == true`. Si el entitlement de CloudKit no está configurado, todas las operaciones retornan sin hacer nada.
 
 **API pública:**
 ```swift
-func pushDocuments(_ documents: [DocumentItem]) async
-func fetchRemoteIndex() async -> [CloudDocumentRecord]
+func syncNow(appState: AppState) async
+func syncOnForeground(appState: AppState)
 func deleteRemoteDocument(id: String) async
-func setSyncEnabled(_ enabled: Bool)
+func setSyncEnabled(_ enabled: Bool) async -> Bool
 ```
 
-**Requisito:** Capability "iCloud + CloudKit" en Xcode, container `iCloud.com.romerodev.shield` activo en developer.apple.com.
+**Estado del schema (8 septiembre 2026):** `ShieldDocumentV2` fue creado en Development y desplegado en Production con `docID` (`String`), `modifiedAt` (`Date/Time`) y `package` (`Asset`). `ShieldDocument` y `Users` no se modificaron.
+
+**Requisito:** Capability "iCloud + CloudKit" en Xcode, container `iCloud.com.romerodev.shield` activo en developer.apple.com y schema de Production desplegado.
 
 ### `ExternalStorageManager`
 **Archivo:** [Cloud/ExternalStorageManager.swift](../Shield/Cloud/ExternalStorageManager.swift)  

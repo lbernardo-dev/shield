@@ -13,8 +13,8 @@
   and never falls back to local Files.
 - Rebuilt iCloud sync around complete restorable `CKAsset` document packages,
   bidirectional modified-date reconciliation, encrypted local restoration and
-  durable deletion tombstones. The new `ShieldDocumentV2` production schema
-  still requires deployment through CloudKit management tooling.
+  durable deletion tombstones. The `ShieldDocumentV2` production schema was
+  deployed on 8 September 2026; see task 151 for the portal verification.
 - Added an explicit `settings.back` action to every Settings destination and
   made the UI test require that exact hittable control. The complete Settings
   route test passes on iOS 18.6.

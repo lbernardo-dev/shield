@@ -1,6 +1,6 @@
 # Shield — pasos externos de publicación
 
-> Revisión: 13 de julio de 2026. El trabajo local verificable se documenta en `RELEASE_READINESS_2026-07-13.md`.
+> Revisión: 8 de septiembre de 2026. El trabajo local verificable se documenta en `RELEASE_READINESS_2026-07-13.md`.
 
 ## Estado rápido
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | Privacy manifest | Completado y validado | Hacer coincidir App Privacy de App Store Connect |
 | Firma Distribution | Archive, export y auditoría IPA superados | Ninguna antes del upload |
-| iCloud/CloudKit | Entitlement de producción verificado en el IPA | Confirmar schema de producción antes de TestFlight |
+| iCloud/CloudKit | Entitlement de producción y schema `ShieldDocumentV2` verificados | Probar sync opt-in en TestFlight/dispositivo físico |
 | App Group/Keychain Group | Verificados en app y Share Extension exportadas | Ninguna antes del upload |
 | URL scheme `shield` | Completado | Ninguna |
 | StoreKit | Implementación y fixture local | Crear productos, precios, trial y probarlos en sandbox/TestFlight |
@@ -20,7 +20,7 @@
 
 ## Configuración del Developer Portal
 
-Los dos bundle IDs, el App Group y los entitlements ya están reflejados en el IPA firmado. Antes de TestFlight solo queda confirmar visualmente que el schema de `iCloud.com.romerodev.shield` está desplegado en producción. El identificador principal todavía aparece con Push Notifications en una consulta remota aunque no existe entitlement ni uso de push en el binario; puede retirarse manualmente como limpieza del portal, pero no afecta al artefacto exportado.
+Los dos bundle IDs, el App Group y los entitlements ya están reflejados en el IPA firmado. En CloudKit Console, el contenedor correcto es `iCloud.com.romerodev.shield` —no `iCloud.com.romerodev.expirely`— y `ShieldDocumentV2` está desplegado en Development y Production con `docID`, `modifiedAt` y `package`. El identificador principal todavía aparece con Push Notifications en una consulta remota aunque no existe entitlement ni uso de push en el binario; puede retirarse manualmente como limpieza del portal, pero no afecta al artefacto exportado.
 
 ## App Store Connect
 

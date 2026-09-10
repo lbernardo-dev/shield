@@ -1648,3 +1648,14 @@
    Done by: CODEX
    Done at: 2026-09-07T21:55:09Z
 
+151. cloudkit-schema-v2
+   Id: 151-cloudkit-schema-v2
+   Scope: Crear y desplegar ShieldDocumentV2 en iCloud.com.romerodev.shield, alinear documentación y validar el build
+   Files: Shield/Cloud/CloudSyncManager.swift,Docs/ARQUITECTURA.md,Docs/PASOS_MANUALES.md,tasks/details/151-cloudkit-schema-v2.md
+   Note: ShieldDocumentV2 creado en Development y desplegado a Production en iCloud.com.romerodev.shield; build limpio correcto; SecurityPrivacyTests completo correcto; la suite UI completa encontró un timeout ajeno a CloudKit en testRateAppUsesInAppStoreKitFlow y se interrumpió después de confirmar otros tests de Settings.
+   Detail: tasks/details/151-cloudkit-schema-v2.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-08T17:39:20Z
+   Done by: CODEX
+   Done at: 2026-09-08T18:09:35Z
+
