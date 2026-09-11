@@ -89,6 +89,20 @@ mkdir -p \
   "$XDG_CACHE_HOME" \
   "$TMPDIR"
 
+# A previous copy of a SwiftPM checkout can contain macOS resource-fork
+# sidecars (._*). Clang may try to parse them as source files, which makes a
+# valid dependency fail with misleading UTF-8/syntax errors. Remove only
+# those generated sidecars from the build cache roots owned by this workflow.
+purge_resource_fork_sidecars() {
+  case "$CACHE_ROOT" in
+    "$PWD/build/cache/"*|/tmp/DerivedData-MaskID/*)
+      find "$CACHE_ROOT" -type f -name '._*' -delete
+      ;;
+  esac
+}
+
+purge_resource_fork_sidecars
+
 export \
   HOME="$HOME_PATH" \
   CFFIXED_USER_HOME \

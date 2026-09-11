@@ -9,6 +9,9 @@ struct ContentView: View {
     @ObservedObject private var cloud = CloudSyncManager.shared
     @State private var asoOverlayPresented = true
     @State private var showSplash = LaunchSplashState.shouldPresent
+    @AppStorage(FirebaseIntegration.analyticsConsentPromptAnsweredKey)
+    private var analyticsConsentPromptAnswered = false
+    @State private var showAnalyticsConsent = false
 
     var body: some View {
         ZStack {
@@ -64,6 +67,17 @@ struct ContentView: View {
             guard showSplash else { return }
             LaunchSplashState.hasBeenPresented = true
         }
+        .onAppear(perform: presentAnalyticsConsentIfNeeded)
+        .onChange(of: showSplash) { _, isShowing in
+            if !isShowing { presentAnalyticsConsentIfNeeded() }
+        }
+        .sheet(isPresented: $showAnalyticsConsent) {
+            AnalyticsConsentView { granted in
+                FirebaseIntegration.setAnalyticsConsent(granted)
+                analyticsConsentPromptAnswered = true
+                showAnalyticsConsent = false
+            }
+        }
     }
 
     private var sessionStage: SessionStage {
@@ -86,6 +100,18 @@ struct ContentView: View {
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.45)) {
             showSplash = false
         }
+    }
+
+    private func presentAnalyticsConsentIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
+        let forcedForTesting = arguments.contains("-show-analytics-consent")
+        let isAutomatedLaunch = arguments.contains("-ui-testing") || arguments.contains("-aso-screenshots")
+        guard !showSplash,
+              !analyticsConsentPromptAnswered || forcedForTesting,
+              (!isAutomatedLaunch || forcedForTesting) else {
+            return
+        }
+        showAnalyticsConsent = true
     }
 }
 

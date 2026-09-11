@@ -93,13 +93,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Processed on-device. Never on servers."
+            "value" : "Processed on-device. Review before sharing."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Procesado en el dispositivo. Nunca en servidores."
+            "value" : "Procesado en el dispositivo. Revisa antes de compartir."
           }
         }
       }
@@ -705,13 +705,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AES-256 encryption. No one else can open it."
+            "value" : "AES-256 encryption. Protected by Face ID or PIN."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cifrado AES-256. Nadie más puede abrirlo."
+            "value" : "Cifrado AES-256. Protegido por Face ID o PIN."
           }
         }
       }
@@ -1538,13 +1538,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Everything stays on your device. No one else sees your data."
+            "value" : "Core processing happens on your device. Review each suggestion before sharing."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todo ocurre en tu dispositivo. Nadie más accede a tus datos."
+            "value" : "El procesamiento principal ocurre en tu dispositivo. Revisa cada sugerencia antes de compartir."
           }
         }
       }
@@ -1742,13 +1742,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide sensitive data in seconds.\nNo servers. No trace."
+            "value" : "Hide sensitive data in seconds.\nReview before you share."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oculta tus datos sensibles en segundos.\nSin servidores. Sin rastro."
+            "value" : "Oculta tus datos sensibles en segundos.\nRevisa antes de compartir."
           }
         }
       }

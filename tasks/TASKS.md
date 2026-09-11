@@ -1659,3 +1659,58 @@
    Done by: CODEX
    Done at: 2026-09-08T18:09:35Z
 
+152. audit-professional-maskid-2026-09-10
+   Id: 152-audit-professional-maskid-2026-09-10
+   Scope: Auditoría integral de app iOS MaskID y ficha App Store Connect; diagnóstico priorizado y plan de perfeccionamiento
+   Files: Docs/AUDITORIA_INTEGRAL_MASKID_2026-09-10.md,metadata/**,Shield/**,ShareExtension/**,ShieldWidgetExtension/**,scripts/**,tasks/details/
+   Note: Auditoría integral completada en Docs/AUDITORIA_INTEGRAL_MASKID_2026-09-10.md. ASC 1.0.8/build 108202609071 saludable, metadata 0 errores/0 warnings, IAP y suscripciones sin incidencias. Tests locales bloqueados por 50 sidecars ._* en build/cache/CODEX (status 65); preflight local/remoto en verde. Temporales revisados: build-logs y build-cache identificados, no movidos sin autorización.
+   Detail: tasks/details/152-audit-professional-maskid-2026-09-10.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-10T21:41:50Z
+   Done by: CODEX
+   Done at: 2026-09-10T21:59:58Z
+
+153. professional-elevation-p0
+   Id: 153-professional-elevation-p0
+   Scope: Ejecutar P0/P1 del plan de elevación de MaskID: corregir claims y metadata, rehacer creatives, sanear build/test reproducibilidad y preparar gates App Store Connect
+   Files: Docs/**,metadata/**,.asc/**,Shield/Observability/**,Shield/Export/**,Shield/Cloud/**,scripts/**,tasks/details/**
+   Note: Corrección final completada: targets app/Widget/Share Debug y Release en build 1092026091101; archive/export e IPA auditado y subido como build 4f393fed-c778-4635-80cf-527409388e68 VALID; enlazado a ASC 1.0.9 (56072990-e50d-4e16-b7df-26498613d05c); What’s New EN/ES aplicado; 20 screenshots iPhone reemplazados y COMPLETE; sin submission. El build incorrecto 108202609072 queda separado para trazabilidad. Pendientes externos documentados.
+   Detail: tasks/details/153-professional-elevation-p0.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-10T22:02:16Z
+   Done by: CODEX
+   Done at: 2026-09-11T10:39:14Z
+
+154. aso-ipad-aso-assets
+   Id: 154-aso-ipad-aso-assets
+   Scope: Generar, validar y sustituir las capturas ASO iPad editadas de MaskID en la versión 1.0.9
+   Files: scripts/compose_aso_ipad_screenshots.py,.asc/screenshots/aso/final-ipad/**,Docs/**,tasks/details/**
+   Note: Veinte creatividades ASO iPad generadas desde 10 capturas reales por locale, validadas a 2064x2752 y aplicadas a ASC 1.0.9: 10 COMPLETE en en-US y 10 COMPLETE en es-ES. Los assets crudos home/editor fueron sustituidos; sin submission.
+   Detail: tasks/details/154-aso-ipad-aso-assets.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-11T10:47:09Z
+   Done by: CODEX
+   Done at: 2026-09-11T10:47:57Z
+
+155. appstore-submission-readiness
+   Id: 155-appstore-submission-readiness
+   Scope: Cerrar auditoría pública de App Store Connect para 1.0.9, validar versión/build/metadata/TestFlight/compras y documentar estado listo para envío sin enviar a revisión
+   Files: Docs/tasks
+   Note: Cierre completado: generadas, re-subidas y verificadas en ASC 20 capturas iPad ASO de 1.0.9, con 10/10 COMPLETE por locale y 2064x2752; eliminados los assets crudos y el duplicado transitorio es-ES. Validaciones públicas estrictas y preflight remoto sin bloqueos; sin enviar a revisión.
+   Detail: tasks/details/155-appstore-submission-readiness.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-11T10:57:42Z
+   Done by: CODEX
+   Done at: 2026-09-11T11:02:55Z
+
+156. ipad-aso-ten-per-locale
+   Id: 156-ipad-aso-ten-per-locale
+   Scope: Ampliar el set ASO iPad de MaskID a 10 capturas editadas por locale y aplicarlo a App Store Connect 1.0.9
+   Files: scripts/compose_aso_ipad_screenshots.py,.asc/screenshots/maskid-ipad/**,.asc/screenshots/aso/final-ipad/**,Docs/**,tasks/details/**
+   Note: Ampliación completada: 20 composiciones ASO iPad desde 10 escenas reales por locale; validación local 10/10 sin errores/warnings y ASC 10/10 COMPLETE en en-US y es-ES. Sin tocar iPhone ni enviar a revisión.
+   Detail: tasks/details/156-ipad-aso-ten-per-locale.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-11T11:44:25Z
+   Done by: CODEX
+   Done at: 2026-09-11T11:45:07Z
+

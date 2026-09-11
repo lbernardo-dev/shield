@@ -64,6 +64,9 @@ final class ShieldLaunchTests: XCTestCase {
 
     @MainActor
     func testSettingsNavigationRespondsToSingleTaps() throws {
+        // Keep a broken simulator accessibility snapshot from consuming the
+        // default XCTest allowance for dozens of minutes in the full suite.
+        executionTimeAllowance = 180
         let app = XCUIApplication()
         app.launchArguments = [
             "-ui-testing",
@@ -179,6 +182,7 @@ final class ShieldLaunchTests: XCTestCase {
 
     @MainActor
     func testRateAppUsesInAppStoreKitFlow() throws {
+        executionTimeAllowance = 60
         let app = XCUIApplication()
         app.launchArguments = [
             "-ui-testing",
@@ -310,6 +314,59 @@ final class ShieldLaunchTests: XCTestCase {
         }
         XCTAssertTrue(closeEditor.waitForNonExistence(timeout: 3))
         XCTAssertTrue(app.buttons["tab.0"].isHittable)
+    }
+
+    @MainActor
+    func testASOOCRFixtureDoesNotSurfaceMissingImageError() throws {
+        let app = launch(scene: "04-ai-ocr-detection")
+        XCTAssertTrue(app.staticTexts["Campos detectados"].waitForExistence(timeout: 5))
+        XCTAssertFalse(
+            app.staticTexts["No hay imagen disponible"].waitForExistence(timeout: 1),
+            "The deterministic ASO fixture should reuse its seeded OCR fields without showing a missing-image error"
+        )
+    }
+
+    @MainActor
+    func testAnalyticsConsentIsExplicitAndOffByDefault() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-show-analytics-consent",
+            "-aso-language", "es",
+            "-aso-scene", "home"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+
+        let allow = app.buttons["analytics.consent.allow"]
+        let decline = app.buttons["analytics.consent.decline"]
+        XCTAssertTrue(allow.waitForExistence(timeout: 5))
+        XCTAssertTrue(decline.exists)
+        decline.tap()
+
+        XCTAssertTrue(allow.waitForNonExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["settings.privacy.analyticsConsent"].exists)
+    }
+
+    @MainActor
+    func testAnalyticsConsentCanBeRevokedFromPrivacySettings() throws {
+        let app = launch(scene: "settings")
+        let privacy = app.buttons["settings.route.privacy"]
+        scrollToElement(privacy, in: app)
+        XCTAssertTrue(privacy.isHittable)
+        privacy.tap()
+
+        let consent = app.switches["settings.privacy.analyticsConsent"]
+        XCTAssertTrue(consent.waitForExistence(timeout: 5))
+        if consent.value as? String == "1" {
+            consent.tap()
+        }
+        XCTAssertEqual(consent.value as? String, "0")
+
+        consent.tap()
+        XCTAssertEqual(consent.value as? String, "1")
+        consent.tap()
+        XCTAssertEqual(consent.value as? String, "0")
     }
 
     @MainActor
@@ -638,16 +695,28 @@ final class ShieldLaunchTests: XCTestCase {
 
         var reached = isPaywall()
         if !reached {
-            let cameraBtn = app.buttons["Continuar"].exists ? app.buttons["Continuar"] :
-                            app.buttons["Habilitar cámara"].exists ? app.buttons["Habilitar cámara"] :
-                            app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "cámara")).firstMatch.exists ? app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "cámara")).firstMatch :
-                            app.buttons["Ahora no"]
-            if cameraBtn.waitForExistence(timeout: 5) && cameraBtn.isHittable {
-                cameraBtn.tap()
-            }
+            // Granting the system permission can advance directly to the
+            // security step before the query below runs. Handle that state
+            // first, then fall back to the camera CTA without a predicate
+            // query that crashes when the camera screen has already gone away.
             let skipSecurity = app.buttons["Configurar luego en Ajustes"]
             if skipSecurity.waitForExistence(timeout: 5) && skipSecurity.isHittable {
                 skipSecurity.tap()
+            } else {
+                let continueButton = app.buttons["Continuar"]
+                let enableCamera = app.buttons["Activar cámara"]
+                let notNow = app.buttons["Ahora no"]
+                if continueButton.waitForExistence(timeout: 2) && continueButton.isHittable {
+                    continueButton.tap()
+                } else if enableCamera.waitForExistence(timeout: 2) && enableCamera.isHittable {
+                    enableCamera.tap()
+                } else if notNow.waitForExistence(timeout: 2) && notNow.isHittable {
+                    notNow.tap()
+                }
+            }
+            let remainingSecuritySkip = app.buttons["Configurar luego en Ajustes"]
+            if remainingSecuritySkip.waitForExistence(timeout: 5) && remainingSecuritySkip.isHittable {
+                remainingSecuritySkip.tap()
             }
             reached = isPaywall() ||
                       app.buttons["onboarding.paywall.purchase"].waitForExistence(timeout: 8) ||

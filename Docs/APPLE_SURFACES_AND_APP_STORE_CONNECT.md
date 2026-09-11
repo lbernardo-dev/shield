@@ -1,13 +1,13 @@
 # MaskID — superficies Apple y entrega en App Store Connect
 
-Estado: preparado localmente para la versión 1.0.4 y el build 104202608260.
+Estado: actualizado el 11 de septiembre de 2026. La versión publicada es 1.0.8 con build 108202609071; la versión editable 1.0.9 está en `PREPARE_FOR_SUBMISSION` con el build `1092026091101` (`VALID`) asociado y lista para iniciar el envío a revisión.
 
 Este documento es la especificación de producto y release. La metadata canónica que se valida y se sincroniza con App Store Connect vive en:
 
 - metadata/app-info/en-US.json
 - metadata/app-info/es-ES.json
-- metadata/version/1.0.4/en-US.json
-- metadata/version/1.0.4/es-ES.json
+- metadata/version/1.0.9/en-US.json
+- metadata/version/1.0.9/es-ES.json
 
 ## Compatibilidad de dispositivos
 
@@ -70,21 +70,35 @@ Ruta de revisión recomendada:
 
 No se necesitan credenciales de demo. Los datos de prueba deben ser sintéticos.
 
+## Estado verificado de App Store Connect
+
+- App `6790398619`, bundle ID `com.romerodev.shield`: `READY_FOR_DISTRIBUTION`.
+- Build `108202609071`: `VALID`, asociado a 1.0.8; revisión completada.
+- Build `1092026091101`: `VALID`, asociado a 1.0.9; la versión sigue en `PREPARE_FOR_SUBMISSION` y no se ha enviado a revisión.
+- Metadata EN/ES y URLs actuales comprobadas en sesión web autenticada.
+- App Privacy publicada; Accessibility tiene borradores sin publicar para iPhone/iPad.
+- Firebase Analytics queda desactivada por defecto y requiere consentimiento explícito en la app; Crashlytics se mantiene como diagnóstico separado.
+- Productos MaskID Pro Monthly, MaskID Pro Annual y MaskID Pro Lifetime aprobados.
+- Billing Grace Period no configurado; Mac Apple-silicon habilitado pero sin verificación; no existen PPO, Custom Product Pages ni In-App Events.
+- Los 20 screenshots iPhone corregidos están aplicados a 1.0.9, con 10 assets `COMPLETE` por locale; además, el set iPad ASO contiene 10 assets `COMPLETE` por locale a `2064×2752` (20 creatividades en total). El set histórico de 1.0.8 permanece sin cambios.
+- `What to Test` de TestFlight está configurado en `en-US` y `es-ES` para el build `1092026091101`, con instrucciones de consentimiento explícito y datos sintéticos.
+- Auditoría final pública: `asc validate --strict --check-urls`, `asc validate testflight --strict`, `asc validate iap --strict`, `asc validate subscriptions --strict`, `asc review doctor` y `scripts/app_store_preflight.sh --remote` no detectan errores, warnings ni bloqueos. La única información es que la API pública no puede verificar el estado de publicación de App Privacy; la evidencia previa de sesión web autenticada la marca como publicada.
+
 ## Configuración de App Store Connect
 
 Checklist antes de subir:
 
-- crear/procesar el build 1.0.4 (104202608260) del target principal;
+- conservar la versión 1.0.9 en `PREPARE_FOR_SUBMISSION` hasta cerrar las puertas externas y la validación física;
 - comprobar que el build contiene ShieldWidgetExtension.appex y ShieldShareExtension.appex;
 - asociar el Bundle ID principal y los targets de extensión con sus perfiles de distribución;
 - mantener group.com.romerodev.shield en la app, Share Extension y Widget Extension;
-- publicar el App Privacy actualizado: sin tracking ni publicidad; documentar Firebase/Crashlytics, RevenueCat y CloudKit según el uso real;
-- subir screenshots reales de iPhone y iPad desde .asc/screenshots/;
-- usar las descripciones, keywords, promotional text y What’s New de metadata/version/1.0.4/;
+- mantener App Privacy publicada y alineada con Firebase/Crashlytics, RevenueCat y CloudKit según el uso real;
+- conservar los screenshots iPhone corregidos desde `.asc/screenshots/aso/final/` y los iPad ASO desde `.asc/screenshots/aso/final-ipad/`; revisar el resultado final antes de enviar;
+- usar las descripciones, keywords, promotional text y What’s New de `metadata/version/1.0.9/` como fuente canónica aplicada;
 - no subir imágenes de widget o funciones no capturadas en una build real;
 - adjuntar los productos StoreKit vigentes y revisar sus precios/localizaciones en App Store Connect;
 - revisar Privacy Policy, Terms of Use, Subscription Terms y Support URLs en cada locale;
-- confirmar el estado de publicación de App Privacy en una sesión autenticada de App Store Connect;
+- conservar evidencia de App Privacy publicada en una sesión autenticada de App Store Connect;
 - completar las notas de revisión y enviar manualmente cuando el build esté procesado.
 
 La validación local no publica cambios remotos. Ejecutar asc metadata validate --subscription-app y un asc metadata push --dry-run cuando el CLI esté autenticado; sólo ejecutar un push real con autorización explícita.

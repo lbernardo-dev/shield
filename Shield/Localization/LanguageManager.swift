@@ -181,9 +181,9 @@ final class LanguageManager {
         case "settings_ocr_engine_subtitle":
             return isSpanish ? "Motores locales, preprocesamiento y modelos" : "Local engines, pre-processing and models"
         case "settings_ocr_engine_header_title":
-            return isSpanish ? "Reconocimiento OCR 100% Local" : "100% On-Device OCR Recognition"
+            return isSpanish ? "Reconocimiento OCR local" : "On-device OCR recognition"
         case "settings_ocr_engine_header_desc":
-            return isSpanish ? "Privacidad absoluta. Ninguna imagen o texto sale de tu dispositivo." : "Zero-knowledge privacy. No images or text leave your device."
+            return isSpanish ? "El motor procesa las imágenes del documento en el dispositivo. Revisa cada sugerencia antes de compartir." : "The engine processes document images on-device. Review every suggestion before sharing."
         case "settings_ocr_active_engine":
             return isSpanish ? "Motor de Reconocimiento Activo" : "Active Recognition Engine"
         case "settings_ocr_enhancement_title":

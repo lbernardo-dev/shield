@@ -19,8 +19,6 @@ struct OCREngineSettingsView: View {
 
                 preprocessingSection
 
-                languagePacksSection
-
                 diagnosticSection
             }
             .padding(.horizontal, ShieldTheme.s4)
@@ -157,100 +155,6 @@ struct OCREngineSettingsView: View {
                     isOn: $engineManager.enableDeskew
                 )
 
-                Divider().padding(.leading, 44)
-
-                ToggleRow(
-                    icon: "checkmark.shield.fill",
-                    title: strings.settings("settings_ocr_math_correction"),
-                    subtitle: strings.settings("settings_ocr_math_correction_desc"),
-                    isOn: $engineManager.enableMathematicalCorrection
-                )
-            }
-            .padding(.horizontal, ShieldTheme.s4)
-            .background(ShieldTheme.cardBackground(scheme))
-            .overlay(
-                RoundedRectangle(cornerRadius: ShieldTheme.rLG)
-                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rLG))
-        }
-    }
-
-    // MARK: - Language Packs
-
-    private var languagePacksSection: some View {
-        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
-            HStack {
-                Text(strings.settings("settings_ocr_local_models"))
-                    .shieldFont(13, weight: .bold)
-                    .foregroundColor(ShieldTheme.secondary(scheme))
-                    .textCase(.uppercase)
-                Spacer()
-                Text(String(format: "%.1f MB en uso", engineManager.totalInstalledStorageMB))
-                    .shieldFont(11, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-            }
-
-            VStack(spacing: 0) {
-                ForEach(engineManager.languagePacks.indices, id: \.self) { index in
-                    let pack = engineManager.languagePacks[index]
-                    if index > 0 {
-                        Divider().padding(.leading, 44)
-                    }
-
-                    HStack(spacing: ShieldTheme.s3) {
-                        Image(systemName: pack.isInstalled ? "externaldrive.fill.badge.checkmark" : "arrow.down.circle")
-                            .shieldFont(18, weight: .semibold)
-                            .foregroundColor(pack.isInstalled ? ShieldTheme.success : ShieldTheme.secondary(scheme))
-                            .frame(width: 24)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(pack.name)
-                                .shieldFont(14, weight: .semibold)
-                                .foregroundColor(ShieldTheme.primary(scheme))
-                            Text(String(format: "%@ • %.1f MB", pack.code.uppercased(), pack.sizeMB))
-                                .shieldFont(11)
-                                .foregroundColor(ShieldTheme.tertiary(scheme))
-                        }
-
-                        Spacer()
-
-                        if pack.isDownloading {
-                            ProgressView(value: pack.downloadProgress)
-                                .progressViewStyle(.circular)
-                                .frame(width: 28, height: 28)
-                        } else if pack.isInstalled {
-                            Button {
-                                withAnimation {
-                                    engineManager.deletePack(pack)
-                                }
-                            } label: {
-                                Image(systemName: "trash")
-                                    .shieldFont(13, weight: .semibold)
-                                    .foregroundColor(ShieldTheme.danger)
-                                    .padding(8)
-                                    .background(ShieldTheme.rowBackground(scheme))
-                                    .clipShape(Circle())
-                            }
-                        } else {
-                            Button {
-                                Task {
-                                    await engineManager.downloadPack(pack)
-                                }
-                            } label: {
-                                Text(strings.settings("settings_ocr_download"))
-                                    .shieldFont(12, weight: .bold)
-                                    .foregroundColor(ShieldTheme.accentText)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(ShieldTheme.accent(scheme))
-                                    .clipShape(Capsule())
-                            }
-                            .buttonStyle(ScaleButtonStyle())
-                        }
-                    }
-                    .padding(.vertical, ShieldTheme.s3)
-                }
             }
             .padding(.horizontal, ShieldTheme.s4)
             .background(ShieldTheme.cardBackground(scheme))
@@ -342,7 +246,7 @@ struct OCREngineSettingsView: View {
                 ✓ Filtros activos: Sombras(\(engineManager.enableShadowRemoval ? "ON" : "OFF")), Contraste(\(engineManager.enableAdaptiveContrast ? "ON" : "OFF")), Deskew(\(engineManager.enableDeskew ? "ON" : "OFF"))
                 ✓ Corrección DNI: "\(testRawWithConfusion)" -> "\(corrected?.corrected ?? "N/A")" (Confianza: \(String(format: "%.0f%%", (corrected?.confidence ?? 0) * 100)))
                 ✓ Auto-reparación MRZ: \(mrzTest.isValid ? "Válido" : "Revisado")
-                ✓ Estado general: 100% Operativo y Local
+                ✓ Estado general: Operativo con procesamiento local
                 """
             }
         }

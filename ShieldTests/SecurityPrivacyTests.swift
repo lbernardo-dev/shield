@@ -128,6 +128,29 @@ struct SecurityPrivacyTests {
         #expect(AppReviewPolicy.premium.cooldown > AppReviewPolicy.free.cooldown)
         #expect(AppReviewPolicy.premium.annualRequestLimit < AppReviewPolicy.free.annualRequestLimit)
     }
+
+    @Test("Firebase Analytics consent is off until explicitly granted")
+    func analyticsConsentDefaultsOffAndPersists() {
+        let defaults = UserDefaults.standard
+        let previous = defaults.object(forKey: FirebaseIntegration.analyticsConsentKey)
+        defer {
+            if let previous {
+                defaults.set(previous, forKey: FirebaseIntegration.analyticsConsentKey)
+            } else {
+                defaults.removeObject(forKey: FirebaseIntegration.analyticsConsentKey)
+            }
+            FirebaseIntegration.setAnalyticsConsent(previous as? Bool ?? false)
+        }
+
+        defaults.removeObject(forKey: FirebaseIntegration.analyticsConsentKey)
+        #expect(!FirebaseIntegration.analyticsConsent)
+
+        FirebaseIntegration.setAnalyticsConsent(true)
+        #expect(FirebaseIntegration.analyticsConsent)
+
+        FirebaseIntegration.setAnalyticsConsent(false)
+        #expect(!FirebaseIntegration.analyticsConsent)
+    }
 }
 
 private extension Optional {

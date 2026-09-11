@@ -1,22 +1,44 @@
 # Shield — pasos externos de publicación
 
-> Revisión: 8 de septiembre de 2026. El trabajo local verificable se documenta en `RELEASE_READINESS_2026-07-13.md`.
+> Estado verificado: 11 de septiembre de 2026. Este documento sustituye las instrucciones históricas de creación de ficha y primera publicación.
 
 ## Estado rápido
 
 | Puerta | Estado local | Acción externa |
 |---|---|---|
-| Privacy manifest | Completado y validado | Hacer coincidir App Privacy de App Store Connect |
+| Privacy manifest | Completado y validado | App Privacy publicada y verificada en sesión autenticada |
 | Firma Distribution | Archive, export y auditoría IPA superados | Ninguna antes del upload |
 | iCloud/CloudKit | Entitlement de producción y schema `ShieldDocumentV2` verificados | Probar sync opt-in en TestFlight/dispositivo físico |
 | App Group/Keychain Group | Verificados en app y Share Extension exportadas | Ninguna antes del upload |
 | URL scheme `shield` | Completado | Ninguna |
-| StoreKit | Implementación y fixture local | Crear productos, precios, trial y probarlos en sandbox/TestFlight |
+| StoreKit | Implementación y productos aprobados | Configurar Billing Grace Period sólo si se decide |
 | Privacidad/términos | Contenido local, HTML publicable y endpoints remotos validados | Mantener las URLs publicadas y registrarlas en App Store Connect |
 | Icono y marca | Integrados como Shield | Confirmar render en Archive/App Store |
-| App Store metadata | Borrador ES/EN y screenshots reales validados | Iniciar sesión y crear ficha/localizaciones |
-| Archive | `Shield-1.0-2.xcarchive` e IPA Distribution válidos | Subir build 2 solo con autorización expresa |
-| TestFlight | No puede simularse localmente | Beta física de 72 horas como mínimo |
+| App Store metadata | 1.0.8 publicada; 1.0.9 en preparación con copy EN/ES aplicado | Completar gates externos y revisar antes de enviar |
+| Screenshots | 20 iPhone + 20 iPad ASO corregidos, revisados y aplicados a 1.0.9 | Revisar el resultado visual final antes de enviar |
+| Archive | Build 1.0.9 `1092026091101` válido y enlazado | Distribuir a TestFlight y hacer validación física |
+| TestFlight | `What to Test` EN/ES configurado para `1092026091101` | Beta física de 72 horas como mínimo |
+
+## Estado actual de App Store Connect
+
+- App: `6790398619`, bundle ID `com.romerodev.shield`.
+- Versión publicada: `1.0.8`; build `108202609071`; estado `READY_FOR_DISTRIBUTION`; build `VALID`; revisión completada.
+- Versión en preparación: `1.0.9`; build `1092026091101`; estado `PREPARE_FOR_SUBMISSION`; build `VALID` y enlazado.
+- Metadata actual EN/ES, URLs, App Review notes, App Privacy y productos aprobados se han comprobado en la sesión web autenticada.
+- App Privacy está publicada y declara la telemetría real de Firebase/Crashlytics, RevenueCat y CloudKit; no hay tracking publicitario.
+- Accessibility tiene borradores sin publicar para iPhone e iPad: VoiceOver, Dark Interface y Reduced Motion.
+- La ficha pública contiene copy actual; el historial de versiones antiguas conserva copy histórico que Apple no permite editar retroactivamente.
+- Los screenshots iPhone corregidos están en `.asc/screenshots/aso/final/` y los iPad ASO en `.asc/screenshots/aso/final-ipad/`; su manifiesto es `Docs/ASO_SCREENSHOT_MANIFEST_2026-09-11.md`. Los 40 assets están aplicados a 1.0.9 (20 iPhone + 20 iPad); los assets históricos de 1.0.8 no se modifican.
+- `What to Test` está completo en `en-US` y `es-ES` para TestFlight y cubre el consentimiento explícito de analítica, los flujos principales y el uso exclusivo de datos sintéticos.
+- La validación final pública de la versión no tiene errores, warnings ni bloqueos; IAP, suscripciones, TestFlight, URLs y preflight remoto también pasan en modo estricto. El único aviso informativo es la publicación de App Privacy, cuyo estado no es legible mediante la API pública de Apple.
+- Suscripciones e IAP están aprobados. Billing Grace Period no está configurado; Mac Apple-silicon está habilitado pero sin verificación; no hay PPO, Custom Product Pages ni In-App Events.
+
+## Decisiones externas que desbloquean el siguiente ciclo
+
+1. Mantener la versión `1.0.9` en preparación hasta completar la prueba física de TestFlight y la comprobación final de las URLs legales. El build y la ficha ya están asociados; esto no implica enviarla a revisión.
+2. Autorizar o no publicar los borradores de Accessibility existentes.
+3. Decidir si se activa Billing Grace Period y si se mantiene disponible Mac Apple-silicon mientras no haya verificación física.
+4. Política de analítica resuelta: Firebase Analytics queda desactivada por defecto y sólo se activa tras consentimiento explícito; Crashlytics permanece separado como diagnóstico de estabilidad. Hay que publicar la nueva versión que contiene este cambio y comprobar la política remota.
 
 ## Configuración del Developer Portal
 
@@ -24,13 +46,11 @@ Los dos bundle IDs, el App Group y los entitlements ya están reflejados en el I
 
 ## App Store Connect
 
-1. Iniciar sesión como Account Holder/Admin y crear Shield con bundle ID `com.romerodev.shield`; actualmente no existe ficha.
-2. Crear los productos que coincidan exactamente con `Shield/Resources/Shield.storekit` y probar compra, restauración, cancelación y error.
-3. Registrar las URLs inglesas de `https://lbernardo-dev.github.io/apps/en/case-studies/shield/` como referencias principales y las equivalentes de `https://lbernardo-dev.github.io/apps/es/casos/shield/` en la localización española. Usar las rutas `https://lbernardo-dev.github.io/apps/apps/shield/` solo como compatibilidad.
-4. Declarar que no existe seguimiento publicitario entre apps. Declarar Firebase Analytics/Crashlytics, RevenueCat e iCloud privado según los hechos de privacidad documentados.
-5. Revisar y cargar los screenshots ya capturados en `.asc/screenshots`; los cuatro conjuntos ES/EN para iPhone 6.9 e iPad 13 pasan la validación local de dimensiones.
-6. Ejecutar `scripts/app_store_preflight.sh --remote` antes del upload.
-7. Con autorización expresa, subir el IPA de build 2, distribuir a TestFlight interno y revisar MetricKit/Organizer durante al menos 72 horas.
+1. Mantener `1.0.9` en `PREPARE_FOR_SUBMISSION` y revisar el build `1092026091101` asociado.
+2. La metadata y los screenshots corregidos ya están asociados; no reutilizar el plan histórico `.asc/metadata/review/1.0.8/plan.json` como fuente.
+3. Ejecutar `scripts/app_store_preflight.sh --remote` y `asc metadata validate` antes de cualquier push.
+4. Probar compra, restauración, cancelación y error en sandbox/TestFlight cuando se cambie StoreKit o se prepare una nueva entrega.
+5. Con autorización expresa, subir el nuevo IPA, distribuir a TestFlight interno y revisar MetricKit/Organizer durante al menos 72 horas.
 
 ## Pruebas físicas obligatorias
 

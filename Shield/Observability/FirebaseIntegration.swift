@@ -4,16 +4,38 @@ import FirebaseCore
 import FirebaseCrashlytics
 
 enum FirebaseIntegration {
+    static let analyticsConsentKey = "shield.analyticsConsent"
+    static let analyticsConsentPromptAnsweredKey = "shield.analyticsConsentPromptAnswered"
+
+    static var analyticsConsent: Bool {
+        UserDefaults.standard.bool(forKey: analyticsConsentKey)
+    }
+
     static func configure() {
-        guard FirebaseApp.app() == nil else { return }
+        if FirebaseApp.app() != nil {
+            applyAnalyticsConsent()
+            return
+        }
 
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
             return
         }
 
         FirebaseApp.configure()
-        Analytics.setAnalyticsCollectionEnabled(true)
+        applyAnalyticsConsent()
         configureCrashlytics()
+    }
+
+    /// Persists an explicit product-analytics decision and immediately applies
+    /// it to Firebase. The default is false, including after an app update.
+    static func setAnalyticsConsent(_ granted: Bool) {
+        UserDefaults.standard.set(granted, forKey: analyticsConsentKey)
+        applyAnalyticsConsent()
+    }
+
+    private static func applyAnalyticsConsent() {
+        guard FirebaseApp.app() != nil else { return }
+        Analytics.setAnalyticsCollectionEnabled(analyticsConsent)
     }
 
     private static func configureCrashlytics() {
@@ -34,7 +56,7 @@ enum FirebaseIntegration {
     }
 
     static func logEvent(_ name: String, parameters: [String: String]) {
-        guard FirebaseApp.app() != nil else { return }
+        guard analyticsConsent, FirebaseApp.app() != nil else { return }
         Analytics.logEvent(name, parameters: parameters.mapValues { $0 as Any })
     }
 }

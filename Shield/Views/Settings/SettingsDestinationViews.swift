@@ -1080,6 +1080,10 @@ struct SettingsArticleView: View {
                 language: LanguageManager.shared.current
             )
 
+            if article == .privacy {
+                AnalyticsConsentSettingsSection()
+            }
+
             ForEach(article.sectionKeys, id: \.0) { titleKey, bodyKey in
                 SettingsArticleSection(
                     title: strings.settings(titleKey),
@@ -1092,6 +1096,107 @@ struct SettingsArticleView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+}
+
+struct AnalyticsConsentSettingsSection: View {
+    @Environment(\.colorScheme) private var scheme
+    @AppStorage(FirebaseIntegration.analyticsConsentKey) private var analyticsConsent = false
+
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        SettingsCardSection(
+            title: strings.settings("settings_privacy_analytics_section"),
+            icon: "chart.bar.xaxis"
+        ) {
+            SettingsControlRow(
+                icon: "chart.bar.fill",
+                color: Color(hex: "5E5CE6"),
+                title: strings.settings("settings_privacy_analytics_title"),
+                subtitle: strings.settings("settings_privacy_analytics_body")
+            ) {
+                Toggle("", isOn: $analyticsConsent)
+                    .labelsHidden()
+                    .tint(ShieldTheme.accent(scheme))
+                    .accessibilityLabel(strings.settings("settings_privacy_analytics_title"))
+                    .accessibilityHint(strings.settings("settings_privacy_analytics_body"))
+                    .accessibilityIdentifier("settings.privacy.analyticsConsent")
+            }
+        }
+        .onChange(of: analyticsConsent) { _, granted in
+            FirebaseIntegration.setAnalyticsConsent(granted)
+        }
+    }
+}
+
+struct AnalyticsConsentView: View {
+    let onDecision: (Bool) -> Void
+
+    @Environment(\.colorScheme) private var scheme
+
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: ShieldTheme.s5) {
+                    Image(systemName: "hand.raised.fill")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundStyle(ShieldTheme.accent(scheme))
+                        .frame(width: 64, height: 64)
+                        .background(ShieldTheme.accentDim(scheme), in: RoundedRectangle(cornerRadius: 18))
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                        Text(strings.settings("settings_privacy_analytics_consent_title"))
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        Text(strings.settings("settings_privacy_analytics_consent_body"))
+                            .font(.body)
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    SettingsArticleCallout(
+                        icon: "lock.fill",
+                        title: strings.settings("settings_privacy_analytics_consent_note_title"),
+                        bodyText: strings.settings("settings_privacy_analytics_consent_note_body")
+                    )
+
+                    VStack(spacing: ShieldTheme.s3) {
+                        Button {
+                            onDecision(true)
+                        } label: {
+                            Text(strings.settings("settings_privacy_analytics_allow"))
+                                .font(.body.weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 48)
+                                .foregroundStyle(ShieldTheme.accentText)
+                                .background(ShieldTheme.accent(scheme), in: RoundedRectangle(cornerRadius: 14))
+                        }
+                        .accessibilityIdentifier("analytics.consent.allow")
+
+                        Button {
+                            onDecision(false)
+                        } label: {
+                            Text(strings.settings("settings_privacy_analytics_decline"))
+                                .font(.body.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 48)
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                                .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: 14))
+                        }
+                        .accessibilityIdentifier("analytics.consent.decline")
+                    }
+                }
+                .padding(ShieldTheme.s5)
+            }
+            .background(ShieldTheme.background(scheme))
+            .navigationTitle(strings.settings("settings_privacy_analytics_navigation_title"))
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .interactiveDismissDisabled()
     }
 }
 

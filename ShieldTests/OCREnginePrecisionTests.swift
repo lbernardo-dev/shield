@@ -114,28 +114,17 @@ struct OCREnginePrecisionTests {
         #expect(variants.count >= 2)
     }
 
-    @Test("OCR Engine Manager Configuration & Language Pack Lifecycle")
+    @Test("OCR Engine Manager Configuration")
     @MainActor
-    func engineManagerLifecycle() async {
+    func engineManagerLifecycle() {
         let manager = OCREngineManager.shared
         manager.activeMode = .visionUltra
         #expect(manager.activeMode == .visionUltra)
 
-        manager.activeMode = .openEngine
-        #expect(manager.activeMode == .openEngine)
+        manager.activeMode = .visionStandard
+        #expect(manager.activeMode == .visionStandard)
 
-        // Reset to ultra
         manager.activeMode = .visionUltra
-
-        // Test pack download and delete
-        if let spaPack = manager.languagePacks.first(where: { $0.id == "spa" }) {
-            await manager.downloadPack(spaPack)
-            let updatedSpa = manager.languagePacks.first(where: { $0.id == "spa" })
-            #expect(updatedSpa?.isInstalled == true)
-
-            manager.deletePack(updatedSpa!)
-            let deletedSpa = manager.languagePacks.first(where: { $0.id == "spa" })
-            #expect(deletedSpa?.isInstalled == false)
-        }
+        #expect(manager.activeMode == .visionUltra)
     }
 }

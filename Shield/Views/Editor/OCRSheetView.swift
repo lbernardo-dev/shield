@@ -22,6 +22,7 @@ struct OCRSheetView: View {
     @State private var page0Observations: [OCRService.TextObservation] = []
     // Tracks which field keys the user has masked in this session
     @State private var maskedKeys: Set<String> = []
+    @State private var sourceImagesAvailable = false
 
     private var resolvedFields: DocumentFields {
         ocrFields ?? doc.fields
@@ -72,7 +73,7 @@ struct OCRSheetView: View {
     private var maskedCount: Int { maskedKeys.count }
     private var detectedCount: Int { detectedItems.count }
     private var hasSourceImage: Bool {
-        doc.imageFileName != nil || !(doc.pageFileNames ?? []).isEmpty
+        sourceImagesAvailable
     }
     private var effectiveObservations: [OCRService.TextObservation] {
         if !page0Observations.isEmpty {
@@ -148,7 +149,9 @@ struct OCRSheetView: View {
         .background(ShieldTheme.background(scheme))
         .onAppear {
             syncMaskedKeysFromRedactions()
-            if hasSourceImage {
+            let sourceImages = loadSourceImages()
+            sourceImagesAvailable = !sourceImages.isEmpty
+            if !sourceImages.isEmpty {
                 runOCR()
             }
         }

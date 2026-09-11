@@ -1,6 +1,6 @@
 # MaskID — App Store metadata
 
-Status: canonical metadata reference for app `6790398619`; version `1.0.7`, build `107202609062`, is approved and published (`READY_FOR_DISTRIBUTION`). Version `1.0.8` is in `PREPARE_FOR_SUBMISSION` with ASO metadata applied and build `108202609071` attached and `VALID`; it has not been submitted to review. The public listing will reflect app-info changes as Apple propagates them.
+Status: canonical metadata reference for app `6790398619`; version `1.0.8`, build `108202609071`, is approved and published (`READY_FOR_DISTRIBUTION`). Version `1.0.9` is staged in App Store Connect as `PREPARE_FOR_SUBMISSION` with build `1092026091101` (`VALID`) attached; it has not been submitted for review. The historical 1.0.7/1.0.6 version-history text remains immutable historical metadata.
 
 The complete iPad, WidgetKit, Siri/Shortcuts, App Review and release checklist is in [APPLE_SURFACES_AND_APP_STORE_CONNECT.md](APPLE_SURFACES_AND_APP_STORE_CONNECT.md).
 
@@ -21,9 +21,10 @@ It is not positioned as a generic PDF/photo editor.
 - Secondary category: Productivity
 - Subcategories: none; Apple does not offer subcategories for Utilities or Productivity
 - Age rating: 4+
-- Published version: `1.0.7`
-- Published build: `107202609062`
-- Prepared next version: `1.0.8`, build `108202609071` (`VALID`)
+- Published version: `1.0.8`
+- Published build: `108202609071` (`VALID`)
+- Prepared version: `1.0.9` (`PREPARE_FOR_SUBMISSION`)
+- Prepared build: `1092026091101` (`VALID`, attached; ASC build ID `4f393fed-c778-4635-80cf-527409388e68`)
 - Release type: manual
 
 ## Localized ASO
@@ -56,12 +57,18 @@ The public pages are branded MaskID. Their existing `/shield/` paths are retaine
 
 ## Screenshots
 
-- English iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/en-US/iphone-69`
-- Spanish iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/es-ES/iphone-69`
+- Corrected English iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/en-US/iphone-69`
+- Corrected Spanish iPhone 6.9-inch ASO source: `.asc/screenshots/aso/final/es-ES/iphone-69`
+- Corrected English iPad 13-inch ASO source: `.asc/screenshots/aso/final-ipad/en-US/ipad-13`
+- Corrected Spanish iPad 13-inch ASO source: `.asc/screenshots/aso/final-ipad/es-ES/ipad-13`
 - English iPad 13-inch source: `.asc/screenshots/en-US/ipad-13`
 - Spanish iPad 13-inch source: `.asc/screenshots/es-ES/ipad-13`
 
-The App Store sets use real simulator UI with synthetic identity-document fixtures. The sequence focuses on protecting identity, capture/import, precise masking, OCR, verified export, masking styles, encrypted Vault, batch processing and privacy controls. The paywall screenshot is intentionally excluded because it hard-codes USD pricing and weakens the identity-protection narrative.
+The corrected iPhone set contains 20 real simulator captures (10 per locale), reviewed in contact sheets and hashed in `Docs/ASO_SCREENSHOT_MANIFEST_2026-09-11.md`. It is applied to the editable 1.0.9 record; the published 1.0.8 record remains locked and retains its historical assets.
+
+The corrected iPad ASO set contains 20 composed creatives (10 per locale), built from 10 real iPad scenes per locale at `2064×2752`. It is applied to the editable 1.0.9 record; the raw `home.png`/`editor.png` assets were replaced remotely and are not used as store creatives.
+
+The App Store sets use real simulator UI with synthetic identity-document fixtures. The sequence focuses on protecting identity, capture/import, precise masking, OCR, verified export, masking styles, encrypted Vault, batch processing and privacy controls. The paywall screenshot is intentionally excluded because it hard-codes USD pricing and weakens the identity-protection narrative. Claims in the screenshot plan must remain aligned with `Docs/CLAIMS_MATRIX.md`.
 
 The English product page also includes `MaskID-Identity-Protection.mov`, a real 17-second iPhone 16 simulator recording showing document selection, protected-document editing and export. It is delivered as an App Preview at 886×1920, H.264 High, 30 fps with stereo AAC audio.
 
@@ -79,6 +86,8 @@ Suggested review path:
 
 Camera access is used only for user-initiated capture and scanning. Photos and Files access is user initiated. Face ID or Touch ID gates the encrypted Vault. App Groups move user-selected documents from the Share Extension through an encrypted inbox. Optional Pro iCloud sync stores complete restorable non-Vault document packages in the user's private CloudKit database. Google Drive and Dropbox direct import use OAuth 2.0 + PKCE and device Keychain tokens; the local pipeline receives only the selected file.
 
+On first launch, an optional product-analytics choice is shown. Firebase Analytics is off unless the user explicitly allows it; the choice can be changed later from Settings > Privacy. Declining analytics does not limit document protection, OCR, export, Vault or iCloud controls.
+
 ## StoreKit products
 
 | Product ID | Type | Public name |
@@ -93,9 +102,16 @@ Product IDs are immutable legacy identifiers and are never shown as the customer
 
 - Tracking: no
 - Advertising: no
-- Third-party analytics: Firebase Analytics and Crashlytics, with sanitized technical/product telemetry only
+- Optional Firebase Analytics is disabled by default and requires explicit in-app consent; Firebase Crashlytics remains separate for stability diagnostics
 - RevenueCat processes anonymous purchase history to validate transactions and enable entitlements
 - Documents, images, OCR text, titles, Vault contents, file paths, and error-message text are not transmitted to Firebase or RevenueCat
 - Optional private CloudKit backup is used only for app functionality and non-Vault document restoration
 
-App Privacy publication must be confirmed using an authenticated App Store Connect web session before review submission; the public API cannot verify its publish state.
+App Privacy is published in the authenticated App Store Connect session. It currently declares Device ID, Product Interaction, Crash Data, Performance Data, Purchase History and Other Diagnostic Data, with no tracking. The declaration remains required even though optional Firebase Analytics is off by default, because it can collect those categories after explicit consent. The public API cannot verify the publish flag, so the authenticated-session observation remains the audit evidence.
+
+## Current external status
+
+- Accessibility has two unpublished drafts (iPhone and iPad) for VoiceOver, Dark Interface and Reduced Motion. Publishing them is intentionally not automatic because it changes public App Store metadata.
+- MaskID Pro Monthly, MaskID Pro Annual and MaskID Pro Lifetime are approved. Billing Grace Period is not configured.
+- Apple-silicon Mac availability is enabled but unverified. The public listing still says the app is not verified for macOS.
+- No Custom Product Pages, In-App Events or Product Page Optimization tests exist yet.

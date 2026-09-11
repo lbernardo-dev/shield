@@ -1310,19 +1310,189 @@
         }
       }
     },
+    "settings_privacy_analytics_section" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional analytics"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analítica opcional"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share product analytics"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir analítica de producto"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off by default. If you allow it, MaskID sends limited, sanitized product events to Firebase Analytics. Documents, OCR text, and images are never sent. Change this anytime."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivada por defecto. Si la permites, MaskID envía eventos de producto limitados y saneados a Firebase Analytics. Nunca envía documentos, texto OCR ni imágenes. Puedes cambiarlo cuando quieras."
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_consent_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Help improve MaskID (optional)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayuda a mejorar MaskID (opcional)"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_consent_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID can collect limited product-usage events to understand which features need improvement. This is optional and disabled by default. Your documents, OCR text, names, and images are not sent to Firebase Analytics."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID puede recoger eventos limitados de uso del producto para saber qué funciones necesitan mejorar. Es opcional y está desactivada por defecto. Tus documentos, texto OCR, nombres e imágenes no se envían a Firebase Analytics."
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_consent_note_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your choice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu elección"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_consent_note_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core document processing stays on-device. Optional Firebase Analytics is separate from crash diagnostics, and you can change this choice later in Settings > Privacy."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El procesamiento principal de documentos permanece en el dispositivo. Firebase Analytics opcional es independiente de los diagnósticos de fallos y puedes cambiar esta elección después en Ajustes > Privacidad."
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_allow" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow optional analytics"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir analítica opcional"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_decline" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        }
+      }
+    },
+    "settings_privacy_analytics_navigation_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analytics choice"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elección de analítica"
+          }
+        }
+      }
+    },
     "settings_privacy_diagnostics_body" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MetricKit diagnostics and bounded local telemetry may contain app versions, event identifiers, durations, counts, and device-class buckets. MaskID does not upload them and excludes document titles, OCR text, filenames, URLs, document identifiers, PIN state, and image content."
+            "value" : "MetricKit diagnostics and bounded local telemetry may contain app versions, event identifiers, durations, counts, and device-class buckets. Firebase Analytics product events are sent only after explicit opt-in. MaskID excludes document titles, OCR text, filenames, URLs, document identifiers, PIN state, and image content from these signals."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los diagnósticos de MetricKit y la telemetría local limitada pueden incluir versiones, identificadores de evento, duraciones, recuentos y clases de dispositivo. MaskID no los sube y excluye títulos, texto OCR, nombres de archivo, URL, identificadores, estado del PIN e imágenes."
+            "value" : "Los diagnósticos de MetricKit y la telemetría local limitada pueden incluir versiones, identificadores de evento, duraciones, recuentos y clases de dispositivo. Los eventos de producto de Firebase Analytics sólo se envían tras una autorización expresa. MaskID excluye títulos, texto OCR, nombres de archivo, URL, identificadores, estado del PIN e imágenes."
           }
         }
       }
@@ -1452,13 +1622,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What MaskID processes, stores, and never collects"
+            "value" : "What MaskID processes, stores, and shares"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Qué procesa, almacena y nunca recopila MaskID"
+            "value" : "Qué procesa, almacena y comparte MaskID"
           }
         }
       }
@@ -1469,13 +1639,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. MaskID uses limited Firebase analytics and crash diagnostics, does not create advertising profiles, and does not track you across apps or websites."
+            "value" : "Document import, camera capture, scanning, image adjustments, OCR, masking, and export are performed on your device. Optional Firebase Analytics is off by default and requires explicit consent. Firebase Crashlytics may collect limited crash diagnostics separately. MaskID does not create advertising profiles or track you across apps or websites."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. MaskID usa analítica limitada y diagnósticos de fallos de Firebase, no crea perfiles publicitarios ni te rastrea entre apps o sitios web."
+            "value" : "La importación, cámara, escaneo, ajustes de imagen, OCR, máscaras y exportación se realizan en tu dispositivo. Firebase Analytics es opcional, está desactivada por defecto y requiere consentimiento expreso. Firebase Crashlytics puede recoger diagnósticos limitados de fallos por separado. MaskID no crea perfiles publicitarios ni te rastrea entre apps o sitios web."
           }
         }
       }
@@ -2438,13 +2608,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The final support email has not been configured yet. Add it before release to enable feedback."
+            "value" : "Mail is unavailable on this device. Open the help center to contact support."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El correo definitivo de soporte aún no está configurado. Añádelo antes del lanzamiento para activar los comentarios."
+            "value" : "El correo no está disponible en este dispositivo. Abre el centro de ayuda para contactar con soporte."
           }
         }
       }
@@ -2455,13 +2625,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Support email pending"
+            "value" : "Mail unavailable"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Correo de soporte pendiente"
+            "value" : "Correo no disponible"
           }
         }
       }

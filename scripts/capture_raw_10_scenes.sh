@@ -5,7 +5,15 @@ ROOT="${0:A:h:h}"
 cd "$ROOT"
 
 OUTPUT_ROOT="${OUTPUT_ROOT:-.asc/screenshots/raw_captures}"
-IPHONE_ID="${UI_IPHONE_ID:-$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/{print $2; exit}')}"
+CAPTURE_DELAY="${ASO_CAPTURE_DELAY:-5}"
+if [[ -n "${UI_IPHONE_ID:-}" ]]; then
+  IPHONE_ID="$UI_IPHONE_ID"
+else
+  # Prefer a stable, already-supported iPhone model so another booted
+  # simulator belonging to an unrelated project is not selected accidentally.
+  SIM_DESTINATION="$(scripts/resolve_sim_destination.sh --sim-name "${SIM_NAME:-iPhone Air}")"
+  IPHONE_ID="${SIM_DESTINATION##*=}"
+fi
 
 if [[ -z "$IPHONE_ID" ]]; then
   echo "Error: No se encontró ningún simulador iPhone disponible." >&2
@@ -62,17 +70,37 @@ for item in "${LOCALES[@]}"; do
   for scene in "${SCENES[@]}"; do
     output_file="$dir/$scene.png"
     echo "Capturando $scene ($lang_code)..."
-    xcrun simctl launch --terminate-running-process "$IPHONE_ID" com.romerodev.shield \
+    xcrun simctl terminate "$IPHONE_ID" com.romerodev.shield >/dev/null 2>&1 || true
+    launch_output="$(xcrun simctl launch --terminate-running-process "$IPHONE_ID" com.romerodev.shield \
       -ui-testing -aso-screenshots \
       -aso-language "$lang_code" \
       -aso-color-scheme dark \
-      -aso-scene "$scene" >/dev/null
+      -aso-scene "$scene")"
+    if [[ "$launch_output" != com.romerodev.shield:* ]]; then
+      echo "Error: MaskID no confirmó el lanzamiento de $scene: $launch_output" >&2
+      exit 1
+    fi
     
-    # Pausa para permitir el renderizado de la UI y apertura de hojas (sheets)
-    sleep 2.5
+    # Pausa para permitir el renderizado de la UI y apertura de hojas (sheets).
+    # OCR/export pueden tardar más en crear sus superficies de pantalla.
+    sleep "$CAPTURE_DELAY"
     tmp_shot="/tmp/simctl_shot_$$.png"
-    xcrun simctl io "$IPHONE_ID" screenshot "$tmp_shot" >/dev/null
-    mv "$tmp_shot" "$output_file"
+    captured=0
+    for attempt in 1 2 3; do
+      if xcrun simctl io "$IPHONE_ID" screenshot "$tmp_shot" >/dev/null 2>&1 && [[ -s "$tmp_shot" ]]; then
+        captured=1
+        break
+      fi
+      sleep 2
+    done
+    if [[ "$captured" -ne 1 ]]; then
+      echo "Error: No se pudo capturar $scene tras 3 intentos." >&2
+      exit 1
+    fi
+    # /tmp and the repository may be on different volumes; copy avoids the
+    # ownership warning emitted by mv while preserving the exact PNG bytes.
+    cp "$tmp_shot" "$output_file"
+    rm -f "$tmp_shot"
     echo "  -> Guardado: $output_file ($(du -h "$output_file" | cut -f1))"
   done
 done

@@ -248,7 +248,7 @@ struct PaywallView: View {
 
     private var trustBadgesSection: some View {
         HStack(spacing: 10) {
-            trustBadgeItem(icon: "lock.shield.fill", title: appState.language == .es ? "100% Local" : "100% On-Device", subtitle: appState.language == .es ? "Sin servidores" : "No cloud servers")
+            trustBadgeItem(icon: "lock.shield.fill", title: appState.language == .es ? "Procesamiento local" : "On-device core", subtitle: appState.language == .es ? "Sync opcional" : "Optional sync")
             trustBadgeItem(icon: "faceid", title: appState.language == .es ? "Face ID Vault" : "Face ID Vault", subtitle: appState.language == .es ? "Cifrado local" : "Encrypted storage")
             trustBadgeItem(icon: "arrow.uturn.backward.circle.fill", title: appState.language == .es ? "Cancela fácil" : "Cancel anytime", subtitle: appState.language == .es ? "En 1 toque" : "In 1 tap")
         }
@@ -288,7 +288,7 @@ struct PaywallView: View {
 
             faqItem(
                 q: appState.language == .es ? "¿Mis documentos se envían a algún servidor?" : "Are my documents sent to any server?",
-                a: appState.language == .es ? "No. Todo el procesamiento de OCR, censura y exportación ocurre 100% dentro de tu dispositivo. Nada sale de tu iPhone." : "No. All OCR detection, masking, and verification happen 100% on your device. Nothing leaves your iPhone."
+                a: appState.language == .es ? "No. El OCR, el enmascaramiento y la verificación se ejecutan en tu dispositivo; MaskID no envía el contenido del documento a un servidor para procesarlo. La sincronización opcional de iCloud puede guardar documentos fuera de la Bóveda si la activas." : "No. OCR, masking, and verification run on your device; MaskID does not send document content to a server for processing. Optional iCloud sync can store non-Vault documents if you enable it."
             )
 
             faqItem(

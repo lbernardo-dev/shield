@@ -8,6 +8,8 @@
 	<string>appl_cJuegsqbihOvDkhDESnUPrekHTJ</string>
 	<key>RevenueCatEntitlementIdentifier</key>
 	<string>MaskID Pro</string>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
 	<key>ShieldAppStoreID</key>
 	<string>6790398619</string>
 	<key>ShieldGoogleDriveClientID</key>

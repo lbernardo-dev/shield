@@ -997,13 +997,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Processed on-device. No servers."
+            "value": "Core processing on-device. Optional sync."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Todo se procesa en el dispositivo. Sin servidores."
+            "value": "Procesamiento principal en el dispositivo. Sync opcional."
           }
         }
       }
