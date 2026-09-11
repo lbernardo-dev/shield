@@ -682,9 +682,8 @@ struct CaptureView: View {
                     "detected_type": detectedType.rawValue,
                     "mrz_valid": (fields.ocrMRZValid == true) ? "true" : "false"
                 ])
-                AppReviewManager.shared.record(
-                    .documentCreated,
-                    isPremium: PremiumManager.shared.isPro
+                ReviewFeedbackCoordinator.shared.track(
+                    .coreActionCompleted(feature: .documentImport)
                 )
                 if risk.level != .low {
                     AppState.trackEvent("risk_detected", properties: [
@@ -708,6 +707,7 @@ struct CaptureView: View {
         isProcessing = false
         processingProgress = nil
         importErrorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        ReviewFeedbackCoordinator.shared.track(.operationFailed(feature: .documentImport))
         AppState.trackEvent("import_failed", properties: [
             "source": source,
             "error_type": String(describing: type(of: error))

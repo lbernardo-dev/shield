@@ -201,6 +201,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             } else {
                 apply(result.customerInfo)
                 AppState.trackEvent("purchase_success", properties: ["product_id": product.id])
+                ReviewFeedbackCoordinator.shared.track(.purchaseCompleted(productID: product.id))
             }
         } catch {
             purchaseError = error.localizedDescription
@@ -263,9 +264,13 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         #if DEBUG && targetEnvironment(simulator)
         if isDebugProOverride { return }
         #endif
+        let wasPro = isPro
         let hasPro = customerInfo.entitlements[entitlementIdentifier]?.isActive == true
         isPro = hasPro
         UserDefaults.standard.set(hasPro, forKey: "shield.isPro")
+        if !wasPro, hasPro {
+            ReviewFeedbackCoordinator.shared.track(.subscriptionActivated(productID: "revenuecat"))
+        }
     }
 
     nonisolated func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {

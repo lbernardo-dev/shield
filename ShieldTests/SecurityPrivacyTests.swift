@@ -109,24 +109,27 @@ struct SecurityPrivacyTests {
     @Test("Feedback mail URL preserves recipient and safely encodes localized content")
     func feedbackURLIsValid() throws {
         let url = try #require(SettingsSupportConfiguration.feedbackURL(
-            recipient: "romerodev.app+shield@gmail.com",
+            recipient: "romerodev.app+maskid@gmail.com",
             subject: "Comentarios sobre Shield & privacidad",
             body: "Describe aquí qué ocurrió.\nGracias."
         ))
         let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
 
         #expect(components.scheme == "mailto")
-        #expect(components.path == "romerodev.app+shield@gmail.com")
+        #expect(components.path == "romerodev.app+maskid@gmail.com")
         #expect(components.queryItems?.first(where: { $0.name == "subject" })?.value == "Comentarios sobre Shield & privacidad")
         #expect(components.queryItems?.first(where: { $0.name == "body" })?.value == "Describe aquí qué ocurrió.\nGracias.")
     }
 
-    @Test("Review cadence is quieter for Premium users")
-    func premiumReviewCadenceIsQuieter() {
-        #expect(AppReviewPolicy.premium.minimumAppAge > AppReviewPolicy.free.minimumAppAge)
-        #expect(AppReviewPolicy.premium.valueThreshold > AppReviewPolicy.free.valueThreshold)
-        #expect(AppReviewPolicy.premium.cooldown > AppReviewPolicy.free.cooldown)
-        #expect(AppReviewPolicy.premium.annualRequestLimit < AppReviewPolicy.free.annualRequestLimit)
+    @Test("Review policy keeps Free and Premium gates independent")
+    func reviewPolicyCoversBothTiers() {
+        let configuration = ReviewFeedbackConfiguration.maskID
+        #expect(configuration.freeMinimumResults >= 3)
+        #expect(configuration.freeMinimumSessions >= 3)
+        #expect(configuration.freeMinimumActiveDays >= 2)
+        #expect(configuration.premiumMinimumResults >= 1)
+        #expect(configuration.minimumHoursAfterPurchase >= 24)
+        #expect(configuration.reviewCooldown >= 120 * 24 * 60 * 60)
     }
 
     @Test("Firebase Analytics consent is off until explicitly granted")

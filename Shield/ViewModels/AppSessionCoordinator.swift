@@ -24,6 +24,7 @@ final class AppSessionCoordinator: ObservableObject {
     private var inactivityCheckCancellable: AnyCancellable?
     private var currentScenePhase: ScenePhase = .active
     private let bypassAutoLockForAutomation: Bool
+    private var sessionIsActive = true
 
     init(userDefaults: UserDefaults = .standard) {
         bypassAutoLockForAutomation = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
@@ -45,6 +46,8 @@ final class AppSessionCoordinator: ObservableObject {
 
         Self.markUserActivity(force: true)
         startInactivityMonitoring()
+        ReviewFeedbackCoordinator.shared.track(.appLaunched)
+        ReviewFeedbackCoordinator.shared.track(.sessionStarted)
     }
 
     static func markUserActivity(force: Bool = false) {
@@ -71,8 +74,16 @@ final class AppSessionCoordinator: ObservableObject {
         case .active:
             applyAutoLockIfNeededOnResume()
             Self.markUserActivity(force: true)
+            if !sessionIsActive {
+                sessionIsActive = true
+                ReviewFeedbackCoordinator.shared.track(.sessionStarted)
+            }
         case .background:
             markBackgroundTimestampAndLockIfImmediate()
+            if sessionIsActive {
+                sessionIsActive = false
+                ReviewFeedbackCoordinator.shared.track(.sessionEnded)
+            }
         case .inactive:
             break
         @unknown default:

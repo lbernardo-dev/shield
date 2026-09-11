@@ -601,7 +601,8 @@ final class AppState: ObservableObject {
             "source", "format", "pages", "redactions", "count", "kind", "mode",
             "method", "risk", "low_fields", "detected_type", "mrz_valid",
             "has_adjustments", "product_id", "trigger", "reason", "error_type",
-            "last_step", "from_step", "step", "name"
+            "last_step", "from_step", "step", "name", "feature_key", "user_tier",
+            "category"
         ]
         let safeProperties = properties.reduce(into: [String: String]()) { result, item in
             guard allowedKeys.contains(item.key) else { return }

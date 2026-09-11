@@ -296,13 +296,14 @@ struct ExportSheetView: View {
                         isExported = true
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
-                        AppReviewManager.shared.record(.secureExportCompleted, isPremium: pm.isPro)
+                        trackSuccessfulExport(isPremium: pm.isPro)
                     }
                 } catch {
                     await MainActor.run {
                         isExporting = false
                         exportErrorMessage = LanguageManager.shared.editor("editor_export_secure_export_failed")
                         AppState.trackEvent("export_failed", properties: ["format": "pdf"])
+                        ReviewFeedbackCoordinator.shared.track(.operationFailed(feature: .secureExport))
                     }
                 }
             } else {
@@ -320,14 +321,26 @@ struct ExportSheetView: View {
                         isExported = true
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
-                        AppReviewManager.shared.record(.secureExportCompleted, isPremium: pm.isPro)
+                        trackSuccessfulExport(isPremium: pm.isPro)
                     } else {
                         exportErrorMessage = LanguageManager.shared.editor("editor_export_error_image_retry")
                         AppState.trackEvent("export_failed", properties: ["format": "image"])
+                        ReviewFeedbackCoordinator.shared.track(.operationFailed(feature: .secureExport))
                     }
                 }
             }
         }
+    }
+
+    private func trackSuccessfulExport(isPremium: Bool) {
+        ReviewFeedbackCoordinator.shared.track(.meaningfulResultDelivered(feature: .secureExport))
+        let usesPremiumStyle = isPremium
+            && (redactions.contains(where: { $0.style.isPremium })
+                || pageRedactions.values.flatMap { $0 }.contains(where: { $0.style.isPremium }))
+        if usesPremiumStyle {
+            ReviewFeedbackCoordinator.shared.track(.premiumResultDelivered(feature: .premiumMaskStyle))
+        }
+        ReviewFeedbackCoordinator.shared.markNaturalPause()
     }
 
     private func applyExportDefaultsIfNeeded() {

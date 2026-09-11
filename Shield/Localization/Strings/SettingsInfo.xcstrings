@@ -1282,13 +1282,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MaskID is developed by Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, Spain. Privacy and support inquiries can be sent to romerodev.app+shield@gmail.com. The published privacy policy is available from MaskID and the official support website. Apple independently processes App Store purchases and related account data under Apple's policies."
+            "value" : "MaskID is developed by Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, Spain. Privacy and support inquiries can be sent to romerodev.app+maskid@gmail.com. The published privacy policy is available from MaskID and the official support website. Apple independently processes App Store purchases and related account data under Apple's policies."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MaskID está desarrollada por Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, España. Las consultas de privacidad y soporte pueden enviarse a romerodev.app+shield@gmail.com. La política de privacidad publicada está disponible desde MaskID y el sitio web oficial de soporte. Apple trata de forma independiente las compras y datos de cuenta del App Store conforme a sus políticas."
+            "value" : "MaskID está desarrollada por Lester Romero Bernardo (RomeroDev), Calle Madre Juana María Condesa Lluch 6, Valencia, España. Las consultas de privacidad y soporte pueden enviarse a romerodev.app+maskid@gmail.com. La política de privacidad publicada está disponible desde MaskID y el sitio web oficial de soporte. Apple trata de forma independiente las compras y datos de cuenta del App Store conforme a sus políticas."
           }
         }
       }
@@ -3314,6 +3314,174 @@
             "value" : "Mejoras y novedades de la versión"
           }
         }
+      }
+    },
+    "review_feedback_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Help us improve" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ayúdanos a mejorar" } }
+      }
+    },
+    "review_feedback_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What could we do better?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Qué podríamos mejorar?" } }
+      }
+    },
+    "review_feedback_cancel_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Help us improve your subscription" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ayúdanos a mejorar tu suscripción" } }
+      }
+    },
+    "review_feedback_cancel_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What was the main reason for changing your subscription?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Cuál fue el motivo principal para cambiar tu suscripción?" } }
+      }
+    },
+    "review_feedback_return_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome back" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Te damos la bienvenida" } }
+      }
+    },
+    "review_feedback_return_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Is there anything we could improve?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Hay algo que podamos mejorar?" } }
+      }
+    },
+    "review_feedback_friction_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tell us what went wrong" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuéntanos qué ocurrió" } }
+      }
+    },
+    "review_feedback_friction_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "A little context helps us improve this workflow." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Un poco de contexto nos ayuda a mejorar este flujo." } }
+      }
+    },
+    "review_feedback_navigation_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Feedback" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comentarios" } }
+      }
+    },
+    "review_feedback_comment_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional comment" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comentario opcional" } }
+      }
+    },
+    "review_feedback_comment_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Do not include document or personal information." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No incluyas información personal ni de documentos." } }
+      }
+    },
+    "review_feedback_send" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send feedback" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar comentarios" } }
+      }
+    },
+    "review_feedback_not_now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not now" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ahora no" } }
+      }
+    },
+    "review_feedback_error_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Feedback unavailable" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comentarios no disponibles" } }
+      }
+    },
+    "review_feedback_error_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We couldn't open the feedback channel. You can try again later from Settings." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo abrir el canal de comentarios. Puedes intentarlo más tarde desde Ajustes." } }
+      }
+    },
+    "review_feedback_thanks_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Thanks for helping us improve" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Gracias por ayudarnos a mejorar" } }
+      }
+    },
+    "review_feedback_thanks_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your feedback has been prepared for our team." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tus comentarios se han preparado para nuestro equipo." } }
+      }
+    },
+    "review_feedback_category_missing_feature" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing a feature" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta una función" } }
+      }
+    },
+    "review_feedback_category_too_complicated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Too complicated" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Demasiado complicado" } }
+      }
+    },
+    "review_feedback_category_did_not_work" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Didn't work as expected" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No funcionó como esperaba" } }
+      }
+    },
+    "review_feedback_category_too_expensive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Too expensive" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Demasiado caro" } }
+      }
+    },
+    "review_feedback_category_not_using_enough" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "I wasn't using it enough" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No lo usaba lo suficiente" } }
+      }
+    },
+    "review_feedback_category_privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy concerns" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preocupaciones de privacidad" } }
+      }
+    },
+    "review_feedback_category_other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Otro" } }
       }
     }
   },

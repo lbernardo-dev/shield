@@ -325,7 +325,7 @@
    Id: 30-configure-shield-support-email
    Scope: Configure the final Shield support/privacy email in feedback and legal drafts
    Files: Shield/Views/Settings/SettingsView.swift, Docs/legal/privacy.html, Docs/legal/terms.html, Docs/legal/subscription-terms.html
-   Note: Configured romerodev.app+shield@gmail.com for feedback mail composer/mailto fallback and as the bilingual privacy/support contact in the app catalog and legal drafts; strict build succeeded.
+   Note: Configured romerodev.app+maskid@gmail.com for feedback mail composer/mailto fallback and as the bilingual privacy/support contact in the app catalog and legal drafts; strict build succeeded.
    Detail: tasks/details/30-configure-shield-support-email.md
    Claimed by: CODEX
    Claimed at: 2026-07-16T09:43:20Z
@@ -1713,4 +1713,26 @@
    Claimed at: 2026-09-11T11:44:25Z
    Done by: CODEX
    Done at: 2026-09-11T11:45:07Z
+
+157. app-review-feedback-intelligence-system
+   Id: 157-app-review-feedback-intelligence-system
+   Scope: Auditar e implementar un sistema event-driven de review y feedback privado para MaskID, integrado con RevenueCat/StoreKit 2, lifecycle, UI, analytics, tests y documentación
+   Files: Shield/App,Shield/Premium,Shield/Observability,Shield/Views/Settings,Shield/Views/Capture,Shield/Views/Editor,Shield/Resources/Shield.storekit,Shield/Localization,ShieldTests,ShieldUITests,Shield.xcodeproj,Docs,README.md,tasks
+   Note: Implementación completada: coordinator event-driven de review/feedback, políticas free/Pro, StoreKit 2 + RevenueCat, lifecycle de suscripción, feedback privado localizado con confirmación, analytics allowlisted, integración en flujos, tests y documentación. Build estricto OK; suite completa OK (32 UI, 0 fallos + unitarias). Cleanup dry-run identificó build-logs (1.7G); --apply fue rechazado por procesos de desarrollo activos, sin tocar otros procesos ni la Papelera.
+   Detail: tasks/details/157-app-review-feedback-intelligence-system.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-11T17:55:23Z
+   Done by: CODEX
+   Done at: 2026-09-11T19:22:29Z
+
+158. support-email-maskid
+   Id: 158-support-email-maskid
+   Scope: Actualizar el correo oficial de soporte de MaskID en app, feedback privado, legal, localización, tests y documentación
+   Files: Shield/Views/Settings/SettingsView.swift,Shield/App/AppReviewManager.swift,Shield/Localization/Strings/SettingsInfo.xcstrings,ShieldTests/SecurityPrivacyTests.swift,Docs/legal,Docs,README.md,tasks
+   Note: Correo oficial actualizado a romerodev.app+maskid@gmail.com en SettingsSupportConfiguration, feedback mail transport heredado, localización, legal EN/ES, tests y documentación. Búsqueda sin referencias al correo antiguo. String Catalog, build strict y SecurityPrivacyTests correctos. Cleanup dry-run encontró build-logs (1.7G); apply rechazado por procesos activos de otros proyectos, sin tocar procesos ni Papelera.
+   Detail: tasks/details/158-support-email-maskid.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-11T19:40:16Z
+   Done by: CODEX
+   Done at: 2026-09-11T19:44:14Z
 

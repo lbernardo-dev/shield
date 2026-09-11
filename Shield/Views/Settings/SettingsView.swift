@@ -190,9 +190,7 @@ struct SettingsView: View {
     }
 
     private func openManageSubscription() {
-        if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
-            openURL(url)
-        }
+        Task { await SubscriptionLifecycleObserver.shared.showManageSubscriptions() }
     }
 
     @ViewBuilder
@@ -376,7 +374,7 @@ enum SettingsRoute: Hashable {
 }
 
 enum SettingsSupportConfiguration {
-    static let email: String? = "romerodev.app+shield@gmail.com"
+    static let email: String? = "romerodev.app+maskid@gmail.com"
 
     static func feedbackURL(recipient: String, subject: String, body: String) -> URL? {
         var components = URLComponents()

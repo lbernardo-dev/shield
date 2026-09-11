@@ -44,6 +44,9 @@ struct ContentView: View {
                     .zIndex(10_000)
             }
 
+            ReviewFeedbackBridge(isPresentationAllowed: sessionStage == .ready)
+                .zIndex(30_000)
+
 #if DEBUG
             if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "paywall", asoOverlayPresented {
                 PaywallView(isPresented: $asoOverlayPresented, trigger: .manual)
@@ -94,6 +97,7 @@ struct ContentView: View {
 
         guard sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
+        Task { await SubscriptionLifecycleObserver.shared.refresh() }
     }
 
     private func dismissSplash() {

@@ -10,6 +10,7 @@ struct ShieldApp: App {
         FirebaseIntegration.configure()
         PremiumManager.configureRevenueCat()
         ShieldMetricSubscriber.shared.subscribe()
+        SubscriptionLifecycleObserver.shared.start()
     }
 
     var body: some Scene {

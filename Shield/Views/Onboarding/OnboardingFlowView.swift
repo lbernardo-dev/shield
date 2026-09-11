@@ -115,6 +115,7 @@ struct OnboardingFlowView: View {
             "last_step": String(state.currentStep),
             "source": source
         ])
+        ReviewFeedbackCoordinator.shared.track(.onboardingCompleted)
         withAnimation {
             appState.isOnboarded = true
             appState.completeSuccessfulUnlock()
