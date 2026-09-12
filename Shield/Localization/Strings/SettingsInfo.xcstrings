@@ -1877,13 +1877,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses Apple's secure in-app rating prompt"
+            "value" : "Opens Apple's App Store review page"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usa el formulario seguro de valoración de Apple"
+            "value" : "Abre la página de valoración de Apple en el App Store"
           }
         }
       }
@@ -3433,6 +3433,13 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your feedback has been prepared for our team." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Tus comentarios se han preparado para nuestro equipo." } }
+      }
+    },
+    "review_feedback_thanks_countdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Closing automatically in %d seconds" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se cerrará automáticamente en %d segundos" } }
       }
     },
     "review_feedback_category_missing_feature" : {

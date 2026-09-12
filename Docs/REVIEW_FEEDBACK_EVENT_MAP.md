@@ -21,8 +21,8 @@
 | `flowAbandoned` | Friction | feature key | No | Yes | Does not block the user or interrupt the flow. |
 | `returnedAfterInactivity` | Retention | — | No | Yes | Queued on return; shown only after the next natural pause. |
 | `permissionDenied` | Friction | permission key | Suppress | No | Avoids asking for a review during a blocked experience. |
-| Settings `Send feedback` | Manual | — | No | Existing support flow | Always available independently of automatic triggers. |
-| Settings `Rate the app` | Manual | — | Explicit Apple request | No | Central SwiftUI `RequestReviewAction`; no positive-rating gate. |
+| Settings `Send feedback` | Manual | — | No | Category-and-comment form | Always available independently of automatic triggers. |
+| Settings `Rate the app` | Manual | — | Apple product-page link | No | Opens the `action=write-review` product link; no positive-rating gate. |
 
 ## Natural pause points
 

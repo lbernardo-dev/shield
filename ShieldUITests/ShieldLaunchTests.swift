@@ -122,10 +122,19 @@ final class ShieldLaunchTests: XCTestCase {
         scrollToElement(sendFeedback, in: app)
         XCTAssertTrue(sendFeedback.isHittable)
         sendFeedback.tap()
+
+        let missingFeature = app.buttons["feedback.option.missing_feature"]
         XCTAssertTrue(
-            app.wait(for: .runningBackground, timeout: 5),
-            "Feedback should open an available mail client or the support web fallback"
+            missingFeature.waitForExistence(timeout: 3),
+            "Feedback form should show localized category options"
         )
+        XCTAssertEqual(missingFeature.label, "Falta una función")
+        XCTAssertTrue(
+            app.textFields["feedback.comment"].waitForExistence(timeout: 3),
+            "Feedback form should show a free-text comment field"
+        )
+        XCTAssertEqual(app.textFields["feedback.comment"].label, "Comentario opcional")
+        XCTAssertEqual(app.buttons["feedback.action.send"].label, "Enviar comentarios")
     }
 
     @MainActor
@@ -181,7 +190,7 @@ final class ShieldLaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testRateAppUsesInAppStoreKitFlow() throws {
+    func testRateAppOpensManualStoreReviewPage() throws {
         executionTimeAllowance = 60
         let app = XCUIApplication()
         app.launchArguments = [
@@ -197,8 +206,39 @@ final class ShieldLaunchTests: XCTestCase {
         scrollToElement(rateApp, in: app)
         XCTAssertTrue(rateApp.isHittable, rateApp.debugDescription)
         rateApp.tap()
-        XCTAssertEqual(app.state, .runningForeground, "StoreKit rating must remain inside MaskID")
-        XCTAssertTrue(rateApp.exists, "The Settings screen should remain available after requesting StoreKit review")
+
+        // The manual action opens Apple's product page. If the simulator has
+        // no App Store handler, the app stays visible and shows its fallback.
+        let openedExternalPage = app.wait(for: .runningBackground, timeout: 5)
+        if openedExternalPage { app.activate() }
+        XCTAssertTrue(
+            openedExternalPage || app.alerts.firstMatch.waitForExistence(timeout: 2),
+            "Rate the app should open Apple's review page or show an unavailable alert"
+        )
+    }
+
+    @MainActor
+    func testManualFeedbackFormIsLocalizedAndHasFreeText() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing",
+            "-aso-screenshots",
+            "-aso-language", "es",
+            "-aso-scene", "settings"
+        ]
+        app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+
+        let sendFeedback = app.buttons["settings.action.sendFeedback"]
+        scrollToElement(sendFeedback, in: app)
+        XCTAssertTrue(sendFeedback.isHittable)
+        sendFeedback.tap()
+
+        let missingFeature = app.buttons["feedback.option.missing_feature"]
+        XCTAssertTrue(missingFeature.waitForExistence(timeout: 3))
+        XCTAssertEqual(missingFeature.label, "Falta una función")
+        XCTAssertEqual(app.textFields["feedback.comment"].label, "Comentario opcional")
+        XCTAssertEqual(app.buttons["feedback.action.send"].label, "Enviar comentarios")
     }
 
     @MainActor

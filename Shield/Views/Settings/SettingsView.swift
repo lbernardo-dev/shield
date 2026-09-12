@@ -1,5 +1,4 @@
 import SwiftUI
-import MessageUI
 
 // MARK: - SettingsView
 
@@ -11,8 +10,7 @@ struct SettingsView: View {
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
-    @State private var showMailCompose = false
-    @State private var showSupportUnavailable = false
+    @State private var showRatingUnavailable = false
 
     private var strings: LanguageManager { .shared }
 
@@ -152,22 +150,13 @@ struct SettingsView: View {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
                 .environmentObject(appState)
         }
-        .sheet(isPresented: $showMailCompose) {
-            if let email = SettingsSupportConfiguration.email {
-                MailComposeView(
-                    recipient: email,
-                    subject: strings.settings("settings_support_subject"),
-                    body: strings.settings("settings_support_body")
-                )
-            }
-        }
         .alert(
-            strings.settings("settings_support_unavailable_title"),
-            isPresented: $showSupportUnavailable
+            strings.settings("settings_rating_unavailable_title"),
+            isPresented: $showRatingUnavailable
         ) {
             Button(strings.common("common_ok"), role: .cancel) {}
         } message: {
-            Text(strings.settings("settings_support_unavailable_message"))
+            Text(strings.settings("settings_rating_unavailable_message"))
         }
     }
 
@@ -290,46 +279,13 @@ struct SettingsView: View {
     }
 
     private func sendFeedback() {
-        guard SettingsSupportConfiguration.email != nil else {
-            showSupportUnavailable = true
-            return
-        }
-        guard MFMailComposeViewController.canSendMail() else {
-            openMailURL()
-            return
-        }
-        showMailCompose = true
-    }
-
-    private func openMailURL() {
-        guard let email = SettingsSupportConfiguration.email else {
-            showSupportUnavailable = true
-            return
-        }
-        guard let url = SettingsSupportConfiguration.feedbackURL(
-            recipient: email,
-            subject: strings.settings("settings_support_subject"),
-            body: strings.settings("settings_support_body")
-        ) else {
-            showSupportUnavailable = true
-            return
-        }
-
-        openURL(url) { accepted in
-            guard !accepted else { return }
-            openSupportPageFallback()
-        }
-    }
-
-    private func openSupportPageFallback() {
-        let supportURL = ShieldPublicPage.support.localizedURL(for: appState.language)
-        openURL(supportURL) { accepted in
-            if !accepted { showSupportUnavailable = true }
-        }
+        ReviewFeedbackCoordinator.shared.presentManualFeedback()
     }
 
     private func requestRating() {
-        AppReviewManager.shared.requestFromSettings()
+        openURL(AppReviewManager.shared.writeReviewURL) { accepted in
+            if !accepted { showRatingUnavailable = true }
+        }
     }
 }
 
@@ -385,37 +341,6 @@ enum SettingsSupportConfiguration {
             URLQueryItem(name: "body", value: body)
         ]
         return components.url
-    }
-}
-
-// MARK: - Mail composer
-
-struct MailComposeView: UIViewControllerRepresentable {
-    let recipient: String
-    let subject: String
-    let body: String
-
-    func makeUIViewController(context: Context) -> MFMailComposeViewController {
-        let controller = MFMailComposeViewController()
-        controller.setToRecipients([recipient])
-        controller.setSubject(subject)
-        controller.setMessageBody(body, isHTML: false)
-        controller.mailComposeDelegate = context.coordinator
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    final class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
-        func mailComposeController(
-            _ controller: MFMailComposeViewController,
-            didFinishWith result: MFMailComposeResult,
-            error: Error?
-        ) {
-            controller.dismiss(animated: true)
-        }
     }
 }
 

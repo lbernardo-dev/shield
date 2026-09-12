@@ -2,6 +2,11 @@ import Foundation
 import Testing
 @testable import Shield
 
+@MainActor
+private final class SuccessfulFeedbackTransport: FeedbackTransport {
+    func send(_ feedback: FeedbackEnvelope) async throws {}
+}
+
 @Suite("Review and feedback orchestration policy")
 struct AppReviewManagerTests {
     private let now = Date(timeIntervalSince1970: 2_000_000_000)
@@ -126,6 +131,16 @@ struct AppReviewManagerTests {
         #expect(ReviewPresentationGate.isAllowed(.naturalResult))
     }
 
+    @Test("Manual review action uses Apple's write-review product link")
+    @MainActor
+    func manualReviewURL() {
+        let url = AppReviewManager.shared.writeReviewURL
+        #expect(url.scheme == "https")
+        #expect(url.host == "apps.apple.com")
+        #expect(url.path == "/app/id6790398619")
+        #expect(url.query == "action=write-review")
+    }
+
     @Test("Subscription auto-renew transition creates cancellation feedback")
     func cancellationTransition() {
         let previous = SubscriptionSnapshot(
@@ -192,5 +207,32 @@ struct AppReviewManagerTests {
         #expect(envelope.mailBody.contains("secure_export"))
         #expect(!envelope.mailBody.contains("documentNumber"))
         #expect(!envelope.mailBody.contains("OCR"))
+    }
+
+    @Test("Successful feedback keeps the context for the thank-you screen")
+    @MainActor
+    func successfulFeedbackKeepsContextForThanksScreen() async {
+        let defaults = UserDefaults(suiteName: "ReviewFeedbackTests.\(UUID().uuidString)")!
+        let coordinator = ReviewFeedbackCoordinator(
+            defaults: defaults,
+            transport: SuccessfulFeedbackTransport(),
+            tierProvider: { .free }
+        )
+        let context = FeedbackContext(trigger: .manual, feature: nil, tier: .free)
+        coordinator.activeFeedbackContext = context
+
+        let didSubmit = await coordinator.submitFeedback(
+            category: .other,
+            message: "A useful comment",
+            context: context
+        )
+
+        #expect(didSubmit)
+        #expect(coordinator.activeFeedbackContext?.id == context.id)
+    }
+
+    @Test("Feedback thank-you screen uses a ten-second countdown")
+    func feedbackThanksCountdownDuration() {
+        #expect(FeedbackPromptConfiguration.thanksCountdownSeconds == 10)
     }
 }

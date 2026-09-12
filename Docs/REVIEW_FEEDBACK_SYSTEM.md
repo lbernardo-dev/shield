@@ -74,7 +74,7 @@ Billing retry, grace period, payment failure, and ambiguous StoreKit state are r
 
 Automatic feedback is queued and shown at a later natural pause. `Not now` applies the 30-day global cooldown. A subscription cancellation opportunity always clears a pending review opportunity, so two prompts cannot be shown consecutively.
 
-The feedback sheet uses contextual categories, an optional comment, native controls, Dynamic Type, VoiceOver traits, keyboard-friendly text input, Dark Mode, and Reduce Motion-compatible UI. After submission it opens the existing private support channel and never asks for a review.
+The feedback sheet uses contextual categories, an optional comment, native controls, Dynamic Type, VoiceOver traits, keyboard-friendly text input, Dark Mode, and Reduce Motion-compatible UI. After a successful submission it shows a localized thank-you screen with a visible 10-second countdown, then closes automatically; the user can also close it immediately. It opens the existing private support channel and never asks for a review.
 
 ## Subscription lifecycle
 
@@ -110,16 +110,16 @@ Allowed parameters are limited to `trigger`, `user_tier`, `feature_key`, `catego
 
 ## Localization and support
 
-Feedback copy and categories are in `SettingsInfo.xcstrings` for English and Spanish. Manual Settings actions remain separate:
+Feedback copy, categories, and the thank-you countdown are in `SettingsInfo.xcstrings` for English and Spanish. Manual Settings actions remain separate:
 
-- `Send feedback` uses the existing email/help-center support flow.
-- `Rate the app` requests Apple’s StoreKit sheet through the central SwiftUI bridge.
+- `Send feedback` opens the localized category-and-comment form.
+- `Rate the app` opens Apple’s `action=write-review` product-page link. Automatic natural-pause opportunities continue to use the central SwiftUI `RequestReviewAction`; Apple does not display that action in TestFlight builds.
 
 ## Testing
 
-`ShieldTests/AppReviewManagerTests.swift` covers free and premium thresholds, purchase deferral, cooldown/version awareness, hard presentation gates, cancellation versus billing classification, contextual categories, and privacy-safe payload content. Tests do not depend on the real StoreKit sheet.
+`ShieldTests/AppReviewManagerTests.swift` covers free and premium thresholds, purchase deferral, cooldown/version awareness, hard presentation gates, cancellation versus billing classification, contextual categories, privacy-safe payload content, and keeping the submitted context alive for the thank-you screen. Tests do not depend on the real StoreKit sheet.
 
-The UI test continues to verify that the Settings rate action leaves MaskID in the foreground. The App Store sheet itself is intentionally not automated.
+The UI tests verify that the Settings feedback action exposes localized categories and a free-text field, and that the Settings rate action opens an external review page or presents the unavailable fallback. The automatic App Store sheet itself is intentionally not automated.
 
 ## Configuration and future transport
 

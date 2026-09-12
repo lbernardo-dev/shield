@@ -491,7 +491,6 @@ final class ReviewFeedbackCoordinator: ObservableObject {
     private let entitlementTierProvider: @MainActor () -> EntitlementTier
     private let logger = Logger(subsystem: "com.romerodev.shield", category: "ReviewFeedback")
     private var state: EngagementState
-    private var pendingManualReviewRequest = false
 
     init(
         defaults: UserDefaults = .standard,
@@ -668,24 +667,19 @@ final class ReviewFeedbackCoordinator: ObservableObject {
         reviewRequestSignal &+= 1
     }
 
-    /// Explicit user intent from Settings. The single SwiftUI bridge below
-    /// owns the StoreKit RequestReviewAction boundary.
-    func requestFromSettings() {
-        guard !Self.isAutomatedRun else { return }
-        pendingManualReviewRequest = true
-        reviewRequestSignal &+= 1
+    /// Opens the manually requested feedback form from Settings without
+    /// waiting for an automatic engagement opportunity.
+    func presentManualFeedback() {
+        guard activeFeedbackContext == nil else { return }
+        activeFeedbackContext = FeedbackContext(
+            trigger: .manual,
+            feature: nil,
+            tier: currentTier
+        )
     }
 
     func consumeReviewRequest(using request: @escaping @MainActor () -> Void) {
         guard !Self.isAutomatedRun else {
-            pendingManualReviewRequest = false
-            return
-        }
-
-        if pendingManualReviewRequest {
-            pendingManualReviewRequest = false
-            recordReviewAttempt(source: "settings", feature: nil, tier: currentTier)
-            request()
             return
         }
 
@@ -724,7 +718,6 @@ final class ReviewFeedbackCoordinator: ObservableObject {
 
         do {
             try await transport.send(envelope)
-            activeFeedbackContext = nil
             state.lastFeedbackPromptAt = Date()
             saveState()
             AppState.trackEvent("feedback_submitted", properties: [
@@ -964,9 +957,10 @@ final class AppReviewManager {
 
     private init() {}
 
-    func requestFromSettings() {
-        ReviewFeedbackCoordinator.shared.requestFromSettings()
-    }
+    /// Explicit review actions use Apple's product-page deep link. The
+    /// StoreKit request action is reserved for automatic natural-pause moments
+    /// because Apple does not display it for TestFlight builds.
+    var writeReviewURL: URL { AppStoreConfiguration.writeReviewURL }
 }
 
 // MARK: - StoreKit 2 subscription lifecycle
@@ -1088,35 +1082,17 @@ struct FeedbackPromptView: View {
     @State private var isSending = false
     @State private var showSendError = false
     @State private var didSubmit = false
+    @State private var thanksSecondsRemaining = FeedbackPromptConfiguration.thanksCountdownSeconds
 
     private var strings: LanguageManager { .shared }
 
     var body: some View {
         NavigationStack {
             if didSubmit {
-                VStack(spacing: ShieldTheme.s4) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(ShieldTheme.accent(scheme))
-                        .accessibilityHidden(true)
-                    Text(strings.settings("review_feedback_thanks_title"))
-                        .shieldFont(26, weight: .heavy, design: .rounded)
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                        .multilineTextAlignment(.center)
-                    Text(strings.settings("review_feedback_thanks_message"))
-                        .font(.body)
-                        .foregroundStyle(ShieldTheme.secondary(scheme))
-                        .multilineTextAlignment(.center)
-                    Button(strings.common("common_ok")) {
-                        onComplete()
-                        dismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(ShieldTheme.accent(scheme))
+                FeedbackThanksView(secondsRemaining: thanksSecondsRemaining) {
+                    onComplete()
+                    dismiss()
                 }
-                .padding(ShieldTheme.s5)
-                .frame(maxWidth: 640)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: ShieldTheme.s4) {
@@ -1148,6 +1124,7 @@ struct FeedbackPromptView: View {
                                     .padding(.vertical, ShieldTheme.s3)
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityIdentifier("feedback.option.\(category.rawValue)")
                                 .accessibilityAddTraits(selectedCategory == category ? .isSelected : [])
                             }
                         }
@@ -1161,6 +1138,7 @@ struct FeedbackPromptView: View {
                         )
                         .lineLimit(4...8)
                         .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("feedback.comment")
                         .accessibilityHint(strings.settings("review_feedback_comment_hint"))
 
                         Button {
@@ -1174,6 +1152,7 @@ struct FeedbackPromptView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(ShieldTheme.accent(scheme))
+                        .accessibilityIdentifier("feedback.action.send")
                         .disabled(selectedCategory == nil || isSending)
 
                         Button(strings.settings("review_feedback_not_now"), role: .cancel) {
@@ -1193,6 +1172,29 @@ struct FeedbackPromptView: View {
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .navigationTitle(strings.settings("review_feedback_navigation_title"))
         .navigationBarTitleDisplayMode(.inline)
+        .task(id: didSubmit) {
+            guard didSubmit else { return }
+
+            thanksSecondsRemaining = FeedbackPromptConfiguration.thanksCountdownSeconds
+            for seconds in stride(
+                from: FeedbackPromptConfiguration.thanksCountdownSeconds,
+                through: 1,
+                by: -1
+            ) {
+                guard !Task.isCancelled else { return }
+                thanksSecondsRemaining = seconds
+
+                do {
+                    try await Task.sleep(for: .seconds(1))
+                } catch {
+                    return
+                }
+            }
+
+            guard !Task.isCancelled else { return }
+            onComplete()
+            dismiss()
+        }
         .alert(
             strings.settings("review_feedback_error_title"),
             isPresented: $showSendError
@@ -1217,5 +1219,48 @@ struct FeedbackPromptView: View {
                 showSendError = true
             }
         }
+    }
+}
+
+enum FeedbackPromptConfiguration {
+    static let thanksCountdownSeconds = 10
+}
+
+private struct FeedbackThanksView: View {
+    let secondsRemaining: Int
+    let onClose: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(spacing: ShieldTheme.s4) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(ShieldTheme.accent(scheme))
+                .accessibilityHidden(true)
+            Text(strings.settings("review_feedback_thanks_title"))
+                .shieldFont(26, weight: .heavy, design: .rounded)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .multilineTextAlignment(.center)
+            Text(strings.settings("review_feedback_thanks_message"))
+                .font(.body)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .multilineTextAlignment(.center)
+            Text(strings.settings("review_feedback_thanks_countdown", secondsRemaining))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .monospacedDigit()
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("feedback.thanks.countdown")
+            Button(strings.common("common_ok"), action: onClose)
+                .buttonStyle(.borderedProminent)
+                .tint(ShieldTheme.accent(scheme))
+                .accessibilityIdentifier("feedback.thanks.close")
+        }
+        .padding(ShieldTheme.s5)
+        .frame(maxWidth: 640)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

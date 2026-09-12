@@ -1747,3 +1747,36 @@
    Done by: CODEX
    Done at: 2026-09-12T07:53:10Z
 
+160. fix-rate-app-action
+   Id: 160-fix-rate-app-action
+   Scope: Settings: hacer visible y fiable la acción de valorar la app
+   Files: Shield/App/AppReviewManager.swift Shield/Views/Settings/SettingsView.swift ShieldTests/AppReviewManagerTests.swift ShieldUITests/ShieldLaunchTests.swift
+   Note: Finished + targeted AppReviewManagerTests and manual review UI test passed; localization and diff validation passed. Cleanup dry-run reviewed build-logs candidate; apply was safely refused because another project's archive process is active.
+   Detail: tasks/details/160-fix-rate-app-action.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T09:18:33Z
+   Done by: CODEX
+   Done at: 2026-09-12T09:29:08Z
+
+161. feedback-thanks-countdown
+   Id: 161-feedback-thanks-countdown
+   Scope: Vista de feedback localizada con agradecimiento y cierre automático tras 10 segundos
+   Files: Shield/App/AppReviewManager.swift Shield/Localization/Strings/SettingsInfo.xcstrings ShieldTests/AppReviewManagerTests.swift ShieldUITests/ShieldLaunchTests.swift Docs/REVIEW_FEEDBACK_SYSTEM.md
+   Note: Finished + feedback form now opens from Settings with localized options/free-text; successful submissions keep the sheet for localized 10-second thank-you countdown and automatic close. Build succeeded; serial AppReviewManagerTests passed 14 tests; serial Settings UI form run passed before a later simulator navigation flake. Cleanup candidates reviewed; apply safely refused while other development tooling was active.
+   Detail: tasks/details/161-feedback-thanks-countdown.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T09:32:39Z
+   Done by: CODEX
+   Done at: 2026-09-12T10:08:42Z
+
+162. release-build-upload
+   Id: 162-release-build-upload
+   Scope: Incrementar el build en todos los targets y subir la build a App Store Connect
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts,tasks/TASKS.md
+   Note: Finished + build 10102026091202 archived and uploaded; App Store Connect processing VALID; cleanup blocked by active processes
+   Detail: tasks/details/162-release-build-upload.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T10:13:57Z
+   Done by: CODEX
+   Done at: 2026-09-12T10:26:03Z
+
