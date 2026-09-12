@@ -1736,3 +1736,14 @@
    Done by: CODEX
    Done at: 2026-09-11T19:44:14Z
 
+159. release-1010-build-10102026091201
+   Id: 159-release-1010-build-10102026091201
+   Scope: Crear App Store Connect 1.0.10, actualizar What's New en todos los locales, compilar y subir build 10102026091201 para todos los targets y asociarlo a la versión
+   Files: metadata/version/1.0.10/**,project.pbxproj,*.xcodeproj,*.xcworkspace,.asc/artifacts/**,tasks/TASKS.md,tasks/details/
+   Note: Finished: ASC 1.0.10 created, EN/ES What's New applied, build 10102026091201 uploaded VALID and attached; archive/IPA audit and ASC readiness passed; no submission sent
+   Detail: tasks/details/159-release-1010-build-10102026091201.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T07:31:18Z
+   Done by: CODEX
+   Done at: 2026-09-12T07:53:10Z
+
