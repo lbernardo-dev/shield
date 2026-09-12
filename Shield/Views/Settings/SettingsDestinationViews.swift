@@ -1002,6 +1002,7 @@ enum SettingsArticleKind {
         switch self {
         case .information:
             [
+                ("settings_info_protection_title", "settings_info_protection_body"),
                 ("settings_info_scope_title", "settings_info_scope_body"),
                 ("settings_info_detection_title", "settings_info_detection_body"),
                 ("settings_info_export_title", "settings_info_export_body"),

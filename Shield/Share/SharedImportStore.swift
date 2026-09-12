@@ -1,6 +1,7 @@
 import CryptoKit
 import Foundation
 import Security
+import UniformTypeIdentifiers
 
 nonisolated struct SharedImportPayload: Codable, Sendable, Equatable {
     let originalFileName: String
@@ -81,10 +82,13 @@ enum SharedImportStore {
     nonisolated static func enqueue(data: Data, fileName: String, typeIdentifier: String) throws {
         guard !data.isEmpty else { throw SharedImportStoreError.unsupportedFile }
         guard data.count <= maximumBytes else { throw SharedImportStoreError.fileTooLarge }
+        guard let validatedTypeIdentifier = validatedTypeIdentifier(typeIdentifier) else {
+            throw SharedImportStoreError.unsupportedFile
+        }
         let safeName = sanitizedFileName(fileName, fallbackTypeIdentifier: typeIdentifier)
         let payload = SharedImportPayload(
             originalFileName: safeName,
-            typeIdentifier: typeIdentifier,
+            typeIdentifier: validatedTypeIdentifier,
             createdAt: Date(),
             data: data
         )
@@ -133,6 +137,15 @@ enum SharedImportStore {
             throw error
         }
         return output
+    }
+
+    /// The extension and the app share this gate so a future producer cannot
+    /// enqueue a type that the import pipeline does not support.
+    nonisolated static func validatedTypeIdentifier(_ identifier: String) -> String? {
+        guard let type = UTType(identifier) else { return nil }
+        if type.conforms(to: .pdf) { return UTType.pdf.identifier }
+        if type.conforms(to: .image) { return type.identifier }
+        return nil
     }
 
     nonisolated static func removeTemporaryFile(_ url: URL) {

@@ -181,7 +181,7 @@ private struct AuthenticatedShellView: View {
                     ShieldSidebar(
                         selected: $appState.activeTab,
                         lang: appState.language,
-                        onScanTap: { appState.showCapture = true }
+                        onScanTap: openCapture
                     )
                     Divider()
                     tabContent
@@ -193,27 +193,52 @@ private struct AuthenticatedShellView: View {
                             ShieldTabBar(
                                 selected: $appState.activeTab,
                                 lang: appState.language,
-                                onScanTap: { appState.showCapture = true }
+                                onScanTap: openCapture,
+                                showsScanButton: false
                             )
+                            .zIndex(100)
                         }
                     }
             }
 
-            if appState.showCapture {
-                CaptureView()
-                    .transition(.move(edge: .bottom))
-                    .zIndex(50)
-            }
-
-            if let doc = appState.selectedDoc {
+            if !appState.showCapture, let doc = appState.selectedDoc {
                 EditorView(doc: doc)
                     .id(doc.id)
                     .transition(.move(edge: .trailing))
                     .zIndex(60)
             }
         }
+        .overlay {
+            if horizontalSizeClass != .regular, appState.activeTab != .settings {
+                GeometryReader { proxy in
+                    ShieldScanButton(action: openCapture)
+                        .position(
+                            x: proxy.size.width / 2,
+                            y: proxy.size.height - proxy.safeAreaInsets.bottom - 35
+                        )
+                        .zIndex(200)
+                }
+            }
+        }
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { appState.showCapture },
+                set: { appState.showCapture = $0 }
+            )
+        ) {
+            CaptureView()
+                .environmentObject(appState)
+        }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: appState.showCapture)
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.88), value: appState.selectedDoc?.id)
+    }
+
+    private func openCapture() {
+        // Capture is a top-level intake flow. Clear any stale editor selection
+        // before presenting it so a pending editor transition cannot obscure
+        // the capture surface or consume its accessibility actions.
+        appState.selectedDoc = nil
+        appState.showCapture = true
     }
 
     @ViewBuilder

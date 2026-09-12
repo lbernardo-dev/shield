@@ -19,11 +19,11 @@ struct RedactionPresetPickerSheet: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(lang == .es ? "Plantillas de Trámite" : "Smart Procedure Presets")
+                        Text(lang == .es ? "¿Qué necesita realmente el receptor?" : "What does the recipient actually need?")
                         .shieldFont(18, weight: .bold)
                         .foregroundColor(ShieldTheme.textPrimary)
 
-                    Text(lang == .es ? "Aplica censura y marca de agua con 1 toque" : "1-tap masking and watermark protection")
+                    Text(lang == .es ? "Elige una intención; revisarás cada sugerencia antes de exportar." : "Choose a purpose; you review every suggestion before exporting.")
                         .shieldFont(13, weight: .regular)
                         .foregroundColor(ShieldTheme.textSecondary)
                 }

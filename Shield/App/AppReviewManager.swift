@@ -1138,6 +1138,7 @@ struct FeedbackPromptView: View {
                         )
                         .lineLimit(4...8)
                         .textFieldStyle(.roundedBorder)
+                        .accessibilityLabel(strings.settings("review_feedback_comment_placeholder"))
                         .accessibilityIdentifier("feedback.comment")
                         .accessibilityHint(strings.settings("review_feedback_comment_hint"))
 

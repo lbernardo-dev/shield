@@ -154,6 +154,7 @@ struct ExportSheetView: View {
             scheme: scheme,
             isPro: pm.isPro,
             summaryText: exportSummaryText,
+            verificationReport: verificationReport,
             showFreeWatermarkNote: true,
             onDone: onDone,
             onShare: {
@@ -229,7 +230,9 @@ struct ExportSheetView: View {
     private var exportSummaryText: String {
         let verificationNote: String
         if verificationReport?.isVerified == true {
-            verificationNote = LanguageManager.shared.editor("editor_export_verified_pdf_note")
+            verificationNote = verificationReport?.format == .image
+                ? LanguageManager.shared.editor("editor_export_verified_image_note")
+                : LanguageManager.shared.editor("editor_export_verified_pdf_note")
         } else {
             verificationNote = LanguageManager.shared.editor("editor_export_flattened_image_note")
         }
@@ -287,7 +290,8 @@ struct ExportSheetView: View {
                         doc: doc,
                         pageRedactions: pageRedactions,
                         watermark: effectiveWatermark,
-                        scale: scale
+                        scale: scale,
+                        remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
                     )
                     await MainActor.run {
                         isExporting = false
@@ -307,22 +311,28 @@ struct ExportSheetView: View {
                     }
                 }
             } else {
-                let image = await ExportEngine.exportAsImage(
-                    doc: doc,
-                    imageFileName: currentImageFileName,
-                    redactions: redactions,
-                    watermark: effectiveWatermark,
-                    scale: scale
-                )
-                await MainActor.run {
-                    isExporting = false
-                    if let image {
-                        exportedImage = image
+                do {
+                    let artifact = try await ExportEngine.exportAsImage(
+                        doc: doc,
+                        imageFileName: currentImageFileName,
+                        redactions: redactions,
+                        watermark: effectiveWatermark,
+                        scale: scale,
+                        remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
+                    )
+                    await MainActor.run {
+                        isExporting = false
+                        verificationReport = artifact.report
+                        exportedURL = artifact.url
+                        exportedImage = UIImage(contentsOfFile: artifact.url.path)
                         isExported = true
                         pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
                         trackSuccessfulExport(isPremium: pm.isPro)
-                    } else {
+                    }
+                } catch {
+                    await MainActor.run {
+                        isExporting = false
                         exportErrorMessage = LanguageManager.shared.editor("editor_export_error_image_retry")
                         AppState.trackEvent("export_failed", properties: ["format": "image"])
                         ReviewFeedbackCoordinator.shared.track(.operationFailed(feature: .secureExport))
@@ -364,5 +374,24 @@ struct ExportSheetView: View {
             try? FileManager.default.removeItem(at: exportedURL)
             self.exportedURL = nil
         }
+    }
+
+    private var remainingDetectedSensitiveElements: Int {
+        let redactionsByPage = format == .pdf
+            ? pageRedactions
+            : [0: redactions]
+
+        return (doc.fields.ocrPageEvidence ?? []).flatMap { page in
+            page.entities.filter { entity in
+                let observations = page.observations.filter { entity.evidenceIDs.contains($0.id) }
+                guard !observations.isEmpty else { return false }
+                let pageRedactions = redactionsByPage[page.pageIndex] ?? []
+                return !observations.allSatisfy { observation in
+                    pageRedactions.contains { redaction in
+                        redaction.rect.insetBy(dx: -0.01, dy: -0.01).contains(observation.boundingRect)
+                    }
+                }
+            }
+        }.count
     }
 }

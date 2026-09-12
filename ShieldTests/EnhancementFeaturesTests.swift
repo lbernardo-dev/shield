@@ -19,14 +19,22 @@ struct EnhancementFeaturesTests {
             #expect(!preset.defaultWatermarkText(lang: .en).isEmpty)
             #expect(!preset.icon.isEmpty)
             #expect(!preset.iconColorHex.isEmpty)
-            #expect(!preset.maskedEntities.isEmpty)
-            #expect(preset.maskedEntities.contains(.barcode))
+            if preset == .custom {
+                #expect(preset.maskedEntities.isEmpty)
+            } else {
+                #expect(!preset.maskedEntities.isEmpty)
+                #expect(preset.maskedEntities.contains(.barcode))
+            }
         }
 
         #expect(RedactionPreset.rental.maskedEntities.contains(.supportNumber))
         #expect(RedactionPreset.rental.maskedEntities.contains(.address))
         #expect(RedactionPreset.employment.maskedEntities.contains(.dateOfBirth))
         #expect(RedactionPreset.banking.maskedEntities.contains(.paymentCard))
+        #expect(RedactionPreset.marketplace.maskedEntities.contains(.email))
+        #expect(RedactionPreset.travel.maskedEntities.contains(.mrz))
+        #expect(RedactionPreset.school.maskedEntities.contains(.dateOfBirth))
+        #expect(RedactionPreset.insurance.maskedEntities.contains(.iban))
     }
 
     // MARK: - Barcode Detection Items Tests

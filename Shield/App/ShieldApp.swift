@@ -86,8 +86,27 @@ struct ShieldApp: App {
 
     private func consumeSharedImport() {
         guard appState.pendingSharedImportURL == nil else { return }
-        guard let url = try? SharedImportStore.dequeueToTemporaryFile() else { return }
-        appState.pendingSharedImportURL = url
-        appState.showCapture = true
+        do {
+            let url = try SharedImportStore.dequeueToTemporaryFile()
+            appState.pendingSharedImportURL = url
+            appState.showCapture = true
+            AppState.trackEvent("share_extension_started", properties: ["source": "share_sheet"])
+        } catch SharedImportStoreError.noPendingImport {
+            return
+        } catch let error as LocalizedError {
+            appState.pendingSharedImportError = error.errorDescription
+            appState.showCapture = true
+            AppState.trackEvent("share_extension_failed", properties: [
+                "source": "share_sheet",
+                "error_type": String(describing: type(of: error))
+            ])
+        } catch {
+            appState.pendingSharedImportError = "Could not open the shared item. Try sharing it again."
+            appState.showCapture = true
+            AppState.trackEvent("share_extension_failed", properties: [
+                "source": "share_sheet",
+                "error_type": String(describing: type(of: error))
+            ])
+        }
     }
 }

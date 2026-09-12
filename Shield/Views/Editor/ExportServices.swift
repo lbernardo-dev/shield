@@ -12,6 +12,7 @@ enum ExportEngine {
         case sourceUnavailable(page: Int)
         case protectedPDF
         case cancelled
+        case imageEncodingFailed
         case verificationFailed
 
         var errorDescription: String? {
@@ -20,7 +21,8 @@ enum ExportEngine {
             case .sourceUnavailable(let page): "Page \(page + 1) could not be loaded."
             case .protectedPDF: "The source PDF is locked or password protected."
             case .cancelled: "The export was cancelled."
-            case .verificationFailed: "The exported PDF did not pass the security verification."
+            case .imageEncodingFailed: "The protected image could not be encoded."
+            case .verificationFailed: "The exported file did not pass the protection checks."
             }
         }
     }
@@ -30,10 +32,11 @@ enum ExportEngine {
         pageRedactions: [Int: [Redaction]],
         watermark: Watermark?,
         scale: CGFloat,
+        remainingDetectedSensitiveElements: Int = 0,
         progress: @escaping (Double) -> Void = { _ in }
     ) async throws -> SecurePDFExport {
         let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("shield_\(doc.id)_\(UUID().uuidString).pdf")
+            .appendingPathComponent("maskid_protected_\(UUID().uuidString).pdf")
 
         do {
             let pageFiles = doc.pageFileNames ?? [doc.imageFileName].compactMap { $0 }
@@ -138,7 +141,10 @@ enum ExportEngine {
                 at: tempURL,
                 expectedPageCount: expectedPageCount,
                 normalizedVisualObfuscations: normalizedCount,
-                redactionRectsByPage: pageRedactions.mapValues { $0.map(\.rect) }
+                redactionRectsByPage: pageRedactions.mapValues { $0.map(\.rect) },
+                redactionsApplied: pageRedactions.values.reduce(0) { $0 + $1.count },
+                watermarkApplied: watermark != nil,
+                remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
             )
             guard report.isVerified else { throw ExportError.verificationFailed }
             return SecurePDFExport(url: tempURL, report: report)
@@ -181,16 +187,28 @@ enum ExportEngine {
         }
     }
 
-    static func imageStrippingMetadata(_ image: UIImage, compressionQuality: CGFloat = 0.92) -> UIImage? {
-        guard let cgImage = image.cgImage else { return image }
+    static func imageDataStrippingMetadata(_ image: UIImage, compressionQuality: CGFloat = 0.92) -> Data? {
+        guard let cgImage = image.cgImage else { return nil }
         let mutableData = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(mutableData, UTType.jpeg.identifier as CFString, 1, nil) else { return image }
+        guard let dest = CGImageDestinationCreateWithData(mutableData, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
         CGImageDestinationAddImage(dest, cgImage, [kCGImageDestinationLossyCompressionQuality as String: compressionQuality] as CFDictionary)
-        guard CGImageDestinationFinalize(dest) else { return image }
-        return UIImage(data: mutableData as Data)
+        guard CGImageDestinationFinalize(dest) else { return nil }
+        return mutableData as Data
     }
 
-    static func exportAsImage(doc: DocumentItem, imageFileName: String?, redactions: [Redaction], watermark: Watermark?, scale: CGFloat) async -> UIImage? {
+    static func imageStrippingMetadata(_ image: UIImage, compressionQuality: CGFloat = 0.92) -> UIImage? {
+        guard let data = imageDataStrippingMetadata(image, compressionQuality: compressionQuality) else { return image }
+        return UIImage(data: data)
+    }
+
+    static func exportAsImage(
+        doc: DocumentItem,
+        imageFileName: String?,
+        redactions: [Redaction],
+        watermark: Watermark?,
+        scale: CGFloat,
+        remainingDetectedSensitiveElements: Int = 0
+    ) async throws -> SecureImageExport {
         var sourceImage = imageFileName.flatMap {
             AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted)
         }
@@ -248,7 +266,29 @@ enum ExportEngine {
             }
         }
 
-        return imageStrippingMetadata(baseImage) ?? baseImage
+        guard let data = imageDataStrippingMetadata(baseImage) else {
+            throw ExportError.imageEncodingFailed
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("maskid_protected_\(UUID().uuidString).jpg")
+
+        do {
+            try data.write(to: tempURL, options: [.atomic, .completeFileProtection])
+            let report = await ExportVerifier.verifyImage(
+                at: tempURL,
+                redactionRectsByPage: [0: redactions.map(\.rect)],
+                redactionsApplied: redactions.count,
+                normalizedVisualObfuscations: redactions.count(where: { $0.style.isVisualObfuscation }),
+                watermarkApplied: watermark != nil,
+                remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
+            )
+            guard report.isVerified else { throw ExportError.verificationFailed }
+            return SecureImageExport(url: tempURL, report: report)
+        } catch {
+            try? FileManager.default.removeItem(at: tempURL)
+            throw error
+        }
     }
 
     @MainActor

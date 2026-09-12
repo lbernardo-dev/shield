@@ -94,6 +94,7 @@ struct CaptureView: View {
     @State private var processingTask: Task<Void, Never>? = nil
     @State private var importErrorMessage: String? = nil
     @State private var retryImportURL: URL? = nil
+    @State private var retryImportSource: String = "file"
     @State private var stagedPages: [UIImage] = []
     @State private var stagedTitle: String? = nil
     @State private var stagedSourceType: ImportedDocumentSource = .image
@@ -210,13 +211,14 @@ struct CaptureView: View {
             if let retryImportURL {
                 Button(LanguageManager.shared.common("common_retry")) {
                     importErrorMessage = nil
-                    processFile(retryImportURL)
+                    processFile(retryImportURL, source: retryImportSource)
                 }
             }
             Button(LanguageManager.shared.common("common_ok"), role: .cancel) {
                 if let retryImportURL {
                     SharedImportStore.removeTemporaryFile(retryImportURL)
                 }
+                retryImportSource = "file"
                 retryImportURL = nil
                 importErrorMessage = nil
             }
@@ -232,6 +234,11 @@ struct CaptureView: View {
         .onAppear(perform: consumePendingSharedImport)
         .onChange(of: appState.pendingSharedImportURL) { _, _ in
             consumePendingSharedImport()
+        }
+        .onChange(of: appState.pendingSharedImportError) { _, newValue in
+            guard let newValue else { return }
+            appState.pendingSharedImportError = nil
+            importErrorMessage = newValue
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("shield.importFileURL"))) { note in
             if let url = note.object as? URL {
@@ -341,14 +348,16 @@ struct CaptureView: View {
         return false
     }
 
-    private func processFile(_ url: URL) {
+    private func processFile(_ url: URL, source: String = "file") {
         guard pm.canAddDocument(currentCount: appState.documents.count) else {
+            SharedImportStore.removeTemporaryFile(url)
             paywallTrigger = .docLimitReached
             showPaywall = true
             return
         }
-        AppState.trackEvent("import_started", properties: ["source": "file"])
+        AppState.trackEvent("import_started", properties: ["source": source])
         retryImportURL = url
+        retryImportSource = source
         isProcessing = true
         processingMessage = LanguageManager.shared.capture("capture_importing_file")
         processingProgress = 0
@@ -406,22 +415,27 @@ struct CaptureView: View {
                     title: prepared.title,
                     sourceType: prepared.sourceType,
                     sourceFileName: sourceFileName,
-                    docID: docID
+                    docID: docID,
+                    entryPoint: source
                 )
             } catch is CancellationError {
                 isProcessing = false
                 processingProgress = nil
             } catch {
                 shouldKeepForRetry = true
-                failImport(error, source: "file")
+                failImport(error, source: source)
             }
         }
     }
 
     private func consumePendingSharedImport() {
+        if let error = appState.pendingSharedImportError {
+            appState.pendingSharedImportError = nil
+            importErrorMessage = error
+        }
         guard let url = appState.pendingSharedImportURL else { return }
         appState.pendingSharedImportURL = nil
-        processFile(url)
+        processFile(url, source: "share_sheet")
     }
 
     private func stageScanPages(
@@ -467,10 +481,14 @@ struct CaptureView: View {
         title: String?,
         sourceType: ImportedDocumentSource,
         sourceFileName: String?,
-        docID: String
+        docID: String,
+        entryPoint: String = "file"
     ) {
         isProcessing = false
         processingProgress = nil
+        if entryPoint == "share_sheet" {
+            AppState.trackEvent("share_extension_completed", properties: ["source": "share_sheet"])
+        }
                 if sourceType == .image {
                     AppState.trackEvent("import_started", properties: ["source": "image"])
                 }

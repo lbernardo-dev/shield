@@ -35,6 +35,15 @@ struct LocalizationLanguageTests {
         #expect(LanguageManager.shared.t("lock_unlock_pin", table: "Auth", language: .en) == "Unlock with PIN")
     }
 
+    @Test("Trust Center copy is present and localized")
+    @MainActor
+    func trustCenterLocalizationKeys() {
+        #expect(LanguageManager.shared.t("settings_info_protection_title", table: "SettingsInfo", language: .es) == "Cómo protege MaskID tus archivos")
+        #expect(LanguageManager.shared.t("settings_info_protection_title", table: "SettingsInfo", language: .en) == "How MaskID protects your files")
+        #expect(LanguageManager.shared.t("settings_info_protection_body", table: "SettingsInfo", language: .es).contains("OCR en el dispositivo"))
+        #expect(LanguageManager.shared.t("settings_info_protection_body", table: "SettingsInfo", language: .en).contains("Protection Check"))
+    }
+
     @Test("Runtime language change reactively updates resolved strings")
     @MainActor
     func runtimeLanguageSwitching() {

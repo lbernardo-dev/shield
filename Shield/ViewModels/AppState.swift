@@ -83,6 +83,9 @@ final class AppState: ObservableObject {
     @Published var selectedDoc: DocumentItem? = nil
     @Published var showCapture: Bool = false
     @Published var pendingSharedImportURL: URL? = nil
+    /// A handoff error is kept out of the URL/file path and surfaced once by
+    /// CaptureView. The message is always generic and contains no source data.
+    @Published var pendingSharedImportError: String? = nil
     @Published var showVault: Bool = false
     @Published var activeTab: AppTab = .library
 

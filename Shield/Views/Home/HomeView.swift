@@ -399,6 +399,7 @@ struct HomeView: View {
                 VStack(spacing: 10) {
                     ForEach(appState.filteredDocumentsPage) { doc in
                         DocumentRow(doc: doc, lang: appState.language) {
+                            guard !appState.showCapture else { return }
                             guard !doc.isLocked else { return }
                             if doc.isVaulted {
                                 vaultAuthDoc = doc

@@ -221,6 +221,7 @@ struct ExportCompletionView: View {
     let scheme: ColorScheme
     let isPro: Bool
     let summaryText: String
+    let verificationReport: ExportVerificationReport?
     let showFreeWatermarkNote: Bool
     let onDone: () -> Void
     let onShare: () -> Void
@@ -248,6 +249,13 @@ struct ExportCompletionView: View {
                         .shieldFont(12)
                         .foregroundColor(ShieldTheme.tertiary(scheme))
                 }
+            }
+            if let verificationReport {
+                ExportProtectionCheckView(
+                    scheme: scheme,
+                    report: verificationReport
+                )
+                .padding(.horizontal, ShieldTheme.s5)
             }
             Spacer()
             HStack(spacing: 8) {
@@ -279,6 +287,89 @@ struct ExportCompletionView: View {
             .padding(.horizontal, ShieldTheme.s5)
             .padding(.bottom, 32)
         }
+    }
+}
+
+struct ExportProtectionCheckView: View {
+    let scheme: ColorScheme
+    let report: ExportVerificationReport
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: report.isReadyToShare ? "checkmark.shield.fill" : "eye.trianglebadge.exclamationmark")
+                    .shieldFont(15, weight: .bold)
+                    .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LanguageManager.shared.editor("editor_protection_check_title"))
+                        .shieldFont(13, weight: .bold)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                    Text(report.isReadyToShare
+                         ? LanguageManager.shared.editor("editor_protection_check_ready")
+                         : LanguageManager.shared.editor("editor_protection_check_review"))
+                        .shieldFont(11, weight: .semibold)
+                        .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
+                }
+                Spacer()
+            }
+
+            ExportPrivacyScoreRow(
+                scheme: scheme,
+                icon: "scissors",
+                label: LanguageManager.shared.editor("editor_export_redactions_applied"),
+                value: "\(report.redactionsApplied)",
+                ok: report.redactionsApplied > 0
+            )
+            ExportPrivacyScoreRow(
+                scheme: scheme,
+                icon: "square.stack.3d.up",
+                label: LanguageManager.shared.editor("editor_protection_check_pages"),
+                value: "\(report.pagesReviewed)/\(report.expectedPageCount)",
+                ok: report.pagesReviewed == report.expectedPageCount
+            )
+            ExportPrivacyScoreRow(
+                scheme: scheme,
+                icon: "wand.and.stars",
+                label: LanguageManager.shared.editor("editor_protection_check_metadata"),
+                value: report.metadataRemoved
+                    ? LanguageManager.shared.common("common_yes")
+                    : LanguageManager.shared.common("common_no"),
+                ok: report.metadataRemoved
+            )
+            ExportPrivacyScoreRow(
+                scheme: scheme,
+                icon: "text.badge.checkmark",
+                label: LanguageManager.shared.editor("editor_protection_check_watermark"),
+                value: report.watermarkApplied
+                    ? LanguageManager.shared.common("common_yes")
+                    : LanguageManager.shared.common("common_no"),
+                ok: report.watermarkApplied
+            )
+            ExportPrivacyScoreRow(
+                scheme: scheme,
+                icon: "eye",
+                label: LanguageManager.shared.editor("editor_protection_check_remaining"),
+                value: "\(report.remainingDetectedSensitiveElements)",
+                ok: report.remainingDetectedSensitiveElements == 0
+            )
+
+            Text(LanguageManager.shared.editor("editor_protection_check_note"))
+                .shieldFont(10)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(ShieldTheme.rowBackground(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    report.isReadyToShare ? ShieldTheme.success.opacity(0.35) : ShieldTheme.warning.opacity(0.35),
+                    lineWidth: 0.8
+                )
+        )
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(LanguageManager.shared.editor("editor_protection_check_title"))
     }
 }
 

@@ -868,6 +868,40 @@
         }
       }
     },
+    "settings_info_protection_body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID uses on-device OCR to suggest names, addresses, contact details, document numbers, payment identifiers, dates, barcodes, and other patterns when available. You review every suggestion. Secure export rasterizes selected redactions into a new PDF or image, checks the generated output for extractable text, annotations, common metadata, and residual OCR in redacted zones, then shows a Protection Check before sharing. These checks cover the output they inspect; they do not prove complete detection, authenticity, recipient acceptance, or legal permission."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID usa OCR en el dispositivo para sugerir nombres, direcciones, datos de contacto, números de documento, identificadores de pago, fechas, códigos de barras y otros patrones cuando es posible. Revisas cada sugerencia. La exportación segura rasteriza las redacciones seleccionadas en un PDF o imagen nuevos, comprueba el texto extraíble, las anotaciones, los metadatos habituales y el OCR residual en las zonas ocultas, y muestra un Protection Check antes de compartir. Estas comprobaciones cubren la salida que inspeccionan; no demuestran detección completa, autenticidad, aceptación del destinatario ni permiso legal."
+          }
+        }
+      }
+    },
+    "settings_info_protection_title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How MaskID protects your files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo protege MaskID tus archivos"
+          }
+        }
+      }
+    },
     "settings_info_responsibility_body" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -976,13 +1010,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Information and disclaimer"
+            "value" : "How MaskID protects your files"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Información y aviso legal"
+            "value" : "Cómo protege MaskID tus archivos"
           }
         }
       }
@@ -993,13 +1027,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "How MaskID handles documents and automated suggestions"
+            "value" : "A factual guide to detection, secure export, and review"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cómo trata MaskID los documentos y las sugerencias automáticas"
+            "value" : "Guía factual sobre detección, exportación segura y revisión"
           }
         }
       }

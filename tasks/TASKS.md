@@ -1780,3 +1780,76 @@
    Done by: CODEX
    Done at: 2026-09-12T10:26:03Z
 
+163. kinsera-parental-platform-audit
+   Id: 163-kinsera-parental-platform-audit
+   Scope: Investigación competitiva, auditoría técnica y blueprint de producto para convertir la base actual hacia Kinsera; sin reescribir la app publicada hasta separar proyecto y bundle
+   Files: COMPETITOR_RESEARCH.md,Docs/KINSERA_PRODUCT_BLUEPRINT.md,Docs/KINSERA_TECHNICAL_AUDIT.md,Docs/KINSERA_ANALYTICS_PLAN.md,Docs/KINSERA_ASO.md,Docs/KINSERA_TEST_MATRIX.md
+   Note: Starting market research, repo mismatch audit, and Kinsera product/technical blueprint
+   Detail: tasks/details/163-kinsera-parental-platform-audit.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T13:29:33Z
+
+164. unified-protection-check
+   Id: 164-unified-protection-check
+   Scope: Unificar exportación segura y verificación demostrable para PDF e imagen; mostrar Protection Check post-export y cubrir residual OCR/metadatos con fixtures
+   Files: Shield/Export/SecureExportModels.swift,Shield/Export/ExportVerifier.swift,Shield/Views/Editor/ExportServices.swift,Shield/Views/Editor/ExportSheetView.swift,Shield/Views/Editor/ExportFormViews.swift,ShieldTests/Export/ExportVerifierTests.swift,ShieldTests/ImportPipelineTests.swift,Docs/PRODUCT_POSITIONING.md,Docs/CLAIMS_MATRIX.md
+   Note: Finished: unified PDF/image Protection Check, destructive image export verification, purpose presets, adversarial fixtures. Full isolated Shield build and full ShieldTests passed. Cleanup dry-run reviewed build-logs (3.9G); not applied because shared artifacts.
+   Detail: tasks/details/164-unified-protection-check.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T13:38:57Z
+   Done by: CODEX
+   Done at: 2026-09-12T14:36:16Z
+
+165. trust-center-protection-explainer
+   Id: 165-trust-center-protection-explainer
+   Scope: Convertir la página de información en un Trust Center factual que explique detección, revisión, exportación destructiva, metadata y límites de MaskID
+   Files: Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Localization/Strings/SettingsInfo.xcstrings,ShieldTests/LocalizationLanguageTests.swift,Docs/CLAIMS_MATRIX.md,tasks/details/
+   Note: Finished: Trust Center entry and factual EN/ES protection explanation added; localized regression test, full ShieldTests, catalog validation and diff check passed.
+   Detail: tasks/details/165-trust-center-protection-explainer.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T14:42:28Z
+   Done by: CODEX
+   Done at: 2026-09-12T14:46:52Z
+
+166. share-extension-intake-hardening
+   Id: 166-share-extension-intake-hardening
+   Scope: Endurecer el handoff del Share Extension para Photo/PDF: validación centralizada de tipos, fallback a data representation, errores visibles y métricas de origen sin PII
+   Files: ShareExtension/ShareViewController.swift,Shield/Share/SharedImportStore.swift,Shield/App/ShieldApp.swift,Shield/ViewModels/AppState.swift,Shield/Views/Capture/CaptureView.swift,ShieldTests/SharedImportStoreTests.swift,Docs/CLAIMS_MATRIX.md,tasks/details/
+   Note: Implementado: validación compartida de tipos PDF/imagen, fallback loadDataRepresentation, errores de handoff visibles y métricas agregadas share_sheet sin PII. Build de app+ShareExtension+Widget OK; ShieldTests completo OK (82 tests/18 suites); Info.plist y diff OK. Pendiente fuera del task: smoke manual en dispositivo con Fotos/Archivos y proveedores reales.
+   Detail: tasks/details/166-share-extension-intake-hardening.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T14:52:24Z
+   Done by: CODEX
+   Done at: 2026-09-12T15:08:25Z
+
+167. adversarial-secure-export-fixtures
+   Id: 167-adversarial-secure-export-fixtures
+   Scope: Build an adversarial secure-export fixture matrix covering multi-page, rotated, low-quality, multilingual, text-layer, annotation, metadata, transparency, GPS, and large-PDF inputs; add byte-level assertions for destructive output and document any limits.
+   Files: ShieldTests/Export/ExportVerifierTests.swift,Shield/Export/ExportVerifier.swift,Docs/CLAIMS_MATRIX.md,tasks/details/167-adversarial-secure-export-fixtures.md
+   Note: Finished: added adversarial Secure Export fixtures and production artifact assertions for multipage/rotated/low-quality/multilingual/50-page PDFs, text layers, annotations, transparent PNG, GPS/EXIF/TIFF metadata, and PDF/JPEG byte-level removal of redacted fixture text. Targeted ExportVerifierTests passed 11/11; full ShieldTests passed 88 tests in 18 suites. Full scheme UI executed 33 tests with 4 unrelated pre-existing failures in ShieldLaunchTests (lines 101, 240, 278, 459).
+   Detail: tasks/details/167-adversarial-secure-export-fixtures.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T15:14:15Z
+   Done by: CODEX
+   Done at: 2026-09-12T15:40:21Z
+
+168. ui-regression-gate
+   Id: 168-ui-regression-gate
+   Scope: Fix and verify the four existing Shield UI regressions in settings navigation, feedback accessibility labeling, capture dismissal, and paywall footer geometry.
+   Files: Shield/Views/Settings/SettingsDestinationViews.swift,Shield/App/AppReviewManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Components/Components.swift,ShieldUITests/ShieldLaunchTests.swift,tasks/details/168-ui-regression-gate.md
+   Note: Starting focused repair of the four existing UI gate regressions.
+   Detail: tasks/details/168-ui-regression-gate.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T15:42:29Z
+
+169. release-testflight-1011202609131
+   Id: 169-release-testflight-1011202609131
+   Scope: Set MaskID build number to 1011202609131, archive Release, export/upload to App Store Connect and verify TestFlight processing.
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts/MaskID-1011202609131.xcarchive,.asc/artifacts/MaskID-1011202609131.ipa,tasks/details/169-release-testflight-1011202609131.md
+   Note: Release completed with version 1.0.11 and exact build 10112026091301; archive and IPA created, upload VALID in App Store Connect, assigned to existing Shield Internal TestFlight group; cleanup dry-run reviewed with only pre-existing build-logs candidate left untouched.
+   Detail: tasks/details/169-release-testflight-1011202609131.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-12T19:45:48Z
+   Done by: CODEX
+   Done at: 2026-09-12T20:26:38Z
+

@@ -398,36 +398,14 @@ struct PaywallView: View {
     // MARK: - Footer
 
     private var footerLinks: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 2) {
-                restoreLink
-                footerLinkSeparator
-                privacyLink
-                footerLinkSeparator
-                termsLink
-                footerLinkSeparator
-                subscriptionTermsLink
-            }
-
-            VStack(spacing: 0) {
-                HStack(spacing: ShieldTheme.s2) {
-                    restoreLink
-                    footerLinkSeparator
-                    privacyLink
-                }
-                HStack(spacing: ShieldTheme.s2) {
-                    termsLink
-                    footerLinkSeparator
-                    subscriptionTermsLink
-                }
-            }
-
-            VStack(spacing: 0) {
-                restoreLink
-                privacyLink
-                termsLink
-                subscriptionTermsLink
-            }
+        HStack(spacing: 0) {
+            restoreLink
+            footerLinkSeparator
+            privacyLink
+            footerLinkSeparator
+            termsLink
+            footerLinkSeparator
+            subscriptionTermsLink
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .contain)
@@ -453,7 +431,9 @@ struct PaywallView: View {
             .shieldFont(10, weight: .semibold)
             .foregroundColor(ShieldTheme.secondary(scheme))
             .padding(.horizontal, 2)
-            .frame(minHeight: ShieldTheme.minimumTapTarget)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -504,8 +484,9 @@ struct PaywallView: View {
                 .shieldFont(10, weight: .semibold)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
                 .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .padding(.horizontal, 2)
-                .frame(minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

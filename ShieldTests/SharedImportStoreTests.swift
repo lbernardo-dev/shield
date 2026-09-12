@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UniformTypeIdentifiers
 @testable import Shield
 
 @Suite("Encrypted Share Extension inbox")
@@ -36,6 +37,26 @@ struct SharedImportStoreTests {
 
         #expect(throws: (any Error).self) {
             _ = try SharedImportCryptor.open(encrypted, keyData: key)
+        }
+    }
+
+    @Test("Share handoff accepts only PDF and image type families")
+    func supportedTypeIdentifiersAreBounded() {
+        #expect(SharedImportStore.validatedTypeIdentifier(UTType.pdf.identifier) == UTType.pdf.identifier)
+        #expect(SharedImportStore.validatedTypeIdentifier(UTType.jpeg.identifier) == UTType.jpeg.identifier)
+        #expect(SharedImportStore.validatedTypeIdentifier(UTType.png.identifier) == UTType.png.identifier)
+        #expect(SharedImportStore.validatedTypeIdentifier(UTType.audio.identifier) == nil)
+        #expect(SharedImportStore.validatedTypeIdentifier("public.data") == nil)
+    }
+
+    @Test("Unsupported Share handoff type is rejected before enqueue")
+    func unsupportedTypeCannotEnterInbox() {
+        #expect(throws: SharedImportStoreError.self) {
+            try SharedImportStore.enqueue(
+                data: Data([0x01]),
+                fileName: "voice.m4a",
+                typeIdentifier: UTType.audio.identifier
+            )
         }
     }
 }

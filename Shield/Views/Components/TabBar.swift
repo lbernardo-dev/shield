@@ -44,37 +44,50 @@ struct ShieldTabBar: View {
     @Binding var selected: AppTab
     let lang: AppLanguage
     var onScanTap: () -> Void
+    var showsScanButton = true
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
-        HStack(spacing: 0) {
-            tabItem(.library)
-            tabItem(.gallery)
-            Color.clear
-                .frame(maxWidth: .infinity)
-                .frame(height: 44)
-                .accessibilityHidden(true)
-            tabItem(.vault)
-            tabItem(.settings)
+        ZStack(alignment: .top) {
+            HStack(spacing: 0) {
+                tabItem(.library)
+                tabItem(.gallery)
+                Color.clear
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .accessibilityHidden(true)
+                tabItem(.vault)
+                tabItem(.settings)
+            }
+            .frame(height: 46)
+            .padding(.horizontal, 4)
+
+            if showsScanButton {
+                // Keep the scan action as a real sibling in the hit-test tree.
+                // The shell can host it in an expanded interaction layer when
+                // the visual button protrudes beyond the safe-area inset.
+                ShieldScanButton(action: onScanTap)
+                    .offset(y: -18)
+                    .zIndex(1)
+            }
         }
         .frame(height: 46)
-        .padding(.horizontal, 4)
         .background(ShieldTheme.cardBackground(scheme))
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(ShieldTheme.line(scheme))
                 .frame(height: 0.5)
         }
-        .overlay(alignment: .top) {
-            scanButton
-                .offset(y: -18)
-                .zIndex(1)
-        }
     }
 
-    @ViewBuilder
-    private var scanButton: some View {
-        Button(action: onScanTap) {
+}
+
+struct ShieldScanButton: View {
+    let action: () -> Void
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        Button(action: action) {
             ZStack {
                 Circle()
                     .fill(ShieldTheme.accent(scheme))
@@ -99,7 +112,9 @@ struct ShieldTabBar: View {
         .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
         .accessibilityIdentifier("tab.capture")
     }
+}
 
+private extension ShieldTabBar {
     @ViewBuilder
     private func tabItem(_ tab: AppTab) -> some View {
         let isActive = selected == tab

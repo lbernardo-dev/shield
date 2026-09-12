@@ -401,6 +401,19 @@ final class EditorViewModel: ObservableObject {
     }
 
     func applyPreset(_ preset: RedactionPreset, lang: AppLanguage) {
+        if preset == .custom {
+            setWatermark(Watermark(
+                text: preset.defaultWatermarkText(lang: lang),
+                opacity: 0.28,
+                isRepeating: true,
+                colorHex: "000000"
+            ))
+            AppState.trackEvent("preset_applied", properties: [
+                "preset": preset.rawValue
+            ])
+            return
+        }
+
         var newRedactions = redactions
         if let pageEvidence = doc.fields.ocrPageEvidence?.first(where: { $0.pageIndex == currentPage }) {
             let obsMap = Dictionary(uniqueKeysWithValues: pageEvidence.observations.map { ($0.id, $0) })
@@ -419,7 +432,7 @@ final class EditorViewModel: ObservableObject {
             }
         }
 
-        if newRedactions == redactions {
+        if newRedactions == redactions, doc.kind != .photo, doc.kind != .genericID {
             let suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
             newRedactions = suggested
         }
