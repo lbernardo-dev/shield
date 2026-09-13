@@ -1,208 +1,587 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "/ %lld" : {
+
+    },
+    "%lld" : {
+
+    },
     "%lld of %lld protected" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld of %lld protected" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld de %lld protegidos" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de %lld protegidos"
+          }
+        }
       }
+    },
+    "%lld protected documents" : {
+
+    },
+    "%lld%%" : {
+
     },
     "%lld%% secure" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%% secure" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld%% seguro" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% secure"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% seguro"
+          }
+        }
       }
+    },
+    "•" : {
+
     },
     "100% Offline" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "100% Offline" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "100% Offline" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100% Offline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100% Offline"
+          }
+        }
       }
     },
     "100% On-Device" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "100% On-Device" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "100% en dispositivo" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100% On-Device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100% en dispositivo"
+          }
+        }
       }
     },
     "All Secure" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Secure" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Todo Seguro" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Secure"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo Seguro"
+          }
+        }
       }
+    },
+    "Apply Preset" : {
+
     },
     "DNI / ID" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "ID / Passport" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "DNI / ID" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID / Passport"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNI / ID"
+          }
+        }
+      }
+    },
+    "documents" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "documentos"
+          }
+        }
       }
     },
     "Documents" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Documents" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Documentos" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentos"
+          }
+        }
       }
     },
     "Identity Protected" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Identity Protected" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Identidad Blindada" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identity Protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identidad Blindada"
+          }
+        }
       }
+    },
+    "MaskID" : {
+
     },
     "MaskID Quick Actions" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "MaskID Quick Actions" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajos de MaskID" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID Quick Actions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atajos de MaskID"
+          }
+        }
       }
     },
     "No exposed documents" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No exposed documents" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin documentos expuestos" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No exposed documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin documentos expuestos"
+          }
+        }
       }
     },
     "One-tap shortcuts to protect IDs, payrolls, contracts, or open your vault." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "One-tap shortcuts to protect IDs, payrolls, contracts, or open your vault." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajos de un toque para proteger DNI, nóminas, contratos o abrir tu bóveda." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One-tap shortcuts to protect IDs, payrolls, contracts, or open your vault."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atajos de un toque para proteger DNI, nóminas, contratos o abrir tu bóveda."
+          }
+        }
       }
+    },
+    "Open MaskID ready to import, scan, or photograph a document." : {
+
+    },
+    "Open MaskID with a specific protection preset." : {
+
     },
     "Open Vault" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Vault" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Bóveda" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Vault"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Bóveda"
+          }
+        }
       }
     },
     "Payroll" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pay Stub" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nómina" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay Stub"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nómina"
+          }
+        }
       }
+    },
+    "Preset" : {
+
     },
     "Privacy Tip" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy Tip" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Consejo de Privacidad" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Tip"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consejo de Privacidad"
+          }
+        }
       }
     },
     "Protect" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protect" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger" } }
-      }
-    },
-    "Protect Document" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protect Document" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger Documento" } }
-      }
-    },
-    "Protect ID" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protect ID" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger DNI" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proteger"
+          }
+        }
       }
     },
     "Protect a Document" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protect a Document" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proteger un documento" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect a Document"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proteger un documento"
+          }
+        }
+      }
+    },
+    "Protect Document" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect Document"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proteger Documento"
+          }
+        }
+      }
+    },
+    "Protect ID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect ID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proteger DNI"
+          }
+        }
       }
     },
     "Protected" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protected" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Protegidos" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protegidos"
+          }
+        }
+      }
+    },
+    "protected documents" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "protected documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "documentos protegidos"
+          }
+        }
+      }
+    },
+    "Protection status" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protection status"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de protección"
+          }
+        }
       }
     },
     "Protection Status" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protection Status" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estado de Protección" } }
-      }
-    },
-    "Protection status" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Protection status" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estado de protección" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protection Status"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado de Protección"
+          }
+        }
       }
     },
     "Quick Actions" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Actions" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acciones Rápidas" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Actions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acciones Rápidas"
+          }
+        }
       }
     },
     "Quickly access MaskID's encrypted vault." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quickly access MaskID's encrypted vault." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Accede rápidamente a la bóveda cifrada de MaskID." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quickly access MaskID's encrypted vault."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accede rápidamente a la bóveda cifrada de MaskID."
+          }
+        }
       }
     },
     "Quickly open MaskID to protect a document." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quickly open MaskID to protect a document." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre rápidamente MaskID para proteger un documento." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quickly open MaskID to protect a document."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre rápidamente MaskID para proteger un documento."
+          }
+        }
       }
     },
     "Rental / Lease" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rental / Lease" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alquiler / Trámite" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rental / Lease"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler / Trámite"
+          }
+        }
       }
     },
     "Scan Document" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan Document" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escanear Documento" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Document"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear Documento"
+          }
+        }
       }
     },
+    "Secure" : {
+
+    },
     "Secure Vault" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Secure Vault" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bóveda Cifrada" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secure Vault"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bóveda Cifrada"
+          }
+        }
       }
     },
     "See your protected document metrics, watermarks, and security status." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "See your protected document metrics, watermarks, and security status." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Consulta métricas de tus documentos protegidos, marcas de agua y seguridad." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See your protected document metrics, watermarks, and security status."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta métricas de tus documentos protegidos, marcas de agua y seguridad."
+          }
+        }
       }
     },
     "Shield Active" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shield Active" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escudo Activo" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shield Active"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escudo Activo"
+          }
+        }
       }
     },
     "Vault" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vault" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bóveda" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vault"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bóveda"
+          }
+        }
       }
     },
     "Watermarks" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Watermarks" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Marcas de agua" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watermarks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcas de agua"
+          }
+        }
       }
     },
     "When sharing your ID or pay stub, always mask excess data and add a specific watermark." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "When sharing your ID or pay stub, always mask excess data and add a specific watermark." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al compartir tu DNI o nómina, oculta datos sensibles y añade una marca de agua de uso exclusivo." } }
-      }
-    },
-    "documents" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "documents" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "documentos" } }
-      }
-    },
-    "protected documents" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "protected documents" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "documentos protegidos" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When sharing your ID or pay stub, always mask excess data and add a specific watermark."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al compartir tu DNI o nómina, oculta datos sensibles y añade una marca de agua de uso exclusivo."
+          }
+        }
       }
     }
   },
