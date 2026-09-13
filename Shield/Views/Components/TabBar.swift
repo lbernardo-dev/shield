@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AppTab
 
-enum AppTab: Int, CaseIterable, Identifiable {
+enum AppTab: Int, CaseIterable, Identifiable, Hashable {
     case library
     case gallery
     case vault
@@ -43,35 +43,16 @@ enum AppTab: Int, CaseIterable, Identifiable {
 struct ShieldTabBar: View {
     @Binding var selected: AppTab
     let lang: AppLanguage
-    var onScanTap: () -> Void
-    var showsScanButton = true
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
-        ZStack(alignment: .top) {
-            HStack(spacing: 0) {
-                tabItem(.library)
-                tabItem(.gallery)
-                Color.clear
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .accessibilityHidden(true)
-                tabItem(.vault)
-                tabItem(.settings)
-            }
-            .frame(height: 46)
-            .padding(.horizontal, 4)
-
-            if showsScanButton {
-                // Keep the scan action as a real sibling in the hit-test tree.
-                // The shell can host it in an expanded interaction layer when
-                // the visual button protrudes beyond the safe-area inset.
-                ShieldScanButton(action: onScanTap)
-                    .offset(y: -18)
-                    .zIndex(1)
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases) { tab in
+                tabItem(tab)
             }
         }
-        .frame(height: 46)
+        .frame(height: 50)
+        .padding(.horizontal, 4)
         .background(ShieldTheme.cardBackground(scheme))
         .overlay(alignment: .top) {
             Rectangle()
@@ -79,7 +60,6 @@ struct ShieldTabBar: View {
                 .frame(height: 0.5)
         }
     }
-
 }
 
 struct ShieldScanButton: View {
@@ -104,13 +84,104 @@ struct ShieldScanButton: View {
                     .shieldFont(20, weight: .bold)
                     .foregroundColor(ShieldTheme.accentText)
             }
-            .frame(width: 58, height: 58)
+            .frame(width: 64, height: 64)
             .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
         .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
         .accessibilityIdentifier("tab.capture")
+    }
+}
+
+/// The primary Scan action is an accessory to navigation, not a fifth tab.
+/// On iOS 26 the system moves and compacts this accessory with the tab bar,
+/// including the vertical control rail used by iPhone Duo.
+@available(iOS 26.0, *)
+struct ShieldScanAccessory: View {
+    let action: () -> Void
+    @Environment(\.tabViewBottomAccessoryPlacement) private var placement
+
+    var body: some View {
+        HStack {
+            Spacer(minLength: 0)
+            Button(action: action) {
+                if placement == .inline {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: ShieldTheme.minimumTapTarget, minHeight: ShieldTheme.minimumTapTarget)
+                } else {
+                    Label(
+                        LanguageManager.shared.capture("capture_scan_document"),
+                        systemImage: "camera.viewfinder"
+                    )
+                    .font(.headline)
+                    .padding(.horizontal, ShieldTheme.s2)
+                    .frame(minHeight: ShieldTheme.minimumTapTarget)
+                }
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+            .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
+            .accessibilityIdentifier("tab.capture")
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, ShieldTheme.s2)
+    }
+}
+
+/// Fallback accessory for iOS versions without the system Liquid Glass
+/// accessory placement APIs.
+struct ShieldLegacyScanAccessory: View {
+    let action: () -> Void
+
+    var body: some View {
+        HStack {
+            Spacer(minLength: 0)
+            ShieldScanButton(action: action)
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, ShieldTheme.s4)
+        .padding(.vertical, ShieldTheme.s2)
+        .background(.ultraThinMaterial)
+        .clipShape(.rect(cornerRadius: ShieldTheme.rLG, style: .continuous))
+        .accessibilityElement(children: .contain)
+    }
+}
+
+/// Primary Scan action for an adaptable sidebar. ViewThatFits lets the system
+/// keep the label when the rail is wide and collapse it to the symbol when the
+/// available width is narrow, without device-specific coordinates.
+@available(iOS 26.0, *)
+struct ShieldSidebarScanAction: View {
+    let action: () -> Void
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            Button(action: action) {
+                Label(
+                    LanguageManager.shared.capture("capture_scan_document"),
+                    systemImage: "camera.viewfinder"
+                )
+                .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+
+            Button(action: action) {
+                Image(systemName: "camera.viewfinder")
+                    .font(.title3.weight(.semibold))
+                    .frame(minWidth: ShieldTheme.minimumTapTarget, minHeight: ShieldTheme.minimumTapTarget)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+        }
+        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
+        .accessibilityIdentifier("sidebar.capture")
     }
 }
 
@@ -124,15 +195,14 @@ private extension ShieldTabBar {
             VStack(spacing: 1.5) {
                 Image(systemName: isActive ? tab.filledIcon : tab.icon)
                     .font(.system(size: 18, weight: isActive ? .semibold : .regular))
-                    .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                    .foregroundStyle(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .scaleEffect(isActive ? 1.05 : 1)
                     .animation(.spring(response: 0.25), value: isActive)
                 Text(tab.label(lang: lang))
                     .font(.system(size: 10, weight: isActive ? .bold : .medium))
-                    .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                    .foregroundStyle(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
             }
-            .padding(.top, 14)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(tab.label(lang: lang))

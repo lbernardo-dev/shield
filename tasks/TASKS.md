@@ -1853,3 +1853,45 @@
    Done by: CODEX
    Done at: 2026-09-12T20:26:38Z
 
+170. ios26-liquid-glass-navigation-redesign
+   Id: 170-ios26-liquid-glass-navigation-redesign
+   Scope: Propuesta de diseño y plan de implementación para navegación, footer y superficies adaptadas a iOS 26+; sin modificar código en esta fase
+   Files: Shield/Views/Components/TabBar.swift,Shield/App/ContentView.swift,Shield/Theme/ShieldTheme.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Gallery/StyleGalleryView.swift,Shield/Views/Vault/VaultView.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Editor/EditorView.swift,Shield/Views/Paywall/PaywallView.swift,ShieldUITests/ShieldLaunchTests.swift,Docs
+   Note: Concepto 3 implementado: TabView nativo con cuatro tabs, Scan como bottom accessory centrado de 64 pt, Liquid Glass iOS 26 con fallback, sidebar adaptable y tests UI específicos verdes. Build Debug correcto; cleanup dry-run revisado sin aplicar borrado.
+   Detail: tasks/details/170-ios26-liquid-glass-navigation-redesign.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-13T05:52:27Z
+   Done by: CODEX
+   Done at: 2026-09-13T06:24:56Z
+
+171. release-build-upload-cleanup
+   Id: 171-release-build-upload-cleanup
+   Scope: Incrementar el build number en los targets del proyecto, archivar/exportar y subir el build a App Store Connect, verificar procesamiento y limpiar logs/temporales aprobados
+   Files: Shield.xcodeproj Shield/ ShieldShareExtension/ ShieldWidgetExtension/ .asc/artifacts/ tasks/TASKS.md tasks/details/
+   Note: Build 10112026091302 aplicado a Shield y extensiones en Debug/Release; archive Release generado; upload App Store Connect completado y build VALID con ID 70a6fcab-f7f6-48b2-91e0-2d30a4bf5056. Movidos a la Papelera build-logs, build-cache y temporales /tmp; conservado .asc/artifacts.
+   Detail: tasks/details/171-release-build-upload-cleanup.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-13T06:26:45Z
+   Done by: CODEX
+   Done at: 2026-09-13T06:41:47Z
+
+172. adaptive-scan-action-rail
+   Id: 172-adaptive-scan-action-rail
+   Scope: Implementar la propuesta 2: acción de captura integrada en navegación lateral adaptable para iPhone normal y iPhone Duo, manteniendo fallback y accesibilidad
+   Files: Shield/App/ContentView.swift Shield/Views/Components/TabBar.swift Shield.xcodeproj/project.pbxproj tasks/TASKS.md tasks/details/
+   Note: Implementada la propuesta 2: accion Scan en accesorio estandar de TabView para iPhone compacto y en sidebarAdaptable/tabViewSidebarBottomBar para ancho regular/Duo, con ViewThatFits, Liquid Glass iOS 26, fallback pre-iOS 26 y accesibilidad. Build Debug iOS Simulator 27 correcto; testApplicationReachesForeground correcto. El test geometrico fue bloqueado por alerta residual del shared container del simulador. Cleanup dry-run revisado; apply bloqueado por xcodebuild activo de otro proyecto (personalcare), sin borrar artefactos de MaskID.
+   Detail: tasks/details/172-adaptive-scan-action-rail.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-13T07:05:35Z
+   Done by: CODEX
+   Done at: 2026-09-13T07:25:45Z
+
+173. release-upload-build-20260913
+   Id: 173-release-upload-build-20260913
+   Scope: Incrementar el build en todos los targets de MaskID, archivar Release y subir el IPA a App Store Connect
+   Files: Shield.xcodeproj/project.pbxproj .asc/artifacts/ tasks/TASKS.md tasks/details/
+   Note: Iniciando incremento coordinado de build, archive Release y upload a App Store Connect.
+   Detail: tasks/details/173-release-upload-build-20260913.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-13T07:31:06Z
+

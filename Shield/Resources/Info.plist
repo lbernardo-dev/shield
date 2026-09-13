@@ -2,58 +2,43 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>MaskID</string>
-	<key>RevenueCatAPIKey</key>
-	<string>appl_cJuegsqbihOvDkhDESnUPrekHTJ</string>
-	<key>RevenueCatEntitlementIdentifier</key>
-	<string>MaskID Pro</string>
-	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
-	<false/>
-	<key>ShieldAppStoreID</key>
-	<string>6790398619</string>
-	<key>ShieldGoogleDriveClientID</key>
-	<string>1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf.apps.googleusercontent.com</string>
-	<key>ShieldGoogleDriveRedirectURI</key>
-	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf:/oauth2redirect</string>
-	<key>ShieldGoogleDriveCallbackScheme</key>
-	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
-	<key>ShieldDropboxAppKey</key>
-	<string>eelqq7zaevpxt9w</string>
-	<key>ShieldDropboxRedirectURI</key>
-	<string>db-eelqq7zaevpxt9w://2/token</string>
-	<key>ShieldDropboxCallbackScheme</key>
-	<string>db-eelqq7zaevpxt9w</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.romerodev.shield</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>shield</string>
-				<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
-				<string>db-eelqq7zaevpxt9w</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleIcons</key>
 	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>MaskIDBlue</string>
-				<string>MaskIDBlue60x60@2x.png</string>
-				<string>MaskIDBlue60x60@3x.png</string>
-			</array>
-			<key>UIPrerenderedIcon</key>
-			<false/>
-		</dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
+			<key>MaskIDAurora</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDAurora</string>
+					<string>MaskIDAurora60x60@2x.png</string>
+					<string>MaskIDAurora60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDChristmas</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDChristmas</string>
+					<string>MaskIDChristmas60x60@2x.png</string>
+					<string>MaskIDChristmas60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDForest</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDForest</string>
+					<string>MaskIDForest60x60@2x.png</string>
+					<string>MaskIDForest60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>MaskIDGold</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -76,6 +61,28 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>MaskIDHalloween</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDHalloween</string>
+					<string>MaskIDHalloween60x60@2x.png</string>
+					<string>MaskIDHalloween60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDLunar</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDLunar</string>
+					<string>MaskIDLunar60x60@2x.png</string>
+					<string>MaskIDLunar60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>MaskIDOcean</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -83,6 +90,17 @@
 					<string>MaskIDOcean</string>
 					<string>MaskIDOcean60x60@2x.png</string>
 					<string>MaskIDOcean60x60@3x.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDPride</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDPride</string>
+					<string>MaskIDPride60x60@2x.png</string>
+					<string>MaskIDPride60x60@3x.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -109,24 +127,13 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDAurora</key>
+			<key>MaskIDSpace</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>MaskIDAurora</string>
-					<string>MaskIDAurora60x60@2x.png</string>
-					<string>MaskIDAurora60x60@3x.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDForest</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDForest</string>
-					<string>MaskIDForest60x60@2x.png</string>
-					<string>MaskIDForest60x60@3x.png</string>
+					<string>MaskIDSpace</string>
+					<string>MaskIDSpace60x60@2x.png</string>
+					<string>MaskIDSpace60x60@3x.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -142,13 +149,30 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDHalloween</key>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>MaskIDBlue</string>
+				<string>MaskIDBlue60x60@2x.png</string>
+				<string>MaskIDBlue60x60@3x.png</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>MaskIDAurora</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>MaskIDHalloween</string>
-					<string>MaskIDHalloween60x60@2x.png</string>
-					<string>MaskIDHalloween60x60@3x.png</string>
+					<string>MaskIDAurora</string>
+					<string>MaskIDAurora76x76@2x~ipad.png</string>
+					<string>MaskIDAurora83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -158,62 +182,23 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>MaskIDChristmas</string>
-					<string>MaskIDChristmas60x60@2x.png</string>
-					<string>MaskIDChristmas60x60@3x.png</string>
+					<string>MaskIDChristmas76x76@2x~ipad.png</string>
+					<string>MaskIDChristmas83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDLunar</key>
+			<key>MaskIDForest</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>MaskIDLunar</string>
-					<string>MaskIDLunar60x60@2x.png</string>
-					<string>MaskIDLunar60x60@3x.png</string>
+					<string>MaskIDForest</string>
+					<string>MaskIDForest76x76@2x~ipad.png</string>
+					<string>MaskIDForest83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDPride</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDPride</string>
-					<string>MaskIDPride60x60@2x.png</string>
-					<string>MaskIDPride60x60@3x.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDSpace</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDSpace</string>
-					<string>MaskIDSpace60x60@2x.png</string>
-					<string>MaskIDSpace60x60@3x.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-		</dict>
-	</dict>
-	<key>CFBundleIcons~ipad</key>
-	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>MaskIDBlue</string>
-				<string>MaskIDBlue76x76@2x~ipad.png</string>
-				<string>MaskIDBlue83.5x83.5@2x~ipad.png</string>
-			</array>
-			<key>UIPrerenderedIcon</key>
-			<false/>
-		</dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
 			<key>MaskIDGold</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -236,6 +221,28 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>MaskIDHalloween</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDHalloween</string>
+					<string>MaskIDHalloween76x76@2x~ipad.png</string>
+					<string>MaskIDHalloween83.5x83.5@2x~ipad.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDLunar</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDLunar</string>
+					<string>MaskIDLunar76x76@2x~ipad.png</string>
+					<string>MaskIDLunar83.5x83.5@2x~ipad.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>MaskIDOcean</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -243,6 +250,17 @@
 					<string>MaskIDOcean</string>
 					<string>MaskIDOcean76x76@2x~ipad.png</string>
 					<string>MaskIDOcean83.5x83.5@2x~ipad.png</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>MaskIDPride</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>MaskIDPride</string>
+					<string>MaskIDPride76x76@2x~ipad.png</string>
+					<string>MaskIDPride83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -269,24 +287,13 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDAurora</key>
+			<key>MaskIDSpace</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>MaskIDAurora</string>
-					<string>MaskIDAurora76x76@2x~ipad.png</string>
-					<string>MaskIDAurora83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDForest</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDForest</string>
-					<string>MaskIDForest76x76@2x~ipad.png</string>
-					<string>MaskIDForest83.5x83.5@2x~ipad.png</string>
+					<string>MaskIDSpace</string>
+					<string>MaskIDSpace76x76@2x~ipad.png</string>
+					<string>MaskIDSpace83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -302,62 +309,53 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>MaskIDHalloween</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDHalloween</string>
-					<string>MaskIDHalloween76x76@2x~ipad.png</string>
-					<string>MaskIDHalloween83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDChristmas</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDChristmas</string>
-					<string>MaskIDChristmas76x76@2x~ipad.png</string>
-					<string>MaskIDChristmas83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDLunar</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDLunar</string>
-					<string>MaskIDLunar76x76@2x~ipad.png</string>
-					<string>MaskIDLunar83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDPride</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDPride</string>
-					<string>MaskIDPride76x76@2x~ipad.png</string>
-					<string>MaskIDPride83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>MaskIDSpace</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>MaskIDSpace</string>
-					<string>MaskIDSpace76x76@2x~ipad.png</string>
-					<string>MaskIDSpace83.5x83.5@2x~ipad.png</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>MaskIDBlue</string>
+				<string>MaskIDBlue76x76@2x~ipad.png</string>
+				<string>MaskIDBlue83.5x83.5@2x~ipad.png</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
 		</dict>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.romerodev.shield</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>shield</string>
+				<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
+				<string>db-eelqq7zaevpxt9w</string>
+			</array>
+		</dict>
+	</array>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>RevenueCatAPIKey</key>
+	<string>appl_cJuegsqbihOvDkhDESnUPrekHTJ</string>
+	<key>RevenueCatEntitlementIdentifier</key>
+	<string>MaskID Pro</string>
+	<key>ShieldAppStoreID</key>
+	<string>6790398619</string>
+	<key>ShieldDropboxAppKey</key>
+	<string>eelqq7zaevpxt9w</string>
+	<key>ShieldDropboxCallbackScheme</key>
+	<string>db-eelqq7zaevpxt9w</string>
+	<key>ShieldDropboxRedirectURI</key>
+	<string>db-eelqq7zaevpxt9w://2/token</string>
+	<key>ShieldGoogleDriveCallbackScheme</key>
+	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
+	<key>ShieldGoogleDriveClientID</key>
+	<string>1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf.apps.googleusercontent.com</string>
+	<key>ShieldGoogleDriveRedirectURI</key>
+	<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf:/oauth2redirect</string>
 </dict>
 </plist>

@@ -9,13 +9,12 @@
 /* Begin PBXBuildFile section */
 		04BDAF5611443B33A18AF41C /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */; };
 		06105DF7F0550A262E5F54E2 /* ShieldWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC88D3226EC80F0D517287C /* ShieldWidgetSnapshot.swift */; };
-		0A1B2C3D4E5F60718293A4B5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E3F405162738495A6B7C8D9E /* ShieldWidgetExtension/PrivacyInfo.xcprivacy */; };
+		0A1B2C3D4E5F60718293A4B5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E3F405162738495A6B7C8D9E /* PrivacyInfo.xcprivacy */; };
 		0B1C2D3E4F5061728394A5B6 /* WidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1C2D3E4F5061728394A5B7 /* WidgetSnapshotTests.swift */; };
 		31DE39DCB995616AAD07B6A1 /* FirebaseIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */; };
 		3CA750D6F375D289F354AF77 /* ShieldWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F640B50413BFDA4B4F262204 /* ShieldWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A99289FC98B57E5116862E0 /* ShieldWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC88D3226EC80F0D517287C /* ShieldWidgetSnapshot.swift */; };
 		55A35CBF7F2EF28EC16D29EB /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A938E0FF658DFC0AEDDECA38 /* Localizable.xcstrings */; };
-		B7E7367526FDC6C199B6D0A7 /* ShieldWidgetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */; };
 		7C1543923034D36100A8C080 /* MaskIDRed.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438F3034D36100A8C080 /* MaskIDRed.icon */; };
 		7C1543933034D36100A8C080 /* MaskIDBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543833034D36100A8C080 /* MaskIDBlue.png */; };
 		7C1543943034D36100A8C080 /* MaskIDOcean.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543863034D36100A8C080 /* MaskIDOcean.png */; };
@@ -111,22 +110,22 @@
 		AT008 /* LocalizationLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T008 /* LocalizationLanguageTests.swift */; };
 		AT009 /* AppReviewManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T009 /* AppReviewManagerTests.swift */; };
 		AT_TEST_APPICON /* AppIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_APPICON /* AppIconTests.swift */; };
+		AT_TEST_ENHANCE /* EnhancementFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */; };
 		AT_TEST_OCR /* OCREnginePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_OCR /* OCREnginePrecisionTests.swift */; };
 		AT_TEST_QUOTA /* FreeQuotaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_QUOTA /* FreeQuotaTests.swift */; };
-		AT_TEST_ENHANCE /* EnhancementFeaturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */; };
+		A_BARCODE_DET /* BarcodeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_BARCODE_DET /* BarcodeDetector.swift */; };
+		A_DOC_PROC /* DocumentProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_PROC /* DocumentProcessor.swift */; };
+		A_DOC_STORE /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_STORE /* DocumentStore.swift */; };
+		A_DOC_THUMB_VIEW /* DocumentThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */; };
+		A_HOME_VM /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_HOME_VM /* HomeViewModel.swift */; };
 		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
 		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
 		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
 		A_OCR_PREP /* OCRImagePreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_PREP /* OCRImagePreprocessor.swift */; };
 		A_OCR_SETT /* OCREngineSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_SETT /* OCREngineSettingsView.swift */; };
-		A_THUMB_MGR /* ThumbnailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_THUMB_MGR /* ThumbnailManager.swift */; };
-		A_DOC_PROC /* DocumentProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_PROC /* DocumentProcessor.swift */; };
-		A_DOC_THUMB_VIEW /* DocumentThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */; };
-		A_RED_PRESETS /* RedactionPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_RED_PRESETS /* RedactionPresets.swift */; };
-		A_DOC_STORE /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_STORE /* DocumentStore.swift */; };
 		A_PRESET_PICKER /* RedactionPresetPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_PRESET_PICKER /* RedactionPresetPicker.swift */; };
-		A_BARCODE_DET /* BarcodeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_BARCODE_DET /* BarcodeDetector.swift */; };
-		A_HOME_VM /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_HOME_VM /* HomeViewModel.swift */; };
+		A_RED_PRESETS /* RedactionPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_RED_PRESETS /* RedactionPresets.swift */; };
+		A_THUMB_MGR /* ThumbnailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_THUMB_MGR /* ThumbnailManager.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -140,6 +139,7 @@
 		B011 /* Vault.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L011 /* Vault.xcstrings */; };
 		B012 /* SettingsInfo.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L012 /* SettingsInfo.xcstrings */; };
 		B014 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L014 /* InfoPlist.xcstrings */; };
+		B7E7367526FDC6C199B6D0A7 /* ShieldWidgetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */; };
 		BLOTJSON /* Animations/MaskID_IdentityMask_v3.json in Resources */ = {isa = PBXBuildFile; fileRef = FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */; };
 		C40782E8BD3F1F70A2300896 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0A2762485938BDD6615773 /* FirebaseAnalyticsCore */; };
 		EMBEDEXT /* ShieldShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FEXTAPP /* ShieldShareExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -198,15 +198,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6FC88D3226EC80F0D517287C /* ShieldWidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShieldWidgetSnapshot.swift; sourceTree = "<group>"; };
-		A938E0FF658DFC0AEDDECA38 /* Localizable.xcstrings */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		0A1B2C3D4E5F60718293A4B6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		0B1C2D3E4F5061728394A5B7 /* WidgetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotTests.swift; sourceTree = "<group>"; };
-		DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShieldWidgetExtension.swift; sourceTree = "<group>"; };
-		E1F2031425364758697A8B9C /* ShieldWidgetExtension/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E2F30415263748596A7B8C9D /* ShieldWidgetExtension/ShieldWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShieldWidgetExtension.entitlements; sourceTree = "<group>"; };
-		E3F405162738495A6B7C8D9E /* ShieldWidgetExtension/PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		F640B50413BFDA4B4F262204 /* ShieldWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FC88D3226EC80F0D517287C /* ShieldWidgetSnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShieldWidgetSnapshot.swift; sourceTree = "<group>"; };
 		7C1543833034D36100A8C080 /* MaskIDBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDBlue.png; sourceTree = "<group>"; };
 		7C1543843034D36100A8C080 /* MaskIDGold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDGold.png; sourceTree = "<group>"; };
 		7C1543853034D36100A8C080 /* MaskIDGreen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDGreen.png; sourceTree = "<group>"; };
@@ -219,8 +212,21 @@
 		7C15438D3034D36100A8C080 /* MaskIDOcean.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDOcean.icon; sourceTree = "<group>"; };
 		7C15438E3034D36100A8C080 /* MaskIDPurple.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDPurple.icon; sourceTree = "<group>"; };
 		7C15438F3034D36100A8C080 /* MaskIDRed.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MaskIDRed.icon; sourceTree = "<group>"; };
+		7C1543B03034D36100A8C080 /* MaskIDAurora.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDAurora.png; sourceTree = "<group>"; };
+		7C1543B13034D36100A8C080 /* MaskIDForest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDForest.png; sourceTree = "<group>"; };
+		7C1543B23034D36100A8C080 /* MaskIDTide.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDTide.png; sourceTree = "<group>"; };
+		7C1543B33034D36100A8C080 /* MaskIDHalloween.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDHalloween.png; sourceTree = "<group>"; };
+		7C1543B43034D36100A8C080 /* MaskIDChristmas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDChristmas.png; sourceTree = "<group>"; };
+		7C1543B53034D36100A8C080 /* MaskIDLunar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDLunar.png; sourceTree = "<group>"; };
+		7C1543B63034D36100A8C080 /* MaskIDPride.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDPride.png; sourceTree = "<group>"; };
+		7C1543B73034D36100A8C080 /* MaskIDSpace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDSpace.png; sourceTree = "<group>"; };
 		7C8EF8582FA4654E00F78E79 /* Shield.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Shield.entitlements; sourceTree = "<group>"; };
+		A938E0FF658DFC0AEDDECA38 /* Localizable.xcstrings */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		AC85E7442858C0E4E278D69C /* FirebaseIntegration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseIntegration.swift; sourceTree = "<group>"; };
+		DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShieldWidgetExtension.swift; sourceTree = "<group>"; };
+		E1F2031425364758697A8B9C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2F30415263748596A7B8C9D /* ShieldWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShieldWidgetExtension.entitlements; sourceTree = "<group>"; };
+		E3F405162738495A6B7C8D9E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
@@ -279,14 +285,7 @@
 		F103 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
 		F104 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		F105 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
-		7C1543B03034D36100A8C080 /* MaskIDAurora.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDAurora.png; sourceTree = "<group>"; };
-		7C1543B13034D36100A8C080 /* MaskIDForest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDForest.png; sourceTree = "<group>"; };
-		7C1543B23034D36100A8C080 /* MaskIDTide.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDTide.png; sourceTree = "<group>"; };
-		7C1543B33034D36100A8C080 /* MaskIDHalloween.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDHalloween.png; sourceTree = "<group>"; };
-		7C1543B43034D36100A8C080 /* MaskIDChristmas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDChristmas.png; sourceTree = "<group>"; };
-		7C1543B53034D36100A8C080 /* MaskIDLunar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDLunar.png; sourceTree = "<group>"; };
-		7C1543B63034D36100A8C080 /* MaskIDPride.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDPride.png; sourceTree = "<group>"; };
-		7C1543B73034D36100A8C080 /* MaskIDSpace.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MaskIDSpace.png; sourceTree = "<group>"; };
+		F640B50413BFDA4B4F262204 /* ShieldWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		F901 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		FAPP /* MaskID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaskID.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAPPINFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -306,23 +305,23 @@
 		FTIM /* ImportPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPipelineTests.swift; sourceTree = "<group>"; };
 		FTOC /* OCREvidenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREvidenceTests.swift; sourceTree = "<group>"; };
 		FUITEST /* ShieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F_BARCODE_DET /* BarcodeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeDetector.swift; sourceTree = "<group>"; };
+		F_DOC_PROC /* DocumentProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessor.swift; sourceTree = "<group>"; };
+		F_DOC_STORE /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
+		F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentThumbnailView.swift; sourceTree = "<group>"; };
+		F_HOME_VM /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		F_OCR_CORR /* OCRErrorCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRErrorCorrector.swift; sourceTree = "<group>"; };
 		F_OCR_FUSION /* OCRFusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRFusionEngine.swift; sourceTree = "<group>"; };
 		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
 		F_OCR_PREP /* OCRImagePreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRImagePreprocessor.swift; sourceTree = "<group>"; };
 		F_OCR_SETT /* OCREngineSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineSettingsView.swift; sourceTree = "<group>"; };
-		F_THUMB_MGR /* ThumbnailManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailManager.swift; sourceTree = "<group>"; };
-		F_DOC_PROC /* DocumentProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentProcessor.swift; sourceTree = "<group>"; };
-		F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentThumbnailView.swift; sourceTree = "<group>"; };
-		F_RED_PRESETS /* RedactionPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionPresets.swift; sourceTree = "<group>"; };
-		F_DOC_STORE /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
 		F_PRESET_PICKER /* RedactionPresetPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionPresetPicker.swift; sourceTree = "<group>"; };
-		F_BARCODE_DET /* BarcodeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeDetector.swift; sourceTree = "<group>"; };
-		F_HOME_VM /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		F_RED_PRESETS /* RedactionPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedactionPresets.swift; sourceTree = "<group>"; };
 		F_TEST_APPICON /* AppIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconTests.swift; sourceTree = "<group>"; };
+		F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancementFeaturesTests.swift; sourceTree = "<group>"; };
 		F_TEST_OCR /* OCREnginePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREnginePrecisionTests.swift; sourceTree = "<group>"; };
 		F_TEST_QUOTA /* FreeQuotaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeQuotaTests.swift; sourceTree = "<group>"; };
-		F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancementFeaturesTests.swift; sourceTree = "<group>"; };
+		F_THUMB_MGR /* ThumbnailManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailManager.swift; sourceTree = "<group>"; };
 		L001 /* Auth.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Auth.xcstrings; sourceTree = "<group>"; };
 		L002 /* Capture.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Capture.xcstrings; sourceTree = "<group>"; };
 		L003 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
@@ -406,18 +405,6 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		A45EB79743CF4A40E91852E9 /* ShieldWidgetExtension */ = {
-			isa = PBXGroup;
-			children = (
-				DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */,
-				A938E0FF658DFC0AEDDECA38 /* Localizable.xcstrings */,
-				E1F2031425364758697A8B9C /* ShieldWidgetExtension/Info.plist */,
-				E2F30415263748596A7B8C9D /* ShieldWidgetExtension/ShieldWidgetExtension.entitlements */,
-				E3F405162738495A6B7C8D9E /* ShieldWidgetExtension/PrivacyInfo.xcprivacy */,
-			);
-			path = ShieldWidgetExtension;
-			sourceTree = "<group>";
-		};
 		7C1543893034D36100A8C080 /* ASSETS */ = {
 			isa = PBXGroup;
 			children = (
@@ -459,6 +446,18 @@
 				7C1543903034D36100A8C080 /* ICONS */,
 			);
 			path = MaskID;
+			sourceTree = "<group>";
+		};
+		A45EB79743CF4A40E91852E9 /* ShieldWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				DD97808FDD1B1F5590425BD9 /* ShieldWidgetExtension.swift */,
+				A938E0FF658DFC0AEDDECA38 /* Localizable.xcstrings */,
+				E1F2031425364758697A8B9C /* Info.plist */,
+				E2F30415263748596A7B8C9D /* ShieldWidgetExtension.entitlements */,
+				E3F405162738495A6B7C8D9E /* PrivacyInfo.xcprivacy */,
+			);
+			path = ShieldWidgetExtension;
 			sourceTree = "<group>";
 		};
 		GRP_APP /* App */ = {
@@ -940,6 +939,9 @@
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					29A73D6E1D8C8A2BBD6C5ED7 = {
+						CreatedOnToolsVersion = 26.0;
+					};
 					TARGET_SHARE_EXTENSION = {
 						CreatedOnToolsVersion = 26.0;
 					};
@@ -950,13 +952,10 @@
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = TARGET_SHIELD;
 					};
-				TARGET_UITESTS = {
-					CreatedOnToolsVersion = 26.0;
-					TestTargetID = TARGET_SHIELD;
-				};
-				29A73D6E1D8C8A2BBD6C5ED7 = {
-					CreatedOnToolsVersion = 26.0;
-				};
+					TARGET_UITESTS = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = TARGET_SHIELD;
+					};
 				};
 			};
 			buildConfigurationList = BCLST_PROJECT /* Build configuration list for PBXProject "Shield" */;
@@ -1252,102 +1251,102 @@
 
 /* Begin XCBuildConfiguration section */
 		4131695007E3CA8F85FD0B76 /* Release */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.0.11";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		SDKROOT = iphoneos;
-		"SKIP_INSTALL" = YES;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-		"VALIDATE_PRODUCT" = YES;
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		78D2CB77BE9AF23147BE060E /* Debug */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.0.11";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		SDKROOT = iphoneos;
-		"SKIP_INSTALL" = YES;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_EXT_DEBUG /* Debug */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.11";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_EXT_RELEASE /* Release */ = {
-	buildSettings = {
-		"APPLICATION_EXTENSION_API_ONLY" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"EXTRACT_APP_INTENTS_METADATA" = NO;
-		"GENERATE_INFOPLIST_FILE" = NO;
-		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-			"@executable_path/../../Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.11";
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
-		"PRODUCT_NAME" = "$(TARGET_NAME)";
-		"SKIP_INSTALL" = YES;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				EXTRACT_APP_INTENTS_METADATA = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1450,99 +1449,99 @@
 			name = Release;
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_IDENTITY" = "Apple Development";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.11";
-		"OTHER_LDFLAGS" = (
-			"$(inherited)",
-			"-ObjC",
-		);
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"PROVISIONING_PROFILE_SPECIFIER" = "";
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Debug;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.11;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		BC_TARGET_RELEASE /* Release */ = {
-	buildSettings = {
-		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
-		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
-		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
-		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;
-		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
-		"CODE_SIGN_IDENTITY" = "Apple Development";
-		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10112026091301;
-		"DEVELOPMENT_TEAM" = L2B56644F5;
-		"ENABLE_PREVIEWS" = YES;
-		"GENERATE_INFOPLIST_FILE" = YES;
-		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
-		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
-		"INFOPLIST_KEY_CFBundleName" = MaskID;
-		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
-		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
-		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
-		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
-		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"LD_RUNPATH_SEARCH_PATHS" = (
-			"$(inherited)",
-			"@executable_path/Frameworks",
-		);
-		"MARKETING_VERSION" = "1.0.11";
-		"OTHER_LDFLAGS" = (
-			"$(inherited)",
-			"-ObjC",
-		);
-		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
-		"PRODUCT_MODULE_NAME" = Shield;
-		"PRODUCT_NAME" = MaskID;
-		"PROVISIONING_PROFILE_SPECIFIER" = "";
-		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-		"SUPPORTS_MACCATALYST" = NO;
-		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
-		"SWIFT_EMIT_LOC_STRINGS" = YES;
-		"SWIFT_VERSION" = "5.0";
-		"TARGETED_DEVICE_FAMILY" = "1,2";
-	};
-	isa = XCBuildConfiguration;
-	name = Release;
-};
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDBlue MaskIDGold MaskIDGreen MaskIDOcean MaskIDPurple MaskIDRed MaskIDAurora MaskIDForest MaskIDTide MaskIDHalloween MaskIDChristmas MaskIDLunar MaskIDPride MaskIDSpace";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10112026091303;
+				DEVELOPMENT_TEAM = L2B56644F5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Shield/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
+				INFOPLIST_KEY_CFBundleName = MaskID;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.11;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
+				PRODUCT_MODULE_NAME = Shield;
+				PRODUCT_NAME = MaskID;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BC_TEST_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1610,15 +1609,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E72C916F0EA480BFB550AA12 /* Build configuration list for PBXNativeTarget "ShieldWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				78D2CB77BE9AF23147BE060E /* Debug */,
-				4131695007E3CA8F85FD0B76 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		BCLST_PROJECT /* Build configuration list for PBXProject "Shield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1660,6 +1650,15 @@
 			buildConfigurations = (
 				BC_UITEST_DEBUG /* Debug */,
 				BC_UITEST_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E72C916F0EA480BFB550AA12 /* Build configuration list for PBXNativeTarget "ShieldWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				78D2CB77BE9AF23147BE060E /* Debug */,
+				4131695007E3CA8F85FD0B76 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

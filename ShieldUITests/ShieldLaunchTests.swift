@@ -173,7 +173,10 @@ final class ShieldLaunchTests: XCTestCase {
         let settingsClose = app.buttons["settings.close"]
         XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
         XCTAssertTrue(settingsClose.isHittable)
-        XCTAssertFalse(app.buttons["tab.0"].exists, "The footer must be hidden in Settings")
+        XCTAssertTrue(
+            app.buttons["tab.0"].waitForExistence(timeout: 3),
+            "The adaptive tab bar remains available in Settings"
+        )
         settingsClose.tap()
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
 
@@ -184,7 +187,10 @@ final class ShieldLaunchTests: XCTestCase {
 
         XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
         XCTAssertTrue(settingsClose.isHittable)
-        XCTAssertFalse(app.buttons["tab.0"].exists, "The footer must remain hidden in Settings destinations")
+        XCTAssertTrue(
+            app.buttons["tab.0"].waitForExistence(timeout: 3),
+            "The adaptive tab bar remains available in Settings destinations"
+        )
         settingsClose.tap()
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
     }
@@ -282,7 +288,7 @@ final class ShieldLaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testCaptureButtonProtrudesWithoutGrowingFooter() throws {
+    func testCaptureButtonIsCenteredInBottomAccessory() throws {
         let app = launch(scene: "home")
         let capture = app.buttons["tab.capture"]
         let library = app.buttons["tab.0"]
@@ -290,15 +296,16 @@ final class ShieldLaunchTests: XCTestCase {
         XCTAssertTrue(capture.waitForExistence(timeout: 3))
         XCTAssertTrue(library.waitForExistence(timeout: 3))
         XCTAssertTrue(capture.isHittable)
-        XCTAssertGreaterThanOrEqual(capture.frame.height, 56, "The central scan target should be visibly larger")
-        XCTAssertLessThan(capture.frame.minY, library.frame.minY, "The scan control should protrude above the footer")
-        XCTAssertLessThanOrEqual(library.frame.height, 46, "The footer content height must remain compact")
-        XCTAssertLessThanOrEqual(capture.frame.maxY, library.frame.maxY + 1, "The larger control must grow upward, not deepen the footer")
-        XCTAssertLessThanOrEqual(
-            library.frame.minY - capture.frame.minY,
-            32,
-            "The footer surface must not stretch vertically between the scan control and tab items"
+        XCTAssertGreaterThanOrEqual(capture.frame.width, 60, "The central scan target should remain 64pt-class")
+        XCTAssertGreaterThanOrEqual(capture.frame.height, 60, "The central scan target should remain 64pt-class")
+        XCTAssertEqual(
+            capture.frame.midX,
+            app.frame.midX,
+            accuracy: 4,
+            "The scan action should be centered in the bottom accessory"
         )
+        XCTAssertLessThanOrEqual(library.frame.height, 60, "The tab bar should remain compact")
+        XCTAssertLessThanOrEqual(capture.frame.maxY, app.frame.maxY, "The accessory must stay inside the app safe area")
     }
 
     @MainActor

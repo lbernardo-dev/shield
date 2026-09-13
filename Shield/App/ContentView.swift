@@ -177,28 +177,9 @@ private struct AuthenticatedShellView: View {
     var body: some View {
         ZStack {
             if horizontalSizeClass == .regular {
-                HStack(spacing: 0) {
-                    ShieldSidebar(
-                        selected: $appState.activeTab,
-                        lang: appState.language,
-                        onScanTap: openCapture
-                    )
-                    Divider()
-                    tabContent
-                }
+                regularNavigation
             } else {
-                tabContent
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        if appState.activeTab != .settings {
-                            ShieldTabBar(
-                                selected: $appState.activeTab,
-                                lang: appState.language,
-                                onScanTap: openCapture,
-                                showsScanButton: false
-                            )
-                            .zIndex(100)
-                        }
-                    }
+                compactNavigation
             }
 
             if !appState.showCapture, let doc = appState.selectedDoc {
@@ -206,18 +187,6 @@ private struct AuthenticatedShellView: View {
                     .id(doc.id)
                     .transition(.move(edge: .trailing))
                     .zIndex(60)
-            }
-        }
-        .overlay {
-            if horizontalSizeClass != .regular, appState.activeTab != .settings {
-                GeometryReader { proxy in
-                    ShieldScanButton(action: openCapture)
-                        .position(
-                            x: proxy.size.width / 2,
-                            y: proxy.size.height - proxy.safeAreaInsets.bottom - 35
-                        )
-                        .zIndex(200)
-                }
             }
         }
         .fullScreenCover(
@@ -242,8 +211,81 @@ private struct AuthenticatedShellView: View {
     }
 
     @ViewBuilder
+    private var compactNavigation: some View {
+        if #available(iOS 26.0, *) {
+            nativeTabView
+                .tabBarMinimizeBehavior(.onScrollDown)
+                .tabViewBottomAccessory {
+                    ShieldScanAccessory(action: openCapture)
+                }
+        } else {
+            tabContent
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    VStack(spacing: 0) {
+                        ShieldLegacyScanAccessory(action: openCapture)
+                            .padding(.horizontal, ShieldTheme.s2)
+                            .padding(.bottom, ShieldTheme.s1)
+                        ShieldTabBar(
+                            selected: $appState.activeTab,
+                            lang: appState.language
+                        )
+                    }
+                    .background(ShieldTheme.background(appState.preferredScheme))
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var regularNavigation: some View {
+        if #available(iOS 26.0, *) {
+            nativeTabView
+                .tabViewStyle(.sidebarAdaptable)
+                .tabViewSidebarBottomBar {
+                    ShieldSidebarScanAction(action: openCapture)
+                    .padding(.horizontal, ShieldTheme.s2)
+                }
+        } else {
+            HStack(spacing: 0) {
+                ShieldSidebar(
+                    selected: $appState.activeTab,
+                    lang: appState.language,
+                    onScanTap: openCapture
+                )
+                Divider()
+                tabContent
+            }
+        }
+    }
+
+    private var nativeTabView: some View {
+        TabView(selection: Binding(
+            get: { appState.activeTab },
+            set: { newTab in
+                withAnimation(reduceMotion ? nil : ShieldMotion.press) {
+                    appState.activeTab = newTab
+                }
+            }
+        )) {
+            ForEach(AppTab.allCases) { tab in
+                Tab(value: tab) {
+                    tabContent(for: tab)
+                } label: {
+                    Label(tab.label(lang: appState.language), systemImage: tab.icon)
+                        .accessibilityIdentifier("tab.\(tab.rawValue)")
+                }
+            }
+        }
+        .tint(ShieldTheme.accent(appState.preferredScheme))
+    }
+
+    @ViewBuilder
     private var tabContent: some View {
-        switch appState.activeTab {
+        tabContent(for: appState.activeTab)
+    }
+
+    @ViewBuilder
+    private func tabContent(for tab: AppTab) -> some View {
+        switch tab {
         case .library:
             HomeView()
         case .gallery:
