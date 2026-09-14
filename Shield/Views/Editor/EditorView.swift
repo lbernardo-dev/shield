@@ -198,27 +198,44 @@ struct EditorView: View {
     }
 
     private var regularWorkspace: some View {
-        HStack(spacing: 0) {
-            canvasArea
-
-            Rectangle()
-                .fill(ShieldTheme.line(scheme))
-                .frame(width: 0.5)
-
-            VStack(spacing: 0) {
-                modeChips
-                    .padding(.vertical, ShieldTheme.s2)
-
-                ScrollView(showsIndicators: false) {
-                    contextualToolPanels
-                        .padding(.vertical, ShieldTheme.s2)
+        GeometryReader { geo in
+            HStack(spacing: 0) {
+                // Page thumbnail rail for multi-page documents
+                if vm.pageCount > 1 {
+                    EditorPageNavigator(vm: vm, lang: appState.language)
+                        .frame(width: max(110, min(geo.size.width * 0.16, 140)))
+                    Rectangle()
+                        .fill(ShieldTheme.line(scheme))
+                        .frame(width: 0.5)
                 }
 
-                Spacer(minLength: 0)
-                bottomBar
+                // Central: Document Canvas with contextual panels and bottom toolbar
+                VStack(spacing: 0) {
+                    canvasArea
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    contextualToolPanels
+
+                    bottomBar
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                Rectangle()
+                    .fill(ShieldTheme.line(scheme))
+                    .frame(width: 0.5)
+
+                // Right: Dedicated Privacy Inspector
+                EditorPrivacyInspector(
+                    vm: vm,
+                    lang: appState.language,
+                    isPro: pm.isPro,
+                    onTriggerPaywall: {
+                        paywallTrigger = .styleLocked
+                        showPaywall = true
+                    }
+                )
+                .frame(width: max(300, min(geo.size.width * 0.35, 380)))
             }
-            .frame(width: 390)
-            .background(ShieldTheme.cardBackground(scheme))
         }
     }
 
@@ -431,20 +448,18 @@ struct EditorView: View {
     // MARK: - Canvas area
 
     private func canvasSize(available: CGSize, isLandscape: Bool) -> CGSize {
-        let w = available.width - 32  // hPad * 2
-        let maxH = isLandscape ? available.height * 0.7 : available.height
         guard vm.doc.kind == .photo else {
+            let w = max(50, available.width - 32)
+            let maxH = max(50, available.height - 32)
             return CGSize(width: w, height: min(w / 1.6, maxH))
         }
-        guard let aspect = currentPageAspect, aspect > 0 else {
-            return CGSize(width: w, height: maxH)
-        }
-        let fitH = w / aspect
-        if fitH <= maxH {
-            return CGSize(width: w, height: min(fitH, maxH))
-        } else {
-            return CGSize(width: maxH * aspect, height: maxH)
-        }
+        let aspect = (currentPageAspect != nil && currentPageAspect! > 0) ? currentPageAspect! : 1.0
+        return DocumentCoordinateTransform.contentAspectFitRect(
+            in: available,
+            contentAspect: aspect,
+            horizontalPadding: 16,
+            verticalPadding: 16
+        ).size
     }
 
     private var canvasArea: some View {
@@ -686,6 +701,15 @@ struct EditorView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .padding(ShieldTheme.s4)
+            }
+            .onChange(of: geo.size) { oldSize, newSize in
+                guard oldSize.width > 0, oldSize.height > 0, zoomScale > 1 else { return }
+                panOffset = DocumentCoordinateTransform.preserveFocalPoint(
+                    oldSize: oldSize,
+                    newSize: newSize,
+                    currentPan: panOffset,
+                    effectiveZoom: zoomScale
+                )
             }
         }
         .frame(maxWidth: .infinity)

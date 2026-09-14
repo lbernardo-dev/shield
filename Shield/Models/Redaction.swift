@@ -4,29 +4,15 @@ import SwiftUI
 
 enum NormalizedDocumentGeometry {
     static func point(_ point: CGPoint, in size: CGSize) -> CGPoint {
-        guard size.width > 0, size.height > 0 else { return .zero }
-        return CGPoint(
-            x: clamp(point.x / size.width),
-            y: clamp(point.y / size.height)
-        )
+        DocumentCoordinateTransform.viewportToCanonical(point: point, in: size)
     }
 
     static func rect(_ rect: CGRect, minimumSize: CGFloat = 0.02) -> CGRect {
-        let minimum = clamp(minimumSize)
-        let proposedX = rect.origin.x.isFinite ? rect.origin.x : 0
-        let proposedY = rect.origin.y.isFinite ? rect.origin.y : 0
-        let x = min(max(0, proposedX), max(0, 1 - minimum))
-        let y = min(max(0, proposedY), max(0, 1 - minimum))
-        let proposedWidth = rect.width.isFinite ? rect.width : minimum
-        let proposedHeight = rect.height.isFinite ? rect.height : minimum
-        let width = min(max(minimum, proposedWidth), 1 - x)
-        let height = min(max(minimum, proposedHeight), 1 - y)
-        return CGRect(x: x, y: y, width: width, height: height)
+        DocumentCoordinateTransform.clampedCanonicalRect(rect, minimumSize: minimumSize)
     }
 
-    private static func clamp(_ value: CGFloat) -> CGFloat {
-        guard value.isFinite else { return 0 }
-        return min(1, max(0, value))
+    static func clamp(_ value: CGFloat) -> CGFloat {
+        DocumentCoordinateTransform.clamp(value)
     }
 }
 

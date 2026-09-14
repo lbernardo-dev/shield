@@ -126,6 +126,10 @@
 		A_PRESET_PICKER /* RedactionPresetPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_PRESET_PICKER /* RedactionPresetPicker.swift */; };
 		A_RED_PRESETS /* RedactionPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_RED_PRESETS /* RedactionPresets.swift */; };
 		A_THUMB_MGR /* ThumbnailManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_THUMB_MGR /* ThumbnailManager.swift */; };
+		A_DOC_COORD /* DocumentCoordinateTransform.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_COORD /* DocumentCoordinateTransform.swift */; };
+		A_ED_INSPECT /* EditorPrivacyInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_ED_INSPECT /* EditorPrivacyInspector.swift */; };
+		A_ED_PAGE_NAV /* EditorPageNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_ED_PAGE_NAV /* EditorPageNavigator.swift */; };
+		AT_COORD_MAP /* CoordinateMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FT_COORD_MAP /* CoordinateMappingTests.swift */; };
 		B001 /* Auth.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L001 /* Auth.xcstrings */; };
 		B002 /* Capture.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L002 /* Capture.xcstrings */; };
 		B003 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = L003 /* Common.xcstrings */; };
@@ -345,6 +349,10 @@
 		T007 /* MetricPayloadStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricPayloadStoreTests.swift; sourceTree = "<group>"; };
 		T008 /* LocalizationLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationLanguageTests.swift; sourceTree = "<group>"; };
 		T009 /* AppReviewManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManagerTests.swift; sourceTree = "<group>"; };
+		F_DOC_COORD /* DocumentCoordinateTransform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCoordinateTransform.swift; sourceTree = "<group>"; };
+		F_ED_INSPECT /* EditorPrivacyInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPrivacyInspector.swift; sourceTree = "<group>"; };
+		F_ED_PAGE_NAV /* EditorPageNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPageNavigator.swift; sourceTree = "<group>"; };
+		FT_COORD_MAP /* CoordinateMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinateMappingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -518,6 +526,8 @@
 			children = (
 				F013 /* EditorView.swift */,
 				F044 /* EditorChromeViews.swift */,
+				F_ED_INSPECT /* EditorPrivacyInspector.swift */,
+				F_ED_PAGE_NAV /* EditorPageNavigator.swift */,
 				F014 /* DocumentCanvas.swift */,
 				F015 /* MaskStylePicker.swift */,
 				F016 /* OCRSheetView.swift */,
@@ -589,6 +599,7 @@
 			children = (
 				F004 /* Document.swift */,
 				F005 /* Redaction.swift */,
+				F_DOC_COORD /* DocumentCoordinateTransform.swift */,
 				F061 /* AppIconOption.swift */,
 				F_RED_PRESETS /* RedactionPresets.swift */,
 				F_DOC_STORE /* DocumentStore.swift */,
@@ -758,6 +769,7 @@
 			isa = PBXGroup;
 			children = (
 				T001 /* RedactionCodingTests.swift */,
+				FT_COORD_MAP /* CoordinateMappingTests.swift */,
 				T003 /* Export/ExportVerifierTests.swift */,
 				T004 /* DocumentMigrationTests.swift */,
 				FTIM /* ImportPipelineTests.swift */,
@@ -1178,6 +1190,9 @@
 				A042 /* CaptureOCRServices.swift in Sources */,
 				A043 /* ExportServices.swift in Sources */,
 				A044 /* EditorChromeViews.swift in Sources */,
+				A_DOC_COORD /* DocumentCoordinateTransform.swift in Sources */,
+				A_ED_INSPECT /* EditorPrivacyInspector.swift in Sources */,
+				A_ED_PAGE_NAV /* EditorPageNavigator.swift in Sources */,
 				A045 /* ExportFormViews.swift in Sources */,
 				A046 /* HomeSectionViews.swift in Sources */,
 				A047 /* SecureExportModels.swift in Sources */,
@@ -1197,6 +1212,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AT001 /* RedactionCodingTests.swift in Sources */,
+				AT_COORD_MAP /* CoordinateMappingTests.swift in Sources */,
 				AT003 /* Export/ExportVerifierTests.swift in Sources */,
 				AT004 /* DocumentMigrationTests.swift in Sources */,
 				TIMP /* ImportPipelineTests.swift in Sources */,

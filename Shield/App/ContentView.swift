@@ -212,27 +212,14 @@ private struct AuthenticatedShellView: View {
 
     @ViewBuilder
     private var compactNavigation: some View {
-        if #available(iOS 26.0, *) {
-            nativeTabView
-                .tabBarMinimizeBehavior(.onScrollDown)
-                .tabViewBottomAccessory {
-                    ShieldScanAccessory(action: openCapture)
-                }
-        } else {
-            tabContent
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    VStack(spacing: 0) {
-                        ShieldLegacyScanAccessory(action: openCapture)
-                            .padding(.horizontal, ShieldTheme.s2)
-                            .padding(.bottom, ShieldTheme.s1)
-                        ShieldTabBar(
-                            selected: $appState.activeTab,
-                            lang: appState.language
-                        )
-                    }
-                    .background(ShieldTheme.background(appState.preferredScheme))
-                }
-        }
+        tabContent
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                ShieldTabBar(
+                    selected: $appState.activeTab,
+                    lang: appState.language,
+                    onScanTap: openCapture
+                )
+            }
     }
 
     @ViewBuilder

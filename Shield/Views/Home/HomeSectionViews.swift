@@ -41,9 +41,9 @@ struct HomeModesSection: View {
                         }
                     }
                 }
-                .padding(.horizontal, ShieldTheme.s5)
                 .padding(.bottom, 4)
             }
+            .padding(.horizontal, ShieldTheme.s5)
         }
     }
 }

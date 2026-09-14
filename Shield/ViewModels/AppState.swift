@@ -145,6 +145,11 @@ final class AppState: ObservableObject {
             session.isAuthenticated = true
             documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
 
+            if ASOScreenshotMode.scene.starts(with: "onboarding") || ProcessInfo.processInfo.arguments.contains("-onboarding-step") {
+                session.isOnboarded = false
+                session.isAuthenticated = false
+            }
+
             switch ASOScreenshotMode.scene {
             case "onboarding":
                 session.isOnboarded = false

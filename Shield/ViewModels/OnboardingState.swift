@@ -107,6 +107,16 @@ final class OnboardingState: ObservableObject {
     var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
     var showTopBar: Bool { currentStep < totalSteps - 1 }
 
+    init() {
+        #if DEBUG
+        let args = ProcessInfo.processInfo.arguments
+        if let idx = args.firstIndex(of: "-onboarding-step"), args.indices.contains(idx + 1),
+           let step = Int(args[idx + 1]) {
+            currentStep = max(0, min(totalSteps - 1, step))
+        }
+        #endif
+    }
+
     func next() {
         guard currentStep < totalSteps - 1 else { return }
         withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep += 1 }

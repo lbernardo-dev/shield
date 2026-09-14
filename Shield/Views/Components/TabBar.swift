@@ -43,22 +43,44 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
 struct ShieldTabBar: View {
     @Binding var selected: AppTab
     let lang: AppLanguage
+    var onScanTap: () -> Void
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(AppTab.allCases) { tab in
-                tabItem(tab)
+        ZStack(alignment: .bottom) {
+            // Background bar spanning into safe area
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(ShieldTheme.line(scheme))
+                    .frame(height: 0.5)
+                Rectangle()
+                    .fill(ShieldTheme.cardBackground(scheme))
             }
+            .frame(height: 52)
+
+            // Tabs
+            HStack(spacing: 0) {
+                tabItem(.library)
+                tabItem(.gallery)
+                Color.clear
+                    .frame(width: 72, height: 48)
+                    .accessibilityHidden(true)
+                tabItem(.vault)
+                tabItem(.settings)
+            }
+            .frame(height: 52)
+            .padding(.horizontal, 4)
+
+            // Center elevated Scan button
+            ShieldScanButton(action: onScanTap)
+                .offset(y: -14)
         }
-        .frame(height: 50)
-        .padding(.horizontal, 4)
-        .background(ShieldTheme.cardBackground(scheme))
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(ShieldTheme.line(scheme))
-                .frame(height: 0.5)
-        }
+        .frame(height: 70, alignment: .bottom)
+        .background(
+            ShieldTheme.cardBackground(scheme)
+                .ignoresSafeArea(edges: .bottom)
+                .padding(.top, 18)
+        )
     }
 }
 

@@ -96,16 +96,11 @@ struct DocumentCanvas: View {
     }
 
     func scaledRect(_ r: CGRect) -> CGRect {
-        CGRect(
-            x: r.origin.x * canvasSize.width,
-            y: r.origin.y * canvasSize.height,
-            width: r.width * canvasSize.width,
-            height: r.height * canvasSize.height
-        )
+        DocumentCoordinateTransform.canonicalToViewport(rect: r, in: canvasSize)
     }
 
     func norm(_ pt: CGPoint) -> CGPoint {
-        NormalizedDocumentGeometry.point(pt, in: canvasSize)
+        DocumentCoordinateTransform.viewportToCanonical(point: pt, in: canvasSize)
     }
 }
 
@@ -118,12 +113,7 @@ private struct FieldOverlay: View {
     @Environment(\.colorScheme) private var scheme
 
     private var sr: CGRect {
-        CGRect(
-            x: box.rect.origin.x * canvasSize.width,
-            y: box.rect.origin.y * canvasSize.height,
-            width: box.rect.width * canvasSize.width,
-            height: box.rect.height * canvasSize.height
-        )
+        DocumentCoordinateTransform.canonicalToViewport(rect: box.rect, in: canvasSize)
     }
     private var isSelected: Bool {
         vm.redactions.contains {
@@ -180,12 +170,7 @@ private struct RedactionOverlay: View {
     @State private var resizeSEStart: CGRect? = nil
 
     private var sr: CGRect {
-        CGRect(
-            x: redaction.rect.origin.x * canvasSize.width,
-            y: redaction.rect.origin.y * canvasSize.height,
-            width: redaction.rect.width * canvasSize.width,
-            height: redaction.rect.height * canvasSize.height
-        )
+        DocumentCoordinateTransform.canonicalToViewport(rect: redaction.rect, in: canvasSize)
     }
 
     private var zoom: CGFloat {
@@ -216,10 +201,13 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = moveStart else { return }
-                                let dx = (value.translation.width / zoom) / canvasSize.width
-                                let dy = (value.translation.height / zoom) / canvasSize.height
-                                let newX = max(0, min(1 - start.width, start.origin.x + dx))
-                                let newY = max(0, min(1 - start.height, start.origin.y + dy))
+                                let delta = DocumentCoordinateTransform.canonicalDelta(
+                                    translation: value.translation,
+                                    zoom: zoom,
+                                    canvasSize: canvasSize
+                                )
+                                let newX = max(0, min(1 - start.width, start.origin.x + delta.dx))
+                                let newY = max(0, min(1 - start.height, start.origin.y + delta.dy))
                                 vm.resizeRedaction(
                                     id: redaction.id,
                                     newRect: CGRect(x: newX, y: newY, width: start.width, height: start.height)
@@ -271,10 +259,13 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = resizeNWStart else { return }
-                                let dx = (value.translation.width / zoom) / canvasSize.width
-                                let dy = (value.translation.height / zoom) / canvasSize.height
-                                let rawX = start.origin.x + dx
-                                let rawY = start.origin.y + dy
+                                let delta = DocumentCoordinateTransform.canonicalDelta(
+                                    translation: value.translation,
+                                    zoom: zoom,
+                                    canvasSize: canvasSize
+                                )
+                                let rawX = start.origin.x + delta.dx
+                                let rawY = start.origin.y + delta.dy
                                 let clampedX = min(start.maxX - 0.03, max(0, rawX))
                                 let clampedY = min(start.maxY - 0.03, max(0, rawY))
                                 let newW = start.maxX - clampedX
@@ -304,12 +295,15 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = resizeNEStart else { return }
-                                let dx = (value.translation.width / zoom) / canvasSize.width
-                                let dy = (value.translation.height / zoom) / canvasSize.height
-                                let rawY = start.origin.y + dy
+                                let delta = DocumentCoordinateTransform.canonicalDelta(
+                                    translation: value.translation,
+                                    zoom: zoom,
+                                    canvasSize: canvasSize
+                                )
+                                let rawY = start.origin.y + delta.dy
                                 let clampedY = min(start.maxY - 0.03, max(0, rawY))
                                 let newH = start.maxY - clampedY
-                                let newW = max(0.03, min(1 - start.origin.x, start.width + dx))
+                                let newW = max(0.03, min(1 - start.origin.x, start.width + delta.dx))
                                 vm.resizeRedaction(
                                     id: redaction.id,
                                     newRect: CGRect(x: start.origin.x, y: clampedY, width: newW, height: newH)
@@ -335,12 +329,15 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = resizeSWStart else { return }
-                                let dx = (value.translation.width / zoom) / canvasSize.width
-                                let dy = (value.translation.height / zoom) / canvasSize.height
-                                let rawX = start.origin.x + dx
+                                let delta = DocumentCoordinateTransform.canonicalDelta(
+                                    translation: value.translation,
+                                    zoom: zoom,
+                                    canvasSize: canvasSize
+                                )
+                                let rawX = start.origin.x + delta.dx
                                 let clampedX = min(start.maxX - 0.03, max(0, rawX))
                                 let newW = start.maxX - clampedX
-                                let newH = max(0.03, min(1 - start.origin.y, start.height + dy))
+                                let newH = max(0.03, min(1 - start.origin.y, start.height + delta.dy))
                                 vm.resizeRedaction(
                                     id: redaction.id,
                                     newRect: CGRect(x: clampedX, y: start.origin.y, width: newW, height: newH)
@@ -366,10 +363,13 @@ private struct RedactionOverlay: View {
                                     vm.beginRedactionTransform()
                                 }
                                 guard let start = resizeSEStart else { return }
-                                let dw = (value.translation.width / zoom) / canvasSize.width
-                                let dh = (value.translation.height / zoom) / canvasSize.height
-                                let newW = max(0.03, min(1 - start.origin.x, start.width + dw))
-                                let newH = max(0.03, min(1 - start.origin.y, start.height + dh))
+                                let delta = DocumentCoordinateTransform.canonicalDelta(
+                                    translation: value.translation,
+                                    zoom: zoom,
+                                    canvasSize: canvasSize
+                                )
+                                let newW = max(0.03, min(1 - start.origin.x, start.width + delta.dx))
+                                let newH = max(0.03, min(1 - start.origin.y, start.height + delta.dy))
                                 vm.resizeRedaction(
                                     id: redaction.id,
                                     newRect: CGRect(x: start.origin.x, y: start.origin.y, width: newW, height: newH)

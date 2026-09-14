@@ -314,9 +314,9 @@ struct HomeView: View {
                 }
                 .buttonStyle(ScaleButtonStyle())
             }
-            .padding(.horizontal, ShieldTheme.s5)
             .padding(.bottom, 16)
         }
+        .padding(.horizontal, ShieldTheme.s5)
         .sheet(isPresented: $showNewCategory) {
             NewCategorySheet(isPresented: $showNewCategory)
                 .environmentObject(appState)

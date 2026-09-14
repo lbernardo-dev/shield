@@ -68,17 +68,17 @@ struct PaywallView: View {
                         // Trust Badges
                         trustBadgesSection
 
-                        // Features grid
-                        featuresGrid
-
                         // Plan selector
                         planSelector
+
+                        // Features grid
+                        featuresGrid
 
                         // FAQ
                         faqSection
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 16)
                 }
             }
         }
@@ -365,16 +365,16 @@ struct PaywallView: View {
     }
 
     private var ctaSection: some View {
-        VStack(spacing: ShieldTheme.s2) {
+        VStack(spacing: 6) {
             Button {
                 purchaseSelectedProduct()
             } label: {
                 ctaLabel
                     .frame(maxWidth: .infinity)
-                    .frame(height: 54)
+                    .frame(height: 48)
                     .background(canPurchase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
                     .foregroundColor(canPurchase ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(ScaleButtonStyle())
             .disabled(!canPurchase)
@@ -433,7 +433,7 @@ struct PaywallView: View {
             .padding(.horizontal, 2)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
-            .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
+            .frame(maxWidth: .infinity, minHeight: 26)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -486,7 +486,7 @@ struct PaywallView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .padding(.horizontal, 2)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 26)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

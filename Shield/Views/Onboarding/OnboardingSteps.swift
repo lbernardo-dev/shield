@@ -1010,7 +1010,7 @@ struct OBPaywallView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 30)
+                .padding(.bottom, 16)
                 }
             }
         }
@@ -1126,7 +1126,7 @@ struct OBPaywallView: View {
     }
 
     private var purchaseSection: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 6) {
             Button {
                 Task {
                     guard let product = selectedPremiumProduct else { return }
@@ -1152,8 +1152,8 @@ struct OBPaywallView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .background(canPurchase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme), in: .rect(cornerRadius: 16))
+                .frame(height: 48)
+                .background(canPurchase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme), in: .rect(cornerRadius: 14))
                 .foregroundStyle(canPurchase ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
             }
             .buttonStyle(ScaleButtonStyle())
@@ -1173,7 +1173,8 @@ struct OBPaywallView: View {
             }
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(ShieldTheme.secondary(scheme))
-                .frame(minHeight: 44)
+                .frame(minHeight: 26)
+                .contentShape(Rectangle())
         }
     }
 

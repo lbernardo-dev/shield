@@ -443,11 +443,13 @@ struct ShieldStickyFooter<Content: View>: View {
     var body: some View {
         content
             .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, ShieldTheme.s3)
+            .padding(.top, 8)
+            .padding(.bottom, 6)
+            .frame(maxWidth: .infinity)
             .background(
                 reduceTransparency
                     ? ShieldTheme.elevatedBackground(scheme)
-                    : ShieldTheme.cardBackground(scheme).opacity(0.96)
+                    : ShieldTheme.cardBackground(scheme)
             )
             .overlay(alignment: .top) {
                 Rectangle()

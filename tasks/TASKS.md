@@ -1895,3 +1895,14 @@
    Claimed by: CODEX
    Claimed at: 2026-09-13T07:31:06Z
 
+174. iphone-duo-adaptive-editor
+   Id: 174-iphone-duo-adaptive-editor
+   Scope: Adaptive Editor
+   Files: Shield/Views/Editor/EditorView.swift,Shield/Views/Editor/DocumentCanvas.swift,Shield/Views/Editor/EditorChromeViews.swift,Shield/ViewModels/EditorViewModel.swift,ShieldTests/CoordinateMappingTests.swift,docs/IPHONE_DUO_ADAPTATION.md
+   Note: Finished: modernized adaptive editor for iPhone Duo / compact / regular layouts with mathematical coordinate invariants, verified on simulator, refined compact footers and bottom tab navigation, clean build and 100% tests passed
+   Detail: tasks/details/174-iphone-duo-adaptive-editor.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-14T09:51:26Z
+   Done by: CODEX
+   Done at: 2026-09-14T11:16:05Z
+

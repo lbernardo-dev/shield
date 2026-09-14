@@ -577,6 +577,15 @@ final class EditorViewModel: ObservableObject {
         }
     }
 
+    func addRedaction(_ redaction: Redaction) {
+        push(redactions + [redaction])
+        AppState.trackEvent("redaction_applied", properties: ["source": "manual"])
+    }
+
+    func updateRedaction(_ redaction: Redaction) {
+        push(redactions.map { $0.id == redaction.id ? redaction : $0 })
+    }
+
     func removeRedaction(id: UUID) {
         push(redactions.filter { $0.id != id })
         activeRedactionID = nil

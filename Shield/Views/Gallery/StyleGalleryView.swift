@@ -115,9 +115,9 @@ struct StyleGalleryView: View {
                     kinds: [.genericID]
                 )
             }
-            .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
