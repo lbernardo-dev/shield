@@ -3237,13 +3237,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On-device OCR suggestions with per-field evidence and confidence."
+            "value" : "Adaptive support for iPhone Duo and foldable displays with seamless layout transitions."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sugerencias OCR en el dispositivo con evidencia y confianza por campo."
+            "value" : "Soporte adaptativo para iPhone Duo y pantallas plegables con transiciones fluidas de diseño."
           }
         }
       }
@@ -3254,13 +3254,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Secure rasterized PDF export with residual-content verification."
+            "value" : "Elevated, quick scan action button seamlessly integrated into the central bottom bar."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exportación PDF rasterizada segura con verificación de contenido residual."
+            "value" : "Botón central de escaneo rápido elevado e integrado en la barra de navegación inferior."
           }
         }
       }
@@ -3271,13 +3271,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Encrypted local projects and a separately protected Vault."
+            "value" : "Compact, space-optimized footers ensuring all options and plans remain visible above the fold."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proyectos locales cifrados y una Bóveda protegida por separado."
+            "value" : "Footers optimizados y compactos que mantienen todas las opciones y planes visibles sobre el pliegue."
           }
         }
       }
@@ -3288,13 +3288,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancelable multi-page import from camera, Photos, Files, and Share Sheet."
+            "value" : "Refined horizontal scroll containers respecting precise page padding and margin alignment."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importación multipágina cancelable desde Cámara, Fotos, Archivos y Compartir."
+            "value" : "Contenedores de desplazamiento horizontal refinados que respetan el margen y la alineación de la página."
           }
         }
       }
@@ -3305,13 +3305,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optional complete iCloud backup and restore for Pro non-Vault documents."
+            "value" : "Permanent on-device pixel destruction and automated EXIF metadata stripping upon export."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia y restauración completa opcional en iCloud para documentos Pro fuera de la Bóveda."
+            "value" : "Destrucción irreversible de píxeles en el dispositivo y eliminación de metadatos EXIF al exportar."
           }
         }
       }
@@ -3322,13 +3322,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Improved accessibility, iPad layout, keyboard control, and privacy shielding."
+            "value" : "Ultra-secure Vault with biometric Face ID and personal PIN encryption on your device."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mejoras de accesibilidad, diseño para iPad, teclado y pantalla de privacidad."
+            "value" : "Bóveda ultra-segura con autenticación biométrica Face ID y cifrado PIN en tu dispositivo."
           }
         }
       }
