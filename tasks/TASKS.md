@@ -1890,10 +1890,12 @@
    Id: 173-release-upload-build-20260913
    Scope: Incrementar el build en todos los targets de MaskID, archivar Release y subir el IPA a App Store Connect
    Files: Shield.xcodeproj/project.pbxproj .asc/artifacts/ tasks/TASKS.md tasks/details/
-   Note: Actualizando build a 10112026091401, Whats New y subida a App Store Connect
+   Note: Build 10112026091401 aplicado, Whats New sincronizado, IPA firmado con Cloud Managed Distribution, subido y procesado VALID en App Store Connect (Build ID 6b88a11b-6431-4b2a-a448-7fdbf7708308) y enlazado a la version 1.0.11
    Detail: tasks/details/173-release-upload-build-20260913.md
    Claimed by: CODEX
    Claimed at: 2026-09-14T11:47:46Z
+   Done by: CODEX
+   Done at: 2026-09-14T12:19:01Z
 
 174. iphone-duo-adaptive-editor
    Id: 174-iphone-duo-adaptive-editor
