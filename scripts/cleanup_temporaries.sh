@@ -22,6 +22,8 @@ candidate_path() {
     build-tmp) printf '%s\n' "$ROOT/build/tmp" ;;
     build-derived-data) printf '%s\n' "$ROOT/build/DerivedData" ;;
     build-ui-ux-release-gate) printf '%s\n' "$ROOT/build/ui-ux-release-gate" ;;
+    project-build-cache) printf '%s\n' "$ROOT/Shield.xcodeproj/build" ;;
+    asc-video-derived-data) printf '%s\n' "$ROOT/.asc/video-derived-data" ;;
     tmp:*)
       local tmp_name="${1#tmp:}"
       [[ "$tmp_name" != */* ]] || return 1
@@ -63,7 +65,9 @@ list_candidates() {
     build-cache \
     build-tmp \
     build-derived-data \
-    build-ui-ux-release-gate; do
+    build-ui-ux-release-gate \
+    project-build-cache \
+    asc-video-derived-data; do
     path="$(candidate_path "$id")"
     report_candidate "$id" "$path"
   done

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit
+# Pre-commit hook to prevent temporary and junk files from entering git.
+set -euo pipefail
+
+# 1. Clean any loose ._* or .DS_Store before committing
+find . -name "._*" -delete 2>/dev/null || true
+find . -name ".DS_Store" -delete 2>/dev/null || true
+
+# 2. Verify no temporary or forbidden files are staged (excluding deletions)
+forbidden_staged=$(git diff --cached --diff-filter=d --name-only | grep -E '(^\._|/\._|\.DS_Store$|\.pyc$|\.pyo$|__pycache__|\.swp$|\.bak$|Thumbs\.db$)' || true)
+
+if [[ -n "${forbidden_staged}" ]]; then
+  echo "❌ [Error] Intentando commitear archivos temporales o del sistema:" >&2
+  echo "${forbidden_staged}" >&2
+  echo "Por favor ejecuta ./scripts/clean.sh y desmarca estos archivos con 'git reset HEAD <archivo>'." >&2
+  exit 1
+fi

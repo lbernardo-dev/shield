@@ -7,8 +7,10 @@
 
 ## Zero temporary files policy
 
-- At the end of every work session, after all builds, tests, archives and uploads finish, run `scripts/cleanup_temporaries.sh --dry-run`.
-- Review the exact candidate IDs and move only the approved candidates to the Trash with `scripts/cleanup_temporaries.sh --apply ...`.
+- **Mandatory User Confirmation**: At the end of every work session, after all builds, tests, archives and tasks finish, the agent **MUST ALWAYS ask the user for confirmation** before running any cleanup of temporary files, logs, AppleDouble (`._*`) sidecars, and build caches.
+- Once confirmed by the user:
+  - Run `./scripts/clean.sh --all` to purge AppleDouble (`._*`) files, `.DS_Store`, and build/intermediate caches (`build/`, `Shield.xcodeproj/build`, `.asc/video-derived-data`).
+  - Or run `scripts/cleanup_temporaries.sh --dry-run`, review candidate IDs, and move approved candidates to Trash with `scripts/cleanup_temporaries.sh --apply ...`.
 - Preserve `.asc/artifacts/` release artifacts, source, metadata, documentation, credentials and global Xcode data. Never empty the Trash automatically.
 
 Task workflow commands:
