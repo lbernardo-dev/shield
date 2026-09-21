@@ -1930,3 +1930,25 @@
    Done by: CODEX
    Done at: 2026-09-21T07:43:10Z
 
+177. support-coffee-prompt
+   Id: 177-support-coffee-prompt
+   Scope: Replace the PayPal P icon with a centered coffee prompt, open the fixed 2.99 EUR PayPal.Me link, and remove the donation action from the Settings menu
+   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Localization/Strings/SettingsInfo.xcstrings
+   Note: Implementado el prompt centrado de café con enlace PayPal.Me 2.99EUR preseleccionado, retirado el acceso del menú de configuración y actualizado Paywall/localización/documentación. Validaciones de diff y JSON correctas; build Debug bloqueado por sidecars AppleDouble en caché SwiftPM de dependencia externa.
+   Detail: tasks/details/177-support-coffee-prompt.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T08:37:23Z
+   Done by: CODEX
+   Done at: 2026-09-21T08:42:53Z
+
+178. release-1-1-0-build-2
+   Id: 178-release-1-1-0-build-2
+   Scope: Increment build to 1102026092102 for version 1.1.0, archive/export and upload to App Store Connect
+   Files: Shield.xcodeproj/project.pbxproj,.asc/metadata,.asc/artifacts,tasks/TASKS.md,tasks/details
+   Note: Build 1102026092102 archivado, exportado, subido a App Store Connect, procesado como VALID y asociado a la versión 1.1.0.
+   Detail: tasks/details/178-release-1-1-0-build-2.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T09:02:30Z
+   Done by: CODEX
+   Done at: 2026-09-21T09:15:47Z
+

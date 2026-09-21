@@ -3528,15 +3528,29 @@
     "settings_coffee_accessibility" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invite me for a coffee" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Invítame un café" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Buy me a coffee" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Invítame a un café" } }
+      }
+    },
+    "settings_coffee_amount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Support MaskID with 2.99 EUR via PayPal" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apoya MaskID con 2,99 € en PayPal" } }
       }
     },
     "settings_coffee_hint" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens PayPal with a 2.99 EUR contribution" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre PayPal con una aportación de 2,99 EUR" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens PayPal with 2.99 EUR prefilled" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre PayPal con 2,99 € preseleccionados" } }
+      }
+    },
+    "settings_coffee_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Buy me a coffee?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Me regalas un café?" } }
       }
     }
   },

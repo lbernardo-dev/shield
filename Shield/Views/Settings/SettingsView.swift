@@ -135,7 +135,15 @@ struct SettingsView: View {
 
                         SettingsFooter()
                             .padding(.top, ShieldTheme.s2)
-                            .padding(.bottom, 24)
+                        SupportCoffeePrompt(
+                            manager: DonationManager(configuration: .maskID),
+                            title: strings.settings("settings_coffee_prompt"),
+                            detail: strings.settings("settings_coffee_amount"),
+                            accessibilityLabel: strings.settings("settings_coffee_accessibility"),
+                            accessibilityHint: strings.settings("settings_coffee_hint")
+                        )
+                        .accessibilityIdentifier("settings.footer.supportCoffee")
+                        .padding(.bottom, 24)
                         }
                         .frame(maxWidth: 760)
                         .padding(.horizontal, ShieldTheme.s4)
@@ -241,16 +249,6 @@ struct SettingsView: View {
             subtitle: strings.settings("settings_faq_subtitle")
         )
         SettingsRowDivider()
-        HStack {
-            Spacer()
-            SupportCoffeeButton(
-                manager: DonationManager(configuration: .maskID),
-                accessibilityLabel: strings.settings("settings_coffee_accessibility"),
-                accessibilityHint: strings.settings("settings_coffee_hint")
-            )
-            .accessibilityIdentifier("settings.supportCoffee")
-            Spacer()
-        }
     }
 
     @ViewBuilder

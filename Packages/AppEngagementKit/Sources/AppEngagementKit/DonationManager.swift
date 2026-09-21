@@ -10,6 +10,10 @@ public final class DonationManager {
         self.configuration = configuration
     }
 
+    public var donationURL: URL? {
+        configuration.paypalDonationURL
+    }
+
     @discardableResult
     public func openDonationPage() -> Bool {
         guard let url = configuration.paypalDonationURL else { return false }
@@ -18,36 +22,65 @@ public final class DonationManager {
     }
 }
 
-/// Icon-only PayPal.Me action. The accessible label is the only visible
-/// semantic text supplied by this component; the account identifier is never
-/// rendered in the app.
-public struct SupportCoffeeButton: View {
+/// A centered, visible PayPal.Me prompt for a small one-time contribution.
+/// The configured amount is prefilled in PayPal.Me; PayPal still controls the
+/// final confirmation screen and may allow the donor to edit the amount.
+public struct SupportCoffeePrompt: View {
     private let manager: DonationManager
+    private let title: String
+    private let detail: String
     private let accessibilityLabel: String
     private let accessibilityHint: String
 
     public init(
         manager: DonationManager,
+        title: String,
+        detail: String,
         accessibilityLabel: String,
-        accessibilityHint: String = "Opens PayPal"
+        accessibilityHint: String
     ) {
         self.manager = manager
+        self.title = title
+        self.detail = detail
         self.accessibilityLabel = accessibilityLabel
         self.accessibilityHint = accessibilityHint
     }
 
     public var body: some View {
-        Button {
-            _ = manager.openDonationPage()
-        } label: {
-            Image(systemName: "p.circle.fill")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(Color(red: 0.0, green: 0.32, blue: 0.72))
-                .frame(width: 44, height: 44)
-                .contentShape(Circle())
+        Group {
+            if let url = manager.donationURL {
+                Link(destination: url) {
+                    promptContent
+                }
+                .buttonStyle(.plain)
+            } else {
+                promptContent
+            }
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(accessibilityLabel))
         .accessibilityHint(Text(accessibilityHint))
+    }
+
+    private var promptContent: some View {
+        VStack(spacing: 7) {
+            Image(systemName: "cup.and.saucer.fill")
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(Color(red: 0.58, green: 0.32, blue: 0.16))
+                .accessibilityHidden(true)
+
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .underline()
+
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, 8)
     }
 }

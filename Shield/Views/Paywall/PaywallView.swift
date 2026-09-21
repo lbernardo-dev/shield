@@ -390,8 +390,10 @@ struct PaywallView: View {
 
             footerLinks
 
-            SupportCoffeeButton(
+            SupportCoffeePrompt(
                 manager: DonationManager(configuration: .maskID),
+                title: LanguageManager.shared.settings("settings_coffee_prompt"),
+                detail: LanguageManager.shared.settings("settings_coffee_amount"),
                 accessibilityLabel: LanguageManager.shared.settings("settings_coffee_accessibility"),
                 accessibilityHint: LanguageManager.shared.settings("settings_coffee_hint")
             )
