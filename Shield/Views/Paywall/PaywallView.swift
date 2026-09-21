@@ -1,4 +1,5 @@
 import SwiftUI
+import AppEngagementKit
 
 // MARK: - PaywallView
 
@@ -388,6 +389,13 @@ struct PaywallView: View {
             }
 
             footerLinks
+
+            SupportCoffeeButton(
+                manager: DonationManager(configuration: .maskID),
+                accessibilityLabel: LanguageManager.shared.settings("settings_coffee_accessibility"),
+                accessibilityHint: LanguageManager.shared.settings("settings_coffee_hint")
+            )
+            .accessibilityIdentifier("paywall.supportCoffee")
         }
     }
 

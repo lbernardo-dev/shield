@@ -96,9 +96,11 @@
 		AIMP /* ImportPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FIMP /* ImportPipeline.swift */; };
 		AINT /* ShieldAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FINT /* ShieldAppIntents.swift */; };
 		ALOT001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = LOTPROD001 /* Lottie */; };
+		AEKFRAME /* AppEngagementKit in Frameworks */ = {isa = PBXBuildFile; productRef = AEKPROD001 /* AppEngagementKit */; };
 		AMETRIC /* ShieldMetricSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = FMETRIC /* ShieldMetricSubscriber.swift */; };
 		ARC001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCPROD001 /* RevenueCat */; };
 		AREVIEW /* AppReviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FREVIEW /* AppReviewManager.swift */; };
+		AENGCFG /* AppEngagementConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FENGCFG /* AppEngagementConfiguration.swift */; };
 		ASHARE /* SharedImportStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSHARE /* SharedImportStore.swift */; };
 		AT001 /* RedactionCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T001 /* RedactionCodingTests.swift */; };
 		AT002 /* ShieldLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T002 /* ShieldLaunchTests.swift */; };
@@ -303,6 +305,7 @@
 		FLOTJSON /* Animations/MaskID_IdentityMask_v3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Animations/MaskID_IdentityMask_v3.json; sourceTree = "<group>"; };
 		FMETRIC /* ShieldMetricSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldMetricSubscriber.swift; sourceTree = "<group>"; };
 		FREVIEW /* AppReviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewManager.swift; sourceTree = "<group>"; };
+		FENGCFG /* AppEngagementConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEngagementConfiguration.swift; sourceTree = "<group>"; };
 		FSEC /* SecurityPrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyTests.swift; sourceTree = "<group>"; };
 		FSHARE /* SharedImportStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImportStore.swift; sourceTree = "<group>"; };
 		FTEST /* ShieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -374,6 +377,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEKFRAME /* AppEngagementKit in Frameworks */,
 				ALOT001 /* Lottie in Frameworks */,
 				ARC001 /* RevenueCat in Frameworks */,
 				A099 /* StoreKit.framework in Frameworks */,
@@ -473,6 +477,7 @@
 			children = (
 				F001 /* ShieldApp.swift */,
 				F002 /* ContentView.swift */,
+				FENGCFG /* AppEngagementConfiguration.swift */,
 				FREVIEW /* AppReviewManager.swift */,
 				FINT /* ShieldAppIntents.swift */,
 			);
@@ -898,6 +903,7 @@
 			);
 			name = Shield;
 			packageProductDependencies = (
+				AEKPROD001 /* AppEngagementKit */,
 				LOTPROD001 /* Lottie */,
 				RCPROD001 /* RevenueCat */,
 				38A3E7E4EA24A4FAEEBEDA57 /* FirebaseCrashlytics */,
@@ -981,6 +987,7 @@
 			);
 			mainGroup = GRP_ROOT;
 			packageReferences = (
+				AEKPKG001 /* XCLocalSwiftPackageReference "AppEngagementKit" */,
 				LOTPKG001 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
@@ -1134,6 +1141,7 @@
 			files = (
 				A001 /* ShieldApp.swift in Sources */,
 				A002 /* ContentView.swift in Sources */,
+				AENGCFG /* AppEngagementConfiguration.swift in Sources */,
 				AREVIEW /* AppReviewManager.swift in Sources */,
 				A003 /* ShieldTheme.swift in Sources */,
 				A004 /* Document.swift in Sources */,
@@ -1271,12 +1279,12 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1293,12 +1301,12 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1315,7 +1323,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1326,7 +1334,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1342,7 +1350,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1353,7 +1361,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1474,7 +1482,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1493,7 +1501,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1521,7 +1529,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10112026091401;
+				CURRENT_PROJECT_VERSION = 1102026092101;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1540,7 +1548,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.11;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1681,6 +1689,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AEKPKG001 /* XCLocalSwiftPackageReference "AppEngagementKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AppEngagementKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		A511A499CB193E201A3F4BAA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1728,6 +1743,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = RCPKG001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
 			productName = RevenueCat;
+		};
+		AEKPROD001 /* AppEngagementKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AEKPKG001 /* XCLocalSwiftPackageReference "AppEngagementKit" */;
+			productName = AppEngagementKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

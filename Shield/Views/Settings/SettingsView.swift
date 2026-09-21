@@ -1,4 +1,5 @@
 import SwiftUI
+import AppEngagementKit
 
 // MARK: - SettingsView
 
@@ -239,6 +240,17 @@ struct SettingsView: View {
             title: strings.settings("settings_faq"),
             subtitle: strings.settings("settings_faq_subtitle")
         )
+        SettingsRowDivider()
+        HStack {
+            Spacer()
+            SupportCoffeeButton(
+                manager: DonationManager(configuration: .maskID),
+                accessibilityLabel: strings.settings("settings_coffee_accessibility"),
+                accessibilityHint: strings.settings("settings_coffee_hint")
+            )
+            .accessibilityIdentifier("settings.supportCoffee")
+            Spacer()
+        }
     }
 
     @ViewBuilder
@@ -330,7 +342,7 @@ enum SettingsRoute: Hashable {
 }
 
 enum SettingsSupportConfiguration {
-    static let email: String? = "romerodev.app+maskid@gmail.com"
+    static let email: String? = AppEngagementConfig.maskID.feedbackRecipient
 
     static func feedbackURL(recipient: String, subject: String, body: String) -> URL? {
         var components = URLComponents()

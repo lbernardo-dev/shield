@@ -1,4 +1,5 @@
 import SwiftUI
+import AppEngagementKit
 import LocalAuthentication
 
 extension EnvironmentValues {
@@ -536,6 +537,12 @@ struct SettingsFooter: View {
             Text(strings.settings("settings_footer_rights"))
                 .font(.caption)
                 .foregroundStyle(ShieldTheme.tertiary(scheme))
+            SupportCoffeeButton(
+                manager: DonationManager(configuration: .maskID),
+                accessibilityLabel: strings.settings("settings_coffee_accessibility"),
+                accessibilityHint: strings.settings("settings_coffee_hint")
+            )
+            .accessibilityIdentifier("settings.footer.supportCoffee")
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, ShieldTheme.s4)

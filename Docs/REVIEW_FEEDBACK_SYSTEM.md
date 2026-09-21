@@ -19,6 +19,8 @@ Apple controls display     existing support email transport
 
 The coordinator owns lightweight `UserDefaults` state. It does not store documents, OCR, image data, names, account identifiers, or free-form feedback text. `FeatureKey`, `EngagementEvent`, `EngagementState`, `ReviewEligibilityPolicy`, `SubscriptionLifecyclePolicy`, `FeedbackEnvelope`, and `FeedbackTransport` form the reusable portfolio boundary.
 
+The reusable `Packages/AppEngagementKit` local Swift package contains the independent `FeedbackManager`, `ReviewPromptManager`, `AppInstallMetadataStore`, `DonationManager`, and icon-only `SupportCoffeeButton` building blocks. MaskID keeps `ReviewFeedbackCoordinator` as its single canonical orchestration layer because it already contains the product-specific StoreKit 2 lifecycle, eligibility gates, contextual feedback UI, and analytics policy; the package supplies the shared per-app configuration and donation surface without introducing a second coordinator.
+
 The StoreKit boundary is deliberately a SwiftUI view: `ReviewFeedbackBridge` reads `@Environment(\.requestReview)` and is the only production call site for `RequestReviewAction`. Services create opportunities; views only report semantic events or a natural pause.
 
 ## Existing system audit
@@ -92,7 +94,7 @@ No cancellation flow is blocked or delayed.
 
 ## Privacy rules
 
-`FeedbackEnvelope` contains only category, optional user-authored comment, trigger, app/build/OS/locale, entitlement tier, and a coarse feature key. It never attaches:
+`FeedbackEnvelope` contains only category, optional user-authored comment, trigger, app/build/OS/device/locale, entitlement tier, coarse feature key, and install/update/submission timestamps. It never attaches:
 
 - document names, document contents, images, OCR, extracted fields, MRZ, or export files;
 - people, children, contacts, location, health information, financial values, or account identifiers;
@@ -114,6 +116,8 @@ Feedback copy, categories, and the thank-you countdown are in `SettingsInfo.xcst
 
 - `Send feedback` opens the localized category-and-comment form.
 - `Rate the app` opens Apple’s `action=write-review` product-page link. Automatic natural-pause opportunities continue to use the central SwiftUI `RequestReviewAction`; Apple does not display that action in TestFlight builds.
+
+The PayPal.Me action is icon-only and appears coherently in the Settings footer, the About/Settings surface, and the paywall. Its configuration is centralized in `AppEngagementConfig.maskID` and opens `https://paypal.me/paytolbernardo/2.99EUR`. PayPal.Me pre-fills the amount but does not make it technically immutable; an immutable fixed amount would require a PayPal Business Payment Link.
 
 ## Testing
 

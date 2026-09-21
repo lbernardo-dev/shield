@@ -1908,3 +1908,25 @@
    Done by: CODEX
    Done at: 2026-09-14T11:16:05Z
 
+175. app-engagement-kit
+   Id: 175-app-engagement-kit
+   Scope: Extraer y completar feedback, valoración StoreKit 2 y PayPal.Me fijo para MaskID; integración reutilizable, localización, privacidad y tests
+   Files: Shield/App/AppReviewManager.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Localization/Strings/Settings.xcstrings,Shield/Localization/Strings/SettingsInfo.xcstrings,ShieldTests/AppReviewManagerTests.swift,ShieldTests/SecurityPrivacyTests.swift,Docs/REVIEW_FEEDBACK_SYSTEM.md,Docs/PRIVACY_POLICY_PRODUCT_FACTS.md,Package.swift,AppEngagementKit/
+   Note: Implementado AppEngagementKit reutilizable con feedback, StoreKit 2, PayPal.Me 2.99 EUR, metadata de instalación, superficies icon-only, localización y privacidad. Build Debug y build-for-testing correctos; XCTest runtime bloqueado por CoreSimulatorService no disponible.
+   Detail: tasks/details/175-app-engagement-kit.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T06:41:22Z
+   Done by: CODEX
+   Done at: 2026-09-21T07:17:28Z
+
+176. release-1-1-0
+   Id: 176-release-1-1-0
+   Scope: Crear versión 1.1.0 de MaskID, actualizar build 1102026092101 en todos los targets, completar What's New en locales, archivar/exportar, subir y asociar el build a App Store Connect
+   Files: Shield.xcodeproj/project.pbxproj,.asc/metadata,.asc/artifacts,tasks/TASKS.md,tasks/details
+   Note: Versión 1.1.0 creada, build 1102026092101 archivado/exportado, IPA subido y procesado como VALID, asociado a App Store Connect y What’s New completado en en-US/es-ES. No se envió a revisión.
+   Detail: tasks/details/176-release-1-1-0.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T07:20:47Z
+   Done by: CODEX
+   Done at: 2026-09-21T07:43:10Z
+

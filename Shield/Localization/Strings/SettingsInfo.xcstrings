@@ -3524,6 +3524,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Otro" } }
       }
+    },
+    "settings_coffee_accessibility" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invite me for a coffee" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Invítame un café" } }
+      }
+    },
+    "settings_coffee_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens PayPal with a 2.99 EUR contribution" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre PayPal con una aportación de 2,99 EUR" } }
+      }
     }
   },
   "version" : "1.0"

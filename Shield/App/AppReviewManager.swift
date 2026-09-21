@@ -1,4 +1,6 @@
 import Foundation
+import AppEngagementKit
+import MessageUI
 import OSLog
 import StoreKit
 import SwiftUI
@@ -393,6 +395,9 @@ struct FeedbackContext: Identifiable, Sendable {
     }
 }
 
+// Privacy contract: feedback sends only the selected category, optional user
+// comment, app/device diagnostics, locale, entitlement tier, and lifecycle
+// timestamps. It never includes document contents, credentials, or payment data.
 struct FeedbackEnvelope: Codable, Sendable {
     let category: FeedbackCategory
     let message: String?
@@ -403,10 +408,48 @@ struct FeedbackEnvelope: Codable, Sendable {
     let locale: String
     let entitlementTier: EntitlementTier
     let featureKey: FeatureKey?
+    let appName: String
+    let deviceModel: String
+    let installDate: Date?
+    let lastUpdateDate: Date?
+    let submittedAt: Date
+
+    init(
+        category: FeedbackCategory,
+        message: String?,
+        trigger: FeedbackTrigger,
+        appVersion: String,
+        buildNumber: String,
+        osVersion: String,
+        locale: String,
+        entitlementTier: EntitlementTier,
+        featureKey: FeatureKey?,
+        appName: String = AppEngagementConfig.maskID.appName,
+        deviceModel: String = UIDevice.current.model,
+        installDate: Date? = nil,
+        lastUpdateDate: Date? = nil,
+        submittedAt: Date = Date()
+    ) {
+        self.category = category
+        self.message = message
+        self.trigger = trigger
+        self.appVersion = appVersion
+        self.buildNumber = buildNumber
+        self.osVersion = osVersion
+        self.locale = locale
+        self.entitlementTier = entitlementTier
+        self.featureKey = featureKey
+        self.appName = appName
+        self.deviceModel = deviceModel
+        self.installDate = installDate
+        self.lastUpdateDate = lastUpdateDate
+        self.submittedAt = submittedAt
+    }
 
     var mailBody: String {
+        let formatter = ISO8601DateFormatter()
         var lines = [
-            "MaskID feedback",
+            "\(appName) feedback",
             "Category: \(category.rawValue)",
             "Trigger: \(trigger.rawValue)",
             "Feature: \(featureKey?.rawValue ?? "none")",
@@ -414,7 +457,11 @@ struct FeedbackEnvelope: Codable, Sendable {
             "App version: \(appVersion)",
             "Build: \(buildNumber)",
             "OS: \(osVersion)",
+            "Device: \(deviceModel)",
             "Locale: \(locale)",
+            "Install date: \(installDate.map(formatter.string(from:)) ?? "unknown")",
+            "Last update date: \(lastUpdateDate.map(formatter.string(from:)) ?? "unknown")",
+            "Submitted at: \(formatter.string(from: submittedAt))",
             ""
         ]
         if let message, !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -436,7 +483,7 @@ enum FeedbackTransportError: Error {
 }
 
 @MainActor
-final class MailFeedbackTransport: FeedbackTransport {
+final class MailFeedbackTransport: NSObject, FeedbackTransport, MFMailComposeViewControllerDelegate {
     private let recipient: String
 
     init(recipient: String = SettingsSupportConfiguration.email ?? "") {
@@ -445,11 +492,23 @@ final class MailFeedbackTransport: FeedbackTransport {
 
     func send(_ feedback: FeedbackEnvelope) async throws {
         guard !recipient.isEmpty else { throw FeedbackTransportError.destinationUnavailable }
+
+        let subject = "Feedback — \(feedback.appName) \(feedback.appVersion)"
+        if MFMailComposeViewController.canSendMail(), let presenter = Self.topViewController {
+            let composer = MFMailComposeViewController()
+            composer.setToRecipients([recipient])
+            composer.setSubject(subject)
+            composer.setMessageBody(feedback.mailBody, isHTML: false)
+            composer.mailComposeDelegate = self
+            presenter.present(composer, animated: true)
+            return
+        }
+
         var components = URLComponents()
         components.scheme = "mailto"
         components.path = recipient
         components.queryItems = [
-            URLQueryItem(name: "subject", value: "MaskID feedback"),
+            URLQueryItem(name: "subject", value: subject),
             URLQueryItem(name: "body", value: feedback.mailBody)
         ]
         guard let url = components.url else { throw FeedbackTransportError.destinationUnavailable }
@@ -460,6 +519,28 @@ final class MailFeedbackTransport: FeedbackTransport {
             }
         }
         guard opened else { throw FeedbackTransportError.couldNotOpenMail }
+    }
+
+    func mailComposeController(
+        _ controller: MFMailComposeViewController,
+        didFinishWith result: MFMailComposeResult,
+        error: Error?
+    ) {
+        controller.dismiss(animated: true)
+    }
+
+    private static var topViewController: UIViewController? {
+        let root = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .flatMap(\.windows)
+            .first(where: { $0.isKeyWindow })?.rootViewController
+
+        var current = root
+        while let presented = current?.presentedViewController {
+            current = presented
+        }
+        return current
     }
 }
 
@@ -713,7 +794,12 @@ final class ReviewFeedbackCoordinator: ObservableObject {
             osVersion: UIDevice.current.systemVersion,
             locale: Locale.current.identifier,
             entitlementTier: context.tier,
-            featureKey: context.feature
+            featureKey: context.feature,
+            appName: AppEngagementConfig.maskID.appName,
+            deviceModel: UIDevice.current.model,
+            installDate: AppEngagementRuntime.metadata.installDate,
+            lastUpdateDate: AppEngagementRuntime.metadata.lastUpdateDate,
+            submittedAt: Date()
         )
 
         do {
