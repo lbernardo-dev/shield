@@ -68,7 +68,7 @@ public struct SupportCoffeePrompt: View {
         VStack(spacing: 7) {
             Image(systemName: "cup.and.saucer.fill")
                 .font(.system(size: 30, weight: .semibold))
-                .foregroundStyle(Color(red: 0.58, green: 0.32, blue: 0.16))
+                .foregroundStyle(.primary)
                 .accessibilityHidden(true)
 
             Text(title)
@@ -78,7 +78,7 @@ public struct SupportCoffeePrompt: View {
 
             Text(detail)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
         }
         .padding(.vertical, 8)

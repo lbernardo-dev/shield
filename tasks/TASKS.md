@@ -1952,3 +1952,14 @@
    Done by: CODEX
    Done at: 2026-09-21T09:15:47Z
 
+179. coffee-prompt-adaptive-colors
+   Id: 179-coffee-prompt-adaptive-colors
+   Scope: Ajustar el icono y el importe del prompt de café para temas claro y oscuro
+   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,tasks/TASKS.md,tasks/details
+   Note: Colores adaptativos aplicados; build 1102026092103 archivado, subido, procesado como VALID y enlazado a la versión 1.1.0.
+   Detail: tasks/details/179-coffee-prompt-adaptive-colors.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T09:20:07Z
+   Done by: CODEX
+   Done at: 2026-09-21T09:31:54Z
+
