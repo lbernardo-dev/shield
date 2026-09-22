@@ -2029,3 +2029,14 @@
    Done by: CODEX
    Done at: 2026-09-22T08:16:43Z
 
+186. release-1-1-0-build-3
+   Id: 186-release-1-1-0-build-3
+   Scope: Build 1102026092201 — archive, export e upload a App Store Connect v1.1.0
+   Files: Shield.xcodeproj/project.pbxproj, Shield/Localization/Strings/SettingsInfo.xcstrings, ShieldUITests/ShieldLaunchTests.swift
+   Note: Build 1102026092201 archivado, exportado, subido a App Store Connect como VALID, enlazado a version 1.1.0 y What's New actualizado en en-US y es-ES
+   Detail: tasks/details/186-release-1-1-0-build-3.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-22T10:04:13Z
+   Done by: CODEX
+   Done at: 2026-09-22T10:16:54Z
+
