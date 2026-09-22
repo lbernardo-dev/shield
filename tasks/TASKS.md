@@ -1985,3 +1985,36 @@
    Done by: CODEX
    Done at: 2026-09-21T13:30:40Z
 
+182. coffee-button-wcag-refactor
+   Id: 182-coffee-button-wcag-refactor
+   Scope: Refactor SupportCoffeeButton for WCAG AA/AAA contrast, hierarchical SF Symbols, custom spring ButtonStyle, and minimal layout
+   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Settings/SettingsView.swift
+   Note: Finished coffee button refactor; build succeeded
+   Detail: tasks/details/182-coffee-button-wcag-refactor.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-22T07:31:47Z
+   Done by: CODEX
+   Done at: 2026-09-22T07:34:50Z
+
+183. hide-tab-bar-settings-audit-dev
+   Id: 183-hide-tab-bar-settings-audit-dev
+   Scope: Hide footer tab bar in SettingsView and ensure developer menus are strictly simulator-only
+   Files: Shield/App/ContentView.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift
+   Note: Finished hiding tab bar in Settings and audited developer menus; build succeeded and installed on iPhone 18 Pro
+   Detail: tasks/details/183-hide-tab-bar-settings-audit-dev.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-22T07:38:24Z
+   Done by: CODEX
+   Done at: 2026-09-22T07:40:55Z
+
+184. move-coffee-button-paywall-scroll
+   Id: 184-move-coffee-button-paywall-scroll
+   Scope: Move SupportCoffeeButton from sticky footer to end of scrollable content in PaywallView
+   Files: Shield/Views/Paywall/PaywallView.swift
+   Note: Moved SupportCoffeeButton from sticky footer to end of paywall scroll view; build succeeded and installed on iPhone 18 Pro
+   Detail: tasks/details/184-move-coffee-button-paywall-scroll.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-22T07:41:47Z
+   Done by: CODEX
+   Done at: 2026-09-22T07:43:35Z
+

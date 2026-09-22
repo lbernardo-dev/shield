@@ -200,6 +200,7 @@ private struct AuthenticatedShellView: View {
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: appState.showCapture)
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.88), value: appState.selectedDoc?.id)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: appState.activeTab)
     }
 
     private func openCapture() {
@@ -214,11 +215,14 @@ private struct AuthenticatedShellView: View {
     private var compactNavigation: some View {
         tabContent
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                ShieldTabBar(
-                    selected: $appState.activeTab,
-                    lang: appState.language,
-                    onScanTap: openCapture
-                )
+                if appState.activeTab != .settings {
+                    ShieldTabBar(
+                        selected: $appState.activeTab,
+                        lang: appState.language,
+                        onScanTap: openCapture
+                    )
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
     }
 

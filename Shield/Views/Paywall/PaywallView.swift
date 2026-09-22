@@ -86,6 +86,17 @@ struct PaywallView: View {
 
                         // FAQ
                         faqSection
+
+                        // Support Coffee
+                        SupportCoffeeButton(
+                            manager: DonationManager(configuration: .maskID),
+                            title: LanguageManager.shared.settings("settings_coffee_prompt"),
+                            accessibilityLabel: LanguageManager.shared.settings("settings_coffee_accessibility"),
+                            accessibilityHint: LanguageManager.shared.settings("settings_coffee_hint")
+                        )
+                        .accessibilityIdentifier("paywall.supportCoffee")
+                        .padding(.top, 4)
+                        .padding(.bottom, 8)
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 16)
@@ -433,15 +444,6 @@ struct PaywallView: View {
             }
 
             footerLinks
-
-            SupportCoffeePrompt(
-                manager: DonationManager(configuration: .maskID),
-                title: LanguageManager.shared.settings("settings_coffee_prompt"),
-                detail: LanguageManager.shared.settings("settings_coffee_amount"),
-                accessibilityLabel: LanguageManager.shared.settings("settings_coffee_accessibility"),
-                accessibilityHint: LanguageManager.shared.settings("settings_coffee_hint")
-            )
-            .accessibilityIdentifier("paywall.supportCoffee")
         }
     }
 

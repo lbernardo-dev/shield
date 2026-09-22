@@ -135,10 +135,9 @@ struct SettingsView: View {
 
                         SettingsFooter()
                             .padding(.top, ShieldTheme.s2)
-                        SupportCoffeePrompt(
+                        SupportCoffeeButton(
                             manager: DonationManager(configuration: .maskID),
                             title: strings.settings("settings_coffee_prompt"),
-                            detail: strings.settings("settings_coffee_amount"),
                             accessibilityLabel: strings.settings("settings_coffee_accessibility"),
                             accessibilityHint: strings.settings("settings_coffee_hint")
                         )
