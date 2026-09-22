@@ -800,6 +800,12 @@ struct EditorView: View {
     }
 
     private func handleToolTap(_ tool: EditorTool) {
+        if tool == .watermark {
+            showWatermarkConfig = true
+            withAnimation(.easeInOut(duration: 0.15)) { vm.tool = .rect }
+            return
+        }
+
         if tool.requiresPro && !pm.isPro {
             if let feature = tool.premiumFeature {
                 PremiumManager.recordFeatureGate(feature, trigger: .featureLocked)

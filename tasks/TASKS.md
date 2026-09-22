@@ -2018,3 +2018,14 @@
    Done by: CODEX
    Done at: 2026-09-22T07:43:35Z
 
+185. retention-usage-conversion-suite
+   Id: 185-retention-usage-conversion-suite
+   Scope: Implementar suite integral de retención, uso recurrente de bóveda con recordatorios de caducidad, cuotas visibles, preview before paywall, watermarking anti-fraude y onboarding personalizado
+   Files: Shield/ViewModels/DocumentExpiryReminderManager.swift,Shield/Views/Vault/VaultView.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Editor/EditorView.swift,Shield/Views/Editor/ExportSheetView.swift,Shield/Views/Editor/WatermarkConfigView.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Localization/Strings/*.xcstrings
+   Note: Suite completa de retención, uso recurrente, preview before paywall, watermarking anti-fraude y onboarding implementada; build y test build exitosos
+   Detail: tasks/details/185-retention-usage-conversion-suite.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-22T07:56:19Z
+   Done by: CODEX
+   Done at: 2026-09-22T08:16:43Z
+

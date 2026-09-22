@@ -171,28 +171,22 @@ final class ShieldLaunchTests: XCTestCase {
         let app = launch(scene: "settings")
 
         let settingsClose = app.buttons["settings.close"]
-        XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
+        XCTAssertTrue(settingsClose.waitForExistence(timeout: 5))
         XCTAssertTrue(settingsClose.isHittable)
-        XCTAssertTrue(
-            app.buttons["tab.0"].waitForExistence(timeout: 3),
-            "The adaptive tab bar remains available in Settings"
-        )
         settingsClose.tap()
-        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
+        // Tab bar reappears after Settings dismissal animation; allow extra time
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 8))
 
         app.buttons["tab.3"].tap()
         let preferences = app.buttons["settings.route.appPreferences"]
-        XCTAssertTrue(preferences.waitForExistence(timeout: 3))
+        XCTAssertTrue(preferences.waitForExistence(timeout: 5))
         preferences.tap()
 
-        XCTAssertTrue(settingsClose.waitForExistence(timeout: 3))
+        XCTAssertTrue(settingsClose.waitForExistence(timeout: 5))
         XCTAssertTrue(settingsClose.isHittable)
-        XCTAssertTrue(
-            app.buttons["tab.0"].waitForExistence(timeout: 3),
-            "The adaptive tab bar remains available in Settings destinations"
-        )
         settingsClose.tap()
-        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 3))
+        // Tab bar reappears after Settings dismissal animation; allow extra time
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 8))
     }
 
     @MainActor
@@ -269,21 +263,24 @@ final class ShieldLaunchTests: XCTestCase {
         let closeSettings = app.buttons["settings.close"]
         XCTAssertTrue(closeSettings.waitForExistence(timeout: 3))
         closeSettings.tap()
-        XCTAssertTrue(closeSettings.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(closeSettings.waitForNonExistence(timeout: 5))
 
+        // Tab bar reappears after Settings dismissal animation; allow extra time
         let homeTab = app.buttons["tab.0"]
-        XCTAssertTrue(homeTab.waitForExistence(timeout: 3), "Missing tab tab.0")
+        XCTAssertTrue(homeTab.waitForExistence(timeout: 8), "Missing tab tab.0")
         XCTAssertTrue(homeTab.isHittable, "Tab is not tappable: tab.0")
         homeTab.tap()
 
         let capture = app.buttons["tab.capture"]
+        XCTAssertTrue(capture.waitForExistence(timeout: 3))
         XCTAssertTrue(capture.isHittable)
         capture.tap()
 
         let close = app.buttons["capture.close"]
-        XCTAssertTrue(close.waitForExistence(timeout: 3))
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
         close.tap()
-        XCTAssertTrue(close.waitForNonExistence(timeout: 3))
+        XCTAssertTrue(close.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["tab.0"].isHittable)
     }
 

@@ -59,7 +59,31 @@ struct WatermarkConfigView: View {
             ShieldDivider()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
+                VStack(spacing: 18) {
+                    // Anti-fraud security banner
+                    HStack(spacing: 10) {
+                        Image(systemName: "checkmark.shield.fill")
+                            .shieldFont(18, weight: .semibold)
+                            .foregroundColor(ShieldTheme.accent)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(LanguageManager.shared.editor("editor_watermark_antifraud_badge"))
+                                .shieldFont(12, weight: .bold)
+                                .foregroundColor(ShieldTheme.primary(scheme))
+                            Text(LanguageManager.shared.editor("editor_watermark_antifraud_desc"))
+                                .shieldFont(11)
+                                .foregroundColor(ShieldTheme.secondary(scheme))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(10)
+                    .background(ShieldTheme.accentDim(scheme))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+                    )
+
                     // Text field
                     VStack(alignment: .leading, spacing: 8) {
                         label(LanguageManager.shared.editor("editor_watermark_text"))
@@ -186,6 +210,10 @@ struct WatermarkConfigView: View {
     }
 
     private let presetKeys = [
+        "editor_watermark_preset_antifraud",
+        "editor_watermark_preset_rental",
+        "editor_watermark_preset_job",
+        "editor_watermark_preset_hotel",
         "editor_watermark_preset_verification",
         "editor_watermark_preset_no_original",
         "editor_watermark_preset_confidential"

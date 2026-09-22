@@ -20,6 +20,7 @@ nonisolated struct ExportVerificationReport: Equatable, Sendable {
     let normalizedVisualObfuscations: Int
     let watermarkApplied: Bool
     let remainingDetectedSensitiveElements: Int
+    let sha256Hash: String?
     let issues: [String]
 
     init(
@@ -37,6 +38,7 @@ nonisolated struct ExportVerificationReport: Equatable, Sendable {
         normalizedVisualObfuscations: Int,
         watermarkApplied: Bool = false,
         remainingDetectedSensitiveElements: Int = 0,
+        sha256Hash: String? = nil,
         issues: [String]
     ) {
         self.format = format
@@ -53,6 +55,7 @@ nonisolated struct ExportVerificationReport: Equatable, Sendable {
         self.normalizedVisualObfuscations = normalizedVisualObfuscations
         self.watermarkApplied = watermarkApplied
         self.remainingDetectedSensitiveElements = max(0, remainingDetectedSensitiveElements)
+        self.sha256Hash = sha256Hash
         self.issues = issues
     }
 

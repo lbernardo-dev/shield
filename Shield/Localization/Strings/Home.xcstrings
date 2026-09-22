@@ -4,22 +4,52 @@
     "home_scan_action": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Scan" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Escanear" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escanear"
+          }
+        }
       }
     },
     "home_tools_services": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Tools and services" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Herramientas y servicios" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tools and services"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas y servicios"
+          }
+        }
       }
     },
     "home_tools_services_subtitle": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Quick modes, Vault and cloud" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Modos rápidos, Bóveda y nube" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick modes, Vault and cloud"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modos rápidos, Bóveda y nube"
+          }
+        }
       }
     },
     "home_all_documents": {
@@ -1735,6 +1765,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Escanear un documento"
+          }
+        }
+      }
+    },
+    "home_quota_warning_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only 2 free documents left!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Solo quedan 2 documentos gratuitos!"
+          }
+        }
+      }
+    },
+    "home_quota_warning_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock MaskID Pro to protect unlimited documents without limits."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquea MaskID Pro para proteger documentos ilimitados sin restricciones."
           }
         }
       }

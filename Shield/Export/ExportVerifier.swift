@@ -2,6 +2,7 @@ import Foundation
 import PDFKit
 import Vision
 import ImageIO
+import CryptoKit
 
 enum ExportVerifier {
     static func verifyPDF(
@@ -65,6 +66,7 @@ enum ExportVerifier {
             normalizedVisualObfuscations: normalizedVisualObfuscations,
             watermarkApplied: watermarkApplied,
             remainingDetectedSensitiveElements: remainingDetectedSensitiveElements,
+            sha256Hash: computeSHA256(for: url),
             issues: issues
         )
     }
@@ -124,8 +126,15 @@ enum ExportVerifier {
             normalizedVisualObfuscations: normalizedVisualObfuscations,
             watermarkApplied: watermarkApplied,
             remainingDetectedSensitiveElements: remainingDetectedSensitiveElements,
+            sha256Hash: computeSHA256(for: url),
             issues: issues
         )
+    }
+
+    private static func computeSHA256(for url: URL) -> String? {
+        guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else { return nil }
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02x", $0) }.joined()
     }
 
     private static func detectResidualText(

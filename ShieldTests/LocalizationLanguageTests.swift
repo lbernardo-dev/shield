@@ -64,4 +64,46 @@ struct LocalizationLanguageTests {
     func explicitResolverFallsBackToKey() {
         #expect(LanguageManager.shared.t("model_category_does_not_exist", table: "Model", language: .es) == "model_category_does_not_exist")
     }
+
+    @Test("New retention, expiry, and conversion keys translate in ES and EN")
+    @MainActor
+    func retentionAndConversionLocalizationKeys() {
+        let keys: [(table: String, key: String)] = [
+            ("Vault", "vault_expiring_alert_title"),
+            ("Vault", "vault_expiring_alert_desc"),
+            ("Vault", "vault_privacy_hygiene_title"),
+            ("Vault", "vault_privacy_hygiene_desc"),
+            ("Vault", "vault_privacy_hygiene_action"),
+            ("Vault", "vault_share_protected"),
+            ("Vault", "vault_biometric_reason"),
+            ("Vault", "vault_reason"),
+            ("Editor", "editor_sha256_hash"),
+            ("Editor", "editor_watermark_preset_title"),
+            ("Editor", "editor_pro_features_title"),
+            ("Editor", "editor_pro_features_message"),
+            ("Editor", "editor_try_pro_free"),
+            ("Editor", "editor_export_standard"),
+            ("Editor", "editor_reset_zoom"),
+            ("Home", "home_quota_warning"),
+            ("Onboarding", "ob_goal_pro_rental_benefit"),
+            ("Onboarding", "ob_goal_pro_work_benefit"),
+            ("Onboarding", "ob_goal_pro_vehicle_benefit"),
+            ("Onboarding", "ob_goal_pro_banking_benefit"),
+            ("Onboarding", "ob_goal_pro_travel_benefit")
+        ]
+
+        for item in keys {
+            let esVal = LanguageManager.shared.t(item.key, table: item.table, language: .es)
+            let enVal = LanguageManager.shared.t(item.key, table: item.table, language: .en)
+
+            #expect(esVal != item.key, "Key \(item.key) failed to localize in ES")
+            #expect(!esVal.isEmpty, "Key \(item.key) returned empty in ES")
+
+            #expect(enVal != item.key, "Key \(item.key) failed to localize in EN")
+            #expect(!enVal.isEmpty, "Key \(item.key) returned empty in EN")
+
+            #expect(esVal != enVal, "Key \(item.key) is identical in ES and EN (\(esVal))")
+        }
+    }
 }
+

@@ -18,6 +18,7 @@ struct VaultView: View {
     }()
     @State private var authError: String? = nil
     @State private var selectedDoc: DocumentItem? = nil
+    @State private var quickExportDoc: DocumentItem? = nil
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showAddToVault = false
@@ -46,10 +47,41 @@ struct VaultView: View {
         .fullScreenCover(item: $selectedDoc) { doc in
             EditorView(doc: doc).environmentObject(appState)
         }
+        .sheet(item: $quickExportDoc) { doc in
+            let today = Date().formatted(
+                Date.FormatStyle(date: .numeric)
+                    .locale(Locale(identifier: appState.language.rawValue))
+            )
+            let defaultWatermarkText = appState.language == .es
+                ? "Copia para trámite · \(today)"
+                : "Copy for verification · \(today)"
+            let watermark = doc.watermark ?? Watermark(text: defaultWatermarkText, opacity: 0.18, isRepeating: true)
+            ExportSheetView(
+                doc: doc,
+                redactions: doc.redactions(for: 0),
+                pageRedactions: Dictionary(uniqueKeysWithValues: doc.pageRedactions.map { ($0.pageIndex, $0.redactions) }),
+                watermark: watermark,
+                lang: appState.language,
+                currentPage: 0,
+                currentImageFileName: doc.imageFileName(for: 0),
+                isPresented: Binding(
+                    get: { quickExportDoc != nil },
+                    set: { if !$0 { quickExportDoc = nil } }
+                ),
+                onDone: { quickExportDoc = nil }
+            )
+            .environmentObject(appState)
+        }
+        .onChange(of: isUnlocked) { _, unlocked in
+            if unlocked {
+                DocumentExpiryReminderManager.shared.syncAllVaultReminders(documents: appState.vaultDocuments, lang: appState.language)
+            }
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active {
                 isUnlocked = false
                 selectedDoc = nil
+                quickExportDoc = nil
             }
         }
     }
@@ -173,37 +205,47 @@ struct VaultView: View {
                 .padding(.bottom, 14)
 
             ScrollView(showsIndicators: false) {
-                Group {
-                    if appState.vaultDocuments.isEmpty {
-                        ShieldStateView(
-                            kind: .empty,
-                            title: LanguageManager.shared.vault("vault_empty_title"),
-                            message: LanguageManager.shared.vault("vault_empty_desc"),
-                            actionLabel: LanguageManager.shared.vault("vault_add_to_vault")
-                        ) {
-                            showAddToVault = true
-                        }
-                        .frame(minHeight: 260)
-                    } else {
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 300, maximum: 540), spacing: 12)],
-                            alignment: .leading,
-                            spacing: 12
-                        ) {
-                            ForEach(appState.vaultDocuments) { doc in
-                                DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
-                                    selectedDoc = doc
-                                }
-                                .contextMenu {
-                                    Button(role: .destructive) {
-                                        appState.deleteDocument(doc)
-                                    } label: {
-                                        Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+                VStack(spacing: 0) {
+                    expiryAlertsSection
+                    privacyHygieneCard
+
+                    Group {
+                        if appState.vaultDocuments.isEmpty {
+                            ShieldStateView(
+                                kind: .empty,
+                                title: LanguageManager.shared.vault("vault_empty_title"),
+                                message: LanguageManager.shared.vault("vault_empty_desc"),
+                                actionLabel: LanguageManager.shared.vault("vault_add_to_vault")
+                            ) {
+                                showAddToVault = true
+                            }
+                            .frame(minHeight: 260)
+                        } else {
+                            LazyVGrid(
+                                columns: [GridItem(.adaptive(minimum: 300, maximum: 540), spacing: 12)],
+                                alignment: .leading,
+                                spacing: 12
+                            ) {
+                                ForEach(appState.vaultDocuments) { doc in
+                                    DocumentRow(doc: doc, lang: appState.language, vaultUnlocked: true) {
+                                        selectedDoc = doc
                                     }
-                                    Button {
-                                        appState.toggleVault(doc)
-                                    } label: {
-                                        Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
+                                    .contextMenu {
+                                        Button {
+                                            quickExportDoc = doc
+                                        } label: {
+                                            Label(LanguageManager.shared.vault("vault_share_protected"), systemImage: "square.and.arrow.up.badge.clock")
+                                        }
+                                        Button {
+                                            appState.toggleVault(doc)
+                                        } label: {
+                                            Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
+                                        }
+                                        Button(role: .destructive) {
+                                            appState.deleteDocument(doc)
+                                        } label: {
+                                            Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+                                        }
                                     }
                                 }
                             }
@@ -235,6 +277,80 @@ struct VaultView: View {
             AddToVaultSheet(isPresented: $showAddToVault)
                 .environmentObject(appState)
         }
+    }
+
+    private var expiringDocsCount: Int {
+        appState.vaultDocuments.filter { doc in
+            DocumentExpiryReminderManager.shared.status(for: doc).isExpiringOrExpired
+        }.count
+    }
+
+    @ViewBuilder
+    private var expiryAlertsSection: some View {
+        if expiringDocsCount > 0 {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.shield.fill")
+                    .shieldFont(22, weight: .bold)
+                    .foregroundColor(ShieldTheme.warning)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LanguageManager.shared.vault("vault_expiring_alert_title"))
+                        .shieldFont(13, weight: .bold)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                    Text(LanguageManager.shared.vault("vault_expiring_alert_desc"))
+                        .shieldFont(11)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
+                }
+                Spacer()
+            }
+            .padding(12)
+            .background(ShieldTheme.warning.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(ShieldTheme.warning.opacity(0.35), lineWidth: 0.8)
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
+        }
+    }
+
+    private var privacyHygieneCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "hand.raised.shield.fill")
+                .shieldFont(20, weight: .semibold)
+                .foregroundColor(ShieldTheme.accent)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LanguageManager.shared.vault("vault_privacy_hygiene_title"))
+                    .shieldFont(12, weight: .bold)
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                Text(LanguageManager.shared.vault("vault_privacy_hygiene_desc"))
+                    .shieldFont(11)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 4)
+            Button {
+                showAddToVault = true
+            } label: {
+                Text(LanguageManager.shared.vault("vault_privacy_hygiene_action"))
+                    .shieldFont(11, weight: .bold)
+                    .foregroundColor(ShieldTheme.accentText)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(ShieldTheme.accent)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(ScaleButtonStyle())
+        }
+        .padding(12)
+        .background(ShieldTheme.rowBackground(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+        )
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
     }
 
     private var securitySummary: some View {
@@ -275,7 +391,7 @@ struct VaultView: View {
         }
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: LanguageManager.shared.vault("vault_reason")
+            localizedReason: LanguageManager.shared.vault("vault_biometric_reason")
         ) { success, evalError in
             DispatchQueue.main.async {
                 if success {

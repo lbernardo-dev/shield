@@ -409,6 +409,23 @@
         }
       }
     },
+    "vault_reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock your MaskID vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear tu bóveda MaskID"
+          }
+        }
+      }
+    },
     "vault_title_pro": {
       "extractionState": "manual",
       "localizations": {
@@ -796,6 +813,159 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todos tus documentos ya están en la bóveda."
+          }
+        }
+      }
+    },
+    "vault_expires_in": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires in %dd"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caduca en %dd"
+          }
+        }
+      }
+    },
+    "vault_expired": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expired"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caducado"
+          }
+        }
+      }
+    },
+    "vault_valid": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valid"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vigente"
+          }
+        }
+      }
+    },
+    "vault_expiring_alert_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming Expirations"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vencimientos Próximos"
+          }
+        }
+      }
+    },
+    "vault_expiring_alert_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have documents in your Vault nearing expiration. Remember to renew them."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tienes documentos en tu Bóveda próximos a caducar. Recuerda renovarlos a tiempo."
+          }
+        }
+      }
+    },
+    "vault_privacy_hygiene_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity Privacy Hygiene"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higiene de Privacidad"
+          }
+        }
+      }
+    },
+    "vault_privacy_hygiene_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do you have unencrypted ID photos in your camera roll? Move them to the Vault to keep them behind Face ID."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Tienes fotos de tu DNI o pasaporte en el carrete no cifrado? Muévelas a la Bóveda para protegerlas con Face ID."
+          }
+        }
+      }
+    },
+    "vault_privacy_hygiene_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to Vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover a Bóveda"
+          }
+        }
+      }
+    },
+    "vault_share_protected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Protected Copy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir copia protegida"
           }
         }
       }

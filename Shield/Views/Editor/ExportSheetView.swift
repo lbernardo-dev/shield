@@ -34,6 +34,23 @@ struct ExportSheetView: View {
     @State private var exportErrorMessage: String? = nil
     @State private var acknowledgeHighRiskExport = false
     @State private var showVerificationDetails = false
+    @State private var showProFeaturesPrompt = false
+    @State private var exportWithoutProFeatures = false
+    @State private var paywallTrigger: PaywallTrigger = .exportLimitReached
+
+    private var hasProWatermark: Bool {
+        !pm.isPro && watermark != nil
+    }
+
+    private var hasProStyles: Bool {
+        guard !pm.isPro else { return false }
+        let marks = format == .pdf ? pageRedactions.values.flatMap { $0 } : redactions
+        return marks.contains(where: { $0.style.isPremium })
+    }
+
+    private var hasProFeatures: Bool {
+        hasProWatermark || hasProStyles
+    }
 
     var body: some View {
         Group {
@@ -139,8 +156,25 @@ struct ExportSheetView: View {
             }
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, trigger: .exportLimitReached)
+            PaywallView(isPresented: $showPaywall, trigger: paywallTrigger)
                 .environmentObject(appState)
+        }
+        .confirmationDialog(
+            LanguageManager.shared.editor("editor_pro_export_title"),
+            isPresented: $showProFeaturesPrompt,
+            titleVisibility: .visible
+        ) {
+            Button(LanguageManager.shared.editor("editor_pro_export_unlock")) {
+                paywallTrigger = hasProWatermark ? .featureLocked : .styleLocked
+                showPaywall = true
+            }
+            Button(LanguageManager.shared.editor("editor_pro_export_standard")) {
+                exportWithoutProFeatures = true
+                doExport()
+            }
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
+        } message: {
+            Text(LanguageManager.shared.editor("editor_pro_export_message"))
         }
         .onAppear {
             applyExportDefaultsIfNeeded()
@@ -267,13 +301,23 @@ struct ExportSheetView: View {
             return
         }
 
-        let effectiveWatermark = watermark
+        if hasProFeatures && !exportWithoutProFeatures {
+            paywallTrigger = hasProWatermark ? .featureLocked : .styleLocked
+            showProFeaturesPrompt = true
+            return
+        }
+
+        let effectiveWatermark = exportWithoutProFeatures ? nil : watermark
+        let effectiveRedactions = exportWithoutProFeatures ? sanitizeRedactionsToStandard(redactions) : redactions
+        let effectivePageRedactions = exportWithoutProFeatures
+            ? pageRedactions.mapValues { sanitizeRedactionsToStandard($0) }
+            : pageRedactions
 
         let formatName = format == .pdf ? "pdf" : "image"
         let pageCount = String(max(doc.pageCount, 1))
         let redactionCount = String(format == .pdf
-            ? pageRedactions.values.reduce(0) { $0 + $1.count }
-            : redactions.count)
+            ? effectivePageRedactions.values.reduce(0) { $0 + $1.count }
+            : effectiveRedactions.count)
         AppState.trackEvent("export_attempted", properties: [
             "format": formatName,
             "pages": pageCount,
@@ -288,7 +332,7 @@ struct ExportSheetView: View {
                 do {
                     let artifact = try await ExportEngine.exportAsPDF(
                         doc: doc,
-                        pageRedactions: pageRedactions,
+                        pageRedactions: effectivePageRedactions,
                         watermark: effectiveWatermark,
                         scale: scale,
                         remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
@@ -315,7 +359,7 @@ struct ExportSheetView: View {
                     let artifact = try await ExportEngine.exportAsImage(
                         doc: doc,
                         imageFileName: currentImageFileName,
-                        redactions: redactions,
+                        redactions: effectiveRedactions,
                         watermark: effectiveWatermark,
                         scale: scale,
                         remainingDetectedSensitiveElements: remainingDetectedSensitiveElements
@@ -339,6 +383,16 @@ struct ExportSheetView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func sanitizeRedactionsToStandard(_ list: [Redaction]) -> [Redaction] {
+        list.map { r in
+            var copy = r
+            if copy.style.isPremium {
+                copy.style = .block
+            }
+            return copy
         }
     }
 

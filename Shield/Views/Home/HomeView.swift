@@ -1113,6 +1113,55 @@ struct DocumentRow: View {
                                     .lineLimit(1)
                                     .fixedSize(horizontal: true, vertical: false)
                             }
+
+                            if vaultUnlocked {
+                                let expiryStatus = DocumentExpiryReminderManager.shared.status(for: doc)
+                                switch expiryStatus {
+                                case .expiringSoon(let days):
+                                    Text("·")
+                                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                        .shieldFont(12)
+                                    HStack(spacing: 3) {
+                                        Image(systemName: "clock.badge.exclamationmark")
+                                            .shieldFont(9, weight: .bold)
+                                        Text(LanguageManager.shared.vault("vault_expires_in", days))
+                                            .shieldFont(10, weight: .bold)
+                                    }
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(ShieldTheme.warning.opacity(0.18))
+                                    .foregroundColor(ShieldTheme.warning)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                case .expired:
+                                    Text("·")
+                                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                        .shieldFont(12)
+                                    HStack(spacing: 3) {
+                                        Image(systemName: "xmark.shield")
+                                            .shieldFont(9, weight: .bold)
+                                        Text(LanguageManager.shared.vault("vault_expired"))
+                                            .shieldFont(10, weight: .bold)
+                                    }
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(ShieldTheme.danger.opacity(0.18))
+                                    .foregroundColor(ShieldTheme.danger)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                                case .valid:
+                                    Text("·")
+                                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                        .shieldFont(12)
+                                    Text(LanguageManager.shared.vault("vault_valid"))
+                                        .shieldFont(10, weight: .semibold)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(ShieldTheme.success.opacity(0.15))
+                                        .foregroundColor(ShieldTheme.success)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                case .notSet:
+                                    EmptyView()
+                                }
+                            }
                         }
                     }
                 }

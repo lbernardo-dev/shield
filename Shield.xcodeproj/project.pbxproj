@@ -120,6 +120,7 @@
 		A_DOC_STORE /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_STORE /* DocumentStore.swift */; };
 		A_DOC_THUMB_VIEW /* DocumentThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */; };
 		A_HOME_VM /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_HOME_VM /* HomeViewModel.swift */; };
+		A_EXPIRY_REMINDER /* DocumentExpiryReminderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_EXPIRY_REMINDER /* DocumentExpiryReminderManager.swift */; };
 		A_OCR_CORR /* OCRErrorCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_CORR /* OCRErrorCorrector.swift */; };
 		A_OCR_FUSION /* OCRFusionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_FUSION /* OCRFusionEngine.swift */; };
 		A_OCR_MGR /* OCREngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_OCR_MGR /* OCREngineManager.swift */; };
@@ -317,6 +318,7 @@
 		F_DOC_STORE /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
 		F_DOC_THUMB_VIEW /* DocumentThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentThumbnailView.swift; sourceTree = "<group>"; };
 		F_HOME_VM /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		F_EXPIRY_REMINDER /* DocumentExpiryReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryReminderManager.swift; sourceTree = "<group>"; };
 		F_OCR_CORR /* OCRErrorCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRErrorCorrector.swift; sourceTree = "<group>"; };
 		F_OCR_FUSION /* OCRFusionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRFusionEngine.swift; sourceTree = "<group>"; };
 		F_OCR_MGR /* OCREngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCREngineManager.swift; sourceTree = "<group>"; };
@@ -824,6 +826,7 @@
 				F006 /* AppState.swift */,
 				F007 /* EditorViewModel.swift */,
 				F_HOME_VM /* HomeViewModel.swift */,
+				F_EXPIRY_REMINDER /* DocumentExpiryReminderManager.swift */,
 				F035 /* OnboardingState.swift */,
 				F037 /* AppSessionCoordinator.swift */,
 			);
@@ -1181,6 +1184,7 @@
 				A_PRESET_PICKER /* RedactionPresetPicker.swift in Sources */,
 				A_BARCODE_DET /* BarcodeDetector.swift in Sources */,
 				A_HOME_VM /* HomeViewModel.swift in Sources */,
+				A_EXPIRY_REMINDER /* DocumentExpiryReminderManager.swift in Sources */,
 				A023 /* TabBar.swift in Sources */,
 				A030 /* CloudSyncManager.swift in Sources */,
 				A031 /* ExternalStorageManager.swift in Sources */,
@@ -1279,7 +1283,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
@@ -1301,7 +1305,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
@@ -1323,7 +1327,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1350,7 +1354,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				EXTRACT_APP_INTENTS_METADATA = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1482,7 +1486,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1529,7 +1533,7 @@
 				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1102026092103;
+				CURRENT_PROJECT_VERSION = 1102026092201;
 				DEVELOPMENT_TEAM = L2B56644F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

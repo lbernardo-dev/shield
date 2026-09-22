@@ -104,7 +104,7 @@ struct OnboardingFlowView: View {
         case 3:  OBDemoView(state: state)
         case 4:  OBCameraPermView(state: state)
         case 5:  OBSecuritySetupView(state: state)
-        case 6:  OBPaywallView(onBack: moveBack, onComplete: { completeOnboarding(source: "paywall") })
+        case 6:  OBPaywallView(selectedGoal: state.selectedGoal, onBack: moveBack, onComplete: { completeOnboarding(source: "paywall") })
         default: EmptyView()
         }
     }

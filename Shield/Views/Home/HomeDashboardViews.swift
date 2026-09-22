@@ -225,6 +225,18 @@ struct HomeHeroCardView: View {
                     }
                 }
                 .frame(height: 8)
+
+                if remainingDocuments <= 2 && remainingDocuments > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .shieldFont(12)
+                            .foregroundColor(ShieldTheme.warning)
+                        Text(LanguageManager.shared.home("home_quota_warning_title"))
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(ShieldTheme.primary(scheme))
+                    }
+                    .padding(.top, 2)
+                }
             }
             .padding(10)
             .background(

@@ -3333,6 +3333,57 @@
         }
       }
     },
+    "settings_whats_new_item_7" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adaptive color system with automatic Light and Dark mode contrast optimization across all screens."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema de color adaptativo con optimización automática de contraste en modo Claro y Oscuro en todas las pantallas."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_8" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smarter premium experience: contextual upgrade prompts, exclusive Pro features, and a redesigned paywall."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experiencia premium mejorada: prompts de actualización contextuales, funciones exclusivas Pro y un paywall rediseñado."
+          }
+        }
+      }
+    },
+    "settings_whats_new_item_9" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full localization audit: 100% string coverage in English and Spanish, zero untranslated keys."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auditoría completa de localización: cobertura del 100% en inglés y español, sin claves sin traducir."
+          }
+        }
+      }
+    },
     "settings_whats_new_subtitle" : {
       "extractionState" : "stale",
       "localizations" : {

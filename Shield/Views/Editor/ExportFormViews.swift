@@ -353,6 +353,16 @@ struct ExportProtectionCheckView: View {
                 ok: report.remainingDetectedSensitiveElements == 0
             )
 
+            if let hash = report.sha256Hash {
+                ExportPrivacyScoreRow(
+                    scheme: scheme,
+                    icon: "lock.shield",
+                    label: LanguageManager.shared.editor("editor_protection_check_sha256"),
+                    value: String(hash.prefix(8)) + "...",
+                    ok: true
+                )
+            }
+
             Text(LanguageManager.shared.editor("editor_protection_check_note"))
                 .shieldFont(10)
                 .foregroundColor(ShieldTheme.tertiary(scheme))

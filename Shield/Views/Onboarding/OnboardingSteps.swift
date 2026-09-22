@@ -966,6 +966,7 @@ struct OBPaywallView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var pm = PremiumManager.shared
     @State private var selectedProductID = ShieldProduct.annual.rawValue
+    var selectedGoal: OBGoal? = nil
     var onBack: () -> Void
     var onComplete: () -> Void
 
@@ -1005,15 +1006,18 @@ struct OBPaywallView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 22) {
-                    paywallHero
-                    valueRecap
-                    freeValueNote
-                    planSelector
-                    footer
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 16)
+                        paywallHero
+                        if let goal = selectedGoal {
+                            archetypeGoalBanner(for: goal)
+                        }
+                        valueRecap
+                        freeValueNote
+                        planSelector
+                        footer
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
                 }
             }
         }
@@ -1067,6 +1071,60 @@ struct OBPaywallView: View {
                     .shieldFont(34, weight: .semibold)
                     .foregroundStyle(ShieldTheme.accent(scheme))
             }
+    }
+
+    private func archetypeGoalBanner(for goal: OBGoal) -> some View {
+        let titleKey: String
+        let descKey: String
+
+        switch goal {
+        case .rental:
+            titleKey = "onboarding_archetype_rental_title"
+            descKey = "onboarding_archetype_rental_desc"
+        case .work:
+            titleKey = "onboarding_archetype_work_title"
+            descKey = "onboarding_archetype_work_desc"
+        case .vehicle:
+            titleKey = "onboarding_archetype_vehicle_title"
+            descKey = "onboarding_archetype_vehicle_desc"
+        case .banking:
+            titleKey = "onboarding_archetype_banking_title"
+            descKey = "onboarding_archetype_banking_desc"
+        case .travel:
+            titleKey = "onboarding_archetype_travel_title"
+            descKey = "onboarding_archetype_travel_desc"
+        case .other:
+            titleKey = "onboarding_archetype_other_title"
+            descKey = "onboarding_archetype_other_desc"
+        }
+
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Text(goal.emoji)
+                    .shieldFont(16)
+                Text(LanguageManager.shared.onboarding("onboarding_archetype_recommended"))
+                    .shieldFont(10, weight: .bold)
+                    .foregroundColor(ShieldTheme.accent)
+                    .tracking(0.6)
+                Spacer()
+            }
+
+            Text(LanguageManager.shared.onboarding(titleKey))
+                .shieldFont(14, weight: .bold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+
+            Text(LanguageManager.shared.onboarding(descKey))
+                .shieldFont(12)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .background(ShieldTheme.cardBackground(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 1.0)
+        )
     }
 
     private var valueRecap: some View {
