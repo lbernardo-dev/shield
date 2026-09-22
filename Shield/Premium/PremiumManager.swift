@@ -47,6 +47,7 @@ enum PaywallTrigger: String, CaseIterable {
     case docLimitReached
     case exportLimitReached
     case styleLocked
+    case featureLocked
     case vaultUpgrade
     case settingsUpgrade
 
@@ -56,10 +57,42 @@ enum PaywallTrigger: String, CaseIterable {
         case .docLimitReached:  return "paywall_trigger_doc_limit"
         case .exportLimitReached: return "paywall_trigger_export_limit"
         case .styleLocked:      return "paywall_trigger_style_locked"
+        case .featureLocked:    return "paywall_trigger_feature_locked"
         case .vaultUpgrade:     return "paywall_trigger_vault"
         case .settingsUpgrade:  return "paywall_trigger_generic"
         }
     }
+
+    var featureKey: String? {
+        switch self {
+        case .docLimitReached: "document_limit"
+        case .exportLimitReached: "export_limit"
+        case .styleLocked: "advanced_styles"
+        case .featureLocked: nil
+        case .vaultUpgrade: nil
+        case .settingsUpgrade: "premium_workflow"
+        case .manual: nil
+        }
+    }
+}
+
+enum PremiumFeature: String, CaseIterable {
+    case unlimitedDocuments = "unlimited_documents"
+    case advancedStyles = "advanced_styles"
+    case professionalModes = "professional_modes"
+    case batchProcessing = "batch_processing"
+    case cloudWorkflow = "cloud_workflow"
+    case advancedAdjustments = "advanced_adjustments"
+    case alternateIcons = "alternate_icons"
+    case customWatermarks = "custom_watermarks"
+}
+
+enum SubscriptionEntitlementState: String {
+    case free
+    case active
+    case autoRenewOff = "auto_renew_off"
+    case billingIssue = "billing_issue"
+    case expired
 }
 
 // MARK: - PremiumManager
@@ -82,9 +115,14 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     @Published private(set) var purchaseError: String? = nil
     @Published var isPurchasing: Bool = false
     @Published var isRestoring: Bool = false
+    @Published private(set) var entitlementTier: EntitlementTier = .free
+    @Published private(set) var subscriptionState: SubscriptionEntitlementState = .free
+    @Published private(set) var activeProductIdentifier: String?
 
     @Published private(set) var freeDocumentsProcessedCount: Int = 0
     static let processedDocumentsKey = "shield.free.processedDocumentsCount"
+    static let analyticsTierKey = "shield.analytics.entitlementTier"
+    static let analyticsSubscriptionStateKey = "shield.analytics.subscriptionState"
 
     #if DEBUG && targetEnvironment(simulator)
     @Published private(set) var isDebugProOverride: Bool = false
@@ -111,6 +149,12 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         // Restore from cache immediately
         isPro = UserDefaults.standard.bool(forKey: "shield.isPro")
         freeDocumentsProcessedCount = UserDefaults.standard.integer(forKey: Self.processedDocumentsKey)
+        entitlementTier = EntitlementTier(
+            rawValue: UserDefaults.standard.string(forKey: Self.analyticsTierKey) ?? "free"
+        ) ?? (isPro ? .premium : .free)
+        subscriptionState = SubscriptionEntitlementState(
+            rawValue: UserDefaults.standard.string(forKey: Self.analyticsSubscriptionStateKey) ?? "free"
+        ) ?? (isPro ? .active : .free)
         #if DEBUG && targetEnvironment(simulator)
         let override = UserDefaults.standard.bool(forKey: "shield.devProOverride")
         isDebugProOverride = override
@@ -192,21 +236,31 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
-        AppState.trackEvent("purchase_started", properties: ["product_id": product.id])
+        AppState.trackEvent("purchase_started", properties: [
+            "product_id": product.id,
+            "plan": product.analyticsName
+        ])
 
         do {
             let result = try await Purchases.shared.purchase(package: product.package)
             if result.userCancelled {
-                AppState.trackEvent("purchase_cancelled", properties: ["product_id": product.id])
+                AppState.trackEvent("purchase_cancelled", properties: [
+                    "product_id": product.id,
+                    "plan": product.analyticsName
+                ])
             } else {
                 apply(result.customerInfo)
-                AppState.trackEvent("purchase_success", properties: ["product_id": product.id])
+                AppState.trackEvent("purchase_success", properties: [
+                    "product_id": product.id,
+                    "plan": product.analyticsName
+                ])
                 ReviewFeedbackCoordinator.shared.track(.purchaseCompleted(productID: product.id))
             }
         } catch {
             purchaseError = error.localizedDescription
             AppState.trackEvent("purchase_failed", properties: [
                 "product_id": product.id,
+                "plan": product.analyticsName,
                 "error_type": Self.errorType(for: error)
             ])
         }
@@ -265,11 +319,55 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         if isDebugProOverride { return }
         #endif
         let wasPro = isPro
-        let hasPro = customerInfo.entitlements[entitlementIdentifier]?.isActive == true
+        let previousState = subscriptionState
+        let entitlement = customerInfo.entitlements[entitlementIdentifier]
+        let hasPro = entitlement?.isActive == true
+        let productIdentifier = entitlement?.productIdentifier
+        let nextTier: EntitlementTier
+        if hasPro, productIdentifier == ShieldProduct.lifetime.rawValue {
+            nextTier = .lifetime
+        } else if hasPro, entitlement?.periodType == .trial {
+            nextTier = .trial
+        } else if hasPro {
+            nextTier = .premium
+        } else {
+            nextTier = .free
+        }
+        let nextState: SubscriptionEntitlementState
+        if hasPro {
+            if entitlement?.billingIssueDetectedAt != nil {
+                nextState = .billingIssue
+            } else if entitlement?.willRenew == false {
+                nextState = .autoRenewOff
+            } else {
+                nextState = .active
+            }
+        } else if entitlement?.expirationDate != nil {
+            nextState = .expired
+        } else {
+            nextState = .free
+        }
         isPro = hasPro
+        entitlementTier = nextTier
+        subscriptionState = nextState
+        activeProductIdentifier = productIdentifier
         UserDefaults.standard.set(hasPro, forKey: "shield.isPro")
+        UserDefaults.standard.set(nextTier.rawValue, forKey: Self.analyticsTierKey)
+        UserDefaults.standard.set(nextState.rawValue, forKey: Self.analyticsSubscriptionStateKey)
+
+        var snapshot: [String: String] = [
+            "tier": nextTier.rawValue,
+            "subscription_state": nextState.rawValue
+        ]
+        if let productIdentifier {
+            snapshot["product_id"] = productIdentifier
+        }
+        AppState.trackEvent("entitlement_snapshot", properties: snapshot)
+        if previousState != nextState {
+            AppState.trackEvent("subscription_state_changed", properties: snapshot)
+        }
         if !wasPro, hasPro {
-            ReviewFeedbackCoordinator.shared.track(.subscriptionActivated(productID: "revenuecat"))
+            ReviewFeedbackCoordinator.shared.track(.subscriptionActivated(productID: productIdentifier ?? "revenuecat"))
         }
     }
 
@@ -303,6 +401,11 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     func recordDocumentProcessed() {
         freeDocumentsProcessedCount += 1
         UserDefaults.standard.set(freeDocumentsProcessedCount, forKey: Self.processedDocumentsKey)
+        if [1, 3, 5, 8, Self.freeDocumentLimit].contains(freeDocumentsProcessedCount) {
+            AppState.trackEvent("quota_milestone", properties: [
+                "quota": String(freeDocumentsProcessedCount)
+            ])
+        }
     }
 
     func canAddDocument(currentCount: Int? = nil) -> Bool {
@@ -324,6 +427,18 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     func canUseStyle(_ style: MaskStyle) -> Bool {
         isPro || !style.isPremium
+    }
+
+    func canUseMode(_ mode: RedactionMode) -> Bool {
+        isPro || !mode.requiresPro
+    }
+
+    static func recordFeatureGate(_ feature: PremiumFeature, trigger: PaywallTrigger? = nil) {
+        var properties = ["feature": feature.rawValue]
+        if let trigger {
+            properties["trigger"] = trigger.rawValue
+        }
+        AppState.trackEvent("feature_gate_tapped", properties: properties)
     }
 
     func canExportNow() -> Bool {

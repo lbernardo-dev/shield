@@ -705,8 +705,8 @@ Aplica `ImageAdjustmentStore` sobre una `UIImage` usando el mismo pipeline de CI
 
 | Tier | Watermark |
 |------|-----------|
-| Free | Forzado: "Protected with Shield Free" (o en español) si el usuario no puso uno |
-| Pro | Solo si el usuario configuró uno explícitamente |
+| Free | No se fuerza ninguna marca de agua |
+| Pro | Puede configurar una marca de agua personalizada |
 
 ### Calidad de exportación
 
@@ -747,50 +747,47 @@ Hay **dos pipelines distintos** de ajuste de imagen en la app:
 
 **Archivo:** [Premium/PremiumManager.swift](../Shield/Premium/PremiumManager.swift)
 
-### `PremiumManager` — StoreKit 2
-
-```swift
-@MainActor
-final class PremiumManager: ObservableObject {
-    @Published private(set) var isPro: Bool
-    @Published private(set) var products: [Product]
-    @Published private(set) var purchaseError: String?
-    @Published var isPurchasing: Bool
-    @Published var isRestoring: Bool
-}
-```
+`PremiumManager` usa RevenueCat para comprobar el entitlement configurado en la aplicación. `isPro` se conserva como cache local para el arranque y el estado analítico distingue `free`, `trial`, `premium` y `lifetime`. También registra si la suscripción está activa, con renovación desactivada, con incidencia de cobro o expirada.
 
 **Productos (`ShieldProduct`):**
 
-| Product ID | Tipo | Precio sugerido |
-|------------|------|----------------|
-| `com.romerodev.shield.pro.weekly` | Suscripción autorrenovable semanal | 0,99 EUR (base España) |
-| `com.romerodev.shield.pro.monthly` | Suscripción autorrenovable mensual | 2,99 EUR (base España) |
-| `com.romerodev.shield.pro.annual` | Suscripción autorrenovable anual | 29,99 EUR (base España), prueba de 7 días |
+| Product ID | Tipo |
+|------------|------|
+| `com.romerodev.shield.pro.monthly` | Suscripción autorrenovable mensual |
+| `com.romerodev.shield.pro.annual` | Suscripción autorrenovable anual |
+| `com.romerodev.shield.pro.lifetime.unlock` | Compra única lifetime |
 
-**Verificación de entitlements:** `Transaction.currentEntitlements` async stream. El status de `isPro` se persiste en `UserDefaults["shield.isPro"]` como cache para el arranque de la app.
+**Capacidades Free:**
 
-**Límites Free:**
+| Capacidad | Valor |
+|-----------|-------|
+| Procesamiento de documentos | 10 documentos acumulados (`freeDocumentLimit`) |
+| Exportación segura/verificada | Sin cuota; es una garantía de seguridad |
+| Almacenamiento local y Bóveda | Disponible en Free, cifrado local |
+| Enmascarado manual y OCR conservador | Disponible en Free |
 
-| Límite | Valor | Clave |
-|--------|-------|-------|
-| Documentos máximos | 3 | `PremiumManager.freeDocumentLimit` |
-| Exportaciones/semana | 3 | `PremiumManager.freeWeeklyExportLimit` |
+**Capacidades Pro:**
 
-El historial de exportaciones se guarda como array de timestamps en `UserDefaults["shield.free.exportHistoryTimestamps"]`. La ventana es de 7 días.
+- Procesamiento ilimitado mientras el entitlement está activo.
+- Estilos avanzados, modos profesionales y herramientas de ajuste.
+- Marcas de agua personalizadas.
+- Redacción por lotes, iCloud y proveedores externos.
+- Iconos alternativos.
+
+Los controles de seguridad, cifrado, revisión y exportación verificada no deben convertirse en gates de suscripción.
 
 **Triggers de paywall (`PaywallTrigger`):**
 
 | Trigger | Cuándo |
 |---------|--------|
-| `.manual` | Tap en banner Pro en Settings |
-| `.docLimitReached` | Intento de importar > 3 docs |
-| `.exportLimitReached` | Intento de exportar sin cuota |
-| `.styleLocked` | Seleccionar estilo premium en Free |
-| `.vaultUpgrade` | Acceder a Vault en Free |
-| `.settingsUpgrade` | Tap en banner Pro en Settings / cloud |
+| `.manual` | Entrada voluntaria al paywall |
+| `.docLimitReached` | Intento de importar tras la cuota Free |
+| `.exportLimitReached` | Reservado para una futura regla; actualmente no se activa |
+| `.styleLocked` | Seleccionar un estilo avanzado en Free |
+| `.featureLocked` | Intentar un modo o herramienta Pro |
+| `.settingsUpgrade` | Batch, nube, iconos u otra entrada de configuración Pro |
 
-**Paywall contextual:** cada trigger muestra un mensaje diferente en `contextBanner`. El array de features está localizado (ES/EN) via `features(lang:)`.
+Cada gate registra `feature_gate_tapped`; la presentación contextual registra `feature_gate_shown`. Las propiedades no contienen documento, OCR ni PII.
 
 ---
 

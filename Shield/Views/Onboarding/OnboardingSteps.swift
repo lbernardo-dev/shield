@@ -972,7 +972,9 @@ struct OBPaywallView: View {
     private let features: [(icon: String, hex: String, key: String)] = [
         ("doc.on.doc.fill",       "64D2FF", "paywall_feature_unlimited_docs"),
         ("eye.slash.fill",       "FFD60A", "paywall_feature_all_styles"),
-        ("lock.rectangle.stack", "30D158", "paywall_feature_vault"),
+        ("square.stack.3d.up.fill", "FF9F0A", "paywall_feature_batch"),
+        ("shield.lefthalf.filled", "FF375F", "paywall_feature_modes"),
+        ("slider.horizontal.3", "BF5AF2", "paywall_feature_adjust_title"),
         ("icloud",               "30D158", "paywall_feature_icloud"),
     ]
 
@@ -1005,6 +1007,7 @@ struct OBPaywallView: View {
                     VStack(spacing: 22) {
                     paywallHero
                     valueRecap
+                    freeValueNote
                     planSelector
                     footer
                 }
@@ -1022,6 +1025,7 @@ struct OBPaywallView: View {
             }
         }
         .task {
+            AppState.trackEvent("paywall_viewed", properties: ["trigger": "onboarding"])
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
         }
@@ -1089,6 +1093,30 @@ struct OBPaywallView: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
         }
+    }
+
+    private var freeValueNote: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "checkmark.shield.fill")
+                .shieldFont(16, weight: .semibold)
+                .foregroundStyle(ShieldTheme.success)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(LanguageManager.shared.paywall("paywall_free_value_title"))
+                    .shieldFont(12, weight: .bold)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                Text(LanguageManager.shared.paywall("paywall_free_value_desc"))
+                    .shieldFont(11)
+                    .foregroundStyle(ShieldTheme.tertiary(scheme))
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(ShieldTheme.accentDim(scheme))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var planSelector: some View {

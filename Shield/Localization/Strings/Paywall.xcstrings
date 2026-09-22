@@ -222,6 +222,23 @@
         }
       }
     },
+    "paywall_feature_batch_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protect several documents in one workflow"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protege varios documentos en un solo flujo"
+          }
+        }
+      }
+    },
     "paywall_feature_export_hq": {
       "extractionState": "manual",
       "localizations": {
@@ -286,6 +303,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todos los modos rápidos"
+          }
+        }
+      }
+    },
+    "paywall_feature_modes_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purpose-based workflows for professional sharing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flujos por finalidad para compartir de forma profesional"
           }
         }
       }
@@ -500,13 +534,47 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protect without limits. Share with confidence."
+            "value": "Free protects one document. Pro accelerates the work that repeats."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protege sin límites. Comparte con confianza."
+            "value": "Free protege tus documentos. Pro acelera el trabajo repetitivo."
+          }
+        }
+      }
+    },
+    "paywall_free_value_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secure masking, verified export, local encryption and Vault remain available on Free."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El enmascarado seguro, la exportación verificada, el cifrado local y la Bóveda siguen disponibles en Free."
+          }
+        }
+      }
+    },
+    "paywall_free_value_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free keeps the safety essentials"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free mantiene lo esencial para protegerte"
           }
         }
       }
@@ -1044,13 +1112,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encrypted vault is available with MaskID Pro."
+            "value": "The local encrypted Vault is included with Free; Pro adds scale and workflow tools."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La bóveda cifrada está disponible con MaskID Pro."
+            "value": "La Bóveda cifrada local está incluida en Free; Pro añade escala y herramientas de flujo."
           }
         }
       }

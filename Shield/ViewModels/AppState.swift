@@ -610,11 +610,22 @@ final class AppState: ObservableObject {
             "method", "risk", "low_fields", "detected_type", "mrz_valid",
             "has_adjustments", "product_id", "trigger", "reason", "error_type",
             "last_step", "from_step", "step", "name", "feature_key", "user_tier",
-            "category"
+            "category", "plan", "started_checkout", "feature", "quota", "docs",
+            "tier", "subscription_state"
         ]
-        let safeProperties = properties.reduce(into: [String: String]()) { result, item in
+        var safeProperties = properties.reduce(into: [String: String]()) { result, item in
             guard allowedKeys.contains(item.key) else { return }
             result[item.key] = sanitizedTelemetryValue(item.value)
+        }
+        if safeProperties["user_tier"] == nil {
+            safeProperties["user_tier"] = UserDefaults.standard.string(
+                forKey: PremiumManager.analyticsTierKey
+            ) ?? EntitlementTier.free.rawValue
+        }
+        if safeProperties["subscription_state"] == nil {
+            safeProperties["subscription_state"] = UserDefaults.standard.string(
+                forKey: PremiumManager.analyticsSubscriptionStateKey
+            ) ?? SubscriptionEntitlementState.free.rawValue
         }
         FirebaseIntegration.logEvent(safeName, parameters: safeProperties)
         var payload: [String: Any] = safeProperties

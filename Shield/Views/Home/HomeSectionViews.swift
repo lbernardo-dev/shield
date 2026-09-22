@@ -14,7 +14,12 @@ struct HomeModesSection: View {
                 SectionHeader(title: LanguageManager.shared.home("home_quick_modes"))
                 Spacer()
                 Button {
-                    isPro ? onShowBatch() : onShowPaywall()
+                    if isPro {
+                        onShowBatch()
+                    } else {
+                        PremiumManager.recordFeatureGate(.batchProcessing, trigger: .settingsUpgrade)
+                        onShowPaywall()
+                    }
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: isPro ? "square.stack.3d.up.fill" : "lock.fill")
@@ -36,8 +41,14 @@ struct HomeModesSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(RedactionMode.allCases, id: \.self) { mode in
-                        ModeCard(mode: mode, lang: lang) {
-                            onModeSelected(mode)
+                        let locked = mode.requiresPro && !isPro
+                        ModeCard(mode: mode, lang: lang, isLocked: locked) {
+                            if locked {
+                                PremiumManager.recordFeatureGate(.professionalModes, trigger: .settingsUpgrade)
+                                onShowPaywall()
+                            } else {
+                                onModeSelected(mode)
+                            }
                         }
                     }
                 }

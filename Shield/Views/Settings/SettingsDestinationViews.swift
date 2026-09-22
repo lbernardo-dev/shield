@@ -869,7 +869,10 @@ struct CloudSettingsView: View {
                         color: ShieldTheme.accent(scheme),
                         title: strings.settings("settings_icloud_pro_only"),
                         subtitle: strings.settings("settings_icloud_pro_subtitle"),
-                        action: { showPaywall = true }
+                        action: {
+                            PremiumManager.recordFeatureGate(.cloudWorkflow, trigger: .settingsUpgrade)
+                            showPaywall = true
+                        }
                     )
                 }
             }

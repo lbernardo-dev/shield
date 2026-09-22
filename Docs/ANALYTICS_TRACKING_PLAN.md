@@ -22,8 +22,14 @@ Los eventos proceden de la lista existente de `AppState.trackEvent`. Todos los n
 | `export_success` / `export_failed` | Calidad del flujo de exportación | `format`, `pages`, `error_type` |
 | `purchase_success` / `purchase_failed` | Salud del embudo de compra | `product_id`, `error_type` |
 | `vault_unlocked` / `vault_locked` | Uso de la Bóveda | `method` |
+| `entitlement_snapshot` / `subscription_state_changed` | Separar Free, trial, Premium, lifetime y cancelación de renovación | `tier`, `subscription_state`, `product_id` |
+| `feature_gate_shown` / `feature_gate_tapped` | Qué capacidad genera interés o fricción | `feature`, `trigger`, `user_tier` |
+| `quota_milestone` | Cuándo se acerca el usuario al límite de documentos | `quota`, `user_tier` |
+| `paywall_plan_selected` / `paywall_purchase_started` | Plan y contexto de decisión | `plan`, `trigger` |
 
 La tabla es representativa; la allowlist de código es la autoridad. No se envían documentos, imágenes, OCR, nombres, títulos, rutas, identificadores documentales, PIN, correo, texto de errores ni identificadores de cuenta.
+
+`AppState.trackEvent` añade automáticamente `user_tier` y `subscription_state` desde un snapshot local. El tier puede ser `free`, `trial`, `premium` o `lifetime`; la cancelación del auto-renewal se observa como `auto_renew_off` mientras el entitlement siga activo. Firebase continúa siendo opcional y la telemetría local sigue funcionando sin consentimiento.
 
 ## Validación y control de calidad
 
@@ -37,3 +43,10 @@ La tabla es representativa; la allowlist de código es la autoridad. No se enví
 ## Conversiones
 
 Las decisiones comerciales deben usar App Store Connect Analytics y RevenueCat como fuentes de compra. Firebase Analytics sólo debe complementar el análisis de activación y uso cuando exista consentimiento; no debe convertirse en requisito funcional ni en requisito para acceder a la protección documental.
+
+## Cohortes recomendadas
+
+- Trial iniciado → renovación desactivada → trial expirado → conversión.
+- Uso durante el trial frente a uso después de expirar: importación, redacción, exportación verificada, Vault y funciones Premium.
+- Conversión por trigger: documentos, estilos, modos, batch, nube, ajustes e iconos.
+- Hitos de cuota: 1, 3, 5, 8 y 10 documentos procesados.

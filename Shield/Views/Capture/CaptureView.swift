@@ -343,6 +343,7 @@ struct CaptureView: View {
         if pm.canAddDocument(currentCount: appState.documents.count) {
             return true
         }
+        PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
         paywallTrigger = .docLimitReached
         showPaywall = true
         return false
@@ -351,6 +352,7 @@ struct CaptureView: View {
     private func processFile(_ url: URL, source: String = "file") {
         guard pm.canAddDocument(currentCount: appState.documents.count) else {
             SharedImportStore.removeTemporaryFile(url)
+            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
             paywallTrigger = .docLimitReached
             showPaywall = true
             return

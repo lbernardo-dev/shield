@@ -48,7 +48,10 @@ struct EditorView: View {
             if let mode = appState.pendingRedactionMode {
                 // Small delay so the canvas is fully laid out before drawing redactions
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    vm.applyMode(mode)
+                    if !vm.applyMode(mode) {
+                        paywallTrigger = .featureLocked
+                        showPaywall = true
+                    }
                 }
                 appState.pendingRedactionMode = nil
             }
@@ -230,6 +233,7 @@ struct EditorView: View {
                     lang: appState.language,
                     isPro: pm.isPro,
                     onTriggerPaywall: {
+                        PremiumManager.recordFeatureGate(.advancedStyles, trigger: .styleLocked)
                         paywallTrigger = .styleLocked
                         showPaywall = true
                     }
@@ -243,7 +247,8 @@ struct EditorView: View {
     private var contextualToolPanels: some View {
         if vm.showAdjustPanel {
             ImageAdjustToolbar(vm: vm, lang: appState.language, isPro: pm.isPro) {
-                paywallTrigger = .styleLocked
+                PremiumManager.recordFeatureGate(.advancedAdjustments, trigger: .featureLocked)
+                paywallTrigger = .featureLocked
                 showPaywall = true
             }
             .transition(AnyTransition.move(edge: .bottom).combined(with: .opacity))
@@ -724,11 +729,16 @@ struct EditorView: View {
             lang: appState.language,
             isPro: pm.isPro,
             onLockedTap: {
-                paywallTrigger = .manual
+                PremiumManager.recordFeatureGate(.professionalModes, trigger: .featureLocked)
+                paywallTrigger = .featureLocked
                 showPaywall = true
             },
             onSelect: { mode in
-                vm.applyMode(mode)
+                guard vm.applyMode(mode) else {
+                    paywallTrigger = .featureLocked
+                    showPaywall = true
+                    return
+                }
                 vm.tool = .rect
                 vm.activeRedactionID = nil
             }
@@ -745,6 +755,7 @@ struct EditorView: View {
                 pm.canUseStyle(style)
             },
             onLockedSelect: { _ in
+                PremiumManager.recordFeatureGate(.advancedStyles, trigger: .styleLocked)
                 paywallTrigger = .styleLocked
                 showPaywall = true
             }
@@ -771,12 +782,17 @@ struct EditorView: View {
             onUndo: { vm.undo() },
             onRedo: { vm.redo() },
             onModeSelect: { mode in
-                vm.applyMode(mode)
+                guard vm.applyMode(mode) else {
+                    paywallTrigger = .featureLocked
+                    showPaywall = true
+                    return
+                }
                 vm.tool = .rect
                 vm.activeRedactionID = nil
             },
             onLockedModeTap: {
-                paywallTrigger = .manual
+                PremiumManager.recordFeatureGate(.professionalModes, trigger: .featureLocked)
+                paywallTrigger = .featureLocked
                 showPaywall = true
             },
             onToolTap: handleToolTap
@@ -784,6 +800,14 @@ struct EditorView: View {
     }
 
     private func handleToolTap(_ tool: EditorTool) {
+        if tool.requiresPro && !pm.isPro {
+            if let feature = tool.premiumFeature {
+                PremiumManager.recordFeatureGate(feature, trigger: .featureLocked)
+            }
+            paywallTrigger = .featureLocked
+            showPaywall = true
+            return
+        }
         withAnimation(.easeInOut(duration: 0.15)) {
             vm.tool = tool
         }

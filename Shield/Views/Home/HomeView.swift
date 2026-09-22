@@ -525,7 +525,10 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(
                 title: LanguageManager.shared.home("home_cloud_storage"),
-                action: pm.isPro ? nil : { showPaywall = true },
+                action: pm.isPro ? nil : {
+                    PremiumManager.recordFeatureGate(.cloudWorkflow, trigger: .settingsUpgrade)
+                    showPaywall = true
+                },
                 actionLabel: LanguageManager.shared.home("home_pro_badge")
             )
 
@@ -540,7 +543,11 @@ struct HomeView: View {
                     isPro: true,
                     isConnected: cloud.isAvailable,
                     onTap: {
-                        if !pm.isPro { showPaywall = true; return }
+                        if !pm.isPro {
+                            PremiumManager.recordFeatureGate(.cloudWorkflow, trigger: .settingsUpgrade)
+                            showPaywall = true
+                            return
+                        }
                         withAnimation { appState.activeTab = .settings }
                     }
                 )
@@ -559,7 +566,11 @@ struct HomeView: View {
                         isConnected: directCloud.isConnected(provider),
                         showsDisclosureIndicator: true,
                         onTap: {
-                            if !pm.isPro { showPaywall = true; return }
+                            if !pm.isPro {
+                                PremiumManager.recordFeatureGate(.cloudWorkflow, trigger: .settingsUpgrade)
+                                showPaywall = true
+                                return
+                            }
                             requestedCloudProvider = provider
                             showCloudImport = true
                         }
@@ -944,6 +955,7 @@ struct FilterChip: View {
 struct ModeCard: View {
     let mode: RedactionMode
     let lang: AppLanguage
+    var isLocked: Bool = false
     var action: (() -> Void)? = nil
     @Environment(\.colorScheme) var scheme
 
@@ -959,6 +971,11 @@ struct ModeCard: View {
                     Image(systemName: mode.icon)
                         .shieldFont(14, weight: .semibold)
                         .foregroundColor(mode.color)
+                    if isLocked {
+                        Image(systemName: "lock.fill")
+                            .shieldFont(9, weight: .bold)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                    }
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(mode.label(lang: lang))
@@ -1428,9 +1445,16 @@ struct BatchRedactView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                         ForEach(RedactionMode.allCases, id: \.self) { mode in
                             let isSelected = selectedMode == mode
-                            Button { selectedMode = mode } label: {
+                            let isLocked = mode.requiresPro && !pm.isPro
+                            Button {
+                                if isLocked {
+                                    PremiumManager.recordFeatureGate(.professionalModes, trigger: .featureLocked)
+                                } else {
+                                    selectedMode = mode
+                                }
+                            } label: {
                                 HStack(spacing: 8) {
-                                    Image(systemName: mode.icon)
+                                    Image(systemName: isLocked ? "lock.fill" : mode.icon)
                                         .shieldFont(12, weight: .semibold)
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(mode.label(lang: appState.language))
@@ -1584,6 +1608,11 @@ struct BatchRedactView: View {
     }
 
     private func applyBatch() {
+        guard pm.isPro else {
+            PremiumManager.recordFeatureGate(.batchProcessing, trigger: .settingsUpgrade)
+            isPresented = false
+            return
+        }
         guard !selectedIDs.isEmpty else { return }
         isProcessing = true
         processed = 0

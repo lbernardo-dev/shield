@@ -63,6 +63,7 @@ struct AppIconPickerSection: View {
         if icon.isPro && !premium.isPro {
             // Free user trying to select a Pro icon -> Open rich preview modal
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            PremiumManager.recordFeatureGate(.alternateIcons, trigger: .settingsUpgrade)
             previewingIcon = icon
             return
         }

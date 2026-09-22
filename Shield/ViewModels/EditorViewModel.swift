@@ -37,6 +37,21 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .adjust:    return "slider.horizontal.3"
         }
     }
+
+    var requiresPro: Bool {
+        switch self {
+        case .watermark, .adjust: true
+        default: false
+        }
+    }
+
+    var premiumFeature: PremiumFeature? {
+        switch self {
+        case .watermark: .customWatermarks
+        case .adjust: .advancedAdjustments
+        default: nil
+        }
+    }
 }
 
 // MARK: - ImageAdjustment
@@ -321,11 +336,17 @@ final class EditorViewModel: ObservableObject {
         showFieldOverlays = false
     }
 
-    func applyMode(_ mode: RedactionMode) {
+    @discardableResult
+    func applyMode(_ mode: RedactionMode) -> Bool {
+        guard PremiumManager.shared.canUseMode(mode) else {
+            PremiumManager.recordFeatureGate(.professionalModes, trigger: .manual)
+            return false
+        }
+
         if activeMode == mode {
             push([])
             activeMode = nil
-            return
+            return true
         }
 
         // For structured doc kinds, use the template-based approach
@@ -375,7 +396,7 @@ final class EditorViewModel: ObservableObject {
             // images that contain no text at all (e.g. a photo of a tree or landscape).
             guard Self.ocrHasRealText(in: doc) else {
                 // No real OCR text found — do nothing, do not mark the mode as active.
-                return
+                return false
             }
             let modeRects = AutoRedactions.ocrPrecisionModeRects(
                 for: mode,
@@ -386,7 +407,7 @@ final class EditorViewModel: ObservableObject {
                 // (e.g. no DOB found for the job preset). Clear redactions and deselect mode.
                 push([])
                 activeMode = nil
-                return
+                return false
             }
             let modeRedactions = modeRects.map { Redaction(rect: $0, style: maskStyle) }
             push(modeRedactions)
@@ -398,6 +419,7 @@ final class EditorViewModel: ObservableObject {
         ])
         activeMode = mode
         showSensitiveBanner = false
+        return true
     }
 
     func applyPreset(_ preset: RedactionPreset, lang: AppLanguage) {

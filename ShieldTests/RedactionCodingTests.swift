@@ -126,6 +126,39 @@ struct ShieldProductCatalogTests {
     }
 }
 
+@Suite("Free and Pro contract")
+struct FreeProContractTests {
+    @Test("Professional redaction modes are the only mode-level Pro gates")
+    func professionalModesRequirePro() {
+        #expect(RedactionMode.legal.requiresPro)
+        #expect(RedactionMode.health.requiresPro)
+        #expect(RedactionMode.banking.requiresPro)
+        #expect(!RedactionMode.rental.requiresPro)
+        #expect(!RedactionMode.travel.requiresPro)
+        #expect(!RedactionMode.job.requiresPro)
+        #expect(!RedactionMode.verify.requiresPro)
+    }
+
+    @Test("Advanced editor tools are the only tool-level Pro gates")
+    func advancedEditorToolsRequirePro() {
+        #expect(EditorTool.watermark.requiresPro)
+        #expect(EditorTool.adjust.requiresPro)
+        #expect(!EditorTool.rect.requiresPro)
+        #expect(!EditorTool.pan.requiresPro)
+        #expect(!EditorTool.fields.requiresPro)
+        #expect(!EditorTool.auto.requiresPro)
+        #expect(!EditorTool.text.requiresPro)
+    }
+
+    @Test("Contextual paywall triggers expose the feature that caused them")
+    func contextualPaywallFeatures() {
+        #expect(PaywallTrigger.docLimitReached.featureKey == "document_limit")
+        #expect(PaywallTrigger.styleLocked.featureKey == "advanced_styles")
+        #expect(PaywallTrigger.settingsUpgrade.featureKey == "premium_workflow")
+        #expect(PaywallTrigger.manual.featureKey == nil)
+    }
+}
+
 @Suite("Shield public URLs")
 struct ShieldPublicURLTests {
     @Test("Spanish and English pages map to their localized public routes")

@@ -272,6 +272,7 @@ struct EditorBottomToolbar: View {
                 HStack(alignment: .center, spacing: 6) {
                     ForEach(EditorTool.allCases) { tool in
                         let isSelected = selectedTool == tool
+                        let locked = tool.requiresPro && !isPro
                         let hasBadge = (tool == .watermark && watermarkActive) || (tool == .adjust && adjustDirty)
                         let effectiveSelected = isSelected || (tool == .adjust && adjustActive)
                         Button {
@@ -279,11 +280,11 @@ struct EditorBottomToolbar: View {
                         } label: {
                             VStack(spacing: 2) {
                                 ZStack(alignment: .topTrailing) {
-                                    Image(systemName: tool.icon)
+                                    Image(systemName: locked ? "lock.fill" : tool.icon)
                                         .shieldFont(19, weight: .medium)
-                                        .foregroundColor(effectiveSelected ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                                        .foregroundColor(locked ? ShieldTheme.tertiary(scheme) : (effectiveSelected ? ShieldTheme.accentText : ShieldTheme.primary(scheme)))
                                         .frame(width: 40, height: 40)
-                                        .background(effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
+                                        .background(locked ? ShieldTheme.rowBackground(scheme) : (effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme)))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                                     if effectiveSelected {

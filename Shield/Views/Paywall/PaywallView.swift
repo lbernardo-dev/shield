@@ -22,9 +22,15 @@ struct PaywallView: View {
             ("eye.slash.fill",       "FFD60A",
              LanguageManager.shared.paywall("paywall_feature_all_styles"),
              LanguageManager.shared.paywall("paywall_feature_styles_desc")),
-            ("lock.rectangle.stack.fill", "30D158",
-             LanguageManager.shared.paywall("paywall_feature_vault"),
-             LanguageManager.shared.paywall("paywall_feature_vault_desc")),
+            ("square.stack.3d.up.fill", "FF9F0A",
+             LanguageManager.shared.paywall("paywall_feature_batch"),
+             LanguageManager.shared.paywall("paywall_feature_batch_desc")),
+            ("slider.horizontal.3", "BF5AF2",
+             LanguageManager.shared.paywall("paywall_feature_adjust_title"),
+             LanguageManager.shared.paywall("paywall_feature_adjust_desc")),
+            ("shield.lefthalf.filled", "FF375F",
+             LanguageManager.shared.paywall("paywall_feature_modes"),
+             LanguageManager.shared.paywall("paywall_feature_modes_desc")),
             ("icloud",               "30D158",
              LanguageManager.shared.paywall("paywall_feature_icloud"),
              LanguageManager.shared.paywall("paywall_feature_icloud_desc")),
@@ -75,6 +81,9 @@ struct PaywallView: View {
                         // Features grid
                         featuresGrid
 
+                        // Free value note
+                        freeValueNote
+
                         // FAQ
                         faqSection
                     }
@@ -94,7 +103,15 @@ struct PaywallView: View {
         .sensoryFeedback(.selection, trigger: selectedProductID)
         .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
         .task {
-            AppState.trackEvent("paywall_viewed", properties: ["trigger": trigger.rawValue])
+            var properties = ["trigger": trigger.rawValue]
+            if let feature = trigger.featureKey {
+                properties["feature"] = feature
+                AppState.trackEvent("feature_gate_shown", properties: [
+                    "feature": feature,
+                    "trigger": trigger.rawValue
+                ])
+            }
+            AppState.trackEvent("paywall_viewed", properties: properties)
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
         }
@@ -188,6 +205,27 @@ struct PaywallView: View {
         }
     }
 
+    private var freeValueNote: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "checkmark.shield.fill")
+                .shieldFont(16, weight: .semibold)
+                .foregroundColor(ShieldTheme.success)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(LanguageManager.shared.paywall("paywall_free_value_title"))
+                    .shieldFont(12, weight: .bold)
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                Text(LanguageManager.shared.paywall("paywall_free_value_desc"))
+                    .shieldFont(11)
+                    .foregroundColor(ShieldTheme.tertiary(scheme))
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(ShieldTheme.accentDim(scheme))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     // MARK: - Plan selector
 
     private var planSelector: some View {
@@ -226,6 +264,9 @@ struct PaywallView: View {
             lang: appState.language,
             onTap: {
                 withAnimation(reduceMotion ? nil : ShieldMotion.state) { selectedProductID = product.id }
+                AppState.trackEvent("paywall_plan_selected", properties: [
+                    "plan": product.analyticsName
+                ])
             }
         )
     }
@@ -331,6 +372,9 @@ struct PaywallView: View {
             guard let product = selectedPremiumProduct
             else { return }
             didStartCheckout = true
+            AppState.trackEvent("paywall_purchase_started", properties: [
+                "plan": product.analyticsName
+            ])
             await pm.purchase(product)
             if pm.isPro { isPresented = false }
         }

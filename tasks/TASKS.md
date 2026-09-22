@@ -1963,3 +1963,25 @@
    Done by: CODEX
    Done at: 2026-09-21T09:31:54Z
 
+180. free-premium-usage-analysis
+   Id: 180-free-premium-usage-analysis
+   Scope: Auditar alcance real y uso observable de Free vs Pro, trial/cancelación, gates, mensajes de valor y plan de medición; sin cambios de producto
+   Files: Shield/Premium/PremiumManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Home/**,Shield/Views/Editor/**,Shield/Views/Capture/**,Shield/Views/Vault/**,Shield/App/**,Docs/**,tasks/details/**
+   Note: Informe persistido en tasks/details/180-free-premium-usage-analysis.md. Auditoría read-only completada; git diff --check correcto; no hubo cambios de producto ni build/test necesarios.
+   Detail: tasks/details/180-free-premium-usage-analysis.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T12:43:37Z
+   Done by: CODEX
+   Done at: 2026-09-21T12:54:52Z
+
+181. premium-value-alignment-and-instrumentation
+   Id: 181-premium-value-alignment-and-instrumentation
+   Scope: Alinear el contrato Free/Premium, cerrar bypasses, actualizar paywall/comunicación e instrumentar tier/trial/gates; sin cambiar precios ni limitar la exportación segura
+   Files: Shield/Premium/PremiumManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Views/Home/**,Shield/Views/Editor/**,Shield/Views/Vault/**,Shield/ViewModels/AppState.swift,Shield/App/AppReviewManager.swift,Shield/Localization/Strings/Paywall.xcstrings,Docs/PRODUCT_POSITIONING.md,Docs/ARQUITECTURA.md,Docs/ANALYTICS_TRACKING_PLAN.md,ShieldTests/**,tasks/details/**
+   Note: Aplicada la alineación Free/Premium, gates contextuales, paywall orientado a valor, instrumentación de trial/tier y tests de contrato. Build y build-for-testing correctos; Simulator no disponible para ejecutar tests.
+   Detail: tasks/details/181-premium-value-alignment-and-instrumentation.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-21T12:56:32Z
+   Done by: CODEX
+   Done at: 2026-09-21T13:30:40Z
+
