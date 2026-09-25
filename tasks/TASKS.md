@@ -2066,8 +2066,10 @@
    Id: 189-apply-maskid-home-direction-d
    Scope: Aplicar la dirección visual Home de MaskID manteniendo captura, importación, modos Pro, búsqueda, filtros, categorías, recientes, workspace y navegación adaptable
    Files: Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Components/Components.swift,Shield/Theme/ShieldTheme.swift,Shield/Localization/Strings/Home.xcstrings,Shield/Localization/Strings/Common.xcstrings,ShieldUITests/ShieldLaunchTests.swift,tasks/details/189-apply-maskid-home-direction-d.md
-   Note: Starting Home visual direction D implementation from user reference
+   Note: Aplicada la dirección visual Home seleccionada: hero y acciones escanear/importar, tarjeta de procesamiento local, documento reciente destacado, menú de cuenta y tema claro inicial. Conservadas navegación, captura/importación, búsqueda, filtros, categorías, modos, espacio de trabajo, bóveda, contexto y ajustes. Verificación: build genérico iOS sin firma BUILD SUCCEEDED; UI/simulator bloqueados por CoreSimulatorService no disponible y build firmado por perfiles ausentes. Commits subidos: 3bcb264, 64cad68.
    Detail: tasks/details/189-apply-maskid-home-direction-d.md
    Claimed by: CODEX
    Claimed at: 2026-09-25T13:29:51Z
+   Done by: CODEX
+   Done at: 2026-09-25T13:47:23Z
 
