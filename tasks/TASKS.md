@@ -2040,3 +2040,34 @@
    Done by: CODEX
    Done at: 2026-09-22T10:16:54Z
 
+187. auditoria-integral-actual-2026-09-23
+   Id: 187-auditoria-integral-actual-2026-09-23
+   Scope: Auditoría integral actual de Shield/MaskID: arquitectura, funcionalidad, SwiftUI/UIKit, concurrencia, datos/red, rendimiento, seguridad, accesibilidad, pruebas y preparación de distribución; sin cambios de código
+   Files: AUDITORIA.md,tasks/TASKS.md,tasks/details/
+   Note: Auditoría read-only completada; informe en AUDITORIA.md. Build compila, pero la suite reporta fallo P1 en cierre de Captura, contrato de localización y warnings de concurrencia Swift 6. No se modificó código de la app.
+   Detail: tasks/details/187-auditoria-integral-actual-2026-09-23.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-23T04:45:48Z
+   Done by: CODEX
+   Done at: 2026-09-23T05:23:49Z
+
+188. completar-prompt-diseno-producto-maskid
+   Id: 188-completar-prompt-diseno-producto-maskid
+   Scope: Documentación de producto y dirección UI/UX
+   Files: Docs/PROMPT_DISEÑO_PRODUCTO_MASKID.md,tasks/TASKS.md,tasks/details/188-completar-prompt-diseno-producto-maskid.md
+   Note: Finished: prompt maestro contextualizado en Docs/PROMPT_DISEÑO_PRODUCTO_MASKID.md; diff check limpio; sin build/test por ser trabajo documental.
+   Detail: tasks/details/188-completar-prompt-diseno-producto-maskid.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-25T13:04:46Z
+   Done by: CODEX
+   Done at: 2026-09-25T13:08:21Z
+
+189. apply-maskid-home-direction-d
+   Id: 189-apply-maskid-home-direction-d
+   Scope: Aplicar la dirección visual Home de MaskID manteniendo captura, importación, modos Pro, búsqueda, filtros, categorías, recientes, workspace y navegación adaptable
+   Files: Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Components/Components.swift,Shield/Theme/ShieldTheme.swift,Shield/Localization/Strings/Home.xcstrings,Shield/Localization/Strings/Common.xcstrings,ShieldUITests/ShieldLaunchTests.swift,tasks/details/189-apply-maskid-home-direction-d.md
+   Note: Starting Home visual direction D implementation from user reference
+   Detail: tasks/details/189-apply-maskid-home-direction-d.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-25T13:29:51Z
+

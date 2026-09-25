@@ -11,66 +11,42 @@ struct HomeTopBarView: View {
         HStack(spacing: 12) {
             HStack(spacing: 9) {
                 MaskIDIdentityMark(
-                    size: 32,
-                    presentation: .animatedLoop,
+                    size: 42,
+                    presentation: .staticMark,
                     treatment: .compact
                 )
 
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(LanguageManager.shared.common("common_app_name"))
-                        .shieldFont(16, weight: .heavy)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                    Text(workspaceTagline)
-                        .shieldFont(10, weight: .medium)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
-                        .lineLimit(1)
-                }
+                Text(LanguageManager.shared.common("common_app_name"))
+                    .shieldFont(22, weight: .heavy)
+                    .foregroundColor(ShieldTheme.primary(scheme))
             }
 
             Spacer()
 
-            HStack(spacing: 8) {
-                smallChromeButton(title: language.displayName, action: onToggleLanguage)
+            Menu {
+                Button(action: onToggleLanguage) {
+                    Label(LanguageManager.shared.settings("settings_language"), systemImage: "character.book.closed")
+                }
 
                 Button(action: onToggleScheme) {
-                    Image(systemName: scheme == .dark ? "sun.max.fill" : "moon.fill")
-                        .shieldFont(13, weight: .semibold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .frame(width: 32, height: 32)
-                        .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
+                    Label(LanguageManager.shared.settings("settings_dark_mode"), systemImage: scheme == .dark ? "sun.max.fill" : "moon.fill")
                 }
-                .buttonStyle(ScaleButtonStyle())
-                .frame(minWidth: 44, minHeight: 44)
-                .accessibilityLabel(LanguageManager.shared.settings("settings_dark_mode"))
 
-                IconButton(
-                    icon: "slider.horizontal.3",
-                    accessibilityName: LanguageManager.shared.common("common_tab_settings"),
-                    size: 32,
-                    color: ShieldTheme.primary(scheme),
-                    background: ShieldTheme.cardBackground(scheme),
-                    action: onOpenSettings
-                )
+                Button(action: onOpenSettings) {
+                    Label(LanguageManager.shared.common("common_tab_settings"), systemImage: "gearshape")
+                }
+            } label: {
+                Image(systemName: "person.crop.circle")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .frame(width: 44, height: 44)
+                    .background(ShieldTheme.rowBackground(scheme), in: Circle())
+                    .contentShape(Circle())
             }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityLabel(LanguageManager.shared.common("common_tab_settings"))
+            .accessibilityHint(LanguageManager.shared.home("home_account_menu_hint"))
         }
-    }
-
-    private var workspaceTagline: String {
-        LanguageManager.shared.home("home_workspace_tagline")
-    }
-
-    private func smallChromeButton(title: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .shieldFont(11, weight: .bold)
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .frame(width: 32, height: 32)
-                .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(ShieldTheme.line(scheme), lineWidth: 0.5))
-        }
-        .buttonStyle(ScaleButtonStyle())
-        .frame(minWidth: 44, minHeight: 44)
     }
 }
 
@@ -83,6 +59,7 @@ struct HomeHeroCardView: View {
     let onUpgrade: () -> Void
     let onPrimaryAction: () -> Void
     let onSecondaryAction: () -> Void
+    let onLearnMore: () -> Void
 
     private var isAtFreeLimit: Bool {
         freeUsed >= freeLimit
@@ -115,35 +92,46 @@ struct HomeHeroCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text(heroTitle)
-                    .font(.title3.weight(.heavy))
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                planBadge
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            Text(heroTitle)
+                .shieldFont(36, weight: .heavy)
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 6)
 
             Text(heroSubtitle)
-                .font(.subheadline)
+                .shieldFont(20, weight: .medium)
                 .foregroundColor(ShieldTheme.secondary(scheme))
-                .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 24)
 
-            actionRow
+            VStack(spacing: 12) {
+                HeroActionButton(
+                    label: LanguageManager.shared.home("home_scan_action"),
+                    icon: "camera.viewfinder",
+                    style: .primary,
+                    action: onPrimaryAction
+                )
+
+                HeroActionButton(
+                    label: cloudImportTitle,
+                    icon: "square.and.arrow.up",
+                    style: .secondary,
+                    action: onSecondaryAction
+                )
+            }
+
+            HomeProcessingCard(
+                scheme: scheme,
+                onLearnMore: onLearnMore
+            )
+            .padding(.top, 18)
 
             if !isPro {
                 freePlanMeter
+                    .padding(.top, 12)
             }
         }
-        .padding(16)
-        .background(heroBackground)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(ShieldTheme.line(scheme).opacity(0.7), lineWidth: 0.8)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 
     private var heroTitle: String {
@@ -152,36 +140,6 @@ struct HomeHeroCardView: View {
 
     private var heroSubtitle: String {
         LanguageManager.shared.home("home_hero_subtitle")
-    }
-
-    private var planBadge: some View {
-        Label(isPro ? "PRO" : LanguageManager.shared.home("home_free_plan"), systemImage: isPro ? "sparkles" : "person.crop.circle")
-            .font(.caption.weight(.bold))
-            .foregroundColor(isPro ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
-            .padding(.horizontal, 10)
-            .frame(minHeight: 32)
-            .background(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.cardBackground(scheme))
-            .overlay(
-                Capsule().stroke(isPro ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme), lineWidth: 0.8)
-            )
-            .clipShape(Capsule())
-    }
-
-    private var actionRow: some View {
-        HStack(spacing: 10) {
-            ShieldButton(
-                label: LanguageManager.shared.home("home_scan_action"),
-                icon: "camera.viewfinder",
-                action: onPrimaryAction
-            )
-
-            ShieldButton(
-                label: cloudImportTitle,
-                icon: "square.and.arrow.down",
-                style: .secondary,
-                action: onSecondaryAction
-            )
-        }
     }
 
     private var cloudImportTitle: String {
@@ -247,28 +205,208 @@ struct HomeHeroCardView: View {
         .buttonStyle(ScaleButtonStyle())
     }
 
-    private var heroBackground: some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    ShieldTheme.cardBackground(scheme),
-                    ShieldTheme.rowBackground(scheme),
-                    ShieldTheme.cardBackground(scheme)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+}
 
-            RadialGradient(
-                colors: [
-                    ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.22 : 0.18),
-                    Color.clear
-                ],
-                center: .topTrailing,
-                startRadius: 10,
-                endRadius: 220
-            )
+private struct HeroActionButton: View {
+    enum Style { case primary, secondary }
+
+    let label: String
+    let icon: String
+    let style: Style
+    let action: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.system(size: 25, weight: .semibold))
+                    .frame(width: 34, height: 34)
+
+                Text(label)
+                    .shieldFont(19, weight: .semibold)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .accessibilityHidden(true)
+            }
+            .foregroundColor(style == .primary ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(style == .primary ? ShieldTheme.accent(scheme) : ShieldTheme.cardBackground(scheme))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(
+                        style == .primary ? Color.clear : ShieldTheme.line(scheme),
+                        lineWidth: 1
+                    )
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(style == .primary ? "home.scan" : "home.import")
+    }
+}
+
+private struct HomeProcessingCard: View {
+    let scheme: ColorScheme
+    let onLearnMore: () -> Void
+
+    var body: some View {
+        Button(action: onLearnMore) {
+            HStack(alignment: .center, spacing: 16) {
+                MaskIDIdentityMark(
+                    size: 72,
+                    presentation: .staticMark,
+                    treatment: .feature
+                )
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(LanguageManager.shared.home("home_processing_local_title"))
+                        .shieldFont(17, weight: .bold)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+
+                    Text(LanguageManager.shared.home("home_processing_local_body"))
+                        .shieldFont(14)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    HStack(spacing: 4) {
+                        Text(LanguageManager.shared.home("home_processing_local_learn_more"))
+                            .shieldFont(14, weight: .semibold)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundColor(ShieldTheme.accentColor(scheme))
+                }
+
+                Spacer(minLength: 0)
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.selectedBackground(scheme))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(ShieldTheme.accentStroke(scheme).opacity(0.4), lineWidth: 0.8)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(LanguageManager.shared.home("home_processing_local_title"))
+        .accessibilityHint(LanguageManager.shared.home("home_processing_local_body"))
+        .accessibilityIdentifier("home.onDeviceInfo")
+    }
+}
+
+struct HomeRecentDocumentCard: View {
+    let doc: DocumentItem
+    let lang: AppLanguage
+    let action: () -> Void
+
+    @EnvironmentObject private var appState: AppState
+
+    private var shouldMask: Bool {
+        doc.isVaulted
     }
 
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                thumbnail
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(shouldMask
+                         ? LanguageManager.shared.home("home_protected_document")
+                         : doc.title)
+                        .shieldFont(17, weight: .bold)
+                        .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+
+                    Text(doc.compactDateLabel(lang: lang))
+                        .shieldFont(14)
+                        .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                        .lineLimit(1)
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 13, weight: .semibold))
+                        Text(LanguageManager.shared.home("home_review_pending"))
+                            .shieldFont(13, weight: .semibold)
+                    }
+                    .foregroundColor(ShieldTheme.warning)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 7)
+                    .background(ShieldTheme.warningBackground(appState.preferredScheme), in: Capsule())
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                    .accessibilityHidden(true)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.cardBackground(appState.preferredScheme))
+            .overlay {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .disabled(doc.isLocked)
+        .opacity(doc.isLocked ? 0.7 : 1)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(shouldMask
+                            ? LanguageManager.shared.home("home_protected_document")
+                            : doc.title)
+        .accessibilityValue(LanguageManager.shared.home("home_review_pending"))
+        .accessibilityHint(doc.isVaulted
+                           ? LanguageManager.shared.vault("vault_unlock_faceid")
+                           : "")
+    }
+
+    private var thumbnail: some View {
+        ZStack {
+            if doc.kind == .photo {
+                DocumentThumbnailView(doc: doc, maxPixelSize: 300, contentMode: .fill)
+                    .frame(width: 116, height: 82)
+                    .blur(radius: shouldMask ? 5 : 0)
+            } else {
+                DocumentView(
+                    kind: doc.kind,
+                    size: CGSize(width: 116, height: 82),
+                    fields: doc.fields,
+                    redactions: doc.redactions(for: 0),
+                    watermark: doc.watermark,
+                    imageFileName: doc.imageFileName,
+                    isVaulted: doc.isVaulted,
+                    imageAdjustment: doc.imageAdjustment
+                )
+                .frame(width: 116, height: 82)
+                .blur(radius: shouldMask ? 5 : 0)
+            }
+
+            if doc.isLocked || shouldMask {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.black.opacity(0.38))
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+        }
+        .frame(width: 116, height: 82)
+        .background(ShieldTheme.rowBackground(appState.preferredScheme), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityHidden(true)
+    }
 }

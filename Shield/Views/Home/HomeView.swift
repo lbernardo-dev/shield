@@ -63,10 +63,10 @@ struct HomeView: View {
                             } else {
                                 LazyVStack(spacing: 0) {
                                     heroSection
-                                    modesSection
+                                    recentsSection
                                     searchSection
                                     categoryScroll
-                                    recentsSection
+                                    modesSection
                                     workspaceSection
                                         .padding(.bottom, 24)
                                 }
@@ -197,7 +197,8 @@ struct HomeView: View {
             freeLimit: PremiumManager.freeDocumentLimit,
             onUpgrade: { showPaywall = true },
             onPrimaryAction: { appState.showCapture = true },
-            onSecondaryAction: handleCloudImportTap
+            onSecondaryAction: handleCloudImportTap,
+            onLearnMore: openSettings
         )
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 12)
@@ -387,18 +388,37 @@ struct HomeView: View {
 
     private var recentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(
-                title: LanguageManager.shared.home("home_recent_documents"),
-                action: { showAllDocs = true },
-                actionLabel: LanguageManager.shared.home("home_see_all")
-            )
+            HStack(alignment: .firstTextBaseline) {
+                Text(LanguageManager.shared.home("home_recent_documents"))
+                    .shieldFont(24, weight: .heavy)
+                    .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 12)
+
+                Button {
+                    showAllDocs = true
+                } label: {
+                    HStack(spacing: 3) {
+                        Text(LanguageManager.shared.home("home_see_all"))
+                            .shieldFont(14, weight: .semibold)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundColor(ShieldTheme.accentColor(appState.preferredScheme))
+                    .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(LanguageManager.shared.home("home_see_all"))
+            }
+            .padding(.horizontal, ShieldTheme.s5)
 
             if appState.filteredDocuments.isEmpty {
                 emptyLibraryState
             } else {
                 VStack(spacing: 10) {
                     ForEach(appState.filteredDocumentsPage) { doc in
-                        DocumentRow(doc: doc, lang: appState.language) {
+                        HomeRecentDocumentCard(doc: doc, lang: appState.language) {
                             guard !appState.showCapture else { return }
                             guard !doc.isLocked else { return }
                             if doc.isVaulted {
@@ -408,6 +428,7 @@ struct HomeView: View {
                                 appState.selectedDoc = doc
                             }
                         }
+                        .environmentObject(appState)
                         .contextMenu {
                             if !doc.isVaulted {
                                 Button {

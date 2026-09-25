@@ -636,13 +636,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scan or import and hide sensitive data without sending the file off-device."
+            "value": "You decide what to share."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escanea o importa y oculta datos sensibles sin sacar el archivo del dispositivo."
+            "value": "Tú decides qué compartir."
           }
         }
       }
@@ -670,13 +670,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protect before sharing."
+            "value": "Protect what you need."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Protege antes de compartir."
+            "value": "Protege lo necesario"
+          }
+        }
+      }
+    },
+    "home_account_menu_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open language, appearance, and settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre idioma, apariencia y ajustes"
           }
         }
       }
@@ -1208,6 +1225,57 @@
         }
       }
     },
+    "home_processing_local_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processed on this device"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procesamiento en el dispositivo"
+          }
+        }
+      }
+    },
+    "home_processing_local_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your documents are analyzed on this device. You stay in control of your information."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus documentos se analizan en este dispositivo. Tú controlas tu información."
+          }
+        }
+      }
+    },
+    "home_processing_local_learn_more": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn more"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saber más"
+          }
+        }
+      }
+    },
     "home_pro_badge": {
       "extractionState": "manual",
       "localizations": {
@@ -1289,6 +1357,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Documentos recientes"
+          }
+        }
+      }
+    },
+    "home_review_pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review pending"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisión pendiente"
           }
         }
       }
