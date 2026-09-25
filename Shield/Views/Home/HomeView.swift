@@ -47,7 +47,6 @@ struct HomeView: View {
                                 HStack(alignment: .top, spacing: 8) {
                                     LazyVStack(spacing: 0) {
                                         heroSection
-                                        modesSection
                                         searchSection
                                         categoryScroll
                                     }
@@ -63,10 +62,9 @@ struct HomeView: View {
                             } else {
                                 LazyVStack(spacing: 0) {
                                     heroSection
-                                    recentsSection
                                     searchSection
                                     categoryScroll
-                                    modesSection
+                                    recentsSection
                                     workspaceSection
                                         .padding(.bottom, 24)
                                 }
@@ -191,13 +189,10 @@ struct HomeView: View {
     private var heroSection: some View {
         HomeHeroCardView(
             scheme: appState.preferredScheme,
-            language: appState.language,
             isPro: pm.isPro,
             freeUsed: max(pm.freeDocumentsProcessedCount, appState.documents.count),
             freeLimit: PremiumManager.freeDocumentLimit,
             onUpgrade: { showPaywall = true },
-            onPrimaryAction: { appState.showCapture = true },
-            onSecondaryAction: handleCloudImportTap,
             onLearnMore: openSettings
         )
         .padding(.horizontal, ShieldTheme.s5)
@@ -353,14 +348,9 @@ struct HomeView: View {
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(ShieldTheme.accent(scheme))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(LanguageManager.shared.home("home_tools_services"))
-                            .font(.headline)
-                            .foregroundStyle(ShieldTheme.primary(scheme))
-                        Text(LanguageManager.shared.home("home_tools_services_subtitle"))
-                            .font(.caption)
-                            .foregroundStyle(ShieldTheme.secondary(scheme))
-                    }
+                    Text(LanguageManager.shared.home("home_tools_services"))
+                        .font(.headline)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.footnote.weight(.bold))
@@ -378,6 +368,7 @@ struct HomeView: View {
             .padding(.top, ShieldTheme.s4)
 
             if showWorkspaceTools {
+                modesSection
                 vaultSection
                 cloudStorageSection
             }
@@ -389,7 +380,7 @@ struct HomeView: View {
     private var recentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text(LanguageManager.shared.home("home_recent_documents"))
+                Text(LanguageManager.shared.home("home_recent_document"))
                     .shieldFont(24, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                     .fixedSize(horizontal: false, vertical: true)
@@ -416,63 +407,62 @@ struct HomeView: View {
             if appState.filteredDocuments.isEmpty {
                 emptyLibraryState
             } else {
-                VStack(spacing: 10) {
-                    ForEach(appState.filteredDocumentsPage) { doc in
-                        HomeRecentDocumentCard(doc: doc, lang: appState.language) {
-                            guard !appState.showCapture else { return }
-                            guard !doc.isLocked else { return }
-                            if doc.isVaulted {
-                                vaultAuthDoc = doc
-                                authenticateForVaultDoc(doc)
-                            } else {
-                                appState.selectedDoc = doc
-                            }
-                        }
-                        .environmentObject(appState)
-                        .contextMenu {
-                            if !doc.isVaulted {
-                                Button {
-                                    appState.toggleFavorite(doc)
-                                } label: {
-                                    Label(doc.isFavorite
-                                          ? LanguageManager.shared.home("home_remove_favorite")
-                                          : LanguageManager.shared.home("home_mark_favorite"),
-                                          systemImage: doc.isFavorite ? "star.slash" : "star.fill")
-                                }
-                            }
-                            Button {
-                                if doc.isVaulted {
-                                    vaultAuthDoc = doc
-                                    authenticateForVaultDoc(doc)
-                                } else {
-                                    appState.toggleVault(doc)
-                                }
-                            } label: {
-                                Label(doc.isVaulted
-                                      ? LanguageManager.shared.home("home_open_vault")
-                                      : LanguageManager.shared.home("home_move_vault"),
-                                      systemImage: doc.isVaulted ? "lock.open" : "lock.fill")
-                            }
-                            Divider()
-                            Button(role: .destructive) {
-                                appState.deleteDocument(doc)
-                            } label: {
-                                Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
-                            }
-                        }
+                VStack(spacing: 0) {
+                    if let doc = appState.filteredDocuments.first {
+                        recentDocumentCard(for: doc)
                     }
                 }
                 .padding(.horizontal, ShieldTheme.s5)
-
-                // Pagination controls
-                if appState.recentDocsTotalPages > 1 {
-                    paginationControls
-                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 16)
         .padding(.bottom, 8)
+    }
+
+    private func recentDocumentCard(for doc: DocumentItem) -> some View {
+        HomeRecentDocumentCard(doc: doc, lang: appState.language) {
+            guard !appState.showCapture else { return }
+            guard !doc.isLocked else { return }
+            if doc.isVaulted {
+                vaultAuthDoc = doc
+                authenticateForVaultDoc(doc)
+            } else {
+                appState.selectedDoc = doc
+            }
+        }
+        .environmentObject(appState)
+        .contextMenu {
+            if !doc.isVaulted {
+                Button {
+                    appState.toggleFavorite(doc)
+                } label: {
+                    Label(doc.isFavorite
+                          ? LanguageManager.shared.home("home_remove_favorite")
+                          : LanguageManager.shared.home("home_mark_favorite"),
+                          systemImage: doc.isFavorite ? "star.slash" : "star.fill")
+                }
+            }
+            Button {
+                if doc.isVaulted {
+                    vaultAuthDoc = doc
+                    authenticateForVaultDoc(doc)
+                } else {
+                    appState.toggleVault(doc)
+                }
+            } label: {
+                Label(doc.isVaulted
+                      ? LanguageManager.shared.home("home_open_vault")
+                      : LanguageManager.shared.home("home_move_vault"),
+                      systemImage: doc.isVaulted ? "lock.open" : "lock.fill")
+            }
+            Divider()
+            Button(role: .destructive) {
+                appState.deleteDocument(doc)
+            } label: {
+                Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+            }
+        }
     }
 
     private var paginationControls: some View {
@@ -764,13 +754,6 @@ struct HomeView: View {
         }
     }
 
-    private func handleCloudImportTap() {
-        if pm.isPro {
-            showCloudImport = true
-        } else {
-            showPaywall = true
-        }
-    }
 }
 
 // MARK: - FilterSheet

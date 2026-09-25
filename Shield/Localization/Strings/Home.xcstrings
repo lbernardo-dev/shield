@@ -1361,6 +1361,23 @@
         }
       }
     },
+    "home_recent_document": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent document"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documento reciente"
+          }
+        }
+      }
+    },
     "home_review_pending": {
       "extractionState": "manual",
       "localizations": {

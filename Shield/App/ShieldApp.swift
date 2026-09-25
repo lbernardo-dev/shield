@@ -58,6 +58,13 @@ struct ShieldApp: App {
     }
 
     private func consumeSystemRequest() {
+#if DEBUG
+        // Deterministic UI scenes must open their requested surface directly.
+        // An unsigned simulator build cannot resolve the App Group container,
+        // which would otherwise present a misleading shared-import error over
+        // the scene under review. Production launches keep the normal intake.
+        guard !ASOScreenshotMode.isEnabled else { return }
+#endif
         SharedImportStore.removeExpiredItems()
         if ShieldSystemRequestStore.consume(.presetVerify) {
             appState.pendingRedactionMode = .verify

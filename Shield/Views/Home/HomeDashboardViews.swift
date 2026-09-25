@@ -52,13 +52,10 @@ struct HomeTopBarView: View {
 
 struct HomeHeroCardView: View {
     let scheme: ColorScheme
-    let language: AppLanguage
     let isPro: Bool
     let freeUsed: Int
     let freeLimit: Int
     let onUpgrade: () -> Void
-    let onPrimaryAction: () -> Void
-    let onSecondaryAction: () -> Void
     let onLearnMore: () -> Void
 
     private var isAtFreeLimit: Bool {
@@ -67,10 +64,6 @@ struct HomeHeroCardView: View {
 
     private var usageFraction: Double {
         min(1.0, Double(freeUsed) / Double(max(freeLimit, 1)))
-    }
-
-    private var remainingDocuments: Int {
-        max(0, freeLimit - freeUsed)
     }
 
     private var usageColor: Color {
@@ -94,38 +87,18 @@ struct HomeHeroCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(heroTitle)
-                .shieldFont(36, weight: .heavy)
+                .shieldFont(32, weight: .heavy)
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 6)
 
             Text(heroSubtitle)
-                .shieldFont(20, weight: .medium)
+                .shieldFont(18, weight: .medium)
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 24)
+                .padding(.bottom, 12)
 
-            VStack(spacing: 12) {
-                HeroActionButton(
-                    label: LanguageManager.shared.home("home_scan_action"),
-                    icon: "camera.viewfinder",
-                    style: .primary,
-                    action: onPrimaryAction
-                )
-
-                HeroActionButton(
-                    label: cloudImportTitle,
-                    icon: "square.and.arrow.up",
-                    style: .secondary,
-                    action: onSecondaryAction
-                )
-            }
-
-            HomeProcessingCard(
-                scheme: scheme,
-                onLearnMore: onLearnMore
-            )
-            .padding(.top, 18)
+            HomeProcessingCard(scheme: scheme, onLearnMore: onLearnMore)
 
             if !isPro {
                 freePlanMeter
@@ -142,116 +115,47 @@ struct HomeHeroCardView: View {
         LanguageManager.shared.home("home_hero_subtitle")
     }
 
-    private var cloudImportTitle: String {
-        LanguageManager.shared.home("home_import_action")
-    }
-
     private var freePlanMeter: some View {
         Button(action: onUpgrade) {
-            VStack(alignment: .leading, spacing: 7) {
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(usageState)
-                            .font(.subheadline.weight(.bold))
-                            .foregroundColor(usageColor)
-                        Text(LanguageManager.shared.home("home_plan_remaining", remainingDocuments))
-                            .font(.caption)
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-                    }
-
-                    Spacer()
-
-                    Text(LanguageManager.shared.home("home_upgrade"))
-                        .font(.caption.weight(.bold))
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text(LanguageManager.shared.home("home_plan_status", usageState, freeUsed, freeLimit))
+                        .shieldFont(14, weight: .bold)
                         .foregroundColor(usageColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(ShieldTheme.rowBackground(scheme))
+                                .frame(height: 6)
+                            Capsule()
+                                .fill(usageColor)
+                                .frame(width: proxy.size.width * usageFraction, height: 6)
+                        }
+                    }
+                    .frame(height: 6)
                 }
 
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(ShieldTheme.rowBackground(scheme))
-                            .frame(height: 8)
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    colors: [usageColor.opacity(0.65), usageColor],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: proxy.size.width * usageFraction, height: 8)
-                    }
-                }
-                .frame(height: 8)
+                Spacer(minLength: 4)
 
-                if remainingDocuments <= 2 && remainingDocuments > 0 {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .shieldFont(12)
-                            .foregroundColor(ShieldTheme.warning)
-                        Text(LanguageManager.shared.home("home_quota_warning_title"))
-                            .font(.caption.weight(.bold))
-                            .foregroundColor(ShieldTheme.primary(scheme))
-                    }
-                    .padding(.top, 2)
+                HStack(spacing: 4) {
+                    Text(LanguageManager.shared.home("home_upgrade"))
+                        .shieldFont(13, weight: .bold)
                 }
+                .foregroundColor(usageColor)
             }
-            .padding(10)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(ShieldTheme.cardBackground(scheme).opacity(0.85))
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(ShieldTheme.cardBackground(scheme).opacity(0.9))
             )
         }
         .buttonStyle(ScaleButtonStyle())
     }
 
-}
-
-private struct HeroActionButton: View {
-    enum Style { case primary, secondary }
-
-    let label: String
-    let icon: String
-    let style: Style
-    let action: () -> Void
-
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.system(size: 25, weight: .semibold))
-                    .frame(width: 34, height: 34)
-
-                Text(label)
-                    .shieldFont(19, weight: .semibold)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
-
-                Spacer(minLength: 8)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
-                    .accessibilityHidden(true)
-            }
-            .foregroundColor(style == .primary ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
-            .padding(.horizontal, 24)
-            .frame(maxWidth: .infinity, minHeight: 64)
-            .background(style == .primary ? ShieldTheme.accent(scheme) : ShieldTheme.cardBackground(scheme))
-            .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(
-                        style == .primary ? Color.clear : ShieldTheme.line(scheme),
-                        lineWidth: 1
-                    )
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        }
-        .buttonStyle(ScaleButtonStyle())
-        .accessibilityLabel(label)
-        .accessibilityIdentifier(style == .primary ? "home.scan" : "home.import")
-    }
 }
 
 private struct HomeProcessingCard: View {
@@ -260,42 +164,47 @@ private struct HomeProcessingCard: View {
 
     var body: some View {
         Button(action: onLearnMore) {
-            HStack(alignment: .center, spacing: 16) {
-                MaskIDIdentityMark(
-                    size: 72,
-                    presentation: .staticMark,
-                    treatment: .feature
-                )
+            HStack(alignment: .center, spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(ShieldTheme.accentDim(scheme))
+                    Image(systemName: "lock.shield.fill")
+                        .shieldFont(24, weight: .semibold)
+                        .foregroundColor(ShieldTheme.accentColor(scheme))
+                }
+                .frame(width: 56, height: 56)
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(LanguageManager.shared.home("home_processing_local_title"))
-                        .shieldFont(17, weight: .bold)
+                        .shieldFont(16, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
+                        .lineLimit(2)
 
                     Text(LanguageManager.shared.home("home_processing_local_body"))
-                        .shieldFont(14)
+                        .shieldFont(13)
                         .foregroundColor(ShieldTheme.secondary(scheme))
+                        .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
                     HStack(spacing: 4) {
                         Text(LanguageManager.shared.home("home_processing_local_learn_more"))
-                            .shieldFont(14, weight: .semibold)
+                            .shieldFont(13, weight: .semibold)
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: 10, weight: .bold))
                     }
                     .foregroundColor(ShieldTheme.accentColor(scheme))
                 }
 
                 Spacer(minLength: 0)
             }
-            .padding(18)
+            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(ShieldTheme.selectedBackground(scheme))
             .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(ShieldTheme.accentStroke(scheme).opacity(0.4), lineWidth: 0.8)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityLabel(LanguageManager.shared.home("home_processing_local_title"))
@@ -317,14 +226,14 @@ struct HomeRecentDocumentCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 thumbnail
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(shouldMask
                          ? LanguageManager.shared.home("home_protected_document")
                          : doc.title)
-                        .shieldFont(17, weight: .bold)
+                        .shieldFont(16, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                         .lineLimit(2)
                         .minimumScaleFactor(0.85)
@@ -338,11 +247,13 @@ struct HomeRecentDocumentCard: View {
                         Image(systemName: "clock")
                             .font(.system(size: 13, weight: .semibold))
                         Text(LanguageManager.shared.home("home_review_pending"))
-                            .shieldFont(13, weight: .semibold)
+                            .shieldFont(12, weight: .semibold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.78)
                     }
                     .foregroundColor(ShieldTheme.warning)
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
                     .background(ShieldTheme.warningBackground(appState.preferredScheme), in: Capsule())
                 }
 
@@ -353,7 +264,7 @@ struct HomeRecentDocumentCard: View {
                     .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
                     .accessibilityHidden(true)
             }
-            .padding(16)
+            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(ShieldTheme.cardBackground(appState.preferredScheme))
             .overlay {
@@ -379,12 +290,12 @@ struct HomeRecentDocumentCard: View {
         ZStack {
             if doc.kind == .photo {
                 DocumentThumbnailView(doc: doc, maxPixelSize: 300, contentMode: .fill)
-                    .frame(width: 116, height: 82)
+                    .frame(width: 104, height: 74)
                     .blur(radius: shouldMask ? 5 : 0)
             } else {
                 DocumentView(
                     kind: doc.kind,
-                    size: CGSize(width: 116, height: 82),
+                    size: CGSize(width: 104, height: 74),
                     fields: doc.fields,
                     redactions: doc.redactions(for: 0),
                     watermark: doc.watermark,
@@ -392,7 +303,7 @@ struct HomeRecentDocumentCard: View {
                     isVaulted: doc.isVaulted,
                     imageAdjustment: doc.imageAdjustment
                 )
-                .frame(width: 116, height: 82)
+                    .frame(width: 104, height: 74)
                 .blur(radius: shouldMask ? 5 : 0)
             }
 
@@ -404,7 +315,7 @@ struct HomeRecentDocumentCard: View {
                     .foregroundColor(.white)
             }
         }
-        .frame(width: 116, height: 82)
+        .frame(width: 104, height: 74)
         .background(ShieldTheme.rowBackground(appState.preferredScheme), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .accessibilityHidden(true)

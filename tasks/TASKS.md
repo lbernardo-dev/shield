@@ -2073,3 +2073,14 @@
    Done by: CODEX
    Done at: 2026-09-25T13:47:23Z
 
+190. remove-duplicate-home-actions
+   Id: 190-remove-duplicate-home-actions
+   Scope: Eliminar acciones duplicadas de escaneo e importación del hero Home, manteniendo el flujo central del footer y accesos secundarios
+   Files: Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeDashboardViews.swift,tasks/details/190-remove-duplicate-home-actions.md
+   Note: Home refinada: acciones duplicadas retiradas del hero, búsqueda recolocada antes de la lista, una sola tarjeta reciente, herramientas secundarias plegadas y tarjeta de procesamiento sin logo repetido. Build Debug OK en iPhone 18 Pro y iPad Pro 13-inch (M5); validación visual completa en iPhone 18 Pro.
+   Detail: tasks/details/190-remove-duplicate-home-actions.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-25T14:13:29Z
+   Done by: CODEX
+   Done at: 2026-09-25T14:49:05Z
+
