@@ -123,7 +123,7 @@ final class AppState: ObservableObject {
         session = AppSessionCoordinator(userDefaults: ud)
         // Language is handled by LanguageManager.shared
         preferredScheme = ud.object(forKey: "shield.darkMode") == nil
-            ? .dark
+            ? .light
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
 
         if let savedIconRaw = ud.string(forKey: "shield.selectedAppIcon"),
