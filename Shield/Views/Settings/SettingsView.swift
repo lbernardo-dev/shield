@@ -12,13 +12,14 @@ struct SettingsView: View {
 
     @State private var showPaywall = false
     @State private var showRatingUnavailable = false
+    @State private var navigationPath = NavigationPath()
 
     private var strings: LanguageManager { .shared }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
-                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+                SeasonalThemeBackdrop()
 
                 VStack(spacing: 0) {
                     title
@@ -42,6 +43,14 @@ struct SettingsView: View {
                             title: strings.settings("settings_section_personalization"),
                             icon: "slider.horizontal.3"
                         ) {
+                            SettingsNavigationRow(
+                                route: .themes,
+                                icon: "wand.and.stars",
+                                color: Color(hex: "F97316"),
+                                title: strings.settings("settings_themes_title"),
+                                subtitle: strings.settings("settings_themes_subtitle")
+                            )
+                            SettingsRowDivider()
                             SettingsNavigationRow(
                                 route: .appPreferences,
                                 icon: "paintbrush.fill",
@@ -135,23 +144,20 @@ struct SettingsView: View {
 
                         SettingsFooter()
                             .padding(.top, ShieldTheme.s2)
-                        SupportCoffeeButton(
-                            manager: DonationManager(configuration: .maskID),
-                            title: strings.settings("settings_coffee_prompt"),
-                            accessibilityLabel: strings.settings("settings_coffee_accessibility"),
-                            accessibilityHint: strings.settings("settings_coffee_hint")
-                        )
-                        .accessibilityIdentifier("settings.footer.supportCoffee")
-                        .padding(.bottom, 24)
                         }
                         .frame(maxWidth: 760)
                         .padding(.horizontal, ShieldTheme.s4)
+                        .padding(.bottom, ShieldTheme.s6)
                     }
                 }
             }
             .toolbarVisibility(.hidden, for: .navigationBar)
             .navigationDestination(for: SettingsRoute.self) { route in
                 destination(for: route)
+            }
+            .onAppear(perform: consumeThemeDeepLink)
+            .onChange(of: appState.pendingThemeDeepLink) { _, _ in
+                consumeThemeDeepLink()
             }
         }
         .sheet(isPresented: $showPaywall) {
@@ -258,6 +264,9 @@ struct SettingsView: View {
         case .appPreferences:
             AppPreferencesSettingsView()
                 .environmentObject(appState)
+        case .themes:
+            SeasonalThemeGalleryView()
+                .environmentObject(appState)
         case .security:
             SecuritySettingsView()
                 .environmentObject(appState)
@@ -296,6 +305,12 @@ struct SettingsView: View {
             if !accepted { showRatingUnavailable = true }
         }
     }
+
+    private func consumeThemeDeepLink() {
+        guard appState.pendingThemeDeepLink != nil else { return }
+        appState.pendingThemeDeepLink = nil
+        navigationPath.append(SettingsRoute.themes)
+    }
 }
 
 // MARK: - Routing and configuration
@@ -303,6 +318,7 @@ struct SettingsView: View {
 enum SettingsRoute: Hashable {
     case ocrSettings
     case appPreferences
+    case themes
     case security
     case cloud
     case export
@@ -321,6 +337,7 @@ enum SettingsRoute: Hashable {
         switch self {
         case .ocrSettings: "settings.route.ocrSettings"
         case .appPreferences: "settings.route.appPreferences"
+        case .themes: "settings.route.themes"
         case .security: "settings.route.security"
         case .cloud: "settings.route.cloud"
         case .export: "settings.route.export"
@@ -336,6 +353,7 @@ enum SettingsRoute: Hashable {
         #endif
         }
     }
+
 }
 
 enum SettingsSupportConfiguration {
@@ -356,4 +374,5 @@ enum SettingsSupportConfiguration {
 #Preview {
     SettingsView()
         .environmentObject(AppState())
+        .environmentObject(SeasonalThemeCoordinator.shared)
 }

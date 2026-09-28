@@ -40,6 +40,7 @@ struct EditorDocumentMetaBar: View {
 
 struct EditorSensitiveBanner: View {
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let isVisible: Bool
     let isAnalyzing: Bool
     let suggestedRedactionCount: Int
@@ -51,54 +52,12 @@ struct EditorSensitiveBanner: View {
 
     var body: some View {
         if isVisible {
-            HStack(spacing: 10) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .shieldFont(16, weight: .semibold)
-                    .foregroundColor(ShieldTheme.warning)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(titleText)
-                        .shieldFont(12, weight: .bold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                    Text(subtitleText)
-                        .shieldFont(11)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
+            Group {
+                if horizontalSizeClass == .compact {
+                    compactContent
+                } else {
+                    wideContent
                 }
-                Spacer()
-
-                Button(action: onApply) {
-                    Text(LanguageManager.shared.common("common_apply"))
-                        .shieldFont(12, weight: .bold)
-                        .foregroundColor(ShieldTheme.accentText)
-                        .padding(.horizontal, 12)
-                        .frame(minHeight: 44)
-                        .background(ShieldTheme.warning)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .disabled(suggestedRedactionCount == 0 || isAnalyzing)
-                .opacity((suggestedRedactionCount == 0 || isAnalyzing) ? 0.55 : 1)
-
-                Button(action: onOpenFields) {
-                    Text(LanguageManager.shared.editor("editor_sensitive_fields_button"))
-                        .shieldFont(12, weight: .bold)
-                        .foregroundColor(ShieldTheme.accent(scheme))
-                        .padding(.horizontal, 10)
-                        .frame(minHeight: 44)
-                        .background(ShieldTheme.accentDim(scheme))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .shieldFont(13)
-                        .foregroundColor(ShieldTheme.textTertiary)
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel(LanguageManager.shared.common("common_close"))
             }
             .padding(.horizontal, ShieldTheme.s4)
             .padding(.vertical, 4)
@@ -106,6 +65,94 @@ struct EditorSensitiveBanner: View {
             .overlay(Rectangle().stroke(ShieldTheme.warning.opacity(0.35), lineWidth: 0.5))
             .transition(.move(edge: .top).combined(with: .opacity))
         }
+    }
+
+    private var wideContent: some View {
+        HStack(spacing: 10) {
+            bannerIcon
+            bannerCopy
+            Spacer(minLength: 0)
+            applyButton
+            fieldsButton
+            dismissButton
+        }
+    }
+
+    private var compactContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 10) {
+                bannerIcon
+                bannerCopy
+                Spacer(minLength: 4)
+                dismissButton
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    applyButton
+                    fieldsButton
+                }
+                .padding(.trailing, 2)
+            }
+        }
+    }
+
+    private var bannerIcon: some View {
+        Image(systemName: "exclamationmark.triangle.fill")
+            .shieldFont(16, weight: .semibold)
+            .foregroundColor(ShieldTheme.warning)
+    }
+
+    private var bannerCopy: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(titleText)
+                .shieldFont(12, weight: .bold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+            Text(subtitleText)
+                .shieldFont(11)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .lineLimit(2)
+        }
+    }
+
+    private var applyButton: some View {
+        Button(action: onApply) {
+            Text(LanguageManager.shared.common("common_apply"))
+                .shieldFont(12, weight: .bold)
+                .foregroundColor(ShieldTheme.accentText)
+                .padding(.horizontal, 12)
+                .frame(minHeight: 44)
+                .background(ShieldTheme.warning)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .disabled(suggestedRedactionCount == 0 || isAnalyzing)
+        .opacity((suggestedRedactionCount == 0 || isAnalyzing) ? 0.55 : 1)
+    }
+
+    private var fieldsButton: some View {
+        Button(action: onOpenFields) {
+            Text(LanguageManager.shared.editor("editor_sensitive_fields_button"))
+                .shieldFont(12, weight: .bold)
+                .foregroundColor(ShieldTheme.accent(scheme))
+                .padding(.horizontal, 10)
+                .frame(minHeight: 44)
+                .background(ShieldTheme.accentDim(scheme))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+
+    private var dismissButton: some View {
+        Button(action: onDismiss) {
+            Image(systemName: "xmark")
+                .shieldFont(13)
+                .foregroundColor(ShieldTheme.textTertiary)
+                .frame(width: 44, height: 44)
+        }
+        .accessibilityLabel(LanguageManager.shared.common("common_close"))
     }
 
     private var titleText: String {

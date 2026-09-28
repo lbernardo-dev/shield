@@ -1910,9 +1910,9 @@
 
 175. app-engagement-kit
    Id: 175-app-engagement-kit
-   Scope: Extraer y completar feedback, valoración StoreKit 2 y PayPal.Me fijo para MaskID; integración reutilizable, localización, privacidad y tests
+   Scope: Extraer y completar feedback y valoración StoreKit 2 para MaskID; integración reutilizable, localización, privacidad y tests
    Files: Shield/App/AppReviewManager.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Localization/Strings/Settings.xcstrings,Shield/Localization/Strings/SettingsInfo.xcstrings,ShieldTests/AppReviewManagerTests.swift,ShieldTests/SecurityPrivacyTests.swift,Docs/REVIEW_FEEDBACK_SYSTEM.md,Docs/PRIVACY_POLICY_PRODUCT_FACTS.md,Package.swift,AppEngagementKit/
-   Note: Implementado AppEngagementKit reutilizable con feedback, StoreKit 2, PayPal.Me 2.99 EUR, metadata de instalación, superficies icon-only, localización y privacidad. Build Debug y build-for-testing correctos; XCTest runtime bloqueado por CoreSimulatorService no disponible.
+   Note: Implementado AppEngagementKit reutilizable con feedback, StoreKit 2, metadata de instalación, localización y privacidad. Build Debug y build-for-testing correctos; XCTest runtime bloqueado por CoreSimulatorService no disponible.
    Detail: tasks/details/175-app-engagement-kit.md
    Claimed by: CODEX
    Claimed at: 2026-09-21T06:41:22Z
@@ -1930,17 +1930,6 @@
    Done by: CODEX
    Done at: 2026-09-21T07:43:10Z
 
-177. support-coffee-prompt
-   Id: 177-support-coffee-prompt
-   Scope: Replace the PayPal P icon with a centered coffee prompt, open the fixed 2.99 EUR PayPal.Me link, and remove the donation action from the Settings menu
-   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Localization/Strings/SettingsInfo.xcstrings
-   Note: Implementado el prompt centrado de café con enlace PayPal.Me 2.99EUR preseleccionado, retirado el acceso del menú de configuración y actualizado Paywall/localización/documentación. Validaciones de diff y JSON correctas; build Debug bloqueado por sidecars AppleDouble en caché SwiftPM de dependencia externa.
-   Detail: tasks/details/177-support-coffee-prompt.md
-   Claimed by: CODEX
-   Claimed at: 2026-09-21T08:37:23Z
-   Done by: CODEX
-   Done at: 2026-09-21T08:42:53Z
-
 178. release-1-1-0-build-2
    Id: 178-release-1-1-0-build-2
    Scope: Increment build to 1102026092102 for version 1.1.0, archive/export and upload to App Store Connect
@@ -1951,17 +1940,6 @@
    Claimed at: 2026-09-21T09:02:30Z
    Done by: CODEX
    Done at: 2026-09-21T09:15:47Z
-
-179. coffee-prompt-adaptive-colors
-   Id: 179-coffee-prompt-adaptive-colors
-   Scope: Ajustar el icono y el importe del prompt de café para temas claro y oscuro
-   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,tasks/TASKS.md,tasks/details
-   Note: Colores adaptativos aplicados; build 1102026092103 archivado, subido, procesado como VALID y enlazado a la versión 1.1.0.
-   Detail: tasks/details/179-coffee-prompt-adaptive-colors.md
-   Claimed by: CODEX
-   Claimed at: 2026-09-21T09:20:07Z
-   Done by: CODEX
-   Done at: 2026-09-21T09:31:54Z
 
 180. free-premium-usage-analysis
    Id: 180-free-premium-usage-analysis
@@ -1985,17 +1963,6 @@
    Done by: CODEX
    Done at: 2026-09-21T13:30:40Z
 
-182. coffee-button-wcag-refactor
-   Id: 182-coffee-button-wcag-refactor
-   Scope: Refactor SupportCoffeeButton for WCAG AA/AAA contrast, hierarchical SF Symbols, custom spring ButtonStyle, and minimal layout
-   Files: Packages/AppEngagementKit/Sources/AppEngagementKit/DonationManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Settings/SettingsView.swift
-   Note: Finished coffee button refactor; build succeeded
-   Detail: tasks/details/182-coffee-button-wcag-refactor.md
-   Claimed by: CODEX
-   Claimed at: 2026-09-22T07:31:47Z
-   Done by: CODEX
-   Done at: 2026-09-22T07:34:50Z
-
 183. hide-tab-bar-settings-audit-dev
    Id: 183-hide-tab-bar-settings-audit-dev
    Scope: Hide footer tab bar in SettingsView and ensure developer menus are strictly simulator-only
@@ -2006,17 +1973,6 @@
    Claimed at: 2026-09-22T07:38:24Z
    Done by: CODEX
    Done at: 2026-09-22T07:40:55Z
-
-184. move-coffee-button-paywall-scroll
-   Id: 184-move-coffee-button-paywall-scroll
-   Scope: Move SupportCoffeeButton from sticky footer to end of scrollable content in PaywallView
-   Files: Shield/Views/Paywall/PaywallView.swift
-   Note: Moved SupportCoffeeButton from sticky footer to end of paywall scroll view; build succeeded and installed on iPhone 18 Pro
-   Detail: tasks/details/184-move-coffee-button-paywall-scroll.md
-   Claimed by: CODEX
-   Claimed at: 2026-09-22T07:41:47Z
-   Done by: CODEX
-   Done at: 2026-09-22T07:43:35Z
 
 185. retention-usage-conversion-suite
    Id: 185-retention-usage-conversion-suite
@@ -2083,4 +2039,50 @@
    Claimed at: 2026-09-25T14:13:29Z
    Done by: CODEX
    Done at: 2026-09-25T14:49:05Z
+
+191. seasonal-theme-system
+   Id: 191-seasonal-theme-system
+   Scope: Sistema de temas estacionales: modelo de tema, calendario automático Free, galería y activación manual Pro; primera implementación Halloween; preparación de In-App Event en App Store Connect
+   Files: Shield/Theme/**,Shield/ViewModels/AppState.swift,Shield/Views/Settings/**,Shield/Premium/PremiumManager.swift,Shield/Models/AppIconOption.swift,Shield/Localization/Strings/**,ShieldTests/**,Docs/SEASONAL_THEME_SYSTEM_PLAN.md,Docs/APP_STORE_METADATA_DRAFT.md,Docs/APPLE_SURFACES_AND_APP_STORE_CONNECT.md,Marketing/AppStore-Connect/**
+   Note: Implementación Halloween completa: temas Free/Pro, calendario multi-zona horaria y DST, galería, deep link, assets, build y EnhancementFeaturesTests OK. App Store Connect draft remoto 6816385632 guardado con EN/ES, media, badge y zona Europe/Madrid: publicación 30/09/2026 00:00, evento 01/10/2026 00:00–31/10/2026 23:00; no enviado a revisión. Validación posterior de simulador en cola porque CoreSimulatorService quedó no disponible; no se reinició ni se apropiaron destinos ajenos.
+   Detail: tasks/details/191-seasonal-theme-system.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-26T09:58:38Z
+   Done by: CODEX
+   Done at: 2026-09-26T15:20:56Z
+
+192. debug-theme-preview
+   Id: 192-debug-theme-preview
+   Scope: Selector de previsualizacion de temas en DEBUG para simulador y actualizacion final del iPhone 18 Pro
+   Files: Shield/Theme/ShieldTheme.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Localization/Strings/Settings.xcstrings,Shield/Views/Components/Components.swift,Shield/Views/Components/SplashView.swift,Shield/Views/Onboarding/OnboardingView.swift,Shield/App/ContentView.swift,ShieldTests/EnhancementFeaturesTests.swift,tasks/details/192-debug-theme-preview.md
+   Note: Selector DEBUG del catálogo y experiencia Halloween transversal completados. Build theme-build-debug-preview-v2 OK; EnhancementFeaturesTests 8/8 OK en Clone 1 de iPhone 18 Pro. Build instalada y lanzada en el UDID exacto; la revisión visual interactiva quedó limitada porque otra sesión recuperó el primer plano con SchoolSnap.
+   Detail: tasks/details/192-debug-theme-preview.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-26T15:28:19Z
+   Done by: CODEX
+   Done at: 2026-09-26T15:48:26Z
+
+193. seasonal-theme-event-preview
+   Id: 193-seasonal-theme-event-preview
+   Scope: Actualizar el previsualizador de temas en Ajustes con banner del evento, icono, captura de Home tematizada, información del tema, texto del evento y fechas
+   Files: Shield/Theme/ShieldTheme.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Localization/Strings/Settings.xcstrings,Shield/Resources,Marketing/AppStore-Connect/InAppEvents,tasks/details
+   Note: Finished seasonal event preview: added banner/detail artwork, Home/icon preview, localized event dates and timezone metadata, future activation gating, Free automatic messaging/paywall path, and deterministic tests. Build and build-for-testing succeeded; simulator test execution blocked by CoreSimulatorService/destinationSet failure on required iPhone 18 Pro UDID.
+   Detail: tasks/details/193-seasonal-theme-event-preview.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-27T15:35:57Z
+   Done by: CODEX
+   Done at: 2026-09-27T16:53:54Z
+
+194. help
+   Id: 194-help
+   Detail: tasks/details/194-help.md
+
+195. halloween-immersive-theme
+   Id: 195-halloween-immersive-theme
+   Scope: Rediseño visual completo del tema Halloween: ambientación global, decoraciones de máscara/calabaza/candelabros/sangre/insectos, microinteracciones y sonidos opcionales
+   Files: Shield/Theme/ShieldTheme.swift,Shield/App/ContentView.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield.xcodeproj/project.pbxproj,ShieldTests/EnhancementFeaturesTests.swift,tasks/TASKS.md,tasks/details
+   Note: Starting implementation of immersive Halloween theme
+   Detail: tasks/details/195-halloween-immersive-theme.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-27T20:24:19Z
 

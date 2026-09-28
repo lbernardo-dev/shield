@@ -332,6 +332,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>shield</string>
+				<string>maskid</string>
 				<string>com.googleusercontent.apps.1024191437701-444puuv8d822q0k8ldefbjpmq2a6lupf</string>
 				<string>db-eelqq7zaevpxt9w</string>
 			</array>

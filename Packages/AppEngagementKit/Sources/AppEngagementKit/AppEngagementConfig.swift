@@ -3,40 +3,24 @@ import SwiftUI
 
 /// Per-app configuration for the reusable engagement surfaces.
 ///
-/// The PayPal.Me URL is public by design; it identifies the receiving page but
-/// contains no client secret. The fixed amount is appended only when opening
-/// the payment page and is not displayed as an account identifier in the UI.
 public struct AppEngagementConfig {
     public let appName: String
     public let appSlug: String
     public let feedbackReasons: [LocalizedStringKey]
     public let inactivityThresholdDays: Int
     public let minDaysBetweenFeedbackPrompts: Int
-    public let paypalBusinessId: String
-    public let paypalMeURL: URL?
-    public let paypalFixedAmount: Decimal
-    public let paypalCurrencyCode: String
-
     public init(
         appName: String,
         appSlug: String,
         feedbackReasons: [LocalizedStringKey],
         inactivityThresholdDays: Int = 21,
-        minDaysBetweenFeedbackPrompts: Int = 30,
-        paypalBusinessId: String = "",
-        paypalMeURL: URL? = nil,
-        paypalFixedAmount: Decimal = 2.99,
-        paypalCurrencyCode: String = "EUR"
+        minDaysBetweenFeedbackPrompts: Int = 30
     ) {
         self.appName = appName
         self.appSlug = appSlug
         self.feedbackReasons = feedbackReasons
         self.inactivityThresholdDays = max(1, inactivityThresholdDays)
         self.minDaysBetweenFeedbackPrompts = max(0, minDaysBetweenFeedbackPrompts)
-        self.paypalBusinessId = paypalBusinessId
-        self.paypalMeURL = paypalMeURL
-        self.paypalFixedAmount = max(0, paypalFixedAmount)
-        self.paypalCurrencyCode = paypalCurrencyCode.uppercased()
     }
 
     public var sanitizedAppSlug: String {
@@ -57,28 +41,6 @@ public struct AppEngagementConfig {
         "romerodev.app+\(sanitizedAppSlug)@gmail.com"
     }
 
-    /// Builds a one-time PayPal.Me request such as `/2.99EUR`.
-    ///
-    /// PayPal.Me pre-fills the amount; it does not technically prevent a donor
-    /// from editing that amount before confirming the payment. A PayPal
-    /// Business Payment Link is required when the amount must be immutable.
-    public var paypalDonationURL: URL? {
-        if let paypalMeURL {
-            let amount = NSDecimalNumber(decimal: paypalFixedAmount).stringValue
-            let amountComponent = "\(amount)\(paypalCurrencyCode)"
-            return paypalMeURL.appendingPathComponent(amountComponent)
-        }
-
-        guard !paypalBusinessId.isEmpty else { return nil }
-        var components = URLComponents(string: "https://www.paypal.com/donate")
-        components?.queryItems = [
-            URLQueryItem(name: "business", value: paypalBusinessId),
-            URLQueryItem(name: "no_recurring", value: "0"),
-            URLQueryItem(name: "currency_code", value: paypalCurrencyCode),
-            URLQueryItem(name: "item_name", value: appName)
-        ]
-        return components?.url
-    }
 }
 
 public struct AppInstallMetadata: Equatable, Sendable {

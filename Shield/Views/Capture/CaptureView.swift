@@ -111,7 +111,7 @@ struct CaptureView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                ShieldTheme.pageBackground(appState.preferredScheme).ignoresSafeArea()
+                SeasonalThemeBackdrop()
 
                 if isProcessing {
                     processingView

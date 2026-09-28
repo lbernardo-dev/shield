@@ -26,7 +26,7 @@ struct VaultView: View {
 
     var body: some View {
         ZStack {
-            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+            SeasonalThemeBackdrop()
 
             if !isUnlocked {
                 lockGate
@@ -430,7 +430,7 @@ struct AddToVaultSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+                SeasonalThemeBackdrop()
 
                 if eligibleDocuments.isEmpty {
                     // All-vaulted empty state
@@ -839,7 +839,7 @@ struct PINSetupView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
+        .background(SeasonalThemeBackdrop())
         .preferredColorScheme(appState.preferredScheme)
     }
 
@@ -931,7 +931,7 @@ struct PINEntryView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
+        .background(SeasonalThemeBackdrop())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {
             refreshLockoutState()

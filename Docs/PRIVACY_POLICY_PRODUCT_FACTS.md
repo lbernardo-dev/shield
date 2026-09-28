@@ -10,4 +10,3 @@
 - Temporary exports are protected and removed when the share/export flow ends.
 - Secure export rasterizes and verifies output to prevent recoverable hidden text. No automated detector can guarantee that the user selected every sensitive region; review remains required.
 - Optional feedback emails contain only the selected category, an optional user comment, app/build/OS/device/locale metadata, entitlement tier, and install/update/submission timestamps. They never include document contents, OCR fields, images, credentials, payment data, or analytics copies of the free-form comment.
-- The optional “Invítame un café” action opens the public PayPal.Me page `paypal.me/paytolbernardo` with a 2.99 EUR amount prefilled. Payment details are entered and processed on PayPal; MaskID does not receive or store them.

@@ -1609,6 +1609,237 @@
         }
       }
     },
+    "settings_themes_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Themes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Temas" } }
+      }
+    },
+    "settings_themes_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Seasonal looks, icons, colors, and motion" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aspectos, iconos, colores y movimiento de temporada" } }
+      }
+    },
+    "settings_themes_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Choose how MaskID looks. Free users follow the local seasonal calendar; Pro users can choose from the full gallery." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Elige el aspecto de MaskID. Free sigue el calendario local; Pro puede elegir en toda la galería." } }
+      }
+    },
+    "settings_theme_gallery_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Theme gallery" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Galería de temas" } }
+      }
+    },
+    "settings_theme_current": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Current theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tema actual" } }
+      }
+    },
+    "settings_theme_timezone_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Automatic themes follow the date and time on this device. Changing time zone reevaluates the theme." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Los temas automáticos siguen la fecha y hora de este dispositivo. Al cambiar de zona horaria se reevalúan." } }
+      }
+    },
+    "settings_theme_automatic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Automatic" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Automático" } }
+      }
+    },
+    "settings_theme_base": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MaskID Original" } },
+        "es": { "stringUnit": { "state": "translated", "value": "MaskID Original" } }
+      }
+    },
+    "settings_theme_base_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Original" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Original" } }
+      }
+    },
+    "settings_theme_base_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "The calm, focused MaskID identity" } },
+        "es": { "stringUnit": { "state": "translated", "value": "La identidad serena y concentrada de MaskID" } }
+      }
+    },
+    "settings_theme_halloween": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Halloween Night" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Noche de Halloween" } }
+      }
+    },
+    "settings_theme_halloween_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Obsidian, ember, and moonlit privacy" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privacidad de obsidiana, ascua y luz de luna" } }
+      }
+    },
+    "settings_theme_halloween_preview_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "A complete seasonal look with a Halloween icon, ember-orange accents, violet surfaces, subtle texture, and gentle motion." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Un aspecto de temporada completo con icono de Halloween, acentos naranja ascua, superficies violetas, textura sutil y movimiento sereno." } }
+      }
+    },
+    "settings_theme_soundscape_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Macabre soundscape" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ambiente sonoro macabro" } }
+      }
+    },
+    "settings_theme_soundscape_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Optional random whispers, chimes, and creaks while MaskID is open. Off by default." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Susurros, campanillas y crujidos aleatorios opcionales mientras MaskID está abierta. Desactivado por defecto." } }
+      }
+    },
+    "settings_theme_visuals_locked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Managed themes fix the app appearance and icon until you return to MaskID Original." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Los temas gestionados fijan el aspecto y el icono hasta volver a MaskID Original." } }
+      }
+    },
+    "settings_theme_status_base": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Always available" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Siempre disponible" } }
+      }
+    },
+    "settings_theme_status_upcoming": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Coming soon" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Próximamente" } }
+      }
+    },
+    "settings_theme_status_active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Active event" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Evento activo" } }
+      }
+    },
+    "settings_theme_status_archived": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Saved in your gallery" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Guardado en tu galería" } }
+      }
+    },
+    "settings_theme_active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Active" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Activo" } }
+      }
+    },
+    "settings_theme_use_base": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Use original" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Usar original" } }
+      }
+    },
+    "settings_theme_activate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Activate theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Activar tema" } }
+      }
+    },
+    "settings_theme_unlock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Unlock with Pro" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desbloquear con Pro" } }
+      }
+    },
+    "settings_theme_preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Theme preview" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vista previa del tema" } }
+      }
+    },
+    "settings_theme_pro_callout_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Make MaskID yours" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Haz tuyo MaskID" } }
+      }
+    },
+    "settings_theme_pro_callout_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pro unlocks the full theme gallery and manual activation after each event." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pro desbloquea toda la galería y la activación manual incluso después de cada evento." } }
+      }
+    },
+    "settings_theme_debug_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Simulator preview" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Previsualización del simulador" } }
+      }
+    },
+    "settings_theme_debug_selector": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Force theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Forzar tema" } }
+      }
+    },
+    "settings_theme_debug_automatic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "App behavior" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comportamiento real" } }
+      }
+    },
+    "settings_theme_debug_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "DEBUG-only control for inspecting every catalog theme on the simulator." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Control solo DEBUG para inspeccionar cualquier tema del catálogo en el simulador." } }
+      }
+    },
+    "settings_theme_debug_reset": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Restore real app behavior" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Restaurar comportamiento real" } }
+      }
+    },
+    "settings_theme_applied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Theme applied" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tema aplicado" } }
+      }
+    },
     "settings_pro_unlocked": {
       "extractionState": "manual",
       "localizations": {
@@ -1624,6 +1855,167 @@
             "value": "MaskID Pro Desbloqueado"
           }
         }
+      }
+    },
+    "settings_theme_information": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "About this theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Información del tema" } }
+      }
+    },
+    "settings_theme_visual_preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Theme in MaskID" } },
+        "es": { "stringUnit": { "state": "translated", "value": "El tema en MaskID" } }
+      }
+    },
+    "settings_theme_icon_preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Theme icon" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Icono del tema" } }
+      }
+    },
+    "settings_theme_home_preview_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Private on-device" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privado en el dispositivo" } }
+      }
+    },
+    "settings_theme_home_preview_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Protect before sharing" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protege antes de compartir" } }
+      }
+    },
+    "settings_theme_home_preview_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scan or import sensitive documents on your device." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanea o importa documentos sensibles en tu dispositivo." } }
+      }
+    },
+    "settings_theme_home_preview_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scan document" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanear documento" } }
+      }
+    },
+    "settings_theme_home_preview_chip_one": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "All" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Todos" } }
+      }
+    },
+    "settings_theme_home_preview_chip_two": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Identity" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Identidad" } }
+      }
+    },
+    "settings_theme_home_preview_chip_three": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Travel" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Viaje" } }
+      }
+    },
+    "settings_theme_home_preview_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Preview of the MaskID home screen with this theme applied" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Previsualización de la pantalla principal de MaskID con este tema aplicado" } }
+      }
+    },
+    "settings_theme_event_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Event details" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Detalles del evento" } }
+      }
+    },
+    "settings_theme_event_start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Starts" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Inicio" } }
+      }
+    },
+    "settings_theme_event_end": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ends" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fin" } }
+      }
+    },
+    "settings_theme_scheduled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Available when the event starts" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Disponible al comenzar el evento" } }
+      }
+    },
+    "settings_theme_event_upcoming_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "You can preview this theme now. Activation is available when the event starts." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Puedes previsualizar este tema ahora. La activación estará disponible cuando comience el evento." } }
+      }
+    },
+    "settings_theme_event_automatic_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Free accounts follow the seasonal calendar automatically during the event." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Las cuentas Free siguen automáticamente el calendario de temporada durante el evento." } }
+      }
+    },
+    "settings_theme_event_timezone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Editorial reference time zone" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Zona horaria de referencia editorial" } }
+      }
+    },
+    "settings_theme_event_device_time": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Dates are shown in this device's local time." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Las fechas se muestran en la hora local de este dispositivo." } }
+      }
+    },
+    "settings_theme_event_artwork": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Long-form Halloween event artwork with a glowing MaskID shield, crescent moon, and misty landscape" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Arte vertical del evento de Halloween con el escudo de MaskID iluminado, una luna creciente y un paisaje entre niebla" } }
+      }
+    },
+    "settings_theme_halloween_event_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Halloween in MaskID" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Halloween en MaskID" } }
+      }
+    },
+    "settings_theme_halloween_event_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Give MaskID a seasonal look with a spooky icon, colors, textures, and gentle motion." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Dale a MaskID un aspecto de temporada con icono, colores, texturas y movimiento sutiles." } }
+      }
+    },
+    "settings_theme_halloween_banner_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Halloween event artwork with a glowing MaskID shield under a crescent moon" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Arte del evento de Halloween con el escudo de MaskID iluminado bajo una luna creciente" } }
       }
     }
   },

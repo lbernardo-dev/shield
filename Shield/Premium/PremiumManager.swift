@@ -85,6 +85,7 @@ enum PremiumFeature: String, CaseIterable {
     case advancedAdjustments = "advanced_adjustments"
     case alternateIcons = "alternate_icons"
     case customWatermarks = "custom_watermarks"
+    case seasonalThemes = "seasonal_themes"
 }
 
 enum SubscriptionEntitlementState: String {

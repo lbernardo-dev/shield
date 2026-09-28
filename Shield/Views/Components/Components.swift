@@ -20,9 +20,7 @@ struct ShieldButton: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 if isLoading {
-                    ProgressView()
-                        .controlSize(.small)
-                        .tint(fgColor)
+                    SeasonalThemeLoadingIndicator(size: 18, color: fgColor)
                         .accessibilityHidden(true)
                 } else if let icon {
                     Image(systemName: icon)
@@ -31,9 +29,9 @@ struct ShieldButton: View {
                 Text(label)
                     .shieldFont(15, weight: .semibold)
             }
+            .padding(.horizontal, ShieldTheme.s4)
             .frame(maxWidth: .infinity)
             .frame(minHeight: max(ShieldTheme.minimumTapTarget, height))
-            .padding(.horizontal, ShieldTheme.s4)
             .background(bgColor)
             .foregroundColor(fgColor)
             .overlay {
@@ -84,6 +82,13 @@ struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(reduceMotion ? 1 : (configuration.isPressed ? 0.97 : 1))
+            .rotationEffect(
+                .degrees(
+                    !reduceMotion && ShieldTheme.activeThemeID == .halloween2026 && configuration.isPressed
+                        ? -1.2
+                        : 0
+                )
+            )
             .opacity(isEnabled ? 1 : 0.62)
             .animation(reduceMotion ? nil : ShieldMotion.press, value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, isPressed in
@@ -225,11 +230,19 @@ struct SectionHeader: View {
                     Text(actionLabel)
                         .shieldFont(13, weight: .bold)
                         .foregroundColor(ShieldTheme.accent(scheme))
-                        .padding(.vertical, 4)
-                        .frame(minWidth: 44, minHeight: 44)
+                        .padding(.horizontal, ShieldTheme.s2)
+                        // Padding is intentional here: SwiftUI exposes the
+                        // padded label bounds to XCTest/VoiceOver, while a
+                        // bare frame on a plain Button can remain text-sized.
+                        .padding(.vertical, 14)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                // Keep the whole action target accessible even when a plain
+                // button is rendered next to a flexible section title.
+                .frame(minWidth: 88, minHeight: 44, alignment: .trailing)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(actionLabel)
             }
         }
         .frame(maxWidth: .infinity)
@@ -407,7 +420,7 @@ struct ShieldStateView: View {
     private var stateIcon: some View {
         switch kind {
         case .loading:
-            ProgressView()
+            SeasonalThemeLoadingIndicator(size: 30)
         default:
             Image(systemName: iconName)
         }

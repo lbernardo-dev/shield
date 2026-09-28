@@ -89,7 +89,9 @@ struct ShieldScanButton: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            action()
+        } label: {
             ZStack {
                 Circle()
                     .fill(ShieldTheme.accent(scheme))
@@ -110,6 +112,9 @@ struct ShieldScanButton: View {
             .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
+        .frame(width: 72, height: 72)
+        .contentShape(Circle())
+        .zIndex(10)
         .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
         .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
         .accessibilityIdentifier("tab.capture")

@@ -86,3 +86,11 @@ Shield compila y ejecuta en simulador (iPhone Air, iOS 26.2). Base técnica sól
 
 **Why:** Contexto vivo del roadmap para no repetir análisis en próximas sesiones.
 **How to apply:** Al iniciar una sesión sobre Shield, leer este archivo antes de proponer nuevas tareas para no duplicar trabajo ya hecho.
+
+## Configuración de validación de simuladores (27-sep-2026)
+
+- Destino principal obligatorio: **iPhone 18 Pro**, UDID `1454EA8D-A019-4B07-B57C-1433E0F21BE0`, runtime **iOS 27.0** (`com.apple.CoreSimulator.SimRuntime.iOS-27-0`).
+- Destinos disponibles detectados: iPad Pro 13-inch (M5), UDID `2F44FF69-62E3-471E-AFEB-6690BDA4ADC1`; Apple Watch Series 12 (46mm), UDID `3A4C4C8C-BFDC-4E8C-95AE-596329243EAB`, ambos en runtime 27.0 compatible.
+- No se detectó un simulador iPhone Duo; el modelo alternativo visible fue iPhone Air.
+- Device Hub y el iPhone 18 Pro estaban libres; el iPhone 18 Pro se encontró apagado y se puede arrancar explícitamente con su UDID.
+- Si el sandbox devuelve `CoreSimulatorService connection refused`, repetir las consultas de `xcrun simctl` con permisos elevados para acceder al servicio y sus logs; no sustituir silenciosamente el iPhone 18 Pro ni reiniciar/borrar simuladores ocupados.

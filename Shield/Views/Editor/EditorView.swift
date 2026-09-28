@@ -38,6 +38,7 @@ struct EditorView: View {
                 compactWorkspace
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {

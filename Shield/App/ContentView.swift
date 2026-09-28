@@ -4,11 +4,13 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var seasonalThemes: SeasonalThemeCoordinator
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var cloud = CloudSyncManager.shared
     @State private var asoOverlayPresented = true
     @State private var showSplash = LaunchSplashState.shouldPresent
+    @State private var themeTransition: SeasonalThemeID?
     @AppStorage(FirebaseIntegration.analyticsConsentPromptAnsweredKey)
     private var analyticsConsentPromptAnswered = false
     @State private var showAnalyticsConsent = false
@@ -16,7 +18,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             AuthenticatedShellView(appState: appState)
-                .id("shell-\(appState.language.rawValue)")
+                .id("shell-\(appState.language.rawValue)-\(seasonalThemes.activeThemeID.rawValue)")
                 .opacity(sessionStage == .ready ? 1 : 0)
                 .allowsHitTesting(sessionStage == .ready)
                 .accessibilityHidden(sessionStage != .ready)
@@ -61,6 +63,16 @@ struct ContentView: View {
             }
 #endif
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .top) {
+            if let themeTransition {
+                SeasonalThemeChangeOverlay(themeID: themeTransition)
+                    .padding(.top, ShieldTheme.s4)
+                    .padding(.horizontal, ShieldTheme.s4)
+                    .zIndex(40_000)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: sessionStage)
         .colorScheme(appState.preferredScheme)
         .onChange(of: scenePhase) { _, newPhase in
@@ -71,6 +83,26 @@ struct ContentView: View {
             LaunchSplashState.hasBeenPresented = true
         }
         .onAppear(perform: presentAnalyticsConsentIfNeeded)
+        .onAppear {
+            seasonalThemes.refresh(isPro: PremiumManager.shared.isPro)
+            appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
+            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: PremiumManager.shared.isPro)
+            seasonalThemes.setSceneActive(true)
+        }
+        .onChange(of: seasonalThemes.activeThemeID) { _, newTheme in
+            appState.applySeasonalThemeAppearance(for: newTheme)
+            appState.applySeasonalThemeIcon(for: newTheme, isPro: PremiumManager.shared.isPro)
+            withAnimation(reduceMotion ? nil : ShieldMotion.navigation) {
+                themeTransition = newTheme
+            }
+            let displayedTheme = newTheme
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.72) {
+                guard themeTransition == displayedTheme else { return }
+                withAnimation(reduceMotion ? nil : ShieldMotion.navigation) {
+                    themeTransition = nil
+                }
+            }
+        }
         .onChange(of: showSplash) { _, isShowing in
             if !isShowing { presentAnalyticsConsentIfNeeded() }
         }
@@ -80,6 +112,20 @@ struct ContentView: View {
                 analyticsConsentPromptAnswered = true
                 showAnalyticsConsent = false
             }
+        }
+        // Keep the capture presentation hosted by the stable app root. The
+        // authenticated navigation tree is intentionally rebuilt when the
+        // active tab, language, or managed theme changes; hosting this cover
+        // there can swallow a tap made immediately after returning from
+        // Settings even though the scan button remains hittable.
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { appState.showCapture },
+                set: { appState.showCapture = $0 }
+            )
+        ) {
+            CaptureView()
+                .environmentObject(appState)
         }
     }
 
@@ -91,9 +137,13 @@ struct ContentView: View {
 
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
         appState.handleScenePhaseChange(newPhase)
+        seasonalThemes.setSceneActive(newPhase == .active)
 
         guard newPhase == .active else { return }
         appState.syncAppIconWithSystem()
+        seasonalThemes.refresh(isPro: PremiumManager.shared.isPro)
+        appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
+        appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: PremiumManager.shared.isPro)
 
         guard sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
@@ -189,15 +239,7 @@ private struct AuthenticatedShellView: View {
                     .zIndex(60)
             }
         }
-        .fullScreenCover(
-            isPresented: Binding(
-                get: { appState.showCapture },
-                set: { appState.showCapture = $0 }
-            )
-        ) {
-            CaptureView()
-                .environmentObject(appState)
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: appState.showCapture)
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.88), value: appState.selectedDoc?.id)
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: appState.activeTab)
@@ -208,7 +250,13 @@ private struct AuthenticatedShellView: View {
         // before presenting it so a pending editor transition cannot obscure
         // the capture surface or consume its accessibility actions.
         appState.selectedDoc = nil
-        appState.showCapture = true
+        // Returning from Settings can leave the tab bar inside the end of its
+        // safe-area transition. Defer the presentation one run-loop so the
+        // stable root receives the state change after that transition has
+        // settled, while preserving a single physical tap.
+        DispatchQueue.main.async {
+            appState.showCapture = true
+        }
     }
 
     @ViewBuilder
@@ -221,7 +269,6 @@ private struct AuthenticatedShellView: View {
                         lang: appState.language,
                         onScanTap: openCapture
                     )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
     }
@@ -311,4 +358,5 @@ private enum LaunchSplashState {
 #Preview {
     ContentView()
         .environmentObject(AppState())
+        .environmentObject(SeasonalThemeCoordinator.shared)
 }

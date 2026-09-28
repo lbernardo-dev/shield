@@ -32,6 +32,7 @@ struct MaskIDIdentityMark: View {
 
     private var resolvedIcon: AppIconOption {
         if let icon { return icon }
+        if ShieldTheme.activeThemeID == .halloween2026 { return .halloween }
         if let raw = UserDefaults.standard.string(forKey: "shield.selectedAppIcon"),
            let saved = AppIconOption(rawValue: raw) {
             return saved
@@ -129,6 +130,10 @@ struct MaskIDIdentityMark: View {
     private var markContainer: some View {
         let markSize = staticMarkSize
         let isCircular = treatment != .compact
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026
+        let markSurface = isHalloween ? Color(hex: "22102A") : Color(hex: "071E36")
+        let markSurfaceDeep = isHalloween ? Color(hex: "100A14") : Color(hex: "030E1B")
+        let scanColor = isHalloween ? Color(hex: "FF9A3D") : Color(hex: "00E5FF")
 
         ZStack {
             // Glassmorphic Base with Deep Radial Lighting
@@ -137,8 +142,8 @@ struct MaskIDIdentityMark: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color(hex: "071E36").opacity(scheme == .dark ? 0.95 : 0.6),
-                                Color(hex: "030E1B").opacity(scheme == .dark ? 0.98 : 0.4),
+                                markSurface.opacity(scheme == .dark ? 0.95 : 0.6),
+                                markSurfaceDeep.opacity(scheme == .dark ? 0.98 : 0.4),
                                 Color(hex: "01050A").opacity(scheme == .dark ? 1.0 : 0.2)
                             ],
                             center: .center,
@@ -149,7 +154,7 @@ struct MaskIDIdentityMark: View {
                     .frame(width: markSize, height: markSize)
             } else {
                 RoundedRectangle(cornerRadius: markSize * 0.28, style: .continuous)
-                    .fill(Color(hex: "071E36"))
+                    .fill(markSurface)
                     .frame(width: markSize, height: markSize)
             }
 
@@ -186,11 +191,11 @@ struct MaskIDIdentityMark: View {
                         LinearGradient(
                             colors: [
                                 Color.clear,
-                                Color(hex: "00E5FF").opacity(0.12),
-                                Color(hex: "00E5FF").opacity(0.42),
+                                scanColor.opacity(0.12),
+                                scanColor.opacity(0.42),
                                 Color.white.opacity(0.90),
-                                Color(hex: "00E5FF").opacity(0.42),
-                                Color(hex: "00E5FF").opacity(0.12),
+                                scanColor.opacity(0.42),
+                                scanColor.opacity(0.12),
                                 Color.clear
                             ],
                             startPoint: .top,
@@ -204,9 +209,9 @@ struct MaskIDIdentityMark: View {
                                     LinearGradient(
                                         colors: [
                                             Color.clear,
-                                            Color(hex: "00E5FF").opacity(0.7),
+                                            scanColor.opacity(0.7),
                                             Color.white,
-                                            Color(hex: "00E5FF").opacity(0.7),
+                                            scanColor.opacity(0.7),
                                             Color.clear
                                         ],
                                         startPoint: .leading,
@@ -232,7 +237,7 @@ struct MaskIDIdentityMark: View {
                             stops: [
                                 .init(color: Color.white.opacity(0.55), location: 0.0),
                                 .init(color: ShieldTheme.accent(scheme).opacity(0.75), location: 0.40),
-                                .init(color: Color(hex: "00B4D8").opacity(0.20), location: 0.75),
+                                .init(color: ShieldTheme.accent(scheme).opacity(0.20), location: 0.75),
                                 .init(color: Color.clear, location: 1.0)
                             ],
                             startPoint: .topLeading,
@@ -339,13 +344,19 @@ struct SplashView: View {
     let onFinished: () -> Void
 
     var body: some View {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026
+
         ZStack {
-            // Atmospheric deep radial background for seamless launch
+            ShieldTheme.pageBackground(scheme)
+                .ignoresSafeArea()
+
+            SeasonalThemeAmbientLayer()
+
             RadialGradient(
                 colors: [
-                    Color(hex: "061E33"),
-                    Color(hex: "030E1A"),
-                    Color(hex: "01050A")
+                    isHalloween ? Color(hex: "2A1235") : Color(hex: "061E33"),
+                    isHalloween ? Color(hex: "100A14") : Color(hex: "030E1A"),
+                    isHalloween ? Color(hex: "050308") : Color(hex: "01050A")
                 ],
                 center: .center,
                 startRadius: 20,
@@ -361,7 +372,7 @@ struct SplashView: View {
                     size: markSize,
                     presentation: .animatedOnce,
                     treatment: .splash,
-                    icon: .blue
+                    icon: ShieldTheme.activeThemeID.icon
                 ) { completed in
                     guard completed else { return }
                     finish()

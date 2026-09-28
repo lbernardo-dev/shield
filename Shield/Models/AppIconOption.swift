@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - AppIconOption
 
 /// Represents the available application icons designed with modern Icon Composer.
-/// Default icon for free and pro users is `MaskIDBlue`. Other icons are exclusive to Pro users.
+/// The standard experience uses the current blue mask mark; other icons are
+/// optional Pro variants.
 enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     case blue = "MaskIDBlue"
     case gold = "MaskIDGold"
@@ -37,13 +38,17 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
         rawValue
     }
 
-    /// Safely loads the PNG representation of this icon directly from bundle files without triggering asset catalog app icon assertions.
+    /// Safely loads the PNG representation of this icon directly from bundle
+    /// files without triggering asset-catalog app-icon assertions.
     var uiImage: UIImage? {
         if let path = Bundle.main.path(forResource: imageName, ofType: "png"),
            let image = UIImage(contentsOfFile: path) {
             return image
         }
-        return UIImage(named: "MaskIDMark")
+        // Keep the fallback on the current app-icon family. The old face mark
+        // was a product illustration, not the app identity, and must never be
+        // used as a system-icon or theme-preview fallback.
+        return UIImage(named: imageName) ?? UIImage(named: "icon_1024")
     }
 
     /// Safe SwiftUI Image view for rendering anywhere across the UI.
@@ -51,11 +56,11 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
         if let uiImage {
             return Image(uiImage: uiImage)
         }
-        return Image("MaskIDMark")
+        return Image(systemName: "shield.fill")
     }
 
     /// The name passed to `UIApplication.setAlternateIconName`.
-    /// Passing `nil` resets iOS to the primary default app icon (`MaskIDBlue`).
+    /// Passing `nil` resets iOS to the primary modern app icon.
     var alternateIconName: String? {
         isDefault ? nil : rawValue
     }

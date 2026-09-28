@@ -1,5 +1,4 @@
 import SwiftUI
-import AppEngagementKit
 
 // MARK: - PaywallView
 
@@ -39,11 +38,13 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack {
-            // Background
+            SeasonalThemeBackdrop()
+
             LinearGradient(
                 colors: ShieldTheme.premiumBackground(appState.preferredScheme),
                 startPoint: .top, endPoint: .bottom
             )
+            .opacity(ShieldTheme.activeThemeID == .halloween2026 ? 0.72 : 1)
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -86,18 +87,9 @@ struct PaywallView: View {
 
                         // FAQ
                         faqSection
-
-                        // Support Coffee
-                        SupportCoffeeButton(
-                            manager: DonationManager(configuration: .maskID),
-                            title: LanguageManager.shared.settings("settings_coffee_prompt"),
-                            accessibilityLabel: LanguageManager.shared.settings("settings_coffee_accessibility"),
-                            accessibilityHint: LanguageManager.shared.settings("settings_coffee_hint")
-                        )
-                        .accessibilityIdentifier("paywall.supportCoffee")
-                        .padding(.top, 4)
-                        .padding(.bottom, 8)
                     }
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 16)
                 }

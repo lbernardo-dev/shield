@@ -6,6 +6,7 @@ struct HomeTopBarView: View {
     let onToggleLanguage: () -> Void
     let onToggleScheme: () -> Void
     let onOpenSettings: () -> Void
+    let isManagedTheme: Bool
 
     var body: some View {
         HStack(spacing: 12) {
@@ -31,6 +32,7 @@ struct HomeTopBarView: View {
                 Button(action: onToggleScheme) {
                     Label(LanguageManager.shared.settings("settings_dark_mode"), systemImage: scheme == .dark ? "sun.max.fill" : "moon.fill")
                 }
+                .disabled(isManagedTheme)
 
                 Button(action: onOpenSettings) {
                     Label(LanguageManager.shared.common("common_tab_settings"), systemImage: "gearshape")

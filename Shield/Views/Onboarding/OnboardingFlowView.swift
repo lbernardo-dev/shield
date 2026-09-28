@@ -8,34 +8,32 @@ struct OnboardingFlowView: View {
     @StateObject private var state = OnboardingState()
 
     var body: some View {
-        GeometryReader { _ in
-            ZStack {
-                if state.currentStep == 4 {
-                    Color.black
-                        .ignoresSafeArea()
-                } else {
-                    RadialGradient(
-                        colors: ShieldTheme.premiumBackground(appState.preferredScheme),
-                        center: .top, startRadius: 0, endRadius: 500
-                    )
+        ZStack {
+            if state.currentStep == 4 {
+                Color.black
                     .ignoresSafeArea()
+            } else {
+                RadialGradient(
+                    colors: ShieldTheme.premiumBackground(appState.preferredScheme),
+                    center: .top, startRadius: 0, endRadius: 500
+                )
+                .ignoresSafeArea()
+            }
+
+            VStack(spacing: 0) {
+                if state.showTopBar {
+                    topBar
+                        .padding(.horizontal, 24)
+                        .padding(.top, ShieldTheme.topChromePadding)
+                        .padding(.bottom, ShieldTheme.topChromeBottomSpacing)
                 }
 
-                VStack(spacing: 0) {
-                    if state.showTopBar {
-                        topBar
-                            .padding(.horizontal, 24)
-                            .padding(.top, ShieldTheme.topChromePadding)
-                            .padding(.bottom, ShieldTheme.topChromeBottomSpacing)
-                    }
-
-                    stepContent
-                        .transition(reduceMotion ? .opacity : .asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .move(edge: .leading).combined(with: .opacity)
-                        ))
-                        .id(state.currentStep)
-                }
+                stepContent
+                    .transition(reduceMotion ? .opacity : .asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
+                    .id(state.currentStep)
             }
         }
         .preferredColorScheme(appState.preferredScheme)

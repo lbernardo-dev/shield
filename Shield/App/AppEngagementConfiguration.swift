@@ -19,10 +19,7 @@ extension AppEngagementConfig {
         // MaskID previously used a 30-day return threshold; preserve that
         // established product policy while the package default remains 21.
         inactivityThresholdDays: 30,
-        minDaysBetweenFeedbackPrompts: 30,
-        paypalMeURL: URL(string: "https://paypal.me/paytolbernardo"),
-        paypalFixedAmount: 2.99,
-        paypalCurrencyCode: "EUR"
+        minDaysBetweenFeedbackPrompts: 30
     )
 }
 

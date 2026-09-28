@@ -88,6 +88,7 @@ final class AppState: ObservableObject {
     @Published var pendingSharedImportError: String? = nil
     @Published var showVault: Bool = false
     @Published var activeTab: AppTab = .library
+    @Published var pendingThemeDeepLink: SeasonalThemeID? = nil
 
     // Style pre-selected from gallery — applied to editor when next doc is opened
     @Published var pendingMaskStyle: MaskStyle? = nil
@@ -333,8 +334,12 @@ final class AppState: ObservableObject {
     }
 
     @MainActor
-    func setAppIcon(_ icon: AppIconOption, isPro: Bool) async throws {
-        if icon.isPro && !isPro {
+    func setAppIcon(
+        _ icon: AppIconOption,
+        isPro: Bool,
+        allowSeasonalAutomatic: Bool = false
+    ) async throws {
+        if icon.isPro && !isPro && !allowSeasonalAutomatic {
             throw AppIconError.proRequired
         }
 
@@ -351,7 +356,72 @@ final class AppState: ObservableObject {
         }
         #endif
 
+        if !allowSeasonalAutomatic {
+            UserDefaults.standard.set(true, forKey: "shield.theme.manualIconOverride")
+        }
         currentAppIcon = icon
+    }
+
+    /// Keeps the application icon aligned with the effective seasonal theme.
+    /// Theme activation clears any manual-icon override at the selection
+    /// boundary, so an already-installed build cannot silently keep a stale
+    /// icon when the user applies a theme.
+    @MainActor
+    func applySeasonalThemeIcon(for themeID: SeasonalThemeID, isPro: Bool) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: "shield.theme.manualIconOverride") else { return }
+
+        let desiredIcon: AppIconOption = themeID.icon ?? .defaultIcon
+#if os(iOS)
+        let installedIcon = AppIconOption.from(alternateIconName: UIApplication.shared.alternateIconName)
+        if desiredIcon == installedIcon {
+            if currentAppIcon != desiredIcon { currentAppIcon = desiredIcon }
+            return
+        }
+#else
+        guard desiredIcon != currentAppIcon else { return }
+#endif
+
+        Task { @MainActor [weak self] in
+            do {
+                try await self?.setAppIcon(
+                    desiredIcon,
+                    isPro: isPro,
+                    allowSeasonalAutomatic: true
+                )
+                defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
+            } catch {
+                AppState.trackEvent("theme_activation_failed", properties: [
+                    "name": themeID.rawValue,
+                    "error_type": "icon"
+                ])
+            }
+        }
+    }
+
+    @MainActor
+    func clearSeasonalIconOverride() {
+        UserDefaults.standard.set(false, forKey: "shield.theme.manualIconOverride")
+    }
+
+    /// Managed themes own the app's appearance. Preserve the user's previous
+    /// choice and restore it when the standard theme is selected again.
+    @MainActor
+    func applySeasonalThemeAppearance(for themeID: SeasonalThemeID) {
+        let defaults = UserDefaults.standard
+        let savedSchemeKey = "shield.theme.previousColorScheme"
+
+        if themeID.isSeasonal {
+            if defaults.object(forKey: savedSchemeKey) == nil {
+                defaults.set(preferredScheme == .dark ? "dark" : "light", forKey: savedSchemeKey)
+            }
+            if preferredScheme != .dark {
+                preferredScheme = .dark
+            }
+        } else if let saved = defaults.string(forKey: savedSchemeKey) {
+            preferredScheme = saved == "dark" ? .dark : .light
+            defaults.removeObject(forKey: savedSchemeKey)
+        }
     }
 
     @MainActor

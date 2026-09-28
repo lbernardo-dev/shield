@@ -142,4 +142,170 @@ struct EnhancementFeaturesTests {
         let afterDelete = store.loadAllDocuments()
         #expect(afterDelete.contains { $0.id == testDoc.id } == false)
     }
+
+    // MARK: - Seasonal themes
+
+    @Test("Seasonal themes resolve against each device's local calendar")
+    func seasonalThemeLocalCalendarResolution() {
+        let madrid = timeZone("Europe/Madrid")
+        let newYork = timeZone("America/New_York")
+        let tokyo = timeZone("Asia/Tokyo")
+
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: false,
+                selection: .automatic,
+                at: SeasonalThemeClock(now: date(2026, 10, 1, 0, 0, timeZone: madrid), timeZone: madrid)
+            ) == .halloween2026
+        )
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: false,
+                selection: .automatic,
+                at: SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: newYork), timeZone: newYork)
+            ) == .halloween2026
+        )
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: false,
+                selection: .automatic,
+                at: SeasonalThemeClock(now: date(2026, 11, 1, 0, 0, timeZone: tokyo), timeZone: tokyo)
+            ) == .base
+        )
+    }
+
+    @Test("Pro manual selection takes precedence over the seasonal window")
+    func seasonalThemePremiumPrecedence() {
+        let madrid = timeZone("Europe/Madrid")
+        let outsideEvent = SeasonalThemeClock(
+            now: date(2026, 12, 12, 12, 0, timeZone: madrid),
+            timeZone: madrid
+        )
+
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: true,
+                selection: .manual(.halloween2026),
+                at: outsideEvent
+            ) == .halloween2026
+        )
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: false,
+                selection: .manual(.halloween2026),
+                at: outsideEvent
+            ) == .base
+        )
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: true,
+                selection: .base,
+                at: SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: madrid), timeZone: madrid)
+            ) == .base
+        )
+    }
+
+    @Test("Future themes remain previewable but cannot become active early")
+    func seasonalThemeFutureActivationIsBlocked() {
+        let madrid = timeZone("Europe/Madrid")
+        let beforeStart = SeasonalThemeClock(
+            now: date(2026, 9, 30, 23, 59, timeZone: madrid),
+            timeZone: madrid
+        )
+
+        #expect(
+            SeasonalThemeResolver.resolve(
+                isPro: true,
+                selection: .manual(.halloween2026),
+                at: beforeStart
+            ) == .base
+        )
+        #expect(
+            SeasonalThemeResolver.canManuallyActivate(
+                isPro: true,
+                themeID: .halloween2026,
+                at: beforeStart
+            ) == false
+        )
+        #expect(
+            SeasonalThemeResolver.canManuallyActivate(
+                isPro: true,
+                themeID: .halloween2026,
+                at: SeasonalThemeClock(
+                    now: date(2026, 10, 1, 0, 0, timeZone: madrid),
+                    timeZone: madrid
+                )
+            ) == true
+        )
+    }
+
+    @Test("Event detail keeps the IANA editorial reference separate from local resolution")
+    func seasonalThemeEventTimeZoneMetadata() {
+        let definition = SeasonalThemeCatalog.definition(for: .halloween2026)
+        #expect(definition?.schedule?.policy == .deviceLocalCalendar)
+        #expect(definition?.schedule?.referenceTimeZoneIdentifier == "Europe/Madrid")
+        #expect(definition?.eventDetailArtworkAssetName == "SeasonalThemeEventArtwork")
+    }
+
+    @Test("Pro users can always select the standard theme")
+    func premiumUsersCanSelectStandardTheme() {
+        let madrid = timeZone("Europe/Madrid")
+        let clock = SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: madrid), timeZone: madrid)
+        #expect(SeasonalThemeResolver.canManuallyActivate(isPro: true, themeID: .base, at: clock))
+        #expect(!SeasonalThemeResolver.canManuallyActivate(isPro: false, themeID: .base, at: clock))
+    }
+
+    @Test("Seasonal schedules remain valid around daylight saving transitions")
+    func seasonalThemeDSTSchedule() {
+        let schedule = SeasonalThemeSchedule(
+            calendarIdentifier: "gregorian",
+            start: DateComponents(year: 2026, month: 3, day: 8, hour: 2, minute: 30),
+            end: DateComponents(year: 2026, month: 3, day: 9, hour: 2, minute: 30),
+            policy: .fixedTimeZone("America/New_York"),
+            referenceTimeZoneIdentifier: nil
+        )
+        let clock = SeasonalThemeClock(
+            now: date(2026, 3, 8, 12, 0, timeZone: timeZone("America/New_York")),
+            timeZone: timeZone("Europe/Madrid")
+        )
+
+        let bounds = schedule.bounds(using: clock)
+        #expect(bounds != nil)
+        if let bounds {
+            #expect(bounds.end > bounds.start)
+        }
+    }
+
+#if DEBUG
+#if targetEnvironment(simulator)
+    @Test("Free simulator preview can override and restore the effective theme")
+    func seasonalThemeSimulatorPreviewOverride() {
+        let suiteName = "shield.theme.preview-test-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
+        coordinator.refresh(isPro: false)
+        coordinator.setDebugPreviewTheme(.halloween2026)
+
+        #expect(coordinator.debugPreviewThemeID == .halloween2026)
+        #expect(coordinator.activeThemeID == .halloween2026)
+
+        coordinator.setDebugPreviewTheme(nil)
+
+        #expect(coordinator.debugPreviewThemeID == nil)
+        #expect(coordinator.activeThemeID == .base)
+    }
+#endif
+#endif
+
+    private func timeZone(_ identifier: String) -> TimeZone {
+        TimeZone(identifier: identifier)!
+    }
+
+    private func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int, timeZone: TimeZone) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return calendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
+    }
 }

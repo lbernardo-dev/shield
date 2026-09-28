@@ -119,7 +119,7 @@ struct LockScreenView: View {
             )
             .accessibilityElement(children: .combine)
         }
-        .frame(maxWidth: 560)
+        .frame(maxWidth: .infinity)
     }
 
     private func identityMark(size: CGFloat) -> some View {
@@ -212,7 +212,7 @@ struct LockScreenView: View {
                 .buttonStyle(ScaleButtonStyle())
             }
         }
-        .frame(maxWidth: 480)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -292,7 +292,9 @@ struct LockScreenView: View {
 
     private var lockBackground: some View {
         ZStack {
-            if scheme == .dark {
+            if ShieldTheme.activeThemeID == .halloween2026 {
+                SeasonalThemeBackdrop()
+            } else if scheme == .dark {
                 RadialGradient(
                     colors: [
                         Color(hex: "071E36"),

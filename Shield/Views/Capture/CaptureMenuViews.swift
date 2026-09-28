@@ -67,7 +67,7 @@ struct CaptureMenuView: View {
                 .padding(.bottom, max(24, bottomInset + 12))
             }
         }
-        .background(ShieldTheme.pageBackground(scheme))
+        .background(Color.clear)
         .sensoryFeedback(.selection, trigger: selectedScanType)
     }
 
@@ -88,7 +88,13 @@ struct CaptureMenuView: View {
                 .font(.headline)
                 .foregroundColor(ShieldTheme.primary(scheme))
 
-            HStack(spacing: 10) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10)
+                ],
+                spacing: 10
+            ) {
                 CaptureSourceButton(icon: "photo.on.rectangle.angled", title: LanguageManager.shared.capture("capture_from_photos"), accent: Color(hex: "7DD3FC"), action: onPhotos)
                 CaptureSourceButton(icon: "folder.badge.person.crop", title: LanguageManager.shared.capture("capture_from_files"), accent: Color(hex: "A78BFA"), action: onFiles)
                 CaptureSourceButton(icon: "icloud.and.arrow.down.fill", title: LanguageManager.shared.capture("capture_from_cloud"), accent: Color(hex: "34D399"), action: onCloud)
@@ -267,16 +273,20 @@ private struct CaptureTypeSectionCard: View {
                 .accessibilityIdentifier("capture.toggleGuide")
             }
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(ScanDocumentType.allCases) { type in
-                        PillButton(
-                            label: type.label(),
-                            icon: type.icon,
-                            isActive: selectedScanType == type
-                        ) {
-                            onSelectScanType(type)
-                        }
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 8),
+                    GridItem(.flexible(), spacing: 8)
+                ],
+                spacing: 8
+            ) {
+                ForEach(ScanDocumentType.allCases) { type in
+                    PillButton(
+                        label: type.label(),
+                        icon: type.icon,
+                        isActive: selectedScanType == type
+                    ) {
+                        onSelectScanType(type)
                     }
                 }
             }

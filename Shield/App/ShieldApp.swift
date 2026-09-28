@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct ShieldApp: App {
     @StateObject private var appState = AppState()
+    @StateObject private var seasonalThemes = SeasonalThemeCoordinator.shared
     @State private var languageManager = LanguageManager.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -18,6 +19,7 @@ struct ShieldApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
+                .environmentObject(seasonalThemes)
                 .environment(languageManager)
                 .preferredColorScheme(appState.preferredScheme)
                 .onChange(of: scenePhase) { _, newPhase in
@@ -28,6 +30,12 @@ struct ShieldApp: App {
                     if url.isFileURL {
                         appState.pendingSharedImportURL = url
                         appState.showCapture = true
+                    } else if url.scheme == "maskid", url.host == "theme" {
+                        if let rawID = url.pathComponents.dropFirst().first,
+                           let themeID = SeasonalThemeID(rawValue: rawID) {
+                            appState.pendingThemeDeepLink = themeID
+                            appState.activeTab = .settings
+                        }
                     } else if url.scheme == "shield" {
                         switch url.host {
                         case "capture":

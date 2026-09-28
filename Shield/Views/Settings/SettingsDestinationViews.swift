@@ -1,5 +1,4 @@
 import SwiftUI
-import AppEngagementKit
 import LocalAuthentication
 
 extension EnvironmentValues {
@@ -455,41 +454,47 @@ private struct SettingsDetailScaffold<Content: View>: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: ShieldTheme.s3) {
-                Button {
-                    dismiss()
-                } label: {
-                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
-                        .font(.body.weight(.semibold))
-                        .frame(minHeight: 44)
-                }
-                .accessibilityIdentifier("settings.back")
-                Spacer()
-                SettingsCloseButton(action: closeSettings)
-            }
-            .padding(.horizontal, ShieldTheme.s4)
-            .background(ShieldTheme.pageBackground(scheme))
+        ZStack {
+            SeasonalThemeBackdrop()
 
-            ScrollView(showsIndicators: false) {
-                LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
-                    Text(title)
-                        .font(.largeTitle.weight(.bold))
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(ShieldTheme.secondary(scheme))
-                            .fixedSize(horizontal: false, vertical: true)
+            VStack(spacing: 0) {
+                HStack(spacing: ShieldTheme.s3) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
+                            .font(.body.weight(.semibold))
+                            .frame(minHeight: 44)
                     }
-                    content
+                    .accessibilityIdentifier("settings.back")
+                    Spacer()
+                    SettingsCloseButton(action: closeSettings)
                 }
-                .frame(maxWidth: 760)
-                .padding(ShieldTheme.s4)
-                .padding(.bottom, 24)
+                .frame(maxWidth: ShieldTheme.readableWidth)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, ShieldTheme.s4)
+                .background(ShieldTheme.pageBackground(scheme))
+
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
+                        Text(title)
+                            .font(.largeTitle.weight(.bold))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        if let subtitle {
+                            Text(subtitle)
+                                .font(.subheadline)
+                                .foregroundStyle(ShieldTheme.secondary(scheme))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        content
+                    }
+                    .frame(maxWidth: ShieldTheme.readableWidth)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(ShieldTheme.s4)
+                    .padding(.bottom, 24)
+                }
             }
         }
-        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         .toolbarVisibility(.hidden, for: .navigationBar)
     }
@@ -556,10 +561,12 @@ struct SettingsFooter: View {
 
 struct AppPreferencesSettingsView: View {
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var coordinator: SeasonalThemeCoordinator
     @Environment(\.colorScheme) private var scheme
     @State private var selectedLanguage: AppLanguage = LanguageManager.shared.current
 
     private var strings: LanguageManager { .shared }
+    private var visualControlsLocked: Bool { coordinator.activeThemeID.isSeasonal }
 
     var body: some View {
         SettingsDetailScaffold(
@@ -567,6 +574,17 @@ struct AppPreferencesSettingsView: View {
             subtitle: strings.settings("settings_app_preferences_detail")
         ) {
             SettingsCardSection(title: strings.settings("settings_appearance"), icon: "paintbrush.fill") {
+                if visualControlsLocked {
+                    Label(
+                        strings.settings("settings_theme_visuals_locked"),
+                        systemImage: "lock.fill"
+                    )
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, ShieldTheme.s2)
+                }
+
                 SettingsControlRow(
                     icon: "moon.fill",
                     color: Color(hex: "5E5CE6"),
@@ -579,6 +597,7 @@ struct AppPreferencesSettingsView: View {
                     .labelsHidden()
                     .tint(ShieldTheme.accent(scheme))
                     .accessibilityLabel(strings.settings("settings_dark_mode"))
+                    .disabled(visualControlsLocked)
                 }
                 SettingsRowDivider()
                 SettingsControlRow(
@@ -600,6 +619,8 @@ struct AppPreferencesSettingsView: View {
                 icon: "app.badge.checkmark"
             ) {
                 AppIconPickerSection()
+                    .disabled(visualControlsLocked)
+                    .opacity(visualControlsLocked ? 0.60 : 1)
             }
         }
         .onAppear { selectedLanguage = appState.language }
@@ -607,6 +628,961 @@ struct AppPreferencesSettingsView: View {
             guard appState.language != newValue else { return }
             appState.language = newValue
         }
+    }
+}
+
+// MARK: - Seasonal themes
+
+struct SeasonalThemeGalleryView: View {
+    @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var coordinator: SeasonalThemeCoordinator
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @StateObject private var premium = PremiumManager.shared
+    @State private var previewTheme: SeasonalThemeID?
+    @State private var showPaywall = false
+#if DEBUG
+#if targetEnvironment(simulator)
+    @State private var debugPreviewSelection = "automatic"
+#endif
+#endif
+
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        SettingsDetailScaffold(
+            title: strings.settings("settings_themes_title"),
+            subtitle: strings.settings("settings_themes_detail")
+        ) {
+            SeasonalThemeStatusCard(
+                activeThemeID: coordinator.activeThemeID,
+                selection: coordinator.selection,
+                isPro: premium.isPro,
+                onAutomatic: selectAutomatic,
+                onBase: selectBase
+            )
+
+            if coordinator.activeThemeID == .halloween2026 {
+                SeasonalThemeSoundControl(
+                    isEnabled: coordinator.isSoundscapeEnabled,
+                    onChange: coordinator.setSoundscapeEnabled
+                )
+            }
+
+            SettingsCardSection(
+                title: strings.settings("settings_theme_gallery_section"),
+                icon: "square.grid.2x2.fill"
+            ) {
+                ForEach(Array(coordinator.definitions.enumerated()), id: \.element.id) { index, definition in
+                    let availability = coordinator.availability(for: definition.id)
+                    SeasonalThemeCard(
+                        definition: definition,
+                        availability: availability,
+                        isSelected: coordinator.activeThemeID == definition.id,
+                        isPro: premium.isPro,
+                        canActivate: coordinator.canManuallyActivate(definition.id),
+                        reduceMotion: reduceMotion,
+                        onPreview: { previewTheme = definition.id },
+                        onActivate: { activate(definition.id) }
+                    )
+                    if index < coordinator.definitions.count - 1 {
+                        SettingsRowDivider()
+                    }
+                }
+            }
+
+            if !premium.isPro {
+                ThemePremiumCallout(onUnlock: { showPaywall = true })
+            }
+
+#if DEBUG
+#if targetEnvironment(simulator)
+            debugThemePreviewSection
+#endif
+#endif
+        }
+        .onAppear {
+            coordinator.refresh(isPro: premium.isPro)
+#if DEBUG
+#if targetEnvironment(simulator)
+            debugPreviewSelection = coordinator.debugPreviewThemeID?.rawValue ?? "automatic"
+#endif
+#endif
+        }
+        .sheet(item: $previewTheme) { themeID in
+            SeasonalThemePreviewSheet(
+                themeID: themeID,
+                isPro: premium.isPro,
+                availability: coordinator.availability(for: themeID),
+                canActivate: coordinator.canManuallyActivate(themeID),
+                onActivate: { activate(themeID) },
+                onUnlock: { showPaywall = true }
+            )
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall, trigger: .styleLocked)
+                .environmentObject(appState)
+        }
+    }
+
+    private func selectAutomatic() {
+        appState.clearSeasonalIconOverride()
+        _ = coordinator.select(.automatic)
+        coordinator.refresh(isPro: premium.isPro)
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+    }
+
+    private func selectBase() {
+        appState.clearSeasonalIconOverride()
+        _ = coordinator.select(.base)
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+    }
+
+    private func activate(_ themeID: SeasonalThemeID) {
+        guard premium.isPro else {
+            if themeID != .base { showPaywall = true }
+            return
+        }
+        guard coordinator.canManuallyActivate(themeID) else {
+            return
+        }
+        appState.clearSeasonalIconOverride()
+        _ = coordinator.select(themeID == .base ? .base : .manual(themeID))
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+        previewTheme = nil
+    }
+
+#if DEBUG
+#if targetEnvironment(simulator)
+    private var debugThemePreviewSection: some View {
+        SettingsCardSection(
+            title: strings.settings("settings_theme_debug_section"),
+            icon: "ladybug.fill"
+        ) {
+            SettingsControlRow(
+                icon: "wand.and.stars",
+                color: Color(hex: "FF9F0A"),
+                title: strings.settings("settings_theme_debug_selector"),
+                subtitle: strings.settings("settings_theme_debug_detail")
+            ) {
+                Picker(
+                    strings.settings("settings_theme_debug_selector"),
+                    selection: $debugPreviewSelection
+                ) {
+                    Text(strings.settings("settings_theme_debug_automatic"))
+                        .tag("automatic")
+                    ForEach(coordinator.definitions) { definition in
+                        Text(definition.id.title(language: strings.currentLanguage))
+                            .tag(definition.id.rawValue)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(ShieldTheme.accent(scheme))
+                .accessibilityIdentifier("settings.theme.debugPicker")
+                .onChange(of: debugPreviewSelection) { _, newValue in
+                    applyDebugPreviewSelection(newValue)
+                }
+            }
+
+            SettingsRowDivider()
+
+            Button {
+                debugPreviewSelection = "automatic"
+                applyDebugPreviewSelection("automatic")
+            } label: {
+                HStack(spacing: ShieldTheme.s2) {
+                    Image(systemName: "arrow.uturn.backward.circle")
+                    Text(strings.settings("settings_theme_debug_reset"))
+                    Spacer(minLength: 0)
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .padding(.horizontal, ShieldTheme.s4)
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("settings.theme.debugReset")
+        }
+    }
+
+    private func applyDebugPreviewSelection(_ rawValue: String) {
+        let themeID = rawValue == "automatic" ? nil : SeasonalThemeID(rawValue: rawValue)
+        // This simulator-only path intentionally bypasses the production
+        // Premium gate so Free accounts can inspect the complete theme.
+        coordinator.setDebugPreviewTheme(themeID)
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+    }
+#endif
+#endif
+}
+
+private struct SeasonalThemeSoundControl: View {
+    let isEnabled: Bool
+    let onChange: (Bool) -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        HStack(spacing: ShieldTheme.s3) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(ShieldTheme.halloweenBlood.opacity(0.16))
+                Image(systemName: isEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(ShieldTheme.halloweenBloodHighlight)
+            }
+            .frame(width: 46, height: 46)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(strings.settings("settings_theme_soundscape_title"))
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                Text(strings.settings("settings_theme_soundscape_detail"))
+                    .font(.subheadline)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: ShieldTheme.s2)
+
+            Toggle(
+                strings.settings("settings_theme_soundscape_title"),
+                isOn: Binding(
+                    get: { isEnabled },
+                    set: onChange
+                )
+            )
+            .labelsHidden()
+            .tint(ShieldTheme.accent(scheme))
+            .accessibilityLabel(strings.settings("settings_theme_soundscape_title"))
+            .accessibilityHint(strings.settings("settings_theme_soundscape_detail"))
+        }
+        .padding(ShieldTheme.s4)
+        .shieldSettingsCard()
+    }
+}
+
+private struct SeasonalThemeStatusCard: View {
+    let activeThemeID: SeasonalThemeID
+    let selection: SeasonalThemeSelection
+    let isPro: Bool
+    let onAutomatic: () -> Void
+    let onBase: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s4) {
+            HStack(spacing: ShieldTheme.s3) {
+                ZStack {
+                    Circle()
+                        .fill(ShieldTheme.accent(scheme).opacity(0.18))
+                    Image(systemName: activeThemeID == .halloween2026 ? "moon.stars.fill" : "wand.and.stars")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(ShieldTheme.accent(scheme))
+                }
+                .frame(width: 48, height: 48)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(strings.settings("settings_theme_current"))
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                    Text(activeThemeID.title(language: strings.currentLanguage))
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                }
+                Spacer()
+                Text(isPro ? strings.settings("settings_plan_pro") : strings.settings("settings_plan_free"))
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.success)
+                    .padding(.horizontal, ShieldTheme.s3)
+                    .padding(.vertical, ShieldTheme.s2)
+                    .background(ShieldTheme.rowBackground(scheme), in: Capsule())
+            }
+
+            Text(strings.settings("settings_theme_timezone_note"))
+                .font(.subheadline)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: ShieldTheme.s2) {
+                Button(action: onAutomatic) {
+                    Label(
+                        strings.settings("settings_theme_automatic"),
+                        systemImage: isAutomatic ? "checkmark.circle.fill" : "calendar"
+                    )
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .foregroundStyle(isAutomatic ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                    .background(
+                        isAutomatic ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
+                        in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+
+                if isPro {
+                    Button(action: onBase) {
+                        Label(
+                            strings.settings("settings_theme_base_short"),
+                            systemImage: isBase ? "checkmark.circle.fill" : "circle"
+                        )
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(isBase ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                        .background(
+                            isBase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
+                            in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                        )
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+            }
+        }
+        .padding(ShieldTheme.s4)
+        .shieldSettingsCard()
+        .accessibilityElement(children: .contain)
+    }
+
+    private var isAutomatic: Bool {
+        if case .automatic = selection { return true }
+        return false
+    }
+
+    private var isBase: Bool {
+        if case .base = selection { return true }
+        return false
+    }
+}
+
+private struct SeasonalThemeCard: View {
+    let definition: SeasonalThemeDefinition
+    let availability: SeasonalThemeAvailability
+    let isSelected: Bool
+    let isPro: Bool
+    let canActivate: Bool
+    let reduceMotion: Bool
+    let onPreview: () -> Void
+    let onActivate: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Button(action: onPreview) {
+                HStack(spacing: ShieldTheme.s4) {
+                    SeasonalThemeMiniPreview(themeID: definition.id, reduceMotion: reduceMotion)
+                        .frame(width: 76, height: 76)
+                        .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: ShieldTheme.s2) {
+                            Text(definition.id.title(language: strings.currentLanguage))
+                                .font(.headline.weight(.bold))
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                            if definition.requiresProForManualActivation {
+                                Text("PRO")
+                                    .font(.caption2.weight(.heavy))
+                                    .foregroundStyle(ShieldTheme.accentText)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
+                                    .background(ShieldTheme.accent(scheme), in: Capsule())
+                            }
+                        }
+                        Text(definition.id.subtitle(language: strings.currentLanguage))
+                            .font(.subheadline)
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(statusTitle)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(statusColor)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.forward")
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .accessibilityHidden(true)
+                }
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("settings.theme.preview.\(definition.id.rawValue)")
+
+            Button(action: onActivate) {
+                HStack(spacing: ShieldTheme.s2) {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    Text(isSelected ? strings.settings("settings_theme_active") : actionTitle)
+                    Spacer()
+                    if !isPro && definition.requiresProForManualActivation {
+                        Image(systemName: "lock.fill")
+                    }
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(isSelected ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .padding(.horizontal, ShieldTheme.s3)
+                .background(
+                    isSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
+                    in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                )
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(!canActivate)
+            .opacity(canActivate ? 1 : 0.72)
+            .accessibilityIdentifier("settings.theme.activate.\(definition.id.rawValue)")
+            .accessibilityHint(canActivate ? "" : strings.settings("settings_theme_event_upcoming_message"))
+        }
+        .padding(ShieldTheme.s4)
+    }
+
+    private var statusTitle: String {
+        switch availability {
+        case .base: return strings.settings("settings_theme_status_base")
+        case .upcoming: return strings.settings("settings_theme_status_upcoming")
+        case .active: return strings.settings("settings_theme_status_active")
+        case .archived: return strings.settings("settings_theme_status_archived")
+        }
+    }
+
+    private var statusColor: Color {
+        switch availability {
+        case .active: return ShieldTheme.success
+        case .upcoming: return ShieldTheme.warning
+        case .archived: return ShieldTheme.tertiary(scheme)
+        case .base: return ShieldTheme.accent(scheme)
+        }
+    }
+
+    private var actionTitle: String {
+        if definition.id == .base {
+            return isPro
+                ? strings.settings("settings_theme_use_base")
+                : strings.settings("settings_theme_automatic")
+        }
+        if availability == .upcoming { return strings.settings("settings_theme_scheduled") }
+        return isPro ? strings.settings("settings_theme_activate") : strings.settings("settings_theme_unlock")
+    }
+}
+
+private struct SeasonalThemeMiniPreview: View {
+    let themeID: SeasonalThemeID
+    let reduceMotion: Bool
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: themeID == .halloween2026
+                    ? [Color(hex: "22102A"), Color(hex: "7C2D12")]
+                    : [Color(hex: "071426"), Color(hex: "20C7D9")],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Image(systemName: themeID == .halloween2026 ? "moon.stars.fill" : "shield.fill")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(themeID == .halloween2026 ? Color(hex: "FF9A3D") : .white)
+                .scaleEffect(reduceMotion ? 1 : 1.05)
+
+            if themeID == .halloween2026 {
+                Image(systemName: "network")
+                    .font(.system(size: 30, weight: .ultraLight))
+                    .foregroundStyle(Color(hex: "FFD6B0").opacity(0.22))
+                    .offset(x: 22, y: -20)
+                Image(systemName: "sparkles")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color(hex: "A3E635").opacity(0.78))
+                    .offset(x: -26, y: 22)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+private struct ThemePremiumCallout: View {
+    let onUnlock: () -> Void
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Label(strings.settings("settings_theme_pro_callout_title"), systemImage: "sparkles")
+                .font(.headline.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+            Text(strings.settings("settings_theme_pro_callout_subtitle"))
+                .font(.subheadline)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+            Button(action: onUnlock) {
+                Text(strings.settings("settings_view_options"))
+                    .font(.headline.weight(.bold))
+                    .frame(maxWidth: .infinity, minHeight: 46)
+                    .foregroundStyle(ShieldTheme.accentText)
+                    .background(ShieldTheme.accent(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+            }
+            .buttonStyle(ScaleButtonStyle())
+        }
+        .padding(ShieldTheme.s4)
+        .shieldSettingsCard()
+    }
+}
+
+private struct SeasonalThemePreviewSheet: View {
+    let themeID: SeasonalThemeID
+    let isPro: Bool
+    let availability: SeasonalThemeAvailability
+    let canActivate: Bool
+    let onActivate: () -> Void
+    let onUnlock: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: ShieldTheme.s5) {
+                        SeasonalThemePreviewBanner(themeID: themeID, reduceMotion: reduceMotion)
+                            .frame(height: 220)
+                            .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rXL, style: .continuous))
+                            .overlay(alignment: .bottomLeading) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(themeID.title(language: strings.currentLanguage))
+                                        .font(.largeTitle.weight(.heavy))
+                                    Text(themeID.subtitle(language: strings.currentLanguage))
+                                        .font(.subheadline.weight(.semibold))
+                                }
+                                .foregroundStyle(.white)
+                                .padding(ShieldTheme.s5)
+                            }
+
+                        if let assetName = SeasonalThemeCatalog.definition(for: themeID)?.eventDetailArtworkAssetName {
+                            SeasonalThemePreviewArtwork(
+                                assetName: assetName,
+                                accessibilityLabel: strings.settings("settings_theme_event_artwork")
+                            )
+                        }
+
+                        SeasonalThemePreviewOverview(themeID: themeID)
+
+                        SeasonalThemePreviewVisuals(themeID: themeID, reduceMotion: reduceMotion)
+
+                        if let definition = SeasonalThemeCatalog.definition(for: themeID),
+                           let eventNameKey = definition.eventNameKey,
+                           let eventDescriptionKey = definition.eventDescriptionKey,
+                           let schedule = definition.schedule {
+                            SeasonalThemeEventDetails(
+                                name: strings.settings(eventNameKey),
+                                description: strings.settings(eventDescriptionKey),
+                                schedule: schedule,
+                                language: strings.currentLanguage
+                            )
+                        }
+
+                        if availability == .upcoming {
+                            Label(
+                                strings.settings("settings_theme_event_upcoming_message"),
+                                systemImage: "clock.badge"
+                            )
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(ShieldTheme.warning)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        } else if themeID.isSeasonal && !isPro {
+                            Label(
+                                strings.settings("settings_theme_event_automatic_message"),
+                                systemImage: "calendar.badge.clock"
+                            )
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Button {
+                            if availability == .upcoming || (themeID == .base && !isPro) {
+                                return
+                            }
+                            if isPro || themeID == .base { onActivate() } else { onUnlock() }
+                        } label: {
+                            Text(availability == .upcoming
+                                 ? strings.settings("settings_theme_scheduled")
+                                 : (themeID == .base && !isPro
+                                    ? strings.settings("settings_theme_automatic")
+                                    : (isPro || themeID == .base
+                                       ? strings.settings("settings_theme_activate")
+                                       : strings.settings("settings_theme_unlock"))))
+                                .font(.headline.weight(.bold))
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .foregroundStyle(
+                                    availability == .upcoming || (themeID == .base && !isPro)
+                                        ? ShieldTheme.secondary(scheme)
+                                        : ShieldTheme.accentText
+                                )
+                                .background(
+                                    availability == .upcoming || (themeID == .base && !isPro)
+                                        ? ShieldTheme.rowBackground(scheme)
+                                        : ShieldTheme.accent(scheme),
+                                    in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                                )
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .disabled(availability == .upcoming || (themeID == .base && !isPro))
+                        .accessibilityHint(
+                            availability == .upcoming
+                                ? strings.settings("settings_theme_event_upcoming_message")
+                                : (themeID == .base && !isPro
+                                   ? strings.settings("settings_theme_automatic")
+                                   : "")
+                        )
+                    }
+                    .padding(ShieldTheme.s4)
+                }
+            }
+            .navigationTitle(strings.settings("settings_theme_preview"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(strings.common("common_close"), action: dismiss.callAsFunction)
+                }
+            }
+        }
+    }
+}
+
+private struct SeasonalThemePreviewArtwork: View {
+    let assetName: String
+    let accessibilityLabel: String
+
+    var body: some View {
+        Image(assetName)
+            .resizable()
+            .scaledToFill()
+            .aspectRatio(9.0 / 16.0, contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rXL, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: ShieldTheme.rXL, style: .continuous)
+                    .stroke(Color.white.opacity(0.14), lineWidth: 0.8)
+            }
+            .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+private struct SeasonalThemePreviewBanner: View {
+    let themeID: SeasonalThemeID
+    let reduceMotion: Bool
+
+    var body: some View {
+        Group {
+            if let assetName = SeasonalThemeCatalog.definition(for: themeID)?.eventBannerAssetName {
+                Image(assetName)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                SeasonalThemeMiniPreview(themeID: themeID, reduceMotion: reduceMotion)
+            }
+        }
+        .overlay {
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.68)],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+        }
+        .accessibilityLabel(
+            themeID == .halloween2026
+                ? LanguageManager.shared.settings("settings_theme_halloween_banner_accessibility")
+                : LanguageManager.shared.settings("settings_theme_base")
+        )
+    }
+}
+
+private struct SeasonalThemePreviewOverview: View {
+    let themeID: SeasonalThemeID
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Text(strings.settings("settings_theme_information"))
+                .font(.headline.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+
+            Text(themeID == .halloween2026
+                 ? strings.settings("settings_theme_halloween_preview_detail")
+                 : strings.settings("settings_theme_base_subtitle"))
+                .font(.body)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct SeasonalThemePreviewVisuals: View {
+    let themeID: SeasonalThemeID
+    let reduceMotion: Bool
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Text(strings.settings("settings_theme_visual_preview"))
+                .font(.headline.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+
+            HStack(alignment: .top, spacing: ShieldTheme.s4) {
+                VStack(spacing: ShieldTheme.s2) {
+                    Group {
+                        if let icon = themeID.icon {
+                            icon.image
+                                .resizable()
+                                .scaledToFit()
+                        } else {
+                            AppIconOption.defaultIcon.image
+                                .resizable()
+                                .scaledToFit()
+                                .padding(12)
+                        }
+                    }
+                    .frame(width: 78, height: 78)
+                    .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
+                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                    }
+
+                    Text(strings.settings("settings_theme_icon_preview"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .multilineTextAlignment(.center)
+                }
+                .frame(width: 82)
+
+                SeasonalThemeHomeSnapshot(themeID: themeID, reduceMotion: reduceMotion)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct SeasonalThemeHomeSnapshot: View {
+    let themeID: SeasonalThemeID
+    let reduceMotion: Bool
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    private var isHalloween: Bool { themeID == .halloween2026 }
+    private var snapshotBackground: Color {
+        isHalloween ? Color(hex: "100A14") : ShieldTheme.background(scheme)
+    }
+    private var snapshotCard: Color {
+        isHalloween ? Color(hex: "26142E") : ShieldTheme.cardBackground(scheme)
+    }
+    private var snapshotAccent: Color {
+        isHalloween ? Color(hex: "F97316") : ShieldTheme.accent(scheme)
+    }
+    private var snapshotAccentText: Color {
+        isHalloween ? Color(hex: "1B0E05") : ShieldTheme.accentText
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 7) {
+                if let icon = themeID.icon {
+                    icon.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 26, height: 26)
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                } else {
+                    AppIconOption.defaultIcon.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 26, height: 26)
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                }
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("MaskID")
+                        .font(.caption.weight(.bold))
+                    Text(strings.settings("settings_theme_home_preview_subtitle"))
+                        .font(.caption2)
+                        .opacity(0.62)
+                }
+                .foregroundStyle(isHalloween ? Color(hex: "FFF7F0") : ShieldTheme.primary(scheme))
+
+                Spacer(minLength: 0)
+                Image(systemName: "slider.horizontal.3")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(isHalloween ? Color(hex: "FFD6B0") : ShieldTheme.secondary(scheme))
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(strings.settings("settings_theme_home_preview_title"))
+                            .font(.subheadline.weight(.heavy))
+                        Text(strings.settings("settings_theme_home_preview_detail"))
+                            .font(.caption2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .opacity(0.72)
+                    }
+                    .foregroundStyle(isHalloween ? Color(hex: "FFF7F0") : ShieldTheme.primary(scheme))
+
+                    Spacer(minLength: 0)
+                    Image(systemName: isHalloween ? "moon.stars.fill" : "lock.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(snapshotAccent)
+                }
+
+                HStack(spacing: 6) {
+                    Image(systemName: "viewfinder")
+                    Text(strings.settings("settings_theme_home_preview_action"))
+                }
+                .font(.caption.weight(.bold))
+                .frame(maxWidth: .infinity, minHeight: 30)
+                .foregroundStyle(snapshotAccentText)
+                .background(snapshotAccent, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+            }
+            .padding(10)
+            .background(snapshotCard, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            HStack(spacing: 5) {
+                ForEach([
+                    "settings_theme_home_preview_chip_one",
+                    "settings_theme_home_preview_chip_two",
+                    "settings_theme_home_preview_chip_three"
+                ], id: \.self) { key in
+                    Text(strings.settings(key))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(isHalloween ? Color(hex: "FFD6B0") : ShieldTheme.secondary(scheme))
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 5)
+                        .background(snapshotCard.opacity(0.78), in: Capsule())
+                }
+            }
+            .lineLimit(1)
+        }
+        .padding(10)
+        .background(snapshotBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(isHalloween ? Color(hex: "FFD6B0").opacity(0.16) : ShieldTheme.line(scheme), lineWidth: 0.8)
+        }
+        .scaleEffect(reduceMotion ? 1 : 1.002)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(strings.settings("settings_theme_home_preview_accessibility"))
+    }
+}
+
+private struct SeasonalThemeEventDetails: View {
+    let name: String
+    let description: String
+    let schedule: SeasonalThemeSchedule
+    let language: AppLanguage
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s4) {
+            Text(strings.settings("settings_theme_event_section"))
+                .font(.headline.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+
+            VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+                Text(name)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: ShieldTheme.s3) {
+                    ThemeEventDateCard(
+                        label: strings.settings("settings_theme_event_start"),
+                        date: eventDate(isStart: true)
+                    )
+                    ThemeEventDateCard(
+                        label: strings.settings("settings_theme_event_end"),
+                        date: eventDate(isStart: false)
+                    )
+                }
+
+                if let referenceTimeZoneIdentifier = schedule.referenceTimeZoneIdentifier {
+                    Label {
+                        Text(strings.settings("settings_theme_event_timezone"))
+                        Text(referenceTimeZoneIdentifier)
+                            .fontWeight(.semibold)
+                    } icon: {
+                        Image(systemName: "globe")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.tertiary(scheme))
+                }
+
+                Label(
+                    strings.settings("settings_theme_event_device_time"),
+                    systemImage: "clock"
+                )
+                .font(.caption)
+                .foregroundStyle(ShieldTheme.tertiary(scheme))
+            }
+            .padding(ShieldTheme.s4)
+            .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
+                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func eventDate(isStart: Bool) -> String {
+        let clock = SeasonalThemeClock(timeZone: .autoupdatingCurrent)
+        guard let bounds = schedule.bounds(using: clock) else { return "—" }
+        let date = isStart ? bounds.start : bounds.end.addingTimeInterval(-1)
+        let locale = Locale(identifier: language.rawValue)
+        return date.formatted(
+                .dateTime.day().month(.wide).year().hour().minute()
+                .locale(locale)
+        )
+    }
+}
+
+private struct ThemeEventDateCard: View {
+    let label: String
+    let date: String
+
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(ShieldTheme.tertiary(scheme))
+            Text(date)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(ShieldTheme.s3)
+        .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM, style: .continuous))
     }
 }
 

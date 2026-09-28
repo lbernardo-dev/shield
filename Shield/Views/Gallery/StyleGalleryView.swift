@@ -18,7 +18,7 @@ struct StyleGalleryView: View {
 
     var body: some View {
         ZStack {
-            ShieldTheme.pageBackground(scheme).ignoresSafeArea()
+            SeasonalThemeBackdrop()
 
             VStack(spacing: 0) {
                 header
