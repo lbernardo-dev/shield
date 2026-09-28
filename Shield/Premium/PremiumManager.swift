@@ -1,6 +1,7 @@
 import SwiftUI
 import OSLog
 import RevenueCat
+import Security
 
 // MARK: - Product IDs  (match exactly what you register in App Store Connect)
 
@@ -147,9 +148,11 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     private override init() {
         Self.configureRevenueCat()
         super.init()
-        // Restore from cache immediately
+        // Restore from cache and secure storage immediately
         isPro = UserDefaults.standard.bool(forKey: "shield.isPro")
-        freeDocumentsProcessedCount = UserDefaults.standard.integer(forKey: Self.processedDocumentsKey)
+        let localDocCount = UserDefaults.standard.integer(forKey: Self.processedDocumentsKey)
+        freeDocumentsProcessedCount = SecureQuotaStore.loadHighestCount(localCount: localDocCount)
+        UserDefaults.standard.set(freeDocumentsProcessedCount, forKey: Self.processedDocumentsKey)
         entitlementTier = EntitlementTier(
             rawValue: UserDefaults.standard.string(forKey: Self.analyticsTierKey) ?? "free"
         ) ?? (isPro ? .premium : .free)
@@ -162,6 +165,21 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         if override { isPro = true }
         #endif
         Purchases.shared.delegate = self
+        NotificationCenter.default.addObserver(
+            forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: NSUbiquitousKeyValueStore.default,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let current = self.freeDocumentsProcessedCount
+                let updated = SecureQuotaStore.loadHighestCount(localCount: current)
+                if updated > current {
+                    self.freeDocumentsProcessedCount = updated
+                    UserDefaults.standard.set(updated, forKey: Self.processedDocumentsKey)
+                }
+            }
+        }
         Task {
             await updateProStatus()
             await loadProducts()
@@ -393,15 +411,19 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     private static let exportHistoryKey = "shield.free.exportHistoryTimestamps"
 
     func syncProcessedDocumentCountIfNeeded(existingCount: Int) {
-        if existingCount > freeDocumentsProcessedCount {
-            freeDocumentsProcessedCount = existingCount
-            UserDefaults.standard.set(existingCount, forKey: Self.processedDocumentsKey)
+        let highest = max(freeDocumentsProcessedCount, existingCount)
+        let resolved = SecureQuotaStore.loadHighestCount(localCount: highest)
+        if resolved > freeDocumentsProcessedCount {
+            freeDocumentsProcessedCount = resolved
+            UserDefaults.standard.set(resolved, forKey: Self.processedDocumentsKey)
+            SecureQuotaStore.persistCount(resolved)
         }
     }
 
     func recordDocumentProcessed() {
         freeDocumentsProcessedCount += 1
         UserDefaults.standard.set(freeDocumentsProcessedCount, forKey: Self.processedDocumentsKey)
+        SecureQuotaStore.persistCount(freeDocumentsProcessedCount)
         if [1, 3, 5, 8, Self.freeDocumentLimit].contains(freeDocumentsProcessedCount) {
             AppState.trackEvent("quota_milestone", properties: [
                 "quota": String(freeDocumentsProcessedCount)
@@ -423,6 +445,11 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     func resetFreeProcessedCountForTesting(to value: Int = 0) {
         freeDocumentsProcessedCount = value
         UserDefaults.standard.set(value, forKey: Self.processedDocumentsKey)
+        if value == 0 {
+            SecureQuotaStore.resetForTesting()
+        } else {
+            SecureQuotaStore.persistCount(value)
+        }
     }
     #endif
 
@@ -485,4 +512,95 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         let percentage = Int((ratio * 100).rounded())
         return percentage > 0 ? percentage : nil
     }
+}
+
+// MARK: - Secure Quota Persistence (Keychain + iCloud KVS)
+
+enum SecureQuotaStore {
+    private static let service = "com.romerodev.shield.quota"
+    private static let account = "shield.free.processedDocumentsCount"
+    private static let iCloudKey = "shield.free.processedDocumentsCount"
+
+    /// Reads the maximum recorded processed count across Keychain, iCloud KVS, and local storage.
+    static func loadHighestCount(localCount: Int) -> Int {
+        let keychainCount = readKeychainCount()
+        let iCloudCount = readICloudCount()
+        let resolvedMax = max(localCount, keychainCount, iCloudCount)
+
+        if resolvedMax > 0 {
+            persistCount(resolvedMax)
+        }
+        return resolvedMax
+    }
+
+    static func persistCount(_ count: Int) {
+        guard count > 0 else { return }
+        writeKeychainCount(count)
+        writeICloudCount(count)
+    }
+
+    private static func readKeychainCount() -> Int {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let string = String(data: data, encoding: .utf8),
+              let count = Int(string) else {
+            return 0
+        }
+        return count
+    }
+
+    private static func writeKeychainCount(_ count: Int) {
+        let countString = String(count)
+        guard let data = countString.data(using: .utf8) else { return }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+
+        let attributesToUpdate: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+
+        let status = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
+        if status == errSecItemNotFound {
+            var newItem = query
+            newItem[kSecValueData as String] = data
+            newItem[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+            SecItemAdd(newItem as CFDictionary, nil)
+        }
+    }
+
+    private static func readICloudCount() -> Int {
+        Int(NSUbiquitousKeyValueStore.default.longLong(forKey: iCloudKey))
+    }
+
+    private static func writeICloudCount(_ count: Int) {
+        NSUbiquitousKeyValueStore.default.set(Int64(count), forKey: iCloudKey)
+        NSUbiquitousKeyValueStore.default.synchronize()
+    }
+
+    #if DEBUG
+    static func resetForTesting() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(query as CFDictionary)
+        NSUbiquitousKeyValueStore.default.removeObject(forKey: iCloudKey)
+        NSUbiquitousKeyValueStore.default.synchronize()
+    }
+    #endif
 }

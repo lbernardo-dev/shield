@@ -2081,10 +2081,12 @@
    Id: 195-halloween-immersive-theme
    Scope: Rediseño visual completo del tema Halloween: ambientación global, decoraciones de máscara/calabaza/candelabros/sangre/insectos, microinteracciones y sonidos opcionales
    Files: Shield/Theme/ShieldTheme.swift,Shield/App/ContentView.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield.xcodeproj/project.pbxproj,ShieldTests/EnhancementFeaturesTests.swift,tasks/TASKS.md,tasks/details
-   Note: Starting implementation of immersive Halloween theme
+   Note: Completado rediseño inmersivo de Halloween, contrastes, botón de escaneo unificado, banner en tarjeta de tema, control de sonido en detalles, persistencia de cupo free vía Keychain/iCloud y reglas de activación free/pro para temas archivados. Tests unitarios pasados.
    Detail: tasks/details/195-halloween-immersive-theme.md
    Claimed by: CODEX
    Claimed at: 2026-09-27T20:24:19Z
+   Done by: CODEX
+   Done at: 2026-09-28T09:55:04Z
 
 196. scan-button-tab-bar-prominence
    Id: 196-scan-button-tab-bar-prominence
@@ -2107,4 +2109,15 @@
    Claimed at: 2026-09-28T06:52:01Z
    Done by: CODEX
    Done at: 2026-09-28T07:07:42Z
+
+198. release-1-1-1-build-1112026092801
+   Id: 198-release-1-1-1-build-1112026092801
+   Scope: App Store Connect v1.1.1: version creation, What's New localization, build 1112026092801 archive, upload and version linkage
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Localization/Strings/SettingsInfo.xcstrings
+   Note: Version 1.1.1 and Build 1112026092801 archived, exported, uploaded to App Store Connect as VALID, attached to version 1.1.1, and What's New localized in en-US and es-ES
+   Detail: tasks/details/198-release-1-1-1-build-1112026092801.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-28T10:00:44Z
+   Done by: CODEX
+   Done at: 2026-09-28T10:11:37Z
 

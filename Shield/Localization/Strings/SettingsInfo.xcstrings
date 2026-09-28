@@ -3232,103 +3232,103 @@
       }
     },
     "settings_whats_new_item_1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adaptive support for iPhone Duo and foldable displays with seamless layout transitions."
+            "value" : "Halloween Night & Seasonal Themes: New immersive catalog with custom ambient soundscapes, thematic art, and exclusive icons."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Soporte adaptativo para iPhone Duo y pantallas plegables con transiciones fluidas de diseño."
+            "value" : "Noche de Halloween y Temas Estacionales: Nuevo catálogo inmersivo con paisajes sonoros ambientales personalizables, arte temático e iconos exclusivos."
           }
         }
       }
     },
     "settings_whats_new_item_2" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elevated, quick scan action button seamlessly integrated into the central bottom bar."
+            "value" : "Integrated Theme Sound Controls: Convenient audio toggles directly inside theme details with persistent user preferences."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Botón central de escaneo rápido elevado e integrado en la barra de navegación inferior."
+            "value" : "Control de Sonido en Temas: Ajustes de audio ambiental integrados directamente en los detalles de cada tema con persistencia de preferencias."
           }
         }
       }
     },
     "settings_whats_new_item_3" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compact, space-optimized footers ensuring all options and plans remain visible above the fold."
+            "value" : "Seasonal Event Activation: Automated theme activation during seasonal events with permanent unlock for Pro subscribers."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Footers optimizados y compactos que mantienen todas las opciones y planes visibles sobre el pliegue."
+            "value" : "Activación por Eventos Estacionales: Activación automática durante eventos especiales y desbloqueo permanente para suscriptores Pro."
           }
         }
       }
     },
     "settings_whats_new_item_4" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Refined horizontal scroll containers respecting precise page padding and margin alignment."
+            "value" : "Reinforced Quota Persistence: Hardened Keychain and iCloud sync protecting your usage balance across reinstalls."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contenedores de desplazamiento horizontal refinados que respetan el margen y la alineación de la página."
+            "value" : "Persistencia de Cupo Reforzada: Almacenamiento seguro en Llavero e iCloud para proteger tu saldo de uso ante reinstalaciones."
           }
         }
       }
     },
     "settings_whats_new_item_5" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Permanent on-device pixel destruction and automated EXIF metadata stripping upon export."
+            "value" : "Enhanced Contrast & Readability: Fine-tuned adaptive color tokens and typography for maximum visual clarity across all themes."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Destrucción irreversible de píxeles en el dispositivo y eliminación de metadatos EXIF al exportar."
+            "value" : "Contraste y Legibilidad Perfeccionados: Ajuste adaptativo de colores y tipografías para máxima claridad visual en todos los temas."
           }
         }
       }
     },
     "settings_whats_new_item_6" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ultra-secure Vault with biometric Face ID and personal PIN encryption on your device."
+            "value" : "Performance & Stability: Optimized OCR document processing and refined fluid animations throughout the app."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bóveda ultra-segura con autenticación biométrica Face ID y cifrado PIN en tu dispositivo."
+            "value" : "Rendimiento y Estabilidad: Procesamiento OCR optimizado y animaciones más fluidas en toda la aplicación."
           }
         }
       }

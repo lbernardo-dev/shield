@@ -40,7 +40,7 @@ Las etiquetas usadas son:
 
 ### Targets y producto
 
-- `Shield`: app iOS, bundle `com.romerodev.shield`, producto `MaskID`, versión 1.1.0, build 1102026092201.
+- `Shield`: app iOS, bundle `com.romerodev.shield`, producto `MaskID`, versión 1.1.1, build 1112026092801.
 - `ShieldShareExtension`: extensión de compartir.
 - `ShieldWidgetExtension`: WidgetKit y App Intents de widget.
 - `ShieldTests`: pruebas unitarias/integración.

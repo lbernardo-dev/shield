@@ -328,7 +328,11 @@ final class SeasonalThemeCoordinator: ObservableObject {
         } else {
             selection = .automatic
         }
-        isSoundscapeEnabled = userDefaults.bool(forKey: soundscapeEnabledKey)
+        if userDefaults.object(forKey: soundscapeEnabledKey) == nil {
+            isSoundscapeEnabled = true
+        } else {
+            isSoundscapeEnabled = userDefaults.bool(forKey: soundscapeEnabledKey)
+        }
 #if DEBUG
 #if targetEnvironment(simulator)
         if let rawValue = userDefaults.string(forKey: debugPreviewThemeKey) {
@@ -458,14 +462,10 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     @discardableResult
     func select(_ next: SeasonalThemeSelection) -> Bool {
-        if case .base = next, !isPro {
-            return false
-        }
-        if case .manual(let id) = next,
-           let definition = SeasonalThemeCatalog.definition(for: id),
-           definition.requiresProForManualActivation,
-           !isPro {
-            SeasonalThemeCoordinator.recordLockedThemeTap(id)
+        guard isPro else {
+            if case .manual(let id) = next {
+                SeasonalThemeCoordinator.recordLockedThemeTap(id)
+            }
             return false
         }
         if case .manual(let id) = next, !canManuallyActivate(id) {

@@ -348,16 +348,18 @@ final class AppState: ObservableObject {
         }
 
         #if os(iOS)
+        #if !targetEnvironment(simulator)
         let isTesting = NSClassFromString("XCTest") != nil || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         if UIApplication.shared.supportsAlternateIcons && !isTesting {
-            do {
-                try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
-            } catch {
-                #if !targetEnvironment(simulator)
-                throw AppIconError.changeFailed(error.localizedDescription)
-                #endif
+            if UIApplication.shared.alternateIconName != icon.alternateIconName {
+                do {
+                    try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
+                } catch {
+                    throw AppIconError.changeFailed(error.localizedDescription)
+                }
             }
         }
+        #endif
         #endif
 
         if !allowSeasonalAutomatic {

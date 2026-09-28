@@ -307,7 +307,6 @@ struct SettingsView: View {
 
     private func consumeThemeDeepLink() {
         guard appState.pendingThemeDeepLink != nil else { return }
-        appState.pendingThemeDeepLink = nil
         navigationPath.append(SettingsRoute.themes)
     }
 }
