@@ -20,6 +20,14 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
     }
 
     var icon: String {
+        if ShieldTheme.activeThemeID == .halloween2026 {
+            switch self {
+            case .library:  return "scroll"
+            case .gallery:  return "wand.and.stars"
+            case .vault:    return "lock.shield"
+            case .settings: return "slider.horizontal.3"
+            }
+        }
         switch self {
         case .library:  return "doc.on.doc"
         case .gallery:  return "square.grid.2x2"
@@ -29,6 +37,14 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
     }
 
     var filledIcon: String {
+        if ShieldTheme.activeThemeID == .halloween2026 {
+            switch self {
+            case .library:  return "scroll.fill"
+            case .gallery:  return "wand.and.stars"
+            case .vault:    return "lock.shield.fill"
+            case .settings: return "slider.horizontal.3"
+            }
+        }
         switch self {
         case .library:  return "doc.on.doc.fill"
         case .gallery:  return "square.grid.2x2.fill"
@@ -63,7 +79,7 @@ struct ShieldTabBar: View {
                 tabItem(.library)
                 tabItem(.gallery)
                 Color.clear
-                    .frame(width: 72, height: 48)
+                    .frame(width: 48, height: 48)
                     .accessibilityHidden(true)
                 tabItem(.vault)
                 tabItem(.settings)
@@ -73,7 +89,7 @@ struct ShieldTabBar: View {
 
             // Center elevated Scan button
             ShieldScanButton(action: onScanTap)
-                .offset(y: -14)
+                .offset(y: -8)
         }
         .frame(height: 70, alignment: .bottom)
         .background(
@@ -87,32 +103,58 @@ struct ShieldTabBar: View {
 struct ShieldScanButton: View {
     let action: () -> Void
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Button {
             action()
         } label: {
             ZStack {
+                if ShieldTheme.activeThemeID == .halloween2026 {
+                    SeasonalScanButtonHalo(reduceMotion: reduceMotion)
+                } else {
+                    StandardScanButtonHalo(reduceMotion: reduceMotion)
+                }
+
                 Circle()
-                    .fill(ShieldTheme.accent(scheme))
+                    .fill(
+                        ShieldTheme.activeThemeID == .halloween2026
+                            ? LinearGradient(
+                                colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(
+                                colors: [Color(hex: "5CEBFA"), Color(hex: "20C7D9"), Color(hex: "0898AA")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                    )
                     .overlay {
                         Circle()
-                            .stroke(ShieldTheme.cardBackground(scheme), lineWidth: 3.5)
+                            .stroke(
+                                ShieldTheme.activeThemeID == .halloween2026
+                                    ? Color(hex: "FFD6A0").opacity(0.9)
+                                    : Color(hex: "C4F8FF").opacity(0.85),
+                                lineWidth: 2.0
+                            )
                     }
                     .shadow(
-                        color: ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.38 : 0.22),
-                        radius: 8,
+                        color: ShieldTheme.activeThemeID == .halloween2026
+                            ? Color(hex: "F97316").opacity(0.55)
+                            : Color(hex: "20C7D9").opacity(0.50),
+                        radius: 6,
                         y: 2
                     )
                 Image(systemName: "camera.viewfinder")
                     .shieldFont(20, weight: .bold)
                     .foregroundColor(ShieldTheme.accentText)
             }
-            .frame(width: 64, height: 64)
+            .frame(width: 48, height: 48)
             .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
-        .frame(width: 72, height: 72)
+        .frame(width: 52, height: 52)
         .contentShape(Circle())
         .zIndex(10)
         .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))

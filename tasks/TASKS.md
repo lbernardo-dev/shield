@@ -2086,3 +2086,25 @@
    Claimed by: CODEX
    Claimed at: 2026-09-27T20:24:19Z
 
+196. scan-button-tab-bar-prominence
+   Id: 196-scan-button-tab-bar-prominence
+   Scope: Aumentar el tamaño del botón central de escaneo y su icono de cámara, y ajustar su posición vertical en la barra de pestañas
+   Files: Shield/Views/Components/TabBar.swift
+   Note: Ajustado el botón de escaneo: icono a 28pt, botón a 70pt de diámetro y posición vertical bajada con offset -8
+   Detail: tasks/details/196-scan-button-tab-bar-prominence.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-28T06:36:14Z
+   Done by: CODEX
+   Done at: 2026-09-28T06:46:04Z
+
+197. halloween-mockup-fidelity-upgrade
+   Id: 197-halloween-mockup-fidelity-upgrade
+   Scope: Elevar la fidelidad visual del tema Halloween y el selector de temas para coincidir con las maquetas: Bóveda con halo y FaceID naranja, teclado PIN con botones de cristal y borde neón, Ajustes con banner y tarjetas decoradas, Galería de estilos con emojis y marcos, y aura de telaraña en el botón de escaneo
+   Files: Shield/Theme/ShieldTheme.swift,Shield/Views/Vault/VaultView.swift,Shield/Views/Settings/SettingsView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Gallery/StyleGalleryView.swift,Shield/Views/Components/TabBar.swift
+   Note: Upgraded Halloween theme, selector, Settings, Vault, PIN and Gallery to match mockups + build/tests passed
+   Detail: tasks/details/197-halloween-mockup-fidelity-upgrade.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-28T06:52:01Z
+   Done by: CODEX
+   Done at: 2026-09-28T07:07:42Z
+

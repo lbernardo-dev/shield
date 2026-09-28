@@ -26,6 +26,17 @@ enum DocumentCategory: String, CaseIterable, Identifiable, Codable {
     }
 
     var icon: String {
+        if ShieldTheme.activeThemeID == .halloween2026 {
+            switch self {
+            case .all:      return "book.pages.fill"
+            case .identity: return "theatermasks.fill"
+            case .travel:   return "moon.stars.fill"
+            case .driving:  return "car.side.fill"
+            case .work:     return "briefcase.fill"
+            case .health:   return "cross.vial.fill"
+            case .finance:  return "banknote.fill"
+            }
+        }
         switch self {
         case .all:      return "doc.on.doc.fill"
         case .identity: return "shield.fill"

@@ -182,12 +182,15 @@ struct HomeView: View {
         .padding(.top, 2)
         .padding(.bottom, 10)
         .background(
-            ShieldTheme.background(appState.preferredScheme)
-                .ignoresSafeArea(edges: .top)
+            ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+                ? Color.clear
+                : ShieldTheme.background(appState.preferredScheme)
         )
         .overlay(alignment: .bottom) {
-            ShieldTheme.line(appState.preferredScheme)
-                .frame(height: 0.5)
+            if ShieldTheme.activeThemeID != .halloween2026 || appState.preferredScheme != .dark {
+                ShieldTheme.line(appState.preferredScheme)
+                    .frame(height: 0.5)
+            }
         }
     }
 
@@ -210,12 +213,13 @@ struct HomeView: View {
     // MARK: - Search
 
     private var searchSection: some View {
-        HStack(spacing: 8) {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+        return HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .shieldFont(14, weight: .medium)
                 .foregroundColor(searchFocused
-                    ? ShieldTheme.accent
-                    : ShieldTheme.tertiary(appState.preferredScheme))
+                    ? (isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
+                    : (isHalloween ? Color(hex: "A78BFA") : ShieldTheme.tertiary(appState.preferredScheme)))
 
             TextField(LanguageManager.shared.home("home_search"), text: $appState.searchQuery)
                 .shieldFont(15)
@@ -230,7 +234,7 @@ struct HomeView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .shieldFont(14)
-                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                        .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.tertiary(appState.preferredScheme))
                         .frame(minWidth: 40, minHeight: 40)
                         .contentShape(Rectangle())
                 }
@@ -243,7 +247,7 @@ struct HomeView: View {
             } label: {
                 Image(systemName: appState.hasActiveFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                     .shieldFont(18, weight: .medium)
-                    .foregroundColor(appState.hasActiveFilter ? ShieldTheme.accent : ShieldTheme.tertiary(appState.preferredScheme))
+                    .foregroundColor(appState.hasActiveFilter ? (isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent) : (isHalloween ? Color(hex: "A78BFA") : ShieldTheme.tertiary(appState.preferredScheme)))
                     .contentTransition(.symbolEffect(.replace))
                     .frame(minWidth: 40, minHeight: 40)
                     .contentShape(Rectangle())
@@ -253,12 +257,18 @@ struct HomeView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 11)
-        .background(ShieldTheme.cardBackground(appState.preferredScheme))
+        .background(
+            isHalloween
+                ? Color(hex: "1C1026").opacity(0.85)
+                : ShieldTheme.cardBackground(appState.preferredScheme)
+        )
         .overlay(
             RoundedRectangle(cornerRadius: ShieldTheme.rMD)
                 .stroke(
-                    searchFocused ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.line(appState.preferredScheme),
-                    lineWidth: searchFocused ? 1.5 : 0.5
+                    isHalloween
+                        ? (searchFocused ? Color(hex: "FF9A3D") : Color(hex: "7C3AED").opacity(0.35))
+                        : (searchFocused ? ShieldTheme.accent.opacity(0.6) : ShieldTheme.line(appState.preferredScheme)),
+                    lineWidth: searchFocused ? 1.5 : 0.8
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD))
@@ -345,7 +355,8 @@ struct HomeView: View {
     }
 
     private var workspaceSection: some View {
-        VStack(spacing: 0) {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+        return VStack(spacing: 0) {
             Button {
                 withAnimation(reduceMotion ? nil : ShieldMotion.state) {
                     showWorkspaceTools.toggle()
@@ -354,17 +365,29 @@ struct HomeView: View {
                 HStack(spacing: ShieldTheme.s3) {
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(ShieldTheme.accent(scheme))
+                        .foregroundStyle(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent(scheme))
                     Text(LanguageManager.shared.home("home_tools_services"))
                         .font(.headline)
                         .foregroundStyle(ShieldTheme.primary(scheme))
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.footnote.weight(.bold))
-                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .foregroundStyle(isHalloween ? Color(hex: "FFA53D").opacity(0.8) : ShieldTheme.tertiary(scheme))
                         .rotationEffect(.degrees(showWorkspaceTools ? 180 : 0))
                 }
                 .padding(ShieldTheme.s4)
+                .background(
+                    isHalloween
+                        ? Color(hex: "1C1026").opacity(0.65)
+                        : Color.clear,
+                    in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                )
+                .overlay {
+                    if isHalloween {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color(hex: "7C3AED").opacity(0.3), lineWidth: 0.8)
+                    }
+                }
                 .contentShape(.rect)
             }
             .buttonStyle(ScaleButtonStyle())
@@ -403,7 +426,11 @@ struct HomeView: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 11, weight: .bold))
                     }
-                    .foregroundColor(ShieldTheme.accentColor(appState.preferredScheme))
+                    .foregroundColor(
+                        ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+                            ? Color(hex: "FFA53D")
+                            : ShieldTheme.accentColor(appState.preferredScheme)
+                    )
                     .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                     .contentShape(Rectangle())
                 }
@@ -972,6 +999,10 @@ struct ModeCard: View {
     var action: (() -> Void)? = nil
     @Environment(\.colorScheme) var scheme
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         Button {
             action?()
@@ -996,16 +1027,25 @@ struct ModeCard: View {
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(mode.subtitle(lang: lang))
                         .shieldFont(11)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
+                        .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.tertiary(scheme))
                 }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .frame(minWidth: 168, alignment: .leading)
-            .background(ShieldTheme.cardBackground(scheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.85)
+                    : ShieldTheme.cardBackground(scheme)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(colors: [Color(hex: "FF9A3D").opacity(0.4), Color(hex: "7C3AED").opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [ShieldTheme.line(scheme)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.5
+                    )
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
@@ -1021,6 +1061,10 @@ struct DocumentRow: View {
     var vaultUnlocked: Bool = false
     let action: () -> Void
     @EnvironmentObject var appState: AppState
+
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+    }
 
     private var shouldMask: Bool { doc.isVaulted && !vaultUnlocked }
 
@@ -1061,17 +1105,17 @@ struct DocumentRow: View {
                         if shouldMask {
                             Text(LanguageManager.shared.home("home_protected_document"))
                                 .shieldFont(14, weight: .semibold)
-                                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "E9D5FF") : ShieldTheme.secondary(appState.preferredScheme))
                                 .lineLimit(1)
                         } else {
                             Text(doc.title)
-                                .shieldFont(14, weight: .semibold)
-                                .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                                .shieldFont(14, weight: .bold)
+                                .foregroundColor(isHalloween ? Color.white : ShieldTheme.primary(appState.preferredScheme))
                                 .lineLimit(1)
                             if doc.isFavorite {
                                 Image(systemName: "star.fill")
                                     .shieldFont(11)
-                                    .foregroundColor(ShieldTheme.accent)
+                                    .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
                                     .symbolEffect(.bounce, value: doc.isFavorite)
                             }
                         }
@@ -1079,20 +1123,20 @@ struct DocumentRow: View {
                     HStack(spacing: 6) {
                         if shouldMask {
                             Text(LanguageManager.shared.vault("vault_aes_badge"))
-                                .shieldFont(11, weight: .semibold)
+                                .shieldFont(11, weight: .bold)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2.5)
-                                .background(ShieldTheme.accentDim(appState.preferredScheme))
-                                .foregroundColor(ShieldTheme.accent)
+                                .background(isHalloween ? Color(hex: "F97316").opacity(0.2) : ShieldTheme.accentDim(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
                             Text("·")
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "C4B5FD") : ShieldTheme.tertiary(appState.preferredScheme))
                                 .shieldFont(12)
                             Text(doc.compactDateLabel(lang: lang))
                                 .shieldFont(12)
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "E9D5FF") : ShieldTheme.tertiary(appState.preferredScheme))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                         } else {
@@ -1101,27 +1145,27 @@ struct DocumentRow: View {
                                 .lineLimit(1)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2.5)
-                                .background(ShieldTheme.rowBackground(appState.preferredScheme))
-                                .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                                .background(isHalloween ? Color(hex: "2D183B") : ShieldTheme.rowBackground(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "F3E8FF") : ShieldTheme.secondary(appState.preferredScheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 5))
 
                             Text("·")
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "C4B5FD") : ShieldTheme.tertiary(appState.preferredScheme))
                                 .shieldFont(12)
 
                             Text(doc.compactDateLabel(lang: lang))
                                 .shieldFont(12)
-                                .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                .foregroundColor(isHalloween ? Color(hex: "E9D5FF") : ShieldTheme.tertiary(appState.preferredScheme))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.78)
 
                             if doc.redactionCount > 0 {
                                 Text("·")
-                                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                                    .foregroundColor(isHalloween ? Color(hex: "C4B5FD") : ShieldTheme.tertiary(appState.preferredScheme))
                                     .shieldFont(12)
                                 Text(appState.redactionsCount(doc.redactionCount))
-                                    .shieldFont(12, weight: .semibold)
-                                    .foregroundColor(ShieldTheme.accent)
+                                    .shieldFont(12, weight: .bold)
+                                    .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
                                     .lineLimit(1)
                             }
                         }
@@ -1144,21 +1188,34 @@ struct DocumentRow: View {
                 if doc.isVaulted {
                     Image(systemName: "lock.shield.fill")
                         .shieldFont(16, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accent)
+                        .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
                         .accessibilityHidden(true)
                 } else {
                     Image(systemName: "chevron.right")
                         .shieldFont(12, weight: .semibold)
-                        .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                        .foregroundColor(isHalloween ? Color(hex: "FFA53D").opacity(0.8) : ShieldTheme.tertiary(appState.preferredScheme))
                         .accessibilityHidden(true)
                 }
             }
             .padding(12)
             .frame(maxWidth: .infinity)
-            .background(ShieldTheme.cardBackground(appState.preferredScheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.88)
+                    : ShieldTheme.cardBackground(appState.preferredScheme)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(
+                                colors: [Color(hex: "FF9A3D").opacity(0.45), Color(hex: "7C3AED").opacity(0.3)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(colors: [ShieldTheme.line(appState.preferredScheme)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.8
+                    )
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }

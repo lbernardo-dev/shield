@@ -124,12 +124,16 @@ struct LockScreenView: View {
 
     private func identityMark(size: CGFloat) -> some View {
         ZStack(alignment: .bottomTrailing) {
-            MaskIDIdentityMark(
-                size: size,
-                presentation: .animatedLoop,
-                treatment: .hero,
-                isEmphasized: isAuthenticating
-            )
+            if ShieldTheme.activeThemeID == .halloween2026 {
+                SeasonalVaultHeroView(size: min(size * 0.9, 170))
+            } else {
+                MaskIDIdentityMark(
+                    size: size,
+                    presentation: .animatedLoop,
+                    treatment: .hero,
+                    isEmphasized: isAuthenticating
+                )
+            }
 
             if verified {
                 Image(systemName: "checkmark.circle.fill")
@@ -180,20 +184,23 @@ struct LockScreenView: View {
             primaryUnlockButton
 
             if showsSecondaryPINButton {
-                ShieldButton(
-                    label: PINManager.hasPIN
-                        ? LanguageManager.shared.auth("lock_use_pin")
-                        : LanguageManager.shared.auth("lock_setup_pin"),
-                    icon: PINManager.hasPIN ? "number" : "key.fill",
-                    style: .secondary,
-                    height: 50
-                ) {
+                Button {
                     if PINManager.hasPIN {
                         showPINEntry = true
                     } else {
                         showPINSetup = true
                     }
+                } label: {
+                    Text(PINManager.hasPIN ? LanguageManager.shared.auth("lock_use_pin") : LanguageManager.shared.auth("lock_setup_pin"))
+                        .shieldFont(14, weight: .semibold)
+                        .foregroundStyle(
+                            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                ? Color(hex: "FFD6A0").opacity(0.75)
+                                : ShieldTheme.secondary(scheme)
+                        )
+                        .padding(.vertical, 6)
                 }
+                .buttonStyle(ScaleButtonStyle())
                 .accessibilityIdentifier("lock.secondaryPIN")
             }
 
@@ -217,15 +224,49 @@ struct LockScreenView: View {
 
     @ViewBuilder
     private var primaryUnlockButton: some View {
-        ShieldButton(
-            label: primaryUnlockTitle,
-            icon: primaryUnlockIcon,
-            height: 54,
-            isLoading: isAuthenticating,
-            action: primaryUnlockAction
-        )
-        .disabled(isAuthenticating)
-        .accessibilityIdentifier("lock.primaryUnlock")
+        if ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark {
+            Button(action: primaryUnlockAction) {
+                HStack(spacing: ShieldTheme.s3) {
+                    if isAuthenticating {
+                        SeasonalThemeLoadingIndicator(size: 20, color: Color(hex: "170A02"))
+                    } else {
+                        Image(systemName: primaryUnlockIcon)
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                    Text(primaryUnlockTitle)
+                        .font(.headline.weight(.heavy))
+                }
+                .foregroundStyle(Color(hex: "170A02"))
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(Capsule())
+                .overlay {
+                    Capsule()
+                        .stroke(Color(hex: "FFD6A0").opacity(0.6), lineWidth: 1)
+                }
+                .shadow(color: Color(hex: "F97316").opacity(0.6), radius: 14, y: 4)
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .disabled(isAuthenticating)
+            .accessibilityIdentifier("lock.primaryUnlock")
+        } else {
+            ShieldButton(
+                label: primaryUnlockTitle,
+                icon: primaryUnlockIcon,
+                height: 54,
+                isLoading: isAuthenticating,
+                action: primaryUnlockAction
+            )
+            .disabled(isAuthenticating)
+            .accessibilityIdentifier("lock.primaryUnlock")
+        }
     }
 
     private var primaryUnlockTitle: String {

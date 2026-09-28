@@ -79,14 +79,18 @@ struct StyleGalleryView: View {
 
     @ViewBuilder
     private var header: some View {
-        HStack {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026
+        HStack(spacing: 10) {
+            if isHalloween {
+                SeasonalThemeHalloweenPumpkin(size: 32)
+            }
             VStack(alignment: .leading, spacing: 3) {
                 Text(LanguageManager.shared.gallery("gallery_title"))
                     .shieldFont(28, weight: .heavy)
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.gallery("gallery_subtitle"))
-                    .shieldFont(13)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .shieldFont(13, weight: .medium)
+                    .foregroundColor(isHalloween ? Color(hex: "FFD6B0").opacity(0.88) : ShieldTheme.secondary(scheme))
             }
             Spacer()
         }
@@ -122,12 +126,13 @@ struct StyleGalleryView: View {
 
     @ViewBuilder
     private func docPickerGroup(label: String, kinds: [DocumentKind]) -> some View {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026
         VStack(alignment: .leading, spacing: 5) {
             Text(label)
-                .shieldFont(9, weight: .bold)
-                .foregroundColor(ShieldTheme.tertiary(scheme).opacity(0.7))
+                .shieldFont(10, weight: .bold)
+                .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.secondary(scheme))
                 .textCase(.uppercase)
-                .tracking(0.5)
+                .tracking(0.6)
                 .padding(.leading, 4)
             HStack(spacing: 6) {
                 ForEach(kinds, id: \.self) { kind in
@@ -151,17 +156,27 @@ struct StyleGalleryView: View {
 
     @ViewBuilder
     private func styleSection(title: String, subtitle: String? = nil, styles: [MaskStyle]) -> some View {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026
+        let decoratedTitle: String = {
+            guard isHalloween else { return title }
+            if title.contains("Esenciales") || title.contains("Essentials") { return "\(title) 🦇" }
+            if title.contains("Difuminados") || title.contains("Blur") { return "\(title) 👻" }
+            if title.contains("Patrones") || title.contains("Patterns") { return "\(title) 🕷️" }
+            if title.contains("Especiales") || title.contains("Special") { return "\(title) 🕸️" }
+            return title
+        }()
+
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(decoratedTitle)
                     .shieldFont(13, weight: .bold)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent(scheme))
                     .textCase(.uppercase)
                     .tracking(0.6)
                 if let subtitle {
                     Text(subtitle)
-                        .shieldFont(11)
-                        .foregroundColor(ShieldTheme.tertiary(scheme).opacity(0.7))
+                        .shieldFont(12, weight: .medium)
+                        .foregroundColor(isHalloween ? Color(hex: "FFD6B0").opacity(0.85) : ShieldTheme.secondary(scheme))
                 }
             }
             .padding(.horizontal, 4)
@@ -225,6 +240,8 @@ private struct StyleCard: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.colorScheme) var scheme
 
+    private var isHalloween: Bool { ShieldTheme.activeThemeID == .halloween2026 }
+
     var body: some View {
         Button {
             if isUnlocked { onSelect() } else { onTapLock() }
@@ -240,7 +257,7 @@ private struct StyleCard: View {
                 HStack(alignment: .center, spacing: 4) {
                     Text(style.label(lang: lang))
                         .shieldFont(12, weight: .semibold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
+                        .foregroundColor(isHalloween ? Color(hex: "FFF7F0") : ShieldTheme.primary(scheme))
                         .lineLimit(1)
                     Spacer()
                     if isPremium && isUnlocked {
@@ -256,14 +273,26 @@ private struct StyleCard: View {
             }
             .padding(10)
             .frame(maxWidth: .infinity)
-            .background(isSelected ? ShieldTheme.selectedBackground(scheme) : ShieldTheme.cardBackground(scheme))
+            .background(
+                isHalloween
+                    ? (isSelected ? Color(hex: "351B40") : Color(hex: "22102A").opacity(0.85))
+                    : (isSelected ? ShieldTheme.selectedBackground(scheme) : ShieldTheme.cardBackground(scheme))
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isSelected ? ShieldTheme.accent : ShieldTheme.line(scheme),
-                        lineWidth: isSelected ? 2 : 0.5
+                        isSelected
+                            ? ShieldTheme.accent
+                            : (isHalloween ? Color(hex: "FFD6B0").opacity(0.18) : ShieldTheme.line(scheme)),
+                        lineWidth: isSelected ? 2 : 0.8
                     )
             }
+            .shadow(
+                color: isHalloween
+                    ? (isSelected ? ShieldTheme.halloweenPumpkin.opacity(0.4) : Color.black.opacity(0.2))
+                    : .clear,
+                radius: isSelected ? 8 : 4
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(ScaleButtonStyle())

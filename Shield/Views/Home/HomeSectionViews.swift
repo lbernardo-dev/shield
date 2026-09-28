@@ -109,16 +109,29 @@ struct HomeVaultCard: View {
     let scheme: ColorScheme
     let onTap: () -> Void
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(ShieldTheme.accentDim(scheme))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "lock.rectangle.stack.fill")
-                        .shieldFont(20, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accent(scheme))
+                    if isHalloween {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(hex: "F97316").opacity(0.2))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "lock.rectangle.stack.fill")
+                            .shieldFont(20, weight: .semibold)
+                            .foregroundColor(Color(hex: "FFA53D"))
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(ShieldTheme.accentDim(scheme))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "lock.rectangle.stack.fill")
+                            .shieldFont(20, weight: .semibold)
+                            .foregroundColor(ShieldTheme.accent(scheme))
+                    }
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LanguageManager.shared.home("home_vault"))
@@ -126,18 +139,27 @@ struct HomeVaultCard: View {
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(LanguageManager.shared.home("home_secure_storage_faceid"))
                         .shieldFont(12)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
+                        .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.tertiary(scheme))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .shieldFont(12, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .foregroundColor(isHalloween ? Color(hex: "FFA53D").opacity(0.8) : ShieldTheme.tertiary(scheme))
             }
             .padding(16)
-            .background(ShieldTheme.cardBackground(scheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.85)
+                    : ShieldTheme.cardBackground(scheme)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(ShieldTheme.line(scheme), lineWidth: 1)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(colors: [Color(hex: "FF9A3D").opacity(0.4), Color(hex: "7C3AED").opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [ShieldTheme.line(scheme)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.8
+                    )
             )
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }

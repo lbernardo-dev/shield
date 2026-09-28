@@ -118,6 +118,10 @@ struct PillButton: View {
     var action: () -> Void
     @Environment(\.colorScheme) var scheme
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 5) {
@@ -130,11 +134,35 @@ struct PillButton: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(isActive ? ShieldTheme.accentDim(scheme) : ShieldTheme.cardBackground(scheme))
-            .foregroundColor(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
+            .background(
+                isHalloween
+                    ? (isActive
+                        ? LinearGradient(
+                            colors: [Color(hex: "FFA53D"), Color(hex: "F97316")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        : LinearGradient(
+                            colors: [Color(hex: "241436").opacity(0.85), Color(hex: "1A0E28").opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    : (isActive ? LinearGradient(colors: [ShieldTheme.accentDim(scheme), ShieldTheme.accentDim(scheme)], startPoint: .top, endPoint: .bottom) : LinearGradient(colors: [ShieldTheme.cardBackground(scheme), ShieldTheme.cardBackground(scheme)], startPoint: .top, endPoint: .bottom))
+            )
+            .foregroundColor(
+                isHalloween
+                    ? (isActive ? Color(hex: "150801") : Color(hex: "E0D4FC"))
+                    : (isActive ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
+            )
             .overlay(
                 Capsule()
-                    .stroke(isActive ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme), lineWidth: isActive ? 1 : 0.5)
+                    .stroke(
+                        isHalloween
+                            ? (isActive ? Color(hex: "FFD6A0") : Color(hex: "7C3AED").opacity(0.35))
+                            : (isActive ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme)),
+                        lineWidth: isActive ? 1 : 0.5
+                    )
             )
             .clipShape(Capsule())
         }
@@ -479,15 +507,22 @@ struct ShieldStatusLabel: View {
     let kind: Kind
     @Environment(\.colorScheme) private var scheme
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         Label(text, systemImage: icon)
-            .font(.footnote.weight(.semibold))
+            .font(.footnote.weight(.bold))
             .foregroundStyle(color)
             .lineLimit(1)
             .fixedSize(horizontal: true, vertical: false)
             .padding(.horizontal, ShieldTheme.s3)
             .padding(.vertical, ShieldTheme.s2)
             .background(background, in: Capsule())
+            .overlay(
+                Capsule().stroke(strokeColor, lineWidth: 0.8)
+            )
     }
 
     private var icon: String {
@@ -500,20 +535,48 @@ struct ShieldStatusLabel: View {
     }
 
     private var color: Color {
+        if isHalloween {
+            switch kind {
+            case .info: return Color(hex: "FFA53D")
+            case .success: return Color(hex: "34D399")
+            case .warning: return Color(hex: "FBBF24")
+            case .error: return Color(hex: "F87171")
+            }
+        }
         switch kind {
-        case .info: ShieldTheme.accent(scheme)
-        case .success: ShieldTheme.success
-        case .warning: ShieldTheme.warning
-        case .error: ShieldTheme.danger
+        case .info: return ShieldTheme.accent(scheme)
+        case .success: return ShieldTheme.success
+        case .warning: return ShieldTheme.warning
+        case .error: return ShieldTheme.danger
         }
     }
 
+    private var strokeColor: Color {
+        if isHalloween {
+            switch kind {
+            case .info: return Color(hex: "FFA53D").opacity(0.4)
+            case .success: return Color(hex: "34D399").opacity(0.4)
+            case .warning: return Color(hex: "FBBF24").opacity(0.4)
+            case .error: return Color(hex: "F87171").opacity(0.4)
+            }
+        }
+        return Color.clear
+    }
+
     private var background: Color {
+        if isHalloween {
+            switch kind {
+            case .info: return Color(hex: "F97316").opacity(0.18)
+            case .success: return Color(hex: "10B981").opacity(0.18)
+            case .warning: return Color(hex: "F59E0B").opacity(0.18)
+            case .error: return Color(hex: "EF4444").opacity(0.18)
+            }
+        }
         switch kind {
-        case .info: ShieldTheme.accentDim(scheme)
-        case .success: ShieldTheme.successBackground(scheme)
-        case .warning: ShieldTheme.warningBackground(scheme)
-        case .error: ShieldTheme.errorBackground(scheme)
+        case .info: return ShieldTheme.accentDim(scheme)
+        case .success: return ShieldTheme.successBackground(scheme)
+        case .warning: return ShieldTheme.warningBackground(scheme)
+        case .error: return ShieldTheme.errorBackground(scheme)
         }
     }
 }

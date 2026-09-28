@@ -91,11 +91,15 @@ struct VaultView: View {
     private var lockGate: some View {
         VStack(spacing: 28) {
             Spacer()
-            MaskIDIdentityMark(
-                size: 160,
-                presentation: .animatedLoop,
-                treatment: .hero
-            )
+            if ShieldTheme.activeThemeID == .halloween2026 {
+                SeasonalVaultHeroView(size: 160)
+            } else {
+                MaskIDIdentityMark(
+                    size: 160,
+                    presentation: .animatedLoop,
+                    treatment: .hero
+                )
+            }
             VStack(spacing: 8) {
                 Text(LanguageManager.shared.vault("vault_locked_title"))
                     .shieldFont(24, weight: .heavy, design: .rounded)
@@ -113,15 +117,40 @@ struct VaultView: View {
             }
 
             VStack(spacing: 12) {
-                ShieldButton(
-                    label: LanguageManager.shared.vault("vault_unlock_faceid"),
-                    icon: "faceid",
-                    height: 52
-                ) {
-                    authenticate()
+                if ShieldTheme.activeThemeID == .halloween2026 {
+                    Button(action: authenticate) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "faceid")
+                                .font(.title3.weight(.bold))
+                            Text(LanguageManager.shared.vault("vault_unlock_faceid"))
+                                .font(.headline.weight(.bold))
+                        }
+                        .foregroundStyle(Color(hex: "1B0E05"))
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        )
+                        .shadow(color: Color(hex: "F97316").opacity(0.55), radius: 14, y: 3)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                    .padding(.horizontal, 36)
+                    .accessibilityIdentifier("vault.unlock")
+                } else {
+                    ShieldButton(
+                        label: LanguageManager.shared.vault("vault_unlock_faceid"),
+                        icon: "faceid",
+                        height: 52
+                    ) {
+                        authenticate()
+                    }
+                    .padding(.horizontal, 36)
+                    .accessibilityIdentifier("vault.unlock")
                 }
-                .padding(.horizontal, 36)
-                .accessibilityIdentifier("vault.unlock")
 
                 if PINManager.hasPIN {
                     Button { showPINEntry = true } label: {
@@ -164,37 +193,110 @@ struct VaultView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "lock.shield.fill")
                             .shieldFont(18, weight: .bold)
-                            .foregroundColor(ShieldTheme.success)
+                            .foregroundColor(
+                                ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                    ? Color(hex: "FFA53D")
+                                    : ShieldTheme.success
+                            )
                         Text(LanguageManager.shared.vault("vault_title"))
                             .shieldFont(28, weight: .heavy, design: .rounded)
                             .foregroundColor(ShieldTheme.primary(scheme))
+                        if ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark {
+                            Text("🎃")
+                                .font(.system(size: 20))
+                        }
                     }
                     Text(LanguageManager.shared.vault("vault_status_count", appState.vaultDocuments.count))
                         .shieldFont(12, weight: .medium)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
+                        .foregroundColor(
+                            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                ? Color(hex: "D8B4FE")
+                                : ShieldTheme.secondary(scheme)
+                        )
                         .lineLimit(1)
                 }
                 Spacer(minLength: ShieldTheme.s2)
 
-                Button {
-                    lockVault()
-                } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "lock.fill")
-                            .shieldFont(11, weight: .bold)
-                        Text(LanguageManager.shared.vault("vault_lock_button"))
-                            .shieldFont(12, weight: .bold)
+                HStack(spacing: 8) {
+                    Button {
+                        lockVault()
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "lock.fill")
+                                .shieldFont(11, weight: .bold)
+                            Text(LanguageManager.shared.vault("vault_lock_button"))
+                                .shieldFont(12, weight: .bold)
+                        }
+                        .foregroundColor(
+                            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                ? Color.white
+                                : Color(hex: "FF3B30")
+                        )
+                        .padding(.horizontal, 13)
+                        .padding(.vertical, 7)
+                        .background(
+                            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                ? LinearGradient(colors: [Color(hex: "EF4444"), Color(hex: "B91C1C")], startPoint: .top, endPoint: .bottom)
+                                : LinearGradient(colors: [Color(hex: "FF3B30").opacity(0.14), Color(hex: "FF3B30").opacity(0.14)], startPoint: .top, endPoint: .bottom),
+                            in: Capsule()
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(
+                                    ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                        ? Color(hex: "FCA5A5").opacity(0.6)
+                                        : Color(hex: "FF3B30").opacity(0.35),
+                                    lineWidth: 0.8
+                                )
+                        )
+                        .shadow(
+                            color: ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                ? Color(hex: "EF4444").opacity(0.4)
+                                : Color.clear,
+                            radius: 4,
+                            y: 1
+                        )
                     }
-                    .foregroundColor(Color(hex: "FF6B6B"))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color(hex: "FF3B30").opacity(0.14), in: Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color(hex: "FF3B30").opacity(0.35), lineWidth: 0.8)
-                    )
+                    .buttonStyle(ScaleButtonStyle())
+                    .accessibilityIdentifier("vault.lock")
+
+                    Button {
+                        showAddToVault = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(
+                                ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                    ? Color(hex: "150801")
+                                    : ShieldTheme.accentText
+                            )
+                            .frame(width: 32, height: 32)
+                            .background(
+                                ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                    ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    : LinearGradient(colors: [ShieldTheme.accent(scheme), ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom),
+                                in: Circle()
+                            )
+                            .overlay(
+                                Circle().stroke(
+                                    ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                        ? Color(hex: "FFD6A0").opacity(0.8)
+                                        : Color.clear,
+                                    lineWidth: 1
+                                )
+                            )
+                            .shadow(
+                                color: ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                                    ? Color(hex: "F97316").opacity(0.45)
+                                    : Color.clear,
+                                radius: 4,
+                                y: 1
+                            )
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                    .accessibilityLabel(LanguageManager.shared.vault("vault_add_to_vault"))
+                    .accessibilityIdentifier("vault.add")
                 }
-                .accessibilityIdentifier("vault.lock")
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -205,7 +307,7 @@ struct VaultView: View {
                 .padding(.bottom, 14)
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
+                VStack(spacing: 12) {
                     expiryAlertsSection
                     privacyHygieneCard
 
@@ -255,22 +357,7 @@ struct VaultView: View {
                 .frame(maxWidth: 1_100)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-            }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !appState.vaultDocuments.isEmpty {
-                ShieldStickyFooter {
-                    ShieldButton(
-                        label: LanguageManager.shared.vault("vault_add_to_vault"),
-                        icon: "plus.circle.fill",
-                        style: .secondary
-                    ) {
-                        showAddToVault = true
-                    }
-                    .frame(maxWidth: 520)
-                    .frame(maxWidth: .infinity)
-                }
+                .padding(.bottom, 36)
             }
         }
         .sheet(isPresented: $showAddToVault) {
@@ -309,48 +396,78 @@ struct VaultView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(ShieldTheme.warning.opacity(0.35), lineWidth: 0.8)
             )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 12)
         }
     }
 
     private var privacyHygieneCard: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "hand.raised.shield.fill")
-                .shieldFont(20, weight: .semibold)
-                .foregroundColor(ShieldTheme.accent)
-            VStack(alignment: .leading, spacing: 2) {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(
+                            isHalloween
+                                ? LinearGradient(colors: [Color(hex: "F97316").opacity(0.3), Color(hex: "7C3AED").opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [ShieldTheme.accentDim(scheme), ShieldTheme.accentDim(scheme)], startPoint: .top, endPoint: .bottom)
+                        )
+                        .frame(width: 32, height: 32)
+                    Image(systemName: "shield.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent(scheme))
+                }
+
                 Text(LanguageManager.shared.vault("vault_privacy_hygiene_title"))
-                    .shieldFont(12, weight: .bold)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                Text(LanguageManager.shared.vault("vault_privacy_hygiene_desc"))
-                    .shieldFont(11)
-                    .foregroundColor(ShieldTheme.secondary(scheme))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 4)
-            Button {
-                showAddToVault = true
-            } label: {
-                Text(LanguageManager.shared.vault("vault_privacy_hygiene_action"))
-                    .shieldFont(11, weight: .bold)
-                    .foregroundColor(ShieldTheme.accentText)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(ShieldTheme.accent)
+                    .shieldFont(15, weight: .bold)
+                    .foregroundColor(isHalloween ? .white : ShieldTheme.primary(scheme))
+
+                Spacer(minLength: 4)
+
+                Button {
+                    showAddToVault = true
+                } label: {
+                    HStack(spacing: 5) {
+                        Text(LanguageManager.shared.vault("vault_privacy_hygiene_action"))
+                            .shieldFont(12, weight: .bold)
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundColor(isHalloween ? Color(hex: "150801") : ShieldTheme.accentText)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(
+                        isHalloween
+                            ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [ShieldTheme.accent(scheme), ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom)
+                    )
                     .clipShape(Capsule())
+                    .shadow(color: isHalloween ? Color(hex: "F97316").opacity(0.35) : .clear, radius: 4, y: 1)
+                }
+                .buttonStyle(ScaleButtonStyle())
             }
-            .buttonStyle(ScaleButtonStyle())
+
+            Text(LanguageManager.shared.vault("vault_privacy_hygiene_desc"))
+                .shieldFont(13)
+                .foregroundColor(isHalloween ? Color(hex: "F3E8FF") : ShieldTheme.secondary(scheme))
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(12)
-        .background(ShieldTheme.rowBackground(scheme))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(ShieldTheme.line(scheme), lineWidth: 0.5)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            isHalloween
+                ? Color(hex: "1C1026").opacity(0.88)
+                : ShieldTheme.rowBackground(scheme)
         )
-        .padding(.horizontal, 16)
-        .padding(.bottom, 12)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(
+                    isHalloween
+                        ? LinearGradient(colors: [Color(hex: "FF9A3D").opacity(0.45), Color(hex: "7C3AED").opacity(0.35)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        : LinearGradient(colors: [ShieldTheme.line(scheme)], startPoint: .top, endPoint: .bottom),
+                    lineWidth: isHalloween ? 1.0 : 0.8
+                )
+        )
     }
 
     private var securitySummary: some View {
@@ -804,7 +921,11 @@ struct PINSetupView: View {
             Spacer()
             Image(systemName: "lock.fill")
                 .shieldFont(44, weight: .light)
-                .foregroundColor(ShieldTheme.accent)
+                .foregroundColor(ShieldTheme.accent(scheme))
+                .shadow(
+                    color: ShieldTheme.activeThemeID == .halloween2026 ? Color(hex: "F97316").opacity(0.65) : .clear,
+                    radius: 12
+                )
 
             Text(step == 0
                  ? LanguageManager.shared.vault("vault_pin_setup_choose")
@@ -815,10 +936,22 @@ struct PINSetupView: View {
             // PIN dots
             HStack(spacing: 16) {
                 ForEach(0..<6, id: \.self) { i in
-                    Circle()
-                        .fill(i < currentPin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
-                        .frame(width: 16, height: 16)
-                        .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
+                    let isFilled = i < currentPin.count
+                    if ShieldTheme.activeThemeID == .halloween2026 {
+                        Circle()
+                            .fill(isFilled ? Color(hex: "F97316") : Color(hex: "4A2657").opacity(0.65))
+                            .frame(width: 16, height: 16)
+                            .overlay(
+                                Circle()
+                                    .stroke(isFilled ? Color(hex: "FFD6A0") : Color(hex: "F97316").opacity(0.4), lineWidth: 1)
+                            )
+                            .shadow(color: isFilled ? Color(hex: "F97316") : .clear, radius: 6)
+                    } else {
+                        Circle()
+                            .fill(isFilled ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                            .frame(width: 16, height: 16)
+                            .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
+                    }
                 }
             }
 
@@ -894,7 +1027,11 @@ struct PINEntryView: View {
             Spacer()
             Image(systemName: "lock.fill")
                 .shieldFont(44, weight: .light)
-                .foregroundColor(ShieldTheme.accent)
+                .foregroundColor(ShieldTheme.accent(scheme))
+                .shadow(
+                    color: ShieldTheme.activeThemeID == .halloween2026 ? Color(hex: "F97316").opacity(0.65) : .clear,
+                    radius: 12
+                )
 
             Text(LanguageManager.shared.vault("vault_pin_entry_prompt"))
                 .shieldFont(20, weight: .bold)
@@ -902,10 +1039,22 @@ struct PINEntryView: View {
 
             HStack(spacing: 16) {
                 ForEach(0..<6, id: \.self) { i in
-                    Circle()
-                        .fill(i < pin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
-                        .frame(width: 16, height: 16)
-                        .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
+                    let isFilled = i < pin.count
+                    if ShieldTheme.activeThemeID == .halloween2026 {
+                        Circle()
+                            .fill(isFilled ? Color(hex: "F97316") : Color(hex: "4A2657").opacity(0.65))
+                            .frame(width: 16, height: 16)
+                            .overlay(
+                                Circle()
+                                    .stroke(isFilled ? Color(hex: "FFD6A0") : Color(hex: "F97316").opacity(0.4), lineWidth: 1)
+                            )
+                            .shadow(color: isFilled ? Color(hex: "F97316") : .clear, radius: 6)
+                    } else {
+                        Circle()
+                            .fill(isFilled ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
+                            .frame(width: 16, height: 16)
+                            .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
+                    }
                 }
             }
 
@@ -1013,9 +1162,32 @@ struct PINNumpad: View {
                         } label: {
                             ZStack {
                                 if !key.isEmpty {
-                                    Circle()
-                                        .fill(ShieldTheme.rowBackground(scheme))
-                                        .frame(width: 72, height: 72)
+                                    if ShieldTheme.activeThemeID == .halloween2026 {
+                                        Circle()
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(hex: "351B40").opacity(0.85),
+                                                        Color(hex: "1F0F26").opacity(0.92)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .frame(width: 72, height: 72)
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(
+                                                        Color(hex: "F97316").opacity(0.85),
+                                                        lineWidth: 1.5
+                                                    )
+                                                    .shadow(color: Color(hex: "F97316").opacity(0.45), radius: 6)
+                                            )
+                                    } else {
+                                        Circle()
+                                            .fill(ShieldTheme.rowBackground(scheme))
+                                            .frame(width: 72, height: 72)
+                                    }
                                 } else {
                                     Color.clear
                                         .frame(width: 72, height: 72)
@@ -1023,11 +1195,11 @@ struct PINNumpad: View {
                                 if key == "⌫" {
                                     Image(systemName: "delete.left")
                                         .shieldFont(20, weight: .medium)
-                                        .foregroundColor(ShieldTheme.primary(scheme))
+                                        .foregroundColor(ShieldTheme.activeThemeID == .halloween2026 ? Color(hex: "FFF7F0") : ShieldTheme.primary(scheme))
                                 } else if !key.isEmpty {
                                     Text(key)
                                         .shieldFont(26, weight: .medium)
-                                        .foregroundColor(ShieldTheme.primary(scheme))
+                                        .foregroundColor(ShieldTheme.activeThemeID == .halloween2026 ? Color(hex: "FFF7F0") : ShieldTheme.primary(scheme))
                                 }
                             }
                         }

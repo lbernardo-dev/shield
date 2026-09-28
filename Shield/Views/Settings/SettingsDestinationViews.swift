@@ -108,15 +108,42 @@ struct ShieldPublicPageButton: View {
 
 private struct ShieldSettingsCardModifier: ViewModifier {
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     func body(content: Content) -> some View {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark && !reduceTransparency
         content
-            .background(ShieldTheme.cardBackground(scheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.82)
+                    : ShieldTheme.cardBackground(scheme)
+            )
+            .background(
+                isHalloween ? .ultraThinMaterial : .regularMaterial
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: ShieldTheme.rLG)
-                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(
+                                colors: [
+                                    Color(hex: "FF9A3D").opacity(0.38),
+                                    Color(hex: "7C3AED").opacity(0.22),
+                                    Color(hex: "FF9A3D").opacity(0.18)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(colors: [ShieldTheme.line(scheme)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.8
+                    )
             }
             .clipShape(.rect(cornerRadius: ShieldTheme.rLG))
+            .shadow(
+                color: isHalloween ? Color(hex: "F97316").opacity(0.14) : Color.black.opacity(0.04),
+                radius: isHalloween ? 12 : 4,
+                y: 3
+            )
     }
 }
 
@@ -131,14 +158,42 @@ struct SettingsIconBadge: View {
     let color: Color
     var size: CGFloat = 44
 
+    @Environment(\.colorScheme) private var scheme
+    private var isHalloween: Bool { ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark }
+
     var body: some View {
-        Image(systemName: icon)
-            .font(.system(size: size * 0.4, weight: .bold))
-            .foregroundStyle(color == Color(hex: "FFD60A") ? Color.black : Color.white)
-            .frame(width: size, height: size)
-            .background(color.gradient)
-            .clipShape(.rect(cornerRadius: size * 0.26))
-            .accessibilityHidden(true)
+        ZStack(alignment: .bottomTrailing) {
+            Image(systemName: icon)
+                .font(.system(size: size * 0.4, weight: .bold))
+                .foregroundStyle(color == Color(hex: "FFD60A") ? Color.black : Color.white)
+                .frame(width: size, height: size)
+                .background(color.gradient)
+                .clipShape(.rect(cornerRadius: size * 0.26))
+                .overlay {
+                    if isHalloween {
+                        RoundedRectangle(cornerRadius: size * 0.26)
+                            .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
+                    }
+                }
+
+            if isHalloween {
+                if icon.contains("wand") || icon.contains("sparkle") {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundStyle(Color(hex: "FFD6A0"))
+                        .offset(x: 2, y: 2)
+                } else if icon.contains("lock") || icon.contains("paintbrush") {
+                    SeasonalThemeHalloweenPumpkin(size: 12)
+                        .offset(x: 3, y: 3)
+                } else if icon.contains("viewfinder") || icon.contains("camera") {
+                    Image(systemName: "network")
+                        .font(.system(size: 10, weight: .light))
+                        .foregroundStyle(Color(hex: "FFD6A0"))
+                        .offset(x: 2, y: 2)
+                }
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -150,10 +205,15 @@ struct SettingsSummaryCard: View {
     var onManageSubscription: (() -> Void)? = nil
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var strings: LanguageManager { .shared }
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark && !reduceTransparency
+    }
+
     private var version: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
     }
 
     private var manageText: String {
@@ -161,94 +221,194 @@ struct SettingsSummaryCard: View {
     }
 
     var body: some View {
-        VStack(spacing: ShieldTheme.s4) {
-            HStack(spacing: ShieldTheme.s3) {
-                MaskIDIdentityMark(
-                    size: 44,
-                    presentation: .animatedLoop,
-                    treatment: .compact
-                )
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("MaskID")
-                        .font(.headline.weight(.heavy))
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                    Text(strings.settings("settings_version_value", version))
-                        .font(.caption)
-                        .foregroundStyle(ShieldTheme.tertiary(scheme))
-                }
-                Spacer(minLength: 0)
-                Label(
-                    strings.settings(isPro ? "settings_plan_pro" : "settings_plan_free"),
-                    systemImage: isPro ? "sparkles" : "checkmark.circle.fill"
-                )
-                .font(.caption.weight(.bold))
-                .foregroundStyle(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.success)
-                .padding(.horizontal, ShieldTheme.s3)
-                .padding(.vertical, ShieldTheme.s2)
-                .background(ShieldTheme.rowBackground(scheme), in: Capsule())
+        ZStack(alignment: .topLeading) {
+            if isHalloween {
+                SeasonalThemeWebCorner(size: 46)
+                    .offset(x: 2, y: 2)
+                    .opacity(0.65)
+                    .allowsHitTesting(false)
             }
 
-            HStack(spacing: 0) {
-                summaryMetric(icon: "doc.text.fill", value: documentCount.formatted(), label: strings.settings("settings_summary_documents"))
-                Rectangle().fill(ShieldTheme.line(scheme)).frame(width: 1, height: 38)
-                summaryMetric(icon: "lock.fill", value: vaultedCount.formatted(), label: strings.settings("settings_summary_vault"))
-            }
+            VStack(spacing: ShieldTheme.s4) {
+                HStack(spacing: ShieldTheme.s3) {
+                    MaskIDIdentityMark(
+                        size: 44,
+                        presentation: .animatedLoop,
+                        treatment: .compact
+                    )
 
-            Divider()
-                .overlay(ShieldTheme.line(scheme))
-
-            if isPro {
-                if let onManageSubscription {
-                    Button(action: onManageSubscription) {
-                        HStack(spacing: ShieldTheme.s2) {
-                            Image(systemName: "creditcard.fill")
-                                .font(.subheadline.weight(.bold))
-                                .foregroundStyle(ShieldTheme.accent(scheme))
-                            Text(manageText)
-                                .font(.subheadline.weight(.bold))
-                                .foregroundStyle(ShieldTheme.primary(scheme))
-                            Spacer()
-                            Image(systemName: "arrow.up.forward.app")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(ShieldTheme.secondary(scheme))
-                        }
-                        .padding(.horizontal, ShieldTheme.s3)
-                        .frame(minHeight: 46)
-                        .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("MaskID")
+                            .font(.headline.weight(.heavy))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        Text(strings.settings("settings_version_value", version))
+                            .font(.caption)
+                            .foregroundStyle(ShieldTheme.tertiary(scheme))
                     }
-                    .buttonStyle(ScaleButtonStyle())
+                    Spacer(minLength: 0)
+                    Label(
+                        strings.settings(isPro ? "settings_plan_pro" : "settings_plan_free"),
+                        systemImage: isPro ? "sparkles" : "checkmark.circle.fill"
+                    )
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.success)
+                    .padding(.horizontal, ShieldTheme.s3)
+                    .padding(.vertical, ShieldTheme.s2)
+                    .background(
+                        isHalloween
+                            ? Color(hex: "291636").opacity(0.85)
+                            : ShieldTheme.rowBackground(scheme),
+                        in: Capsule()
+                    )
+                    .overlay {
+                        if isHalloween {
+                            Capsule().stroke(Color(hex: "FFD6B0").opacity(0.2), lineWidth: 0.8)
+                        }
+                    }
                 }
-            } else {
-                if let onUnlockPro {
-                    VStack(alignment: .leading, spacing: ShieldTheme.s3) {
-                        HStack(spacing: ShieldTheme.s3) {
-                            SettingsIconBadge(icon: "crown.fill", color: Color(hex: "FFD60A"), size: 40)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(strings.settings("settings_unlock_premium"))
+
+                HStack(spacing: 0) {
+                    if isHalloween {
+                        SeasonalThemeCandelabra(size: 26)
+                            .padding(.trailing, 4)
+                    }
+
+                    summaryMetric(
+                        icon: "doc.text.fill",
+                        value: documentCount.formatted(),
+                        label: strings.settings("settings_summary_documents")
+                    )
+
+                    Rectangle()
+                        .fill(isHalloween ? Color(hex: "FFD6B0").opacity(0.18) : ShieldTheme.line(scheme))
+                        .frame(width: 1, height: 38)
+
+                    summaryMetric(
+                        icon: "lock.fill",
+                        value: vaultedCount.formatted(),
+                        label: strings.settings("settings_summary_vault")
+                    )
+
+                    if isHalloween {
+                        SeasonalThemeHalloweenPumpkin(size: 24)
+                            .padding(.leading, 4)
+                    }
+                }
+
+                Divider()
+                    .overlay(isHalloween ? Color(hex: "FFD6B0").opacity(0.16) : ShieldTheme.line(scheme))
+
+                if isPro {
+                    if let onManageSubscription {
+                        Button(action: onManageSubscription) {
+                            HStack(spacing: ShieldTheme.s2) {
+                                Image(systemName: "creditcard.fill")
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(ShieldTheme.accent(scheme))
+                                Text(manageText)
                                     .font(.subheadline.weight(.bold))
                                     .foregroundStyle(ShieldTheme.primary(scheme))
-                                Text(strings.settings("settings_pro_unlock_features"))
-                                    .font(.caption)
+                                Spacer()
+                                Image(systemName: "arrow.up.forward.app")
+                                    .font(.caption.weight(.semibold))
                                     .foregroundStyle(ShieldTheme.secondary(scheme))
                             }
-                        }
-
-                        Button(action: onUnlockPro) {
-                            Text(strings.settings("settings_view_options"))
-                                .font(.headline.weight(.bold))
-                                .frame(maxWidth: .infinity)
-                                .frame(minHeight: 46)
-                                .foregroundStyle(ShieldTheme.accentText)
-                                .background(ShieldTheme.accent(scheme))
-                                .clipShape(.rect(cornerRadius: ShieldTheme.rMD))
+                            .padding(.horizontal, ShieldTheme.s3)
+                            .frame(minHeight: 46)
+                            .background(
+                                isHalloween
+                                    ? Color(hex: "291636").opacity(0.8)
+                                    : ShieldTheme.rowBackground(scheme),
+                                in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                            )
                         }
                         .buttonStyle(ScaleButtonStyle())
                     }
+                } else {
+                    if let onUnlockPro {
+                        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+                            HStack(spacing: ShieldTheme.s3) {
+                                SettingsIconBadge(icon: "crown.fill", color: Color(hex: "FFD60A"), size: 40)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(strings.settings("settings_unlock_premium"))
+                                        .font(.subheadline.weight(.bold))
+                                        .foregroundStyle(ShieldTheme.primary(scheme))
+                                    Text(strings.settings("settings_pro_unlock_features"))
+                                        .font(.caption)
+                                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                                }
+                                Spacer(minLength: 0)
+
+                                if isHalloween {
+                                    HStack(spacing: -4) {
+                                        ZStack(alignment: .top) {
+                                            SeasonalThemeHalloweenPumpkin(size: 20)
+                                            Image(systemName: "crown.fill")
+                                                .font(.system(size: 8))
+                                                .foregroundStyle(Color(hex: "FFD60A"))
+                                                .offset(y: -4)
+                                        }
+                                        ZStack(alignment: .top) {
+                                            SeasonalThemeHalloweenPumpkin(size: 24)
+                                            Image(systemName: "crown.fill")
+                                                .font(.system(size: 10))
+                                                .foregroundStyle(Color(hex: "FFD60A"))
+                                                .offset(y: -5)
+                                        }
+                                    }
+                                    .opacity(0.9)
+                                }
+                            }
+
+                            Button(action: onUnlockPro) {
+                                HStack(spacing: ShieldTheme.s3) {
+                                    if isHalloween {
+                                        Image(systemName: "bat.fill")
+                                            .font(.subheadline.weight(.heavy))
+                                            .foregroundStyle(Color(hex: "170A02"))
+                                    }
+
+                                    Text(strings.settings("settings_view_options"))
+                                        .font(.headline.weight(.heavy))
+                                        .foregroundStyle(isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText)
+
+                                    if isHalloween {
+                                        Image(systemName: "bat.fill")
+                                            .font(.subheadline.weight(.heavy))
+                                            .foregroundStyle(Color(hex: "170A02"))
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 48)
+                                .background(
+                                    isHalloween
+                                        ? LinearGradient(
+                                            colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        : LinearGradient(colors: [ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom)
+                                )
+                                .clipShape(Capsule())
+                                .overlay {
+                                    if isHalloween {
+                                        Capsule()
+                                            .stroke(Color(hex: "FFD6A0").opacity(0.55), lineWidth: 1)
+                                    }
+                                }
+                                .shadow(
+                                    color: isHalloween ? Color(hex: "F97316").opacity(0.65) : Color.clear,
+                                    radius: 12,
+                                    y: 4
+                                )
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                        }
+                    }
                 }
             }
+            .padding(ShieldTheme.s4)
         }
-        .padding(ShieldTheme.s4)
         .shieldSettingsCard()
         .accessibilityElement(children: .contain)
     }
@@ -298,7 +458,11 @@ struct SettingsCardSection<Content: View>: View {
             Label(title.uppercased(), systemImage: icon)
                 .font(.subheadline.weight(.bold))
                 .tracking(0.5)
-                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .foregroundStyle(
+                    ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                        ? Color(hex: "FFD6B0")
+                        : ShieldTheme.secondary(scheme)
+                )
                 .accessibilityAddTraits(.isHeader)
                 .padding(.leading, ShieldTheme.s3)
 
@@ -319,7 +483,7 @@ struct SettingsNavigationRow: View {
 
     var body: some View {
         NavigationLink(value: route) {
-            SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true)
+            SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true, route: route)
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityIdentifier(route.accessibilityIdentifier)
@@ -337,11 +501,149 @@ struct SettingsActionRow: View {
 
     var body: some View {
         Button(action: action) {
-            SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true)
+            SettingsRowLabel(icon: icon, color: color, title: title, subtitle: subtitle, showsChevron: true, route: nil)
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityIdentifier(accessibilityIdentifier ?? title)
         .accessibilityHint(subtitle)
+    }
+}
+
+struct SettingsRowVignetteView: View {
+    let route: SettingsRoute
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            LinearGradient(
+                colors: [Color.clear, Color(hex: "1C1026").opacity(0.12), Color(hex: "1C1026").opacity(0.42)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+
+            switch route {
+            case .themes:
+                HStack(spacing: 4) {
+                    Spacer()
+                    ZStack(alignment: .bottomTrailing) {
+                        Canvas { context, size in
+                            let moonRect = CGRect(x: size.width * 0.42, y: size.height * 0.05, width: 42, height: 42)
+                            context.fill(Circle().path(in: moonRect), with: .color(ShieldTheme.halloweenPumpkin.opacity(0.32)))
+
+                            var castle = Path()
+                            castle.move(to: CGPoint(x: size.width * 0.35, y: size.height))
+                            castle.addLine(to: CGPoint(x: size.width * 0.45, y: size.height * 0.45))
+                            castle.addLine(to: CGPoint(x: size.width * 0.50, y: size.height * 0.30))
+                            castle.addLine(to: CGPoint(x: size.width * 0.55, y: size.height * 0.45))
+                            castle.addLine(to: CGPoint(x: size.width * 0.65, y: size.height * 0.20))
+                            castle.addLine(to: CGPoint(x: size.width * 0.70, y: size.height * 0.45))
+                            castle.addLine(to: CGPoint(x: size.width * 0.85, y: size.height * 0.55))
+                            castle.addLine(to: CGPoint(x: size.width, y: size.height * 0.70))
+                            castle.addLine(to: CGPoint(x: size.width, y: size.height))
+                            castle.closeSubpath()
+                            context.fill(castle, with: .color(Color(hex: "0D0612").opacity(0.85)))
+                        }
+                        .frame(width: 110, height: 58)
+
+                        SeasonalThemeHalloweenPumpkin(size: 20)
+                            .offset(x: -16, y: -2)
+                    }
+                }
+            case .appPreferences:
+                HStack(spacing: 4) {
+                    Spacer()
+                    ZStack(alignment: .topTrailing) {
+                        Canvas { context, size in
+                            var branch = Path()
+                            branch.move(to: CGPoint(x: size.width, y: 0))
+                            branch.addCurve(
+                                to: CGPoint(x: size.width * 0.38, y: size.height * 0.32),
+                                control1: CGPoint(x: size.width * 0.75, y: size.height * 0.1),
+                                control2: CGPoint(x: size.width * 0.55, y: size.height * 0.2)
+                            )
+                            context.stroke(branch, with: .color(Color(hex: "0D0612")), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+
+                            var chain = Path()
+                            chain.move(to: CGPoint(x: size.width * 0.50, y: size.height * 0.26))
+                            chain.addLine(to: CGPoint(x: size.width * 0.50, y: size.height * 0.46))
+                            context.stroke(chain, with: .color(Color(hex: "4A2E10")), style: StrokeStyle(lineWidth: 1.2))
+                        }
+                        .frame(width: 100, height: 58)
+
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color(hex: "FFD6A0").opacity(0.55), Color(hex: "F97316").opacity(0.2), .clear],
+                                        center: .center,
+                                        startRadius: 2,
+                                        endRadius: 16
+                                    )
+                                )
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "lantern.fill")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(Color(hex: "FFD6A0"), Color(hex: "F97316"))
+                        }
+                        .offset(x: -42, y: 20)
+                    }
+                }
+            case .ocrSettings:
+                HStack(spacing: 4) {
+                    Spacer()
+                    Canvas { context, size in
+                        let ground = CGRect(x: 0, y: size.height * 0.75, width: size.width, height: size.height * 0.25)
+                        context.fill(Ellipse().path(in: ground), with: .color(Color(hex: "0D0612").opacity(0.85)))
+
+                        var cross = Path()
+                        cross.move(to: CGPoint(x: size.width * 0.70, y: size.height * 0.40))
+                        cross.addLine(to: CGPoint(x: size.width * 0.70, y: size.height * 0.85))
+                        cross.move(to: CGPoint(x: size.width * 0.62, y: size.height * 0.50))
+                        cross.addLine(to: CGPoint(x: size.width * 0.78, y: size.height * 0.50))
+                        context.stroke(cross, with: .color(Color(hex: "170D22")), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+
+                        let tomb = CGRect(x: size.width * 0.42, y: size.height * 0.50, width: 15, height: 18)
+                        context.fill(RoundedRectangle(cornerRadius: 3).path(in: tomb), with: .color(Color(hex: "170D22")))
+                    }
+                    .frame(width: 100, height: 58)
+                }
+            case .security:
+                HStack(spacing: 4) {
+                    Spacer()
+                    ZStack(alignment: .bottomTrailing) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color(hex: "FFD6A0").opacity(0.45), Color(hex: "F97316").opacity(0.18), .clear],
+                                        center: .center,
+                                        startRadius: 2,
+                                        endRadius: 15
+                                    )
+                                )
+                                .frame(width: 30, height: 30)
+                            Image(systemName: "lantern.fill")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(Color(hex: "FFD6A0"), Color(hex: "F97316"))
+                        }
+                        .offset(x: -38, y: -16)
+
+                        SeasonalThemeHalloweenPumpkin(size: 18)
+                            .offset(x: -14, y: -2)
+                    }
+                    .frame(width: 100, height: 58)
+                }
+            default:
+                HStack(spacing: 4) {
+                    Spacer()
+                    Image(systemName: "bat.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color(hex: "FFD6B0").opacity(0.18))
+                        .offset(x: -22, y: -6)
+                }
+                .frame(width: 70, height: 58)
+            }
+        }
+        .opacity(0.75)
     }
 }
 
@@ -351,32 +653,52 @@ private struct SettingsRowLabel: View {
     let title: String
     let subtitle: String
     let showsChevron: Bool
+    var route: SettingsRoute? = nil
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark && !reduceTransparency
+    }
 
     var body: some View {
-        HStack(spacing: ShieldTheme.s4) {
-            SettingsIconBadge(icon: icon, color: color)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(ShieldTheme.primary(scheme))
-                    .multilineTextAlignment(.leading)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(ShieldTheme.secondary(scheme))
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: ShieldTheme.s2)
-            if showsChevron {
-                Image(systemName: "chevron.forward")
-                    .font(.body.weight(.bold))
-                    .foregroundStyle(ShieldTheme.tertiary(scheme))
+        ZStack(alignment: .trailing) {
+            if isHalloween, let route {
+                SettingsRowVignetteView(route: route)
+                    .frame(width: 130, height: 62)
+                    .clipped()
+                    .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
+
+            HStack(spacing: ShieldTheme.s4) {
+                SettingsIconBadge(icon: icon, color: color)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                        .multilineTextAlignment(.leading)
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: ShieldTheme.s2)
+                if showsChevron {
+                    Image(systemName: "chevron.forward")
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(
+                            isHalloween
+                                ? Color(hex: "FFD6A0").opacity(0.85)
+                                : ShieldTheme.tertiary(scheme)
+                        )
+                        .accessibilityHidden(true)
+                }
+            }
+            .padding(ShieldTheme.s4)
         }
-        .padding(ShieldTheme.s4)
         .contentShape(Rectangle())
     }
 }
@@ -387,7 +709,11 @@ struct SettingsRowDivider: View {
 
     var body: some View {
         Rectangle()
-            .fill(ShieldTheme.line(scheme))
+            .fill(
+                ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+                    ? Color(hex: "FFD6B0").opacity(0.12)
+                    : ShieldTheme.line(scheme)
+            )
             .frame(height: 0.8)
             .padding(.leading, inset)
             .accessibilityHidden(true)
@@ -821,24 +1147,67 @@ private struct SeasonalThemeSoundControl: View {
     let onChange: (Bool) -> Void
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var animPhase: CGFloat = 0
     private var strings: LanguageManager { .shared }
 
     var body: some View {
         HStack(spacing: ShieldTheme.s3) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(ShieldTheme.halloweenBlood.opacity(0.16))
-                Image(systemName: isEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(ShieldTheme.halloweenBloodHighlight)
+                    .fill(
+                        isEnabled
+                            ? LinearGradient(colors: [ShieldTheme.halloweenBlood, Color(hex: "5A1028")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [ShieldTheme.halloweenBlood.opacity(0.18)], startPoint: .top, endPoint: .bottom)
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(
+                                isEnabled ? Color(hex: "FF9A3D").opacity(0.4) : Color.white.opacity(0.08),
+                                lineWidth: 1
+                            )
+                    }
+
+                if isEnabled {
+                    // Animated Equalizer Waveform
+                    HStack(spacing: 2.5) {
+                        ForEach(0..<4, id: \.self) { bar in
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(Color(hex: "FFD6A0"))
+                                .frame(width: 3, height: CGFloat(8 + (bar % 3) * 6))
+                                .scaleEffect(y: reduceMotion ? 1.0 : (animPhase > 0 ? 1.2 : 0.6), anchor: .bottom)
+                                .animation(
+                                    reduceMotion ? nil : .easeInOut(duration: 0.45).repeatForever(autoreverses: true).delay(Double(bar) * 0.12),
+                                    value: animPhase
+                                )
+                        }
+                    }
+                } else {
+                    Image(systemName: "speaker.slash.fill")
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.halloweenBloodHighlight)
+                }
             }
             .frame(width: 46, height: 46)
             .accessibilityHidden(true)
+            .onAppear {
+                if !reduceMotion { animPhase = 1 }
+            }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(strings.settings("settings_theme_soundscape_title"))
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(ShieldTheme.primary(scheme))
+                HStack(spacing: 6) {
+                    Text(strings.settings("settings_theme_soundscape_title"))
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                    if isEnabled {
+                        Text("ON")
+                            .font(.caption2.weight(.heavy))
+                            .foregroundStyle(Color(hex: "170A02"))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color(hex: "FFA53D"), in: Capsule())
+                    }
+                }
                 Text(strings.settings("settings_theme_soundscape_detail"))
                     .font(.subheadline)
                     .foregroundStyle(ShieldTheme.secondary(scheme))
@@ -872,26 +1241,45 @@ private struct SeasonalThemeStatusCard: View {
     let onBase: () -> Void
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var strings: LanguageManager { .shared }
+
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark && !reduceTransparency
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: ShieldTheme.s4) {
             HStack(spacing: ShieldTheme.s3) {
                 ZStack {
                     Circle()
-                        .fill(ShieldTheme.accent(scheme).opacity(0.18))
-                    Image(systemName: activeThemeID == .halloween2026 ? "moon.stars.fill" : "wand.and.stars")
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(ShieldTheme.accent(scheme))
+                        .fill(
+                            isHalloween
+                                ? LinearGradient(colors: [Color(hex: "F97316").opacity(0.3), Color(hex: "7C3AED").opacity(0.15)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [ShieldTheme.accent(scheme).opacity(0.18)], startPoint: .top, endPoint: .bottom)
+                        )
+                        .overlay {
+                            if isHalloween {
+                                Circle().stroke(Color(hex: "FF9A3D").opacity(0.4), lineWidth: 1)
+                            }
+                        }
+
+                    if activeThemeID == .halloween2026 {
+                        SeasonalThemeHalloweenPumpkin(size: 26)
+                    } else {
+                        Image(systemName: "wand.and.stars")
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(ShieldTheme.accent(scheme))
+                    }
                 }
                 .frame(width: 48, height: 48)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(strings.settings("settings_theme_current"))
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .foregroundStyle(isHalloween ? Color(hex: "FFD6B0") : ShieldTheme.secondary(scheme))
                     Text(activeThemeID.title(language: strings.currentLanguage))
-                        .font(.headline.weight(.bold))
+                        .font(.headline.weight(.heavy))
                         .foregroundStyle(ShieldTheme.primary(scheme))
                 }
                 Spacer()
@@ -900,7 +1288,10 @@ private struct SeasonalThemeStatusCard: View {
                     .foregroundStyle(isPro ? ShieldTheme.accent(scheme) : ShieldTheme.success)
                     .padding(.horizontal, ShieldTheme.s3)
                     .padding(.vertical, ShieldTheme.s2)
-                    .background(ShieldTheme.rowBackground(scheme), in: Capsule())
+                    .background(
+                        isHalloween ? Color(hex: "291636") : ShieldTheme.rowBackground(scheme),
+                        in: Capsule()
+                    )
             }
 
             Text(strings.settings("settings_theme_timezone_note"))
@@ -916,9 +1307,13 @@ private struct SeasonalThemeStatusCard: View {
                     )
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .foregroundStyle(isAutomatic ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                    .foregroundStyle(isAutomatic ? (isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText) : ShieldTheme.primary(scheme))
                     .background(
-                        isAutomatic ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
+                        isAutomatic
+                            ? (isHalloween
+                                ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .top, endPoint: .bottom)
+                                : LinearGradient(colors: [ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom))
+                            : LinearGradient(colors: [ShieldTheme.rowBackground(scheme)], startPoint: .top, endPoint: .bottom),
                         in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
                     )
                 }
@@ -969,7 +1364,12 @@ private struct SeasonalThemeCard: View {
     let onActivate: () -> Void
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var strings: LanguageManager { .shared }
+
+    private var isHalloween: Bool {
+        definition.id == .halloween2026 && scheme == .dark && !reduceTransparency
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: ShieldTheme.s3) {
@@ -978,19 +1378,28 @@ private struct SeasonalThemeCard: View {
                     SeasonalThemeMiniPreview(themeID: definition.id, reduceMotion: reduceMotion)
                         .frame(width: 76, height: 76)
                         .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
+                                .stroke(
+                                    isHalloween && isSelected
+                                        ? Color(hex: "FF9A3D").opacity(0.6)
+                                        : Color.white.opacity(0.12),
+                                    lineWidth: 1
+                                )
+                        }
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: ShieldTheme.s2) {
                             Text(definition.id.title(language: strings.currentLanguage))
-                                .font(.headline.weight(.bold))
+                                .font(.headline.weight(.heavy))
                                 .foregroundStyle(ShieldTheme.primary(scheme))
                             if definition.requiresProForManualActivation {
                                 Text("PRO")
                                     .font(.caption2.weight(.heavy))
-                                    .foregroundStyle(ShieldTheme.accentText)
+                                    .foregroundStyle(isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 3)
-                                    .background(ShieldTheme.accent(scheme), in: Capsule())
+                                    .background(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent(scheme), in: Capsule())
                             }
                         }
                         Text(definition.id.subtitle(language: strings.currentLanguage))
@@ -998,13 +1407,15 @@ private struct SeasonalThemeCard: View {
                             .foregroundStyle(ShieldTheme.secondary(scheme))
                             .fixedSize(horizontal: false, vertical: true)
                         Text(statusTitle)
-                            .font(.caption.weight(.semibold))
+                            .font(.caption.weight(.heavy))
                             .foregroundStyle(statusColor)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.forward")
                         .font(.body.weight(.bold))
-                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .foregroundStyle(
+                            isHalloween ? Color(hex: "FFD6A0").opacity(0.85) : ShieldTheme.tertiary(scheme)
+                        )
                         .accessibilityHidden(true)
                 }
             }
@@ -1020,13 +1431,34 @@ private struct SeasonalThemeCard: View {
                         Image(systemName: "lock.fill")
                     }
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(isSelected ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
+                .font(.subheadline.weight(.heavy))
+                .foregroundStyle(
+                    isSelected
+                        ? (isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText)
+                        : ShieldTheme.primary(scheme)
+                )
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.horizontal, ShieldTheme.s3)
                 .background(
-                    isSelected ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
+                    isSelected
+                        ? (isHalloween
+                            ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom))
+                        : (isHalloween
+                            ? LinearGradient(colors: [Color(hex: "291636").opacity(0.8)], startPoint: .top, endPoint: .bottom)
+                            : LinearGradient(colors: [ShieldTheme.rowBackground(scheme)], startPoint: .top, endPoint: .bottom)),
                     in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                )
+                .overlay {
+                    if isSelected && isHalloween {
+                        RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                            .stroke(Color(hex: "FFD6A0").opacity(0.55), lineWidth: 1)
+                    }
+                }
+                .shadow(
+                    color: isSelected && isHalloween ? Color(hex: "F97316").opacity(0.5) : Color.clear,
+                    radius: 8,
+                    y: 2
                 )
             }
             .buttonStyle(ScaleButtonStyle())
@@ -1040,10 +1472,16 @@ private struct SeasonalThemeCard: View {
 
     private var statusTitle: String {
         switch availability {
-        case .base: return strings.settings("settings_theme_status_base")
-        case .upcoming: return strings.settings("settings_theme_status_upcoming")
-        case .active: return strings.settings("settings_theme_status_active")
-        case .archived: return strings.settings("settings_theme_status_archived")
+        case .base:
+            return "\(strings.settings("settings_theme_status_base")) 🛡️"
+        case .upcoming:
+            return "\(strings.settings("settings_theme_status_upcoming")) ⏳"
+        case .active:
+            return definition.id == .halloween2026
+                ? "\(strings.settings("settings_theme_status_active")) 🎃"
+                : strings.settings("settings_theme_status_active")
+        case .archived:
+            return "\(strings.settings("settings_theme_status_archived")) 📜"
         }
     }
 

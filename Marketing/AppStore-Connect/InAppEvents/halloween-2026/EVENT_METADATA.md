@@ -1,53 +1,58 @@
-# MaskID Halloween 2026 — In-App Event draft
+# MaskID Halloween 2026 — In-App Event Configuration
 
-Estado: borrador remoto guardado en App Store Connect; todavía no enviado a revisión ni publicado.
+Estado: borrador remoto guardado en App Store Connect (`6816385632`); optimizado para todos los públicos y países.
 
 - App: `MaskID` (`6790398619`)
 - Evento: [Halloween 2026 en App Store Connect](https://appstoreconnect.apple.com/apps/6790398619/distribution/events/6816385632)
 - ID del evento: `6816385632`
 
-## Configuración
+## Configuración y Disponibilidad
 
 - Referencia interna: `MaskID Halloween 2026 Theme Event`
-- Badge: `Special Event`
+- Badge / Tipo de evento: `Special Event` (Evento especial)
+- Finalidad / Event Purpose: `Appropriate for all users` (Apto para todos los usuarios: nuevos usuarios, usuarios activos y usuarios recuperados, visible en búsquedas y navegación de la App Store)
+- Países y regiones: `All countries and regions` (Todos los países y territorios disponibles)
 - Deep link: `maskid://theme/halloween-2026`
 - Inicio del tema dentro de la app: `2026-10-01 00:00` en la zona horaria local de cada dispositivo.
 - Fin del tema dentro de la app: `2026-11-01 00:00` en la zona horaria local de cada dispositivo.
 - Inicio del evento en App Store Connect: `2026-10-01 00:00` en `Europe/Madrid`.
-- Fin del evento en App Store Connect: `2026-10-31 23:00` en `Europe/Madrid` (límite validado por App Store Connect para no superar 31 días; la zona aplica el cambio DST correspondiente).
+- Fin del evento en App Store Connect: `2026-10-31 23:00` en `Europe/Madrid` (límite validado por App Store Connect de 31 días con ajuste DST).
 - Inicio de publicación en App Store Connect: `2026-09-30 00:00` en `Europe/Madrid`.
-- Disponibilidad: todos los países o regiones.
-- Finalidad: mantener informados a los usuarios activos.
-- El evento no desbloquea funciones de pago: presenta la actualización estacional y enlaza a la galería de temas.
+- Monetización: El evento no requiere compras dentro de la app; incluye contenido gratuito accesible para todos y características Pro avanzadas.
 
 ## Metadata — English (en-US)
+*Optimizada al límite de caracteres de Apple Store Connect*
 
-- Name: `Halloween in MaskID`
-- Short description: `A spooky seasonal privacy theme`
-- Long description: `Give MaskID a seasonal look with a spooky icon, colors, textures, and gentle motion.`
+- **Event Name** (28/30 caracteres):
+  `MaskID: Halloween Season 🎃`
+- **Short Description** (64/64 caracteres):
+  `Protect your ID with our spooky seasonal theme and custom icons!`
+- **Long Description** (118/120 caracteres):
+  `Transform MaskID with a spooky dark theme, animated halo, themed icons, glowing widgets, and full privacy protection.`
 
 ## Metadata — Spanish (es-ES)
+*Optimizada al límite de caracteres de Apple Store Connect*
 
-- Name: `Halloween en MaskID`
-- Short description: `Un tema de privacidad espeluznante`
-- Long description: `Dale a MaskID un aspecto de temporada con icono, colores, texturas y movimiento sutiles.`
+- **Nombre del evento** (26/30 caracteres):
+  `Halloween 2026 en MaskID 🎃`
+- **Descripción corta** (62/64 caracteres):
+  `¡Protege tus documentos con el tema espeluznante de Halloween!`
+- **Descripción larga** (117/120 caracteres):
+  `Transforma MaskID con tema oscuro de Halloween, halo animado, iconos temáticos, widgets y máxima protección de datos.`
 
-## Media
+## Media Assets
 
-- Card image: `event-card-16x9.png` — 1920×1080, no contiene texto incrustado.
-- Details image: `event-details-9x16.png` — 1080×1920, no contiene texto incrustado.
-- Los recursos fueron generados como arte conceptual de Halloween para MaskID y redimensionados a las dimensiones mínimas del evento.
-- Revisar contraste, legibilidad y recorte final en la vista previa de App Store Connect antes de enviar a revisión.
+- **Card image (16:9)**: `event-card-16x9.png` — 1920×1080 px (sin texto incrustado, fondo nocturno con castillo gótico y calabaza iluminada).
+- **Details image (9:16)**: `event-details-9x16.png` — 1080×1920 px (sin texto incrustado, composición vertical inmersiva de Halloween).
 
-## Checklist de carga
+## Checklist de App Store Connect
 
-- [x] Crear el evento dentro de la app `MaskID` (`6790398619`).
-- [x] Seleccionar `Special Event`.
-- [x] Introducir nombre, descripción breve y descripción larga en `en-US` y `es-ES`.
-- [x] Subir las dos imágenes y comprobar el recorte en la vista previa.
-- [x] Configurar fechas, publicación, territorios y zona horaria de App Store Connect.
-- [x] Añadir `maskid://theme/halloween-2026` como deep link.
-- [ ] Enviar el evento a revisión con margen suficiente antes del 1 de octubre de 2026 (requiere confirmación de envío).
-- [ ] Confirmar que la ficha esté aprobada y publicada antes de la fecha de inicio.
+- [x] Crear evento `6816385632` bajo la app `MaskID` (`6790398619`).
+- [x] Seleccionar badge `Special Event`.
+- [x] Configurar propósito como `Appropriate for all users` (global y abierto a todos los públicos).
+- [x] Configurar territorios: disponible en el 100% de países/regiones.
+- [x] Subir `event-card-16x9.png` (1920×1080) y `event-details-9x16.png` (1080×1920).
+- [x] Introducir textos completos en `en-US` y `es-ES`.
+- [x] Configurar Deep Link `maskid://theme/halloween-2026`.
+- [ ] Enviar a revisión antes del inicio de la campaña el 30 de septiembre de 2026.
 
-Fuentes oficiales: [In-App Events](https://developer.apple.com/app-store/in-app-events/), [Offer In-App Events](https://developer.apple.com/help/app-store-connect/offer-in-app-events/offer-in-app-events) y [media specifications](https://developer.apple.com/help/app-store-connect/reference/in-app-events/in-app-event-media-and-audio-specifications).

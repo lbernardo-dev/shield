@@ -27,7 +27,6 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, ShieldTheme.s4)
                         .padding(.bottom, ShieldTheme.s3)
-                        .background(ShieldTheme.pageBackground(scheme))
 
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: ShieldTheme.s5) {

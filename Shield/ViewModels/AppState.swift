@@ -186,6 +186,10 @@ final class AppState: ObservableObject {
             case "settings":
                 selectedDoc = nil
                 activeTab = .settings
+            case "themes":
+                selectedDoc = nil
+                activeTab = .settings
+                pendingThemeDeepLink = .halloween2026
             default:
                 selectedDoc = nil
                 activeTab = .library

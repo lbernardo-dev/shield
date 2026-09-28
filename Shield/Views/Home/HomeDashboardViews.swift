@@ -8,6 +8,10 @@ struct HomeTopBarView: View {
     let onOpenSettings: () -> Void
     let isManagedTheme: Bool
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 9) {
@@ -17,9 +21,15 @@ struct HomeTopBarView: View {
                     treatment: .compact
                 )
 
-                Text(LanguageManager.shared.common("common_app_name"))
-                    .shieldFont(22, weight: .heavy)
-                    .foregroundColor(ShieldTheme.primary(scheme))
+                HStack(spacing: 6) {
+                    Text(LanguageManager.shared.common("common_app_name"))
+                        .shieldFont(22, weight: .heavy)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                    if isHalloween {
+                        Text("🎃")
+                            .font(.system(size: 16))
+                    }
+                }
             }
 
             Spacer()
@@ -40,9 +50,22 @@ struct HomeTopBarView: View {
             } label: {
                 Image(systemName: "person.crop.circle")
                     .font(.system(size: 22, weight: .medium))
-                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .foregroundColor(isHalloween ? Color(hex: "FFD6A0") : ShieldTheme.primary(scheme))
                     .frame(width: 44, height: 44)
-                    .background(ShieldTheme.rowBackground(scheme), in: Circle())
+                    .background(
+                        isHalloween
+                            ? Color(hex: "231433").opacity(0.85)
+                            : ShieldTheme.rowBackground(scheme),
+                        in: Circle()
+                    )
+                    .overlay(
+                        Circle().stroke(
+                            isHalloween
+                                ? Color(hex: "F97316").opacity(0.5)
+                                : Color.clear,
+                            lineWidth: 1
+                        )
+                    )
                     .contentShape(Circle())
             }
             .buttonStyle(ScaleButtonStyle())
@@ -60,6 +83,10 @@ struct HomeHeroCardView: View {
     let onUpgrade: () -> Void
     let onLearnMore: () -> Void
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     private var isAtFreeLimit: Bool {
         freeUsed >= freeLimit
     }
@@ -69,10 +96,13 @@ struct HomeHeroCardView: View {
     }
 
     private var usageColor: Color {
+        if isHalloween {
+            return Color(hex: "FFA53D")
+        }
         switch usageFraction {
-        case ..<0.5: ShieldTheme.success
-        case ..<0.8: ShieldTheme.warning
-        default: ShieldTheme.danger
+        case ..<0.5: return ShieldTheme.success
+        case ..<0.8: return ShieldTheme.warning
+        default: return ShieldTheme.danger
         }
     }
 
@@ -88,15 +118,21 @@ struct HomeHeroCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(heroTitle)
-                .shieldFont(32, weight: .heavy)
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 6)
+            HStack(spacing: 8) {
+                Text(heroTitle)
+                    .shieldFont(32, weight: .heavy)
+                    .foregroundColor(ShieldTheme.primary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+                if isHalloween {
+                    Text("🦇")
+                        .font(.system(size: 22))
+                }
+            }
+            .padding(.bottom, 6)
 
             Text(heroSubtitle)
                 .shieldFont(18, weight: .medium)
-                .foregroundColor(ShieldTheme.secondary(scheme))
+                .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.secondary(scheme))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 12)
 
@@ -130,10 +166,18 @@ struct HomeHeroCardView: View {
                     GeometryReader { proxy in
                         ZStack(alignment: .leading) {
                             Capsule()
-                                .fill(ShieldTheme.rowBackground(scheme))
+                                .fill(
+                                    isHalloween
+                                        ? Color(hex: "341846").opacity(0.8)
+                                        : ShieldTheme.rowBackground(scheme)
+                                )
                                 .frame(height: 6)
                             Capsule()
-                                .fill(usageColor)
+                                .fill(
+                                    isHalloween
+                                        ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .leading, endPoint: .trailing)
+                                        : LinearGradient(colors: [usageColor, usageColor], startPoint: .leading, endPoint: .trailing)
+                                )
                                 .frame(width: proxy.size.width * usageFraction, height: 6)
                         }
                     }
@@ -151,9 +195,24 @@ struct HomeHeroCardView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(ShieldTheme.cardBackground(scheme).opacity(0.9))
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.85)
+                    : ShieldTheme.cardBackground(scheme).opacity(0.9)
             )
+            .overlay {
+                if isHalloween {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color(hex: "FF9A3D").opacity(0.45), Color(hex: "7C3AED").opacity(0.3)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(ScaleButtonStyle())
     }
@@ -164,15 +223,35 @@ private struct HomeProcessingCard: View {
     let scheme: ColorScheme
     let onLearnMore: () -> Void
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         Button(action: onLearnMore) {
             HStack(alignment: .center, spacing: 14) {
                 ZStack {
-                    Circle()
-                        .fill(ShieldTheme.accentDim(scheme))
-                    Image(systemName: "lock.shield.fill")
-                        .shieldFont(24, weight: .semibold)
-                        .foregroundColor(ShieldTheme.accentColor(scheme))
+                    if isHalloween {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(hex: "F97316").opacity(0.28), Color(hex: "7C3AED").opacity(0.2)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                        Circle()
+                            .stroke(Color(hex: "FF9A3D").opacity(0.5), lineWidth: 1)
+                        Image(systemName: "lock.shield.fill")
+                            .shieldFont(24, weight: .semibold)
+                            .foregroundColor(Color(hex: "FFA53D"))
+                    } else {
+                        Circle()
+                            .fill(ShieldTheme.accentDim(scheme))
+                        Image(systemName: "lock.shield.fill")
+                            .shieldFont(24, weight: .semibold)
+                            .foregroundColor(ShieldTheme.accentColor(scheme))
+                    }
                 }
                 .frame(width: 56, height: 56)
 
@@ -184,7 +263,7 @@ private struct HomeProcessingCard: View {
 
                     Text(LanguageManager.shared.home("home_processing_local_body"))
                         .shieldFont(13)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
+                        .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.secondary(scheme))
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -194,17 +273,30 @@ private struct HomeProcessingCard: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .bold))
                     }
-                    .foregroundColor(ShieldTheme.accentColor(scheme))
+                    .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accentColor(scheme))
                 }
 
                 Spacer(minLength: 0)
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ShieldTheme.selectedBackground(scheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1F112B").opacity(0.85)
+                    : ShieldTheme.selectedBackground(scheme)
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(ShieldTheme.accentStroke(scheme).opacity(0.4), lineWidth: 0.8)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(
+                                colors: [Color(hex: "FF9A3D").opacity(0.55), Color(hex: "7C3AED").opacity(0.35)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(colors: [ShieldTheme.accentStroke(scheme).opacity(0.4)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.8
+                    )
             }
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
@@ -221,6 +313,9 @@ struct HomeRecentDocumentCard: View {
     let action: () -> Void
 
     @EnvironmentObject private var appState: AppState
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+    }
 
     private var shouldMask: Bool {
         doc.isVaulted
@@ -242,7 +337,7 @@ struct HomeRecentDocumentCard: View {
 
                     Text(doc.compactDateLabel(lang: lang))
                         .shieldFont(14)
-                        .foregroundColor(ShieldTheme.secondary(appState.preferredScheme))
+                        .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.secondary(appState.preferredScheme))
                         .lineLimit(1)
 
                     HStack(spacing: 6) {
@@ -253,25 +348,49 @@ struct HomeRecentDocumentCard: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.78)
                     }
-                    .foregroundColor(ShieldTheme.warning)
+                    .foregroundColor(isHalloween ? Color(hex: "FFA53D") : ShieldTheme.warning)
                     .padding(.horizontal, 9)
                     .padding(.vertical, 6)
-                    .background(ShieldTheme.warningBackground(appState.preferredScheme), in: Capsule())
+                    .background(
+                        isHalloween
+                            ? Color(hex: "F97316").opacity(0.18)
+                            : ShieldTheme.warningBackground(appState.preferredScheme),
+                        in: Capsule()
+                    )
+                    .overlay(
+                        Capsule().stroke(
+                            isHalloween ? Color(hex: "FFA53D").opacity(0.4) : Color.clear,
+                            lineWidth: 0.8
+                        )
+                    )
                 }
 
                 Spacer(minLength: 0)
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(ShieldTheme.tertiary(appState.preferredScheme))
+                    .foregroundColor(isHalloween ? Color(hex: "FF9A3D").opacity(0.8) : ShieldTheme.tertiary(appState.preferredScheme))
                     .accessibilityHidden(true)
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ShieldTheme.cardBackground(appState.preferredScheme))
+            .background(
+                isHalloween
+                    ? Color(hex: "1C1026").opacity(0.85)
+                    : ShieldTheme.cardBackground(appState.preferredScheme)
+            )
             .overlay {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
+                    .stroke(
+                        isHalloween
+                            ? LinearGradient(
+                                colors: [Color(hex: "FF9A3D").opacity(0.55), Color(hex: "7C3AED").opacity(0.35)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(colors: [ShieldTheme.line(appState.preferredScheme)], startPoint: .top, endPoint: .bottom),
+                        lineWidth: isHalloween ? 1.0 : 0.8
+                    )
             }
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }

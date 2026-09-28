@@ -159,6 +159,17 @@ enum RedactionMode: String, CaseIterable, Identifiable {
     }
 
     var icon: String {
+        if ShieldTheme.activeThemeID == .halloween2026 {
+            switch self {
+            case .rental:  return "house.lodge.fill"
+            case .travel:  return "moon.stars.fill"
+            case .job:     return "person.bust.fill"
+            case .verify:  return "checkmark.seal.fill"
+            case .legal:   return "scroll.fill"
+            case .health:  return "cross.vial.fill"
+            case .banking: return "creditcard.and.123"
+            }
+        }
         switch self {
         case .rental:  return "house.fill"
         case .travel:  return "airplane"

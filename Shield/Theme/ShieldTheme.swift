@@ -26,9 +26,9 @@ enum ShieldTheme {
 
     // Text — dark
     static var textPrimary: Color { activeThemeID == .halloween2026 ? Color(hex: "FFF7F0") : Color(hex: "F5F5F7") }
-    static var textSecondary: Color { textPrimary.opacity(0.66) }
-    static var textTertiary: Color { textPrimary.opacity(0.42) }
-    static var textQuaternary: Color { textPrimary.opacity(0.24) }
+    static var textSecondary: Color { activeThemeID == .halloween2026 ? Color(hex: "FFD6B0").opacity(0.85) : textPrimary.opacity(0.72) }
+    static var textTertiary: Color { activeThemeID == .halloween2026 ? Color(hex: "FFD6B0").opacity(0.68) : textPrimary.opacity(0.56) }
+    static var textQuaternary: Color { activeThemeID == .halloween2026 ? Color(hex: "FFD6B0").opacity(0.45) : textPrimary.opacity(0.36) }
 
     // MaskID identity palette: electric cyan over deep privacy navy.
     static var accent: Color { activeThemeID == .halloween2026 ? Color(hex: "F97316") : Color(hex: "20C7D9") }
@@ -710,13 +710,13 @@ struct SeasonalThemeBackdrop: View {
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)
                         .clipped()
-                        .opacity(0.34)
+                        .opacity(0.88)
                         .overlay {
                             LinearGradient(
                                 colors: [
-                                    Color(hex: "09050F").opacity(0.16),
-                                    Color(hex: "100A14").opacity(0.42),
-                                    Color(hex: "100A14").opacity(0.76)
+                                    Color(hex: "09050F").opacity(0.15),
+                                    .clear,
+                                    Color(hex: "100A14").opacity(0.65)
                                 ],
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -792,11 +792,13 @@ private struct SeasonalThemeHomeWeb: View {
     }
 }
 
-private struct SeasonalThemeWebCorner: View {
+struct SeasonalThemeWebCorner: View {
+    var size: CGFloat = 60
+
     var body: some View {
-        Canvas { context, size in
+        Canvas { context, canvasSize in
             let center = CGPoint(x: 0, y: 0)
-            let radius = min(size.width, size.height) * 0.98
+            let radius = min(canvasSize.width, canvasSize.height) * 0.98
             var web = Path()
             for spoke in 0..<7 {
                 let angle = Double(spoke) * .pi / 3.25
@@ -815,56 +817,64 @@ private struct SeasonalThemeWebCorner: View {
             }
             context.stroke(
                 web,
-                with: .color(ShieldTheme.halloweenMoon.opacity(0.23)),
-                style: StrokeStyle(lineWidth: 0.8, lineCap: .round)
+                with: .color(ShieldTheme.halloweenMoon.opacity(0.35)),
+                style: StrokeStyle(lineWidth: 0.9, lineCap: .round)
             )
         }
+        .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
 }
 
-private struct SeasonalThemeCandelabra: View {
+struct SeasonalThemeCandelabra: View {
+    var size: CGFloat = 36
+
     var body: some View {
-        Canvas { context, size in
-            let color = ShieldTheme.halloweenMoon.opacity(0.65)
+        Canvas { context, canvasSize in
+            let color = ShieldTheme.halloweenMoon.opacity(0.75)
             let flame = ShieldTheme.halloweenPumpkin
             var holder = Path()
-            holder.move(to: CGPoint(x: size.width * 0.12, y: size.height * 0.76))
+            holder.move(to: CGPoint(x: canvasSize.width * 0.12, y: canvasSize.height * 0.76))
             holder.addCurve(
-                to: CGPoint(x: size.width * 0.88, y: size.height * 0.76),
-                control1: CGPoint(x: size.width * 0.26, y: size.height * 0.56),
-                control2: CGPoint(x: size.width * 0.74, y: size.height * 0.56)
+                to: CGPoint(x: canvasSize.width * 0.88, y: canvasSize.height * 0.76),
+                control1: CGPoint(x: canvasSize.width * 0.26, y: canvasSize.height * 0.56),
+                control2: CGPoint(x: canvasSize.width * 0.74, y: canvasSize.height * 0.56)
             )
-            holder.addLine(to: CGPoint(x: size.width * 0.78, y: size.height * 0.84))
-            holder.addLine(to: CGPoint(x: size.width * 0.22, y: size.height * 0.84))
+            holder.addLine(to: CGPoint(x: canvasSize.width * 0.78, y: canvasSize.height * 0.84))
+            holder.addLine(to: CGPoint(x: canvasSize.width * 0.22, y: canvasSize.height * 0.84))
             holder.closeSubpath()
-            context.stroke(holder, with: .color(color), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            context.stroke(holder, with: .color(color), style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
 
             for x in [0.22, 0.50, 0.78] {
-                let candleX = size.width * x
+                let candleX = canvasSize.width * x
                 var stem = Path()
-                stem.move(to: CGPoint(x: candleX, y: size.height * 0.66))
-                stem.addLine(to: CGPoint(x: candleX, y: size.height * 0.30))
-                context.stroke(stem, with: .color(color), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                stem.move(to: CGPoint(x: candleX, y: canvasSize.height * 0.66))
+                stem.addLine(to: CGPoint(x: candleX, y: canvasSize.height * 0.30))
+                context.stroke(stem, with: .color(color), style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
                 context.fill(
-                    Ellipse().path(in: CGRect(x: candleX - 4, y: size.height * 0.14, width: 8, height: 15)),
-                    with: .color(flame.opacity(0.8))
+                    Ellipse().path(in: CGRect(x: candleX - 3.5, y: canvasSize.height * 0.14, width: 7, height: 13)),
+                    with: .color(flame.opacity(0.95))
+                )
+                context.fill(
+                    Ellipse().path(in: CGRect(x: candleX - 1.5, y: canvasSize.height * 0.17, width: 3, height: 7)),
+                    with: .color(Color(hex: "FFF7D6"))
                 )
             }
         }
-        .shadow(color: ShieldTheme.halloweenPumpkin.opacity(0.45), radius: 8)
+        .frame(width: size, height: size * 0.85)
+        .shadow(color: ShieldTheme.halloweenPumpkin.opacity(0.55), radius: 8)
         .accessibilityHidden(true)
     }
 }
 
-private struct SeasonalThemeHalloweenPumpkin: View {
-    let size: CGFloat
+struct SeasonalThemeHalloweenPumpkin: View {
+    var size: CGFloat = 32
 
     var body: some View {
         Canvas { context, canvasSize in
             let center = CGPoint(x: canvasSize.width / 2, y: canvasSize.height * 0.58)
             let pumpkin = CGRect(x: canvasSize.width * 0.08, y: canvasSize.height * 0.24, width: canvasSize.width * 0.84, height: canvasSize.height * 0.58)
-            context.fill(Ellipse().path(in: pumpkin), with: .color(ShieldTheme.halloweenPumpkin.opacity(0.88)))
+            context.fill(Ellipse().path(in: pumpkin), with: .color(ShieldTheme.halloweenPumpkin.opacity(0.92)))
 
             for offset in [-0.28, 0.0, 0.28] {
                 let ridge = CGRect(
@@ -875,7 +885,7 @@ private struct SeasonalThemeHalloweenPumpkin: View {
                 )
                 context.stroke(
                     Ellipse().path(in: ridge),
-                    with: .color(Color.white.opacity(0.15)),
+                    with: .color(Color.white.opacity(0.18)),
                     style: StrokeStyle(lineWidth: 1.2)
                 )
             }
@@ -883,7 +893,7 @@ private struct SeasonalThemeHalloweenPumpkin: View {
             var stem = Path()
             stem.move(to: CGPoint(x: center.x, y: canvasSize.height * 0.27))
             stem.addLine(to: CGPoint(x: center.x + 2, y: canvasSize.height * 0.10))
-            context.stroke(stem, with: .color(ShieldTheme.halloweenMoss.opacity(0.75)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+            context.stroke(stem, with: .color(ShieldTheme.halloweenMoss.opacity(0.85)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
 
             context.fill(
                 Path { path in
@@ -892,7 +902,7 @@ private struct SeasonalThemeHalloweenPumpkin: View {
                     path.addLine(to: CGPoint(x: canvasSize.width * 0.35, y: canvasSize.height * 0.58))
                     path.closeSubpath()
                 },
-                with: .color(ShieldTheme.halloweenMoon.opacity(0.72))
+                with: .color(ShieldTheme.halloweenMoon.opacity(0.85))
             )
             context.fill(
                 Path { path in
@@ -901,11 +911,24 @@ private struct SeasonalThemeHalloweenPumpkin: View {
                     path.addLine(to: CGPoint(x: canvasSize.width * 0.65, y: canvasSize.height * 0.58))
                     path.closeSubpath()
                 },
-                with: .color(ShieldTheme.halloweenMoon.opacity(0.72))
+                with: .color(ShieldTheme.halloweenMoon.opacity(0.85))
+            )
+            // Smiling carved mouth
+            context.fill(
+                Path { path in
+                    path.move(to: CGPoint(x: canvasSize.width * 0.30, y: canvasSize.height * 0.66))
+                    path.addLine(to: CGPoint(x: canvasSize.width * 0.40, y: canvasSize.height * 0.74))
+                    path.addLine(to: CGPoint(x: canvasSize.width * 0.50, y: canvasSize.height * 0.68))
+                    path.addLine(to: CGPoint(x: canvasSize.width * 0.60, y: canvasSize.height * 0.74))
+                    path.addLine(to: CGPoint(x: canvasSize.width * 0.70, y: canvasSize.height * 0.66))
+                    path.addLine(to: CGPoint(x: canvasSize.width * 0.50, y: canvasSize.height * 0.78))
+                    path.closeSubpath()
+                },
+                with: .color(ShieldTheme.halloweenMoon.opacity(0.85))
             )
         }
         .frame(width: size, height: size)
-        .shadow(color: ShieldTheme.halloweenPumpkin.opacity(0.38), radius: 8)
+        .shadow(color: ShieldTheme.halloweenPumpkin.opacity(0.50), radius: 8)
         .accessibilityHidden(true)
     }
 }
@@ -1121,6 +1144,251 @@ struct SeasonalThemeLoadingIndicator: View {
                 .tint(color ?? ShieldTheme.accent(scheme))
                 .accessibilityHidden(true)
         }
+    }
+}
+
+/// Glowing spiderweb and ember aura rendered behind the central floating scan button
+struct SeasonalScanButtonHalo: View {
+    let reduceMotion: Bool
+    @State private var rotation: Double = 0
+    @State private var glowPulse: Bool = false
+
+    var body: some View {
+        ZStack {
+            // Radial spiderweb aura
+            Canvas { context, size in
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
+                let maxRadius = size.width * 0.48
+                var web = Path()
+                for spoke in 0..<10 {
+                    let angle = Double(spoke) * .pi / 5
+                    web.move(to: center)
+                    web.addLine(to: CGPoint(x: center.x + cos(angle) * maxRadius, y: center.y + sin(angle) * maxRadius))
+                }
+                for ring in 1...3 {
+                    let r = maxRadius * CGFloat(ring) / 3
+                    web.addEllipse(in: CGRect(x: center.x - r, y: center.y - r, width: r * 2, height: r * 2))
+                }
+                context.stroke(
+                    web,
+                    with: .color(ShieldTheme.halloweenPumpkin.opacity(0.35)),
+                    style: StrokeStyle(lineWidth: 0.8, dash: [3, 2])
+                )
+            }
+            .frame(width: 72, height: 72)
+
+            // Outer rotating ember ring
+            Circle()
+                .stroke(
+                    AngularGradient(
+                        colors: [
+                            ShieldTheme.halloweenPumpkin.opacity(0.8),
+                            ShieldTheme.halloweenMoon.opacity(0.4),
+                            ShieldTheme.halloweenBlood.opacity(0.6),
+                            ShieldTheme.halloweenPumpkin.opacity(0.8)
+                        ],
+                        center: .center
+                    ),
+                    lineWidth: 1.0
+                )
+                .frame(width: 56, height: 56)
+                .rotationEffect(.degrees(rotation))
+                .shadow(color: ShieldTheme.halloweenPumpkin.opacity(glowPulse ? 0.45 : 0.2), radius: 4.5)
+
+            // Mini flanking pumpkins
+            HStack(spacing: 44) {
+                SeasonalThemeHalloweenPumpkin(size: 10)
+                SeasonalThemeHalloweenPumpkin(size: 10)
+            }
+            .offset(y: 18)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            value: glowPulse
+        )
+        .animation(
+            reduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
+            value: rotation
+        )
+        .onAppear {
+            guard !reduceMotion else { return }
+            glowPulse = true
+            rotation = 360
+        }
+    }
+}
+
+/// Glowing tech radar and cyber aura rendered behind the standard central floating scan button
+struct StandardScanButtonHalo: View {
+    let reduceMotion: Bool
+    @State private var rotation: Double = 0
+    @State private var glowPulse: Bool = false
+
+    var body: some View {
+        ZStack {
+            // Tech radar / concentric pulse rings
+            Canvas { context, size in
+                let center = CGPoint(x: size.width / 2, y: size.height / 2)
+                let maxRadius = size.width * 0.48
+                var radar = Path()
+                for spoke in 0..<8 {
+                    let angle = Double(spoke) * .pi / 4
+                    radar.move(to: center)
+                    radar.addLine(to: CGPoint(x: center.x + cos(angle) * maxRadius, y: center.y + sin(angle) * maxRadius))
+                }
+                for ring in 1...3 {
+                    let r = maxRadius * CGFloat(ring) / 3
+                    radar.addEllipse(in: CGRect(x: center.x - r, y: center.y - r, width: r * 2, height: r * 2))
+                }
+                context.stroke(
+                    radar,
+                    with: .color(Color(hex: "20C7D9").opacity(0.28)),
+                    style: StrokeStyle(lineWidth: 0.8, dash: [3, 2])
+                )
+            }
+            .frame(width: 72, height: 72)
+
+            // Outer rotating electric cyan ring
+            Circle()
+                .stroke(
+                    AngularGradient(
+                        colors: [
+                            Color(hex: "20C7D9").opacity(0.75),
+                            Color(hex: "80F5FF").opacity(0.40),
+                            Color(hex: "0898AA").opacity(0.60),
+                            Color(hex: "20C7D9").opacity(0.75)
+                        ],
+                        center: .center
+                    ),
+                    lineWidth: 1.0
+                )
+                .frame(width: 56, height: 56)
+                .rotationEffect(.degrees(rotation))
+                .shadow(color: Color(hex: "20C7D9").opacity(glowPulse ? 0.45 : 0.2), radius: 4.5)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            value: glowPulse
+        )
+        .animation(
+            reduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
+            value: rotation
+        )
+        .onAppear {
+            guard !reduceMotion else { return }
+            glowPulse = true
+            rotation = 360
+        }
+    }
+}
+
+/// Large glowing mask hero used on the locked Vault screen
+struct SeasonalVaultHeroView: View {
+    var size: CGFloat = 160
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulse = false
+    @State private var rotateDashes = false
+
+    var body: some View {
+        ZStack {
+            // Warm background radial bloom
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            ShieldTheme.halloweenPumpkin.opacity(0.38),
+                            ShieldTheme.halloweenBlood.opacity(0.18),
+                            .clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: size * 0.78
+                    )
+                )
+                .frame(width: size * 1.5, height: size * 1.5)
+                .scaleEffect(pulse ? 1.05 : 0.95)
+
+            // Outer dashed glowing ring
+            Circle()
+                .stroke(
+                    ShieldTheme.halloweenPumpkin.opacity(0.75),
+                    style: StrokeStyle(lineWidth: 2, dash: [10, 7])
+                )
+                .frame(width: size * 0.98, height: size * 0.98)
+                .rotationEffect(.degrees(rotateDashes ? 360 : 0))
+
+            // Inner solid glowing neon ring
+            Circle()
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color(hex: "FFD6A0"),
+                            ShieldTheme.halloweenPumpkin,
+                            Color(hex: "EA580C")
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 3.5
+                )
+                .frame(width: size * 0.82, height: size * 0.82)
+                .shadow(color: ShieldTheme.halloweenPumpkin.opacity(0.85), radius: 14)
+
+            // Center dark obsidian disc
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color(hex: "24122E"), Color(hex: "120817")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: size * 0.78, height: size * 0.78)
+                .overlay {
+                    Circle()
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                }
+
+            // MaskID identity mark
+            MaskIDIdentityMark(
+                size: size * 0.52,
+                presentation: .animatedLoop,
+                treatment: .hero
+            )
+
+            // Floating orange digital sparks/pixels
+            ForEach(0..<6, id: \.self) { i in
+                let offsetAngle = Double(i) * 0.38 - 0.45
+                let distance = size * 0.38 + CGFloat((i % 3) * 6)
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(ShieldTheme.halloweenPumpkin)
+                    .frame(width: CGFloat(3 + (i % 3)), height: CGFloat(3 + (i % 3)))
+                    .shadow(color: ShieldTheme.halloweenPumpkin, radius: 4)
+                    .offset(
+                        x: cos(offsetAngle) * distance,
+                        y: sin(offsetAngle) * distance
+                    )
+            }
+        }
+        .frame(width: size, height: size)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true),
+            value: pulse
+        )
+        .animation(
+            reduceMotion ? nil : .linear(duration: 20).repeatForever(autoreverses: false),
+            value: rotateDashes
+        )
+        .onAppear {
+            guard !reduceMotion else { return }
+            pulse = true
+            rotateDashes = true
+        }
+        .accessibilityHidden(true)
     }
 }
 
