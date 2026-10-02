@@ -2154,3 +2154,12 @@
    Done by: CODEX
    Done at: 2026-10-02T09:11:22Z
 
+202. theme-icons-integration
+   Id: 202-theme-icons-integration
+   Scope: Eliminar selector y listado independiente de iconos, vincular iconos exclusivamente al tema activo (base y halloween) y actualizar Info.plist y modelos
+   Files: Shield/Models/AppIconOption.swift,Shield/Theme/ShieldTheme.swift,Shield/ViewModels/AppState.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Settings/AppIconPickerView.swift,Shield/Resources/Info.plist
+   Note: Iniciando consolidación de iconos en la galería de temas
+   Detail: tasks/details/202-theme-icons-integration.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T17:45:08Z
+

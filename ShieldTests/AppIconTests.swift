@@ -15,81 +15,59 @@ struct AppIconTests {
         #expect(defaultIcon.imageName == "MaskIDBlue")
     }
 
-    @Test("All non-default icons are flagged as Pro and have valid alternate icon names")
+    @Test("Halloween icon is flagged as Pro and has valid alternate icon name")
     func testProIconsProperties() {
         let proIcons = AppIconOption.allCases.filter { !$0.isDefault }
-        #expect(proIcons.count == 13)
+        #expect(proIcons.count == 1)
 
-        for icon in proIcons {
-            #expect(icon.isPro == true)
-            #expect(icon.alternateIconName == icon.rawValue)
-            #expect(icon.imageName == icon.rawValue)
-            #expect(!icon.haloColors.isEmpty)
+        guard let halloween = proIcons.first else {
+            Issue.record("Expected halloween icon")
+            return
         }
+        #expect(halloween == .halloween)
+        #expect(halloween.isPro == true)
+        #expect(halloween.alternateIconName == "MaskIDHalloween")
+        #expect(halloween.imageName == "MaskIDHalloween")
+        #expect(!halloween.haloColors.isEmpty)
     }
 
     @Test("Resolution from alternate icon name strings with safe fallback")
     func testResolutionFromSystemName() {
         #expect(AppIconOption.from(alternateIconName: nil) == .blue)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDGold") == .gold)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDGreen") == .green)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDOcean") == .ocean)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDPurple") == .purple)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDRed") == .red)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDAurora") == .aurora)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDForest") == .forest)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDTide") == .tide)
         #expect(AppIconOption.from(alternateIconName: "MaskIDHalloween") == .halloween)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDChristmas") == .christmas)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDLunar") == .lunar)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDPride") == .pride)
-        #expect(AppIconOption.from(alternateIconName: "MaskIDSpace") == .space)
         #expect(AppIconOption.from(alternateIconName: "UnknownNonExistentIcon") == .blue)
     }
 
-    @Test("Localized names exist in Spanish and English for all icons")
+    @Test("Localized names exist in Spanish and English for base and halloween icons")
     func testLocalizationIntegrity() {
         for icon in AppIconOption.allCases {
             let esName = icon.localizedName(language: .es)
             let enName = icon.localizedName(language: .en)
             #expect(!esName.isEmpty)
             #expect(!enName.isEmpty)
-            #expect(esName != enName || icon == .blue) // "Azul Clásico" vs "Classic Blue", etc.
         }
     }
 
-    @Test("AppState rejects Pro icons for free users and permits them for Pro users")
+    @Test("Seasonal themes have their icons bound correctly")
+    func testSeasonalThemeIconBinding() {
+        #expect(SeasonalThemeID.base.icon == .blue)
+        #expect(SeasonalThemeID.halloween2026.icon == .halloween)
+        #expect(SeasonalThemeCatalog.definition(for: .base)?.icon == .blue)
+        #expect(SeasonalThemeCatalog.definition(for: .halloween2026)?.icon == .halloween)
+    }
+
+    @Test("AppState applies seasonal theme icons directly")
     @MainActor
-    func testAppStateProGating() async throws {
+    func testAppStateThemeIconApplication() async {
         let appState = AppState()
 
-        // 1. Free user attempting to select Pro icon (.gold) must throw AppIconError.proRequired
-        var didThrowExpectedError = false
-        do {
-            try await appState.setAppIcon(.gold, isPro: false)
-        } catch let error as AppState.AppIconError {
-            if case .proRequired = error {
-                didThrowExpectedError = true
-            }
-        } catch {
-            // Other error
-        }
-        #expect(didThrowExpectedError == true)
-
-        // 2. Free user selecting default .blue icon must succeed
-        try await appState.setAppIcon(.blue, isPro: false)
+        appState.applySeasonalThemeIcon(for: .base, isPro: false)
         #expect(appState.currentAppIcon == .blue)
 
-        // 3. Pro user selecting Pro icon (.gold) must succeed
-        try await appState.setAppIcon(.gold, isPro: true)
-        #expect(appState.currentAppIcon == .gold)
+        appState.applySeasonalThemeIcon(for: .halloween2026, isPro: true)
+        #expect(appState.currentAppIcon == .halloween)
 
-        // 4. Pro user switching to another Pro icon (.green)
-        try await appState.setAppIcon(.green, isPro: true)
-        #expect(appState.currentAppIcon == .green)
-
-        // Reset to default
-        try await appState.setAppIcon(.blue, isPro: true)
+        appState.applySeasonalThemeIcon(for: .base, isPro: true)
         #expect(appState.currentAppIcon == .blue)
     }
 }

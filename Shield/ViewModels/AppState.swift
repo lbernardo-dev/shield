@@ -127,12 +127,7 @@ final class AppState: ObservableObject {
             ? .light
             : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
 
-        if let savedIconRaw = ud.string(forKey: "shield.selectedAppIcon"),
-           let icon = AppIconOption(rawValue: savedIconRaw) {
-            currentAppIcon = icon
-        } else {
-            currentAppIcon = .blue
-        }
+        currentAppIcon = SeasonalThemeCoordinator.shared.activeThemeID.icon
 
         documents = AppState.loadDocuments()
         PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
@@ -375,17 +370,14 @@ final class AppState: ObservableObject {
     @MainActor
     func applySeasonalThemeIcon(for themeID: SeasonalThemeID, isPro: Bool) {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: "shield.theme.manualIconOverride") else { return }
+        let desiredIcon: AppIconOption = themeID.icon
+        currentAppIcon = desiredIcon
 
-        let desiredIcon: AppIconOption = themeID.icon ?? .defaultIcon
 #if os(iOS)
         let installedIcon = AppIconOption.from(alternateIconName: UIApplication.shared.alternateIconName)
         if desiredIcon == installedIcon {
-            if currentAppIcon != desiredIcon { currentAppIcon = desiredIcon }
             return
         }
-#else
-        guard desiredIcon != currentAppIcon else { return }
 #endif
 
         Task { @MainActor [weak self] in
@@ -407,7 +399,7 @@ final class AppState: ObservableObject {
 
     @MainActor
     func clearSeasonalIconOverride() {
-        UserDefaults.standard.set(false, forKey: "shield.theme.manualIconOverride")
+        UserDefaults.standard.removeObject(forKey: "shield.theme.manualIconOverride")
     }
 
     /// Managed themes own the app's appearance. Preserve the user's previous

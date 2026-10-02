@@ -32,12 +32,7 @@ struct MaskIDIdentityMark: View {
 
     private var resolvedIcon: AppIconOption {
         if let icon { return icon }
-        if ShieldTheme.activeThemeID == .halloween2026 { return .halloween }
-        if let raw = UserDefaults.standard.string(forKey: "shield.selectedAppIcon"),
-           let saved = AppIconOption(rawValue: raw) {
-            return saved
-        }
-        return .defaultIcon
+        return ShieldTheme.activeThemeID.icon
     }
 
     var body: some View {

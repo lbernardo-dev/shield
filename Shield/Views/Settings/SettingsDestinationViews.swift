@@ -940,14 +940,6 @@ struct AppPreferencesSettingsView: View {
                 }
             }
 
-            SettingsCardSection(
-                title: strings.settings("settings_app_icon"),
-                icon: "app.badge.checkmark"
-            ) {
-                AppIconPickerSection()
-                    .disabled(visualControlsLocked)
-                    .opacity(visualControlsLocked ? 0.60 : 1)
-            }
         }
         .onAppear { selectedLanguage = appState.language }
         .onChange(of: selectedLanguage) { _, newValue in
@@ -1377,27 +1369,26 @@ private struct SeasonalThemeCard: View {
         VStack(alignment: .leading, spacing: ShieldTheme.s3) {
             Button(action: onPreview) {
                 HStack(spacing: ShieldTheme.s4) {
-                    Group {
-                        if let assetName = definition.eventBannerAssetName {
-                            Image(assetName)
-                                .resizable()
-                                .scaledToFill()
-                        } else {
-                            SeasonalThemeMiniPreview(themeID: definition.id, reduceMotion: reduceMotion)
+                    definition.icon.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 54, height: 54)
+                        .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                .stroke(
+                                    isHalloween && isSelected
+                                        ? Color(hex: "FF9A3D").opacity(0.6)
+                                        : Color.white.opacity(0.15),
+                                    lineWidth: 1
+                                )
                         }
-                    }
-                    .frame(width: 84, height: 54)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
-                            .stroke(
-                                isHalloween && isSelected
-                                    ? Color(hex: "FF9A3D").opacity(0.6)
-                                    : Color.white.opacity(0.12),
-                                lineWidth: 1
-                            )
-                    }
+                        .shadow(
+                            color: isHalloween ? Color(hex: "F97316").opacity(0.3) : Color.black.opacity(0.2),
+                            radius: 4,
+                            x: 0,
+                            y: 2
+                        )
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: ShieldTheme.s2) {
@@ -1886,24 +1877,15 @@ private struct SeasonalThemePreviewVisuals: View {
 
             HStack(alignment: .top, spacing: ShieldTheme.s4) {
                 VStack(spacing: ShieldTheme.s2) {
-                    Group {
-                        if let icon = themeID.icon {
-                            icon.image
-                                .resizable()
-                                .scaledToFit()
-                        } else {
-                            AppIconOption.defaultIcon.image
-                                .resizable()
-                                .scaledToFit()
-                                .padding(12)
+                    themeID.icon.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 78, height: 78)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
                         }
-                    }
-                    .frame(width: 78, height: 78)
-                    .clipShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous)
-                            .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                    }
 
                     Text(strings.settings("settings_theme_icon_preview"))
                         .font(.caption.weight(.semibold))
@@ -1943,19 +1925,11 @@ private struct SeasonalThemeHomeSnapshot: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 7) {
-                if let icon = themeID.icon {
-                    icon.image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 26, height: 26)
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                } else {
-                    AppIconOption.defaultIcon.image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 26, height: 26)
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                }
+                themeID.icon.image
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 26, height: 26)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("MaskID")

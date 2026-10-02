@@ -87,9 +87,9 @@ enum SeasonalThemeID: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
-    var icon: AppIconOption? {
+    var icon: AppIconOption {
         switch self {
-        case .base: nil
+        case .base: .blue
         case .halloween2026: .halloween
         }
     }
@@ -170,7 +170,7 @@ struct SeasonalThemeDefinition: Identifiable, Sendable {
     let version: Int
     let titleKey: String
     let subtitleKey: String
-    let icon: AppIconOption?
+    let icon: AppIconOption
     let schedule: SeasonalThemeSchedule?
     let requiresProForManualActivation: Bool
     let priority: Int
@@ -199,7 +199,7 @@ enum SeasonalThemeCatalog {
             version: 1,
             titleKey: "settings_theme_base",
             subtitleKey: "settings_theme_base_subtitle",
-            icon: nil,
+            icon: .blue,
             schedule: nil,
             requiresProForManualActivation: false,
             priority: 0,
@@ -1063,18 +1063,11 @@ struct SeasonalThemeChangeOverlay: View {
 
     var body: some View {
         HStack(spacing: ShieldTheme.s3) {
-            if let icon = themeID.icon {
-                icon.image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            } else {
-                Image(systemName: "shield.fill")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(ShieldTheme.accent(scheme))
-                    .frame(width: 30, height: 30)
-            }
+            themeID.icon.image
+                .resizable()
+                .scaledToFit()
+                .frame(width: 30, height: 30)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(themeID.title(language: LanguageManager.shared.current))
