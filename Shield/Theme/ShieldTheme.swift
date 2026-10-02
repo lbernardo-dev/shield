@@ -199,7 +199,7 @@ enum SeasonalThemeCatalog {
             version: 1,
             titleKey: "settings_theme_base",
             subtitleKey: "settings_theme_base_subtitle",
-            icon: .blue,
+            icon: .base,
             schedule: nil,
             requiresProForManualActivation: false,
             priority: 0,
