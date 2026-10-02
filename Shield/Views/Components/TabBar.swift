@@ -147,8 +147,9 @@ struct ShieldScanButton: View {
                         y: 2
                     )
                 Image(systemName: "camera.viewfinder")
-                    .shieldFont(20, weight: .bold)
-                    .foregroundColor(ShieldTheme.accentText)
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundColor(.white)
+                    .shadow(color: Color.black.opacity(0.18), radius: 2, y: 1)
             }
             .frame(width: 48, height: 48)
             .contentShape(Circle())

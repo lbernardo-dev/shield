@@ -8,6 +8,10 @@ struct HomeTopBarView: View {
     let onOpenSettings: () -> Void
     let isManagedTheme: Bool
 
+    @EnvironmentObject private var appState: AppState
+    @ObservedObject private var profileManager = UserProfileManager.shared
+    @State private var showProfileSheet = false
+
     private var isHalloween: Bool {
         ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
     }
@@ -34,7 +38,76 @@ struct HomeTopBarView: View {
 
             Spacer()
 
-            Menu {
+            Button {
+                showProfileSheet = true
+            } label: {
+                Group {
+                    if let avatar = profileManager.avatarImage {
+                        Image(uiImage: avatar)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle().stroke(
+                                    isHalloween ? Color(hex: "F97316") : ShieldTheme.accent(scheme),
+                                    lineWidth: 2
+                                )
+                            )
+                    } else if !profileManager.profile.initials.isEmpty && profileManager.profile.hasData {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: isHalloween
+                                        ? [Color(hex: "4A2657"), Color(hex: "231433")]
+                                        : [ShieldTheme.accent(scheme), Color(hex: "0077B6")],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Text(profileManager.profile.initials)
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                            )
+                            .overlay(
+                                Circle().stroke(
+                                    isHalloween ? Color(hex: "F97316").opacity(0.6) : Color.clear,
+                                    lineWidth: 1.5
+                                )
+                            )
+                    } else {
+                        Image(systemName: "person.crop.circle")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundColor(isHalloween ? Color(hex: "FFD6A0") : ShieldTheme.primary(scheme))
+                            .frame(width: 44, height: 44)
+                            .background(
+                                isHalloween
+                                    ? Color(hex: "231433").opacity(0.85)
+                                    : ShieldTheme.rowBackground(scheme),
+                                in: Circle()
+                            )
+                            .overlay(
+                                Circle().stroke(
+                                    isHalloween
+                                        ? Color(hex: "F97316").opacity(0.5)
+                                        : Color.clear,
+                                    lineWidth: 1
+                                )
+                            )
+                    }
+                }
+                .contentShape(Circle())
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityLabel(LanguageManager.shared.settings("settings_profile_title"))
+            .accessibilityHint(LanguageManager.shared.home("home_account_menu_hint"))
+            .contextMenu {
+                Button(action: { showProfileSheet = true }) {
+                    Label(LanguageManager.shared.settings("settings_profile_title"), systemImage: "person.crop.circle")
+                }
+
                 Button(action: onToggleLanguage) {
                     Label(LanguageManager.shared.settings("settings_language"), systemImage: "character.book.closed")
                 }
@@ -47,30 +120,11 @@ struct HomeTopBarView: View {
                 Button(action: onOpenSettings) {
                     Label(LanguageManager.shared.common("common_tab_settings"), systemImage: "gearshape")
                 }
-            } label: {
-                Image(systemName: "person.crop.circle")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundColor(isHalloween ? Color(hex: "FFD6A0") : ShieldTheme.primary(scheme))
-                    .frame(width: 44, height: 44)
-                    .background(
-                        isHalloween
-                            ? Color(hex: "231433").opacity(0.85)
-                            : ShieldTheme.rowBackground(scheme),
-                        in: Circle()
-                    )
-                    .overlay(
-                        Circle().stroke(
-                            isHalloween
-                                ? Color(hex: "F97316").opacity(0.5)
-                                : Color.clear,
-                            lineWidth: 1
-                        )
-                    )
-                    .contentShape(Circle())
             }
-            .buttonStyle(ScaleButtonStyle())
-            .accessibilityLabel(LanguageManager.shared.common("common_tab_settings"))
-            .accessibilityHint(LanguageManager.shared.home("home_account_menu_hint"))
+            .sheet(isPresented: $showProfileSheet) {
+                UserProfileView()
+                    .environmentObject(appState)
+            }
         }
     }
 }

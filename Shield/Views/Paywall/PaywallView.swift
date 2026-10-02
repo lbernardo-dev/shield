@@ -65,7 +65,7 @@ struct PaywallView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
-                ScrollView(showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 28) {
                         // Hero
                         heroSection
@@ -88,11 +88,12 @@ struct PaywallView: View {
                         // FAQ
                         faqSection
                     }
-                    .frame(maxWidth: 760)
-                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 16)
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -143,6 +144,7 @@ struct PaywallView: View {
                 .shieldFont(15)
                 .foregroundColor(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.top, 8)
     }
@@ -163,6 +165,7 @@ struct PaywallView: View {
             Text(LanguageManager.shared.paywall(trigger.localizationKey))
                 .shieldFont(12, weight: .semibold)
                 .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
         .padding(.horizontal, 12)
@@ -292,7 +295,7 @@ struct PaywallView: View {
     // MARK: - Trust Badges
 
     private var trustBadgesSection: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             trustBadgeItem(icon: "lock.shield.fill", title: appState.language == .es ? "Procesamiento local" : "On-device core", subtitle: appState.language == .es ? "Sync opcional" : "Optional sync")
             trustBadgeItem(icon: "faceid", title: appState.language == .es ? "Face ID Vault" : "Face ID Vault", subtitle: appState.language == .es ? "Cifrado local" : "Encrypted storage")
             trustBadgeItem(icon: "arrow.uturn.backward.circle.fill", title: appState.language == .es ? "Cancela fácil" : "Cancel anytime", subtitle: appState.language == .es ? "En 1 toque" : "In 1 tap")
@@ -306,13 +309,18 @@ struct PaywallView: View {
                 .shieldFont(16, weight: .semibold)
                 .foregroundColor(ShieldTheme.accent(scheme))
             Text(title)
-                .shieldFont(11, weight: .bold)
+                .shieldFont(10, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             Text(subtitle)
                 .shieldFont(9)
                 .foregroundColor(ShieldTheme.tertiary(scheme))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, 4)
         .padding(.vertical, 8)
         .background(ShieldTheme.cardBackground(scheme))
         .clipShape(RoundedRectangle(cornerRadius: 12))

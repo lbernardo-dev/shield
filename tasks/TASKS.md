@@ -2176,3 +2176,12 @@
    Done by: CODEX
    Done at: 2026-10-02T19:08:04Z
 
+204. profile-and-header-improvements
+   Id: 204-profile-and-header-improvements
+   Scope: Perfil de usuario con foto/cámara y datos personales, agrandar icono de cámara en botón central, integración de cabeceras con el tema activo
+   Files: Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeTopBarView.swift,Shield/Views/Settings/**,Shield/Views/Components/**,Shield/Localization/Strings/**
+   Note: Starting implementation of user profile sheet with avatar/photo/camera/details, scanner central button camera icon sizing, and header theme integration
+   Detail: tasks/details/204-profile-and-header-improvements.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T19:17:58Z
+

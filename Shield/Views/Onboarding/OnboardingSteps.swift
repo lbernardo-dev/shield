@@ -1004,7 +1004,7 @@ struct OBPaywallView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 4)
 
-                ScrollView(showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 22) {
                         paywallHero
                         if let goal = selectedGoal {
@@ -1018,7 +1018,9 @@ struct OBPaywallView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
                     .padding(.bottom, 16)
+                    .frame(maxWidth: .infinity)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {

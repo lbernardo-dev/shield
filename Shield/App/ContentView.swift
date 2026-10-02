@@ -61,6 +61,12 @@ struct ContentView: View {
                     .environmentObject(appState)
                     .zIndex(20_000)
             }
+
+            if ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "profile", asoOverlayPresented {
+                UserProfileView()
+                    .environmentObject(appState)
+                    .zIndex(20_000)
+            }
 #endif
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -11,8 +11,6 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>MaskIDHalloween</string>
-					<string>MaskIDHalloween60x60@2x.png</string>
-					<string>MaskIDHalloween60x60@3x.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -23,8 +21,6 @@
 			<key>CFBundleIconFiles</key>
 			<array>
 				<string>MaskIDDefault</string>
-				<string>MaskIDDefault60x60@2x.png</string>
-				<string>MaskIDDefault60x60@3x.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>
@@ -39,8 +35,6 @@
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>MaskIDHalloween</string>
-					<string>MaskIDHalloween76x76@2x~ipad.png</string>
-					<string>MaskIDHalloween83.5x83.5@2x~ipad.png</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>
@@ -51,8 +45,6 @@
 			<key>CFBundleIconFiles</key>
 			<array>
 				<string>MaskIDDefault</string>
-				<string>MaskIDDefault76x76@2x~ipad.png</string>
-				<string>MaskIDDefault83.5x83.5@2x~ipad.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>

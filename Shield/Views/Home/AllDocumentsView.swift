@@ -7,7 +7,7 @@ struct AllDocumentsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ShieldTheme.background(appState.preferredScheme).ignoresSafeArea()
+                SeasonalThemeBackdrop()
 
                 Group {
                     if appState.filteredDocuments.isEmpty {
@@ -79,7 +79,8 @@ struct AllDocumentsView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(LanguageManager.shared.common("common_close")) { dismiss() }
-                        .foregroundColor(ShieldTheme.accent)
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(ShieldTheme.accent(appState.preferredScheme))
                 }
             }
         }

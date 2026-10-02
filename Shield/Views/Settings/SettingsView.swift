@@ -173,6 +173,10 @@ struct SettingsView: View {
         }
     }
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     private var title: some View {
         HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s3) {
             VStack(alignment: .leading, spacing: 3) {
@@ -181,9 +185,15 @@ struct SettingsView: View {
                     .tracking(0.7)
                     .foregroundStyle(ShieldTheme.accent(scheme))
                     .textCase(.uppercase)
-                Text(strings.settings("settings_title"))
-                    .shieldFont(32, weight: .heavy, design: .rounded)
-                    .foregroundStyle(ShieldTheme.primary(scheme))
+                HStack(spacing: 6) {
+                    Text(strings.settings("settings_title"))
+                        .shieldFont(32, weight: .heavy, design: .rounded)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                    if isHalloween {
+                        Text("🎃")
+                            .font(.system(size: 24))
+                    }
+                }
             }
             Spacer(minLength: ShieldTheme.s2)
             SettingsCloseButton(action: closeSettings)

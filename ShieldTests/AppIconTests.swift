@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import UIKit
 @testable import Shield
 
 @Suite("AppIconOption & Alternate Icons Suite")
@@ -14,6 +15,7 @@ struct AppIconTests {
         #expect(defaultIcon.alternateIconName == nil)
         #expect(defaultIcon.imageName == "MaskIDDefault")
     }
+
 
     @Test("Halloween icon is flagged as Pro and has valid alternate icon name")
     func testProIconsProperties() {

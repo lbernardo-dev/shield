@@ -2017,6 +2017,90 @@
         "en": { "stringUnit": { "state": "translated", "value": "Halloween event artwork with a glowing MaskID shield under a crescent moon" } },
         "es": { "stringUnit": { "state": "translated", "value": "Arte del evento de Halloween con el escudo de MaskID iluminado bajo una luna creciente" } }
       }
+    },
+    "settings_profile_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "User Profile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Perfil de usuario" } }
+      }
+    },
+    "settings_profile_save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Save Profile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Guardar perfil" } }
+      }
+    },
+    "settings_profile_change_photo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Change Profile Photo" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cambiar foto de perfil" } }
+      }
+    },
+    "settings_profile_take_photo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Take Photo" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Hacer foto" } }
+      }
+    },
+    "settings_profile_choose_library": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Choose from Gallery" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Elegir de la galería" } }
+      }
+    },
+    "settings_profile_remove_photo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Remove Photo" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Eliminar foto" } }
+      }
+    },
+    "settings_profile_personal_info": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Personal Information" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Información personal" } }
+      }
+    },
+    "settings_profile_first_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "First Name" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Nombre" } }
+      }
+    },
+    "settings_profile_last_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Last Name" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Apellidos" } }
+      }
+    },
+    "settings_profile_email": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Email" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Correo electrónico" } }
+      }
+    },
+    "settings_profile_phone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Phone" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Teléfono" } }
+      }
+    },
+    "settings_profile_saved_toast": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Profile saved successfully." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Perfil guardado correctamente." } }
+      }
     }
   },
   "version": "1.0"

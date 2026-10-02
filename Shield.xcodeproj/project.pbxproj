@@ -25,6 +25,9 @@
 		A004 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Document.swift */; };
 		A005 /* Redaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005 /* Redaction.swift */; };
 		A006 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006 /* AppState.swift */; };
+		A_USER_PROFILE /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_USER_PROFILE /* UserProfile.swift */; };
+		A_CAM_PICKER /* CameraPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_CAM_PICKER /* CameraPickerView.swift */; };
+		A_USER_PROF_VIEW /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F_USER_PROF_VIEW /* UserProfileView.swift */; };
 		A007 /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F007 /* EditorViewModel.swift */; };
 		A008 /* DocumentRenderers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F008 /* DocumentRenderers.swift */; };
 		A009 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009 /* Components.swift */; };
@@ -208,6 +211,9 @@
 		F004 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		F005 /* Redaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Redaction.swift; sourceTree = "<group>"; };
 		F006 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F_USER_PROFILE /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		F_CAM_PICKER /* CameraPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerView.swift; sourceTree = "<group>"; };
+		F_USER_PROF_VIEW /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		F007 /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
 		F008 /* DocumentRenderers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentRenderers.swift; sourceTree = "<group>"; };
 		F009 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
@@ -560,6 +566,7 @@
 				F005 /* Redaction.swift */,
 				F_DOC_COORD /* DocumentCoordinateTransform.swift */,
 				F061 /* AppIconOption.swift */,
+				F_USER_PROFILE /* UserProfile.swift */,
 				F_RED_PRESETS /* RedactionPresets.swift */,
 				F_DOC_STORE /* DocumentStore.swift */,
 			);
@@ -785,11 +792,21 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		GRP_PROFILE /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				F_CAM_PICKER /* CameraPickerView.swift */,
+				F_USER_PROF_VIEW /* UserProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		GRP_VIEWS /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				GRP_ONBOARDING /* Onboarding */,
 				GRP_HOME /* Home */,
+				GRP_PROFILE /* Profile */,
 				GRP_CAPTURE /* Capture */,
 				GRP_EDITOR /* Editor */,
 				GRP_DOCUMENTS /* Documents */,
@@ -1086,6 +1103,9 @@
 				A004 /* Document.swift in Sources */,
 				A005 /* Redaction.swift in Sources */,
 				A006 /* AppState.swift in Sources */,
+				A_USER_PROFILE /* UserProfile.swift in Sources */,
+				A_CAM_PICKER /* CameraPickerView.swift in Sources */,
+				A_USER_PROF_VIEW /* UserProfileView.swift in Sources */,
 				A007 /* EditorViewModel.swift in Sources */,
 				A008 /* DocumentRenderers.swift in Sources */,
 				A009 /* Components.swift in Sources */,

@@ -83,6 +83,8 @@ struct StyleGalleryView: View {
         HStack(spacing: 10) {
             if isHalloween {
                 SeasonalThemeHalloweenPumpkin(size: 32)
+            } else {
+                MaskIDIdentityMark(size: 36, presentation: .staticMark, treatment: .compact)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(LanguageManager.shared.gallery("gallery_title"))

@@ -720,7 +720,7 @@ struct SettingsRowDivider: View {
     }
 }
 
-private struct SettingsControlRow<Control: View>: View {
+struct SettingsControlRow<Control: View>: View {
     let icon: String
     let color: Color
     let title: String
@@ -779,6 +779,10 @@ private struct SettingsDetailScaffold<Content: View>: View {
         self.content = content()
     }
 
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
     var body: some View {
         ZStack {
             SeasonalThemeBackdrop()
@@ -788,9 +792,18 @@ private struct SettingsDetailScaffold<Content: View>: View {
                     Button {
                         dismiss()
                     } label: {
-                        Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
-                            .font(.body.weight(.semibold))
-                            .frame(minHeight: 44)
+                        HStack(spacing: 5) {
+                            Image(systemName: "chevron.left")
+                                .font(.body.weight(.bold))
+                            Text(LanguageManager.shared.common("common_back"))
+                                .font(.body.weight(.semibold))
+                        }
+                        .foregroundColor(
+                            isHalloween
+                                ? Color(hex: "FFA53D")
+                                : ShieldTheme.accent(scheme)
+                        )
+                        .frame(minHeight: 44)
                     }
                     .accessibilityIdentifier("settings.back")
                     Spacer()
@@ -799,17 +812,31 @@ private struct SettingsDetailScaffold<Content: View>: View {
                 .frame(maxWidth: ShieldTheme.readableWidth)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, ShieldTheme.s4)
-                .background(ShieldTheme.pageBackground(scheme))
+                .background(
+                    isHalloween
+                        ? Color.clear
+                        : ShieldTheme.pageBackground(scheme)
+                )
 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
-                        Text(title)
-                            .font(.largeTitle.weight(.bold))
-                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        HStack(spacing: 8) {
+                            Text(title)
+                                .font(.largeTitle.weight(.bold))
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                            if isHalloween {
+                                Text("🎃")
+                                    .font(.system(size: 26))
+                            }
+                        }
                         if let subtitle {
                             Text(subtitle)
                                 .font(.subheadline)
-                                .foregroundStyle(ShieldTheme.secondary(scheme))
+                                .foregroundStyle(
+                                    isHalloween
+                                        ? Color(hex: "FFD6B0").opacity(0.88)
+                                        : ShieldTheme.secondary(scheme)
+                                )
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         content
@@ -831,14 +858,30 @@ struct SettingsCloseButton: View {
 
     @Environment(\.colorScheme) private var scheme
     private var strings: LanguageManager { .shared }
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
 
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.body.weight(.bold))
-                .foregroundStyle(ShieldTheme.primary(scheme))
+                .foregroundStyle(isHalloween ? Color(hex: "FFD6A0") : ShieldTheme.primary(scheme))
                 .frame(width: 44, height: 44)
-                .background(ShieldTheme.rowBackground(scheme), in: Circle())
+                .background(
+                    isHalloween
+                        ? Color(hex: "231433").opacity(0.85)
+                        : ShieldTheme.rowBackground(scheme),
+                    in: Circle()
+                )
+                .overlay(
+                    Circle().stroke(
+                        isHalloween
+                            ? Color(hex: "F97316").opacity(0.5)
+                            : Color.clear,
+                        lineWidth: 1
+                    )
+                )
         }
         .buttonStyle(ScaleButtonStyle())
         .accessibilityLabel(strings.common("common_close"))
