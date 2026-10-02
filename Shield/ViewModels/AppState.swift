@@ -73,7 +73,7 @@ final class AppState: ObservableObject {
     @Published var preferredScheme: ColorScheme {
         didSet { UserDefaults.standard.set(preferredScheme == .dark, forKey: "shield.darkMode") }
     }
-    @Published var currentAppIcon: AppIconOption = .blue {
+    @Published var currentAppIcon: AppIconOption = .base {
         didSet {
             UserDefaults.standard.set(currentAppIcon.rawValue, forKey: "shield.selectedAppIcon")
         }

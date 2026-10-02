@@ -6,19 +6,19 @@ import SwiftUI
 /// The standard experience uses the current blue mask mark; other icons are
 /// optional Pro variants.
 enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
-    case blue = "MaskIDBlue"
+    case base = "MaskIDDefault"
     case halloween = "MaskIDHalloween"
 
     var id: String { rawValue }
 
     /// Whether this icon is the default baseline app icon.
     var isDefault: Bool {
-        self == .blue
+        self == .base
     }
 
     /// Whether unlocking/activating this icon requires Pro subscription.
     var isPro: Bool {
-        self != .blue
+        self != .base
     }
 
     /// The asset/resource image name in bundle or asset catalogs.
@@ -56,7 +56,7 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     /// Primary accent color matching the aesthetic identity of the icon.
     var accentColor: Color {
         switch self {
-        case .blue:      return Color(hex: "0088FF")
+        case .base:      return Color(hex: "0088FF")
         case .halloween: return Color(hex: "F97316")
         }
     }
@@ -64,7 +64,7 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     /// Gradient tones used in preview halo and backdrop lighting.
     var haloColors: [Color] {
         switch self {
-        case .blue:
+        case .base:
             return [Color(hex: "00B4D8"), Color(hex: "0077B6")]
         case .halloween:
             return [Color(hex: "FB923C"), Color(hex: "7C2D12")]
@@ -75,7 +75,7 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     func localizedName(language: AppLanguage) -> String {
         let key: String
         switch self {
-        case .blue:      key = "settings_app_icon_blue"
+        case .base:      key = "settings_app_icon_blue"
         case .halloween: key = "settings_app_icon_halloween"
         }
         return LanguageManager.shared.t(key, table: "Settings", language: language)
@@ -85,7 +85,7 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
     func localizedSubtitle(language: AppLanguage) -> String {
         let key: String
         switch self {
-        case .blue:      key = "settings_app_icon_blue_desc"
+        case .base:      key = "settings_app_icon_blue_desc"
         case .halloween: key = "settings_app_icon_halloween_desc"
         }
         return LanguageManager.shared.t(key, table: "Settings", language: language)
@@ -93,13 +93,14 @@ enum AppIconOption: String, CaseIterable, Identifiable, Sendable {
 
     /// Resolves the option from an alternate icon name returned by UIApplication.
     static func from(alternateIconName: String?) -> AppIconOption {
-        guard let alternateIconName else { return .blue }
-        return AppIconOption(rawValue: alternateIconName) ?? .blue
+        guard let alternateIconName else { return .base }
+        if alternateIconName == "MaskIDBlue" { return .base }
+        return AppIconOption(rawValue: alternateIconName) ?? .base
     }
 
     /// Baseline default icon.
-    static let defaultIcon: AppIconOption = .blue
+    static let defaultIcon: AppIconOption = .base
 
-    /// Alias for base theme icon.
-    static let base: AppIconOption = .blue
+    /// Backward compatibility alias for base icon.
+    static let blue: AppIconOption = .base
 }

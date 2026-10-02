@@ -22,9 +22,9 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>MaskIDBlue</string>
-				<string>MaskIDBlue60x60@2x.png</string>
-				<string>MaskIDBlue60x60@3x.png</string>
+				<string>MaskIDDefault</string>
+				<string>MaskIDDefault60x60@2x.png</string>
+				<string>MaskIDDefault60x60@3x.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>
@@ -50,9 +50,9 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>MaskIDBlue</string>
-				<string>MaskIDBlue76x76@2x~ipad.png</string>
-				<string>MaskIDBlue83.5x83.5@2x~ipad.png</string>
+				<string>MaskIDDefault</string>
+				<string>MaskIDDefault76x76@2x~ipad.png</string>
+				<string>MaskIDDefault83.5x83.5@2x~ipad.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<false/>

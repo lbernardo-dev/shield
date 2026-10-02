@@ -89,7 +89,7 @@ enum SeasonalThemeID: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var icon: AppIconOption {
         switch self {
-        case .base: .blue
+        case .base: .base
         case .halloween2026: .halloween
         }
     }

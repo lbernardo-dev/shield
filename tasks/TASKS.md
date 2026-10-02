@@ -2158,8 +2158,19 @@
    Id: 202-theme-icons-integration
    Scope: Eliminar selector y listado independiente de iconos, vincular iconos exclusivamente al tema activo (base y halloween) y actualizar Info.plist y modelos
    Files: Shield/Models/AppIconOption.swift,Shield/Theme/ShieldTheme.swift,Shield/ViewModels/AppState.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Views/Settings/AppIconPickerView.swift,Shield/Resources/Info.plist
-   Note: Iniciando consolidación de iconos en la galería de temas
+   Note: Finished: Icons consolidated into theme gallery. Legacy icon pickers and assets removed. Tests and build passed.
    Detail: tasks/details/202-theme-icons-integration.md
    Claimed by: CODEX
    Claimed at: 2026-10-02T17:45:08Z
+   Done by: CODEX
+   Done at: 2026-10-02T18:45:41Z
+
+203. update-theme-icons-v3
+   Id: 203-update-theme-icons-v3
+   Scope: Sustituir los iconos del tema base y halloween por MaskIDDefault.icon y MaskIDHalloween.icon de V3, generar assets necesarios y eliminar los anteriores
+   Files: Shield/Models/AppIconOption.swift,Shield/Resources/Info.plist,Shield.xcodeproj/project.pbxproj,Shield/Resources/Assets.xcassets
+   Note: Sustituyendo iconos base y halloween por versiones V3
+   Detail: tasks/details/203-update-theme-icons-v3.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T18:45:56Z
 

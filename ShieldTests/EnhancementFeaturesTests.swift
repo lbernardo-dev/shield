@@ -284,14 +284,18 @@ struct EnhancementFeaturesTests {
         let defaults = UserDefaults(suiteName: suiteName)!
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
+        let madrid = timeZone("Europe/Madrid")
+        let outsideEvent = date(2026, 8, 1, 12, 0, timeZone: madrid)
+
         let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
-        coordinator.refresh(isPro: false)
+        coordinator.refresh(now: outsideEvent, timeZone: madrid, isPro: false)
         coordinator.setDebugPreviewTheme(.halloween2026)
 
         #expect(coordinator.debugPreviewThemeID == .halloween2026)
         #expect(coordinator.activeThemeID == .halloween2026)
 
         coordinator.setDebugPreviewTheme(nil)
+        coordinator.refresh(now: outsideEvent, timeZone: madrid, isPro: false)
 
         #expect(coordinator.debugPreviewThemeID == nil)
         #expect(coordinator.activeThemeID == .base)

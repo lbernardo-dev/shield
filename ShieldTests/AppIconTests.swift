@@ -5,14 +5,14 @@ import Foundation
 @Suite("AppIconOption & Alternate Icons Suite")
 struct AppIconTests {
 
-    @Test("Default App Icon is MaskIDBlue and does not require Pro")
+    @Test("Default App Icon is MaskIDDefault and does not require Pro")
     func testDefaultIconProperties() {
         let defaultIcon = AppIconOption.defaultIcon
-        #expect(defaultIcon == .blue)
+        #expect(defaultIcon == .base)
         #expect(defaultIcon.isDefault == true)
         #expect(defaultIcon.isPro == false)
         #expect(defaultIcon.alternateIconName == nil)
-        #expect(defaultIcon.imageName == "MaskIDBlue")
+        #expect(defaultIcon.imageName == "MaskIDDefault")
     }
 
     @Test("Halloween icon is flagged as Pro and has valid alternate icon name")
@@ -33,9 +33,10 @@ struct AppIconTests {
 
     @Test("Resolution from alternate icon name strings with safe fallback")
     func testResolutionFromSystemName() {
-        #expect(AppIconOption.from(alternateIconName: nil) == .blue)
+        #expect(AppIconOption.from(alternateIconName: nil) == .base)
         #expect(AppIconOption.from(alternateIconName: "MaskIDHalloween") == .halloween)
-        #expect(AppIconOption.from(alternateIconName: "UnknownNonExistentIcon") == .blue)
+        #expect(AppIconOption.from(alternateIconName: "MaskIDBlue") == .base)
+        #expect(AppIconOption.from(alternateIconName: "UnknownNonExistentIcon") == .base)
     }
 
     @Test("Localized names exist in Spanish and English for base and halloween icons")
@@ -50,9 +51,9 @@ struct AppIconTests {
 
     @Test("Seasonal themes have their icons bound correctly")
     func testSeasonalThemeIconBinding() {
-        #expect(SeasonalThemeID.base.icon == .blue)
+        #expect(SeasonalThemeID.base.icon == .base)
         #expect(SeasonalThemeID.halloween2026.icon == .halloween)
-        #expect(SeasonalThemeCatalog.definition(for: .base)?.icon == .blue)
+        #expect(SeasonalThemeCatalog.definition(for: .base)?.icon == .base)
         #expect(SeasonalThemeCatalog.definition(for: .halloween2026)?.icon == .halloween)
     }
 
@@ -62,12 +63,12 @@ struct AppIconTests {
         let appState = AppState()
 
         appState.applySeasonalThemeIcon(for: .base, isPro: false)
-        #expect(appState.currentAppIcon == .blue)
+        #expect(appState.currentAppIcon == .base)
 
         appState.applySeasonalThemeIcon(for: .halloween2026, isPro: true)
         #expect(appState.currentAppIcon == .halloween)
 
         appState.applySeasonalThemeIcon(for: .base, isPro: true)
-        #expect(appState.currentAppIcon == .blue)
+        #expect(appState.currentAppIcon == .base)
     }
 }
