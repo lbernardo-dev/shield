@@ -2121,3 +2121,36 @@
    Done by: CODEX
    Done at: 2026-09-28T10:11:37Z
 
+199. halloween-real-promo-assets
+   Id: 199-halloween-real-promo-assets
+   Scope: Capturar la app MaskID real con el tema Halloween aplicado en iPhone 18 Pro y preparar piezas promocionales ES/EN usando UI e iconos reales
+   Files: Marketing/Social/Halloween-2026/**,tasks/details/
+   Note: Build Debug simulator OK en iPhone 18 Pro (iOS 27.0), app 1.1.1/1112026092801 instalada y lanzada con -theme-halloween; capturas reales ES/EN; composiciones 1080x1350 con UI e iconos reales; validación adicional OK en iPad Pro 13-inch M5; iPhone Duo no disponible; sin target watchOS en el proyecto.
+   Detail: tasks/details/199-halloween-real-promo-assets.md
+   Claimed by: CODEX
+   Claimed at: 2026-09-29T06:48:47Z
+   Done by: CODEX
+   Done at: 2026-09-29T07:07:21Z
+
+200. audit-maskid-app-store-listing
+   Id: 200-audit-maskid-app-store-listing
+   Scope: Auditar ficha pública, metadata, creatividades, posicionamiento y medición ASO de MaskID
+   Files: Docs/APP_STORE_METADATA_DRAFT.md,metadata/**,Docs/ASO_SCREENSHOT_MANIFEST_2026-09-11.md,Docs/MASKID_ASO_STRATEGY.md,tasks/details/**
+   Note: Completed public listing, metadata, creative, claim, and measurement audit; report saved in task details. No ASC edits, builds, or tests.
+   Detail: tasks/details/200-audit-maskid-app-store-listing.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T06:28:18Z
+   Done by: CODEX
+   Done at: 2026-10-02T06:32:14Z
+
+201. maskid-aso-remediation
+   Id: 201-maskid-aso-remediation
+   Scope: Planificar y ejecutar por fases la mejora ASO de MaskID en en-US y es-ES, alineando claims, metadata, capturas y medición
+   Files: tasks/TASKS.md,tasks/details/*,metadata/app-info/*.json,metadata/version/*/*.json,.asc/aso-screenshot-plan.json,.asc/screenshots/aso/**,Docs/APP_STORE_METADATA_DRAFT.md,Docs/CLAIMS_MATRIX.md
+   Note: ASO aplicada a ASC draft 1.1.2: metadata EN/ES y 40 screenshots COMPLETE; App Previews COMPLETE en ambos locales. Validación deja como bloqueos pendientes el build y What’s New derivado de los cambios reales; sin envío ni publicación.
+   Detail: tasks/details/201-maskid-aso-remediation.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T08:46:36Z
+   Done by: CODEX
+   Done at: 2026-10-02T09:11:22Z
+

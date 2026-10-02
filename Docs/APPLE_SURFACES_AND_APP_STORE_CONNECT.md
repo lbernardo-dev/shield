@@ -1,13 +1,13 @@
 # MaskID — superficies Apple y entrega en App Store Connect
 
-Estado: actualizado el 11 de septiembre de 2026. La versión publicada es 1.0.8 con build 108202609071; la versión editable 1.0.9 está en `PREPARE_FOR_SUBMISSION` con el build `1092026091101` (`VALID`) asociado y lista para iniciar el envío a revisión.
+Estado: actualizado el 2 de octubre de 2026. App Store Connect mostró 1.1.1 como último release publicado (`READY_FOR_SALE` / `READY_FOR_DISTRIBUTION`). La versión editable 1.1.2 (`904cc5ee-994a-48cb-84db-265013b3cd75`) está en `PREPARE_FOR_SUBMISSION`, con lanzamiento manual, metadata EN/ES, 40 capturas y previews copiados y procesados. Aún no tiene build ni What’s New, no se ha enviado a revisión y no se ha publicado.
 
 Este documento es la especificación de producto y release. La metadata canónica que se valida y se sincroniza con App Store Connect vive en:
 
 - metadata/app-info/en-US.json
 - metadata/app-info/es-ES.json
-- metadata/version/1.0.9/en-US.json
-- metadata/version/1.0.9/es-ES.json
+- metadata/version/1.1.2/en-US.json
+- metadata/version/1.1.2/es-ES.json
 
 ## Compatibilidad de dispositivos
 
@@ -73,14 +73,15 @@ No se necesitan credenciales de demo. Los datos de prueba deben ser sintéticos.
 ## Estado verificado de App Store Connect
 
 - App `6790398619`, bundle ID `com.romerodev.shield`: `READY_FOR_DISTRIBUTION`.
-- Build `108202609071`: `VALID`, asociado a 1.0.8; revisión completada.
-- Build `1092026091101`: `VALID`, asociado a 1.0.9; la versión sigue en `PREPARE_FOR_SUBMISSION` y no se ha enviado a revisión.
+- Version 1.1.1: último release publicado observado (`READY_FOR_SALE` / `READY_FOR_DISTRIBUTION`).
+- Version 1.1.2: `PREPARE_FOR_SUBMISSION`, sin build; no se ha enviado a revisión.
+- `asc validate --app 6790398619 --version 1.1.2 --check-urls`: un bloqueo (build ausente), dos avisos (What’s New vacío EN/ES), dos informativos (lanzamiento manual; publicación de App Privacy no verificable por API). URLs y capturas no presentaron errores.
 - Metadata EN/ES y URLs actuales comprobadas en sesión web autenticada.
 - App Privacy publicada; Accessibility tiene borradores sin publicar para iPhone/iPad.
 - Firebase Analytics queda desactivada por defecto y requiere consentimiento explícito en la app; Crashlytics se mantiene como diagnóstico separado.
 - Productos MaskID Pro Monthly, MaskID Pro Annual y MaskID Pro Lifetime aprobados.
 - Billing Grace Period no configurado; Mac Apple-silicon habilitado pero sin verificación; no existen PPO ni Custom Product Pages. El In-App Event Halloween 2026 está guardado como borrador remoto (`6816385632`) en `Marketing/AppStore-Connect/InAppEvents/halloween-2026/`; incluye metadata EN/ES, media, deep link y programación, pero todavía no se ha enviado a revisión ni publicado.
-- Los 20 screenshots iPhone corregidos están aplicados a 1.0.9, con 10 assets `COMPLETE` por locale; además, el set iPad ASO contiene 10 assets `COMPLETE` por locale a `2064×2752` (20 creatividades en total). El set histórico de 1.0.8 permanece sin cambios.
+- En 1.1.2 constan 10 capturas iPhone y 10 iPad `COMPLETE` para cada locale (40 en total); el App Preview `MaskID-Identity-Protection.mov` también está `COMPLETE` para en-US y es-ES.
 - `What to Test` de TestFlight está configurado en `en-US` y `es-ES` para el build `1092026091101`, con instrucciones de consentimiento explícito y datos sintéticos.
 - Auditoría final pública: `asc validate --strict --check-urls`, `asc validate testflight --strict`, `asc validate iap --strict`, `asc validate subscriptions --strict`, `asc review doctor` y `scripts/app_store_preflight.sh --remote` no detectan errores, warnings ni bloqueos. La única información es que la API pública no puede verificar el estado de publicación de App Privacy; la evidencia previa de sesión web autenticada la marca como publicada.
 
@@ -88,13 +89,13 @@ No se necesitan credenciales de demo. Los datos de prueba deben ser sintéticos.
 
 Checklist antes de subir:
 
-- conservar la versión 1.0.9 en `PREPARE_FOR_SUBMISSION` hasta cerrar las puertas externas y la validación física;
+- mantener 1.1.2 como borrador hasta asociar una build correspondiente y completar What’s New EN/ES;
 - comprobar que el build contiene ShieldWidgetExtension.appex y ShieldShareExtension.appex;
 - asociar el Bundle ID principal y los targets de extensión con sus perfiles de distribución;
 - mantener group.com.romerodev.shield en la app, Share Extension y Widget Extension;
 - mantener App Privacy publicada y alineada con Firebase/Crashlytics, RevenueCat y CloudKit según el uso real;
 - conservar los screenshots iPhone corregidos desde `.asc/screenshots/aso/final/` y los iPad ASO desde `.asc/screenshots/aso/final-ipad/`; revisar el resultado final antes de enviar;
-- usar las descripciones, keywords, promotional text y What’s New de `metadata/version/1.0.9/` como fuente canónica aplicada;
+- usar descripción, keywords y promotional text de `metadata/version/1.1.2/` como fuente canónica aplicada; redactar What’s New al conocer los cambios reales de la build;
 - no subir imágenes de widget o funciones no capturadas en una build real;
 - adjuntar los productos StoreKit vigentes y revisar sus precios/localizaciones en App Store Connect;
 - revisar Privacy Policy, Terms of Use, Subscription Terms y Support URLs en cada locale;

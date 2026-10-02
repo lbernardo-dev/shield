@@ -4,15 +4,16 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN_PATH = ROOT / ".asc" / "aso-screenshot-plan.json"
+PLAN_PATH = Path(os.environ.get("ASO_SCREENSHOT_PLAN", ROOT / ".asc" / "aso-screenshot-plan.json"))
 RAW_ROOT = ROOT / ".asc" / "screenshots" / "raw_captures"
-FINAL_ROOT = ROOT / ".asc" / "screenshots" / "aso" / "final"
-REVIEW_ROOT = ROOT / ".asc" / "screenshots" / "aso" / "review"
+FINAL_ROOT = Path(os.environ.get("ASO_SCREENSHOT_OUTPUT_ROOT", ROOT / ".asc" / "screenshots" / "aso" / "final"))
+REVIEW_ROOT = Path(os.environ.get("ASO_SCREENSHOT_REVIEW_ROOT", ROOT / ".asc" / "screenshots" / "aso" / "review"))
 
 WIDTH = 1320
 HEIGHT = 2868
@@ -236,7 +237,7 @@ def main() -> None:
             if not raw_path.exists():
                 raise FileNotFoundError(f"Missing raw capture: {raw_path}")
 
-            out_filename = scene["raw_file"]
+            out_filename = scene.get("output_file", scene["raw_file"])
             output_path = FINAL_ROOT / locale / "iphone-69" / out_filename
 
             scene_data = scene[lang_key]

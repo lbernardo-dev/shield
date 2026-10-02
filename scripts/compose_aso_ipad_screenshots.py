@@ -3,14 +3,15 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = ROOT / ".asc" / "screenshots" / "maskid-ipad"
-FINAL_ROOT = ROOT / ".asc" / "screenshots" / "aso" / "final-ipad"
-REVIEW_ROOT = ROOT / ".asc" / "screenshots" / "aso" / "review"
+FINAL_ROOT = Path(os.environ.get("ASO_SCREENSHOT_OUTPUT_ROOT", ROOT / ".asc" / "screenshots" / "aso" / "final-ipad"))
+REVIEW_ROOT = Path(os.environ.get("ASO_SCREENSHOT_REVIEW_ROOT", ROOT / ".asc" / "screenshots" / "aso" / "review"))
 
 WIDTH = 2064
 HEIGHT = 2752
@@ -34,7 +35,7 @@ SCENES = {
             "badge": "IDENTITY PROTECTION",
             "action": "PROTECT",
             "title": "YOUR IDENTITY",
-            "subtitle": "Mask sensitive personal details before sharing any file",
+            "subtitle": "Mask sensitive details before sharing a document",
         },
         {
             "source": "02-passport-international.png",
@@ -42,7 +43,7 @@ SCENES = {
             "badge": "INTERNATIONAL TRAVEL",
             "action": "PASSPORTS &",
             "title": "TRAVEL DOCS",
-            "subtitle": "Hide confidential details and MRZ codes securely",
+            "subtitle": "Hide sensitive details and MRZ lines in travel documents",
         },
         {
             "source": "03-smart-scanner.png",
@@ -50,23 +51,23 @@ SCENES = {
             "badge": "SMART SCANNER",
             "action": "SCAN &",
             "title": "CAPTURE",
-            "subtitle": "Instantly scan and auto-crop documents with live guides",
+            "subtitle": "Align a document with live edge guides",
         },
         {
             "source": "04-ai-ocr-detection.png",
             "name": "04-ai-detection.png",
-            "badge": "ON-DEVICE AI",
-            "action": "SMART",
-            "title": "AUTO-DETECTION",
-            "subtitle": "Instantly finds IDs, signatures, bank accounts and addresses",
+            "badge": "ON-DEVICE OCR",
+            "action": "REVIEW",
+            "title": "OCR SUGGESTIONS",
+            "subtitle": "Check suggested fields and adjust each mask yourself",
         },
         {
             "source": "05-antifraud-watermark.png",
-            "name": "05-anti-fraud-watermark.png",
-            "badge": "ANTI-FRAUD SECURITY",
-            "action": "PREVENT",
-            "title": "IDENTITY THEFT",
-            "subtitle": "Add permanent watermarks specifying the single copy purpose",
+            "name": "05-purpose-watermark.png",
+            "badge": "PURPOSE WATERMARK",
+            "action": "LABEL",
+            "title": "YOUR COPY",
+            "subtitle": "Add a watermark to state the intended use",
         },
         {
             "source": "06-vault-security.png",
@@ -74,7 +75,7 @@ SCENES = {
             "badge": "ENCRYPTED LOCAL VAULT",
             "action": "PROTECT",
             "title": "WITH FACE ID",
-            "subtitle": "Local AES-GCM with Face ID or PIN; optional sync",
+            "subtitle": "Vault documents stay on device; sync is optional",
         },
         {
             "source": "07-library-dashboard.png",
@@ -82,7 +83,7 @@ SCENES = {
             "badge": "PROTECTED DOCUMENT HUB",
             "action": "MANAGE",
             "title": "YOUR FILES",
-            "subtitle": "Protected-copy library with optional sync under your control",
+            "subtitle": "Optional sync is for documents outside the Vault",
         },
         {
             "source": "08-batch-processing.png",
@@ -90,23 +91,23 @@ SCENES = {
             "badge": "BATCH PROCESSING",
             "action": "PROTECT",
             "title": "IN BATCHES",
-            "subtitle": "Safeguard multi-page contracts and files simultaneously",
+            "subtitle": "Prepare multiple documents with MaskID Pro",
         },
         {
             "source": "09-mask-styles.png",
             "name": "09-mask-styles.png",
-            "badge": "SURGICAL PRECISION",
-            "action": "CHOOSE",
-            "title": "MASK STYLES",
-            "subtitle": "Pick from solid blackout, high-res pixelation or secure blur",
+            "badge": "MASK OPTIONS",
+            "action": "CHOOSE A",
+            "title": "MASK STYLE",
+            "subtitle": "Choose solid, pixelated or blur styles",
         },
         {
             "source": "10-irreversible-export.png",
-            "name": "10-verified-export.png",
-            "badge": "VERIFIED EXPORT",
-            "action": "SHARE",
-            "title": "WITH CONFIDENCE",
-            "subtitle": "Flattened output, clean metadata and export checks",
+            "name": "10-protected-export.png",
+            "badge": "PROTECTED EXPORT",
+            "action": "EXPORT A",
+            "title": "PROTECTED COPY",
+            "subtitle": "Flattened PDFs or images with export checks",
         },
     ],
     "es-ES": [
@@ -116,7 +117,7 @@ SCENES = {
             "badge": "PROTECCIÓN DE IDENTIDAD",
             "action": "PROTEGE",
             "title": "TU IDENTIDAD",
-            "subtitle": "Enmascara datos personales antes de compartir documentos",
+            "subtitle": "Oculta datos sensibles antes de compartir un documento",
         },
         {
             "source": "02-passport-international.png",
@@ -124,7 +125,7 @@ SCENES = {
             "badge": "DOCUMENTOS INTERNACIONALES",
             "action": "PASAPORTES Y",
             "title": "VIAJES",
-            "subtitle": "Oculta datos sensibles y líneas MRZ en tus identificaciones",
+            "subtitle": "Oculta datos sensibles y líneas MRZ en documentos de viaje",
         },
         {
             "source": "03-smart-scanner.png",
@@ -132,31 +133,31 @@ SCENES = {
             "badge": "ESCÁNER INTELIGENTE",
             "action": "DIGITALIZA Y",
             "title": "ENCUADRA",
-            "subtitle": "Captura y alinea documentos con detección de bordes en vivo",
+            "subtitle": "Alinea el documento con guías de bordes en directo",
         },
         {
             "source": "04-ai-ocr-detection.png",
             "name": "04-deteccion-ia.png",
-            "badge": "IA EN EL DISPOSITIVO",
-            "action": "DETECCIÓN",
-            "title": "INTELIGENTE",
-            "subtitle": "Reconoce DNI, firmas, cuentas y direcciones al instante",
+            "badge": "OCR EN EL DISPOSITIVO",
+            "action": "REVISA",
+            "title": "SUGERENCIAS OCR",
+            "subtitle": "Comprueba cada campo y ajusta tú las máscaras",
         },
         {
             "source": "05-antifraud-watermark.png",
-            "name": "05-seguridad-antifraude.png",
-            "badge": "SEGURIDAD ANTIFRAUDE",
-            "action": "EVITA",
-            "title": "EL ROBO DE DATOS",
-            "subtitle": "Añade sellos indelebles con el propósito único de la copia",
+            "name": "05-marca-de-agua-proposito.png",
+            "badge": "MARCA DE AGUA",
+            "action": "INDICA EL",
+            "title": "USO DE LA COPIA",
+            "subtitle": "Añade una marca de agua con el propósito",
         },
         {
             "source": "06-vault-security.png",
-            "name": "06-boveda-segura.png",
+            "name": "06-boveda-local.png",
             "badge": "BÓVEDA LOCAL CIFRADA",
             "action": "PROTEGE",
-            "title": "CON FACE ID",
-            "subtitle": "AES-GCM local con Face ID o PIN; sincronización opcional",
+            "title": "TUS DOCUMENTOS",
+            "subtitle": "Los documentos de la Bóveda siguen en el dispositivo",
         },
         {
             "source": "07-library-dashboard.png",
@@ -164,7 +165,7 @@ SCENES = {
             "badge": "CENTRO DE DOCUMENTOS",
             "action": "ORGANIZA",
             "title": "TUS COPIAS",
-            "subtitle": "Biblioteca de copias protegidas, con sincronización opcional",
+            "subtitle": "Sincronización opcional para documentos fuera de la Bóveda",
         },
         {
             "source": "08-batch-processing.png",
@@ -172,23 +173,23 @@ SCENES = {
             "badge": "EXPEDIENTES Y CONTRATOS",
             "action": "PROCESA",
             "title": "POR LOTES",
-            "subtitle": "Protege expedientes enteros y múltiples documentos a la vez",
+            "subtitle": "Prepara varios documentos a la vez con MaskID Pro",
         },
         {
             "source": "09-mask-styles.png",
             "name": "09-estilos-mascara.png",
-            "badge": "PRECISIÓN QUIRÚRGICA",
+            "badge": "ESTILOS DE MÁSCARA",
             "action": "ELIGE",
             "title": "TU MÁSCARA",
-            "subtitle": "Censura sólida, pixelado HD o desenfoque seguro para cada zona",
+            "subtitle": "Elige entre máscara sólida, pixelado o desenfoque",
         },
         {
             "source": "10-irreversible-export.png",
-            "name": "10-exportacion-verificada.png",
-            "badge": "EXPORTACIÓN VERIFICADA",
-            "action": "COMPARTE",
-            "title": "CON CONFIANZA",
-            "subtitle": "Aplanado, metadatos limpios y comprobaciones al exportar",
+            "name": "10-exportacion-protegida.png",
+            "badge": "EXPORTACIÓN PROTEGIDA",
+            "action": "EXPORTA UNA",
+            "title": "COPIA PROTEGIDA",
+            "subtitle": "PDF o imagen rasterizados con comprobaciones al exportar",
         },
     ],
 }
