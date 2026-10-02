@@ -3237,13 +3237,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Halloween Night & Seasonal Themes: New immersive catalog with custom ambient soundscapes, thematic art, and exclusive icons."
+            "value" : "Customizable User Profile: Manage your contact details and profile photo via camera or photo library with secure on-device saving."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noche de Halloween y Temas Estacionales: Nuevo catálogo inmersivo con paisajes sonoros ambientales personalizables, arte temático e iconos exclusivos."
+            "value" : "Perfil de Usuario Personalizable: Gestiona tus datos de contacto y foto de perfil desde la cámara o fototeca con guardado seguro en el dispositivo."
           }
         }
       }
@@ -3254,13 +3254,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Integrated Theme Sound Controls: Convenient audio toggles directly inside theme details with persistent user preferences."
+            "value" : "Enhanced Scanner Button: Enlarged, high-contrast camera viewfinder icon for crisp, instant capture access across all themes."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Control de Sonido en Temas: Ajustes de audio ambiental integrados directamente en los detalles de cada tema con persistencia de preferencias."
+            "value" : "Botón Central de Escaneo Perfeccionado: Icono de cámara ampliado con máximo contraste y nitidez en todos los temas."
           }
         }
       }
@@ -3271,13 +3271,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seasonal Event Activation: Automated theme activation during seasonal events with permanent unlock for Pro subscribers."
+            "value" : "Seamless Theme Integration: Headers, galleries, and settings views fully aligned with the active theme and seasonal backdrop."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Activación por Eventos Estacionales: Activación automática durante eventos especiales y desbloqueo permanente para suscriptores Pro."
+            "value" : "Integración Temática Completa: Cabeceras, galerías y vistas de ajustes armonizadas con el tema activo y fondo de temporada."
           }
         }
       }
@@ -3288,13 +3288,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reinforced Quota Persistence: Hardened Keychain and iCloud sync protecting your usage balance across reinstalls."
+            "value" : "Improved Scroll & Navigation: Strict vertical scrolling in the Pro paywall view for smooth and stable navigation."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Persistencia de Cupo Reforzada: Almacenamiento seguro en Llavero e iCloud para proteger tu saldo de uso ante reinstalaciones."
+            "value" : "Navegación y Scroll Mejorados: Desplazamiento estrictamente vertical en la pantalla de Pro y paywall para máxima estabilidad."
           }
         }
       }
@@ -3305,13 +3305,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enhanced Contrast & Readability: Fine-tuned adaptive color tokens and typography for maximum visual clarity across all themes."
+            "value" : "New V3 App Icons: Refreshed official app icons for both the Base and Halloween Night themes."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contraste y Legibilidad Perfeccionados: Ajuste adaptativo de colores y tipografías para máxima claridad visual en todos los temas."
+            "value" : "Nuevos Iconos V3 de Aplicación: Iconos oficiales renovados para el tema Base y el tema Noche de Halloween."
           }
         }
       }
@@ -3322,13 +3322,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Performance & Stability: Optimized OCR document processing and refined fluid animations throughout the app."
+            "value" : "Performance & Accessibility: Direct profile saving with animated feedback, snappier touch response, and 100% localization coverage."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rendimiento y Estabilidad: Procesamiento OCR optimizado y animaciones más fluidas en toda la aplicación."
+            "value" : "Rendimiento y Accesibilidad: Guardado directo de perfil con confirmación animada, respuesta táctil optimizada y cobertura de localización al 100%."
           }
         }
       }

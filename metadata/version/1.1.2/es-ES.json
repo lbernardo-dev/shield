@@ -3,5 +3,6 @@
   "keywords": "identidad,privacidad,documentos,tachar,dni,pasaporte,contratos,iban,firma,metadatos,bóveda,pdf",
   "marketingUrl": "https://lbernardo-dev.github.io/apps/es/casos/shield/",
   "promotionalText": "Oculta datos personales antes de compartir. Revisa cada máscara y comprueba la copia exportada en el dispositivo.",
-  "supportUrl": "https://lbernardo-dev.github.io/apps/es/casos/shield/soporte/"
+  "supportUrl": "https://lbernardo-dev.github.io/apps/es/casos/shield/soporte/",
+  "whatsNew": "• Nuevo Perfil de Usuario: Gestiona tus datos personales y foto de perfil desde la cámara o fototeca con guardado seguro en el dispositivo.\n• Botón Central de Escaneo: Icono de cámara ampliado con máximo contraste y visibilidad en todos los temas.\n• Integración Temática: Cabeceras, galerías y ajustes adaptados armónicamente al tema activo y atmósfera de Halloween 2026.\n• Scroll y Navegación Mejorados: Desplazamiento vertical perfeccionado en el paywall para una experiencia más fluida y estable.\n• Nuevos Iconos V3: Actualización oficial de los iconos de la aplicación para los temas Base y Noche de Halloween.\n• Rendimiento y Accesibilidad: Mejoras de respuesta táctil, optimizaciones generales y cobertura completa de localización."
 }

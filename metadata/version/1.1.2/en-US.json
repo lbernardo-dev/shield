@@ -3,5 +3,6 @@
   "keywords": "privacy,identity,passport,license,forms,watermark,vault,offline,photo,signature,ocr,metadata,iban",
   "marketingUrl": "https://lbernardo-dev.github.io/apps/en/case-studies/shield/",
   "promotionalText": "Hide personal details before sharing. Review each mask and check your exported copy on device.",
-  "supportUrl": "https://lbernardo-dev.github.io/apps/en/case-studies/shield/support/"
+  "supportUrl": "https://lbernardo-dev.github.io/apps/en/case-studies/shield/support/",
+  "whatsNew": "• New User Profile: Manage your personal details and set your profile photo via camera or photo library, securely saved on device.\n• Enhanced Scanner Button: Enlarged, high-contrast camera viewfinder icon for crisp capture access across all themes.\n• Seamless Theme Integration: Headers, gallery, and settings harmoniously matched to your active visual theme, including Halloween 2026.\n• Smooth Paywall Navigation: Refined strict vertical scrolling for a stable and fluid browsing experience.\n• New V3 App Icons: Refreshed official app icons for both the Base and Halloween Night themes.\n• Performance & Accessibility: Snappier interactions, general system optimizations, and full localization coverage."
 }

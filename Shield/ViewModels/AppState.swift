@@ -351,8 +351,6 @@ final class AppState: ObservableObject {
                 } catch {
                     #if !targetEnvironment(simulator)
                     throw AppIconError.changeFailed(error.localizedDescription)
-                    #else
-                    print("[AppIcon] setAlternateIconName error on simulator: \(error.localizedDescription)")
                     #endif
                 }
             }

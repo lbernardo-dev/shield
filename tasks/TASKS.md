@@ -2180,8 +2180,21 @@
    Id: 204-profile-and-header-improvements
    Scope: Perfil de usuario con foto/cámara y datos personales, agrandar icono de cámara en botón central, integración de cabeceras con el tema activo
    Files: Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeTopBarView.swift,Shield/Views/Settings/**,Shield/Views/Components/**,Shield/Localization/Strings/**
-   Note: Starting implementation of user profile sheet with avatar/photo/camera/details, scanner central button camera icon sizing, and header theme integration
+   Note: Completed user profile with camera/gallery & direct save HUD, tab bar camera icon contrast/size, paywall vertical scroll lock, and header seasonal integration
    Detail: tasks/details/204-profile-and-header-improvements.md
    Claimed by: CODEX
    Claimed at: 2026-10-02T19:17:58Z
+   Done by: CODEX
+   Done at: 2026-10-02T20:07:47Z
+
+205. release-1-1-2-build-1122026100201
+   Id: 205-release-1-1-2-build-1122026100201
+   Scope: Actualizar build a 1122026100201 y versión a 1.1.2 en todos los targets, What's New en targets y metadatos ASC, subir archive a Apple Connect, enlazar a version 1.1.2, limpiar temporales y push
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Localization/Strings/SettingsInfo.xcstrings,metadata/version/1.1.2/en-US.json,metadata/version/1.1.2/es-ES.json,.asc/metadata/version/1.1.2/en-US.json,.asc/metadata/version/1.1.2/es-ES.json
+   Note: Release 1.1.2 build 1122026100201 archived, exported, uploaded to App Store Connect, linked to version 1.1.2, What's New completed, and temporaries cleaned
+   Detail: tasks/details/205-release-1-1-2-build-1122026100201.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-02T20:07:54Z
+   Done by: CODEX
+   Done at: 2026-10-02T20:18:47Z
 
