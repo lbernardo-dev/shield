@@ -1511,10 +1511,12 @@
    Id: 138-cleanup-xcode-and-project-storage
    Scope: Auditar almacenamiento del proyecto Shield y proponer limpieza segura de caches, temporales y artefactos regenerables; aplicar solo IDs aprobados
    Files: .xcode-disk-cleanup-audit/**, tasks/details/
-   Note: Starting read-only storage audit; deletion deferred pending itemized approval.
+   Note: Limpieza aprobada: sidecar y caché AppEngagementKit a la Papelera; logs de .asc/artifacts preservados. No se ejecutaron builds/tests por ser mantenimiento. Push pendiente del commit solicitado.
    Detail: tasks/details/138-cleanup-xcode-and-project-storage.md
    Claimed by: CODEX
-   Claimed at: 2026-08-26T16:33:09Z
+   Claimed at: 2026-10-07T10:47:12Z
+   Done by: CODEX
+   Done at: 2026-10-07T10:58:01Z
 
 139. fix-pin-security-and-faceid-unlock
    Id: 139-fix-pin-security-and-faceid-unlock
