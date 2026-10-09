@@ -1,0 +1,22 @@
+{
+  "appId": "6790398619",
+  "subscriptionCount": 3,
+  "summary": {
+    "errors": 0,
+    "warnings": 1,
+    "infos": 0,
+    "blocking": 1
+  },
+  "checks": [
+    {
+      "id": "subscriptions.review_readiness.needs_attention",
+      "severity": "warning",
+      "message": "Subscription \"MaskID Pro Annual Event\" (com.romerodev.shield.pro.annual.event) is READY_TO_SUBMIT",
+      "remediation": "Submit this subscription for review in App Store Connect so it is attached to the next app review submission; note: first-time subscriptions must be submitted via the app version page in App Store Connect (not the API)",
+      "field": "state",
+      "resourceType": "subscription",
+      "resourceId": "6820383062"
+    }
+  ],
+  "strict": true
+}

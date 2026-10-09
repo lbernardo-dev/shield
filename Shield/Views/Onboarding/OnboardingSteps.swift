@@ -1031,9 +1031,18 @@ struct OBPaywallView: View {
             }
         }
         .task {
-            AppState.trackEvent("paywall_viewed", properties: ["trigger": "onboarding"])
+            if pm.isResolvingSubscription { await pm.updateProStatus() }
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
+            var properties = ["trigger": "onboarding"]
+            if pm.isEventPaywall, let pricing = pm.eventAnnualPricing {
+                properties["event_id"] = pm.activeEventIdentifier ?? "unknown"
+                properties["campaign_id"] = pm.activeCampaignIdentifier ?? "unknown"
+                properties["event_price"] = NSDecimalNumber(decimal: pricing.eventPrice).stringValue
+                properties["standard_price"] = NSDecimalNumber(decimal: pricing.standardPrice).stringValue
+                properties["discount"] = String(pricing.discountPercent)
+            }
+            AppState.trackEvent("paywall_viewed", properties: properties)
         }
         .onChange(of: pm.products.map(\.id)) { _, availableProductIDs in
             selectAvailableProductIfNeeded(availableProductIDs: availableProductIDs)
@@ -1219,7 +1228,12 @@ struct OBPaywallView: View {
                 Task {
                     guard let product = selectedPremiumProduct else { return }
                     AppState.trackEvent("paywall_purchase_started", properties: [
-                        "plan": product.analyticsName
+                        "plan": product.analyticsName,
+                        "event_id": product.eventIdentifier ?? "none",
+                        "campaign_id": product.campaignIdentifier ?? "none",
+                        "event_price": product.eventIdentifier == nil ? "none" : NSDecimalNumber(decimal: product.price).stringValue,
+                        "standard_price": product.comparisonProduct.map { NSDecimalNumber(decimal: $0.price).stringValue } ?? "none",
+                        "discount": product.eventDiscountPercent.map(String.init) ?? "none"
                     ])
                     await pm.purchase(product)
                     if pm.isPro {
@@ -1255,6 +1269,28 @@ struct OBPaywallView: View {
                     .multilineTextAlignment(.center)
             }
 
+            if !pm.hasResolvedSubscription {
+                VStack(spacing: 4) {
+                    Text(LanguageManager.shared.paywall(
+                        pm.isResolvingSubscription
+                            ? "paywall_subscription_checking"
+                            : "paywall_subscription_check_failed"
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .multilineTextAlignment(.center)
+                    if !pm.isResolvingSubscription {
+                        Button(LanguageManager.shared.paywall("paywall_retry")) {
+                            Task {
+                                await pm.updateProStatus()
+                                await pm.loadProducts()
+                            }
+                        }
+                        .font(.caption.weight(.semibold))
+                    }
+                }
+            }
+
             Button(LanguageManager.shared.paywall("paywall_skip")) {
                 AppState.trackEvent("paywall_skipped")
                 onComplete()
@@ -1267,7 +1303,7 @@ struct OBPaywallView: View {
     }
 
     private var canPurchase: Bool {
-        !pm.isPurchasing && selectedPremiumProduct != nil
+        pm.hasResolvedSubscription && !pm.isResolvingSubscription && !pm.isPurchasing && selectedPremiumProduct != nil
     }
 
     private var selectedPremiumProduct: PremiumProduct? {
@@ -1277,10 +1313,13 @@ struct OBPaywallView: View {
     private func selectAvailableProductIfNeeded(availableProductIDs: [String]? = nil) {
         let ids = availableProductIDs ?? pm.products.map(\.id)
         guard !ids.contains(selectedProductID),
-              let fallback = ids.first else {
+              !ids.isEmpty else {
             return
         }
-        selectedProductID = fallback
+        let preferredID = pm.isEventPaywall
+            ? (pm.eventAnnualProductIdentifier ?? ShieldProduct.annual.rawValue)
+            : ShieldProduct.annual.rawValue
+        selectedProductID = ids.contains(preferredID) ? preferredID : ids[0]
     }
 
     private var footer: some View {
@@ -1330,11 +1369,15 @@ struct OBPaywallView: View {
     }
 
     private func savingsLabel(for product: PremiumProduct) -> String? {
+        if product.isEventAnnual, let discount = product.eventDiscountPercent {
+            return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: discount)
+        }
         switch ShieldProduct(rawValue: product.id) {
         case .annual:
             guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
             else { return nil }
             return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        case .annualEvent: return nil
         case .lifetime:
             guard let annual = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue })
             else { return nil }

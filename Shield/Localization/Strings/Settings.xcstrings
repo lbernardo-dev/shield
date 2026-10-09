@@ -1,6 +1,62 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "settings_subscription_tools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Subscription" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Suscripción" } }
+      }
+    },
+    "settings_subscription_restore_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Restore purchases" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Restaurar compras" } }
+      }
+    },
+    "settings_subscription_restore_action_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Recover an active purchase from the App Store" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Recupera una compra activa del App Store" } }
+      }
+    },
+    "settings_subscription_restoring": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Restoring…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Restaurando…" } }
+      }
+    },
+    "settings_subscription_restore_success": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Your MaskID Pro access is restored." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se ha restaurado tu acceso a MaskID Pro." } }
+      }
+    },
+    "settings_subscription_restore_empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No active MaskID Pro purchase was found for this App Store account." } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se encontró una compra activa de MaskID Pro para esta cuenta del App Store." } }
+      }
+    },
+    "settings_subscription_redeem_offer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Redeem an offer code" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Canjear un código de oferta" } }
+      }
+    },
+    "settings_subscription_redeem_offer_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Enter a code issued for a MaskID Pro subscription" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Introduce un código para una suscripción a MaskID Pro" } }
+      }
+    },
     "settings_title": {
       "extractionState": "manual",
       "localizations": {

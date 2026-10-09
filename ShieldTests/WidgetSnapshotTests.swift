@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Widget privacy boundary")
 struct WidgetSnapshotTests {
-    @Test("Snapshot round-trips only aggregate protection metrics")
+    @Test("Snapshot round-trips aggregate metrics and plan access")
     func snapshotRoundTrip() throws {
         let generatedAt = Date(timeIntervalSince1970: 1_700_000_000)
         let snapshot = ShieldWidgetSnapshot(
@@ -14,6 +14,7 @@ struct WidgetSnapshotTests {
             watermarkedDocuments: 4,
             securityScore: 75,
             lastProtectedDate: generatedAt,
+            hasPremiumAccess: true,
             generatedAt: generatedAt
         )
 
@@ -27,6 +28,7 @@ struct WidgetSnapshotTests {
         #expect(decoded.watermarkedDocuments == 4)
         #expect(decoded.securityScore == 75)
         #expect(decoded.lastProtectedDate == generatedAt)
+        #expect(decoded.hasPremiumAccess)
     }
 
     @Test("Snapshot decodes legacy v1 payloads seamlessly")
@@ -49,6 +51,7 @@ struct WidgetSnapshotTests {
         #expect(decoded.watermarkedDocuments == 0)
         #expect(decoded.securityScore == 80) // 8/10 = 80%
         #expect(decoded.lastProtectedDate == nil)
+        #expect(!decoded.hasPremiumAccess)
     }
 
     @Test("Snapshot cannot carry document content")

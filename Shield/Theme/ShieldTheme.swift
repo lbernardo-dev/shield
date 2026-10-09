@@ -178,8 +178,15 @@ struct SeasonalThemeDefinition: Identifiable, Sendable {
     let eventDescriptionKey: String?
     let eventBannerAssetName: String?
     let eventDetailArtworkAssetName: String?
+    let monetization: SeasonalThemeMonetization?
 
     var isBase: Bool { id == .base }
+}
+
+struct SeasonalThemeMonetization: Sendable {
+    let campaignIdentifier: String
+    let revenueCatOfferingIdentifier: String
+    let targetDiscountPercent: Int
 }
 
 struct SeasonalThemeClock: Sendable {
@@ -206,7 +213,8 @@ enum SeasonalThemeCatalog {
             eventNameKey: nil,
             eventDescriptionKey: nil,
             eventBannerAssetName: nil,
-            eventDetailArtworkAssetName: nil
+            eventDetailArtworkAssetName: nil,
+            monetization: nil
         ),
         SeasonalThemeDefinition(
             id: .halloween2026,
@@ -226,7 +234,12 @@ enum SeasonalThemeCatalog {
             eventNameKey: "settings_theme_halloween_event_name",
             eventDescriptionKey: "settings_theme_halloween_event_description",
             eventBannerAssetName: "SeasonalThemeEventBanner",
-            eventDetailArtworkAssetName: "SeasonalThemeEventArtwork"
+            eventDetailArtworkAssetName: "SeasonalThemeEventArtwork",
+            monetization: SeasonalThemeMonetization(
+                campaignIdentifier: "halloween-2026",
+                revenueCatOfferingIdentifier: "event",
+                targetDiscountPercent: 50
+            )
         )
     ]
 
@@ -293,6 +306,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
     static let shared = SeasonalThemeCoordinator()
 
     @Published private(set) var activeThemeID: SeasonalThemeID = .base
+    @Published private(set) var activeScheduledThemeID: SeasonalThemeID?
     @Published private(set) var selection: SeasonalThemeSelection
     @Published private(set) var isPro: Bool = false
     @Published private(set) var isSoundscapeEnabled: Bool
@@ -313,9 +327,10 @@ final class SeasonalThemeCoordinator: ObservableObject {
 #endif
 #endif
     private let userDefaults: UserDefaults
-    private var timeZoneObserver: NSObjectProtocol?
+    private var systemTimeObservers: [NSObjectProtocol] = []
     private let soundscape = SeasonalThemeSoundscape()
     private var isSceneActive = false
+    private var scheduleRefreshTask: Task<Void, Never>?
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
@@ -343,21 +358,26 @@ final class SeasonalThemeCoordinator: ObservableObject {
 #endif
 #endif
 
-        timeZoneObserver = NotificationCenter.default.addObserver(
-            forName: NSNotification.Name.NSSystemTimeZoneDidChange,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.refresh()
+        for notification in [
+            NSNotification.Name.NSSystemTimeZoneDidChange,
+            UIApplication.significantTimeChangeNotification
+        ] {
+            let observer = NotificationCenter.default.addObserver(
+                forName: notification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.refresh()
+            }
+            systemTimeObservers.append(observer)
         }
 
         refresh()
     }
 
     deinit {
-        if let timeZoneObserver {
-            NotificationCenter.default.removeObserver(timeZoneObserver)
-        }
+        scheduleRefreshTask?.cancel()
+        systemTimeObservers.forEach(NotificationCenter.default.removeObserver)
         soundscape.stop()
     }
 
@@ -376,6 +396,9 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     func refresh(now: Date = Date(), timeZone: TimeZone = .autoupdatingCurrent, isPro: Bool? = nil) {
         if let isPro { self.isPro = isPro }
+        activeScheduledThemeID = SeasonalThemeResolver.activeScheduledTheme(
+            at: SeasonalThemeClock(now: now, timeZone: timeZone)
+        )
 #if DEBUG
 #if targetEnvironment(simulator)
         if let debugPreviewThemeID {
@@ -402,6 +425,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
         guard next != activeThemeID else {
             ShieldTheme.setActiveTheme(next)
             updateSoundscape()
+            scheduleNextThemeBoundaryRefresh(now: now, timeZone: timeZone)
             return
         }
         let previous = activeThemeID
@@ -412,13 +436,46 @@ final class SeasonalThemeCoordinator: ObservableObject {
             properties: ["name": next.rawValue, "from_step": previous.rawValue]
         )
         updateSoundscape()
+        scheduleNextThemeBoundaryRefresh(now: now, timeZone: timeZone)
     }
 
     /// Keeps the ambient audio tied to the app's foreground state. Sound is
     /// intentionally opt-in and is never required to understand the UI.
     func setSceneActive(_ active: Bool) {
         isSceneActive = active
+        if active {
+            refresh()
+        } else {
+            scheduleRefreshTask?.cancel()
+            scheduleRefreshTask = nil
+        }
         updateSoundscape()
+    }
+
+    private func scheduleNextThemeBoundaryRefresh(now: Date, timeZone: TimeZone) {
+        scheduleRefreshTask?.cancel()
+        scheduleRefreshTask = nil
+        guard isSceneActive else { return }
+
+        let clock = SeasonalThemeClock(now: now, timeZone: timeZone)
+        let upcomingBoundaries = SeasonalThemeCatalog.definitions
+            .compactMap(\.schedule)
+            .compactMap { $0.bounds(using: clock) }
+            .flatMap { [$0.start, $0.end] }
+            .filter { $0 > now }
+        guard let nextBoundary = upcomingBoundaries.min() else { return }
+
+        let delay = max(0.05, nextBoundary.timeIntervalSince(now))
+        let nanoseconds = UInt64(min(delay, 86_400) * 1_000_000_000)
+        scheduleRefreshTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: nanoseconds)
+            } catch {
+                return
+            }
+            guard let self, !Task.isCancelled else { return }
+            self.refresh()
+        }
     }
 
     func setSoundscapeEnabled(_ enabled: Bool) {

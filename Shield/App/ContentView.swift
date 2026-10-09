@@ -8,6 +8,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject private var cloud = CloudSyncManager.shared
+    @ObservedObject private var premium = PremiumManager.shared
     @State private var asoOverlayPresented = true
     @State private var showSplash = LaunchSplashState.shouldPresent
     @State private var themeTransition: SeasonalThemeID?
@@ -90,9 +91,9 @@ struct ContentView: View {
         }
         .onAppear(perform: presentAnalyticsConsentIfNeeded)
         .onAppear {
-            seasonalThemes.refresh(isPro: PremiumManager.shared.isPro)
+            seasonalThemes.refresh(isPro: premium.isPro)
             appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
-            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: PremiumManager.shared.isPro)
+            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: premium.isPro)
             seasonalThemes.setSceneActive(true)
         }
         .onChange(of: seasonalThemes.activeThemeID) { _, newTheme in
@@ -108,6 +109,15 @@ struct ContentView: View {
                     themeTransition = nil
                 }
             }
+        }
+        .onChange(of: seasonalThemes.activeScheduledThemeID) { _, _ in
+            Task { await premium.loadProducts() }
+        }
+        .onChange(of: premium.isPro) { _, isPro in
+            seasonalThemes.refresh(isPro: isPro)
+            appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
+            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: isPro)
+            appState.refreshWidgetSnapshot()
         }
         .onChange(of: showSplash) { _, isShowing in
             if !isShowing { presentAnalyticsConsentIfNeeded() }
@@ -145,15 +155,26 @@ struct ContentView: View {
         appState.handleScenePhaseChange(newPhase)
         seasonalThemes.setSceneActive(newPhase == .active)
 
-        guard newPhase == .active else { return }
+        guard newPhase == .active else {
+            if newPhase == .background {
+                premium.invalidateCloudKitPremiumAccess()
+            }
+            return
+        }
         appState.syncAppIconWithSystem()
-        seasonalThemes.refresh(isPro: PremiumManager.shared.isPro)
+        seasonalThemes.refresh(isPro: premium.isPro)
         appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
-        appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: PremiumManager.shared.isPro)
+        appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: premium.isPro)
+
+        Task { await premium.refreshCloudKitPremiumAccess() }
 
         guard sessionStage == .ready else { return }
         cloud.syncOnForeground(appState: appState)
-        Task { await SubscriptionLifecycleObserver.shared.refresh() }
+        Task {
+            await premium.updateProStatus()
+            await premium.loadProducts()
+            await SubscriptionLifecycleObserver.shared.refresh()
+        }
     }
 
     private func dismissSplash() {

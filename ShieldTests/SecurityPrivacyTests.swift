@@ -132,6 +132,46 @@ struct SecurityPrivacyTests {
         #expect(configuration.reviewCooldown >= 120 * 24 * 60 * 60)
     }
 
+    @Test("Only the two exact verified CloudKit record names receive production Premium")
+    @MainActor
+    func permanentCloudKitPremiumAllowlistIsExactAndProductionOnly() {
+        #expect(PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: "_ac0fee5ea87e7f0ef40eb34f24ac8d11",
+            isProductionBuild: true
+        ))
+        #expect(PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: "_55d90a302b843b29baf181bb21263103",
+            isProductionBuild: true
+        ))
+        #expect(!PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: "_ac0fee5ea87e7f0ef40eb34f24ac8d10",
+            isProductionBuild: true
+        ))
+        #expect(!PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: nil,
+            isProductionBuild: true
+        ))
+        #expect(!PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: "_ac0fee5ea87e7f0ef40eb34f24ac8d11",
+            isProductionBuild: false
+        ))
+    }
+
+    @Test("An active real StoreKit or RevenueCat entitlement remains authoritative")
+    @MainActor
+    func realPurchaseAccessIsIndependentOfCloudKitIdentity() {
+        #expect(PremiumAccessResolver.hasPremiumAccess(
+            storeEntitlementIsActive: true,
+            verifiedCloudKitUserRecordName: nil,
+            isProductionBuild: false
+        ))
+        #expect(!PremiumAccessResolver.hasPremiumAccess(
+            storeEntitlementIsActive: false,
+            verifiedCloudKitUserRecordName: nil,
+            isProductionBuild: true
+        ))
+    }
+
     @Test("Firebase Analytics consent is off until explicitly granted")
     func analyticsConsentDefaultsOffAndPersists() {
         let defaults = UserDefaults.standard

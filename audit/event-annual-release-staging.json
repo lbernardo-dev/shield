@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-09",
+  "appId": "6790398619",
+  "appStoreVersion": {
+    "id": "9afc641d-7ca9-4202-ba60-36fb5309ab66",
+    "version": "1.1.3",
+    "platform": "IOS",
+    "state": "PREPARE_FOR_SUBMISSION",
+    "releaseType": "MANUAL",
+    "buildId": "b8b3a1c1-5fd3-4e20-a299-dd5d25a107dd",
+    "buildNumber": "1132026100801",
+    "submittedForReview": false
+  },
+  "build": {
+    "processingState": "VALID",
+    "audience": "APP_STORE_ELIGIBLE",
+    "uploadId": "b8b3a1c1-5fd3-4e20-a299-dd5d25a107dd",
+    "fileId": "59022dfb-1538-4c97-8ae8-ba5e57ee578e",
+    "ipa": ".asc/artifacts/MaskID-1.1.3-export/MaskID.ipa",
+    "sizeBytes": 53189293,
+    "sha256": "3121067d8913ec0dc5207821b038ae9d28149ebe58ad41c4ee87c1e44951fde1",
+    "archive": ".asc/artifacts/MaskID-1.1.3-1132026100801.xcarchive"
+  },
+  "validation": {
+    "errors": 0,
+    "warnings": 1,
+    "informational": 2,
+    "blocking": 0,
+    "warning": "The first Event Annual subscription remains READY_TO_SUBMIT and must be included in the app-version review in App Store Connect.",
+    "informational": [
+      "Release type is manual.",
+      "App Privacy publication state is not verifiable through the public API."
+    ]
+  },
+  "review": {
+    "status": "Not submitted",
+    "userInstruction": "User will handle App Review submission. Do not click Add to Review or submit."
+  }
+}

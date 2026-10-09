@@ -165,6 +165,12 @@ private struct MaskIDQuickActionsView: View {
                 Text("MaskID")
                     .font(.caption.weight(.heavy))
                     .foregroundStyle(.white)
+                if snapshot.hasPremiumAccess {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(WidgetTheme.amber)
+                        .accessibilityHidden(true)
+                }
                 Spacer()
                 HStack(spacing: 3) {
                     Circle()
@@ -267,6 +273,12 @@ private struct MaskIDQuickActionsView: View {
                     Text("MaskID")
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.white)
+                    if snapshot.hasPremiumAccess {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(WidgetTheme.amber)
+                            .accessibilityHidden(true)
+                    }
                     Text("•")
                         .foregroundStyle(.white.opacity(0.40))
                     Text("Quick Actions")
@@ -805,4 +817,3 @@ struct ShieldWidgetExtensionBundle: WidgetBundle {
         }
     }
 }
-

@@ -115,12 +115,30 @@ struct PaywallView: View {
                     "trigger": trigger.rawValue
                 ])
             }
-            AppState.trackEvent("paywall_viewed", properties: properties)
+            if pm.isResolvingSubscription { await pm.updateProStatus() }
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
+            if pm.isEventPaywall, let pricing = pm.eventAnnualPricing {
+                properties["event_id"] = pm.activeEventIdentifier ?? "unknown"
+                properties["campaign_id"] = pm.activeCampaignIdentifier ?? "unknown"
+                properties["event_price"] = NSDecimalNumber(decimal: pricing.eventPrice).stringValue
+                properties["standard_price"] = NSDecimalNumber(decimal: pricing.standardPrice).stringValue
+                properties["discount"] = String(pricing.discountPercent)
+            }
+            AppState.trackEvent("paywall_viewed", properties: properties)
         }
         .onChange(of: pm.products.map(\.id)) { _, _ in
             selectAvailableProductIfNeeded()
+        }
+        .onChange(of: pm.isEventPaywall) { _, isActive in
+            guard isActive, let pricing = pm.eventAnnualPricing else { return }
+            AppState.trackEvent("event_paywall_activated", properties: [
+                "event_id": pm.activeEventIdentifier ?? "unknown",
+                "campaign_id": pm.activeCampaignIdentifier ?? "unknown",
+                "event_price": NSDecimalNumber(decimal: pricing.eventPrice).stringValue,
+                "standard_price": NSDecimalNumber(decimal: pricing.standardPrice).stringValue,
+                "discount": String(pricing.discountPercent)
+            ])
         }
         .onDisappear {
             if !pm.isPro {
@@ -278,11 +296,15 @@ struct PaywallView: View {
     }
 
     private func savingsLabel(for product: PremiumProduct) -> String? {
+        if product.isEventAnnual, let discount = product.eventDiscountPercent {
+            return LanguageManager.shared.str("paywall_save_percent", table: "Paywall", args: discount)
+        }
         switch ShieldProduct(rawValue: product.id) {
         case .annual:
             guard let monthly = pm.products.first(where: { $0.id == ShieldProduct.monthly.rawValue })
             else { return nil }
             return pm.annualSavings(monthly: monthly, annual: product, lang: appState.language)
+        case .annualEvent: return nil
         case .lifetime:
             guard let annual = pm.products.first(where: { $0.id == ShieldProduct.annual.rawValue })
             else { return nil }
@@ -349,10 +371,18 @@ struct PaywallView: View {
                 a: appState.language == .es ? "Sí, puedes cancelar en cualquier momento desde Ajustes > Apple ID > Suscripciones con un solo toque y sin penalizaciones." : "Yes, you can cancel anytime from Settings > Apple ID > Subscriptions with 1 tap."
             )
 
-            faqItem(
-                q: appState.language == .es ? "¿Qué incluye el periodo de prueba gratuito?" : "What does the free trial include?",
-                a: appState.language == .es ? "Acceso ilimitado a todas las funciones Pro durante 7 días. Si cancelas antes de que termine, no se te cobrará nada." : "Full unlimited access to all Pro features for 7 days. If you cancel before it ends, you won't be charged."
-            )
+            if let trialLabel = pm.trialLabels[selectedProductID],
+               let selectedProduct = selectedPremiumProduct {
+                let renewalPeriod = ShieldProduct(rawValue: selectedProduct.id) == .monthly
+                    ? (appState.language == .es ? "por mes" : "per month")
+                    : (appState.language == .es ? "por año" : "per year")
+                faqItem(
+                    q: appState.language == .es ? "¿Qué incluye el periodo de prueba gratuito?" : "What does the free trial include?",
+                    a: appState.language == .es
+                        ? "Este plan incluye \(trialLabel) gratis y después se renueva a \(selectedProduct.displayPrice) \(renewalPeriod). Cancela antes de que termine la prueba para evitar el cargo."
+                        : "This plan includes \(trialLabel) free, then renews at \(selectedProduct.displayPrice) \(renewalPeriod). Cancel before the trial ends to avoid the charge."
+                )
+            }
         }
     }
 
@@ -384,7 +414,12 @@ struct PaywallView: View {
             else { return }
             didStartCheckout = true
             AppState.trackEvent("paywall_purchase_started", properties: [
-                "plan": product.analyticsName
+                "plan": product.analyticsName,
+                "event_id": product.eventIdentifier ?? "none",
+                "campaign_id": product.campaignIdentifier ?? "none",
+                "event_price": product.eventIdentifier == nil ? "none" : NSDecimalNumber(decimal: product.price).stringValue,
+                "standard_price": product.comparisonProduct.map { NSDecimalNumber(decimal: $0.price).stringValue } ?? "none",
+                "discount": product.eventDiscountPercent.map(String.init) ?? "none"
             ])
             await pm.purchase(product)
             if pm.isPro { isPresented = false }
@@ -396,11 +431,13 @@ struct PaywallView: View {
     }
 
     private func selectAvailableProductIfNeeded() {
-        guard selectedPremiumProduct == nil,
-              let firstAvailable = pm.products.first else {
-            return
-        }
-        selectedProductID = firstAvailable.id
+        guard selectedPremiumProduct == nil else { return }
+        let preferredID = pm.isEventPaywall
+            ? (pm.eventAnnualProductIdentifier ?? ShieldProduct.annual.rawValue)
+            : ShieldProduct.annual.rawValue
+        selectedProductID = pm.products.first(where: { $0.id == preferredID })?.id
+            ?? pm.products.first?.id
+            ?? selectedProductID
     }
 
     @ViewBuilder
@@ -443,12 +480,35 @@ struct PaywallView: View {
                     .multilineTextAlignment(.center)
             }
 
+            if !pm.hasResolvedSubscription {
+                VStack(spacing: 4) {
+                    Text(LanguageManager.shared.paywall(
+                        pm.isResolvingSubscription
+                            ? "paywall_subscription_checking"
+                            : "paywall_subscription_check_failed"
+                    ))
+                    .shieldFont(11)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
+                    .multilineTextAlignment(.center)
+
+                    if !pm.isResolvingSubscription {
+                        Button(LanguageManager.shared.paywall("paywall_retry")) {
+                            Task {
+                                await pm.updateProStatus()
+                                await pm.loadProducts()
+                            }
+                        }
+                        .shieldFont(11, weight: .semibold)
+                    }
+                }
+            }
+
             footerLinks
         }
     }
 
     private var canPurchase: Bool {
-        !pm.isPurchasing && selectedPremiumProduct != nil
+        pm.hasResolvedSubscription && !pm.isResolvingSubscription && !pm.isPurchasing && selectedPremiumProduct != nil
     }
 
     // MARK: - Footer
@@ -608,7 +668,8 @@ struct PlanRow: View {
     let onTap: () -> Void
 
     var body: some View {
-        let isAnnual = ShieldProduct(rawValue: product.id) == .annual
+        let plan = ShieldProduct(rawValue: product.id)
+        let isAnnual = product.isEventAnnual || plan == .annual || plan == .annualEvent
         let hasBadges = trialLabel != nil || savingsLabel != nil
 
         Button(action: onTap) {
@@ -665,6 +726,12 @@ struct PlanRow: View {
 
                 // Pricing
                 VStack(alignment: .trailing, spacing: 2) {
+                    if let comparisonPrice = product.comparisonDisplayPrice {
+                        Text(comparisonPrice)
+                            .shieldFont(11, weight: .medium)
+                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                            .strikethrough()
+                    }
                     Text(product.displayPrice)
                         .shieldFont(18, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
@@ -705,27 +772,39 @@ struct PlanRow: View {
     }
 
     private var planName: String {
+        if product.isEventAnnual {
+            return LanguageManager.shared.paywall("paywall_plan_annual_event")
+        }
         switch ShieldProduct(rawValue: product.id) {
         case .monthly:  return LanguageManager.shared.paywall("paywall_plan_monthly")
         case .annual:   return LanguageManager.shared.paywall("paywall_plan_annual")
+        case .annualEvent: return LanguageManager.shared.paywall("paywall_plan_annual_event")
         case .lifetime: return LanguageManager.shared.paywall("paywall_plan_lifetime")
         case nil:       return product.displayName
         }
     }
 
     private var planSubtitle: String {
+        if product.isEventAnnual {
+            return LanguageManager.shared.paywall("paywall_billed_annually")
+        }
         switch ShieldProduct(rawValue: product.id) {
         case .monthly:  return LanguageManager.shared.paywall("paywall_billed_monthly")
         case .annual:   return LanguageManager.shared.paywall("paywall_billed_annually")
+        case .annualEvent: return LanguageManager.shared.paywall("paywall_billed_annually")
         case .lifetime: return LanguageManager.shared.paywall("paywall_billed_once")
         case nil:       return ""
         }
     }
 
     private var periodLabel: String {
+        if product.isEventAnnual {
+            return LanguageManager.shared.paywall("paywall_per_yr_short")
+        }
         switch ShieldProduct(rawValue: product.id) {
         case .monthly:  return LanguageManager.shared.paywall("paywall_per_mo_short")
         case .annual:   return LanguageManager.shared.paywall("paywall_per_yr_short")
+        case .annualEvent: return LanguageManager.shared.paywall("paywall_per_yr_short")
         case .lifetime: return LanguageManager.shared.paywall("paywall_once_short")
         case nil:       return ""
         }

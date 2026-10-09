@@ -18,6 +18,20 @@
         }
       }
     },
+    "paywall_subscription_checking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Checking your App Store subscription…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comprobando tu suscripción del App Store…" } }
+      }
+    },
+    "paywall_subscription_check_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "We couldn’t confirm your subscription status. Check your connection and try again." } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se pudo confirmar el estado de tu suscripción. Comprueba la conexión e inténtalo de nuevo." } }
+      }
+    },
     "paywall_billed_annually": {
       "extractionState": "manual",
       "localizations": {
@@ -730,6 +744,13 @@
             "value": "Anual"
           }
         }
+      }
+    },
+    "paywall_plan_annual_event": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Annual Event Offer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Oferta anual de campaña" } }
       }
     },
     "paywall_plan_lifetime": {

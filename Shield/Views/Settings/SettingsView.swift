@@ -1,5 +1,12 @@
 import SwiftUI
 import AppEngagementKit
+import StoreKit
+
+private struct SettingsAlert: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+}
 
 // MARK: - SettingsView
 
@@ -11,7 +18,8 @@ struct SettingsView: View {
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
-    @State private var showRatingUnavailable = false
+    @State private var showOfferCodeRedemption = false
+    @State private var activeAlert: SettingsAlert?
     @State private var navigationPath = NavigationPath()
 
     private var strings: LanguageManager { .shared }
@@ -37,6 +45,31 @@ struct SettingsView: View {
                             onUnlockPro: { showPaywall = true },
                             onManageSubscription: openManageSubscription
                         )
+
+                        SettingsCardSection(
+                            title: strings.settings("settings_subscription_tools"),
+                            icon: "creditcard.fill"
+                        ) {
+                            SettingsActionRow(
+                                icon: "arrow.clockwise.circle.fill",
+                                color: Color(hex: "30D158"),
+                                title: premium.isRestoring
+                                    ? strings.settings("settings_subscription_restoring")
+                                    : strings.settings("settings_subscription_restore_action"),
+                                subtitle: strings.settings("settings_subscription_restore_action_subtitle"),
+                                accessibilityIdentifier: "settings.subscription.restore",
+                                action: restorePurchases
+                            )
+                            SettingsRowDivider()
+                            SettingsActionRow(
+                                icon: "ticket.fill",
+                                color: Color(hex: "8E44AD"),
+                                title: strings.settings("settings_subscription_redeem_offer"),
+                                subtitle: strings.settings("settings_subscription_redeem_offer_subtitle"),
+                                accessibilityIdentifier: "settings.subscription.redeemOffer",
+                                action: { showOfferCodeRedemption = true }
+                            )
+                        }
 
                         SettingsCardSection(
                             title: strings.settings("settings_section_personalization"),
@@ -163,13 +196,31 @@ struct SettingsView: View {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
                 .environmentObject(appState)
         }
-        .alert(
-            strings.settings("settings_rating_unavailable_title"),
-            isPresented: $showRatingUnavailable
-        ) {
-            Button(strings.common("common_ok"), role: .cancel) {}
-        } message: {
-            Text(strings.settings("settings_rating_unavailable_message"))
+        .offerCodeRedemption(isPresented: $showOfferCodeRedemption) { result in
+            switch result {
+            case .success:
+                AppState.trackEvent("offer_code_redeem_finished", properties: ["result": "completed"])
+                Task { await premium.reconcileAfterOfferCodeRedemption() }
+            case .failure(let error):
+                AppState.trackEvent("offer_code_redeem_finished", properties: [
+                    "result": "failed",
+                    "error_type": String((error as NSError).code)
+                ])
+            }
+        }
+        .alert(item: $activeAlert) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(Text(strings.common("common_ok")))
+            )
+        }
+        .onChange(of: premium.purchaseError) { _, error in
+            guard let error else { return }
+            activeAlert = SettingsAlert(
+                title: strings.settings("settings_subscription_tools"),
+                message: error
+            )
         }
     }
 
@@ -203,6 +254,22 @@ struct SettingsView: View {
 
     private func openManageSubscription() {
         Task { await SubscriptionLifecycleObserver.shared.showManageSubscriptions() }
+    }
+
+    private func restorePurchases() {
+        Task {
+            await premium.restore()
+            if premium.purchaseError == nil {
+                activeAlert = SettingsAlert(
+                    title: strings.settings("settings_subscription_tools"),
+                    message: strings.settings(
+                        premium.isPro
+                            ? "settings_subscription_restore_success"
+                            : "settings_subscription_restore_empty"
+                    )
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -311,7 +378,12 @@ struct SettingsView: View {
 
     private func requestRating() {
         openURL(AppReviewManager.shared.writeReviewURL) { accepted in
-            if !accepted { showRatingUnavailable = true }
+            if !accepted {
+                activeAlert = SettingsAlert(
+                    title: strings.settings("settings_rating_unavailable_title"),
+                    message: strings.settings("settings_rating_unavailable_message")
+                )
+            }
         }
     }
 

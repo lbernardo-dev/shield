@@ -2200,3 +2200,129 @@
    Done by: CODEX
    Done at: 2026-10-02T20:18:47Z
 
+206. subscription-financial-monetization-architecture
+   Id: 206-subscription-financial-monetization-architecture
+   Scope: Auditar y evolucionar el sistema de monetización de MaskID: catálogo, precios, RevenueCat/StoreKit, ofertas estacionales, restauración, arquitectura, documentación y validación
+   Files: Shield/Premium/**,Shield/Views/Paywall/**,Shield/Theme/**,Shield/Resources/**,Docs/**,ShieldTests/**,tasks/TASKS.md,tasks/details/**
+   Note: Implementación y documentación de suscripciones completadas; validación estática OK. Build/tests y matriz iPhone 18 Pro bloqueados porque CoreSimulatorService no responde y xcdevice sólo detectó el Mac; acciones ASC/RevenueCat manuales documentadas, sin cambios externos ni cleanup.
+   Detail: tasks/details/206-subscription-financial-monetization-architecture.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-07T16:58:19Z
+   Done by: CODEX
+   Done at: 2026-10-07T17:36:19Z
+
+207. generic-event-annual-product
+   Id: 207-generic-event-annual-product
+   Scope: Unificar Annual Event bajo un Product ID genérico reutilizable para cualquier campaña activa y alinear fixture, código y documentación
+   Files: Shield/Premium/**,Shield/Theme/**,Shield/Resources/Shield.storekit,ShieldTests/**,Docs/**,tasks/TASKS.md,tasks/details/**
+   Note: SKU genérico y paywall automático por ventana del catálogo implementados; parseo Swift, JSON, plutil y diff-check pasan. No se pudo enumerar/validar simuladores por CoreSimulatorService desconectado, así que no se compiló ni ejecutó suite. ASC/RevenueCat se inspeccionaron en lectura: faltan producto Event y Offering event; no se realizaron mutaciones externas.
+   Detail: tasks/details/207-generic-event-annual-product.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-08T05:02:02Z
+   Done by: CODEX
+   Done at: 2026-10-08T05:12:05Z
+
+208. help
+   Id: 208-help
+   Note: Cerrada como artefacto administrativo accidental: el comando plan --help creó 208-help; no representa alcance del producto ni cambios de código.
+   Detail: tasks/details/208-help.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-08T05:37:45Z
+   Done by: CODEX
+   Done at: 2026-10-08T05:37:45Z
+
+209. event-annual-release-reconciliation
+   Id: 209-event-annual-release-reconciliation
+   Scope: Cerrar el lanzamiento real del producto Event genérico: App Review screenshot, validación y aprobación ASC, producto/entitlement/Offering en RevenueCat, precio de salida preservando cohorte y validación iOS por matriz de simuladores
+   Files: Shield/**,Docs/**,tasks/**,audit/**
+   Note: Release staging complete: 1.1.3 build 1132026100801 is uploaded VALID and attached. User explicitly retains App Review submission; do not submit or click Add to Review.
+   Detail: tasks/details/209-event-annual-release-reconciliation.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T05:26:08Z
+
+210. event-annual-release-reconciliation
+   Id: 210-event-annual-release-reconciliation
+   Scope: Build, upload, attach the generic Event Annual subscription to the next app version and submit the app plus subscription to Apple review; verify release gates.
+   Files: Shield.xcodeproj/project.pbxproj,Shield/**,Docs/**,tasks/**,audit/**,.asc/artifacts/**
+   Note: Accidental duplicate of task 209 closed; task 209 remains the canonical release record and continues active.
+   Detail: tasks/details/210-event-annual-release-reconciliation.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-08T07:03:44Z
+   Done by: CODEX
+   Done at: 2026-10-08T07:03:44Z
+
+211. permanent-icloud-premium-entitlement
+   Id: 211-permanent-icloud-premium-entitlement
+   Scope: Conceder Premium permanente solo a dos CloudKit User Record Names verificados y en producción; integrar resolución central, localizaciones y pruebas
+   Files: Shield/Premium/**,Shield/Cloud/**,Shield/Views/**,ShieldWidgetExtension/**,ShieldTests/**,Shield/Localization/Strings/**,Shield.xcodeproj/project.pbxproj,tasks/**
+   Note: Implementación y compilaciones Debug/Release completas; ejecución de pruebas pendiente hasta que iPhone 18 Pro quede libre de UpLedger.
+   Detail: tasks/details/211-permanent-icloud-premium-entitlement.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T05:08:53Z
+
+212. subscription-store-artwork-review
+   Id: 212-subscription-store-artwork-review
+   Scope: Auditar todas las suscripciones de MaskID en App Store Connect y crear una imagen coherente por producto para revisión previa a la carga
+   Files: audit/subscription-artwork/**,tasks/details/**,tasks/TASKS.md
+   Note: Entregadas cuatro propuestas 1024x1024 PNG (mensual, anual estándar, anual de evento y una compra de por vida separada); metadatos/export validados y revisión documentada. No se subieron a ASC; pendiente aprobación del usuario. Lectura live de ASC falló, base auditada 8-oct.
+   Detail: tasks/details/212-subscription-store-artwork-review.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T05:21:34Z
+   Done by: CODEX
+   Done at: 2026-10-09T05:27:38Z
+
+213. upload-subscription-artwork-to-asc
+   Id: 213-upload-subscription-artwork-to-asc
+   Scope: Sustituir en App Store Connect las imágenes aprobadas de las tres suscripciones auto-renovables de MaskID y verificar la entrega
+   Files: audit/subscription-artwork-review/**,audit/**,tasks/details/**,tasks/TASKS.md
+   Note: Tres imágenes de suscripciones auto-renovables cargadas y verificadas COMPLETE en borradores ASC; versiones aprobadas preservadas; no se envió a App Review.
+   Detail: tasks/details/213-upload-subscription-artwork-to-asc.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T05:29:19Z
+   Done by: CODEX
+   Done at: 2026-10-09T05:35:06Z
+
+214. app-store-creative-videos
+   Id: 214-app-store-creative-videos
+   Scope: Diseñar y producir videos creativos de MaskID para los espacios nuevos de cabecera de página y resultados de búsqueda; validar especificaciones, cargar y asignar en App Store Connect sin enviar la app a revisión
+   Files: Marketing/AppStore-Connect/CreativeAssets/**,scripts/**,tasks/TASKS.md,tasks/details/**
+   Note: Finished: rendered four compliant EN/ES header/search videos, assigned and verified all four ACTIVE placements in App Store Connect; no review submitted; previews processed successfully.
+   Detail: tasks/details/214-app-store-creative-videos.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T05:38:11Z
+   Done by: CODEX
+   Done at: 2026-10-09T05:56:24Z
+
+215. app-store-header-safe-area
+   Id: 215-app-store-header-safe-area
+   Scope: Reencuadrar los videos de cabecera EN/ES dentro de una zona central segura y sustituir los activos de App Store Connect; mantener la versión sin enviar a revisión
+   Files: Marketing/AppStore-Connect/CreativeAssets/**,tasks/TASKS.md,tasks/details/**
+   Note: Corrected header videos with centered 16:9 safe area, uploaded and swapped EN/ES header placements, confirmed both ACTIVE and previews COMPLETE; search placements unchanged, no review submitted.
+   Detail: tasks/details/215-app-store-header-safe-area.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T06:32:35Z
+   Done by: CODEX
+   Done at: 2026-10-09T06:37:28Z
+
+216. app-store-preview-safe-composition
+   Id: 216-app-store-preview-safe-composition
+   Scope: Ajustar las cabeceras EN/ES usando la vista previa real de iPhone en App Store Connect para evitar recortes y controles superpuestos; reemplazar y revalidar sin enviar revisión
+   Files: Marketing/AppStore-Connect/CreativeAssets/**,tasks/TASKS.md,tasks/details/**
+   Note: Final: enlarged EN/ES headers, checked both in ASC iPhone preview with clear margins from carousel/share controls; header placements ACTIVE, search placements unchanged ACTIVE; v1.1.3 not submitted.
+   Detail: tasks/details/216-app-store-preview-safe-composition.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T07:02:38Z
+   Done by: CODEX
+   Done at: 2026-10-09T07:29:45Z
+
+217. repository-hygiene-cleanup
+   Id: 217-repository-hygiene-cleanup
+   Scope: Eliminar temporales, sidecars AppleDouble y cachés de desarrollo; registrar y publicar el estado solicitado en main
+   Files: scripts/clean.sh,tasks/TASKS.md,tasks/details/*
+   Note: Cleanup complete: removed AppleDouble/temporary files and moved the 12 GB .build cache to Trash; release artifacts preserved. diff-check clean. Commit/push is the final requested operation.
+   Detail: tasks/details/217-repository-hygiene-cleanup.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-09T07:54:04Z
+   Done by: CODEX
+   Done at: 2026-10-09T07:56:19Z
+

@@ -40,6 +40,8 @@
 		A016 /* OCRSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016 /* OCRSheetView.swift */; };
 		A017 /* ExportSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017 /* ExportSheetView.swift */; };
 		A018 /* PremiumManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F018 /* PremiumManager.swift */; };
+		A0B1C2D3E4F5061728394051 /* SubscriptionExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B1C2D3E4F5061728394051 /* SubscriptionExperience.swift */; };
+		A0B1C2D3E4F5061728394052 /* SubscriptionExperienceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B1C2D3E4F5061728394052 /* SubscriptionExperienceTests.swift */; };
 		A019 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F019 /* PaywallView.swift */; };
 		A020 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* VaultView.swift */; };
 		A021 /* StyleGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* StyleGalleryView.swift */; };
@@ -226,6 +228,8 @@
 		F016 /* OCRSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRSheetView.swift; sourceTree = "<group>"; };
 		F017 /* ExportSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheetView.swift; sourceTree = "<group>"; };
 		F018 /* PremiumManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumManager.swift; sourceTree = "<group>"; };
+		F0B1C2D3E4F5061728394051 /* SubscriptionExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionExperience.swift; sourceTree = "<group>"; };
+		F0B1C2D3E4F5061728394052 /* SubscriptionExperienceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionExperienceTests.swift; sourceTree = "<group>"; };
 		F019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		F020 /* VaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		F021 /* StyleGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGalleryView.swift; sourceTree = "<group>"; };
@@ -616,6 +620,7 @@
 			isa = PBXGroup;
 			children = (
 				F018 /* PremiumManager.swift */,
+				F0B1C2D3E4F5061728394051 /* SubscriptionExperience.swift */,
 			);
 			path = Premium;
 			sourceTree = "<group>";
@@ -734,6 +739,7 @@
 		GRP_TESTS /* ShieldTests */ = {
 			isa = PBXGroup;
 			children = (
+				F0B1C2D3E4F5061728394052 /* SubscriptionExperienceTests.swift */,
 				T001 /* RedactionCodingTests.swift */,
 				FT_COORD_MAP /* CoordinateMappingTests.swift */,
 				T003 /* Export/ExportVerifierTests.swift */,
@@ -1122,6 +1128,7 @@
 				A027 /* WatermarkConfigView.swift in Sources */,
 				A032 /* ImageAdjustToolbar.swift in Sources */,
 				A018 /* PremiumManager.swift in Sources */,
+				A0B1C2D3E4F5061728394051 /* SubscriptionExperience.swift in Sources */,
 				A019 /* PaywallView.swift in Sources */,
 				A020 /* VaultView.swift in Sources */,
 				A021 /* StyleGalleryView.swift in Sources */,
@@ -1180,6 +1187,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AT001 /* RedactionCodingTests.swift in Sources */,
+				A0B1C2D3E4F5061728394052 /* SubscriptionExperienceTests.swift in Sources */,
 				AT_COORD_MAP /* CoordinateMappingTests.swift in Sources */,
 				AT003 /* Export/ExportVerifierTests.swift in Sources */,
 				AT004 /* DocumentMigrationTests.swift in Sources */,
@@ -1235,102 +1243,102 @@
 
 /* Begin XCBuildConfiguration section */
 		4131695007E3CA8F85FD0B76 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"APPLICATION_EXTENSION_API_ONLY" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"GENERATE_INFOPLIST_FILE" = NO;
+		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"MARKETING_VERSION" = "1.1.3";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = iphoneos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+		"VALIDATE_PRODUCT" = YES;
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		78D2CB77BE9AF23147BE060E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_ENTITLEMENTS = ShieldWidgetExtension/ShieldWidgetExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ShieldWidgetExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.widgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"APPLICATION_EXTENSION_API_ONLY" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"GENERATE_INFOPLIST_FILE" = NO;
+		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"MARKETING_VERSION" = "1.1.3";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		SDKROOT = iphoneos;
+		"SKIP_INSTALL" = YES;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		BC_EXT_DEBUG /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				EXTRACT_APP_INTENTS_METADATA = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"APPLICATION_EXTENSION_API_ONLY" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"EXTRACT_APP_INTENTS_METADATA" = NO;
+		"GENERATE_INFOPLIST_FILE" = NO;
+		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.1.3";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SKIP_INSTALL" = YES;
+		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		BC_EXT_RELEASE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				EXTRACT_APP_INTENTS_METADATA = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield.ShareExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"APPLICATION_EXTENSION_API_ONLY" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"EXTRACT_APP_INTENTS_METADATA" = NO;
+		"GENERATE_INFOPLIST_FILE" = NO;
+		"INFOPLIST_FILE" = "ShareExtension/Info.plist";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+			"@executable_path/../../Frameworks",
+		);
+		"MARKETING_VERSION" = "1.1.3";
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
+		"PRODUCT_NAME" = "$(TARGET_NAME)";
+		"SKIP_INSTALL" = YES;
+		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		BC_PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1433,99 +1441,99 @@
 			name = Release;
 		};
 		BC_TARGET_DEBUG /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDHalloween";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Shield/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
-				INFOPLIST_KEY_CFBundleName = MaskID;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.2;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
-				PRODUCT_MODULE_NAME = Shield;
-				PRODUCT_NAME = MaskID;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = MaskIDHalloween;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
+		"CODE_SIGN_IDENTITY" = "Apple Development";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"ENABLE_PREVIEWS" = YES;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
+		"INFOPLIST_KEY_CFBundleName" = MaskID;
+		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
+		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
+		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
+		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
+		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.1.3";
+		"OTHER_LDFLAGS" = (
+			"$(inherited)",
+			"-ObjC",
+		);
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
+		"PRODUCT_MODULE_NAME" = Shield;
+		"PRODUCT_NAME" = MaskID;
+		"PROVISIONING_PROFILE_SPECIFIER" = "";
+		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+		"SUPPORTS_MACCATALYST" = NO;
+		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Debug;
+};
 		BC_TARGET_RELEASE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "MaskIDHalloween";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Shield/Shield.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1122026100201;
-				DEVELOPMENT_TEAM = L2B56644F5;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Shield/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MaskID;
-				INFOPLIST_KEY_CFBundleName = MaskID;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.2;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.romerodev.shield;
-				PRODUCT_MODULE_NAME = Shield;
-				PRODUCT_NAME = MaskID;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
+	buildSettings = {
+		"ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES" = MaskIDHalloween;
+		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
+		"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = AccentColor;
+		"ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS" = YES;
+		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
+		"CODE_SIGN_IDENTITY" = "Apple Development";
+		"CODE_SIGN_STYLE" = Automatic;
+		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"DEVELOPMENT_TEAM" = L2B56644F5;
+		"ENABLE_PREVIEWS" = YES;
+		"GENERATE_INFOPLIST_FILE" = YES;
+		"INFOPLIST_FILE" = "Shield/Resources/Info.plist";
+		"INFOPLIST_KEY_CFBundleDisplayName" = MaskID;
+		"INFOPLIST_KEY_CFBundleName" = MaskID;
+		"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = NO;
+		"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.utilities";
+		"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = YES;
+		"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = YES;
+		"INFOPLIST_KEY_UILaunchScreen_Generation" = YES;
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
+		"LD_RUNPATH_SEARCH_PATHS" = (
+			"$(inherited)",
+			"@executable_path/Frameworks",
+		);
+		"MARKETING_VERSION" = "1.1.3";
+		"OTHER_LDFLAGS" = (
+			"$(inherited)",
+			"-ObjC",
+		);
+		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield";
+		"PRODUCT_MODULE_NAME" = Shield;
+		"PRODUCT_NAME" = MaskID;
+		"PROVISIONING_PROFILE_SPECIFIER" = "";
+		"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+		"SUPPORTS_MACCATALYST" = NO;
+		"SWIFT_DEFAULT_ACTOR_ISOLATION" = MainActor;
+		"SWIFT_EMIT_LOC_STRINGS" = YES;
+		"SWIFT_VERSION" = "5.0";
+		"TARGETED_DEVICE_FAMILY" = "1,2";
+	};
+	isa = XCBuildConfiguration;
+	name = Release;
+};
 		BC_TEST_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {

@@ -679,7 +679,8 @@ final class AppState: ObservableObject {
             "has_adjustments", "product_id", "trigger", "reason", "error_type",
             "last_step", "from_step", "step", "name", "feature_key", "user_tier",
             "category", "plan", "started_checkout", "feature", "quota", "docs",
-            "tier", "subscription_state"
+            "tier", "subscription_state", "event_id", "campaign_id", "event_price",
+            "standard_price", "discount", "result"
         ]
         var safeProperties = properties.reduce(into: [String: String]()) { result, item in
             guard allowedKeys.contains(item.key) else { return }
@@ -852,12 +853,17 @@ final class AppState: ObservableObject {
             vaultedDocuments: documents.filter(\.isVaulted).count,
             watermarkedDocuments: watermarkedCount,
             securityScore: nil,
-            lastProtectedDate: lastDate
+            lastProtectedDate: lastDate,
+            hasPremiumAccess: PremiumManager.shared.isPro
         )
         ShieldWidgetSnapshotStore.save(snapshot)
         if reload {
             WidgetCenter.shared.reloadAllTimelines()
         }
+    }
+
+    func refreshWidgetSnapshot() {
+        updateWidgetSnapshot(reload: true)
     }
 
     private func persistCustomCategories() {

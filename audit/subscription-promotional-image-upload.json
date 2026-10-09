@@ -1,0 +1,34 @@
+{
+  "data": {
+    "type": "subscriptionImages",
+    "id": "a8396cf8-e9e0-47cd-9225-b08aecc1be8a",
+    "attributes": {
+      "fileSize": 1031602,
+      "fileName": "icon_1024.png",
+      "assetToken": "PurpleSource221/v4/d9/3d/e7/d93de783-2d5c-77c3-b620-da310398bdd4/icon_1024.png",
+      "uploadOperations": [
+        {
+          "method": "PUT",
+          "url": "https://northamerica-1.object-storage.apple.com/itms-assets-prod-200001/PurpleSource221/v4/d9/3d/e7/d93de783-2d5c-77c3-b620-da310398bdd4/TLffi2v7Z3x2eLTOlDlWutizsNKmJXDnF9s7xtbc-vg_U003d-1791438097164?partNumber=1\u0026uploadId=edb35cd0-c2da-11f1-aa63-7e69b1f8ebdf\u0026apple-asset-repo-correlation-key=YW6XQQT37MZQ2NV26HXWECEJ5Q\u0026X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Date=20261008T054137Z\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Credential=PKIAI0ZGNAD8WKMSOOX0%2F20261008%2Fnorthamerica-1%2Fs3%2Faws4_request\u0026X-Amz-Expires=604800\u0026X-Amz-Signature=44faabfed98e5e0c2a9b88176b3c5fd7500ac548df6dd328e355c4ef7b7ddf62",
+          "length": 1031602,
+          "offset": 0,
+          "requestHeaders": [
+            {
+              "name": "Content-Type",
+              "value": "image/png"
+            }
+          ]
+        }
+      ],
+      "assetDeliveryState": {
+        "state": "UPLOAD_COMPLETE"
+      }
+    },
+    "links": {
+      "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/a8396cf8-e9e0-47cd-9225-b08aecc1be8a"
+    }
+  },
+  "links": {
+    "self": "https://api.appstoreconnect.apple.com/v2/subscriptionImages/a8396cf8-e9e0-47cd-9225-b08aecc1be8a"
+  }
+}

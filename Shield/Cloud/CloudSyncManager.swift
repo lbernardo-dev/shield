@@ -20,6 +20,7 @@ private struct CloudDocumentPackage: Codable {
 @MainActor
 final class CloudSyncManager: ObservableObject {
     static let shared = CloudSyncManager()
+    static let cloudKitContainerIdentifier = "iCloud.com.romerodev.shield"
 
     @Published private(set) var syncStatus: SyncStatus = .idle
     @Published private(set) var lastSyncDate: Date?
@@ -37,7 +38,6 @@ final class CloudSyncManager: ObservableObject {
         let package: CloudDocumentPackage
     }
 
-    private let containerID = "iCloud.com.romerodev.shield"
     private let recordType = "ShieldDocumentV2"
     private let legacyRecordType = "ShieldDocument"
     private let pendingDeletionKey = "shield.icloud.pendingDeletionIDs"
@@ -48,7 +48,7 @@ final class CloudSyncManager: ObservableObject {
 
     private var ckContainer: CKContainer? {
         guard isSyncEnabled else { return nil }
-        return CKContainer(identifier: containerID)
+        return CKContainer(identifier: Self.cloudKitContainerIdentifier)
     }
 
     private init() {

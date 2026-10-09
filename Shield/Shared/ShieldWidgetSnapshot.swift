@@ -3,8 +3,8 @@ import Foundation
 /// Non-sensitive aggregate data shared with WidgetKit through the App Group.
 ///
 /// Widget processes must never read the app's document store or vault. This
-/// snapshot intentionally contains counts only, so the widget remains useful
-/// without exposing document titles, OCR, images, or file names.
+/// snapshot contains aggregate counts and resolved plan access only, so it
+/// never exposes document titles, OCR, images, or file names.
 struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
     let totalDocuments: Int
     let protectedDocuments: Int
@@ -12,6 +12,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
     let watermarkedDocuments: Int
     let securityScore: Int
     let lastProtectedDate: Date?
+    let hasPremiumAccess: Bool
     let generatedAt: Date
 
     init(
@@ -21,6 +22,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
         watermarkedDocuments: Int = 0,
         securityScore: Int? = nil,
         lastProtectedDate: Date? = nil,
+        hasPremiumAccess: Bool = false,
         generatedAt: Date = .now
     ) {
         let safeTotal = max(0, totalDocuments)
@@ -37,6 +39,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
             self.securityScore = safeTotal > 0 ? min(100, Int((Double(safeProtected) / Double(safeTotal)) * 100)) : 100
         }
         self.lastProtectedDate = lastProtectedDate
+        self.hasPremiumAccess = hasPremiumAccess
         self.generatedAt = generatedAt
     }
 
@@ -47,6 +50,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
         case watermarkedDocuments
         case securityScore
         case lastProtectedDate
+        case hasPremiumAccess
         case generatedAt
     }
 
@@ -58,6 +62,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
         let watermarked = try container.decodeIfPresent(Int.self, forKey: .watermarkedDocuments) ?? 0
         let score = try container.decodeIfPresent(Int.self, forKey: .securityScore)
         let lastProtected = try container.decodeIfPresent(Date.self, forKey: .lastProtectedDate)
+        let hasPremiumAccess = try container.decodeIfPresent(Bool.self, forKey: .hasPremiumAccess) ?? false
         let generated = try container.decodeIfPresent(Date.self, forKey: .generatedAt) ?? .now
 
         self.init(
@@ -67,6 +72,7 @@ struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
             watermarkedDocuments: watermarked,
             securityScore: score,
             lastProtectedDate: lastProtected,
+            hasPremiumAccess: hasPremiumAccess,
             generatedAt: generated
         )
     }
