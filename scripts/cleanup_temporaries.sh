@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP_ROOT="$(cd -- /tmp && pwd -P)"
 TRASH_BIN="/usr/bin/trash"
 
 usage() {
@@ -28,7 +29,7 @@ candidate_path() {
       local tmp_name="${1#tmp:}"
       [[ "$tmp_name" != */* ]] || return 1
       case "$tmp_name" in
-        MaskID-*|DerivedData-MaskID) printf '/tmp/%s\n' "$tmp_name" ;;
+        MaskID-*|DerivedData-MaskID) printf '%s/%s\n' "$TMP_ROOT" "$tmp_name" ;;
         *) return 1 ;;
       esac
       ;;
@@ -75,7 +76,7 @@ list_candidates() {
   while IFS= read -r path; do
     [[ -n "$path" ]] || continue
     report_candidate "tmp:$(/usr/bin/basename -- "$path")" "$path"
-  done < <(/usr/bin/find /tmp -maxdepth 1 -mindepth 1 \( -name 'MaskID-*' -o -name 'DerivedData-MaskID' \) -print)
+  done < <(/usr/bin/find "$TMP_ROOT" -maxdepth 1 -mindepth 1 \( -name 'MaskID-*' -o -name 'DerivedData-MaskID' \) -print)
 
   while IFS= read -r path; do
     [[ -n "$path" ]] || continue

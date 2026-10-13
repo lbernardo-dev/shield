@@ -2359,3 +2359,14 @@
    Done by: CODEX
    Done at: 2026-10-13T19:30:31Z
 
+221. cleanup-temporaries-macos-tmp
+   Id: 221-cleanup-temporaries-macos-tmp
+   Scope: Fix macOS temporary-directory enumeration so --dry-run and --apply share the real /tmp target
+   Files: scripts/cleanup_temporaries.sh
+   Note: Fixed macOS /tmp symlink discovery in candidate listing and path resolution. Verified --dry-run; moved the 46 exact build 1142026101302 temporary outputs to Trash after the active-tooling guard cleared. Confirmed no matching temp files remain and .asc/artifacts is intact (6,982 files).
+   Detail: tasks/details/221-cleanup-temporaries-macos-tmp.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-13T20:32:19Z
+   Done by: CODEX
+   Done at: 2026-10-13T20:32:59Z
+
