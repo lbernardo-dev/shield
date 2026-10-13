@@ -991,6 +991,62 @@
         }
       }
     },
+    "paywall_every_days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "every %d days" } },
+        "es": { "stringUnit": { "state": "translated", "value": "cada %d días" } }
+      }
+    },
+    "paywall_every_months": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "every %d months" } },
+        "es": { "stringUnit": { "state": "translated", "value": "cada %d meses" } }
+      }
+    },
+    "paywall_every_weeks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "every %d weeks" } },
+        "es": { "stringUnit": { "state": "translated", "value": "cada %d semanas" } }
+      }
+    },
+    "paywall_every_years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "every %d years" } },
+        "es": { "stringUnit": { "state": "translated", "value": "cada %d años" } }
+      }
+    },
+    "paywall_per_day": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "/day" } },
+        "es": { "stringUnit": { "state": "translated", "value": "/día" } }
+      }
+    },
+    "paywall_per_week": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "/week" } },
+        "es": { "stringUnit": { "state": "translated", "value": "/semana" } }
+      }
+    },
+    "paywall_trial_renewal_disclosure": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%1$@, then you will be charged %2$@. Subscription automatically renews until canceled." } },
+        "es": { "stringUnit": { "state": "translated", "value": "%1$@; después se te cobrará %2$@. La suscripción se renueva automáticamente hasta que la canceles." } }
+      }
+    },
+    "paywall_renewal_disclosure": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "You will be charged %1$@. Subscription automatically renews until canceled." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se te cobrará %1$@. La suscripción se renueva automáticamente hasta que la canceles." } }
+      }
+    },
     "paywall_trial_days": {
       "extractionState": "manual",
       "localizations": {

@@ -1246,12 +1246,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1268,12 +1268,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1290,7 +1290,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1301,7 +1301,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1317,7 +1317,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1328,7 +1328,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1449,7 +1449,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1468,7 +1468,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",
@@ -1496,7 +1496,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1132026100801;
+		"CURRENT_PROJECT_VERSION" = 1142026101301;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1515,7 +1515,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.3";
+		"MARKETING_VERSION" = "1.1.4";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",

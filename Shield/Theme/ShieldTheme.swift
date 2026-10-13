@@ -302,6 +302,25 @@ enum SeasonalThemeResolver {
     }
 }
 
+nonisolated private final class NotificationObserverTokenStore: @unchecked Sendable {
+    private let lock = NSLock()
+    private var tokens: [NSObjectProtocol] = []
+
+    func append(_ token: NSObjectProtocol) {
+        lock.lock()
+        defer { lock.unlock() }
+        tokens.append(token)
+    }
+
+    func removeAll() {
+        lock.lock()
+        let currentTokens = tokens
+        tokens.removeAll()
+        lock.unlock()
+        currentTokens.forEach(NotificationCenter.default.removeObserver)
+    }
+}
+
 final class SeasonalThemeCoordinator: ObservableObject {
     static let shared = SeasonalThemeCoordinator()
 
@@ -327,7 +346,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
 #endif
 #endif
     private let userDefaults: UserDefaults
-    private var systemTimeObservers: [NSObjectProtocol] = []
+    private let systemTimeObservers = NotificationObserverTokenStore()
     private let soundscape = SeasonalThemeSoundscape()
     private var isSceneActive = false
     private var scheduleRefreshTask: Task<Void, Never>?
@@ -367,7 +386,9 @@ final class SeasonalThemeCoordinator: ObservableObject {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                self?.refresh()
+                Task { @MainActor [weak self] in
+                    self?.refresh()
+                }
             }
             systemTimeObservers.append(observer)
         }
@@ -377,8 +398,9 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     deinit {
         scheduleRefreshTask?.cancel()
-        systemTimeObservers.forEach(NotificationCenter.default.removeObserver)
-        soundscape.stop()
+        systemTimeObservers.removeAll()
+        let soundscape = soundscape
+        Task { await soundscape.stop() }
     }
 
     var definitions: [SeasonalThemeDefinition] { SeasonalThemeCatalog.definitions }
@@ -489,10 +511,10 @@ final class SeasonalThemeCoordinator: ObservableObject {
         guard isSceneActive,
               isSoundscapeEnabled,
               activeThemeID == .halloween2026 else {
-            soundscape.stop()
+            Task { await soundscape.stop() }
             return
         }
-        soundscape.start()
+        Task { await soundscape.start() }
     }
 
 #if DEBUG
@@ -593,65 +615,47 @@ private extension SeasonalThemeSelection {
 /// avoid shipping a large audio bundle. They use the ambient audio category,
 /// respect the mute switch, mix with other audio, and only run when the user
 /// explicitly enables them from the theme settings.
-private final class SeasonalThemeSoundscape {
-    private var timer: Timer?
-    private let audioQueue = DispatchQueue(label: "com.romerodev.maskid.halloween-soundscape")
-    private var isRunning = false
+private actor SeasonalThemeSoundscape {
+    private var playbackTask: Task<Void, Never>?
     private var player: AVAudioPlayer?
 
     func start() {
-        guard timer == nil else { return }
-        audioQueue.async { [weak self] in
-            self?.isRunning = true
+        guard playbackTask == nil else { return }
+        playbackTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(7))
+            while !Task.isCancelled {
+                await self?.playRandomStinger()
+                let delay = UInt64(Double.random(in: 16...30) * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: delay)
+            }
         }
-        scheduleNext(after: 7)
     }
 
     func stop() {
-        timer?.invalidate()
-        timer = nil
-        audioQueue.async { [weak self] in
-            guard let self else { return }
-            self.isRunning = false
-            self.player?.stop()
-            self.player = nil
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        }
-    }
-
-    private func scheduleNext(after delay: TimeInterval? = nil) {
-        timer?.invalidate()
-        let interval = delay ?? Double.random(in: 16...30)
-        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
-            self?.timer = nil
-            self?.playRandomStinger()
-            self?.scheduleNext()
-        }
+        playbackTask?.cancel()
+        playbackTask = nil
+        player?.stop()
+        player = nil
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     private func playRandomStinger() {
-        // AVAudioSession activation can block when performed on the main
-        // thread. Keep all session/player work off the UI thread so the
-        // cosmetic soundscape cannot affect navigation or accessibility.
-        audioQueue.async { [weak self] in
-            guard let self, self.isRunning else { return }
-            do {
-                let session = AVAudioSession.sharedInstance()
-                try session.setCategory(.ambient, options: [.mixWithOthers])
-                try session.setActive(true)
-                self.player = try AVAudioPlayer(data: HalloweenSoundData.makeRandomStinger())
-                self.player?.volume = 0.16
-                self.player?.prepareToPlay()
-                self.player?.play()
-            } catch {
-                // Audio is decorative. A device without an available audio
-                // session must never affect the theme or the document workflow.
-            }
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.ambient, options: [.mixWithOthers])
+            try session.setActive(true)
+            player = try AVAudioPlayer(data: HalloweenSoundData.makeRandomStinger())
+            player?.volume = 0.16
+            player?.prepareToPlay()
+            player?.play()
+        } catch {
+            // Audio is decorative. A device without an available audio
+            // session must never affect the theme or the document workflow.
         }
     }
 }
 
-private enum HalloweenSoundData {
+nonisolated private enum HalloweenSoundData {
     static func makeRandomStinger() -> Data {
         let sampleRate = 22_050
         let duration = Double.random(in: 0.8...1.5)

@@ -940,13 +940,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Back up and restore complete documents through your private iCloud database."
+            "value": "Back up and restore complete documents outside the Vault through your private iCloud database."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Guarda y restaura documentos completos mediante tu base privada de iCloud."
+            "value": "Guarda y restaura documentos completos que estén fuera de la Bóveda mediante tu base privada de iCloud."
           }
         }
       }

@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - OCRFusionEngine
 
-enum OCRFusionEngine {
+nonisolated enum OCRFusionEngine {
     /// Fuses observations from multiple pre-processing passes using spatial overlap (IoU) and confidence scoring.
     static func fuseObservations(passes: [[OCRService.TextObservation]]) -> [OCRService.TextObservation] {
         guard !passes.isEmpty else { return [] }

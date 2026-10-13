@@ -48,7 +48,7 @@ final class HomeViewModel: ObservableObject {
         ctx.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
             localizedReason: LanguageManager.shared.home("home_vault_auth_reason")
-        ) { success, _ in
+        ) { [weak self] success, _ in
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if success {

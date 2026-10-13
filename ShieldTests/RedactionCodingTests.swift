@@ -90,6 +90,7 @@ struct ShieldProductCatalogTests {
         #expect(ShieldProduct.allCases.map(\.rawValue) == [
             "com.romerodev.shield.pro.monthly",
             "com.romerodev.shield.pro.annual",
+            "com.romerodev.shield.pro.annual.event",
             "com.romerodev.shield.pro.lifetime.unlock"
         ])
     }

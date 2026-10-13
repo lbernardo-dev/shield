@@ -92,7 +92,7 @@ enum OCRService {
         }
     }
 
-    struct TextObservation {
+    nonisolated struct TextObservation: Sendable {
         let text: String
         let boundingRect: CGRect
         let confidence: Double

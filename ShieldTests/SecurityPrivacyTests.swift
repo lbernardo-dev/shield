@@ -14,6 +14,37 @@ struct SecurityPrivacyTests {
         #expect(!CloudSyncManager.isMissingRecordTypeError(CKError(.networkUnavailable)))
     }
 
+    @Test("Vaulted documents are excluded from optional CloudKit sync")
+    @MainActor
+    func vaultedDocumentsAreNotEligibleForCloudSync() {
+        let ordinaryDocument = DocumentItem(kind: .photo, title: "Working copy")
+        let privateDocument = DocumentItem(kind: .photo, title: "Vault copy", isVaulted: true)
+
+        #expect(CloudSyncManager.isEligibleForCloudSync(ordinaryDocument))
+        #expect(!CloudSyncManager.isEligibleForCloudSync(privateDocument))
+        #expect(!CloudSyncManager.shouldDiscardRemotePackage(
+            localDocumentIsVaulted: false,
+            remoteDocument: ordinaryDocument
+        ))
+        #expect(CloudSyncManager.shouldDiscardRemotePackage(
+            localDocumentIsVaulted: true,
+            remoteDocument: ordinaryDocument
+        ))
+        #expect(CloudSyncManager.shouldDiscardRemotePackage(
+            localDocumentIsVaulted: false,
+            remoteDocument: privateDocument
+        ))
+    }
+
+    @Test("CloudKit sync requires opt-in and Pro access")
+    @MainActor
+    func cloudSyncRequiresOptInAndPro() {
+        #expect(CloudSyncManager.canSynchronize(userOptedIn: true, hasProAccess: true))
+        #expect(!CloudSyncManager.canSynchronize(userOptedIn: false, hasProAccess: true))
+        #expect(!CloudSyncManager.canSynchronize(userOptedIn: true, hasProAccess: false))
+        #expect(!CloudSyncManager.canSynchronize(userOptedIn: false, hasProAccess: false))
+    }
+
     @Test("Secure storage encrypts at rest and separates vault keys")
     func encryptedStorageUsesSeparateKeyDomains() throws {
         let root = FileManager.default.temporaryDirectory

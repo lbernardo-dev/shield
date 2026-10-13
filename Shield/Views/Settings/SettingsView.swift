@@ -14,7 +14,6 @@ struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.colorScheme) private var scheme
     @Environment(\.openURL) private var openURL
-    @Environment(\.closeSettings) private var closeSettings
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
@@ -254,6 +253,12 @@ struct SettingsView: View {
 
     private func openManageSubscription() {
         Task { await SubscriptionLifecycleObserver.shared.showManageSubscriptions() }
+    }
+
+    private func closeSettings() {
+        withAnimation(.easeInOut(duration: 0.15)) {
+            appState.activeTab = .library
+        }
     }
 
     private func restorePurchases() {

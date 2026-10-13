@@ -1,0 +1,32 @@
+# 220-maskid-product-knowledge-center
+
+- Number: 220
+- Slug: maskid-product-knowledge-center
+
+## Notes
+
+
+## Execution notes
+
+- Landing source is the public `lbernardo-dev/apps` repository; it is separate from this iOS checkout.
+- Opened PR [#1](https://github.com/lbernardo-dev/apps/pull/1) on `codex/maskid-product-knowledge-center`. The bilingual guide covers the tutorial, OCR/export limitations, privacy, CloudKit, providers, plans, support, and iPhone/iPad availability; it is linked from the landing, navigation, FAQ, and footer.
+- Corrected public product copy to MaskID Pro, the cumulative 10-document Free allowance, and iPhone/iPad-only support. Spanish and English privacy pages retain the controller, address, and contact.
+- Review found and removed a duplicate `updatedAt` property in `lib/product-enrichment.ts`. Later commits documented package sync, fixed optional Pro CloudKit feature comparison, and added the localized guide.
+- Follow-up static review found the app header could overflow at tablet widths after adding a navigation item. The PR branch now uses its mobile menu through tablet widths for MaskID while leaving other app headers unchanged.
+- GitHub reports PR #1 open and mergeable at head `c026f778803ec4977732e8d5aebf3cd99982d479`; there are no review threads or CI status checks. The Pages workflow deploys only from `main`, so the live landing remains unchanged. The Apps repository is not checked out here, so its build/typecheck could not be run.
+- Cross-repo audit found `CloudSyncManager.syncNow` included `isVaulted` records although the site, settings, and paywall promised the Vault stayed local. Local changes now exclude Vault records from upload/restore, queue remote deletion as soon as a document enters the Vault, clean up legacy remote packages, and remove a stale upload if a Vault move or deletion happens while CloudKit is saving. Unit coverage exercises sync eligibility and Vault-package rejection.
+- A second entitlement check found that a persisted iCloud opt-in could keep syncing after MaskID Pro access expired. The manager now requires both explicit opt-in and active Pro access to enable or run sync; foreground sync resumes when Pro access returns. Deletion/cleanup remains available when access expires.
+- The same downgrade audit found Settings replaced the active iCloud control with only a paywall, blocking users from deleting CloudKit copies after Pro expired. Settings now retains the opt-out control for an existing sync preference, explains that sync is paused and deletion needs iCloud access, and shows CloudKit errors after failed deletion; manual sync remains Pro-only.
+- Opt-out now stops reconciliation before deleting CloudKit records. A save already in flight checks the live opt-in after it returns and removes its upload if needed; queued cleanup retries independently of Pro access.
+- Reconciled the iOS privacy policy and Settings disclosures in English and Spanish: full non-Vault package contents, opt-in scope, local-only Vault, and actual CloudKit deletion/retry behavior. Updated the policy date and aligned the Apps landing's privacy/support contacts with the app's canonical `romerodev.app+maskid@gmail.com` address.
+- Route review found the sitemap was advertising `/guide/` for every app even though static generation restricts the guide to MaskID. The Apps PR now applies the same slug filter in `app/sitemap.ts` and documents that correction.
+- The Apps PR now includes the retention/contact and sitemap corrections at head `e05438cb4919c88cebf6bb6be0f3981f515639d6`; it remains open and mergeable with no CI checks. The website checkout is unavailable here, so a local site build/typecheck is not possible.
+- The required iPhone 18 Pro (iOS 27.0) is Booted with `com.romerodev.personalcare` active; the required iPad Pro 13-inch M5 (iOS 27.0) is Booted with `com.romerodev.culmina` and `com.romerodev.personalcare` active. Neither was touched. iPhone Duo is unavailable, and there is no watchOS target in the project. iOS build/install/tests remain queued until the required simulators are free.
+- Static checks passed so far: Python AST parse for the campaign generator, JSON parsing for both edited `.xcstrings` files, campaign Markdown UTF-8/local-link validation, and `git diff --check` on touched paths. The campaign generator was not run because its source screenshots are absent; it now preserves archives and curated outputs.
+- Next: complete simulator validation; commit/push the release source to `main`; merge the landing PR; verify Pages deployment.
+- Release follow-up authorized by the user: created App Store Connect iOS version 1.1.4 (`af839c46-5770-407d-9226-1c7d47e79c08`, manual release) and applied What's New to all current locales, `en-US` (640 characters) and `es-ES` (762 characters). ASC readback confirmed both localizations.
+- Updated the app, widget, and share extension to marketing version 1.1.4 / build `1142026101301`. Generic Release archive succeeded at `.asc/artifacts/MaskID-1.1.4-1142026101301.xcarchive`; App Store IPA export succeeded and was copied to `.asc/artifacts/MaskID-1.1.4-1142026101301.ipa` (53,226,370 bytes; SHA-256 `21da90ea7ba4ab7da97845d5d7612cbf6580dceb15f534f235aeeb9f5a0be632`). `codesign --verify --deep --strict` passed for the archived app.
+- ASC upload dry run matched app `6790398619`, version 1.1.4, and build `1142026101301` before the transfer.
+- ASC accepted and processed build `1142026101301` as `VALID` (`ce8ee4e4-71ca-4750-a005-2212b759fb24`) and it is attached to version `1.1.4`. `asc validate` reports 0 errors and 0 blockers; two informational results note the manual release type and that App Privacy publication state is not verifiable through the public API. No App Review submission was created.
+- Latest simulator check: required iPhone 18 Pro iOS 27.0 (`1454EA8D-A019-4B07-B57C-1433E0F21BE0`) remains occupied by `com.romerodev.personalcare`; required iPad Pro 13-inch (M5) iOS 27.0 (`2F44FF69-62E3-471E-AFEB-6690BDA4ADC1`) remains occupied by `com.romerodev.culmina` and `com.romerodev.personalcare`. Do not install, terminate, restart, or erase either simulator. Retry the required install and tests when free.
+- Apps PR #1 is still open and mergeable at `e05438cb4919c88cebf6bb6be0f3981f515639d6`; there are no review threads or CI checks. After the app build is uploaded, attached, and validated, push the reviewed app changes to `main`, then merge PR #1 and verify the Pages deployment.

@@ -133,7 +133,7 @@ struct DocumentScannerOverlayView: View {
     }
 }
 
-private struct GuideFrameCutout: Shape {
+nonisolated private struct GuideFrameCutout: Shape {
     let frameRect: CGRect
 
     func path(in rect: CGRect) -> Path {

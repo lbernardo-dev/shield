@@ -43,6 +43,54 @@ struct SubscriptionExperienceTests {
         #expect(pricing?.eventDisplayPrice == "€14.99")
     }
 
+    @Test("Trial disclosure states the trial duration, next charge, billing period, and renewal")
+    @MainActor
+    func trialDisclosureMakesTheNextChargeClear() {
+        let english = SubscriptionTrialDisclosureCopy.text(
+            trialLabel: "7-day free trial",
+            displayPrice: "$24.99",
+            renewalPeriodLabel: "/year",
+            language: .en
+        )
+        #expect(english.contains("7-day free trial"))
+        #expect(english.contains("$24.99/year"))
+        #expect(english.contains("automatically renews until canceled"))
+
+        let spanish = SubscriptionTrialDisclosureCopy.text(
+            trialLabel: "7 días de prueba gratis",
+            displayPrice: "24,99 €",
+            renewalPeriodLabel: "/año",
+            language: .es
+        )
+        #expect(spanish.contains("7 días de prueba gratis"))
+        #expect(spanish.contains("24,99 €/año"))
+        #expect(spanish.contains("se renueva automáticamente"))
+    }
+
+    @Test("Recurring plans without a trial disclose the next charge and renewal")
+    @MainActor
+    func renewalDisclosureMakesTheNextChargeClearWithoutTrial() {
+        let english = SubscriptionTrialDisclosureCopy.text(
+            trialLabel: nil,
+            displayPrice: "$12.99",
+            renewalPeriodLabel: "/year",
+            language: .en
+        )
+        #expect(english.contains("$12.99/year"))
+        #expect(english.contains("automatically renews until canceled"))
+        #expect(!english.localizedCaseInsensitiveContains("trial"))
+
+        let spanish = SubscriptionTrialDisclosureCopy.text(
+            trialLabel: nil,
+            displayPrice: "12,99 €",
+            renewalPeriodLabel: "/año",
+            language: .es
+        )
+        #expect(spanish.contains("12,99 €/año"))
+        #expect(spanish.contains("se renueva automáticamente"))
+        #expect(!spanish.localizedCaseInsensitiveContains("prueba"))
+    }
+
     @Test("Rejects product, duration, group, level, introductory offer, and price mismatches")
     func rejectsConfigurationMismatch() {
         let standard = snapshot(

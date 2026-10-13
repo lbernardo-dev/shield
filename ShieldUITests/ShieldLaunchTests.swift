@@ -464,6 +464,41 @@ final class ShieldLaunchTests: XCTestCase {
     }
 
     @MainActor
+    func testPaywallControlsRemainVisibleInIPadLandscape() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("This layout check targets iPad landscape")
+        }
+
+        let app = launch(scene: "paywall")
+        defer { XCUIDevice.shared.orientation = .portrait }
+        XCUIDevice.shared.orientation = .landscapeLeft
+
+        let window = app.windows.firstMatch
+        let landscapeExpectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in window.frame.width > window.frame.height },
+            object: nil
+        )
+        XCTAssertEqual(
+            XCTWaiter.wait(for: [landscapeExpectation], timeout: 5),
+            .completed,
+            "The iPad window should rotate to landscape"
+        )
+
+        for identifier in [
+            "paywall.purchase",
+            "paywall.restore",
+            "paywall.privacy",
+            "paywall.terms",
+            "paywall.subscriptionTerms"
+        ] {
+            let control = app.buttons[identifier]
+            XCTAssertTrue(control.waitForExistence(timeout: 5), "Missing paywall control: \(identifier)")
+            XCTAssertTrue(window.frame.intersects(control.frame), "Control is outside the iPad window: \(identifier)")
+            XCTAssertTrue(control.isHittable, "Control is not tappable in iPad landscape: \(identifier)")
+        }
+    }
+
+    @MainActor
     func testPersistentChromeAtAX5WithReducedMotion() throws {
         let cases: [(scene: String, visible: [String], hittable: [String])] = [
             ("lock", ["lock.primaryUnlock"], ["lock.primaryUnlock"]),

@@ -4,7 +4,7 @@ import CoreImage.CIFilterBuiltins
 
 // MARK: - OCRImagePreprocessor
 
-enum OCRImagePreprocessor {
+nonisolated enum OCRImagePreprocessor {
     private static let ciContext = CIContext(options: [
         .useSoftwareRenderer: false,
         .priorityRequestLow: false

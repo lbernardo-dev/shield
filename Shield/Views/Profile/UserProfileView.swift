@@ -145,7 +145,15 @@ struct UserProfileView: View {
     // MARK: - Avatar Hero
 
     private var avatarHero: some View {
-        VStack(spacing: ShieldTheme.s3) {
+        let usesHalloweenStyle = isHalloween
+        let cameraBadgeGradient = usesHalloweenStyle
+            ? LinearGradient(colors: [Color(hex: "F97316"), Color(hex: "EA580C")], startPoint: .top, endPoint: .bottom)
+            : LinearGradient(colors: [Color(hex: "00B4D8"), Color(hex: "0077B6")], startPoint: .top, endPoint: .bottom)
+        let libraryPickerTitle = strings.settings("settings_profile_choose_library")
+        let pickerRowBackground = usesHalloweenStyle ? Color(hex: "291636") : ShieldTheme.rowBackground(scheme)
+        let pickerRowBorder = usesHalloweenStyle ? Color(hex: "F97316").opacity(0.4) : ShieldTheme.line(scheme)
+
+        return VStack(spacing: ShieldTheme.s3) {
             ZStack(alignment: .bottomTrailing) {
                 // Main Avatar Circle
                 Group {
@@ -206,9 +214,7 @@ struct UserProfileView: View {
                         .foregroundColor(Color.white)
                         .frame(width: 34, height: 34)
                         .background(
-                            isHalloween
-                                ? LinearGradient(colors: [Color(hex: "F97316"), Color(hex: "EA580C")], startPoint: .top, endPoint: .bottom)
-                                : LinearGradient(colors: [Color(hex: "00B4D8"), Color(hex: "0077B6")], startPoint: .top, endPoint: .bottom),
+                            cameraBadgeGradient,
                             in: Circle()
                         )
                         .overlay(Circle().stroke(Color.white.opacity(0.8), lineWidth: 1.5))
@@ -254,17 +260,17 @@ struct UserProfileView: View {
                 .foregroundStyle(ShieldTheme.primary(scheme))
 
                 PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                    Label(strings.settings("settings_profile_choose_library"), systemImage: "photo.on.rectangle")
+                    Label(libraryPickerTitle, systemImage: "photo.on.rectangle")
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 7)
                         .background(
-                            isHalloween ? Color(hex: "291636") : ShieldTheme.rowBackground(scheme),
+                            pickerRowBackground,
                             in: Capsule()
                         )
                         .overlay(
                             Capsule().stroke(
-                                isHalloween ? Color(hex: "F97316").opacity(0.4) : ShieldTheme.line(scheme),
+                                pickerRowBorder,
                                 lineWidth: 1
                             )
                         )

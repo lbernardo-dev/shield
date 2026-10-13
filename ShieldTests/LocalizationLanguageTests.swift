@@ -65,7 +65,7 @@ struct LocalizationLanguageTests {
         #expect(LanguageManager.shared.t("model_category_does_not_exist", table: "Model", language: .es) == "model_category_does_not_exist")
     }
 
-    @Test("New retention, expiry, and conversion keys translate in ES and EN")
+    @Test("Current vault, editor, home, and onboarding copy translates in ES and EN")
     @MainActor
     func retentionAndConversionLocalizationKeys() {
         let keys: [(table: String, key: String)] = [
@@ -77,19 +77,20 @@ struct LocalizationLanguageTests {
             ("Vault", "vault_share_protected"),
             ("Vault", "vault_biometric_reason"),
             ("Vault", "vault_reason"),
-            ("Editor", "editor_sha256_hash"),
-            ("Editor", "editor_watermark_preset_title"),
-            ("Editor", "editor_pro_features_title"),
-            ("Editor", "editor_pro_features_message"),
-            ("Editor", "editor_try_pro_free"),
-            ("Editor", "editor_export_standard"),
+            ("Editor", "editor_protection_check_sha256"),
+            ("Editor", "editor_watermark_presets_label"),
+            ("Editor", "editor_protection_check_title"),
+            ("Editor", "editor_protection_check_note"),
+            ("Editor", "editor_pro_export_unlock"),
+            ("Editor", "editor_pro_export_standard"),
             ("Editor", "editor_reset_zoom"),
-            ("Home", "home_quota_warning"),
-            ("Onboarding", "ob_goal_pro_rental_benefit"),
-            ("Onboarding", "ob_goal_pro_work_benefit"),
-            ("Onboarding", "ob_goal_pro_vehicle_benefit"),
-            ("Onboarding", "ob_goal_pro_banking_benefit"),
-            ("Onboarding", "ob_goal_pro_travel_benefit")
+            ("Home", "home_quota_warning_title"),
+            ("Home", "home_quota_warning_desc"),
+            ("Onboarding", "onboarding_archetype_rental_desc"),
+            ("Onboarding", "onboarding_archetype_work_desc"),
+            ("Onboarding", "onboarding_archetype_vehicle_desc"),
+            ("Onboarding", "onboarding_archetype_banking_desc"),
+            ("Onboarding", "onboarding_archetype_travel_desc")
         ]
 
         for item in keys {

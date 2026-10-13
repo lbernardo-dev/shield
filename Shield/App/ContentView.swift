@@ -118,6 +118,9 @@ struct ContentView: View {
             appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
             appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: isPro)
             appState.refreshWidgetSnapshot()
+            if isPro, sessionStage == .ready {
+                cloud.syncOnForeground(appState: appState)
+            }
         }
         .onChange(of: showSplash) { _, isShowing in
             if !isShowing { presentAnalyticsConsentIfNeeded() }
@@ -359,11 +362,6 @@ private struct AuthenticatedShellView: View {
             VaultView()
         case .settings:
             SettingsView()
-                .environment(\.closeSettings) {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        appState.activeTab = .library
-                    }
-                }
         }
     }
 }

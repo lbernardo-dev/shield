@@ -158,7 +158,7 @@ struct EngagementState: Codable, Equatable, Sendable {
 }
 
 struct ReviewFeedbackConfiguration: Sendable {
-    static let maskID = ReviewFeedbackConfiguration(
+    nonisolated static let maskID = ReviewFeedbackConfiguration(
         freeMinimumResults: 3,
         freeMinimumSessions: 3,
         freeMinimumActiveDays: 2,
@@ -218,7 +218,7 @@ struct ReviewPresentationContext: Sendable {
     var isImmediatelyAfterPayment = false
     var isNaturalPause = true
 
-    static let naturalResult = ReviewPresentationContext()
+    nonisolated static let naturalResult = ReviewPresentationContext()
 }
 
 enum ReviewEligibilityPolicy {
@@ -486,8 +486,8 @@ enum FeedbackTransportError: Error {
 final class MailFeedbackTransport: NSObject, FeedbackTransport, MFMailComposeViewControllerDelegate {
     private let recipient: String
 
-    init(recipient: String = SettingsSupportConfiguration.email ?? "") {
-        self.recipient = recipient
+    init(recipient: String? = nil) {
+        self.recipient = recipient ?? SettingsSupportConfiguration.email ?? ""
     }
 
     func send(_ feedback: FeedbackEnvelope) async throws {

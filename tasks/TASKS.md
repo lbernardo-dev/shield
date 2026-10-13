@@ -2326,3 +2326,34 @@
    Done by: CODEX
    Done at: 2026-10-09T07:56:19Z
 
+218. subscription-trial-price-disclosure
+   Id: 218-subscription-trial-price-disclosure
+   Scope: Hacer visible en todos los flujos de compra la duración de la prueba, el precio y la periodicidad del primer cobro y la renovación automática; corregir el rechazo 3.1.2(c)
+   Files: Shield/Premium/PremiumManager.swift,Shield/ViewModels/AppState.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Onboarding/OnboardingSteps.swift,Shield/Localization/Strings/Paywall.xcstrings,ShieldUITests/ShieldLaunchTests.swift,tasks/TASKS.md,tasks/details/218-subscription-trial-price-disclosure.md
+   Note: Aviso de precio tras prueba y renovación en paywall y onboarding; contraste y claridad ajustados. Build Debug OK; iPhone 18 Pro 7/7 e iPad Pro 13 M5 8/8 UI/unit tests, incluido horizontal. Simuladores apagados/libres.
+   Detail: tasks/details/218-subscription-trial-price-disclosure.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-11T12:36:50Z
+   Done by: CODEX
+   Done at: 2026-10-11T12:59:29Z
+
+219. app-review-retry-warnings
+   Id: 219-app-review-retry-warnings
+   Scope: Corregir las advertencias restantes, volver a validar la transparencia de la suscripción, crear el build de App Store, subirlo y presentarlo a revisión
+   Files: Shield/App/AppReviewManager.swift,Shield/Views/Settings/SettingsDestinationViews.swift,ShieldUITests/**,Shield.xcodeproj/**,.asc/artifacts/**,scripts/clean.sh,tasks/TASKS.md,tasks/details/*
+   Note: Fix validated on iPhone 18 Pro and iPad, build 1132026100802 uploaded VALID, rejected submission 3643c8c8-61df-491d-a360-84d3876b2c07 resubmitted with MaskID Pro Annual Event; Apple state WAITING_FOR_REVIEW. Cleanup completed; .asc/artifacts preserved.
+   Detail: tasks/details/219-app-review-retry-warnings.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-11T13:07:10Z
+   Done by: CODEX
+   Done at: 2026-10-11T14:45:37Z
+
+220. maskid-product-knowledge-center
+   Id: 220-maskid-product-knowledge-center
+   Scope: Ampliar landing pública Apps de MaskID con guía, tutoriales, preguntas frecuentes, aclaraciones y límites verificados en ES/EN; corregir datos de marca, cuota, plataformas y privacidad
+   Files: lbernardo-dev/apps:app/[locale]/(app)/case-studies/[slug]/**,app/[locale]/(app)/casos/[slug]/**,components/**,lib/content.ts,lib/routes.ts,tasks/TASKS.md,tasks/details/*
+   Note: Landing/FAQ/privacy reconciled; fixed Vault CloudKit leakage, Pro-expiry sync gate and removal control, and guide sitemap scope. PR #1 open; iPhone 18 Pro/iPad validation queued while occupied.
+   Detail: tasks/details/220-maskid-product-knowledge-center.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-13T11:01:14Z
+

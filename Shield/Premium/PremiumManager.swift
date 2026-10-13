@@ -67,6 +67,37 @@ struct PremiumProduct: Identifiable {
     var displayPrice: String { storeKitProduct?.displayPrice ?? storeProduct.localizedPriceString }
     var price: Decimal { storeKitProduct?.price ?? storeProduct.price }
     var comparisonDisplayPrice: String? { comparisonProduct?.displayPrice }
+    var renewalPeriodLabel: String? {
+        guard let period = storeKitProduct?.subscription?.subscriptionPeriod else {
+            return catalogRenewalPeriodLabel
+        }
+
+        if period.value == 1 {
+            switch period.unit {
+            case .day: return LanguageManager.shared.paywall("paywall_per_day")
+            case .week: return LanguageManager.shared.paywall("paywall_per_week")
+            case .month: return LanguageManager.shared.paywall("paywall_per_month")
+            case .year: return LanguageManager.shared.paywall("paywall_per_year")
+            @unknown default: return catalogRenewalPeriodLabel
+            }
+        }
+
+        switch period.unit {
+        case .day: return LanguageManager.shared.paywall("paywall_every_days", period.value)
+        case .week: return LanguageManager.shared.paywall("paywall_every_weeks", period.value)
+        case .month: return LanguageManager.shared.paywall("paywall_every_months", period.value)
+        case .year: return LanguageManager.shared.paywall("paywall_every_years", period.value)
+        @unknown default: return catalogRenewalPeriodLabel
+        }
+    }
+
+    private var catalogRenewalPeriodLabel: String? {
+        return switch ShieldProduct(rawValue: id) {
+        case .monthly: LanguageManager.shared.paywall("paywall_per_month")
+        case .annual, .annualEvent: LanguageManager.shared.paywall("paywall_per_year")
+        case .lifetime, nil: nil
+        }
+    }
     var eventDiscountPercent: Int? {
         guard let comparisonProduct, comparisonProduct.price > 0, price < comparisonProduct.price else {
             return nil

@@ -155,7 +155,7 @@ struct ShieldScanButton: View {
             .contentShape(Circle())
         }
         .buttonStyle(ScaleButtonStyle())
-        .frame(width: 52, height: 52)
+        .frame(width: 64, height: 64)
         .contentShape(Circle())
         .zIndex(10)
         .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))

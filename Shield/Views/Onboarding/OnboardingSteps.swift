@@ -1224,6 +1224,11 @@ struct OBPaywallView: View {
 
     private var purchaseSection: some View {
         VStack(spacing: 6) {
+            SubscriptionTrialDisclosure(
+                product: selectedPremiumProduct,
+                trialLabel: pm.trialLabels[selectedProductID]
+            )
+
             Button {
                 Task {
                     guard let product = selectedPremiumProduct else { return }
@@ -1249,7 +1254,11 @@ struct OBPaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "shield.fill")
-                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
+                        Text(LanguageManager.shared.paywall(
+                            pm.trialLabels[selectedProductID] == nil
+                                ? "paywall_get_pro"
+                                : "paywall_free_trial"
+                        ))
                             .font(.body.bold())
                     }
                 }

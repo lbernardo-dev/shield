@@ -1,10 +1,6 @@
 import SwiftUI
 import LocalAuthentication
 
-extension EnvironmentValues {
-    @Entry var closeSettings: () -> Void = {}
-}
-
 // MARK: - Public web destinations
 
 enum ShieldPublicPage: String, CaseIterable, Sendable {
@@ -771,7 +767,7 @@ private struct SettingsDetailScaffold<Content: View>: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.closeSettings) private var closeSettings
+    @EnvironmentObject private var appState: AppState
 
     init(title: String, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
@@ -781,6 +777,12 @@ private struct SettingsDetailScaffold<Content: View>: View {
 
     private var isHalloween: Bool {
         ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
+    private func closeSettings() {
+        withAnimation(.easeInOut(duration: 0.15)) {
+            appState.activeTab = .library
+        }
     }
 
     var body: some View {
@@ -1076,7 +1078,9 @@ struct SeasonalThemeGalleryView: View {
                 canActivate: coordinator.canManuallyActivate(themeID),
                 isSelected: coordinator.activeThemeID == themeID,
                 isSoundscapeEnabled: coordinator.isSoundscapeEnabled,
-                onToggleSoundscape: coordinator.setSoundscapeEnabled,
+                onToggleSoundscape: { enabled in
+                    coordinator.setSoundscapeEnabled(enabled)
+                },
                 onActivate: { activate(themeID) },
                 onUnlock: { showPaywall = true }
             )
@@ -1180,7 +1184,7 @@ struct SeasonalThemeGalleryView: View {
 
 private struct SeasonalThemeSoundControl: View {
     let isEnabled: Bool
-    let onChange: (Bool) -> Void
+    let onChange: @MainActor @Sendable (Bool) -> Void
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -1653,7 +1657,7 @@ private struct SeasonalThemePreviewSheet: View {
     let canActivate: Bool
     let isSelected: Bool
     let isSoundscapeEnabled: Bool
-    let onToggleSoundscape: (Bool) -> Void
+    let onToggleSoundscape: @MainActor @Sendable (Bool) -> Void
     let onActivate: () -> Void
     let onUnlock: () -> Void
 
@@ -1701,7 +1705,9 @@ private struct SeasonalThemePreviewSheet: View {
                         if themeID == .halloween2026 {
                             SeasonalThemeSoundControl(
                                 isEnabled: isSoundscapeEnabled,
-                                onChange: onToggleSoundscape
+                                onChange: { enabled in
+                                    onToggleSoundscape(enabled)
+                                }
                             )
                         }
 
@@ -2373,25 +2379,35 @@ struct CloudSettingsView: View {
 
     private var strings: LanguageManager { .shared }
 
+    private var syncControlSubtitle: String {
+        if premium.isPro {
+            return strings.settings("settings_icloud_minimized_note")
+        }
+        if case let .error(message) = cloud.syncStatus {
+            return message
+        }
+        return strings.settings("settings_icloud_pro_paused")
+    }
+
     var body: some View {
         SettingsDetailScaffold(
             title: strings.settings("settings_icloud_sync"),
             subtitle: strings.settings("settings_icloud_detail")
         ) {
             SettingsCardSection(title: strings.settings("settings_sync_controls"), icon: "icloud.fill") {
-                if premium.isPro {
+                if premium.isPro || isEnabled {
                     SettingsControlRow(
                         icon: "icloud.fill",
                         color: Color(hex: "5E5CE6"),
                         title: strings.settings("settings_icloud_sync_with"),
-                        subtitle: strings.settings("settings_icloud_minimized_note")
+                        subtitle: syncControlSubtitle
                     ) {
                         Toggle("", isOn: $isEnabled)
                             .labelsHidden()
                             .tint(ShieldTheme.accent(scheme))
                             .accessibilityLabel(strings.settings("settings_icloud_sync_with"))
                     }
-                    if isEnabled {
+                    if isEnabled, premium.isPro {
                         SettingsRowDivider()
                         SettingsActionRow(
                             icon: "arrow.clockwise.icloud.fill",

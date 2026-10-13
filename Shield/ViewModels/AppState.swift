@@ -161,7 +161,7 @@ final class AppState: ObservableObject {
                 selectedDoc = documents.first(where: { $0.id == "aso-passport" }) ?? documents.first
             case "04-ai-ocr-detection", "04", "04-ocr-results", "ocr":
                 selectedDoc = documents.first
-            case "05-antifraud-watermark", "05", "03-watermark-config", "03":
+            case "05-antifraud-watermark", "05", "03-watermark-config":
                 selectedDoc = documents.first(where: { $0.id == "aso-rental" }) ?? documents.first
             case "06-vault-security", "06", "10-vault-security", "10", "vault":
                 selectedDoc = nil
@@ -547,6 +547,11 @@ final class AppState: ObservableObject {
         }
         d.isVaulted.toggle()
         updateDocument(d)
+        if d.isVaulted {
+            // Remove any package that was backed up before the document entered
+            // the Vault. The deletion is queued when CloudKit is unavailable.
+            CloudSyncManager.shared.scheduleRemoteDeletion(id: d.id)
+        }
         return true
     }
 
@@ -744,36 +749,36 @@ final class AppState: ObservableObject {
             .store(in: &cancellables)
     }
 
-    private static var appSupportDir: URL {
+    nonisolated private static var appSupportDir: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Shield", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
 
-    static var imagesDir: URL {
+    nonisolated static var imagesDir: URL {
         libraryImagesDir
     }
 
-    static var libraryImagesDir: URL {
+    nonisolated static var libraryImagesDir: URL {
         let dir = appSupportDir.appendingPathComponent("images", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
 
-    static var vaultImagesDir: URL {
+    nonisolated static var vaultImagesDir: URL {
         let dir = appSupportDir.appendingPathComponent("vault-images", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
 
-    static var librarySourcesDir: URL {
+    nonisolated static var librarySourcesDir: URL {
         let dir = appSupportDir.appendingPathComponent("sources", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
 
-    static var vaultSourcesDir: URL {
+    nonisolated static var vaultSourcesDir: URL {
         let dir = appSupportDir.appendingPathComponent("vault-sources", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
@@ -797,7 +802,7 @@ final class AppState: ObservableObject {
         return String(String.UnicodeScalarView(scalars))
     }
 
-    static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+    nonisolated static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
         switch isVaulted {
         case true:
             return vaultImagesDir.appendingPathComponent(fileName)
@@ -810,7 +815,7 @@ final class AppState: ObservableObject {
         }
     }
 
-    static func resolveSourceURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+    nonisolated static func resolveSourceURL(fileName: String, isVaulted: Bool? = nil) -> URL {
         switch isVaulted {
         case true:
             return vaultSourcesDir.appendingPathComponent(fileName)
@@ -823,11 +828,11 @@ final class AppState: ObservableObject {
         }
     }
 
-    static func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
+    nonisolated static func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
         SecureFileStore.shared.loadImage(from: resolveImageURL(fileName: fileName, isVaulted: isVaulted))
     }
 
-    static func loadSourceData(fileName: String, isVaulted: Bool? = nil) -> Data? {
+    nonisolated static func loadSourceData(fileName: String, isVaulted: Bool? = nil) -> Data? {
         try? SecureFileStore.shared.read(from: resolveSourceURL(fileName: fileName, isVaulted: isVaulted))
     }
 
@@ -952,7 +957,7 @@ enum SecureFileStoreError: Error {
     case unexpectedKeyData
 }
 
-final class SecureFileStore: Sendable {
+nonisolated final class SecureFileStore: Sendable {
     static let shared = SecureFileStore()
 
     private let service = "com.romerodev.shield.secure-store"
@@ -1074,7 +1079,7 @@ final class SecureFileStore: Sendable {
     }
 }
 
-enum KeychainStore {
+nonisolated enum KeychainStore {
     static func save(_ data: Data, service: String, account: String, accessible: CFString = kSecAttrAccessibleWhenUnlockedThisDeviceOnly) throws {
         let baseQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

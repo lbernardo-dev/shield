@@ -44,7 +44,7 @@ struct PaywallView: View {
                 colors: ShieldTheme.premiumBackground(appState.preferredScheme),
                 startPoint: .top, endPoint: .bottom
             )
-            .opacity(ShieldTheme.activeThemeID == .halloween2026 ? 0.72 : 1)
+            .opacity(ShieldTheme.activeThemeID == .halloween2026 ? 0.96 : 1)
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -54,7 +54,7 @@ struct PaywallView: View {
                     Button { isPresented = false } label: {
                         Image(systemName: "xmark")
                             .shieldFont(14, weight: .semibold)
-                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                            .foregroundColor(ShieldTheme.secondary(scheme))
                             .frame(width: 44, height: 44)
                             .contentShape(Circle())
                             .background(ShieldTheme.rowBackground(scheme))
@@ -66,7 +66,7 @@ struct PaywallView: View {
                 .padding(.top, 16)
 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 28) {
+                    VStack(spacing: 20) {
                         // Hero
                         heroSection
 
@@ -213,7 +213,7 @@ struct PaywallView: View {
                             .foregroundColor(ShieldTheme.primary(scheme))
                         Text(f.subtitle)
                             .shieldFont(12)
-                            .foregroundColor(ShieldTheme.tertiary(scheme))
+                            .foregroundColor(ShieldTheme.secondary(scheme))
                     }
                     Spacer()
                     Image(systemName: "checkmark")
@@ -240,7 +240,7 @@ struct PaywallView: View {
                     .foregroundColor(ShieldTheme.primary(scheme))
                 Text(LanguageManager.shared.paywall("paywall_free_value_desc"))
                     .shieldFont(11)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
+                    .foregroundColor(ShieldTheme.secondary(scheme))
             }
             Spacer(minLength: 0)
         }
@@ -328,22 +328,22 @@ struct PaywallView: View {
     private func trustBadgeItem(icon: String, title: String, subtitle: String) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .shieldFont(16, weight: .semibold)
+                .shieldFont(18, weight: .semibold)
                 .foregroundColor(ShieldTheme.accent(scheme))
             Text(title)
-                .shieldFont(10, weight: .bold)
+                .shieldFont(11, weight: .bold)
                 .foregroundColor(ShieldTheme.primary(scheme))
                 .lineLimit(1)
-                .minimumScaleFactor(0.75)
+                .minimumScaleFactor(0.8)
             Text(subtitle)
-                .shieldFont(9)
-                .foregroundColor(ShieldTheme.tertiary(scheme))
+                .shieldFont(10)
+                .foregroundColor(ShieldTheme.secondary(scheme))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 4)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
         .background(ShieldTheme.cardBackground(scheme))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
@@ -459,6 +459,11 @@ struct PaywallView: View {
 
     private var ctaSection: some View {
         VStack(spacing: 6) {
+            SubscriptionTrialDisclosure(
+                product: selectedPremiumProduct,
+                trialLabel: pm.trialLabels[selectedProductID]
+            )
+
             Button {
                 purchaseSelectedProduct()
             } label: {
@@ -544,12 +549,12 @@ struct PaywallView: View {
                     Text(LanguageManager.shared.paywall("paywall_restore"))
                 }
             }
-            .shieldFont(10, weight: .semibold)
-            .foregroundColor(ShieldTheme.secondary(scheme))
+            .shieldFont(11, weight: .semibold)
+            .foregroundColor(ShieldTheme.primary(scheme))
             .padding(.horizontal, 2)
             .lineLimit(1)
-            .minimumScaleFactor(0.6)
-            .frame(maxWidth: .infinity, minHeight: 26)
+            .minimumScaleFactor(0.75)
+            .frame(maxWidth: .infinity, minHeight: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -584,7 +589,7 @@ struct PaywallView: View {
     private var footerLinkSeparator: some View {
         Text("·")
             .shieldFont(10, weight: .bold)
-            .foregroundStyle(ShieldTheme.quaternary(scheme))
+            .foregroundStyle(ShieldTheme.tertiary(scheme))
             .accessibilityHidden(true)
     }
 
@@ -597,12 +602,14 @@ struct PaywallView: View {
             openPublicPage(page)
         } label: {
             Text(title)
-                .shieldFont(10, weight: .semibold)
-                .foregroundColor(ShieldTheme.tertiary(scheme))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .shieldFont(11, weight: .semibold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .minimumScaleFactor(0.75)
                 .padding(.horizontal, 2)
-                .frame(maxWidth: .infinity, minHeight: 26)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -619,6 +626,76 @@ struct PaywallView: View {
 }
 
 // MARK: - PlanRow
+
+struct SubscriptionTrialDisclosure: View {
+    let product: PremiumProduct?
+    let trialLabel: String?
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        if let product,
+           let renewalPeriodLabel = product.renewalPeriodLabel {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                    .shieldFont(15, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .accessibilityHidden(true)
+
+                Text(SubscriptionTrialDisclosureCopy.text(
+                    trialLabel: trialLabel,
+                    displayPrice: product.displayPrice,
+                    renewalPeriodLabel: renewalPeriodLabel,
+                    language: LanguageManager.shared.current
+                ))
+                .shieldFont(12, weight: .semibold)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background(ShieldTheme.accentDim(scheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("subscription.trialDisclosure")
+        }
+    }
+}
+
+@MainActor
+enum SubscriptionTrialDisclosureCopy {
+    static func text(
+        trialLabel: String?,
+        displayPrice: String,
+        renewalPeriodLabel: String,
+        language: AppLanguage
+    ) -> String {
+        let key = trialLabel == nil
+            ? "paywall_renewal_disclosure"
+            : "paywall_trial_renewal_disclosure"
+        let format = LanguageManager.shared.t(
+            key,
+            table: "Paywall",
+            language: language
+        )
+        let arguments: [CVarArg]
+        if let trialLabel {
+            arguments = [trialLabel, displayPrice + renewalPeriodLabel]
+        } else {
+            arguments = [displayPrice + renewalPeriodLabel]
+        }
+        return String(
+            format: format,
+            locale: Locale(identifier: language.rawValue),
+            arguments: arguments
+        )
+    }
+}
 
 struct PaywallProductsUnavailable: View {
     let onRetry: () -> Void
@@ -694,26 +771,26 @@ struct PlanRow: View {
                         .foregroundColor(ShieldTheme.primary(scheme))
                     
                     Text(planSubtitle)
-                        .shieldFont(12)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
+                        .shieldFont(13)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
 
                     if hasBadges {
                         HStack(spacing: 6) {
                             if let trialLabel {
                                 Text(trialLabel)
-                                    .shieldFont(10, weight: .bold)
+                                    .shieldFont(11, weight: .bold)
                                     .foregroundColor(Color(hex: "30D158"))
                                     .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
+                                    .padding(.vertical, 4)
                                     .background(Color(hex: "30D158").opacity(0.12))
                                     .clipShape(Capsule())
                             }
                             if let s = savingsLabel {
                                 Text(s)
-                                    .shieldFont(10, weight: .bold)
+                                    .shieldFont(11, weight: .bold)
                                     .foregroundColor(ShieldTheme.accent(scheme))
                                     .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
+                                    .padding(.vertical, 4)
                                     .background(ShieldTheme.accentDim(scheme))
                                     .clipShape(Capsule())
                             }
@@ -736,18 +813,18 @@ struct PlanRow: View {
                         .shieldFont(18, weight: .bold)
                         .foregroundColor(ShieldTheme.primary(scheme))
                     Text(periodLabel)
-                        .shieldFont(11, weight: .medium)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
+                        .shieldFont(12, weight: .medium)
+                        .foregroundColor(ShieldTheme.secondary(scheme))
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .frame(minHeight: 96)
-            .background(isSelected ? ShieldTheme.selectedBackground(scheme) : ShieldTheme.cardBackground(scheme))
+            .background(isSelected ? selectedPlanBackground : ShieldTheme.cardBackground(scheme))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? ShieldTheme.accent(scheme) : ShieldTheme.line(scheme),
-                            lineWidth: isSelected ? 2 : 0.8)
+                            lineWidth: isSelected ? 2.5 : 0.8)
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: isSelected ? ShieldTheme.accent(scheme).opacity(0.08) : Color.clear, radius: 8, x: 0, y: 4)
@@ -759,10 +836,10 @@ struct PlanRow: View {
         .overlay(alignment: .topTrailing) {
             if isAnnual {
                 Text(LanguageManager.shared.paywall("paywall_best_value").uppercased())
-                    .shieldFont(9, weight: .bold)
+                    .shieldFont(10, weight: .bold)
                     .foregroundColor(ShieldTheme.accentText)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
+                    .padding(.vertical, 4)
                     .background(ShieldTheme.accent(scheme))
                     .clipShape(Capsule())
                     .offset(y: -8)
@@ -797,14 +874,18 @@ struct PlanRow: View {
         }
     }
 
+    private var selectedPlanBackground: Color {
+        ShieldTheme.accent(scheme).opacity(scheme == .dark ? 0.24 : 0.14)
+    }
+
     private var periodLabel: String {
         if product.isEventAnnual {
-            return LanguageManager.shared.paywall("paywall_per_yr_short")
+            return LanguageManager.shared.paywall("paywall_per_year")
         }
         switch ShieldProduct(rawValue: product.id) {
-        case .monthly:  return LanguageManager.shared.paywall("paywall_per_mo_short")
-        case .annual:   return LanguageManager.shared.paywall("paywall_per_yr_short")
-        case .annualEvent: return LanguageManager.shared.paywall("paywall_per_yr_short")
+        case .monthly:  return LanguageManager.shared.paywall("paywall_per_month")
+        case .annual:   return LanguageManager.shared.paywall("paywall_per_year")
+        case .annualEvent: return LanguageManager.shared.paywall("paywall_per_year")
         case .lifetime: return LanguageManager.shared.paywall("paywall_once_short")
         case nil:       return ""
         }

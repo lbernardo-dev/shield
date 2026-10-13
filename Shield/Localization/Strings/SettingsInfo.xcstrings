@@ -670,13 +670,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Synchronize complete, restorable MaskID documents through your private iCloud database."
+            "value" : "Synchronize complete, restorable non-Vault MaskID documents through your private iCloud database."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sincroniza documentos completos y restaurables de MaskID mediante tu base privada de iCloud."
+            "value" : "Sincroniza documentos completos y restaurables de MaskID que no estén en la Bóveda mediante tu base privada de iCloud."
           }
         }
       }
@@ -687,13 +687,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Complete private document backup and restore"
+            "value" : "Back up and restore non-Vault documents"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia y restauración privada de documentos completos"
+            "value" : "Copia y restauración de documentos fuera de la Bóveda"
           }
         }
       }
@@ -704,13 +704,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "After you opt in, MaskID stores complete document packages as private CloudKit assets. CloudKit encrypts private assets, and MaskID re-encrypts restored files in local protected storage."
+            "value" : "After you opt in, MaskID stores complete packages for non-Vault documents as private CloudKit assets. Vault documents stay on this device and are excluded from sync. CloudKit encrypts private assets, and MaskID re-encrypts restored files in local protected storage."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tras activarlo, MaskID guarda paquetes completos como recursos privados de CloudKit. CloudKit cifra los recursos privados y MaskID vuelve a cifrar los archivos restaurados en el almacenamiento local protegido."
+            "value" : "Tras activarlo, MaskID guarda paquetes completos de documentos fuera de la Bóveda como recursos privados de CloudKit. Los documentos de la Bóveda permanecen en este dispositivo y no se sincronizan. CloudKit cifra los recursos privados y MaskID vuelve a cifrar los archivos restaurados en el almacenamiento local protegido."
           }
         }
       }
@@ -728,6 +728,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Consulta las opciones Pro para activar la copia privada completa"
+          }
+        }
+      }
+    },
+    "settings_icloud_pro_paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync is paused without MaskID Pro. Turn it off here while online to delete MaskID's CloudKit copies."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización está pausada sin MaskID Pro. Desactívala aquí con conexión para borrar las copias de MaskID en CloudKit."
           }
         }
       }
@@ -1554,13 +1571,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If a Pro user explicitly enables iCloud sync, MaskID stores complete restorable document packages in that user's private CloudKit database. Private CKAssets are encrypted by CloudKit. Disabling sync deletes MaskID's remote records."
+            "value" : "If a Pro user explicitly enables iCloud sync, MaskID stores complete restorable packages for non-Vault documents in that user's private CloudKit database. Vault documents stay on the device and are excluded from sync. Private CKAssets are encrypted by CloudKit. Disabling sync deletes MaskID's remote records."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Si una persona Pro activa expresamente iCloud, MaskID guarda paquetes completos y restaurables en su base privada de CloudKit. CloudKit cifra los CKAsset privados. Al desactivar la sincronización se eliminan los registros remotos de MaskID."
+            "value" : "Si una persona Pro activa expresamente iCloud, MaskID guarda paquetes completos y restaurables de los documentos fuera de la Bóveda en su base privada de CloudKit. Los documentos de la Bóveda permanecen en el dispositivo y no se sincronizan. CloudKit cifra los CKAsset privados. Al desactivar la sincronización se eliminan los registros remotos de MaskID."
           }
         }
       }
@@ -1571,13 +1588,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optional complete iCloud backup"
+            "value" : "Optional backup of non-Vault documents"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia completa opcional en iCloud"
+            "value" : "Copia opcional de documentos fuera de la Bóveda"
           }
         }
       }
@@ -1707,13 +1724,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Projects remain until you delete them or use Delete all documents. Temporary exports are protected and removed when the export or share flow ends. Deleting the app removes its local data subject to iOS and backup behavior. Private CloudKit records can require separate deletion or iCloud account controls."
+            "value" : "Local projects remain until you delete them or use Delete all documents. Deleting a document while sync is enabled queues deletion of its CloudKit record; MaskID retries on a later sync if iCloud is unavailable. Turning sync off in MaskID deletes its remote records when CloudKit accepts the request; if deletion fails, sync stays enabled and MaskID reports an error. Before removing the app, turn sync off while signed in and online to request deletion of CloudKit copies. Temporary exports are protected and removed when the export or share flow ends."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los proyectos permanecen hasta que los elimines o uses Eliminar todos. Las exportaciones temporales se protegen y borran al terminar el flujo. Desinstalar elimina datos locales según el funcionamiento de iOS y las copias. Los registros privados de CloudKit pueden requerir borrado separado o controles de iCloud."
+            "value" : "Los proyectos locales permanecen hasta que los elimines o uses Eliminar todos los documentos. Si la sincronización está activa, al borrar un documento MaskID pone en cola la eliminación de su registro de CloudKit y vuelve a intentarlo en una sincronización posterior si iCloud no está disponible. Al desactivar la sincronización desde MaskID se eliminan los registros remotos cuando CloudKit acepta la solicitud; si falla, la sincronización permanece activa y MaskID muestra un error. Antes de desinstalar la app, desactiva la sincronización con la sesión iniciada y conexión a internet para solicitar la eliminación de las copias de CloudKit. Las exportaciones temporales se protegen y borran al terminar el flujo."
           }
         }
       }
@@ -1741,13 +1758,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can deny or revoke optional permissions in iOS Settings, disable iCloud sync, disconnect direct storage providers, delete projects, and contact the developer about applicable privacy rights. Because core document content stays on device, the developer normally cannot access, export, correct, or recover it for you."
+            "value" : "You can deny or revoke optional permissions in iOS Settings, disable iCloud sync, disconnect direct storage providers, delete projects, and contact the developer about applicable privacy rights. Processing stays on-device. Optional Pro sync copies only non-Vault document packages to your private CloudKit database; the developer normally cannot access, export, correct, or recover your documents for you."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Puedes denegar o revocar permisos en Ajustes de iOS, desactivar iCloud, borrar proyectos y contactar con el desarrollador sobre tus derechos. Como el contenido principal permanece en el dispositivo, el desarrollador normalmente no puede acceder, exportar, corregir ni recuperarlo por ti."
+            "value" : "Puedes denegar o revocar permisos en Ajustes de iOS, desactivar iCloud, borrar proyectos y contactar con el desarrollador sobre tus derechos. El procesamiento permanece en el dispositivo. La sincronización Pro opcional copia solo paquetes de documentos fuera de la Bóveda a tu base privada de CloudKit; el desarrollador normalmente no puede acceder, exportar, corregir ni recuperar tus documentos por ti."
           }
         }
       }

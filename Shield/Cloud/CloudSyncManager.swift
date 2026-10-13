@@ -41,6 +41,7 @@ final class CloudSyncManager: ObservableObject {
     private let recordType = "ShieldDocumentV2"
     private let legacyRecordType = "ShieldDocument"
     private let pendingDeletionKey = "shield.icloud.pendingDeletionIDs"
+    private var isDisablingSync = false
 
     private var isSyncEnabled: Bool {
         UserDefaults.standard.bool(forKey: "shield.icloud.enabled")
@@ -76,8 +77,17 @@ final class CloudSyncManager: ObservableObject {
     @discardableResult
     func setSyncEnabled(_ enabled: Bool) async -> Bool {
         if enabled {
+            guard PremiumManager.shared.isPro else {
+                syncStatus = .error(LanguageManager.shared.settings("settings_icloud_pro_only"))
+                return false
+            }
             UserDefaults.standard.set(true, forKey: "shield.icloud.enabled")
             await checkAvailabilityAsync()
+            guard PremiumManager.shared.isPro else {
+                UserDefaults.standard.set(false, forKey: "shield.icloud.enabled")
+                syncStatus = .error(LanguageManager.shared.settings("settings_icloud_pro_only"))
+                return false
+            }
             if !isAvailable {
                 UserDefaults.standard.set(false, forKey: "shield.icloud.enabled")
                 syncStatus = .error(LanguageManager.shared.settings("settings_icloud_unavailable"))
@@ -87,26 +97,36 @@ final class CloudSyncManager: ObservableObject {
         }
 
         guard isSyncEnabled else { return true }
+        isDisablingSync = true
+        defer { isDisablingSync = false }
+        // Stop new reconciliation before deleting records so an in-flight
+        // upload can detect the opt-out when it returns from CloudKit.
+        UserDefaults.standard.set(false, forKey: "shield.icloud.enabled")
         do {
             try await deleteAllRemoteDocuments()
-            UserDefaults.standard.set(false, forKey: "shield.icloud.enabled")
             UserDefaults.standard.removeObject(forKey: "shield.icloud.lastSync")
-            UserDefaults.standard.removeObject(forKey: pendingDeletionKey)
             isAvailable = false
             lastSyncDate = nil
             syncStatus = .idle
             return true
         } catch {
+            UserDefaults.standard.set(true, forKey: "shield.icloud.enabled")
             syncStatus = .error(Self.localizedSyncError(error))
             return false
         }
     }
 
-    /// Reconciles complete, restorable document packages in the user's private
-    /// CloudKit database. Private CKAssets are encrypted by CloudKit by default.
+    /// Reconciles complete, restorable packages for non-Vault documents in the
+    /// user's private CloudKit database. Private CKAssets are encrypted by CloudKit.
     func syncNow(appState: AppState) async {
-        guard isSyncEnabled else { return }
+        guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+            return
+        }
         await checkAvailabilityAsync()
+        guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+            syncStatus = .idle
+            return
+        }
         guard isAvailable, let container = ckContainer else {
             syncStatus = .error(LanguageManager.shared.settings("settings_icloud_unavailable"))
             return
@@ -115,16 +135,32 @@ final class CloudSyncManager: ObservableObject {
         syncStatus = .syncing
         do {
             let database = container.privateCloudDatabase
-            for id in pendingDeletionIDs {
-                try await deleteRemoteRecords(id: id, from: database)
-                removePendingDeletion(id)
-            }
-            let remote = try await fetchRemoteDocuments(in: database)
+            try await deletePendingRemoteRecords(in: database)
+            var remote = try await fetchRemoteDocuments(in: database)
             var localByID = Dictionary(appState.documents.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+            let localVaultedIDs = Set(appState.vaultDocuments.map(\.id))
+            guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+                syncStatus = .idle
+                return
+            }
 
             // Pull remote creations and newer edits first so a new device never
             // erases an existing cloud library merely because its local library is empty.
-            for (id, remoteDocument) in remote {
+            for id in remote.keys.sorted() {
+                guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+                    syncStatus = .idle
+                    return
+                }
+                guard let remoteDocument = remote[id] else { continue }
+                guard !Self.shouldDiscardRemotePackage(
+                    localDocumentIsVaulted: localVaultedIDs.contains(id),
+                    remoteDocument: remoteDocument.package.document
+                ) else {
+                    // Remove legacy Vault packages instead of restoring or retaining them.
+                    try await deleteRemoteRecords(id: id, from: database)
+                    remote.removeValue(forKey: id)
+                    continue
+                }
                 let local = localByID[id]
                 if local == nil || remoteDocument.package.document.modifiedAt > local!.modifiedAt {
                     try appState.restoreCloudDocument(
@@ -138,17 +174,43 @@ final class CloudSyncManager: ObservableObject {
             // Push local creations and edits. Deletions are explicit from AppState,
             // which avoids interpreting a fresh device as a delete-all operation.
             for document in appState.documents {
-                let remoteDocument = remote[document.id]
+                guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+                    syncStatus = .idle
+                    return
+                }
+                let documentID = document.id
+                guard let currentDocument = appState.documents.first(where: { $0.id == documentID }),
+                      Self.isEligibleForCloudSync(currentDocument)
+                else { continue }
+
+                let remoteDocument = remote[documentID]
                 if remoteDocument == nil ||
-                    document.modifiedAt > remoteDocument!.package.document.modifiedAt {
+                    currentDocument.modifiedAt > remoteDocument!.package.document.modifiedAt {
                     try await upload(
-                        document,
+                        currentDocument,
                         existingRecord: remoteDocument?.record,
                         to: database
                     )
+
+                    // Vault moves and deletions can happen while CloudKit is
+                    // saving. Remove a just-uploaded package if its local record
+                    // stopped being eligible during that request.
+                    guard isSyncEnabled,
+                          let latestDocument = appState.documents.first(where: { $0.id == documentID }),
+                          Self.isEligibleForCloudSync(latestDocument)
+                    else {
+                        queueRemoteDeletion(id: documentID)
+                        try await deleteRemoteRecords(id: documentID, from: database)
+                        removePendingDeletion(documentID)
+                        remote.removeValue(forKey: documentID)
+                        continue
+                    }
                 }
             }
 
+            // A Vault move can enqueue deletion while the reconciliation above
+            // is suspended on CloudKit requests.
+            try await deletePendingRemoteRecords(in: database)
             markSuccess()
         } catch {
             syncStatus = .error(
@@ -159,28 +221,65 @@ final class CloudSyncManager: ObservableObject {
         }
     }
 
+    static func isEligibleForCloudSync(_ document: DocumentItem) -> Bool {
+        !document.isVaulted
+    }
+
+    static func canSynchronize(userOptedIn: Bool, hasProAccess: Bool) -> Bool {
+        userOptedIn && hasProAccess
+    }
+
+    static func shouldDiscardRemotePackage(
+        localDocumentIsVaulted: Bool,
+        remoteDocument: DocumentItem
+    ) -> Bool {
+        localDocumentIsVaulted || !isEligibleForCloudSync(remoteDocument)
+    }
+
     func syncOnForeground(appState: AppState) {
-        guard isSyncEnabled else { return }
+        guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+            if !pendingDeletionIDs.isEmpty {
+                Task { await retryPendingRemoteDeletions() }
+            }
+            return
+        }
         Task { await syncNow(appState: appState) }
     }
 
     func scheduleRemoteDeletion(id: String) {
-        guard isSyncEnabled else { return }
-        var ids = pendingDeletionIDs
-        ids.insert(id)
-        UserDefaults.standard.set(Array(ids), forKey: pendingDeletionKey)
+        guard isSyncEnabled || isDisablingSync else { return }
+        queueRemoteDeletion(id: id)
         Task { await deleteRemoteDocument(id: id) }
     }
 
     func deleteRemoteDocument(id: String) async {
-        guard isSyncEnabled else { return }
-        await checkAvailabilityAsync()
-        guard isAvailable, let container = ckContainer else { return }
+        guard let database = await privateCloudDatabaseForRemoval() else { return }
         do {
-            try await deleteRemoteRecords(id: id, from: container.privateCloudDatabase)
+            try await deleteRemoteRecords(id: id, from: database)
             removePendingDeletion(id)
         } catch {
             syncStatus = .error(Self.localizedSyncError(error))
+        }
+    }
+
+    private func retryPendingRemoteDeletions() async {
+        guard !pendingDeletionIDs.isEmpty,
+              let database = await privateCloudDatabaseForRemoval()
+        else { return }
+        do {
+            try await deletePendingRemoteRecords(in: database)
+        } catch {
+            syncStatus = .error(Self.localizedSyncError(error))
+        }
+    }
+
+    private func privateCloudDatabaseForRemoval() async -> CKDatabase? {
+        let container = CKContainer(identifier: Self.cloudKitContainerIdentifier)
+        do {
+            guard try await container.accountStatus() == .available else { return nil }
+            return container.privateCloudDatabase
+        } catch {
+            return nil
         }
     }
 
@@ -195,6 +294,13 @@ final class CloudSyncManager: ObservableObject {
         }
     }
 
+    private func deletePendingRemoteRecords(in database: CKDatabase) async throws {
+        for id in pendingDeletionIDs.sorted() {
+            try await deleteRemoteRecords(id: id, from: database)
+            removePendingDeletion(id)
+        }
+    }
+
     private var pendingDeletionIDs: Set<String> {
         Set(UserDefaults.standard.stringArray(forKey: pendingDeletionKey) ?? [])
     }
@@ -202,6 +308,12 @@ final class CloudSyncManager: ObservableObject {
     private func removePendingDeletion(_ id: String) {
         var ids = pendingDeletionIDs
         ids.remove(id)
+        UserDefaults.standard.set(Array(ids), forKey: pendingDeletionKey)
+    }
+
+    private func queueRemoteDeletion(id: String) {
+        var ids = pendingDeletionIDs
+        ids.insert(id)
         UserDefaults.standard.set(Array(ids), forKey: pendingDeletionKey)
     }
 
@@ -268,7 +380,7 @@ final class CloudSyncManager: ObservableObject {
     }
 
     private func deleteAllRemoteDocuments() async throws {
-        guard let container = ckContainer else { return }
+        let container = CKContainer(identifier: Self.cloudKitContainerIdentifier)
         guard try await container.accountStatus() == .available else {
             throw CKError(.notAuthenticated)
         }
