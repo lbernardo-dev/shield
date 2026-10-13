@@ -136,6 +136,18 @@ final class CloudSyncManager: ObservableObject {
         do {
             let database = container.privateCloudDatabase
             try await deletePendingRemoteRecords(in: database)
+            guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+                syncStatus = .idle
+                return
+            }
+            // ShieldDocument was the metadata-only schema used by older releases.
+            // Current clients never read it, and its title/category fields can
+            // disclose information about documents that have since entered Vault.
+            try await deleteLegacyRemoteDocuments(in: database)
+            guard Self.canSynchronize(userOptedIn: isSyncEnabled, hasProAccess: PremiumManager.shared.isPro) else {
+                syncStatus = .idle
+                return
+            }
             var remote = try await fetchRemoteDocuments(in: database)
             var localByID = Dictionary(appState.documents.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
             let localVaultedIDs = Set(appState.vaultDocuments.map(\.id))
@@ -227,6 +239,16 @@ final class CloudSyncManager: ObservableObject {
 
     static func canSynchronize(userOptedIn: Bool, hasProAccess: Bool) -> Bool {
         userOptedIn && hasProAccess
+    }
+
+    static func isIdempotentDeletionError(_ error: Error) -> Bool {
+        guard let cloudError = error as? CKError else { return false }
+        if cloudError.code == .unknownItem { return true }
+        guard cloudError.code == .partialFailure,
+              let itemErrors = cloudError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Any],
+              !itemErrors.isEmpty
+        else { return false }
+        return itemErrors.values.allSatisfy { ($0 as? CKError)?.code == .unknownItem }
     }
 
     static func shouldDiscardRemotePackage(
@@ -389,12 +411,40 @@ final class CloudSyncManager: ObservableObject {
         for type in [recordType, legacyRecordType] {
             recordIDs += try await fetchRecordIDs(for: type, in: database)
         }
-        guard !recordIDs.isEmpty else { return }
-        let operation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIDs)
-        operation.qualityOfService = .userInitiated
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            operation.modifyRecordsResultBlock = { continuation.resume(with: $0) }
-            database.add(operation)
+        try await deleteRecords(recordIDs, from: database, qualityOfService: .userInitiated)
+    }
+
+    private func deleteLegacyRemoteDocuments(in database: CKDatabase) async throws {
+        let legacyIDs = try await fetchRecordIDs(for: legacyRecordType, in: database)
+        try await deleteRecords(legacyIDs, from: database, qualityOfService: .utility)
+    }
+
+    private func deleteRecords(
+        _ recordIDs: [CKRecord.ID],
+        from database: CKDatabase,
+        qualityOfService: QualityOfService
+    ) async throws {
+        // CloudKit modify operations have a bounded record count. Chunking also
+        // keeps the opt-out cleanup reliable for libraries with many documents.
+        let batchSize = 100
+        for start in stride(from: 0, to: recordIDs.count, by: batchSize) {
+            let end = min(start + batchSize, recordIDs.count)
+            let operation = CKModifyRecordsOperation(
+                recordsToSave: nil,
+                recordIDsToDelete: Array(recordIDs[start..<end])
+            )
+            operation.isAtomic = false
+            operation.qualityOfService = qualityOfService
+            do {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    operation.modifyRecordsResultBlock = { continuation.resume(with: $0) }
+                    database.add(operation)
+                }
+            } catch where Self.isIdempotentDeletionError(error) {
+                // Another device or an opt-out request may have deleted a
+                // queried record first. Keep the cleanup safe to retry.
+                continue
+            }
         }
     }
 
@@ -404,10 +454,9 @@ final class CloudSyncManager: ObservableObject {
             var page = try await database.records(matching: query, desiredKeys: [], resultsLimit: 500)
             var ids: [CKRecord.ID] = []
             while true {
-                ids += page.matchResults.compactMap { id, result in
-                    guard case .success = result else { return nil }
-                    return id
-                }
+                // The record ID is enough for deletion; an individual record
+                // fetch failure must not leave its metadata behind remotely.
+                ids += page.matchResults.map { id, _ in id }
                 guard let cursor = page.queryCursor else { break }
                 page = try await database.records(
                     continuingMatchFrom: cursor,

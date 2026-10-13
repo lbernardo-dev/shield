@@ -434,7 +434,8 @@ final class ShieldLaunchTests: XCTestCase {
         XCTAssertTrue(close.isHittable)
         close.tap()
         XCTAssertTrue(close.waitForNonExistence(timeout: 3))
-        XCTAssertTrue(app.buttons["tab.0"].isHittable)
+        let homeTab = app.buttons.matching(identifier: "tab.0").firstMatch
+        XCTAssertTrue(homeTab.isHittable, "The Documents tab should be tappable after dismissing the paywall")
     }
 
     @MainActor

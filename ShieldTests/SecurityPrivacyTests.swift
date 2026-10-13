@@ -14,6 +14,33 @@ struct SecurityPrivacyTests {
         #expect(!CloudSyncManager.isMissingRecordTypeError(CKError(.networkUnavailable)))
     }
 
+    @Test("CloudKit deletion safely retries records removed by another request")
+    @MainActor
+    func cloudKitDeletionIsIdempotentForMissingRecords() {
+        let missingRecord = CKError(.unknownItem)
+        let networkFailure = CKError(.networkUnavailable)
+        let missingRecordBatch = CKError(
+            .partialFailure,
+            userInfo: [
+                CKPartialErrorsByItemIDKey: [AnyHashable("legacy-record"): missingRecord]
+            ]
+        )
+        let mixedBatch = CKError(
+            .partialFailure,
+            userInfo: [
+                CKPartialErrorsByItemIDKey: [
+                    AnyHashable("legacy-record"): missingRecord,
+                    AnyHashable("other-record"): networkFailure
+                ]
+            ]
+        )
+
+        #expect(CloudSyncManager.isIdempotentDeletionError(missingRecord))
+        #expect(CloudSyncManager.isIdempotentDeletionError(missingRecordBatch))
+        #expect(!CloudSyncManager.isIdempotentDeletionError(networkFailure))
+        #expect(!CloudSyncManager.isIdempotentDeletionError(mixedBatch))
+    }
+
     @Test("Vaulted documents are excluded from optional CloudKit sync")
     @MainActor
     func vaultedDocumentsAreNotEligibleForCloudSync() {

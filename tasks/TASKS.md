@@ -2351,9 +2351,11 @@
 220. maskid-product-knowledge-center
    Id: 220-maskid-product-knowledge-center
    Scope: Ampliar landing pública Apps de MaskID con guía, tutoriales, preguntas frecuentes, aclaraciones y límites verificados en ES/EN; corregir datos de marca, cuota, plataformas y privacidad
-   Files: lbernardo-dev/apps:app/[locale]/(app)/case-studies/[slug]/**,app/[locale]/(app)/casos/[slug]/**,components/**,lib/content.ts,lib/routes.ts,tasks/TASKS.md,tasks/details/*
-   Note: Landing/FAQ/privacy reconciled; fixed Vault CloudKit leakage, Pro-expiry sync gate and removal control, and guide sitemap scope. PR #1 open; iPhone 18 Pro/iPad validation queued while occupied.
+   Files: lbernardo-dev/apps:app/[locale]/(app)/case-studies/[slug]/**,app/[locale]/(app)/casos/[slug]/**,components/**,lib/content.ts,lib/routes.ts,Shield/Cloud/CloudSyncManager.swift,ShieldTests/SecurityPrivacyTests.swift,Shield.xcodeproj/project.pbxproj,metadata/version/1.1.4/**,tasks/TASKS.md,tasks/details/*
+   Note: Landing PR #1/#4 y Pages deployments verificados; app 1.1.4 build 1142026101302 subido VALID y enlazado; 117 unit tests + 1 omitido en iPhone, UI de Ajustes/paywall validada en iPhone/iPad; selector de pestaña corregido en test. ASC validate 0 errores/bloqueos. Listo para commit/push selectivo.
    Detail: tasks/details/220-maskid-product-knowledge-center.md
    Claimed by: CODEX
    Claimed at: 2026-10-13T11:01:14Z
+   Done by: CODEX
+   Done at: 2026-10-13T19:30:31Z
 
