@@ -4,6 +4,7 @@ import CryptoKit
 import Security
 import UIKit
 import WidgetKit
+import OSLog
 
 #if DEBUG
 enum ASOScreenshotMode {
@@ -59,6 +60,8 @@ enum SortOption: String, CaseIterable, Identifiable {
 // MARK: - AppState
 
 final class AppState: ObservableObject {
+    private static let persistenceLogger = Logger(subsystem: "com.romerodev.shield", category: "DocumentPersistence")
+
     private let session: AppSessionCoordinator
     private var cancellables = Set<AnyCancellable>()
 
@@ -522,14 +525,21 @@ final class AppState: ObservableObject {
     }
 
     func deleteDocument(_ doc: DocumentItem) {
+        guard documents.contains(where: { $0.id == doc.id }) else { return }
+        let previousDocuments = documents
+        documents.removeAll { $0.id == doc.id }
+        guard persistDocuments() else {
+            documents = previousDocuments
+            updateWidgetSnapshot(reload: true)
+            return
+        }
+
         for fileName in doc.allImageFileNames {
             SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
         }
         if let sourceFileName = doc.sourceFileName {
             SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
         }
-        documents.removeAll { $0.id == doc.id }
-        persistDocuments()
         CloudSyncManager.shared.scheduleRemoteDeletion(id: doc.id)
     }
 
@@ -556,8 +566,15 @@ final class AppState: ObservableObject {
     }
 
     func deleteAllDocuments() {
-        let deletedDocumentIDs = documents.map(\.id)
-        for doc in documents {
+        let documentsToDelete = documents
+        documents.removeAll()
+        guard persistDocuments() else {
+            documents = documentsToDelete
+            updateWidgetSnapshot(reload: true)
+            return
+        }
+
+        for doc in documentsToDelete {
             for fileName in doc.allImageFileNames {
                 SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
             }
@@ -565,10 +582,8 @@ final class AppState: ObservableObject {
                 SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
             }
         }
-        documents.removeAll()
-        persistDocuments()
-        for id in deletedDocumentIDs {
-            CloudSyncManager.shared.scheduleRemoteDeletion(id: id)
+        for document in documentsToDelete {
+            CloudSyncManager.shared.scheduleRemoteDeletion(id: document.id)
         }
     }
 
@@ -788,6 +803,15 @@ final class AppState: ObservableObject {
         appSupportDir.appendingPathComponent("documents.json")
     }
 
+    private static func writeEncryptedDocumentSnapshot(_ documents: [DocumentItem]) throws {
+        let data = try JSONEncoder().encode(documents)
+        try SecureFileStore.shared.write(data, to: docsURL)
+        guard SecureFileStore.shared.isEncryptedFile(at: docsURL),
+              try SecureFileStore.shared.read(from: docsURL) == data else {
+            throw SecureFileStoreError.invalidCiphertext
+        }
+    }
+
     private static var categoriesURL: URL {
         appSupportDir.appendingPathComponent("categories.json")
     }
@@ -836,12 +860,21 @@ final class AppState: ObservableObject {
         try? SecureFileStore.shared.read(from: resolveSourceURL(fileName: fileName, isVaulted: isVaulted))
     }
 
-    private func persistDocuments() {
-        DocumentStore.shared.saveAllDocuments(documents)
-        if let data = try? JSONEncoder().encode(documents) {
-            try? SecureFileStore.shared.write(data, to: AppState.docsURL)
+    @discardableResult
+    private func persistDocuments() -> Bool {
+        do {
+            try Self.writeEncryptedDocumentSnapshot(documents)
+
+            // The encrypted snapshot is now the canonical store. Legacy
+            // per-document JSON must remain until this write is confirmed.
+            DocumentStore.shared.removeLegacyFiles()
+            updateWidgetSnapshot(reload: true)
+            return true
+        } catch {
+            Self.persistenceLogger.error("Failed to persist encrypted documents: \(error.localizedDescription, privacy: .private)")
+            updateWidgetSnapshot(reload: true)
+            return false
         }
-        updateWidgetSnapshot(reload: true)
     }
 
     private func updateWidgetSnapshot(reload: Bool) {
@@ -878,31 +911,91 @@ final class AppState: ObservableObject {
     }
 
     private static func loadDocuments() -> [DocumentItem] {
-        let storeDocs = DocumentStore.shared.loadAllDocuments()
-        if !storeDocs.isEmpty {
-            return storeDocs.map { document in
-                var migrated = document
-                migrated.migrateToCurrentSchema()
-                return migrated
-            }
-        }
+        let legacyStore = DocumentStore.shared
+
         if let data = try? SecureFileStore.shared.read(from: docsURL),
            let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) {
-            return docs.map { document in
-                var migrated = document
-                migrated.migrateToCurrentSchema()
-                return migrated
+            var migratedDocs = docs.map(migratedDocument)
+            let snapshotModifiedAt = (try? docsURL.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            do {
+                if !SecureFileStore.shared.isEncryptedFile(at: docsURL) {
+                    try writeEncryptedDocumentSnapshot(migratedDocs)
+                } else {
+                    guard try SecureFileStore.shared.read(from: docsURL) == data else {
+                        throw SecureFileStoreError.invalidCiphertext
+                    }
+                }
+                guard SecureFileStore.shared.isEncryptedFile(at: docsURL) else {
+                    throw SecureFileStoreError.invalidCiphertext
+                }
+
+                guard let snapshotModifiedAt else {
+                    persistenceLogger.error("Could not verify the legacy snapshot modification date; preserving legacy records for retry")
+                    return migratedDocs
+                }
+                guard let newerRecords = legacyStore.loadDocumentsModified(after: snapshotModifiedAt) else {
+                    persistenceLogger.error("Could not fully inspect legacy document records; preserving them for retry")
+                    return migratedDocs
+                }
+                if !newerRecords.isEmpty {
+                    var documentsByID: [String: DocumentItem] = [:]
+                    for document in migratedDocs {
+                        documentsByID[document.id] = document
+                    }
+                    for document in newerRecords {
+                        documentsByID[document.id] = migratedDocument(document)
+                    }
+                    let recoveredDocs = documentsByID.values.sorted { $0.date > $1.date }
+                    do {
+                        try writeEncryptedDocumentSnapshot(recoveredDocs)
+                        migratedDocs = recoveredDocs
+                    } catch {
+                        persistenceLogger.error("Failed to save recovered document updates: \(error.localizedDescription, privacy: .private)")
+                        return migratedDocs
+                    }
+                }
+
+                legacyStore.removeLegacyFiles()
+                return migratedDocs
+            } catch {
+                persistenceLogger.error("Failed to encrypt the legacy document snapshot: \(error.localizedDescription, privacy: .private)")
+                return []
             }
         }
-        guard let data = try? Data(contentsOf: docsURL),
-              let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) else {
+
+        let legacyDocs = legacyStore.loadAllDocuments()
+        if !legacyDocs.isEmpty {
+            let migratedDocs = legacyDocs.map(migratedDocument)
+            do {
+                try writeEncryptedDocumentSnapshot(migratedDocs)
+                legacyStore.removeLegacyFiles()
+                return migratedDocs
+            } catch {
+                persistenceLogger.error("Failed to migrate legacy documents into encrypted storage: \(error.localizedDescription, privacy: .private)")
+                return []
+            }
+        }
+
+        // Even an empty legacy snapshot has deletion semantics: commit it in
+        // encrypted storage before removing stale per-document JSON files.
+        guard let legacySnapshot = legacyStore.loadLegacySnapshot(), legacySnapshot.isEmpty else {
             return []
         }
-        return docs.map { document in
-            var migrated = document
-            migrated.migrateToCurrentSchema()
-            return migrated
+
+        do {
+            try writeEncryptedDocumentSnapshot([])
+            legacyStore.removeLegacyFiles()
+            return []
+        } catch {
+            persistenceLogger.error("Failed to migrate the empty legacy document snapshot: \(error.localizedDescription, privacy: .private)")
+            return []
         }
+    }
+
+    private static func migratedDocument(_ document: DocumentItem) -> DocumentItem {
+        var migrated = document
+        migrated.migrateToCurrentSchema()
+        return migrated
     }
 
     private static func loadCustomCategories() -> [UserCategory] {
@@ -996,6 +1089,13 @@ nonisolated final class SecureFileStore: Sendable {
             guard isVaultURL(url) else { throw error }
             return try decrypt(ciphertext, account: libraryKeyAccount)
         }
+    }
+
+    func isEncryptedFile(at url: URL) -> Bool {
+        guard let data = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
+            return false
+        }
+        return data.starts(with: magicHeader)
     }
 
     func loadImage(from url: URL) -> UIImage? {

@@ -276,15 +276,22 @@ private struct AuthenticatedShellView: View {
     }
 
     private func openCapture() {
+        guard !appState.showCapture else { return }
+
         // Capture is a top-level intake flow. Clear any stale editor selection
         // before presenting it so a pending editor transition cannot obscure
         // the capture surface or consume its accessibility actions.
-        appState.selectedDoc = nil
-        // Returning from Settings can leave the tab bar inside the end of its
-        // safe-area transition. Defer the presentation one run-loop so the
-        // stable root receives the state change after that transition has
-        // settled, while preserving a single physical tap.
-        DispatchQueue.main.async {
+        // Avoid publishing a redundant nil when Capture is opened from a tab;
+        // that update can rebuild the authenticated shell during its tab
+        // transition and race the root-hosted presentation. When leaving the
+        // editor, defer one run-loop so its transition can finish first.
+        if appState.selectedDoc != nil {
+            appState.selectedDoc = nil
+            DispatchQueue.main.async {
+                guard !appState.showCapture else { return }
+                appState.showCapture = true
+            }
+        } else {
             appState.showCapture = true
         }
     }

@@ -1341,6 +1341,96 @@
         }
       }
     },
+    "editor_sensitive_share_title": {
+      "comment": "Confirmation title shown before sharing an export that still has detected sensitive fields visible.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitive data may remain visible"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puede que queden datos sensibles visibles"
+          }
+        }
+      }
+    },
+    "editor_sensitive_share_message_plural": {
+      "comment": "Warning message before sharing when multiple detected fields remain visible; the placeholder is their count.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d detected fields are still visible. They may include personal information."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quedan %d campos detectados visibles. Pueden contener datos personales."
+          }
+        }
+      }
+    },
+    "editor_sensitive_share_message_singular": {
+      "comment": "Warning message before sharing when exactly one detected field remains visible.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One detected field is still visible. It may include personal information."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queda un campo detectado visible. Puede contener datos personales."
+          }
+        }
+      }
+    },
+    "editor_sensitive_share_review": {
+      "comment": "Action that closes export completion so the user can return to the editor and review remaining detected fields.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review fields"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar campos"
+          }
+        }
+      }
+    },
+    "editor_sensitive_share_anyway": {
+      "comment": "Explicit destructive confirmation to share despite detected sensitive fields remaining visible.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share anyway"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir de todos modos"
+          }
+        }
+      }
+    },
     "editor_protection_check_pages": {
       "extractionState": "manual",
       "localizations": {

@@ -123,6 +123,11 @@ struct EditorView: View {
                         vm.showExportSheet = false
                         appState.selectedDoc = nil
                         dismiss()
+                    },
+                    onReview: {
+                        appState.updateDocument(vm.documentSnapshot)
+                        vm.markSaved()
+                        vm.showExportSheet = false
                     }
                 )
             }

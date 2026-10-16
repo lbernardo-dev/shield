@@ -218,12 +218,15 @@ struct ExportSheetFooterButton: View {
 }
 
 struct ExportCompletionView: View {
+    @State private var showSensitiveShareConfirmation = false
+
     let scheme: ColorScheme
     let isPro: Bool
     let summaryText: String
     let verificationReport: ExportVerificationReport?
     let showFreeWatermarkNote: Bool
     let onDone: () -> Void
+    let onReview: () -> Void
     let onShare: () -> Void
 
     var body: some View {
@@ -270,7 +273,13 @@ struct ExportCompletionView: View {
                 }
                 .buttonStyle(ScaleButtonStyle())
 
-                Button(action: onShare) {
+                Button {
+                    if (verificationReport?.remainingDetectedSensitiveElements ?? 0) > 0 {
+                        showSensitiveShareConfirmation = true
+                    } else {
+                        onShare()
+                    }
+                } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")
                         Text(LanguageManager.shared.common("common_share"))
@@ -286,6 +295,28 @@ struct ExportCompletionView: View {
             }
             .padding(.horizontal, ShieldTheme.s5)
             .padding(.bottom, 32)
+        }
+        .confirmationDialog(
+            LanguageManager.shared.editor("editor_sensitive_share_title"),
+            isPresented: $showSensitiveShareConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(LanguageManager.shared.editor("editor_sensitive_share_review")) {
+                onReview()
+            }
+            Button(
+                LanguageManager.shared.editor("editor_sensitive_share_anyway"),
+                role: .destructive,
+                action: onShare
+            )
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
+        } message: {
+            let remainingCount = verificationReport?.remainingDetectedSensitiveElements ?? 0
+            if remainingCount == 1 {
+                Text(LanguageManager.shared.editor("editor_sensitive_share_message_singular"))
+            } else {
+                Text(LanguageManager.shared.editor("editor_sensitive_share_message_plural", remainingCount))
+            }
         }
     }
 }

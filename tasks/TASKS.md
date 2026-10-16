@@ -1839,10 +1839,10 @@
    Id: 168-ui-regression-gate
    Scope: Fix and verify the four existing Shield UI regressions in settings navigation, feedback accessibility labeling, capture dismissal, and paywall footer geometry.
    Files: Shield/Views/Settings/SettingsDestinationViews.swift,Shield/App/AppReviewManager.swift,Shield/Views/Paywall/PaywallView.swift,Shield/Views/Components/Components.swift,ShieldUITests/ShieldLaunchTests.swift,tasks/details/168-ui-regression-gate.md
-   Note: Starting focused repair of the four existing UI gate regressions.
+   Note: Corrección y build-for-testing listas; revalidación UI en cola por iPhone 18 Pro ocupado con Safari/repsfitness.
    Detail: tasks/details/168-ui-regression-gate.md
    Claimed by: CODEX
-   Claimed at: 2026-09-12T15:42:29Z
+   Claimed at: 2026-10-16T07:50:22Z
 
 169. release-testflight-1011202609131
    Id: 169-release-testflight-1011202609131
@@ -2369,4 +2369,37 @@
    Claimed at: 2026-10-13T20:32:19Z
    Done by: CODEX
    Done at: 2026-10-13T20:32:59Z
+
+222. auditoria-integral-app
+   Id: 222-auditoria-integral-app
+   Scope: Auditoría estática de MaskID, consulta de crashes y diagnósticos disponibles en App Store Connect, y propuesta priorizada de correcciones y mejoras; sin cambios de producto ni builds
+   Files: Shield/**,ShieldTests/**,ShieldUITests/**,Docs/**,Shield.xcodeproj/project.pbxproj,tasks/**
+   Note: Auditoría estática y consulta de App Store Connect completadas; documentados hallazgos priorizados y plan de corrección en tasks/details/222-auditoria-integral-app.md. No se hicieron cambios de producto, builds, pruebas ni limpieza.
+   Detail: tasks/details/222-auditoria-integral-app.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-16T06:27:45Z
+   Done by: CODEX
+   Done at: 2026-10-16T06:34:36Z
+
+223. correcciones-prioritarias-auditoria
+   Id: 223-correcciones-prioritarias-auditoria
+   Scope: Corrección de persistencia cifrada y borrado de metadatos sensibles, y confirmación explícita al compartir exportaciones con detecciones pendientes
+   Files: Shield/Models/DocumentStore.swift,Shield/ViewModels/AppState.swift,Shield/Views/Editor/ExportSheetView.swift,Shield/Views/Editor/ExportFormViews.swift,Shield/Views/Editor/ExportCompletionView.swift,ShieldTests/**,Shield/Resources/**,tasks/**
+   Note: Persistencia cifrada, borrado con rollback y confirmación de exportación implementados; 118 tests unitarios y validaciones iPhone/iPad aprobadas. Suite UI general: un fallo de navegación/cierre de Captura registrado para seguimiento.
+   Detail: tasks/details/223-correcciones-prioritarias-auditoria.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-16T06:37:30Z
+   Done by: CODEX
+   Done at: 2026-10-16T07:21:01Z
+
+224. upload-build-1142026101601
+   Id: 224-upload-build-1142026101601
+   Scope: Crear el build iOS 1142026101601 con el estado local aprobado, archivarlo, subirlo a App Store Connect y asociarlo a la versión 1.1.4 en preparación, sin enviar a revisión.
+   Files: Shield.xcodeproj/project.pbxproj,Shield/**,.asc/artifacts/**,tasks/**
+   Note: Archive Release y export IPA 1.1.4 (1142026101601) correctos; firma App Store Distribution verificada; upload ASC VALID (buildId 679480a9-601e-4529-a642-561a29f1443f) y asociado a versión PREPARE_FOR_SUBMISSION af839c46-5770-407d-9226-1c7d47e79c08. ASC validate: 0 errores, 0 bloqueos, 2 infos. Sin envío a revisión. Pruebas simulador pendientes: iPhone 18 Pro iOS 27.0 sigue ocupado por MobileSafari; se respetó la cola y no se alteró.
+   Detail: tasks/details/224-upload-build-1142026101601.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-16T07:58:58Z
+   Done by: CODEX
+   Done at: 2026-10-16T08:11:40Z
 

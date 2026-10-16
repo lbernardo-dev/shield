@@ -7,17 +7,17 @@
 
 ## Copy
 
-Qué incluye MaskID gratis
+MaskID Free: importación, cámara/escáner, OCR, máscaras manuales y exportación rasterizada con comprobación (sin marca forzada).
 
-Importación, cámara y escáner. OCR conservador y máscara manual.
+10 documentos procesados en total (acumulativo).
 
-Hasta 10 documentos activos.
+Revisa cada página: el chequeo no detecta todos los datos sensibles.
 
 #MaskID #Privacidad
 
 ## Alt text
 
-Pantalla real de MaskID en el simulador mostrando paywall, con el titular: Qué incluye MaskID gratis.
+Infografía de MaskID Free con sus herramientas y el límite acumulativo de diez documentos.
 
 ## Integrated feature infographic
 

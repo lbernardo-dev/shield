@@ -11,9 +11,11 @@ Qué incluye MaskID gratis
 
 • Importación, cámara y escáner
 • OCR conservador y máscara manual
-• Exportación rasterizada verificada sin marca forzada
+• Exportación rasterizada con comprobaciones técnicas y sin marca forzada
 
-Hasta 10 documentos activos. Revisa siempre cada zona antes de compartir.
+MaskID Free permite procesar hasta 10 documentos en total, de forma acumulativa.
+
+La comprobación técnica no detecta todos los datos sensibles omitidos: revisa cada página antes de compartir.
 
 #PrivacidadDigital #ProteccionDeDatos #MaskID #Documentos
 

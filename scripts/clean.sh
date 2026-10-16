@@ -76,11 +76,11 @@ if [[ $ALL -eq 1 ]]; then
     Shield.xcodeproj/build \
     .asc/video-derived-data
 
-  # Clean /tmp candidates matching MaskID
+  # Clean /tmp candidates matching MaskID, including task-specific DerivedData paths.
   while IFS= read -r path; do
     [[ -n "$path" ]] || continue
     trash_if_exists "$path"
-  done < <(/usr/bin/find /tmp -maxdepth 1 -mindepth 1 \( -name 'MaskID-*' -o -name 'DerivedData-MaskID' \) -print 2>/dev/null || true)
+  done < <(/usr/bin/find /tmp -maxdepth 1 -mindepth 1 \( -name 'MaskID-*' -o -name 'DerivedData-MaskID' -o -name 'DerivedData-MaskID-*' \) -print 2>/dev/null || true)
 
   echo "Cleaned all build artifacts and caches."
 else

@@ -19,6 +19,7 @@ struct VaultView: View {
     @State private var authError: String? = nil
     @State private var selectedDoc: DocumentItem? = nil
     @State private var quickExportDoc: DocumentItem? = nil
+    @State private var docToReviewAfterExport: DocumentItem? = nil
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showAddToVault = false
@@ -47,7 +48,11 @@ struct VaultView: View {
         .fullScreenCover(item: $selectedDoc) { doc in
             EditorView(doc: doc).environmentObject(appState)
         }
-        .sheet(item: $quickExportDoc) { doc in
+        .sheet(item: $quickExportDoc, onDismiss: {
+            guard let doc = docToReviewAfterExport else { return }
+            docToReviewAfterExport = nil
+            selectedDoc = doc
+        }) { doc in
             let today = Date().formatted(
                 Date.FormatStyle(date: .numeric)
                     .locale(Locale(identifier: appState.language.rawValue))
@@ -68,7 +73,11 @@ struct VaultView: View {
                     get: { quickExportDoc != nil },
                     set: { if !$0 { quickExportDoc = nil } }
                 ),
-                onDone: { quickExportDoc = nil }
+                onDone: { quickExportDoc = nil },
+                onReview: {
+                    docToReviewAfterExport = doc
+                    quickExportDoc = nil
+                }
             )
             .environmentObject(appState)
         }

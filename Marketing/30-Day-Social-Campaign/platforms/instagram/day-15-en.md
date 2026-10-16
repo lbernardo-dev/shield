@@ -2,16 +2,16 @@
 
 - Format: infographic
 - Pillar: privacy
-- Asset: [../../assets/en/day-15/slide-01.png](../../assets/en/day-15/slide-01.png)
+- Asset: [../../assets/en/day-15/slide-01-sync-v2.png](../../assets/en/day-15/slide-01-sync-v2.png)
 - Publishing note: Publish the single image.
 
 ## Copy
 
 What syncs and what stays local
 
-• Document content stays local
-• User-entered titles stay local
-• Minimized iCloud index is optional
+• Documents stay local unless you enable Pro sync
+• Pro iCloud sync uploads restorable packages to private CloudKit
+• The Vault stays local and is never synced
 
 You decide whether to enable sync.
 
@@ -21,4 +21,4 @@ Always review every region before sharing.
 
 ## Alt text
 
-Real MaskID simulator screen showing settings, with the headline: What syncs and what stays local.
+MaskID infographic: documents stay local by default, optional Pro sync uses private CloudKit, and the Vault stays local.

@@ -13,9 +13,11 @@ Sharing less data does not mean hiding required information; it means reviewing 
 
 • Import, camera and scanner
 • Conservative OCR and manual masking
-• Verified rasterized export with no forced watermark
+• Rasterized export with technical checks and no forced watermark
 
-Up to 10 active documents. Always review every region before sharing.
+Up to 10 documents processed in total (cumulative).
+
+Technical checks cannot identify every missed sensitive item. Review each page before sharing.
 
 #DigitalPrivacy #DataProtection #MaskID #Documents
 

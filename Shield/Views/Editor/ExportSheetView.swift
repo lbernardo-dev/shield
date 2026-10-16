@@ -16,6 +16,7 @@ struct ExportSheetView: View {
     let currentImageFileName: String?
     @Binding var isPresented: Bool
     var onDone: () -> Void
+    var onReview: () -> Void
 
     enum ExportFormat: Hashable { case pdf, image }
     enum ExportQuality: String, CaseIterable { case high, medium, low }
@@ -191,6 +192,7 @@ struct ExportSheetView: View {
             verificationReport: verificationReport,
             showFreeWatermarkNote: true,
             onDone: onDone,
+            onReview: onReview,
             onShare: {
                 shareItem = exportedURL ?? exportedImage
                 showShareSheet = true

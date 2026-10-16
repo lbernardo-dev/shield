@@ -7,17 +7,17 @@
 
 ## Copy
 
-What MaskID includes for free
+MaskID Free: import, camera/scanner, OCR suggestions, manual masks and rasterized export with technical checks (no forced watermark).
 
-Import, camera and scanner. Conservative OCR and manual masking.
+10 documents processed in total (cumulative).
 
-Up to 10 active documents.
+Review every page; checks cannot find every missed sensitive item.
 
 #MaskID #Privacy
 
 ## Alt text
 
-Real MaskID simulator screen showing paywall, with the headline: What MaskID includes for free.
+MaskID Free infographic showing included document tools and the cumulative ten-document allowance.
 
 ## Integrated feature infographic
 

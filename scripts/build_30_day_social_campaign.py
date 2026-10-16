@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build MaskID's bilingual 30-day social campaign from real simulator captures."""
+"""Build MaskID's bilingual 30-day social campaign from simulator captures and curated artwork."""
 
 from __future__ import annotations
 
@@ -15,6 +15,22 @@ W, H = 1080, 1350
 NAVY, SURFACE, CYAN, WHITE, MUTED = "#071426", "#0E2038", "#20C7D9", "#F7F7FA", "#B8C2D1"
 FONTS = ["/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Supplemental/Arial.ttf"]
 PLATFORMS = ["instagram", "linkedin", "x", "facebook", "tiktok"]
+# These localized campaign illustrations were reviewed and curated by hand.
+# Keep existing artwork on regeneration; fall back to normal output names if absent.
+CURATED_ASSET_NAMES = {
+    ("en", 15, 1): "slide-01-sync-v2.png",
+    ("es", 15, 1): "slide-01-sync-v2.png",
+    ("en", 25, 4): "slide-04.png",
+    ("es", 25, 4): "slide-04.png",
+    ("en", 25, 5): "slide-05.png",
+    ("es", 25, 5): "slide-05.png",
+}
+
+
+def asset_filename(lang, day, slide):
+    curated_name = CURATED_ASSET_NAMES.get((lang, day, slide))
+    curated_path = OUT / "assets" / lang / f"day-{day:02d}" / curated_name if curated_name else None
+    return curated_name if curated_path and curated_path.exists() else f"slide-{slide:02d}.png"
 
 
 def fnt(size: int):
@@ -56,7 +72,7 @@ TOPICS = [
  (12,"ocr","image","trust","En el dispositivo significa aquí, no en una nube de análisis","On device means here, not in an analysis cloud",["OCR local","Enmascarado local","Exportación local"],["Local OCR","Local masking","Local export"],"Tus documentos no necesitan viajar para ser revisados.","Your documents do not need to travel to be reviewed."),
  (13,"export","carousel","education","Negro visible no siempre significa seguro","Visible black does not always mean secure",["Una capa puede ocultar sin eliminar","MaskID rasteriza la copia","El verificador busca texto recuperable"],["An overlay can hide without removing","MaskID rasterizes the copy","The verifier checks recoverable text"],"Verifica antes de compartir.","Verify before sharing."),
  (14,"batch","image","product","Cuando los documentos se repiten, también puede hacerlo el flujo","When documents repeat, the workflow can too",["Procesamiento por lotes en Pro","Flujos semánticos reutilizables","Revisión final obligatoria"],["Batch processing in Pro","Reusable semantic workflows","Final review still required"],"Ahorra pasos, no la revisión.","Save steps, not the review."),
- (15,"settings","infographic","privacy","Qué se sincroniza y qué se queda local","What syncs and what stays local",["El contenido del documento queda local","Los títulos introducidos quedan locales","El índice iCloud minimizado es opcional"],["Document content stays local","User-entered titles stay local","Minimized iCloud index is optional"],"Tú decides si activar la sincronización.","You decide whether to enable sync."),
+ (15,"settings","infographic","privacy","Qué se sincroniza y qué se queda local","What syncs and what stays local",["Documentos locales por defecto","iCloud Pro sincroniza paquetes restaurables","La Bóveda permanece en el dispositivo"],["Documents stay on-device by default","Optional Pro sync uploads restorable packages to private CloudKit","The Vault stays on-device"],"Activa la sincronización Pro solo si quieres guardar paquetes en tu iCloud privado.","Enable Pro sync only if you want packages stored in your private iCloud."),
  (16,"vault","carousel","education","Bóveda no significa copia de seguridad en la nube","Vault does not mean cloud backup",["Protección local cifrada","Acceso protegido","Gestiona tus copias por separado"],["Encrypted local protection","Protected access","Manage backups separately"],"Conoce dónde vive cada archivo.","Know where every file lives."),
  (17,"gallery","image","product","Una etiqueta puede explicar por qué falta un dato","A label can explain why a detail is missing",["Máscaras visuales configurables","Estilos para distintos contextos","Controles avanzados en Pro"],["Configurable visual masks","Styles for different contexts","Advanced controls in Pro"],"Haz legible la intención de la copia.","Make the purpose of the copy easy to understand."),
  (18,"home","carousel","use-case","Alquiler: comparte lo necesario, revisa lo demás","Renting: share what is needed, review the rest",["Confirma los documentos solicitados","Oculta campos no requeridos","Conserva el original fuera del envío"],["Confirm requested documents","Hide fields that are not required","Keep the original out of the send flow"],"Pregunta qué datos son imprescindibles.","Ask which details are truly required."),
@@ -66,7 +82,7 @@ TOPICS = [
  (22,"settings","carousel","privacy","Archivos cloud sin entregar tus credenciales a MaskID","Cloud files without handing credentials to MaskID",["Acceso mediante el selector Archivos","Solo eliges el archivo necesario","MaskID no guarda tokens OAuth del proveedor"],["Access through the Files picker","You choose only the needed file","MaskID stores no provider OAuth tokens"],"Tu proveedor sigue gestionado por el sistema.","Your provider remains managed by the system."),
  (23,"ocr","infographic","education","Tres límites honestos del OCR","Three honest limits of OCR",["Puede omitir un dato","Puede sugerir de más","El contexto requiere criterio humano"],["It may miss a detail","It may suggest too much","Context requires human judgment"],"Amplía, revisa y corrige antes de exportar.","Zoom, review and correct before export."),
  (24,"vault","image","privacy","Cifrado local con claves del dispositivo","Local encryption with device-only keys",["Originales importados cifrados en reposo","Cachés de render cifradas","Bóveda con clave independiente"],["Imported originals encrypted at rest","Render caches encrypted","Vault uses a separate key"],"La seguridad no está bloqueada tras Pro.","Security is not locked behind Pro."),
- (25,"paywall","carousel","product","Qué incluye MaskID gratis","What MaskID includes for free",["Importación, cámara y escáner","OCR conservador y máscara manual","Exportación rasterizada verificada sin marca forzada"],["Import, camera and scanner","Conservative OCR and manual masking","Verified rasterized export with no forced watermark"],"Hasta 10 documentos activos.","Up to 10 active documents."),
+ (25,"paywall","carousel","product","Qué incluye MaskID gratis","What MaskID includes for free",["Importación, cámara y escáner","OCR conservador y máscara manual","Exportación rasterizada con comprobaciones técnicas"],["Import, camera and scanner","Conservative OCR and manual masking","Rasterized export with technical checks"],"Hasta 10 documentos procesados en total (límite acumulativo).","Up to 10 documents processed in total (cumulative allowance)."),
  (26,"paywall","infographic","product","Cuándo tiene sentido MaskID Pro","When MaskID Pro makes sense",["Proyectos activos ilimitados","Lotes y plantillas reutilizables","Estilos y automatización avanzados"],["Unlimited active projects","Batches and reusable templates","Advanced styles and automation"],"La protección esencial sigue disponible gratis.","Essential protection remains available for free."),
  (27,"editor","carousel","education","El flujo seguro en cinco pasos","The safer workflow in five steps",["Importa","Selecciona y revisa","Aplica máscaras","Exporta","Comprueba y comparte"],["Import","Select and review","Apply masks","Export","Check and share"],"No saltes la revisión final.","Do not skip the final review."),
  (28,"settings","image","trust","Sin anuncios. Sin seguimiento. Sin vender tu atención.","No ads. No tracking. No selling your attention.",["No hay backend publicitario","No se perfila tu uso","La privacidad es parte del producto"],["No advertising backend","No usage profiling","Privacy is part of the product"],"Compara herramientas por lo que recopilan.","Compare tools by what they collect."),
@@ -83,6 +99,13 @@ def source_path(lang, scene):
 
 def render_asset(topic, lang, slide, total):
     day, scene, fmt, pillar, es_hook, en_hook, es_facts, en_facts, es_cta, en_cta = topic
+    path=OUT/"assets"/lang/f"day-{day:02d}"
+    path.mkdir(parents=True,exist_ok=True)
+    curated_name = CURATED_ASSET_NAMES.get((lang, day, slide))
+    curated_path = path / curated_name if curated_name else None
+    if curated_path and curated_path.exists():
+        return curated_path
+    out=path/f"slide-{slide:02d}.png"
     hook, facts, cta = (es_hook, es_facts, es_cta) if lang == "es" else (en_hook, en_facts, en_cta)
     src = Image.open(source_path(lang, scene)).convert("RGB")
     canvas = Image.new("RGB", (W,H), NAVY)
@@ -92,7 +115,9 @@ def render_asset(topic, lang, slide, total):
     draw.text((805,60), f"{day:02d}/30", font=fnt(28), fill=MUTED)
     if slide == 1:
         title = hook
-        subtitle = "PRIVACIDAD EN EL DISPOSITIVO" if lang == "es" else "PRIVACY ON DEVICE"
+        subtitle = (("PRIVACIDAD A TU ELECCIÓN" if lang == "es" else "PRIVACY BY CHOICE")
+                    if day == 15 else
+                    ("PRIVACIDAD EN EL DISPOSITIVO" if lang == "es" else "PRIVACY ON DEVICE"))
     elif slide <= len(facts)+1:
         title = facts[slide-2]
         subtitle = f"{slide-1}/{len(facts)}"
@@ -122,11 +147,8 @@ def render_asset(topic, lang, slide, total):
     sd.rectangle((0,H-155,W,H),fill=(7,20,38,225))
     canvas=Image.alpha_composite(canvas.convert("RGBA"),shade).convert("RGB")
     d=ImageDraw.Draw(canvas)
-    footer = ("CAPTURA REAL DEL SIMULADOR" if lang=="es" else "REAL SIMULATOR CAPTURE") + f"  •  {slide}/{total}"
+    footer = ("CAPTURA REAL DEL SIMULADOR" if lang=="es" else "REAL SIMULATOR CAPTURE") + f"  •  {('DÍA' if lang == 'es' else 'DAY')} {day:02d}  •  {slide}/{total}"
     d.text((68,H-105),footer,font=fnt(23),fill=MUTED)
-    path=OUT/"assets"/lang/f"day-{day:02d}"
-    path.mkdir(parents=True,exist_ok=True)
-    out=path/f"slide-{slide:02d}.png"
     canvas.save(out,"PNG",optimize=True)
     return out
 
@@ -137,10 +159,21 @@ def captions(topic, lang):
     bullet="\n".join(f"• {x}" for x in facts)
     tags = "#PrivacidadDigital #ProteccionDeDatos #MaskID #Documentos" if lang=="es" else "#DigitalPrivacy #DataProtection #MaskID #Documents"
     safety = "Revisa siempre cada zona antes de compartir." if lang=="es" else "Always review every region before sharing."
+    hashtag = "#MaskID #Privacidad" if lang == "es" else "#MaskID #Privacy"
+    if day == 15 and lang == "es":
+        x_copy = "Documentos locales por defecto. Pro puede guardar paquetes restaurables en CloudKit privado. La Bóveda queda en el dispositivo. #MaskID #Privacidad"
+    elif day == 15:
+        x_copy = "Documents stay local by default. Pro can store restorable packages in private CloudKit. The Vault stays on-device. #MaskID #Privacy"
+    elif day == 25 and lang == "es":
+        x_copy = "MaskID Free: exportación rasterizada con comprobaciones; 10 documentos procesados en total. Revisa cada página: el chequeo no detecta todos los datos sensibles. #MaskID #Privacidad"
+    elif day == 25:
+        x_copy = "MaskID Free: rasterized export with technical checks; 10 documents processed in total. Review every page; checks cannot find every missed sensitive item. #MaskID #Privacy"
+    else:
+        x_copy = f"{hook}\n\n{facts[0]}. {facts[1]}.\n\n{cta}\n\n{hashtag}"
     return {
       "instagram": f"{hook}\n\n{bullet}\n\n{cta}\n\n{safety}\n\n{tags}",
       "linkedin": f"{hook}\n\nCompartir menos datos no significa ocultar información necesaria; significa revisar el propósito de cada copia.\n\n{bullet}\n\n{cta} {safety}\n\n{tags}" if lang=="es" else f"{hook}\n\nSharing less data does not mean hiding required information; it means reviewing the purpose of every copy.\n\n{bullet}\n\n{cta} {safety}\n\n{tags}",
-      "x": f"{hook}\n\n{facts[0]}. {facts[1]}.\n\n{cta}\n\n#MaskID #Privacidad" if lang=="es" else f"{hook}\n\n{facts[0]}. {facts[1]}.\n\n{cta}\n\n#MaskID #Privacy",
+      "x": x_copy,
       "facebook": f"{hook}\n\n{bullet}\n\n{cta} {safety}\n\n{tags}",
       "tiktok": f"{hook}\n\n{bullet}\n\n{cta}\n\n{tags}",
     }
@@ -177,13 +210,16 @@ FEATURES = [
   [("Tu documento está en Drive o Dropbox", "No deberías entregar nuevas credenciales solo para elegir un archivo."), ("Acceso mediante Archivos de Apple", "El sistema presenta tus proveedores y MaskID recibe únicamente el archivo seleccionado."), ("Cómo se usa", "1. Abre Archivos  2. Elige proveedor  3. Selecciona el documento"), ("Cualidad diferencial", "MaskID no almacena tokens OAuth del proveedor."), ("Límite importante", "La disponibilidad del proveedor depende de su integración con Archivos y de tu configuración."), ("Solución cotidiana", "Importa un archivo cloud manteniendo la autenticación bajo control del sistema.")],
   [("Your document is in Drive or Dropbox", "You should not need to hand over new credentials just to choose a file."), ("Access through Apple Files", "The system presents your providers and MaskID receives only the selected file."), ("How it works", "1. Open Files  2. Choose provider  3. Select the document"), ("Distinctive quality", "MaskID stores no provider OAuth tokens."), ("Important limit", "Provider availability depends on its Files integration and your configuration."), ("Everyday solution", "Import a cloud file while keeping authentication under system control.")]),
  ("free-vs-pro", "paywall", 25,
-  [("¿Necesitas pagar para proteger un documento?", "La protección esencial no debería depender de una suscripción."), ("MaskID Free", "Importa, escanea, enmascara, usa OCR conservador y exporta copias verificadas sin marca forzada."), ("MaskID Pro", "Añade proyectos ilimitados, lotes, plantillas, estilos y automatización avanzada."), ("Qué permanece gratis", "Cifrado, privacidad, verificación, accesibilidad y hasta 10 documentos activos."), ("Cuándo elegir Pro", "Cuando el volumen, la repetición o la personalización justifican flujos avanzados."), ("Solución cotidiana", "Empieza protegiendo copias reales y amplía solo cuando tu uso lo necesite.")],
-  [("Must you pay to protect a document?", "Essential protection should not depend on a subscription."), ("MaskID Free", "Import, scan, mask, use conservative OCR and export verified copies with no forced watermark."), ("MaskID Pro", "Adds unlimited projects, batches, templates, styles and advanced automation."), ("What remains free", "Encryption, privacy, verification, accessibility and up to 10 active documents."), ("When to choose Pro", "When volume, repetition or customization justify advanced workflows."), ("Everyday solution", "Start protecting real copies and upgrade only when your usage requires it.")]),
+  [("¿Necesitas pagar para proteger un documento?", "La protección esencial no debería depender de una suscripción."), ("MaskID Free", "Importa, escanea, enmascara, usa OCR conservador y exporta copias rasterizadas con comprobaciones técnicas y sin marca forzada. Revisa cada página: el chequeo no detecta todos los datos sensibles omitidos."), ("MaskID Pro", "Añade proyectos ilimitados, lotes, plantillas, estilos y automatización avanzada."), ("Qué permanece gratis", "Cifrado, privacidad, comprobaciones técnicas, accesibilidad y hasta 10 documentos procesados en total (límite acumulativo)."), ("Cuándo elegir Pro", "Cuando el volumen, la repetición o la personalización justifican flujos avanzados."), ("Solución cotidiana", "Empieza protegiendo copias reales y amplía solo cuando tu uso lo necesite.")],
+  [("Must you pay to protect a document?", "Essential protection should not depend on a subscription."), ("MaskID Free", "Import, scan, mask, use conservative OCR, and export rasterized copies with technical checks and no forced watermark. Review every page: checks cannot identify every sensitive detail you may have missed."), ("MaskID Pro", "Adds unlimited projects, batches, templates, styles and advanced automation."), ("What remains free", "Encryption, privacy, technical checks, accessibility and up to 10 documents processed in total (cumulative allowance)."), ("When to choose Pro", "When volume, repetition or customization justify advanced workflows."), ("Everyday solution", "Start protecting real copies and upgrade only when your usage requires it.")]),
 ]
 
 
 def render_feature_slide(slug, scene, day, lang, sections, slide):
     title, body = sections[slide - 1]
+    curated_path = OUT / "feature-infographics" / slug / lang / f"slide-{slide:02d}.png"
+    if slug == "free-vs-pro" and slide in (2, 4) and curated_path.exists():
+        return curated_path
     src = Image.open(source_path(lang, scene)).convert("RGB")
     canvas = Image.new("RGB", (W, H), NAVY)
     draw = ImageDraw.Draw(canvas)
@@ -207,7 +243,8 @@ def render_feature_slide(slug, scene, day, lang, sections, slide):
     ImageDraw.Draw(overlay).rectangle((0, H - 142, W, H), fill=(7, 20, 38, 232))
     canvas = Image.alpha_composite(canvas.convert("RGBA"), overlay).convert("RGB")
     footer = "CAPTURA REAL DEL SIMULADOR" if lang == "es" else "REAL SIMULATOR CAPTURE"
-    ImageDraw.Draw(canvas).text((68, H - 94), f"{footer}  •  DÍA {day:02d}", font=fnt(23), fill=MUTED)
+    day_label = "DÍA" if lang == "es" else "DAY"
+    ImageDraw.Draw(canvas).text((68, H - 94), f"{footer}  •  {day_label} {day:02d}", font=fnt(23), fill=MUTED)
     folder = OUT / "feature-infographics" / slug / lang
     folder.mkdir(parents=True, exist_ok=True)
     out = folder / f"slide-{slide:02d}.png"
@@ -218,13 +255,19 @@ def render_feature_slide(slug, scene, day, lang, sections, slide):
 def feature_caption(slug, lang, sections):
     titles = [title for title, _ in sections]
     if lang == "es":
-        return f"{titles[0]}\n\nEsta guía explica {titles[1].lower()}, cómo se usa, qué ventaja aporta y qué límite debes revisar. Desliza las 6 pantallas y guarda la lista para tu próximo documento.\n\nRevisa siempre cada región antes de compartir.\n\n#MaskID #PrivacidadDigital #ProteccionDeDatos #Documentos"
-    return f"{titles[0]}\n\nThis guide explains {titles[1].lower()}, how it works, the advantage it provides and the limit you must review. Swipe through all 6 screens and save the checklist for your next document.\n\nAlways review every region before sharing.\n\n#MaskID #DigitalPrivacy #DataProtection #Documents"
+        copy = f"{titles[0]}\n\nEsta guía explica {titles[1]}, cómo se usa, qué ventaja aporta y qué límite debes revisar. Desliza las 6 diapositivas y guarda la lista para tu próximo documento.\n\nRevisa siempre cada página antes de compartir.\n\n#MaskID #PrivacidadDigital #ProteccionDeDatos #Documentos"
+        if slug == "free-vs-pro":
+            copy = copy.replace("Revisa siempre cada página antes de compartir.", "Las comprobaciones de exportación son técnicas y no detectan todos los datos sensibles que podrías haber omitido. Revisa cada página antes de compartir.")
+        return copy
+    copy = f"{titles[0]}\n\nThis guide explains {titles[1]}, how it works, the advantage it provides and the limit you must review. Swipe through all 6 slides and save the checklist for your next document.\n\nAlways review every page before sharing.\n\n#MaskID #DigitalPrivacy #DataProtection #Documents"
+    if slug == "free-vs-pro":
+        copy = copy.replace("Always review every page before sharing.", "Export checks are technical and cannot identify every sensitive detail you may have missed. Review every page before sharing.")
+    return copy
 
 
 def main():
-    if OUT.exists():
-        shutil.rmtree(OUT)
+    # Preserve hand-curated assets and archives; regenerate only known outputs.
+    OUT.mkdir(parents=True, exist_ok=True)
     for platform in PLATFORMS:
         (OUT/"platforms"/platform).mkdir(parents=True,exist_ok=True)
     (OUT/"source-captures").mkdir(parents=True,exist_ok=True)
@@ -237,12 +280,16 @@ def main():
             copy=captions(topic,lang)
             for platform in PLATFORMS:
                 label={"es":"ESPAÑOL","en":"ENGLISH"}[lang]
-                asset=f"../../assets/{lang}/day-{day:02d}/slide-01.png"
+                filename = asset_filename(lang, day, 1)
+                asset=f"../../assets/{lang}/day-{day:02d}/{filename}"
                 extra = "Publicación de fotos: sube las 5 diapositivas en orden." if lang=="es" else "Photo post: upload all 5 slides in order."
                 if fmt != "carousel": extra = "Publica la imagen única." if lang=="es" else "Publish the single image."
-                md=f"# Day {day:02d} — {label}\n\n- Format: {fmt}\n- Pillar: {pillar}\n- Asset: [{asset}]({asset})\n- Publishing note: {extra}\n\n## Copy\n\n{copy[platform]}\n\n## Alt text\n\n" + ((f"Pantalla real de MaskID en el simulador mostrando {scene}, con el titular: {topic[4]}." if lang=="es" else f"Real MaskID simulator screen showing {scene}, with the headline: {topic[5]}.")+"\n")
+                alt = ((f"Infografía de MaskID sobre privacidad y sincronización opcional de paquetes." if lang == "es" else f"MaskID infographic about privacy and optional package sync.") if day == 15 else
+                       (f"Carrusel de MaskID Free con exportación rasterizada y el límite acumulativo de diez documentos." if lang == "es" else f"MaskID Free carousel about rasterized export and the cumulative ten-document allowance.") if day == 25 else
+                       (f"Pantalla real de MaskID en el simulador mostrando {scene}, con el titular: {topic[4]}." if lang=="es" else f"Real MaskID simulator screen showing {scene}, with the headline: {topic[5]}."))
+                md=f"# Day {day:02d} — {label}\n\n- Format: {fmt}\n- Pillar: {pillar}\n- Asset: [{asset}]({asset})\n- Publishing note: {extra}\n\n## Copy\n\n{copy[platform]}\n\n## Alt text\n\n{alt}\n"
                 (OUT/"platforms"/platform/f"day-{day:02d}-{lang}.md").write_text(md)
-            rows.append([day,lang,fmt,pillar,scene,"09:00" if platform=="linkedin" else "19:30",f"assets/{lang}/day-{day:02d}/slide-01.png"])
+            rows.append([day,lang,fmt,pillar,scene,"09:00" if platform=="linkedin" else "19:30",f"assets/{lang}/day-{day:02d}/{asset_filename(lang, day, 1)}"])
     feature_rows = []
     for slug, scene, day, es_sections, en_sections in FEATURES:
         for lang, sections in (("es", es_sections), ("en", en_sections)):
@@ -275,7 +322,7 @@ def main():
         w=csv.writer(fp); w.writerow(["day","language","format","pillar","scene","suggested_local_time","lead_asset"]); w.writerows(rows)
     readme='''# MaskID — 30-day bilingual social campaign
 
-Publish-ready campaign for Instagram, LinkedIn, X, Facebook and TikTok photo posts. Every visual is composed exclusively from authentic MaskID iPhone Simulator captures with synthetic, non-personal fixtures; no stock, generated photography or unsupported product screens are used.
+Publish-ready campaign for Instagram, LinkedIn, X, Facebook and TikTok photo posts. Most visuals frame authentic MaskID iPhone Simulator captures with synthetic, non-personal fixtures. The day 15 infographic and day 25 slides 4–5 are campaign illustrations without app UI. Free/Pro explainer slides 2 and 4 retain authentic simulator screenshots with corrected overlay text. No personal data or unsupported product screens are used.
 
 ## How to publish
 
@@ -297,8 +344,10 @@ Publish-ready campaign for Instagram, LinkedIn, X, Facebook and TikTok photo pos
 ## Structure
 
 - `platforms/`: 30 Spanish and 30 English posts per network (300 caption files total).
-- `assets/`: 60 daily visual sets, sized 1080×1350.
+- `assets/`: 60 daily visual sets in 4:5 format; generated illustrations may use 1122×1402 instead of the 1080×1350 simulator template.
+- Curated day 15/day 25 artwork and Free/Pro slide overlays are preserved during regeneration.
 - `source-captures/`: the 20 simulator-derived source compositions used by the campaign.
+- `assets/archive/`: superseded artwork retained for reference; do not publish it.
 - `feature-infographics/`: 10 detailed six-slide feature explainers in both languages.
 - `calendar.csv`: master production and scheduling index.
 - `feature-infographics-calendar.csv`: exact days where each explainer is integrated.

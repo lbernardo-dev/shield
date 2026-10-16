@@ -18,3 +18,9 @@ Task workflow commands:
 - `AGENT_NAME=CODEX scripts/task.sh claim <number|id> --note "Starting work"`
 - `AGENT_NAME=CODEX scripts/task.sh done <number|id> --note "Finished + build/test status"`
 - `scripts/task.sh summary --last-24h`
+
+## Capturas para creatividades
+
+- Toda captura de pantalla destinada a creatividades (App Store, ASO, marketing, redes sociales, previews o vídeos de capturas) debe realizarse con el tema base de MaskID activo.
+- Antes de iniciar una captura o un pipeline de capturas, comprobar en la app que está seleccionado el tema base. Desactivar cualquier tema de evento o estacional y verificar el resultado visual antes de conservar o exportar la captura.
+- Nunca usar un tema de evento en capturas para creatividades. Si no se puede confirmar que el tema base está activo, detener la captura hasta poder verificarlo.

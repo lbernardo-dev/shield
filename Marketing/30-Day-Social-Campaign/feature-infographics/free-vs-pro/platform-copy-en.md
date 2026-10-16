@@ -8,9 +8,9 @@
 
 Must you pay to protect a document?
 
-This guide explains maskid free, how it works, the advantage it provides and the limit you must review. Swipe through all 6 screens and save the checklist for your next document.
+This guide explains MaskID Free, what it includes, and the limits to review. Swipe through all 6 slides and save the checklist for your next document.
 
-Always review every region before sharing.
+Always review every page before sharing. Export checks are technical and cannot identify every sensitive item you may have missed.
 
 #MaskID #DigitalPrivacy #DataProtection #Documents
 
@@ -18,7 +18,7 @@ Always review every region before sharing.
 
 1/ Must you pay to protect a document? Essential protection should not depend on a subscription.
 
-2/ MaskID Free: Import, scan, mask, use conservative OCR and export verified copies with no forced watermark.
+2/ MaskID Free: Import, scan, mask, use conservative OCR, and export rasterized copies with technical checks and no forced watermark. Review every page; checks cannot find every missed sensitive item.
 
 3/ MaskID Pro: Adds unlimited projects, batches, templates, styles and advanced automation.
 
@@ -26,4 +26,4 @@ Always review every region before sharing.
 
 ## Alt text
 
-Six-slide carousel made from real simulator captures explaining maskid free, its value, steps and limits.
+Six-slide MaskID carousel explaining the Free plan, its document workflow, and practical limits.
