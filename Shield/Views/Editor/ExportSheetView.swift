@@ -14,6 +14,7 @@ struct ExportSheetView: View {
     let lang: AppLanguage
     let currentPage: Int
     let currentImageFileName: String?
+    var preferredOutputFormat: ProtectionProfileOutputFormat? = nil
     @Binding var isPresented: Bool
     var onDone: () -> Void
     var onReview: () -> Void
@@ -90,6 +91,7 @@ struct ExportSheetView: View {
                 onClose: { isPresented = false }
             )
 
+            ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     ExportPreviewCard(
@@ -122,6 +124,11 @@ struct ExportSheetView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     verificationPreflightPanel
+                        .id("export.verification")
+
+                    if !doc.batchReviewPendingPageIndices.isEmpty {
+                        batchReviewRequiredPanel
+                    }
 
                     if let exportErrorMessage {
                         Text(exportErrorMessage)
@@ -144,10 +151,25 @@ struct ExportSheetView: View {
                 .padding(.horizontal, ShieldTheme.s5)
                 .padding(.bottom, 16)
             }
+            .accessibilityIdentifier("export.form.scroll")
+            .onAppear {
+#if DEBUG
+                let verificationScenes = ["06-export-verification", "06", "07-exif-gps"]
+                guard ASOScreenshotMode.isEnabled,
+                      verificationScenes.contains(ASOScreenshotMode.scene) else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    proxy.scrollTo("export.verification", anchor: .top)
+                }
+#endif
+            }
+            }
 
             ExportSheetFooterButton(
                 isExporting: isExporting,
-                buttonTitle: exportActionTitle,
+                buttonTitle: doc.batchReviewPendingPageIndices.isEmpty
+                    ? exportActionTitle
+                    : LanguageManager.shared.editor("editor_batch_review_export_blocked"),
+                isBlocked: !doc.batchReviewPendingPageIndices.isEmpty,
                 onTap: doExport
             )
         }
@@ -216,6 +238,37 @@ struct ExportSheetView: View {
             language: lang,
             isExpanded: $showVerificationDetails
         )
+    }
+
+    private var batchReviewRequiredPanel: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Label(
+                LanguageManager.shared.editor("editor_batch_review_title"),
+                systemImage: "eye.fill"
+            )
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(ShieldTheme.warning)
+
+            Text(LanguageManager.shared.editor(
+                "editor_batch_review_export_message",
+                doc.batchReviewPendingPageIndices.count
+            ))
+            .font(.caption)
+            .foregroundStyle(ShieldTheme.secondary(scheme))
+            .fixedSize(horizontal: false, vertical: true)
+
+            Button(action: onReview) {
+                Text(LanguageManager.shared.editor("editor_batch_review_open_pending"))
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(ShieldTheme.warningBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("export.batchReview.openPending")
+        }
+        .padding(ShieldTheme.s4)
+        .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 14))
+        .accessibilityIdentifier("export.batchReview.required")
     }
 
     private var totalRedactionCount: Int {
@@ -290,6 +343,11 @@ struct ExportSheetView: View {
     private func doExport() {
         cleanupTemporaryExport()
         exportErrorMessage = nil
+        guard doc.batchReviewPendingPageIndices.isEmpty else {
+            exportErrorMessage = LanguageManager.shared.editor("editor_batch_review_export_message", doc.batchReviewPendingPageIndices.count)
+            AppState.trackEvent("export_blocked_review_pending")
+            return
+        }
         guard pm.canExportNow() else {
             exportErrorMessage = LanguageManager.shared.editor("editor_export_free_limit_reached")
             AppState.trackEvent("export_blocked_free_limit")
@@ -417,7 +475,11 @@ struct ExportSheetView: View {
         let savedFormat = defaults.integer(forKey: "shield.exportFormat")
         let savedQuality = defaults.integer(forKey: "shield.exportQuality")
 
-        format = savedFormat == 1 ? .image : .pdf
+        switch preferredOutputFormat {
+        case .pdf: format = .pdf
+        case .image: format = .image
+        case nil: format = savedFormat == 1 ? .image : .pdf
+        }
         switch savedQuality {
         case 1: quality = .medium
         case 2: quality = .low
@@ -435,19 +497,7 @@ struct ExportSheetView: View {
     private var remainingDetectedSensitiveElements: Int {
         let redactionsByPage = format == .pdf
             ? pageRedactions
-            : [0: redactions]
-
-        return (doc.fields.ocrPageEvidence ?? []).flatMap { page in
-            page.entities.filter { entity in
-                let observations = page.observations.filter { entity.evidenceIDs.contains($0.id) }
-                guard !observations.isEmpty else { return false }
-                let pageRedactions = redactionsByPage[page.pageIndex] ?? []
-                return !observations.allSatisfy { observation in
-                    pageRedactions.contains { redaction in
-                        redaction.rect.insetBy(dx: -0.01, dy: -0.01).contains(observation.boundingRect)
-                    }
-                }
-            }
-        }.count
+            : [currentPage: redactions]
+        return ExportSensitiveElementCounter.remaining(in: doc, redactionsByPage: redactionsByPage)
     }
 }

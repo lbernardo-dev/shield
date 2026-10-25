@@ -103,6 +103,7 @@ struct ExportFormatPicker: View {
                             : LanguageManager.shared.common("common_not_selected")
                     )
                     .accessibilityAddTraits(selectedFormat == format ? .isSelected : [])
+                    .accessibilityIdentifier("export.format.\(format == .pdf ? "pdf" : "image")")
                 }
             }
         }
@@ -140,6 +141,7 @@ struct ExportQualityPicker: View {
                             : LanguageManager.shared.common("common_not_selected")
                     )
                     .accessibilityAddTraits(selectedQuality == quality ? .isSelected : [])
+                    .accessibilityIdentifier("export.quality.\(quality.rawValue)")
                 }
             }
         }
@@ -183,6 +185,7 @@ struct ExportRiskAcknowledgementCard: View {
 struct ExportSheetFooterButton: View {
     let isExporting: Bool
     let buttonTitle: String
+    var isBlocked: Bool = false
     let onTap: () -> Void
     @Environment(\.colorScheme) private var scheme
 
@@ -209,10 +212,11 @@ struct ExportSheetFooterButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(ScaleButtonStyle())
-            .disabled(isExporting)
+            .disabled(isExporting || isBlocked)
             .padding(.horizontal, ShieldTheme.s5)
             .padding(.top, 12)
             .padding(.bottom, 32)
+            .accessibilityIdentifier("export.start")
         }
     }
 }
@@ -491,11 +495,12 @@ struct ExportVerificationPreflightPanel: View {
                 }
             }
             .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(ShieldTheme.rowBackground(scheme))
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(ScaleButtonStyle())
-        .accessibilityElement(children: .ignore)
         .accessibilityLabel(LanguageManager.shared.editor("editor_export_verification_title"))
         .accessibilityValue(
             isPDF
@@ -507,6 +512,7 @@ struct ExportVerificationPreflightPanel: View {
                 ? LanguageManager.shared.editor("editor_export_collapse_details")
                 : LanguageManager.shared.editor("editor_export_show_details")
         )
+        .accessibilityIdentifier("export.verification.details")
     }
 }
 

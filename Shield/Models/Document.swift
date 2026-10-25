@@ -132,6 +132,15 @@ struct OCRTextEvidence: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
+struct LocalSearchOccurrence: Identifiable, Equatable, Sendable {
+    let id: String
+    let pageIndex: Int
+    let boundingRect: CGRect?
+    let confidence: Double?
+    /// Kept in memory for an explicit reveal action; it is never included in analytics.
+    let protectedText: String
+}
+
 struct OCRSensitiveEntity: Identifiable, Codable, Equatable, Sendable {
     let id: UUID
     let kind: OCRSensitiveEntityKind
@@ -164,6 +173,28 @@ struct OCRPageEvidence: Codable, Equatable, Sendable {
     let pageIndex: Int
     let observations: [OCRTextEvidence]
     let entities: [OCRSensitiveEntity]
+}
+
+struct OCRFaceSuggestion: Identifiable, Codable, Equatable, Sendable {
+    let id: UUID
+    let pageIndex: Int
+    let boundingRect: CGRect
+    let confidence: Double
+    let rollDegrees: Double?
+
+    init(
+        id: UUID = UUID(),
+        pageIndex: Int,
+        boundingRect: CGRect,
+        confidence: Double,
+        rollDegrees: Double? = nil
+    ) {
+        self.id = id
+        self.pageIndex = pageIndex
+        self.boundingRect = NormalizedDocumentGeometry.rect(boundingRect, minimumSize: 0.001)
+        self.confidence = min(1, max(0, confidence))
+        self.rollDegrees = rollDegrees?.isFinite == true ? rollDegrees : nil
+    }
 }
 
 struct OCRExpectedEntity: Codable, Hashable, Sendable {
@@ -244,6 +275,11 @@ struct DocumentFields: Codable {
     var ocrBoundingTexts: [String]?
     var ocrBoundingRects: [CGRect]?
     var ocrPageEvidence: [OCRPageEvidence]? = nil
+    var ocrFaceSuggestions: [OCRFaceSuggestion]? = nil
+    /// Algorithm version used to produce the stored face boxes. Older or unknown
+    /// versions are recomputed so geometry fixes do not leave stale masks behind.
+    var ocrFaceSuggestionsRevision: Int? = nil
+    var ocrDismissedFaceSuggestionIDs: [UUID]? = nil
 
     static var empty: DocumentFields {
         DocumentFields(documentNumber: "", fullName: "", dateOfBirth: "",
@@ -252,7 +288,8 @@ struct DocumentFields: Codable {
                        ocrDocumentType: nil, ocrFullText: nil, ocrPageTexts: nil,
                        ocrMRZValid: nil, ocrMRZFormat: nil, ocrFieldConfidence: nil,
                        ocrDetectedCountry: nil, ocrRiskLevel: nil, ocrLowConfidenceFields: nil,
-                       ocrBoundingTexts: nil, ocrBoundingRects: nil)
+                       ocrBoundingTexts: nil, ocrBoundingRects: nil,
+                       ocrFaceSuggestionsRevision: nil)
     }
 }
 
@@ -262,6 +299,13 @@ struct FieldBox: Identifiable {
     let id = UUID()
     let rect: CGRect   // normalized 0..1
     let label: String
+    let fieldKey: String?
+
+    init(rect: CGRect, label: String, fieldKey: String? = nil) {
+        self.rect = rect
+        self.label = label
+        self.fieldKey = fieldKey
+    }
 }
 
 // MARK: - Per-page redactions
@@ -305,7 +349,7 @@ struct DocumentPageTransform: Codable, Equatable {
 // MARK: - DocumentItem
 
 struct DocumentItem: Identifiable, Codable {
-    static let currentSchemaVersion = 3
+    static let currentSchemaVersion = 5
 
     var schemaVersion: Int
     let id: String
@@ -329,10 +373,31 @@ struct DocumentItem: Identifiable, Codable {
     var sourceFileName: String?
     var fields: DocumentFields
     var pageRedactions: [DocumentPageRedactions]
+    /// Pages in a batch workflow that still need explicit human review before
+    /// the protected export is enabled.
+    var batchReviewPendingPageIndices: [Int]
+    /// Pages on which the latest batch run prepared at least one suggestion.
+    var batchSuggestionPageIndices: [Int]
+    /// Geometry the user last reviewed. Older documents without this value
+    /// are conservatively queued when their crop/orientation is non-identity.
+    var redactionGeometryReviewedFingerprint: String?
+    /// Geometry associated with the current partial review queue, if any.
+    var redactionGeometryReviewPendingFingerprint: String?
     var watermark: Watermark?
     var imageAdjustment: ImageAdjustmentStore?
 
     var pageCount: Int { pageFileNames?.count ?? (imageFileName != nil ? 1 : 0) }
+    var hasRasterPageAssets: Bool {
+        (pageFileNames?.contains(where: { !$0.isEmpty }) ?? false) ||
+            (imageFileName?.isEmpty == false)
+    }
+    /// Before raster-backed typed documents used their source page in the editor,
+    /// the same normalized mask coordinates were shown over a synthetic template.
+    /// Keep this distinction in the review fingerprint so those legacy masks are
+    /// queued for a human check after the renderer changes.
+    var usesRasterBackedTypedDocumentCoordinates: Bool {
+        kind != .photo && hasRasterPageAssets
+    }
     var totalRedactionCount: Int { pageRedactions.reduce(0) { $0 + $1.redactions.count } }
     var allImageFileNames: Set<String> {
         Set((pageFileNames ?? []) + (originalPageFileNames ?? []) + [imageFileName].compactMap { $0 })
@@ -359,6 +424,10 @@ struct DocumentItem: Identifiable, Codable {
         case sourceFileName
         case fields
         case pageRedactions
+        case batchReviewPendingPageIndices
+        case batchSuggestionPageIndices
+        case redactionGeometryReviewedFingerprint
+        case redactionGeometryReviewPendingFingerprint
         case watermark
         case imageAdjustment
     }
@@ -422,6 +491,10 @@ struct DocumentItem: Identifiable, Codable {
          sourceFileName: String? = nil,
          fields: DocumentFields = .empty,
          pageRedactions: [DocumentPageRedactions] = [],
+         batchReviewPendingPageIndices: [Int] = [],
+         batchSuggestionPageIndices: [Int] = [],
+         redactionGeometryReviewedFingerprint: String? = nil,
+         redactionGeometryReviewPendingFingerprint: String? = nil,
          watermark: Watermark? = nil,
          imageAdjustment: ImageAdjustmentStore? = nil) {
         self.schemaVersion = Self.currentSchemaVersion
@@ -444,6 +517,10 @@ struct DocumentItem: Identifiable, Codable {
         self.sourceFileName = sourceFileName
         self.fields = fields
         self.pageRedactions = pageRedactions
+        self.batchReviewPendingPageIndices = Array(Set(batchReviewPendingPageIndices.filter { $0 >= 0 })).sorted()
+        self.batchSuggestionPageIndices = Array(Set(batchSuggestionPageIndices.filter { $0 >= 0 })).sorted()
+        self.redactionGeometryReviewedFingerprint = redactionGeometryReviewedFingerprint
+        self.redactionGeometryReviewPendingFingerprint = redactionGeometryReviewPendingFingerprint
         self.watermark = watermark
         self.imageAdjustment = imageAdjustment
         self.redactionCount = pageRedactions.isEmpty
@@ -473,6 +550,20 @@ struct DocumentItem: Identifiable, Codable {
         sourceFileName = try container.decodeIfPresent(String.self, forKey: .sourceFileName)
         fields = try container.decodeIfPresent(DocumentFields.self, forKey: .fields) ?? .empty
         pageRedactions = try container.decodeIfPresent([DocumentPageRedactions].self, forKey: .pageRedactions) ?? []
+        batchReviewPendingPageIndices = Array(
+            Set((try container.decodeIfPresent([Int].self, forKey: .batchReviewPendingPageIndices) ?? []).filter { $0 >= 0 })
+        ).sorted()
+        batchSuggestionPageIndices = Array(
+            Set((try container.decodeIfPresent([Int].self, forKey: .batchSuggestionPageIndices) ?? []).filter { $0 >= 0 })
+        ).sorted()
+        redactionGeometryReviewedFingerprint = try container.decodeIfPresent(
+            String.self,
+            forKey: .redactionGeometryReviewedFingerprint
+        )
+        redactionGeometryReviewPendingFingerprint = try container.decodeIfPresent(
+            String.self,
+            forKey: .redactionGeometryReviewPendingFingerprint
+        )
         watermark = try container.decodeIfPresent(Watermark.self, forKey: .watermark)
         imageAdjustment = try container.decodeIfPresent(ImageAdjustmentStore.self, forKey: .imageAdjustment)
 
@@ -483,13 +574,17 @@ struct DocumentItem: Identifiable, Codable {
 
     mutating func migrateToCurrentSchema() {
         guard schemaVersion < Self.currentSchemaVersion else { return }
-        // Legacy images may already contain baked adjustments. Do not pretend
-        // they are immutable originals; keeping this nil prevents a destructive
-        // re-adjustment from being presented as reversible.
-        originalPageFileNames = nil
-        if pageTransforms.isEmpty {
-            pageTransforms = Array(repeating: .identity, count: pageCount)
+        if schemaVersion < 4 {
+            // Legacy images may already contain baked adjustments. Do not pretend
+            // they are immutable originals; keeping this nil prevents a destructive
+            // re-adjustment from being presented as reversible.
+            originalPageFileNames = nil
+            if pageTransforms.isEmpty {
+                pageTransforms = Array(repeating: .identity, count: pageCount)
+            }
         }
+        // Schema 5 adds optional geometry-review fingerprints. Existing values
+        // remain nil so the editor can queue only documents whose geometry moved.
         schemaVersion = Self.currentSchemaVersion
     }
 
@@ -529,6 +624,256 @@ struct DocumentItem: Identifiable, Codable {
             return fmt.string(from: date)
         }
     }
+
+    var localSearchContent: String {
+        guard !isVaulted else { return "" }
+        let fieldValues = [
+            fields.documentNumber,
+            fields.supportNumber ?? "",
+            fields.fullName,
+            fields.dateOfBirth,
+            fields.nationality,
+            fields.expires,
+            fields.sex,
+            fields.address,
+            fields.mrz ?? ""
+        ]
+        let pageText = (fields.ocrPageTexts ?? [])
+            + (fields.ocrBoundingTexts ?? [])
+            + [fields.ocrFullText].compactMap { $0 }
+        let evidenceText = (fields.ocrPageEvidence ?? []).flatMap { page in
+            page.observations.map(\.text) + page.entities.map(\.value)
+        }
+        return ([title] + fieldValues + pageText + evidenceText)
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
+    }
+
+    func matchesLocalSearch(_ query: String) -> Bool {
+        guard !isVaulted else { return false }
+        let alternatives = LocalDocumentSearch.alternatives(from: query)
+        guard !alternatives.isEmpty else { return query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        return alternatives.contains { LocalDocumentSearch.contains($0, in: localSearchContent) }
+    }
+
+    func matchingOCRPageIndices(for query: String) -> [Int] {
+        guard !isVaulted else { return [] }
+        let alternatives = LocalDocumentSearch.alternatives(from: query)
+        guard !alternatives.isEmpty else { return [] }
+
+        var matches = Set<Int>()
+        for (index, text) in (fields.ocrPageTexts ?? []).enumerated()
+        where alternatives.contains(where: { LocalDocumentSearch.contains($0, in: text) }) {
+            matches.insert(index)
+        }
+        for page in fields.ocrPageEvidence ?? [] {
+            if page.observations.contains(where: { observation in
+                alternatives.contains(where: { LocalDocumentSearch.contains($0, in: observation.text) })
+            }) || page.entities.contains(where: { entity in
+                alternatives.contains(where: { LocalDocumentSearch.contains($0, in: entity.value) })
+            }) {
+                matches.insert(page.pageIndex)
+            }
+        }
+        if (fields.ocrBoundingTexts ?? []).contains(where: { text in
+            alternatives.contains(where: { LocalDocumentSearch.contains($0, in: text) })
+        }) {
+            matches.insert(0)
+        }
+
+        let fieldValues = [
+            fields.documentNumber,
+            fields.supportNumber ?? "",
+            fields.fullName,
+            fields.dateOfBirth,
+            fields.nationality,
+            fields.expires,
+            fields.sex,
+            fields.address,
+            fields.mrz ?? ""
+        ]
+        if fieldValues.contains(where: { text in
+            alternatives.contains(where: { LocalDocumentSearch.contains($0, in: text) })
+        }) || ((fields.ocrFullText ?? "").isEmpty == false && alternatives.contains(where: {
+            LocalDocumentSearch.contains($0, in: fields.ocrFullText ?? "")
+        }) && matches.isEmpty) {
+            matches.insert(0)
+        }
+        return matches.sorted()
+    }
+
+    func localSearchOccurrences(for query: String, pageIndex: Int? = nil) -> [LocalSearchOccurrence] {
+        guard !isVaulted else { return [] }
+        let alternatives = LocalDocumentSearch.alternatives(from: query)
+        guard !alternatives.isEmpty else { return [] }
+
+        var occurrences: [LocalSearchOccurrence] = []
+        var includedIDs = Set<String>()
+
+        func add(_ occurrence: LocalSearchOccurrence) {
+            guard pageIndex == nil || pageIndex == occurrence.pageIndex,
+                  includedIDs.insert(occurrence.id).inserted else { return }
+            occurrences.append(occurrence)
+        }
+
+        for page in fields.ocrPageEvidence ?? [] {
+            for observation in page.observations where alternatives.contains(where: {
+                LocalDocumentSearch.contains($0, in: observation.text)
+            }) {
+                add(LocalSearchOccurrence(
+                    id: observation.id.uuidString,
+                    pageIndex: observation.pageIndex,
+                    boundingRect: observation.boundingRect,
+                    confidence: observation.confidence,
+                    protectedText: String(observation.text.prefix(160))
+                ))
+            }
+
+            let observationsByID = Dictionary(
+                page.observations.map { ($0.id, $0) },
+                uniquingKeysWith: { first, _ in first }
+            )
+            for entity in page.entities where alternatives.contains(where: {
+                LocalDocumentSearch.contains($0, in: entity.value)
+            }) {
+                let evidence = entity.evidenceIDs.compactMap { observationsByID[$0] }
+                if evidence.isEmpty {
+                    add(LocalSearchOccurrence(
+                        id: entity.id.uuidString,
+                        pageIndex: entity.pageIndex,
+                        boundingRect: nil,
+                        confidence: entity.confidence,
+                        protectedText: String(entity.value.prefix(160))
+                    ))
+                } else {
+                    for observation in evidence {
+                        add(LocalSearchOccurrence(
+                            id: observation.id.uuidString,
+                            pageIndex: observation.pageIndex,
+                            boundingRect: observation.boundingRect,
+                            confidence: min(observation.confidence, entity.confidence),
+                            protectedText: String(entity.value.prefix(160))
+                        ))
+                    }
+                }
+            }
+        }
+
+        if occurrences.isEmpty {
+            let texts = fields.ocrBoundingTexts ?? []
+            let rects = fields.ocrBoundingRects ?? []
+            for (index, text) in texts.enumerated()
+            where alternatives.contains(where: { LocalDocumentSearch.contains($0, in: text) }) {
+                add(LocalSearchOccurrence(
+                    id: "legacy-box-\(index)",
+                    pageIndex: 0,
+                    boundingRect: rects.indices.contains(index) ? rects[index] : nil,
+                    confidence: nil,
+                    protectedText: String(text.prefix(160))
+                ))
+            }
+        }
+
+        if occurrences.isEmpty {
+            for (index, text) in (fields.ocrPageTexts ?? []).enumerated()
+            where alternatives.contains(where: { LocalDocumentSearch.contains($0, in: text) }) {
+                add(LocalSearchOccurrence(
+                    id: "page-text-\(index)",
+                    pageIndex: index,
+                    boundingRect: nil,
+                    confidence: nil,
+                    protectedText: String(text.prefix(160))
+                ))
+            }
+        }
+
+        if occurrences.isEmpty {
+            let fieldValues: [(String, String)] = [
+                ("documentNumber", fields.documentNumber),
+                ("supportNumber", fields.supportNumber ?? ""),
+                ("fullName", fields.fullName),
+                ("dateOfBirth", fields.dateOfBirth),
+                ("nationality", fields.nationality),
+                ("expirationDate", fields.expires),
+                ("sex", fields.sex),
+                ("address", fields.address),
+                ("mrz", fields.mrz ?? "")
+            ]
+            for (key, value) in fieldValues where alternatives.contains(where: {
+                LocalDocumentSearch.contains($0, in: value)
+            }) {
+                add(LocalSearchOccurrence(
+                    id: "field-\(key)",
+                    pageIndex: 0,
+                    boundingRect: nil,
+                    confidence: fields.ocrFieldConfidence?[key],
+                    protectedText: String(value.prefix(160))
+                ))
+            }
+        }
+
+        if occurrences.isEmpty,
+           let fullText = fields.ocrFullText,
+           alternatives.contains(where: { LocalDocumentSearch.contains($0, in: fullText) }) {
+            add(LocalSearchOccurrence(
+                id: "legacy-full-text",
+                pageIndex: 0,
+                boundingRect: nil,
+                confidence: nil,
+                protectedText: String(fullText.prefix(160))
+            ))
+        }
+
+        let sortedOccurrences = occurrences.sorted {
+            if $0.pageIndex != $1.pageIndex { return $0.pageIndex < $1.pageIndex }
+            if $0.boundingRect?.minY != $1.boundingRect?.minY {
+                return ($0.boundingRect?.minY ?? 0) < ($1.boundingRect?.minY ?? 0)
+            }
+            return ($0.boundingRect?.minX ?? 0) < ($1.boundingRect?.minX ?? 0)
+        }
+        return Array(sortedOccurrences.prefix(50))
+    }
+}
+
+/// Bounded, local-only search normalization. Commas, semicolons and newlines
+/// let people search for several alternatives without enabling user regexes.
+enum LocalDocumentSearch {
+    private static let maximumQueryLength = 160
+    private static let maximumAlternatives = 8
+
+    static func alternatives(from query: String) -> [String] {
+        let boundedQuery = String(query.prefix(maximumQueryLength))
+        var seen = Set<String>()
+        let components: [Substring] = boundedQuery
+            .split(whereSeparator: { $0 == "," || $0 == ";" || $0.isNewline })
+        return components
+            .compactMap { component in
+                let normalized = normalize(component.description)
+                guard !normalized.isEmpty, seen.insert(normalized).inserted else { return nil }
+                return normalized
+            }
+            .prefix(maximumAlternatives)
+            .map { $0 }
+    }
+
+    static func contains(_ normalizedQuery: String, in text: String) -> Bool {
+        let normalizedText = normalize(text)
+        guard !normalizedText.isEmpty else { return false }
+        if normalizedText.contains(normalizedQuery) { return true }
+
+        let compactQuery = compact(normalizedQuery)
+        return compactQuery.count >= 3 && compact(normalizedText).contains(compactQuery)
+    }
+
+    private static func normalize(_ value: String) -> String {
+        let folded = value.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+        let words = folded.split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+        return words.joined(separator: " ")
+    }
+
+    private static func compact(_ value: String) -> String {
+        String(value.filter { $0.isLetter || $0.isNumber })
+    }
 }
 
 // MARK: - ImageAdjustmentStore (Codable persistence companion to ImageAdjustment)
@@ -547,70 +892,188 @@ struct ImageAdjustmentStore: Codable, Equatable {
     var cropBottom: Double
 }
 
+/// Determines when existing redaction rectangles need another human review.
+/// Brightness and other visual filters do not move annotations; crop and
+/// orientation changes do.
+enum RedactionReviewGate {
+    static func requiresReview(from old: ImageAdjustmentStore?, to new: ImageAdjustmentStore?) -> Bool {
+        let oldGeometry = AdjustmentGeometry(old)
+        let newGeometry = AdjustmentGeometry(new)
+        return oldGeometry != newGeometry
+    }
+
+    static func requiresReview(from old: [DocumentPageTransform], to new: [DocumentPageTransform]) -> Bool {
+        return (0..<max(old.count, new.count)).contains { index in
+            let oldPage = old.indices.contains(index) ? old[index] : .identity
+            let newPage = new.indices.contains(index) ? new[index] : .identity
+            return PageGeometry(oldPage) != PageGeometry(newPage)
+        }
+    }
+
+    private static func normalizedDegrees(_ value: Double) -> Double {
+        (value.truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
+    }
+
+    static func pendingPageIndices(existing: [Int], pageCount: Int) -> [Int] {
+        guard pageCount > 0 else { return [] }
+        return Array(Set(existing.filter { $0 >= 0 && $0 < pageCount }).union(0..<pageCount)).sorted()
+    }
+
+    static let identityFingerprint = "identity"
+
+    static func fingerprint(
+        pageTransforms: [DocumentPageTransform],
+        imageAdjustment: ImageAdjustmentStore?,
+        rasterBackedTypedDocument: Bool = false
+    ) -> String {
+        let adjustment = AdjustmentGeometry(imageAdjustment)
+        let pages = pageTransforms.map(PageGeometry.init)
+        let geometryFingerprint: String
+        guard !adjustment.isIdentity || pages.contains(where: { !$0.isIdentity }) else {
+            geometryFingerprint = identityFingerprint
+            return rasterBackedTypedDocument ? "raster-typed-v1:\(geometryFingerprint)" : geometryFingerprint
+        }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        if let data = try? encoder.encode(GeometrySnapshot(adjustment: adjustment, pages: pages)) {
+            geometryFingerprint = data.base64EncodedString()
+        } else {
+            geometryFingerprint = "unavailable"
+        }
+        return rasterBackedTypedDocument ? "raster-typed-v1:\(geometryFingerprint)" : geometryFingerprint
+    }
+
+    private struct GeometrySnapshot: Encodable {
+        let adjustment: AdjustmentGeometry
+        let pages: [PageGeometry]
+    }
+
+    private struct PageGeometry: Codable, Equatable {
+        var rotation: Double
+        var straighten: Double
+        var perspectiveTopInset: Double
+        var perspectiveBottomInset: Double
+        var perspectiveSkew: Double
+        var perspectiveTopYOffset: Double
+        var perspectiveBottomYOffset: Double
+        var quad: DocumentNormalizedQuad?
+        var cropLeft: Double
+        var cropRight: Double
+        var cropTop: Double
+        var cropBottom: Double
+
+        init(_ transform: DocumentPageTransform) {
+            rotation = RedactionReviewGate.normalizedDegrees(transform.rotationDegrees)
+            straighten = RedactionReviewGate.normalizedDegrees(transform.straightenDegrees)
+            perspectiveTopInset = transform.perspectiveTopInset
+            perspectiveBottomInset = transform.perspectiveBottomInset
+            perspectiveSkew = transform.perspectiveSkew
+            perspectiveTopYOffset = transform.perspectiveTopYOffset
+            perspectiveBottomYOffset = transform.perspectiveBottomYOffset
+            quad = transform.quad
+            cropLeft = transform.cropLeft
+            cropRight = transform.cropRight
+            cropTop = transform.cropTop
+            cropBottom = transform.cropBottom
+        }
+
+        var isIdentity: Bool { self == PageGeometry(.identity) }
+    }
+
+    private struct AdjustmentGeometry: Codable, Equatable {
+        var rotation: Double
+        var flipHorizontal: Bool
+        var flipVertical: Bool
+        var cropLeft: Double
+        var cropRight: Double
+        var cropTop: Double
+        var cropBottom: Double
+
+        init(_ adjustment: ImageAdjustmentStore?) {
+            rotation = RedactionReviewGate.normalizedDegrees(adjustment?.rotation ?? 0)
+            flipHorizontal = adjustment?.flipHorizontal ?? false
+            flipVertical = adjustment?.flipVertical ?? false
+            cropLeft = adjustment?.cropLeft ?? 0
+            cropRight = adjustment?.cropRight ?? 0
+            cropTop = adjustment?.cropTop ?? 0
+            cropBottom = adjustment?.cropBottom ?? 0
+        }
+
+        var isIdentity: Bool { self == AdjustmentGeometry(nil) }
+    }
+}
+
 // MARK: - Field boxes (normalized 0..1)
 
 enum DocumentFieldBoxes {
     static let dniESP: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Surname 1"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Surname 2"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.50, width: 0.18, height: 0.07), label: "Name"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "Doc №"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07), label: "DOB"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.78, width: 0.22, height: 0.07), label: "Expires"),
-        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.212, width: 0.30, height: 0.105), label: "Surname 1", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.352, width: 0.30, height: 0.105), label: "Surname 2", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.492, width: 0.22, height: 0.105), label: "Name", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.772, width: 0.32, height: 0.105), label: "Doc №", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.632, width: 0.34, height: 0.105), label: "DOB", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.772, width: 0.30, height: 0.105), label: "Expires", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.40, y: 0.632, width: 0.20, height: 0.105), label: "Nationality", fieldKey: "nat"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.60), label: "Photo"),
         FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
     ]
 
     static let passportUSA: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07), label: "Passport №"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.36, width: 0.30, height: 0.07), label: "Surname"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.50, width: 0.30, height: 0.07), label: "Given names"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07), label: "DOB"),
-        FieldBox(rect: CGRect(x: 0.70, y: 0.74, width: 0.24, height: 0.07), label: "Expires"),
-        FieldBox(rect: CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.212, width: 0.33, height: 0.10), label: "Passport №", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.352, width: 0.42, height: 0.10), label: "Surname", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.492, width: 0.42, height: 0.10), label: "Given names", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.612, width: 0.36, height: 0.10), label: "Nationality", fieldKey: "nat"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.732, width: 0.31, height: 0.10), label: "DOB", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.70, y: 0.732, width: 0.28, height: 0.10), label: "Expires", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.57), label: "Photo"),
         FieldBox(rect: CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15), label: "MRZ"),
     ]
 
     static let drivingUK: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.36, y: 0.24, width: 0.22, height: 0.07), label: "Surname"),
-        FieldBox(rect: CGRect(x: 0.36, y: 0.36, width: 0.22, height: 0.07), label: "Names"),
-        FieldBox(rect: CGRect(x: 0.36, y: 0.48, width: 0.22, height: 0.07), label: "DOB"),
-        FieldBox(rect: CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07), label: "Driver №"),
-        FieldBox(rect: CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07), label: "Address"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.232, width: 0.43, height: 0.10), label: "Surname", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.352, width: 0.43, height: 0.10), label: "Names", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.472, width: 0.36, height: 0.10), label: "DOB", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.592, width: 0.36, height: 0.10), label: "Issued"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.592, width: 0.36, height: 0.10), label: "Expires", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.712, width: 0.46, height: 0.10), label: "Driver №", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.36, y: 0.832, width: 0.62, height: 0.10), label: "Address", fieldKey: "addr"),
         FieldBox(rect: CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55), label: "Photo"),
     ]
 
     static let photo: [FieldBox] = []  // no predefined boxes for photo docs
 
     static let passportMEX: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.60, y: 0.22, width: 0.24, height: 0.07), label: "Passport №"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.36, width: 0.30, height: 0.07), label: "Apellido(s)"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.50, width: 0.30, height: 0.07), label: "Nombre(s)"),
-        FieldBox(rect: CGRect(x: 0.28, y: 0.64, width: 0.22, height: 0.07), label: "Nacimiento"),
-        FieldBox(rect: CGRect(x: 0.70, y: 0.72, width: 0.24, height: 0.07), label: "Vence"),
-        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Foto"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.712, width: 0.30, height: 0.10), label: "Passport №", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.222, width: 0.42, height: 0.10), label: "Apellido(s)", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.352, width: 0.42, height: 0.10), label: "Nombre(s)", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.472, width: 0.36, height: 0.10), label: "Nationality", fieldKey: "nat"),
+        FieldBox(rect: CGRect(x: 0.28, y: 0.592, width: 0.30, height: 0.10), label: "Nacimiento", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.712, width: 0.33, height: 0.10), label: "Vence", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.52), label: "Foto"),
         FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
     ]
 
     static let dniITA: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Cognome"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Nome"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.50, width: 0.18, height: 0.07), label: "Comune"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "N° documento"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.62, width: 0.24, height: 0.07), label: "Nascita"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.76, width: 0.22, height: 0.07), label: "Scadenza"),
-        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Foto"),
-        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+        FieldBox(rect: CGRect(x: 0.38, y: 0.212, width: 0.42, height: 0.10), label: "Cognome", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.38, y: 0.342, width: 0.42, height: 0.10), label: "Nome", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.38, y: 0.472, width: 0.30, height: 0.10), label: "Nationality", fieldKey: "nat"),
+        FieldBox(rect: CGRect(x: 0.38, y: 0.702, width: 0.38, height: 0.10), label: "Codice fiscale", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.38, y: 0.582, width: 0.30, height: 0.10), label: "Nascita", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.70, y: 0.702, width: 0.28, height: 0.10), label: "Scadenza", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.14, y: 0.20, width: 0.20, height: 0.52), label: "Foto"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.87, width: 1.00, height: 0.13), label: "MRZ"),
     ]
 
     static let genericID: [FieldBox] = [
-        FieldBox(rect: CGRect(x: 0.30, y: 0.22, width: 0.22, height: 0.07), label: "Surname"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.36, width: 0.22, height: 0.07), label: "Name"),
-        FieldBox(rect: CGRect(x: 0.30, y: 0.78, width: 0.18, height: 0.07), label: "Doc №"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07), label: "DOB"),
-        FieldBox(rect: CGRect(x: 0.62, y: 0.78, width: 0.22, height: 0.07), label: "Expires"),
-        FieldBox(rect: CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55), label: "Photo"),
-        FieldBox(rect: CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14), label: "MRZ"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.212, width: 0.42, height: 0.10), label: "Surname", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.342, width: 0.42, height: 0.10), label: "Name", fieldKey: "name"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.472, width: 0.32, height: 0.10), label: "Nationality", fieldKey: "nat"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.702, width: 0.36, height: 0.10), label: "Doc №", fieldKey: "docNum"),
+        FieldBox(rect: CGRect(x: 0.30, y: 0.582, width: 0.32, height: 0.10), label: "DOB", fieldKey: "dob"),
+        FieldBox(rect: CGRect(x: 0.62, y: 0.702, width: 0.32, height: 0.10), label: "Expires", fieldKey: "expires"),
+        FieldBox(rect: CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.52), label: "Photo"),
+        FieldBox(rect: CGRect(x: 0.00, y: 0.87, width: 1.00, height: 0.13), label: "MRZ"),
     ]
 
     static func boxes(for kind: DocumentKind) -> [FieldBox] {
@@ -624,6 +1087,15 @@ enum DocumentFieldBoxes {
         case .photo:       return photo
         }
     }
+
+    /// Returns the template fallback region for an OCR sheet field. Fields
+    /// split across multiple printed rows are combined into one conservative
+    /// rectangle; imported documents continue to prefer their OCR evidence.
+    static func fallbackRect(for fieldKey: String, kind: DocumentKind) -> CGRect? {
+        let rects = boxes(for: kind).filter { $0.fieldKey == fieldKey }.map(\.rect)
+        guard let first = rects.first else { return nil }
+        return rects.dropFirst().reduce(first) { $0.union($1) }
+    }
 }
 
 // MARK: - Auto-suggested redactions
@@ -634,42 +1106,45 @@ enum AutoRedactions {
         switch kind {
         case .dniESP:
             rects = [
-                CGRect(x: 0.30, y: 0.78, width: 0.20, height: 0.07),   // Doc number
-                CGRect(x: 0.62, y: 0.64, width: 0.22, height: 0.07),   // DOB
+                CGRect(x: 0.29, y: 0.77, width: 0.33, height: 0.11),   // Document number label + value
+                CGRect(x: 0.61, y: 0.63, width: 0.35, height: 0.11),   // DOB label + value
                 CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),   // MRZ
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // Photo
+                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.60),   // Photo and full silhouette
             ]
         case .passportUSA:
             rects = [
-                CGRect(x: 0.62, y: 0.22, width: 0.22, height: 0.07),   // Passport №
-                CGRect(x: 0.28, y: 0.74, width: 0.22, height: 0.07),   // DOB
+                CGRect(x: 0.61, y: 0.21, width: 0.34, height: 0.10),   // Passport № label + value
+                CGRect(x: 0.27, y: 0.73, width: 0.33, height: 0.10),   // DOB label + value
                 CGRect(x: 0.00, y: 0.85, width: 1.00, height: 0.15),   // MRZ
-                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.55),   // Photo
+                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.57),   // Photo and full silhouette
             ]
         case .passportMEX:
             rects = [
-                CGRect(x: 0.60, y: 0.22, width: 0.24, height: 0.07),
-                CGRect(x: 0.28, y: 0.72, width: 0.24, height: 0.07),
+                CGRect(x: 0.27, y: 0.59, width: 0.32, height: 0.10),   // DOB label + value
+                CGRect(x: 0.27, y: 0.71, width: 0.32, height: 0.10),   // Passport number label + value
                 CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.52),
             ]
         case .dniITA:
             rects = [
-                CGRect(x: 0.30, y: 0.78, width: 0.22, height: 0.07),
-                CGRect(x: 0.62, y: 0.62, width: 0.24, height: 0.07),
+                CGRect(x: 0.37, y: 0.58, width: 0.31, height: 0.10),   // DOB label + value
+                CGRect(x: 0.37, y: 0.70, width: 0.39, height: 0.10),   // Tax/document number label + value
                 CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),
+                CGRect(x: 0.13, y: 0.20, width: 0.22, height: 0.52),
             ]
         case .drivingUK:
             rects = [
-                CGRect(x: 0.36, y: 0.72, width: 0.40, height: 0.07),   // Driver №
-                CGRect(x: 0.36, y: 0.84, width: 0.55, height: 0.07),   // Address
+                CGRect(x: 0.35, y: 0.47, width: 0.38, height: 0.10),   // DOB label + value
+                CGRect(x: 0.35, y: 0.71, width: 0.47, height: 0.10),   // Driver № label + value
+                CGRect(x: 0.35, y: 0.83, width: 0.63, height: 0.10),   // Address label + value
                 CGRect(x: 0.13, y: 0.22, width: 0.20, height: 0.55),   // Photo
             ]
         case .genericID:
             rects = [
-                CGRect(x: 0.04, y: 0.18, width: 0.22, height: 0.55),   // Photo area
-                CGRect(x: 0.00, y: 0.86, width: 1.00, height: 0.14),   // Bottom strip
+                CGRect(x: 0.29, y: 0.70, width: 0.38, height: 0.11),   // Document number label + value
+                CGRect(x: 0.29, y: 0.58, width: 0.34, height: 0.11),   // DOB label + value
+                CGRect(x: 0.04, y: 0.20, width: 0.20, height: 0.52),   // Photo and full silhouette
+                CGRect(x: 0.00, y: 0.87, width: 1.00, height: 0.13),   // Bottom strip / MRZ
             ]
         case .photo:
             rects = []
@@ -681,6 +1156,13 @@ enum AutoRedactions {
     // documents must use `ocrPrecisionModeRects` so every zone has evidence.
     static func ocrModeRects(for mode: RedactionMode, fields: DocumentFields) -> [CGRect] {
         ocrPrecisionModeRects(for: mode, fields: fields)
+    }
+
+    /// Builds suggestions from exactly one page's OCR evidence. Batch workflows
+    /// must use this overload so a field detected on one page can never place a
+    /// mask at the same coordinates on a different page.
+    static func ocrModeRects(for mode: RedactionMode, pageEvidence: OCRPageEvidence) -> [CGRect] {
+        evidencePrecisionRects(for: mode, page: pageEvidence) ?? []
     }
 
     /// Returns ONLY bounding-box-derived rects for `mode`, with no grid fallback.
@@ -836,6 +1318,13 @@ enum AutoRedactions {
         fields: DocumentFields
     ) -> [CGRect]? {
         guard let page = fields.ocrPageEvidence?.first else { return nil }
+        return evidencePrecisionRects(for: mode, page: page)
+    }
+
+    private static func evidencePrecisionRects(
+        for mode: RedactionMode,
+        page: OCRPageEvidence
+    ) -> [CGRect]? {
         let hiddenKinds: Set<OCRSensitiveEntityKind>
         switch mode {
         case .rental:
@@ -937,5 +1426,66 @@ enum AutoRedactions {
                 CGRect(x: 0.00, y: 0.80, width: 1.00, height: 0.20),
             ]
         }
+    }
+}
+
+struct BatchRedactionPlan: Equatable {
+    let pageRedactions: [DocumentPageRedactions]
+    let pagesWithSuggestions: Int
+    let pagesWithoutSuggestions: Int
+
+    var suggestionCount: Int {
+        pageRedactions.reduce(0) { $0 + $1.redactions.count }
+    }
+}
+
+enum BatchRedactionPlanner {
+    /// Plans only evidence-backed suggestions. It deliberately does not use
+    /// document-template grids because a multi-page imported file can contain
+    /// different layouts on each page.
+    static func plan(for document: DocumentItem, mode: RedactionMode) -> BatchRedactionPlan {
+        let pageCount = max(document.pageCount, 1)
+        var changes: [DocumentPageRedactions] = []
+        var pagesWithSuggestions = 0
+
+        for pageIndex in 0..<pageCount {
+            let pageRects: [CGRect]
+            if let evidence = document.fields.ocrPageEvidence?.first(where: { $0.pageIndex == pageIndex }) {
+                pageRects = AutoRedactions.ocrModeRects(for: mode, pageEvidence: evidence)
+            } else if pageIndex == 0, document.fields.ocrPageEvidence == nil {
+                // Legacy single-page imports stored OCR boxes without page
+                // evidence. Keep that compatibility path limited to page 0.
+                pageRects = AutoRedactions.ocrPrecisionModeRects(for: mode, fields: document.fields)
+            } else {
+                pageRects = []
+            }
+
+            let existing = document.redactions(for: pageIndex)
+            let additions = pageRects
+                .map { Redaction(rect: $0, style: .block) }
+                .filter { candidate in
+                    !existing.contains { current in
+                        let overlap = current.rect.intersection(candidate.rect)
+                        guard !overlap.isNull, !overlap.isEmpty else { return false }
+                        let smallerArea = min(
+                            current.rect.width * current.rect.height,
+                            candidate.rect.width * candidate.rect.height
+                        )
+                        guard smallerArea > 0 else { return false }
+                        return overlap.width * overlap.height / smallerArea >= 0.92
+                    }
+                }
+
+            if !additions.isEmpty {
+                pagesWithSuggestions += 1
+                changes.append(DocumentPageRedactions(pageIndex: pageIndex, redactions: existing + additions))
+            }
+        }
+
+        return BatchRedactionPlan(
+            pageRedactions: changes,
+            pagesWithSuggestions: pagesWithSuggestions,
+            pagesWithoutSuggestions: pageCount - pagesWithSuggestions
+        )
     }
 }

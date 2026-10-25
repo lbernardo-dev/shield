@@ -9,16 +9,11 @@ struct OnboardingFlowView: View {
 
     var body: some View {
         ZStack {
-            if state.currentStep == 4 {
-                Color.black
-                    .ignoresSafeArea()
-            } else {
-                RadialGradient(
-                    colors: ShieldTheme.premiumBackground(appState.preferredScheme),
-                    center: .top, startRadius: 0, endRadius: 500
-                )
-                .ignoresSafeArea()
-            }
+            RadialGradient(
+                colors: ShieldTheme.premiumBackground(appState.preferredScheme),
+                center: .top, startRadius: 0, endRadius: 500
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 if state.showTopBar {
@@ -97,12 +92,8 @@ struct OnboardingFlowView: View {
     private var stepContent: some View {
         switch state.currentStep {
         case 0:  OBWelcomeView(state: state)
-        case 1:  OBGoalView(state: state)
-        case 2:  OBPainPointsView(state: state)
-        case 3:  OBDemoView(state: state)
-        case 4:  OBCameraPermView(state: state)
-        case 5:  OBSecuritySetupView(state: state)
-        case 6:  OBPaywallView(selectedGoal: state.selectedGoal, onBack: moveBack, onComplete: { completeOnboarding(source: "paywall") })
+        case 1:  OBDemoView(state: state)
+        case 2:  OBSecuritySetupView(onComplete: { completeOnboarding(source: "security_step") })
         default: EmptyView()
         }
     }
@@ -138,12 +129,8 @@ struct OnboardingFlowView: View {
     private var stepName: String {
         switch state.currentStep {
         case 0: "welcome"
-        case 1: "goal"
-        case 2: "privacy_concerns"
-        case 3: "interactive_demo"
-        case 4: "camera_permission"
-        case 5: "security_setup"
-        case 6: "paywall"
+        case 1: "interactive_demo"
+        case 2: "optional_security_setup"
         default: "unknown"
         }
     }

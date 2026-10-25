@@ -3254,13 +3254,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Customizable User Profile: Manage your contact details and profile photo via camera or photo library with secure on-device saving."
+            "value" : "Start the three-step review flow without a camera prompt until you choose Scan."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Perfil de Usuario Personalizable: Gestiona tus datos de contacto y foto de perfil desde la cámara o fototeca con guardado seguro en el dispositivo."
+            "value" : "Empieza la revisión en tres pasos; el permiso de cámara se solicita al elegir Escanear."
           }
         }
       }
@@ -3271,13 +3271,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enhanced Scanner Button: Enlarged, high-contrast camera viewfinder icon for crisp, instant capture access across all themes."
+            "value" : "Home puts Protect a document first, with quick tools close at hand."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Botón Central de Escaneo Perfeccionado: Icono de cámara ampliado con máximo contraste y nitidez en todos los temas."
+            "value" : "Inicio prioriza Proteger un documento y deja las herramientas rápidas a mano."
           }
         }
       }
@@ -3288,13 +3288,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seamless Theme Integration: Headers, galleries, and settings views fully aligned with the active theme and seasonal backdrop."
+            "value" : "Set a local PIN only if you want to protect your workspace; it is optional during setup."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Integración Temática Completa: Cabeceras, galerías y vistas de ajustes armonizadas con el tema activo y fondo de temporada."
+            "value" : "Configura un PIN local solo si quieres proteger tu espacio; es opcional al empezar."
           }
         }
       }
@@ -3305,13 +3305,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Improved Scroll & Navigation: Strict vertical scrolling in the Pro paywall view for smooth and stable navigation."
+            "value" : "Find documents faster with native search in your Library."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Navegación y Scroll Mejorados: Desplazamiento estrictamente vertical en la pantalla de Pro y paywall para máxima estabilidad."
+            "value" : "Encuentra tus documentos más rápido con la búsqueda nativa de la Biblioteca."
           }
         }
       }
@@ -3322,13 +3322,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New V3 App Icons: Refreshed official app icons for both the Base and Halloween Night themes."
+            "value" : "Security status indicators retain their meaning across themes."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nuevos Iconos V3 de Aplicación: Iconos oficiales renovados para el tema Base y el tema Noche de Halloween."
+            "value" : "Los indicadores del estado de seguridad conservan su significado entre temas."
           }
         }
       }
@@ -3339,13 +3339,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Performance & Accessibility: Direct profile saving with animated feedback, snappier touch response, and 100% localization coverage."
+            "value" : "On-device face suggestions respect image orientation; review and adjust each mask before export."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rendimiento y Accesibilidad: Guardado directo de perfil con confirmación animada, respuesta táctil optimizada y cobertura de localización al 100%."
+            "value" : "Las sugerencias locales de rostros respetan la orientación de página y se revisan antes de exportar."
           }
         }
       }

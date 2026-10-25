@@ -9,6 +9,7 @@ import UIKit
 struct DocumentScannerView: UIViewControllerRepresentable {
     var onScan: ([UIImage]) -> Void
     var onCancel: () -> Void
+    var onError: () -> Void
 
     func makeUIViewController(context: Context) -> VNDocumentCameraViewController {
         let vc = VNDocumentCameraViewController()
@@ -46,7 +47,7 @@ struct DocumentScannerView: UIViewControllerRepresentable {
         }
 
         func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: Error) {
-            parent.onCancel()
+            parent.onError()
         }
     }
 }
@@ -59,10 +60,11 @@ struct DocumentScannerOverlayView: View {
     let lang: AppLanguage
     var onScan: ([UIImage]) -> Void
     var onCancel: () -> Void
+    var onError: () -> Void
 
     var body: some View {
         ZStack {
-            DocumentScannerView(onScan: onScan, onCancel: onCancel)
+            DocumentScannerView(onScan: onScan, onCancel: onCancel, onError: onError)
                 .ignoresSafeArea()
 
             if showGuide && documentType != .freeform {
@@ -202,6 +204,7 @@ private struct GuideFrameBorder: View {
 struct PhotoPickerView: UIViewControllerRepresentable {
     var onPick: ([UIImage]) -> Void
     var onCancel: () -> Void
+    var onError: (CaptureImportError) -> Void
 
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration()
@@ -233,15 +236,22 @@ struct PhotoPickerView: UIViewControllerRepresentable {
             Task { [weak self] in
                 var orderedImages: [UIImage] = []
                 orderedImages.reserveCapacity(results.count)
+                var failedToLoadImage = false
 
                 for result in results {
                     guard !Task.isCancelled else { return }
                     if let image = await Self.loadImage(from: result.itemProvider) {
                         orderedImages.append(image)
+                    } else {
+                        failedToLoadImage = true
                     }
                 }
 
                 guard let self else { return }
+                guard !failedToLoadImage else {
+                    parent.onError(.photoReadFailed)
+                    return
+                }
                 if orderedImages.isEmpty {
                     parent.onCancel()
                 } else {
@@ -282,14 +292,15 @@ struct PhotoPickerView: UIViewControllerRepresentable {
 // MARK: - FilesPickerView (UIDocumentPickerViewController wrapper)
 
 struct FilesPickerView: UIViewControllerRepresentable {
-    var onPick: (URL) -> Void
+    var allowsMultipleSelection = true
+    var onPick: ([URL]) -> Void
     var onCancel: () -> Void
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
         let types: [UTType] = [.pdf, .image, .jpeg, .png, .tiff]
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: types)
         picker.delegate = context.coordinator
-        picker.allowsMultipleSelection = false
+        picker.allowsMultipleSelection = allowsMultipleSelection
         return picker
     }
 
@@ -305,11 +316,11 @@ struct FilesPickerView: UIViewControllerRepresentable {
         }
 
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            guard let url = urls.first else {
+            guard !urls.isEmpty else {
                 parent.onCancel()
                 return
             }
-            parent.onPick(url)
+            parent.onPick(urls)
         }
 
         func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {

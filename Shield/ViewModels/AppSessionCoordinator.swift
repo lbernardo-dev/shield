@@ -1,11 +1,14 @@
 import SwiftUI
 import Combine
+import LocalAuthentication
 
 @MainActor
 final class AppSessionCoordinator: ObservableObject {
+    private static let biometricPreferenceKey = "shield.biometric"
     private let autoLockTimestampKey = "shield.autoLock.backgroundTimestamp"
     private static let userActivityTimestampKey = "shield.autoLock.lastActivity"
     private static var lastActivityWrite: TimeInterval = 0
+    private let userDefaults: UserDefaults
 
     @Published var isOnboarded: Bool {
         didSet {
@@ -27,6 +30,7 @@ final class AppSessionCoordinator: ObservableObject {
     private var sessionIsActive = true
 
     init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         bypassAutoLockForAutomation = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
         isOnboarded = userDefaults.bool(forKey: "shield.onboarded")
 
@@ -44,10 +48,56 @@ final class AppSessionCoordinator: ObservableObject {
             userDefaults.set(1, forKey: "shield.autoLock")
         }
 
+        isAuthenticated = Self.shouldStartAuthenticated(
+            isOnboarded: isOnboarded,
+            hasPIN: PINManager.hasPIN,
+            biometricEnabled: Self.biometricPreference(in: userDefaults),
+            biometricsAvailable: Self.deviceSupportsBiometrics
+        )
+
         Self.markUserActivity(force: true)
         startInactivityMonitoring()
         ReviewFeedbackCoordinator.shared.track(.appLaunched)
         ReviewFeedbackCoordinator.shared.track(.sessionStarted)
+    }
+
+    static func shouldStartAuthenticated(
+        isOnboarded: Bool,
+        hasPIN: Bool,
+        biometricEnabled: Bool,
+        biometricsAvailable: Bool
+    ) -> Bool {
+        isOnboarded && !requiresWorkspaceAuthentication(
+            hasPIN: hasPIN,
+            biometricEnabled: biometricEnabled,
+            biometricsAvailable: biometricsAvailable
+        )
+    }
+
+    static func requiresWorkspaceAuthentication(
+        hasPIN: Bool,
+        biometricEnabled: Bool,
+        biometricsAvailable: Bool
+    ) -> Bool {
+        hasPIN || (biometricEnabled && biometricsAvailable)
+    }
+
+    private static func biometricPreference(in userDefaults: UserDefaults) -> Bool {
+        userDefaults.object(forKey: biometricPreferenceKey) as? Bool ?? true
+    }
+
+    private static var deviceSupportsBiometrics: Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+    }
+
+    private var hasUsableWorkspaceAuthentication: Bool {
+        Self.requiresWorkspaceAuthentication(
+            hasPIN: PINManager.hasPIN,
+            biometricEnabled: Self.biometricPreference(in: userDefaults),
+            biometricsAvailable: Self.deviceSupportsBiometrics
+        )
     }
 
     static func markUserActivity(force: Bool = false) {
@@ -93,9 +143,9 @@ final class AppSessionCoordinator: ObservableObject {
 
     private func markBackgroundTimestampAndLockIfImmediate() {
         guard !bypassAutoLockForAutomation else { return }
-        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: autoLockTimestampKey)
+        userDefaults.set(Date().timeIntervalSince1970, forKey: autoLockTimestampKey)
 
-        guard isOnboarded, isAuthenticated else { return }
+        guard isOnboarded, isAuthenticated, hasUsableWorkspaceAuthentication else { return }
         if autoLockDelaySeconds == 0 {
             isAuthenticated = false
         }
@@ -106,14 +156,14 @@ final class AppSessionCoordinator: ObservableObject {
             Self.markUserActivity(force: true)
             return
         }
-        guard isOnboarded, isAuthenticated else { return }
+        guard isOnboarded, isAuthenticated, hasUsableWorkspaceAuthentication else { return }
         guard let delay = autoLockDelaySeconds else { return }
         guard delay > 0 else {
             Self.markUserActivity(force: true)
             return
         }
 
-        let backgroundTimestamp = UserDefaults.standard.double(forKey: autoLockTimestampKey)
+        let backgroundTimestamp = userDefaults.double(forKey: autoLockTimestampKey)
         guard backgroundTimestamp > 0 else { return }
 
         let elapsed = Date().timeIntervalSince1970 - backgroundTimestamp
@@ -125,7 +175,7 @@ final class AppSessionCoordinator: ObservableObject {
     }
 
     private var autoLockDelaySeconds: TimeInterval? {
-        let idx = UserDefaults.standard.integer(forKey: "shield.autoLock")
+        let idx = userDefaults.integer(forKey: "shield.autoLock")
         switch idx {
         case 0: return 0
         case 1: return 60
@@ -147,7 +197,7 @@ final class AppSessionCoordinator: ObservableObject {
     private func applyForegroundInactivityLockIfNeeded() {
         guard !bypassAutoLockForAutomation else { return }
         guard currentScenePhase == .active else { return }
-        guard isOnboarded, isAuthenticated else { return }
+        guard isOnboarded, isAuthenticated, hasUsableWorkspaceAuthentication else { return }
         guard let delay = autoLockDelaySeconds else { return }
         guard delay > 0 else { return }
 

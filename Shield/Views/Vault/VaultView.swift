@@ -554,7 +554,7 @@ struct AddToVaultSheet: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 SeasonalThemeBackdrop()
 
@@ -594,21 +594,25 @@ struct AddToVaultSheet: View {
                     ScrollView {
                         VStack(spacing: 10) {
                             ForEach(eligibleDocuments) { doc in
-                                VaultPickerRow(
-                                    doc: doc,
-                                    isSelected: selectedDocs.contains(doc.id),
-                                    language: appState.language,
-                                    scheme: scheme
-                                )
-                                .onTapGesture {
+                                let isSelected = selectedDocs.contains(doc.id)
+                                Button {
                                     withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                                        if selectedDocs.contains(doc.id) {
+                                        if isSelected {
                                             selectedDocs.remove(doc.id)
                                         } else {
                                             selectedDocs.insert(doc.id)
                                         }
                                     }
+                                } label: {
+                                    VaultPickerRow(
+                                        doc: doc,
+                                        isSelected: isSelected,
+                                        language: appState.language,
+                                        scheme: scheme
+                                    )
                                 }
+                                .buttonStyle(.plain)
+                                .accessibilityAddTraits(isSelected ? .isSelected : [])
                             }
                         }
                         .padding(.horizontal, ShieldTheme.s5)

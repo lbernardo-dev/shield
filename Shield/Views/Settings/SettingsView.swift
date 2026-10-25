@@ -11,8 +11,10 @@ private struct SettingsAlert: Identifiable {
 // MARK: - SettingsView
 
 struct SettingsView: View {
+    var onClose: (() -> Void)? = nil
     @EnvironmentObject private var appState: AppState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.openURL) private var openURL
     @StateObject private var premium = PremiumManager.shared
 
@@ -20,6 +22,7 @@ struct SettingsView: View {
     @State private var showOfferCodeRedemption = false
     @State private var activeAlert: SettingsAlert?
     @State private var navigationPath = NavigationPath()
+    @State private var isConsumingThemeDeepLink = false
 
     private var strings: LanguageManager { .shared }
 
@@ -28,15 +31,8 @@ struct SettingsView: View {
             ZStack {
                 SeasonalThemeBackdrop()
 
-                VStack(spacing: 0) {
-                    title
-                        .frame(maxWidth: 760)
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, ShieldTheme.s4)
-                        .padding(.bottom, ShieldTheme.s3)
-
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: ShieldTheme.s5) {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: ShieldTheme.s5) {
                         SettingsSummaryCard(
                             documentCount: appState.documents.count,
                             vaultedCount: appState.documents.filter(\.isVaulted).count,
@@ -44,31 +40,14 @@ struct SettingsView: View {
                             onUnlockPro: { showPaywall = true },
                             onManageSubscription: openManageSubscription
                         )
+                        .accessibilityIdentifier("settings.summary")
 
-                        SettingsCardSection(
-                            title: strings.settings("settings_subscription_tools"),
-                            icon: "creditcard.fill"
-                        ) {
-                            SettingsActionRow(
-                                icon: "arrow.clockwise.circle.fill",
-                                color: Color(hex: "30D158"),
-                                title: premium.isRestoring
-                                    ? strings.settings("settings_subscription_restoring")
-                                    : strings.settings("settings_subscription_restore_action"),
-                                subtitle: strings.settings("settings_subscription_restore_action_subtitle"),
-                                accessibilityIdentifier: "settings.subscription.restore",
-                                action: restorePurchases
-                            )
-                            SettingsRowDivider()
-                            SettingsActionRow(
-                                icon: "ticket.fill",
-                                color: Color(hex: "8E44AD"),
-                                title: strings.settings("settings_subscription_redeem_offer"),
-                                subtitle: strings.settings("settings_subscription_redeem_offer_subtitle"),
-                                accessibilityIdentifier: "settings.subscription.redeemOffer",
-                                action: { showOfferCodeRedemption = true }
-                            )
-                        }
+                        Text(strings.settings("settings_eyebrow"))
+                            .font(.caption.weight(.bold))
+                            .tracking(0.7)
+                            .foregroundStyle(ShieldTheme.accent(scheme))
+                            .textCase(.uppercase)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
                         SettingsCardSection(
                             title: strings.settings("settings_section_personalization"),
@@ -129,6 +108,31 @@ struct SettingsView: View {
                         }
 
                         SettingsCardSection(
+                            title: strings.settings("settings_subscription_tools"),
+                            icon: "creditcard.fill"
+                        ) {
+                            SettingsActionRow(
+                                icon: "arrow.clockwise.circle.fill",
+                                color: Color(hex: "30D158"),
+                                title: premium.isRestoring
+                                    ? strings.settings("settings_subscription_restoring")
+                                    : strings.settings("settings_subscription_restore_action"),
+                                subtitle: strings.settings("settings_subscription_restore_action_subtitle"),
+                                accessibilityIdentifier: "settings.subscription.restore",
+                                action: restorePurchases
+                            )
+                            SettingsRowDivider()
+                            SettingsActionRow(
+                                icon: "ticket.fill",
+                                color: Color(hex: "8E44AD"),
+                                title: strings.settings("settings_subscription_redeem_offer"),
+                                subtitle: strings.settings("settings_subscription_redeem_offer_subtitle"),
+                                accessibilityIdentifier: "settings.subscription.redeemOffer",
+                                action: { showOfferCodeRedemption = true }
+                            )
+                        }
+
+                        SettingsCardSection(
                             title: strings.settings("settings_feedback_section"),
                             icon: "bubble.left.and.bubble.right.fill"
                         ) {
@@ -175,22 +179,34 @@ struct SettingsView: View {
 
                         SettingsFooter()
                             .padding(.top, ShieldTheme.s2)
-                        }
-                        .frame(maxWidth: 760)
-                        .padding(.horizontal, ShieldTheme.s4)
-                        .padding(.bottom, ShieldTheme.s6)
                     }
+                    .frame(maxWidth: 760)
+                    .padding(.horizontal, ShieldTheme.s4)
+                    .padding(.bottom, ShieldTheme.s6)
                 }
             }
-            .toolbarVisibility(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                settingsToolbar
+            }
+            .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .navigationDestination(for: SettingsRoute.self) { route in
                 destination(for: route)
             }
             .onAppear(perform: consumeThemeDeepLink)
-            .onChange(of: appState.pendingThemeDeepLink) { _, _ in
-                consumeThemeDeepLink()
+            .onChange(of: appState.pendingThemeDeepLink) { _, target in
+                if target == nil {
+                    isConsumingThemeDeepLink = false
+                } else {
+                    consumeThemeDeepLink()
+                }
             }
         }
+        .toolbarVisibility(
+            horizontalSizeClass == .compact ? .hidden : .automatic,
+            for: .tabBar
+        )
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
                 .environmentObject(appState)
@@ -223,32 +239,32 @@ struct SettingsView: View {
         }
     }
 
-    private var isHalloween: Bool {
-        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
-    }
-
-    private var title: some View {
-        HStack(alignment: .firstTextBaseline, spacing: ShieldTheme.s3) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(strings.settings("settings_eyebrow"))
-                    .font(.caption.weight(.bold))
-                    .tracking(0.7)
-                    .foregroundStyle(ShieldTheme.accent(scheme))
-                    .textCase(.uppercase)
-                HStack(spacing: 6) {
-                    Text(strings.settings("settings_title"))
-                        .shieldFont(32, weight: .heavy, design: .rounded)
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                    if isHalloween {
-                        Text("🎃")
-                            .font(.system(size: 24))
-                    }
-                }
-            }
-            Spacer(minLength: ShieldTheme.s2)
-            SettingsCloseButton(action: closeSettings)
+    @ToolbarContentBuilder
+    private var settingsToolbar: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Text(strings.settings("settings_title"))
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .accessibilityIdentifier("settings.header.title")
+                .accessibilityAddTraits(.isHeader)
         }
-        .padding(.top, ShieldTheme.topChromePadding)
+
+        if #available(iOS 27.1, *), horizontalSizeClass == .regular {
+            ToolbarItem(placement: .topBarPinnedTrailing) {
+                SettingsCloseButton(action: closeSettings)
+            }
+        } else if horizontalSizeClass == .regular {
+            // Keep the close action on the trailing edge of the detail pane.
+            // In portrait, the native sidebar can overlay the leading toolbar
+            // area while it is expanded.
+            ToolbarItem(placement: .topBarTrailing) {
+                SettingsCloseButton(action: closeSettings)
+            }
+        } else {
+            ToolbarItem(placement: .cancellationAction) {
+                SettingsCloseButton(action: closeSettings)
+            }
+        }
     }
 
     private func openManageSubscription() {
@@ -256,8 +272,12 @@ struct SettingsView: View {
     }
 
     private func closeSettings() {
-        withAnimation(.easeInOut(duration: 0.15)) {
-            appState.activeTab = .library
+        if let onClose {
+            onClose()
+        } else {
+            withAnimation(.easeInOut(duration: 0.15)) {
+                appState.activeTab = .library
+            }
         }
     }
 
@@ -393,8 +413,16 @@ struct SettingsView: View {
     }
 
     private func consumeThemeDeepLink() {
-        guard appState.pendingThemeDeepLink != nil else { return }
-        navigationPath.append(SettingsRoute.themes)
+        guard appState.pendingThemeDeepLink != nil, !isConsumingThemeDeepLink else { return }
+        isConsumingThemeDeepLink = true
+        Task { @MainActor in
+            await Task.yield()
+            guard appState.pendingThemeDeepLink != nil else {
+                isConsumingThemeDeepLink = false
+                return
+            }
+            navigationPath.append(SettingsRoute.themes)
+        }
     }
 }
 

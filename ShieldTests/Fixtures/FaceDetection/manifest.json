@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Synthetic local evaluation of the Vision face-suggestion detector; not a representative real-world validation set.",
+  "coordinateConvention": "normalized CGRect [x,y,width,height], origin at top-left.",
+  "matchingIoUThreshold": 0.3,
+  "cases": [
+    {
+      "image": "person-01.png",
+      "faces": [
+        [
+          0.25,
+          0.19,
+          0.5,
+          0.59
+        ]
+      ],
+      "conditions": [
+        "source-resolution",
+        "front-facing",
+        "synthetic-photograph"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 1 at source resolution."
+    },
+    {
+      "image": "person-02.png",
+      "faces": [
+        [
+          0.25,
+          0.17,
+          0.5,
+          0.61
+        ]
+      ],
+      "conditions": [
+        "source-resolution",
+        "front-facing",
+        "synthetic-photograph"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 2 at source resolution."
+    },
+    {
+      "image": "person-03.png",
+      "faces": [
+        [
+          0.26,
+          0.19,
+          0.48,
+          0.58
+        ]
+      ],
+      "conditions": [
+        "source-resolution",
+        "front-facing",
+        "synthetic-photograph",
+        "glasses"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 3 at source resolution."
+    },
+    {
+      "image": "p01_front.png",
+      "faces": [
+        [
+          0.25,
+          0.19,
+          0.5,
+          0.59
+        ]
+      ],
+      "conditions": [
+        "front-facing",
+        "synthetic-photograph"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 1."
+    },
+    {
+      "image": "p02_front.png",
+      "faces": [
+        [
+          0.25,
+          0.17,
+          0.5,
+          0.61
+        ]
+      ],
+      "conditions": [
+        "front-facing",
+        "synthetic-photograph"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 2."
+    },
+    {
+      "image": "p03_front.png",
+      "faces": [
+        [
+          0.26,
+          0.19,
+          0.48,
+          0.58
+        ]
+      ],
+      "conditions": [
+        "front-facing",
+        "synthetic-photograph"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Generated fictional portrait 3."
+    },
+    {
+      "image": "p01_small160.png",
+      "faces": [
+        [
+          0.25,
+          0.19,
+          0.5,
+          0.59
+        ]
+      ],
+      "conditions": [
+        "upsampled-low-resolution",
+        "small-face"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p03_lowres96.png",
+      "faces": [
+        [
+          0.26,
+          0.19,
+          0.48,
+          0.58
+        ]
+      ],
+      "conditions": [
+        "upsampled-low-resolution",
+        "small-face"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p01_rotated90.png",
+      "faces": [
+        [
+          0.22,
+          0.25,
+          0.59,
+          0.5
+        ]
+      ],
+      "conditions": [
+        "bitmap-rotated-90-degrees-clockwise"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p02_mirrored.png",
+      "faces": [
+        [
+          0.25,
+          0.17,
+          0.5,
+          0.61
+        ]
+      ],
+      "conditions": [
+        "horizontally-mirrored"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p02_compressed.jpg",
+      "faces": [
+        [
+          0.25,
+          0.17,
+          0.5,
+          0.61
+        ]
+      ],
+      "conditions": [
+        "jpeg-quality-28",
+        "front-facing"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Compression stress case."
+    },
+    {
+      "image": "p01_printed_card.png",
+      "faces": [
+        [
+          0.176667,
+          0.212842,
+          0.126667,
+          0.236
+        ]
+      ],
+      "conditions": [
+        "portrait-printed-on-document",
+        "small-face"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p03_printed_card.png",
+      "faces": [
+        [
+          0.1792,
+          0.212842,
+          0.1216,
+          0.232
+        ]
+      ],
+      "conditions": [
+        "portrait-printed-on-document",
+        "small-face"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p03_partial_occlusion.png",
+      "faces": [
+        [
+          0.26,
+          0.19,
+          0.48,
+          0.58
+        ]
+      ],
+      "conditions": [
+        "partial-occlusion"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "p_multiface_card.png",
+      "faces": [
+        [
+          0.126562,
+          0.255474,
+          0.103125,
+          0.204947
+        ],
+        [
+          0.432812,
+          0.248526,
+          0.103125,
+          0.211895
+        ]
+      ],
+      "conditions": [
+        "two-faces",
+        "portrait-printed-on-document"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "n_blank.png",
+      "faces": [],
+      "conditions": [
+        "no-human-face",
+        "blank-page"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    },
+    {
+      "image": "n_abstract_face-like-shapes.png",
+      "faces": [],
+      "conditions": [
+        "no-human-face",
+        "face-like-geometric-distractor"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": "Geometric icon-like circles and arc, not a person or photograph."
+    },
+    {
+      "image": "n_text-like-layout.png",
+      "faces": [],
+      "conditions": [
+        "no-human-face",
+        "document-layout-distractor"
+      ],
+      "annotation": "manual approximate facial extent; derived transforms are propagated mathematically",
+      "notes": ""
+    }
+  ]
+}

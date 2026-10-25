@@ -24,7 +24,10 @@ echo "Iniciando simulador iPhone UDID: $IPHONE_ID"
 xcrun simctl boot "$IPHONE_ID" 2>/dev/null || true
 xcrun simctl bootstatus "$IPHONE_ID" -b
 
-APP_PATH="/tmp/DerivedData-MaskID/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
+APP_PATH="${APP_PATH:-}"
+if [[ -z "$APP_PATH" ]]; then
+  APP_PATH="/tmp/DerivedData-MaskID/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
+fi
 if [[ ! -d "$APP_PATH" ]]; then
   APP_PATH="build/DerivedData/CODEX/Build/Products/Debug-iphonesimulator/MaskID.app"
 fi

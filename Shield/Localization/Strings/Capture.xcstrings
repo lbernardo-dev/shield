@@ -443,6 +443,40 @@
         }
       }
     },
+    "capture_error_photo_read" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some selected photos could not be read. Check that they are still available, then select them again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron leer todas las fotos seleccionadas. Comprueba que sigan disponibles y vuelve a elegirlas."
+          }
+        }
+      }
+    },
+    "capture_error_scanner" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scanner could not start. Check camera permission, then try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo iniciar el escáner. Comprueba el permiso de cámara e inténtalo de nuevo."
+          }
+        }
+      }
+    },
     "capture_error_source_read" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -847,6 +881,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importando archivo…"
+          }
+        }
+      }
+    },
+    "capture_multi_import_progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File %1$d of %2$d"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivo %1$d de %2$d"
+          }
+        }
+      }
+    },
+    "capture_multi_import_skip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip this file"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir este archivo"
           }
         }
       }

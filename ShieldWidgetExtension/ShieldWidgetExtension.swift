@@ -78,11 +78,9 @@ struct ShieldWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> ShieldWidgetEntry {
         ShieldWidgetEntry(date: .now, snapshot: .init(
             totalDocuments: 12,
-            protectedDocuments: 9,
+            documentsWithRedactions: 9,
             vaultedDocuments: 3,
-            watermarkedDocuments: 4,
-            securityScore: 85,
-            lastProtectedDate: .now
+            watermarkedDocuments: 4
         ))
     }
 
@@ -109,7 +107,7 @@ struct MaskIDQuickActionsWidget: Widget {
             MaskIDQuickActionsView(snapshot: entry.snapshot)
         }
         .configurationDisplayName("MaskID Quick Actions")
-        .description("One-tap shortcuts to protect IDs, payrolls, contracts, or open your vault.")
+        .description("One-tap shortcuts for ID, payroll, rental, and Vault workflows.")
         .supportedFamilies([
             .systemSmall,
             .systemMedium
@@ -176,8 +174,8 @@ private struct MaskIDQuickActionsView: View {
                     Circle()
                         .fill(WidgetTheme.emerald)
                         .frame(width: 5, height: 5)
-                    Text("100% Offline")
-                        .font(.system(size: 8, weight: .semibold))
+                    Text("On-device processing")
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(WidgetTheme.emerald)
                 }
                 .padding(.horizontal, 5)
@@ -203,7 +201,7 @@ private struct MaskIDQuickActionsView: View {
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.white)
                             Text("Protect")
-                                .font(.system(size: 9))
+                                .font(.caption2)
                                 .foregroundStyle(.white.opacity(0.65))
                         }
                         Spacer()
@@ -238,7 +236,7 @@ private struct MaskIDQuickActionsView: View {
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.white)
                             Text("Watermarks")
-                                .font(.system(size: 9))
+                                .font(.caption2)
                                 .foregroundStyle(.white.opacity(0.65))
                         }
                         Spacer()
@@ -286,18 +284,6 @@ private struct MaskIDQuickActionsView: View {
                         .foregroundStyle(WidgetTheme.cyan)
                 }
                 Spacer()
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(WidgetTheme.emerald)
-                        .frame(width: 6, height: 6)
-                    Text("Shield Active")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(WidgetTheme.emerald)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(WidgetTheme.emerald.opacity(0.12))
-                .clipShape(Capsule())
             }
 
             HStack(spacing: 10) {
@@ -367,7 +353,7 @@ private struct MaskIDQuickActionsView: View {
     }
 }
 
-// MARK: - Widget 2: Protection Status (Informative)
+// MARK: - Widget 2: Library Overview (Informative)
 
 struct ShieldProtectionStatusWidget: Widget {
     let kind = "ShieldProtectionStatusWidget"
@@ -375,10 +361,10 @@ struct ShieldProtectionStatusWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: ShieldWidgetProvider()) { entry in
             ShieldProtectionStatusWidgetView(snapshot: entry.snapshot)
-                .widgetURL(URL(string: "shield://capture"))
+                .widgetURL(URL(string: "shield://library"))
         }
-        .configurationDisplayName("Protection Status")
-        .description("See your protected document metrics, watermarks, and security status.")
+        .configurationDisplayName("Library Overview")
+        .description("See local counts for documents, redactions, watermarks, and Vault.")
         .supportedFamilies([
             .systemSmall,
             .systemMedium,
@@ -436,11 +422,11 @@ private struct ShieldProtectionStatusWidgetView: View {
         }
     }
 
-    // Small: Gauge + Counts + Action
+    // Small: library count, scope, and a direct add action.
     private var smallView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("Protection Status", systemImage: "checkmark.shield.fill")
+                Label("Library Overview", systemImage: "checkmark.shield.fill")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(WidgetTheme.cyan)
                     .widgetAccentable()
@@ -449,34 +435,42 @@ private struct ShieldProtectionStatusWidgetView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 11, weight: .heavy))
                         .foregroundStyle(.white)
-                        .frame(width: 22, height: 22)
+                        .frame(width: 24, height: 24)
                         .background(WidgetTheme.cyan.opacity(0.30))
                         .clipShape(Circle())
+                        .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Add document")
+                .accessibilityHint("Open MaskID's scan and import options.")
             }
 
             Spacer(minLength: 0)
 
             HStack(alignment: .lastTextBaseline, spacing: 4) {
-                Text("\(snapshot.protectedDocuments)")
-                    .font(.system(size: 38, weight: .heavy, design: .rounded))
+                Text("\(snapshot.documentsWithRedactions)")
+                    .font(.system(.largeTitle, design: .rounded, weight: .heavy))
                     .foregroundStyle(.white)
                     .contentTransition(.numericText())
-                Text("/ \(max(snapshot.totalDocuments, 1))")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.55))
+                if snapshot.totalDocuments > 0 {
+                    Text("/ \(snapshot.totalDocuments)")
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.55))
+                }
             }
 
-            Text(snapshot.totalDocuments > 0 ? "%lld of %lld protected" : "No exposed documents")
+            Text(snapshot.totalDocuments > 0 ? "Documents with redactions" : "No documents yet")
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.72))
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
             // Mini Progress Bar
             GeometryReader { proxy in
                 let width = proxy.size.width
-                let ratio = snapshot.totalDocuments > 0 ? min(1.0, Double(snapshot.protectedDocuments) / Double(snapshot.totalDocuments)) : 1.0
+                let ratio = snapshot.totalDocuments > 0
+                    ? Double(snapshot.documentsWithRedactions) / Double(snapshot.totalDocuments)
+                    : 0
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(Color.white.opacity(0.12))
@@ -489,98 +483,44 @@ private struct ShieldProtectionStatusWidgetView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: max(8, width * ratio), height: 5)
+                        .frame(width: width * ratio, height: 5)
                 }
             }
             .frame(height: 6)
 
-            HStack {
-                Text("100% On-Device")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(WidgetTheme.emerald)
-                Spacer()
-                Text("\(snapshot.securityScore)% secure")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(WidgetTheme.cyan)
-            }
+            Text("Processed on device")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(WidgetTheme.emerald)
         }
         .padding(13)
     }
 
-    // Medium: Circular Progress Ring + Metric Cards
+    // Medium: four factual library counts.
     private var mediumView: some View {
-        HStack(spacing: 16) {
-            // Left: Progress Ring
-            VStack(spacing: 4) {
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.12), lineWidth: 8)
-                        .frame(width: 76, height: 76)
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Library Overview", systemImage: "checkmark.shield.fill")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(WidgetTheme.cyan)
+                .widgetAccentable()
 
-                    let progress = snapshot.totalDocuments > 0 ? min(1.0, Double(snapshot.protectedDocuments) / Double(snapshot.totalDocuments)) : 1.0
-                    Circle()
-                        .trim(from: 0, to: CGFloat(progress))
-                        .stroke(
-                            LinearGradient(
-                                colors: [WidgetTheme.cyan, WidgetTheme.emerald],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                        )
-                        .frame(width: 76, height: 76)
-                        .rotationEffect(.degrees(-90))
-
-                    VStack(spacing: 0) {
-                        Text("\(snapshot.securityScore)%")
-                            .font(.system(size: 20, weight: .heavy, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text("Secure")
-                            .font(.system(size: 8, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.60))
-                    }
+            if snapshot.totalDocuments == 0 {
+                Label("No documents yet", systemImage: "doc.on.doc")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                    metricCard(icon: "doc.on.doc.fill", color: .white.opacity(0.85), count: snapshot.totalDocuments, label: "Documents")
+                    metricCard(icon: "rectangle.slash", color: WidgetTheme.cyan, count: snapshot.documentsWithRedactions, label: "With redactions")
+                    metricCard(icon: "drop.fill", color: WidgetTheme.amber, count: snapshot.watermarkedDocuments, label: "Watermarked")
+                    metricCard(icon: "lock.shield.fill", color: WidgetTheme.purple, count: snapshot.vaultedDocuments, label: "In Vault")
                 }
-
-                Text("Identity Protected")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(WidgetTheme.cyan)
-                    .lineLimit(1)
             }
-            .frame(width: 95)
-
-            // Divider
-            Rectangle()
-                .fill(Color.white.opacity(0.10))
-                .frame(width: 1)
-                .padding(.vertical, 4)
-
-            // Right: Metric Rows
-            VStack(alignment: .leading, spacing: 8) {
-                metricRow(
-                    icon: "checkmark.shield.fill",
-                    color: WidgetTheme.cyan,
-                    count: snapshot.protectedDocuments,
-                    label: "Protected"
-                )
-                metricRow(
-                    icon: "drop.fill",
-                    color: Color(red: 0.22, green: 0.74, blue: 0.97),
-                    count: snapshot.watermarkedDocuments,
-                    label: "Watermarks"
-                )
-                metricRow(
-                    icon: "lock.shield.fill",
-                    color: WidgetTheme.purple,
-                    count: snapshot.vaultedDocuments,
-                    label: "Vault"
-                )
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(14)
     }
 
-    private func metricRow(icon: String, color: Color, count: Int, label: LocalizedStringKey) -> some View {
+    private func metricCard(icon: String, color: Color, count: Int, label: LocalizedStringKey) -> some View {
         HStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -593,14 +533,14 @@ private struct ShieldProtectionStatusWidgetView: View {
             }
 
             VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 4) {
-                    Text("\(count)")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text(label)
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.70))
-                }
+                Text("\(count)")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                Text(label)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.70))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             Spacer()
         }
@@ -619,12 +559,12 @@ private struct ShieldProtectionStatusWidgetView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack {
-                Label("Protection Status", systemImage: "checkmark.shield.fill")
+                Label("Library Overview", systemImage: "checkmark.shield.fill")
                     .font(.headline.weight(.bold))
                     .foregroundStyle(WidgetTheme.cyan)
                     .widgetAccentable()
                 Spacer()
-                Text("100% On-Device")
+                Text("Processed on device")
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(WidgetTheme.emerald)
                     .padding(.horizontal, 8)
@@ -634,25 +574,38 @@ private struct ShieldProtectionStatusWidgetView: View {
             }
 
             // Top Metrics Grid
-            HStack(spacing: 10) {
-                largeMetricCard(
-                    icon: "doc.on.doc.fill",
-                    color: .white.opacity(0.85),
-                    value: snapshot.totalDocuments,
-                    label: "Documents"
-                )
-                largeMetricCard(
-                    icon: "checkmark.shield.fill",
-                    color: WidgetTheme.cyan,
-                    value: snapshot.protectedDocuments,
-                    label: "Protected"
-                )
-                largeMetricCard(
-                    icon: "lock.shield.fill",
-                    color: WidgetTheme.purple,
-                    value: snapshot.vaultedDocuments,
-                    label: "Vault"
-                )
+            if snapshot.totalDocuments == 0 {
+                Label("No documents yet", systemImage: "doc.on.doc")
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    largeMetricCard(
+                        icon: "doc.on.doc.fill",
+                        color: .white.opacity(0.85),
+                        value: snapshot.totalDocuments,
+                        label: "Documents"
+                    )
+                    largeMetricCard(
+                        icon: "rectangle.slash",
+                        color: WidgetTheme.cyan,
+                        value: snapshot.documentsWithRedactions,
+                        label: "With redactions"
+                    )
+                    largeMetricCard(
+                        icon: "drop.fill",
+                        color: WidgetTheme.amber,
+                        value: snapshot.watermarkedDocuments,
+                        label: "Watermarked"
+                    )
+                    largeMetricCard(
+                        icon: "lock.shield.fill",
+                        color: WidgetTheme.purple,
+                        value: snapshot.vaultedDocuments,
+                        label: "In Vault"
+                    )
+                }
             }
 
             // Privacy Tip Card
@@ -665,7 +618,7 @@ private struct ShieldProtectionStatusWidgetView: View {
                         .font(.caption.weight(.bold))
                         .foregroundStyle(WidgetTheme.amber)
                 }
-                Text("When sharing your ID or pay stub, always mask excess data and add a specific watermark.")
+                Text("For each recipient, mask only the fields they do not need. Add a purpose and date to the watermark.")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)
@@ -719,7 +672,7 @@ private struct ShieldProtectionStatusWidgetView: View {
                 .foregroundStyle(color)
                 .widgetAccentable()
             Text("\(value)")
-                .font(.system(size: 26, weight: .heavy, design: .rounded))
+                .font(.system(.title, design: .rounded, weight: .heavy))
                 .foregroundStyle(.white)
             Text(label)
                 .font(.caption2)
@@ -735,40 +688,41 @@ private struct ShieldProtectionStatusWidgetView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    // Lock Screen Circular
+    // Lock Screen Circular: the value counts documents with redactions.
     private var circularView: some View {
-        Gauge(value: Double(snapshot.protectedDocuments), in: 0...Double(max(snapshot.totalDocuments, 1))) {
-            Image(systemName: "checkmark.shield.fill")
+        Gauge(value: Double(snapshot.documentsWithRedactions), in: 0...Double(max(snapshot.totalDocuments, 1))) {
+            Image(systemName: "rectangle.slash")
         } currentValueLabel: {
-            Text("\(snapshot.protectedDocuments)")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+            Text("\(snapshot.documentsWithRedactions)")
+                .font(.headline.weight(.bold))
         }
         .gaugeStyle(.accessoryCircularCapacity)
         .tint(WidgetTheme.cyan)
+        .accessibilityLabel("Documents with redactions")
     }
 
     // Lock Screen Rectangular
     private var rectangularView: some View {
         HStack(spacing: 8) {
-            Image(systemName: "checkmark.shield.fill")
+            Image(systemName: "rectangle.slash")
                 .font(.title2.weight(.bold))
                 .foregroundStyle(WidgetTheme.cyan)
                 .widgetAccentable()
             VStack(alignment: .leading, spacing: 2) {
                 Text("MaskID")
                     .font(.caption.weight(.heavy))
-                Text("%lld of %lld protected")
+                Text("With redactions")
                     .font(.caption2)
-                Text("100% On-Device")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                Text("\(snapshot.documentsWithRedactions) / \(snapshot.totalDocuments)")
+                    .font(.caption2)
             }
         }
+        .accessibilityElement(children: .combine)
     }
 
     // Lock Screen Inline
     private var inlineView: some View {
-        Label("\(snapshot.protectedDocuments) protected documents", systemImage: "checkmark.shield.fill")
+        Label("\(snapshot.documentsWithRedactions) with redactions", systemImage: "rectangle.slash")
     }
 }
 

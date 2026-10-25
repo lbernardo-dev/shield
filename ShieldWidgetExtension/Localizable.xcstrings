@@ -98,7 +98,10 @@
       }
     },
     "Apply Preset" : {
-
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply Preset" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aplicar modo" } }
+      }
     },
     "DNI / ID" : {
       "localizations" : {
@@ -217,10 +220,16 @@
       }
     },
     "Open MaskID ready to import, scan, or photograph a document." : {
-
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open MaskID ready to import, scan, or photograph a document." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre MaskID para importar, escanear o fotografiar un documento." } }
+      }
     },
     "Open MaskID with a specific protection preset." : {
-
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open MaskID with a specific protection preset." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre MaskID con un modo de protección específico." } }
+      }
     },
     "Open Vault" : {
       "localizations" : {
@@ -255,7 +264,10 @@
       }
     },
     "Preset" : {
-
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preset" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modo" } }
+      }
     },
     "Privacy Tip" : {
       "localizations" : {
@@ -414,7 +426,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Acciones Rápidas"
+            "value" : "Acciones rápidas"
           }
         }
       }
@@ -582,6 +594,90 @@
             "value" : "Al compartir tu DNI o nómina, oculta datos sensibles y añade una marca de agua de uso exclusivo."
           }
         }
+      }
+    },
+    "Library Overview" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Library Overview" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Resumen de la biblioteca" } }
+      }
+    },
+    "Documents with redactions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Documents with redactions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Documentos con redacciones" } }
+      }
+    },
+    "With redactions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "With redactions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Con redacciones" } }
+      }
+    },
+    "Watermarked" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Watermarked" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Con marca de agua" } }
+      }
+    },
+    "In Vault" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Vault" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En Bóveda" } }
+      }
+    },
+    "No documents yet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No documents yet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay documentos" } }
+      }
+    },
+    "Processed on device" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Processed on device" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Procesado en el dispositivo" } }
+      }
+    },
+    "On-device processing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "On-device processing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Procesamiento en el dispositivo" } }
+      }
+    },
+    "Add document" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add document" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir documento" } }
+      }
+    },
+    "Open MaskID's scan and import options." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open MaskID's scan and import options." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir las opciones de escaneo e importación de MaskID." } }
+      }
+    },
+    "One-tap shortcuts for ID, payroll, rental, and Vault workflows." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "One-tap shortcuts for ID, payroll, rental, and Vault workflows." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Accesos directos para trámites de identidad, nómina, alquiler y Bóveda." } }
+      }
+    },
+    "See local counts for documents, redactions, watermarks, and Vault." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "See local counts for documents, redactions, watermarks, and Vault." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Consulta los totales locales de documentos, redacciones, marcas de agua y Bóveda." } }
+      }
+    },
+    "For each recipient, mask only the fields they do not need. Add a purpose and date to the watermark." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "For each recipient, mask only the fields they do not need. Add a purpose and date to the watermark." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oculta solo los datos que cada destinatario no necesita. Añade a la marca de agua el motivo y la fecha." } }
+      }
+    },
+    "%lld with redactions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld with redactions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld con redacciones" } }
       }
     }
   },

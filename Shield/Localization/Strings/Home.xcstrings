@@ -18,6 +18,23 @@
         }
       }
     },
+    "home_primary_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protect a document"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proteger un documento"
+          }
+        }
+      }
+    },
     "home_tools_services": {
       "extractionState": "manual",
       "localizations": {
@@ -92,13 +109,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apply to %d documents"
+            "value": "Prepare suggestions for %d documents"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aplicar a %d documentos"
+            "value": "Preparar sugerencias para %d documentos"
           }
         }
       }
@@ -109,13 +126,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ mode applied to %d document(s)."
+            "value": "Suggestions prepared for %d document(s). Review every page in the editor and verify the export before sharing."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modo %@ aplicado a %d documento(s)."
+            "value": "Sugerencias preparadas para %d documento(s). Revisa cada página en el editor y verifica la exportación antes de compartir."
           }
         }
       }
@@ -126,13 +143,183 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Processing complete"
+            "value": "Suggestions ready · review required"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Procesamiento completado"
+            "value": "Sugerencias listas · falta revisarlas"
+          }
+        }
+      }
+    },
+    "home_batch_partial_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some suggestions could not be saved"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron guardar algunas sugerencias"
+          }
+        }
+      }
+    },
+    "home_batch_failed_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d document(s) could not be updated. Retry from the library."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron actualizar %d documento(s). Puedes reintentarlo desde la biblioteca."
+          }
+        }
+      }
+    },
+    "home_batch_mark_reviewed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I reviewed it"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya lo revisé"
+          }
+        }
+      }
+    },
+    "home_batch_new": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a new batch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparar otro lote"
+          }
+        }
+      }
+    },
+    "home_batch_page_summary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d pages have suggestions; %d have no suggestions. Review every page manually."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d páginas tienen sugerencias; %d no tienen sugerencias. Revisa todas las páginas manualmente."
+          }
+        }
+      }
+    },
+    "home_batch_review_open": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar"
+          }
+        }
+      }
+    },
+    "home_batch_pages_pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d pages still need review"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d páginas pendientes de revisión"
+          }
+        }
+      }
+    },
+    "home_batch_review_queue_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documents to review"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentos por revisar"
+          }
+        }
+      }
+    },
+    "home_batch_review_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page-by-page review required"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requiere revisión página por página"
+          }
+        }
+      }
+    },
+    "home_batch_reviewed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marked as reviewed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcado como revisado"
           }
         }
       }
@@ -143,13 +330,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apply the current redaction style to all selected documents."
+            "value": "Prepare page-specific OCR suggestions. Review every page and verify each export before sharing."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aplica el estilo de redacción actual a todos los documentos seleccionados."
+            "value": "Prepara sugerencias OCR por página. Revisa todas las páginas y verifica cada exportación antes de compartir."
           }
         }
       }
@@ -490,6 +677,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "documentos"
+          }
+        }
+      }
+    },
+    "home_library_summary": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your library"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu biblioteca"
+          }
+        }
+      }
+    },
+    "home_metric_documents": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documents"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Documentos"
+          }
+        }
+      }
+    },
+    "home_metric_redacted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redacted"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con redacciones"
+          }
+        }
+      }
+    },
+    "home_metric_vault": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Vault"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Bóveda"
+          }
+        }
+      }
+    },
+    "home_metric_watermarked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watermarked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con marca de agua"
+          }
+        }
+      }
+    },
+    "home_metric_open_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show matching documents"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar documentos coincidentes"
           }
         }
       }
@@ -1027,13 +1316,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap + to scan or import your first document"
+            "value": "Scan or import your first document to get started"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca + para escanear o importar tu primer documento"
+            "value": "Escanea o importa tu primer documento para empezar"
           }
         }
       }
@@ -1344,6 +1633,48 @@
         }
       }
     },
+    "home_quick_access": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quick access" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Accesos rápidos" } }
+      }
+    },
+    "home_quick_add_document": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add document" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir documento" } }
+      }
+    },
+    "home_quick_library": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "All documents" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Todos los documentos" } }
+      }
+    },
+    "home_quick_styles": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Styles" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Estilos" } }
+      }
+    },
+    "home_quick_vault": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Vault" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Bóveda" } }
+      }
+    },
+    "home_quick_tools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Modes, batch, and cloud" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Modos, lote y nube" } }
+      }
+    },
     "home_recent_documents": {
       "extractionState": "manual",
       "localizations": {
@@ -1391,6 +1722,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Revisión pendiente"
+          }
+        }
+      }
+    },
+    "home_review_pending_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendiente"
           }
         }
       }
@@ -1527,6 +1875,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar"
+          }
+        }
+      }
+    },
+    "home_search_content_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search titles and document text"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar en nombres y texto de documentos"
+          }
+        }
+      }
+    },
+    "home_search_preparing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching text on this device…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscando texto en este dispositivo…"
+          }
+        }
+      }
+    },
+    "home_search_pages_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text match on page(s) %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coincidencia en página(s) %@"
+          }
+        }
+      }
+    },
+    "home_search_occurrence_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search match %d, OCR confidence %d percent"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coincidencia de búsqueda %d, confianza OCR del %d por ciento"
+          }
+        }
+      }
+    },
+    "home_search_occurrence_accessibility_no_confidence": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search match %d, confidence unavailable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coincidencia de búsqueda %d, confianza no disponible"
           }
         }
       }

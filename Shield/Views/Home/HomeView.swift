@@ -1,9 +1,11 @@
 import SwiftUI
 import LocalAuthentication
+import UIKit
 
 // MARK: - HomeView
 
 struct HomeView: View {
+    var onScanTap: (() -> Void)? = nil
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
     @ObservedObject private var cloud = CloudSyncManager.shared
@@ -11,14 +13,17 @@ struct HomeView: View {
     @Environment(\.colorScheme) var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var showAllDocs = false
+    @State private var allDocumentsMetric: HomeLibraryMetric = .documents
     @State private var showFilters = false
     @State private var showPaywall = false
     @State private var showCloudImport = false
     @State private var requestedCloudProvider: ExternalStorageProvider?
     @State private var showBatchRedact = false
-    @State private var showWorkspaceTools = false
+    @State private var quickAccessToolsScrollRequest = 0
+    @State private var verticalFoldWidth: CGFloat = 0
     @FocusState private var searchFocused: Bool
 
     // Vault auth flow from recents
@@ -39,55 +44,119 @@ struct HomeView: View {
                     .accessibilityHidden(true)
             }
 
-            VStack(spacing: 0) {
-                topBarSection
-
-                ScrollViewReader { proxy in
-                    ScrollView(showsIndicators: false) {
-                        Group {
-                            Color.clear
-                                .frame(height: 1)
-                                .id("home.top")
-                            if horizontalSizeClass == .regular {
-                                HStack(alignment: .top, spacing: 8) {
-                                    LazyVStack(spacing: 0) {
-                                        heroSection
-                                        searchSection
-                                        categoryScroll
-                                    }
-                                    .frame(maxWidth: .infinity)
-
-                                    LazyVStack(spacing: 0) {
-                                        recentsSection
-                                        workspaceSection
-                                            .padding(.bottom, 24)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                }
-                            } else {
-                                LazyVStack(spacing: 0) {
-                                    heroSection
-                                    searchSection
-                                    categoryScroll
-                                    recentsSection
-                                    workspaceSection
-                                        .padding(.bottom, 24)
-                                }
-                                .frame(maxWidth: .infinity)
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    Group {
+                        Color.clear
+                            .frame(height: 1)
+                            .id("home.top")
+                        if horizontalSizeClass == .regular && !dynamicTypeSize.isAccessibilitySize {
+                            regularHomeDashboard
+                        } else {
+                            LazyVStack(spacing: 0) {
+                                heroSection
+                                searchSection
+                                quickAccessSection
+                                    .padding(.bottom, 16)
+                                localSearchIndexStatus
+                                categoryGrid
+                                libraryStatistics
+                                recentsSection
+                                workspaceSection
+                                    .padding(.bottom, 24)
                             }
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: ShieldTheme.workspaceWidth)
-                        .frame(maxWidth: .infinity)
                     }
-                    .onAppear {
+                    .frame(maxWidth: ShieldTheme.workspaceWidth)
+                    .frame(maxWidth: .infinity)
+                }
+                .background {
+                    DuoVerticalDivisionReader(width: $verticalFoldWidth)
+                }
+                .contentMargins(.bottom, 24, for: .scrollContent)
+                .scrollDismissesKeyboard(.interactively)
+                .accessibilityIdentifier("home.scroll")
+                .onAppear {
+                    Task { @MainActor in
+                        await Task.yield()
                         proxy.scrollTo("home.top", anchor: .top)
+                    }
+                }
+                .onChange(of: quickAccessToolsScrollRequest) { _, _ in
+                    Task { @MainActor in
+                        await Task.yield()
+                        withAnimation(reduceMotion ? nil : ShieldMotion.navigation) {
+                            proxy.scrollTo("home.workspace", anchor: .top)
+                        }
                     }
                 }
             }
         }
         .colorScheme(appState.preferredScheme)
+        .toolbar {
+            if #available(iOS 27.1, *) {
+                ToolbarItem(placement: .topBarLeading) {
+                    HomeToolbarBrandLabel(
+                        scheme: appState.preferredScheme,
+                        isHalloween: ShieldTheme.activeThemeID == .halloween2026
+                    )
+                }
+                .axisBehavior(.horizontalOnly)
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    HomeProfileToolbarButton(
+                        scheme: appState.preferredScheme,
+                        isManagedTheme: ShieldTheme.activeThemeID.isSeasonal,
+                        onToggleLanguage: toggleLanguage,
+                        onToggleScheme: toggleColorScheme,
+                        onOpenSettings: openSettings
+                    )
+                }
+                .axisBehavior(.horizontalOnly)
+            } else {
+                ToolbarItem(placement: .topBarLeading) {
+                    HomeToolbarBrandLabel(
+                        scheme: appState.preferredScheme,
+                        isHalloween: ShieldTheme.activeThemeID == .halloween2026
+                    )
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    HomeProfileToolbarButton(
+                        scheme: appState.preferredScheme,
+                        isManagedTheme: ShieldTheme.activeThemeID.isSeasonal,
+                        onToggleLanguage: toggleLanguage,
+                        onToggleScheme: toggleColorScheme,
+                        onOpenSettings: openSettings
+                    )
+                }
+            }
+
+            if UIDevice.current.userInterfaceIdiom == .pad, let onScanTap {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if #available(iOS 26.0, *) {
+                        Button(action: onScanTap) {
+                            Image(systemName: "camera.viewfinder")
+                        }
+                        .buttonStyle(.glassProminent)
+                        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+                        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
+                        .accessibilityIdentifier("tab.capture")
+                    } else {
+                        Button(action: onScanTap) {
+                            Image(systemName: "camera.viewfinder")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
+                        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
+                        .accessibilityIdentifier("tab.capture")
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $showAllDocs) {
-            AllDocumentsView().environmentObject(appState)
+            AllDocumentsView(metric: allDocumentsMetric).environmentObject(appState)
         }
         .sheet(isPresented: $showFilters) {
             FilterSheet(isPresented: $showFilters).environmentObject(appState)
@@ -101,13 +170,8 @@ struct HomeView: View {
                 initialProvider: requestedCloudProvider
             ) { url in
                 requestedCloudProvider = nil
+                appState.pendingSharedImportURL = url
                 appState.showCapture = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    NotificationCenter.default.post(
-                        name: NSNotification.Name("shield.importFileURL"),
-                        object: url
-                    )
-                }
             }.environmentObject(appState)
         }
         .sheet(isPresented: $showBatchRedact) {
@@ -165,36 +229,128 @@ struct HomeView: View {
                 .zIndex(100)
             }
         }
-    }
-
-    // MARK: - Top Bar
-
-    private var topBarSection: some View {
-        HomeTopBarView(
-            scheme: appState.preferredScheme,
-            language: appState.language,
-            onToggleLanguage: toggleLanguage,
-            onToggleScheme: toggleColorScheme,
-            onOpenSettings: openSettings,
-            isManagedTheme: ShieldTheme.activeThemeID.isSeasonal
-        )
-        .padding(.horizontal, ShieldTheme.s5)
-        .padding(.top, 2)
-        .padding(.bottom, 10)
-        .background(
-            ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
-                ? Color.clear
-                : ShieldTheme.background(appState.preferredScheme)
-        )
-        .overlay(alignment: .bottom) {
-            if ShieldTheme.activeThemeID != .halloween2026 || appState.preferredScheme != .dark {
-                ShieldTheme.line(appState.preferredScheme)
-                    .frame(height: 0.5)
+        .onAppear {
+            Task { @MainActor in
+                await Task.yield()
+                appState.prepareLocalSearchIndexIfNeeded()
+            }
+        }
+        .onChange(of: appState.searchQuery) { _, _ in
+            Task { @MainActor in
+                await Task.yield()
+                appState.prepareLocalSearchIndexIfNeeded()
             }
         }
     }
 
     // MARK: - Hero
+
+    private var regularHomeDashboard: some View {
+        VStack(spacing: 18) {
+            regularWelcomeHeader
+            heroSection
+
+            HStack(alignment: .top, spacing: 16 + verticalFoldWidth) {
+                VStack(spacing: 0) {
+                    searchSection
+                    localSearchIndexStatus
+                    categoryGrid
+                    libraryStatistics
+                        .padding(.top, 8)
+                }
+                .frame(maxWidth: .infinity, alignment: .top)
+
+                VStack(spacing: 0) {
+                    quickAccessSection
+                        .padding(.bottom, 12)
+                    workspaceSection
+                        .padding(.bottom, 12)
+                    recentsSection
+                }
+                .frame(maxWidth: .infinity, alignment: .top)
+            }
+        }
+        .padding(.top, 12)
+    }
+
+    private var libraryStatistics: some View {
+        let redactedCount = appState.documents.filter {
+            $0.redactionCount > 0 || $0.totalRedactionCount > 0
+        }.count
+        let watermarkedCount = appState.documents.filter { document in
+            guard let text = document.watermark?.text else { return false }
+            return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }.count
+
+        return HomeLibraryStatisticsView(
+            documentCount: appState.documents.count,
+            redactedDocumentCount: redactedCount,
+            vaultDocumentCount: appState.vaultDocuments.count,
+            watermarkedDocumentCount: watermarkedCount,
+            scheme: appState.preferredScheme,
+            language: appState.language,
+            onSelect: { metric in
+                appState.activeCategoryID = DocumentCategory.all.rawValue
+                appState.searchQuery = ""
+                allDocumentsMetric = metric
+                showAllDocs = true
+            }
+        )
+    }
+
+    private var quickAccessSection: some View {
+        HomeQuickAccessSection(
+            scheme: appState.preferredScheme,
+            onOpenLibrary: {
+                appState.activeCategoryID = DocumentCategory.all.rawValue
+                appState.searchQuery = ""
+                allDocumentsMetric = .documents
+                showAllDocs = true
+            },
+            onOpenVault: { appState.activeTab = .vault },
+            onOpenTools: {
+                withAnimation(reduceMotion ? nil : ShieldMotion.navigation) {
+                    appState.isHomeWorkspaceToolsExpanded = true
+                }
+                // Publish the parent state before asking ScrollViewReader to
+                // move the regular-width dashboard to the expanded section.
+                Task { @MainActor in
+                    await Task.yield()
+                    quickAccessToolsScrollRequest += 1
+                }
+            },
+            toolsExpanded: appState.isHomeWorkspaceToolsExpanded
+        )
+        .padding(.horizontal, ShieldTheme.s5)
+        .padding(.top, 8)
+    }
+
+    private var regularWelcomeHeader: some View {
+        let isHalloween = ShieldTheme.activeThemeID == .halloween2026 && appState.preferredScheme == .dark
+
+        return HStack {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(LanguageManager.shared.home("home_hero_title"))
+                        .shieldFont(32, weight: .heavy)
+                        .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
+                        .fixedSize(horizontal: false, vertical: true)
+                    if isHalloween {
+                        Text("🦇")
+                            .font(.system(size: 22))
+                    }
+                }
+
+                Text(LanguageManager.shared.home("home_hero_subtitle"))
+                    .shieldFont(17, weight: .medium)
+                    .foregroundColor(isHalloween ? Color(hex: "D8B4FE") : ShieldTheme.secondary(appState.preferredScheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, ShieldTheme.s5)
+        .padding(.bottom, 2)
+    }
 
     private var heroSection: some View {
         HomeHeroCardView(
@@ -202,6 +358,8 @@ struct HomeView: View {
             isPro: pm.isPro,
             freeUsed: max(pm.freeDocumentsProcessedCount, appState.documents.count),
             freeLimit: PremiumManager.freeDocumentLimit,
+            showsHeading: horizontalSizeClass != .regular || dynamicTypeSize.isAccessibilitySize,
+            onProtect: openDocumentIntake,
             onUpgrade: { showPaywall = true },
             onLearnMore: openSettings
         )
@@ -221,11 +379,12 @@ struct HomeView: View {
                     ? (isHalloween ? Color(hex: "FFA53D") : ShieldTheme.accent)
                     : (isHalloween ? Color(hex: "A78BFA") : ShieldTheme.tertiary(appState.preferredScheme)))
 
-            TextField(LanguageManager.shared.home("home_search"), text: $appState.searchQuery)
+            TextField(LanguageManager.shared.home("home_search_content_hint"), text: $appState.searchQuery)
                 .shieldFont(15)
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .focused($searchFocused)
                 .submitLabel(.search)
+                .accessibilityIdentifier("home.searchField")
 
             if !appState.searchQuery.isEmpty {
                 Button {
@@ -277,63 +436,116 @@ struct HomeView: View {
         .padding(.bottom, 16)
     }
 
+    @ViewBuilder
+    private var localSearchIndexStatus: some View {
+        if appState.isPreparingLocalSearchOCR {
+            HStack(spacing: ShieldTheme.s2) {
+                ProgressView()
+                    .controlSize(.mini)
+                    .tint(ShieldTheme.accent)
+                Text(LanguageManager.shared.home("home_search_preparing"))
+                    .shieldFont(11, weight: .medium)
+                    .foregroundStyle(ShieldTheme.secondary(appState.preferredScheme))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, ShieldTheme.s5)
+            .padding(.top, -10)
+            .padding(.bottom, 12)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("home.search.indexing")
+        }
+    }
+
     // MARK: - Categories
 
     @State private var showNewCategory = false
 
-    private var categoryScroll: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(DocumentCategory.allCases) { cat in
-                    PillButton(
-                        label: cat.label(lang: appState.language),
-                        icon: cat.icon,
-                        isActive: appState.activeCategoryID == cat.rawValue
-                    ) {
-                        withAnimation { appState.activeCategoryID = cat.rawValue }
-                    }
+    private var categoryGrid: some View {
+        Group {
+            if horizontalSizeClass == .compact && !dynamicTypeSize.isAccessibilitySize {
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(minimum: 44), spacing: 8), count: 4),
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    categoryButtons(showsLabels: false)
                 }
-                ForEach(appState.customCategories) { cat in
-                    PillButton(
-                        label: cat.name,
-                        icon: cat.icon,
-                        isActive: appState.activeCategoryID == cat.id
-                    ) {
-                        withAnimation { appState.activeCategoryID = cat.id }
-                    }
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            appState.deleteCustomCategory(id: cat.id)
-                        } label: {
-                            Label(LanguageManager.shared.common("common_delete_category"), systemImage: "trash")
-                        }
-                    }
+            } else {
+                LazyVGrid(
+                    columns: dynamicTypeSize.isAccessibilitySize
+                        ? [GridItem(.flexible())]
+                        : [GridItem(.adaptive(minimum: 130, maximum: 220), spacing: 8)],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    categoryButtons(showsLabels: true)
                 }
-                Button {
-                    showNewCategory = true
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "plus").shieldFont(11, weight: .semibold)
-                        Text(LanguageManager.shared.common("common_new")).shieldFont(12, weight: .semibold)
-                    }
-                    .foregroundColor(ShieldTheme.accent)
-                    .padding(.horizontal, 10)
-                    .frame(height: 28)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
-                    .background(ShieldTheme.accentDim)
-                    .overlay(Capsule().stroke(ShieldTheme.accent.opacity(0.4), lineWidth: 0.5))
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(ScaleButtonStyle())
             }
-            .padding(.bottom, 16)
         }
         .padding(.horizontal, ShieldTheme.s5)
+        .accessibilityIdentifier("home.categoryGrid")
+        .padding(.bottom, 8)
         .sheet(isPresented: $showNewCategory) {
             NewCategorySheet(isPresented: $showNewCategory)
                 .environmentObject(appState)
         }
+    }
+
+    @ViewBuilder
+    private func categoryButtons(showsLabels: Bool) -> some View {
+        ForEach(DocumentCategory.allCases) { cat in
+            HomeCategoryChip(
+                label: cat.label(lang: appState.language),
+                icon: cat.icon,
+                isActive: appState.activeCategoryID == cat.rawValue,
+                scheme: appState.preferredScheme,
+                showsLabel: showsLabels,
+                accessibilityID: "home.category.\(cat.rawValue)"
+            ) {
+                withAnimation { appState.activeCategoryID = cat.rawValue }
+            }
+        }
+        ForEach(appState.customCategories) { cat in
+            HomeCategoryChip(
+                label: cat.name,
+                icon: cat.icon,
+                isActive: appState.activeCategoryID == cat.id,
+                scheme: appState.preferredScheme,
+                showsLabel: showsLabels,
+                accessibilityID: "home.category.custom.\(cat.id)"
+            ) {
+                withAnimation { appState.activeCategoryID = cat.id }
+            }
+            .contextMenu {
+                Button(role: .destructive) {
+                    appState.deleteCustomCategory(id: cat.id)
+                } label: {
+                    Label(LanguageManager.shared.common("common_delete_category"), systemImage: "trash")
+                }
+            }
+        }
+        Button {
+            showNewCategory = true
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "plus")
+                    .shieldFont(showsLabels ? 11 : 16, weight: .semibold)
+                if showsLabels {
+                    Text(LanguageManager.shared.common("common_new"))
+                        .shieldFont(12, weight: .semibold)
+                }
+            }
+            .foregroundColor(ShieldTheme.accent)
+            .padding(.horizontal, showsLabels ? 10 : 0)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .center)
+            .contentShape(Rectangle())
+            .background(ShieldTheme.accentDim)
+            .overlay(Capsule().stroke(ShieldTheme.accent.opacity(0.4), lineWidth: 0.5))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(LanguageManager.shared.common("common_new"))
+        .accessibilityIdentifier("home.category.add")
     }
 
     // MARK: - Modes
@@ -359,7 +571,7 @@ struct HomeView: View {
         return VStack(spacing: 0) {
             Button {
                 withAnimation(reduceMotion ? nil : ShieldMotion.state) {
-                    showWorkspaceTools.toggle()
+                    appState.isHomeWorkspaceToolsExpanded.toggle()
                 }
             } label: {
                 HStack(spacing: ShieldTheme.s3) {
@@ -373,7 +585,7 @@ struct HomeView: View {
                     Image(systemName: "chevron.down")
                         .font(.footnote.weight(.bold))
                         .foregroundStyle(isHalloween ? Color(hex: "FFA53D").opacity(0.8) : ShieldTheme.tertiary(scheme))
-                        .rotationEffect(.degrees(showWorkspaceTools ? 180 : 0))
+                        .rotationEffect(.degrees(appState.isHomeWorkspaceToolsExpanded ? 180 : 0))
                 }
                 .padding(ShieldTheme.s4)
                 .background(
@@ -392,17 +604,31 @@ struct HomeView: View {
             }
             .buttonStyle(ScaleButtonStyle())
             .accessibilityValue(LanguageManager.shared.common(
-                showWorkspaceTools ? "common_expanded" : "common_collapsed"
+                appState.isHomeWorkspaceToolsExpanded ? "common_expanded" : "common_collapsed"
             ))
+            .accessibilityIdentifier("home.workspace.toggle")
             .padding(.horizontal, ShieldTheme.s5)
-            .padding(.top, ShieldTheme.s4)
+            .padding(.top, horizontalSizeClass == .regular ? 8 : ShieldTheme.s4)
+            .background {
+                if horizontalSizeClass == .regular {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(ShieldTheme.cardBackground(appState.preferredScheme))
+                }
+            }
+            .overlay {
+                if horizontalSizeClass == .regular {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
+                }
+            }
 
-            if showWorkspaceTools {
+            if appState.isHomeWorkspaceToolsExpanded {
                 modesSection
                 vaultSection
                 cloudStorageSection
             }
         }
+        .id("home.workspace")
     }
 
     // MARK: - Recents
@@ -441,6 +667,22 @@ struct HomeView: View {
 
             if appState.filteredDocuments.isEmpty {
                 emptyLibraryState
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: horizontalSizeClass == .regular ? 220 : nil)
+                    .background {
+                        if horizontalSizeClass == .regular {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(ShieldTheme.cardBackground(appState.preferredScheme))
+                        }
+                    }
+                    .overlay {
+                        if horizontalSizeClass == .regular {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(ShieldTheme.line(appState.preferredScheme), lineWidth: 0.8)
+                        }
+                    }
+                    .padding(.horizontal, horizontalSizeClass == .regular ? ShieldTheme.s5 : 0)
+                    .padding(.bottom, horizontalSizeClass == .regular ? 4 : 24)
             } else {
                 VStack(spacing: 0) {
                     if let doc = appState.filteredDocuments.first {
@@ -463,6 +705,7 @@ struct HomeView: View {
                 vaultAuthDoc = doc
                 authenticateForVaultDoc(doc)
             } else {
+                appState.prepareSearchNavigation(to: doc)
                 appState.selectedDoc = doc
             }
         }
@@ -540,29 +783,40 @@ struct HomeView: View {
     }
 
     private var emptyLibraryState: some View {
-        ShieldStateView(
-            kind: .empty,
-            title: appState.hasActiveFilter
-                ? LanguageManager.shared.home("home_no_results")
-                : LanguageManager.shared.home("home_no_documents"),
-            message: appState.hasActiveFilter
-                ? LanguageManager.shared.home("home_no_results_subtitle")
-                : LanguageManager.shared.home("home_no_documents_subtitle"),
-            actionLabel: appState.hasActiveFilter
-                ? LanguageManager.shared.home("home_clear_filters")
-                : LanguageManager.shared.home("home_scan_document")
-        ) {
-            if appState.hasActiveFilter {
-                withAnimation(reduceMotion ? nil : ShieldMotion.state) {
-                    appState.activeCategoryID = DocumentCategory.all.rawValue
-                    appState.searchQuery = ""
+        let hasActiveFilter = appState.hasActiveFilter
+        return VStack(spacing: 8) {
+            ShieldStateView(
+                kind: .empty,
+                title: hasActiveFilter
+                    ? LanguageManager.shared.home("home_no_results")
+                    : LanguageManager.shared.home("home_no_documents"),
+                message: hasActiveFilter
+                    ? LanguageManager.shared.home("home_no_results_subtitle")
+                    : LanguageManager.shared.home("home_no_documents_subtitle"),
+                actionLabel: hasActiveFilter
+                    ? LanguageManager.shared.home("home_clear_filters")
+                    : nil,
+                action: hasActiveFilter ? {
+                    withAnimation(reduceMotion ? nil : ShieldMotion.state) {
+                        appState.activeCategoryID = DocumentCategory.all.rawValue
+                        appState.searchQuery = ""
+                    }
+                } : nil
+            )
+
+            if !hasActiveFilter && horizontalSizeClass == .regular && dynamicTypeSize.isAccessibilitySize {
+                ShieldButton(
+                    label: LanguageManager.shared.capture("capture_scan_document"),
+                    icon: "camera.viewfinder"
+                ) {
+                    appState.showCapture = true
                 }
-            } else {
-                appState.showCapture = true
+                .frame(maxWidth: 320)
             }
+
         }
         .padding(.horizontal, ShieldTheme.s4)
-        .padding(.bottom, 24)
+        .padding(.vertical, horizontalSizeClass == .regular ? 20 : 0)
     }
 
     // MARK: - Cloud Storage
@@ -784,12 +1038,87 @@ struct HomeView: View {
         }
     }
 
+    private func openDocumentIntake() {
+        if let onScanTap {
+            onScanTap()
+        } else {
+            appState.showCapture = true
+        }
+    }
+
     private func openSettings() {
         withAnimation {
             appState.activeTab = .settings
         }
     }
 
+}
+
+private struct HomeCategoryChip: View {
+    let label: String
+    let icon: String?
+    let isActive: Bool
+    let scheme: ColorScheme
+    let showsLabel: Bool
+    let accessibilityID: String
+    let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var isHalloween: Bool {
+        ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+    }
+
+    private var foreground: Color {
+        if isHalloween {
+            return isActive ? Color(hex: "150801") : Color(hex: "E0D4FC")
+        }
+        return isActive ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme)
+    }
+
+    private var fill: Color {
+        if isHalloween {
+            return isActive ? Color(hex: "FFA53D") : Color(hex: "241436")
+        }
+        return isActive ? ShieldTheme.accentDim(scheme) : ShieldTheme.cardBackground(scheme)
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: showsLabel ? 6 : 0) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: showsLabel ? 12 : 16, weight: .semibold))
+                        .accessibilityHidden(true)
+                }
+
+                if showsLabel {
+                    Text(label)
+                        .shieldFont(13, weight: .semibold)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                        .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 1 : 0.82)
+                    Spacer(minLength: 0)
+                }
+
+            }
+            .foregroundStyle(foreground)
+            .padding(.horizontal, showsLabel ? 10 : 0)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: showsLabel ? .leading : .center)
+            .background(fill, in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(
+                        isActive ? ShieldTheme.accent(scheme).opacity(0.7) : ShieldTheme.line(scheme),
+                        lineWidth: isActive ? 1 : 0.6
+                    )
+            }
+            .contentShape(Capsule())
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(accessibilityID)
+        .accessibilityValue(LanguageManager.shared.common(isActive ? "common_selected" : "common_not_selected"))
+        .accessibilityAddTraits(isActive ? .isSelected : [])
+    }
 }
 
 // MARK: - FilterSheet
@@ -1513,7 +1842,11 @@ struct BatchRedactView: View {
     @State private var selectedMode: RedactionMode = .rental
     @State private var isProcessing = false
     @State private var processed = 0
+    @State private var failed = 0
+    @State private var pagesWithSuggestions = 0
+    @State private var pagesWithoutSuggestions = 0
     @State private var showDone = false
+    @State private var pendingReviewDocumentID: String?
 
     private var selectableDocs: [DocumentItem] {
         appState.documents.filter { !$0.isVaulted }
@@ -1541,11 +1874,34 @@ struct BatchRedactView: View {
         }
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {
+            let pendingDocuments = appState.documents.filter {
+                !$0.isVaulted && !$0.batchReviewPendingPageIndices.isEmpty
+            }
+            if !pendingDocuments.isEmpty {
+                selectedIDs = Set(pendingDocuments.map(\.id))
+                processed = pendingDocuments.count
+                pagesWithSuggestions = pendingDocuments.reduce(0) { $0 + $1.batchSuggestionPageIndices.count }
+                pagesWithoutSuggestions = pendingDocuments.reduce(0) {
+                    $0 + max(0, $1.pageCount - $1.batchSuggestionPageIndices.count)
+                }
+                showDone = true
+                return
+            }
 #if DEBUG
             if ASOScreenshotMode.isEnabled {
                 selectedIDs = Set(selectableDocs.prefix(3).map { $0.id })
             }
 #endif
+        }
+        .onDisappear {
+            guard let pendingReviewDocumentID else { return }
+            Task { @MainActor in
+                await Task.yield()
+                guard let document = appState.documents.first(where: { $0.id == pendingReviewDocumentID }) else {
+                    return
+                }
+                appState.selectedDoc = document
+            }
         }
     }
 
@@ -1693,22 +2049,55 @@ struct BatchRedactView: View {
             Spacer()
             ZStack {
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(ShieldTheme.successDim)
+                    .fill(ShieldTheme.warning.opacity(0.16))
                     .frame(width: 90, height: 90)
-                Image(systemName: "checkmark")
+                    Image(systemName: failed == 0 ? "doc.text.magnifyingglass" : "exclamationmark")
                     .shieldFont(44, weight: .semibold)
-                    .foregroundColor(ShieldTheme.success)
+                    .foregroundColor(ShieldTheme.warning)
             }
             VStack(spacing: 6) {
-                Text(LanguageManager.shared.home("home_batch_complete_title"))
+                Text(LanguageManager.shared.home(failed == 0 ? "home_batch_complete_title" : "home_batch_partial_title"))
                     .shieldFont(22, weight: .bold)
                     .foregroundColor(ShieldTheme.primary(scheme))
-                Text(LanguageManager.shared.home("home_batch_complete_desc", selectedMode.label(lang: appState.language), processed))
+                Text(LanguageManager.shared.home("home_batch_complete_desc", processed))
                     .shieldFont(14)
                     .foregroundColor(ShieldTheme.secondary(scheme))
                     .multilineTextAlignment(.center)
+                if failed > 0 {
+                    Text(LanguageManager.shared.home("home_batch_failed_count", failed))
+                        .shieldFont(13, weight: .semibold)
+                        .foregroundColor(ShieldTheme.danger)
+                        .multilineTextAlignment(.center)
+                }
             }
+            Text(LanguageManager.shared.home(
+                "home_batch_page_summary",
+                pagesWithSuggestions,
+                pagesWithoutSuggestions
+            ))
+            .shieldFont(12, weight: .medium)
+            .foregroundColor(ShieldTheme.secondary(scheme))
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+
+            reviewQueue
+
             Spacer()
+            Button {
+                selectedIDs = []
+                processed = 0
+                failed = 0
+                pagesWithSuggestions = 0
+                pagesWithoutSuggestions = 0
+                withAnimation { showDone = false }
+            } label: {
+                Text(LanguageManager.shared.home("home_batch_new"))
+                    .shieldFont(15, weight: .semibold)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 44)
+                    .foregroundColor(ShieldTheme.accent)
+            }
+            .buttonStyle(.plain)
             Button { isPresented = false } label: {
                 Text(LanguageManager.shared.common("common_done"))
                     .shieldFont(16, weight: .bold)
@@ -1724,6 +2113,51 @@ struct BatchRedactView: View {
         }
     }
 
+    private var reviewQueue: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(LanguageManager.shared.home("home_batch_review_queue_title"))
+                    .shieldFont(12, weight: .bold)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
+                ForEach(appState.documents.filter {
+                    !$0.isVaulted && !$0.batchReviewPendingPageIndices.isEmpty
+                }) { document in
+                        let documentID = document.id
+                        HStack(spacing: 10) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(document.title)
+                                    .shieldFont(13, weight: .semibold)
+                                    .foregroundColor(ShieldTheme.primary(scheme))
+                                    .lineLimit(1)
+                                Text(LanguageManager.shared.home(
+                                    "home_batch_pages_pending",
+                                    document.batchReviewPendingPageIndices.count
+                                ))
+                                    .shieldFont(11)
+                                    .foregroundColor(ShieldTheme.warning)
+                            }
+                            Spacer(minLength: 4)
+                            Button {
+                                pendingReviewDocumentID = documentID
+                                isPresented = false
+                            } label: {
+                                Text(LanguageManager.shared.home("home_batch_review_open"))
+                                    .shieldFont(11, weight: .semibold)
+                                    .frame(minHeight: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundColor(ShieldTheme.accent)
+                            .accessibilityIdentifier("home.batch.reviewDocument.\(documentID)")
+                        }
+                        .padding(.horizontal, 12)
+                        .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        .frame(maxHeight: 220)
+        .accessibilityIdentifier("home.batch.reviewQueue")
+    }
+
     private func applyBatch() {
         guard pm.isPro else {
             PremiumManager.recordFeatureGate(.batchProcessing, trigger: .settingsUpgrade)
@@ -1733,37 +2167,39 @@ struct BatchRedactView: View {
         guard !selectedIDs.isEmpty else { return }
         isProcessing = true
         processed = 0
+        failed = 0
+        pagesWithSuggestions = 0
+        pagesWithoutSuggestions = 0
 
         Task {
-            for docID in selectedIDs {
-                guard var doc = appState.documents.first(where: { $0.id == docID }) else { continue }
-                let suggested = AutoRedactions.suggested(for: doc.kind, style: .block)
-                let modeRects = AutoRedactions.ocrModeRects(for: selectedMode, fields: doc.fields)
-                let toAdd: [Redaction] = suggested.isEmpty
-                    ? modeRects.map { Redaction(rect: $0, style: .block) }
-                    : suggested
-
-                for pageIdx in 0..<max(doc.pageCount, 1) {
-                    var existing = doc.redactions(for: pageIdx)
-                    let newOnes = toAdd.filter { r in
-                        !existing.contains(where: {
-                            abs($0.rect.origin.x - r.rect.origin.x) < 0.01 &&
-                            abs($0.rect.origin.y - r.rect.origin.y) < 0.01
-                        })
-                    }.map { Redaction(rect: $0.rect, style: $0.style) }
-                    existing.append(contentsOf: newOnes)
-                    doc.setRedactions(existing, for: pageIdx)
+            for docID in selectedIDs.sorted() {
+                guard var doc = appState.documents.first(where: { $0.id == docID }) else {
+                    await MainActor.run { failed += 1 }
+                    continue
                 }
 
+                let plan = BatchRedactionPlanner.plan(for: doc, mode: selectedMode)
+                for page in plan.pageRedactions {
+                    doc.setRedactions(page.redactions, for: page.pageIndex)
+                }
+                doc.batchReviewPendingPageIndices = Array(0..<max(doc.pageCount, 1))
+                doc.batchSuggestionPageIndices = plan.pageRedactions.map(\.pageIndex).sorted()
                 await MainActor.run {
-                    appState.updateDocument(doc)
-                    processed += 1
+                    let saved = appState.updateDocument(doc)
+                    if saved {
+                        processed += 1
+                        pagesWithSuggestions += plan.pagesWithSuggestions
+                        pagesWithoutSuggestions += plan.pagesWithoutSuggestions
+                    } else {
+                        failed += 1
+                    }
                 }
             }
 
             AppState.trackEvent("batch_applied", properties: [
                 "mode": selectedMode.rawValue,
-                "docs": String(selectedIDs.count)
+                "docs": String(processed),
+                "failed": String(failed)
             ])
 
             await MainActor.run {

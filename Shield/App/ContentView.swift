@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - ContentView
 
@@ -57,7 +58,7 @@ struct ContentView: View {
                     .zIndex(20_000)
             }
 
-            if ASOScreenshotMode.isEnabled, (ASOScreenshotMode.scene == "batch" || ASOScreenshotMode.scene == "08-batch-processing" || ASOScreenshotMode.scene == "08"), asoOverlayPresented {
+            if ASOScreenshotMode.isEnabled, (ASOScreenshotMode.scene == "batch" || ASOScreenshotMode.scene == "08-batch-processing" || ASOScreenshotMode.scene == "08" || ASOScreenshotMode.scene == "batch-review-queue"), asoOverlayPresented {
                 BatchRedactView(isPresented: $asoOverlayPresented)
                     .environmentObject(appState)
                     .zIndex(20_000)
@@ -91,14 +92,23 @@ struct ContentView: View {
         }
         .onAppear(perform: presentAnalyticsConsentIfNeeded)
         .onAppear {
-            seasonalThemes.refresh(isPro: premium.isPro)
-            appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
-            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: premium.isPro)
-            seasonalThemes.setSceneActive(true)
+            Task { @MainActor in
+                // Wait until SwiftUI has finished installing the initial scene.
+                // A single task yield can still run inside the first layout on
+                // iPad and publish theme state during a view update.
+                try? await Task.sleep(for: .milliseconds(60))
+                seasonalThemes.refresh(
+                    isPro: premium.isPro,
+                    hasResolvedEntitlement: premium.hasResolvedSubscription
+                )
+                appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
+                syncSeasonalThemeIcon()
+                seasonalThemes.setSceneActive(true)
+            }
         }
         .onChange(of: seasonalThemes.activeThemeID) { _, newTheme in
             appState.applySeasonalThemeAppearance(for: newTheme)
-            appState.applySeasonalThemeIcon(for: newTheme, isPro: PremiumManager.shared.isPro)
+            syncSeasonalThemeIcon()
             withAnimation(reduceMotion ? nil : ShieldMotion.navigation) {
                 themeTransition = newTheme
             }
@@ -114,13 +124,24 @@ struct ContentView: View {
             Task { await premium.loadProducts() }
         }
         .onChange(of: premium.isPro) { _, isPro in
-            seasonalThemes.refresh(isPro: isPro)
+            seasonalThemes.refresh(
+                isPro: isPro,
+                hasResolvedEntitlement: premium.hasResolvedSubscription
+            )
             appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
-            appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: isPro)
+            syncSeasonalThemeIcon()
             appState.refreshWidgetSnapshot()
             if isPro, sessionStage == .ready {
                 cloud.syncOnForeground(appState: appState)
             }
+        }
+        .onChange(of: premium.hasResolvedSubscription) { _, isResolved in
+            seasonalThemes.refresh(
+                isPro: premium.isPro,
+                hasResolvedEntitlement: isResolved
+            )
+            appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
+            syncSeasonalThemeIcon()
         }
         .onChange(of: showSplash) { _, isShowing in
             if !isShowing { presentAnalyticsConsentIfNeeded() }
@@ -154,6 +175,11 @@ struct ContentView: View {
         return .ready
     }
 
+    private func syncSeasonalThemeIcon() {
+        guard !seasonalThemes.shouldDeferSeasonalIconUntilEntitlementResolves else { return }
+        appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID)
+    }
+
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
         appState.handleScenePhaseChange(newPhase)
         seasonalThemes.setSceneActive(newPhase == .active)
@@ -165,9 +191,12 @@ struct ContentView: View {
             return
         }
         appState.syncAppIconWithSystem()
-        seasonalThemes.refresh(isPro: premium.isPro)
+        seasonalThemes.refresh(
+            isPro: premium.isPro,
+            hasResolvedEntitlement: premium.hasResolvedSubscription
+        )
         appState.applySeasonalThemeAppearance(for: seasonalThemes.activeThemeID)
-        appState.applySeasonalThemeIcon(for: seasonalThemes.activeThemeID, isPro: premium.isPro)
+        syncSeasonalThemeIcon()
 
         Task { await premium.refreshCloudKitPremiumAccess() }
 
@@ -189,10 +218,13 @@ struct ContentView: View {
     private func presentAnalyticsConsentIfNeeded() {
         let arguments = ProcessInfo.processInfo.arguments
         let forcedForTesting = arguments.contains("-show-analytics-consent")
-        let isAutomatedLaunch = arguments.contains("-ui-testing") || arguments.contains("-aso-screenshots")
-        guard !showSplash,
-              !analyticsConsentPromptAnswered || forcedForTesting,
-              (!isAutomatedLaunch || forcedForTesting) else {
+        // Product analytics is off by default and can be enabled from Privacy
+        // Settings. Never put a consent sheet in front of the first document
+        // task; this forced path exists only for the consent UI test.
+        guard forcedForTesting,
+              !showSplash,
+              sessionStage == .ready,
+              !analyticsConsentPromptAnswered || forcedForTesting else {
             return
         }
         showAnalyticsConsent = true
@@ -200,6 +232,8 @@ struct ContentView: View {
 }
 
 private struct PrivacySnapshotShield: View {
+    @Environment(\.colorScheme) private var scheme
+
     var body: some View {
         ZStack {
             RadialGradient(
@@ -228,13 +262,13 @@ private struct PrivacySnapshotShield: View {
 
                     Text(LanguageManager.shared.auth("lock_protection_active"))
                         .shieldFont(12, weight: .bold)
-                        .foregroundStyle(Color(hex: "00E5FF"))
+                        .foregroundStyle(ShieldTheme.accent(scheme))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 5)
-                        .background(Color(hex: "00B4D8").opacity(0.16), in: Capsule())
+                        .background(ShieldTheme.accentDim(scheme), in: Capsule())
                         .overlay(
                             Capsule()
-                                .stroke(Color(hex: "00B4D8").opacity(0.35), lineWidth: 0.8)
+                                .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
                         )
                 }
             }
@@ -253,16 +287,31 @@ private struct AuthenticatedShellView: View {
     @ObservedObject var appState: AppState
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var splitColumnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
         ZStack {
             if horizontalSizeClass == .regular {
                 regularNavigation
+            } else if #available(iOS 26.0, *) {
+                // Keep the adaptive TabView mounted while its sidebar changes
+                // selection. Replacing it with a standalone SettingsView in
+                // the same update can make UIKit build a sidebar transition
+                // preview for a view that has already left the window.
+                adaptiveTabNavigation
+            } else if appState.activeTab == .settings {
+                // Legacy navigation has a custom footer; settings is presented
+                // outside that shell so it cannot cover the final settings rows.
+                SettingsView()
+                    .transition(.move(edge: .trailing))
+                    .zIndex(20)
             } else {
-                compactNavigation
+                legacyCompactNavigation
             }
 
-            if !appState.showCapture, let doc = appState.selectedDoc {
+            if appState.activeTab != .settings,
+               !appState.showCapture,
+               let doc = appState.selectedDoc {
                 EditorView(doc: doc)
                     .id(doc.id)
                     .transition(.move(edge: .trailing))
@@ -278,33 +327,33 @@ private struct AuthenticatedShellView: View {
     private func openCapture() {
         guard !appState.showCapture else { return }
 
-        // Capture is a top-level intake flow. Clear any stale editor selection
-        // before presenting it so a pending editor transition cannot obscure
-        // the capture surface or consume its accessibility actions.
-        // Avoid publishing a redundant nil when Capture is opened from a tab;
-        // that update can rebuild the authenticated shell during its tab
-        // transition and race the root-hosted presentation. When leaving the
-        // editor, defer one run-loop so its transition can finish first.
-        if appState.selectedDoc != nil {
-            appState.selectedDoc = nil
-            DispatchQueue.main.async {
-                guard !appState.showCapture else { return }
-                appState.showCapture = true
+        // Tab and toolbar actions can arrive during UIKit's navigation update,
+        // especially on iPad's sidebar-adaptable TabView. Defer the root-hosted
+        // cover until that update has settled or SwiftUI may drop the request.
+        Task { @MainActor in
+            await Task.yield()
+            guard !appState.showCapture else { return }
+
+            // Clear an editor selection before presenting intake so its
+            // transition cannot obscure the capture surface.
+            if appState.selectedDoc != nil {
+                appState.selectedDoc = nil
+                await Task.yield()
             }
-        } else {
+
+            guard !appState.showCapture else { return }
             appState.showCapture = true
         }
     }
 
     @ViewBuilder
-    private var compactNavigation: some View {
+    private var legacyCompactNavigation: some View {
         tabContent
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if appState.activeTab != .settings {
                     ShieldTabBar(
                         selected: $appState.activeTab,
-                        lang: appState.language,
-                        onScanTap: openCapture
+                        lang: appState.language
                     )
                 }
             }
@@ -312,45 +361,107 @@ private struct AuthenticatedShellView: View {
 
     @ViewBuilder
     private var regularNavigation: some View {
-        if #available(iOS 26.0, *) {
-            nativeTabView
-                .tabViewStyle(.sidebarAdaptable)
-                .tabViewSidebarBottomBar {
-                    ShieldSidebarScanAction(action: openCapture)
-                    .padding(.horizontal, ShieldTheme.s2)
+        NavigationSplitView(columnVisibility: $splitColumnVisibility) {
+            List {
+                ForEach(AppTab.navigationCases) { tab in
+                    Button {
+                        selectNativeTab(tab)
+                    } label: {
+                        Label(tab.label(lang: appState.language), systemImage: tab.icon)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(
+                        appState.activeTab == tab
+                            ? ShieldTheme.accentDim(appState.preferredScheme)
+                            : Color.clear
+                    )
+                    .accessibilityValue(
+                        appState.activeTab == tab
+                            ? LanguageManager.shared.common("common_selected")
+                            : ""
+                    )
+                    .accessibilityAddTraits(appState.activeTab == tab ? .isSelected : [])
+                    .accessibilityLabel(tab.label(lang: appState.language))
+                    .accessibilityIdentifier("tab.\(tab.rawValue)")
                 }
-        } else {
-            HStack(spacing: 0) {
-                ShieldSidebar(
-                    selected: $appState.activeTab,
-                    lang: appState.language,
-                    onScanTap: openCapture
-                )
-                Divider()
-                tabContent
+            }
+            .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 220, ideal: 260)
+            .accessibilityIdentifier("navigation.sidebar")
+        } detail: {
+            if appState.activeTab == .settings {
+                SettingsView(onClose: { selectNativeTab(.library) })
+            } else {
+                NavigationStack {
+                    tabContent(for: appState.activeTab)
+                }
+                .id(appState.activeTab)
+                .toolbarBackground(.hidden, for: .navigationBar)
             }
         }
+        .navigationSplitViewStyle(.balanced)
     }
 
+    /// Let SwiftUI choose the native tab representation. Capture is exposed
+    /// from the Home toolbar and primary action, not from a persistent tab item.
+    @available(iOS 26.0, *)
+    private var adaptiveTabNavigation: some View {
+        nativeTabView
+            // On iPhone, hide the bottom tab bar while Settings is open. On
+            // iPad and Duo, keep the native sidebar stable during selection;
+            // it lives outside the document area and does not cover settings.
+            .toolbarVisibility(
+                horizontalSizeClass == .compact && appState.activeTab == .settings
+                    ? .hidden
+                    : .automatic,
+                for: .tabBar
+            )
+    }
+
+    @available(iOS 26.0, *)
     private var nativeTabView: some View {
         TabView(selection: Binding(
             get: { appState.activeTab },
             set: { newTab in
+                guard newTab != appState.activeTab else { return }
                 withAnimation(reduceMotion ? nil : ShieldMotion.press) {
                     appState.activeTab = newTab
                 }
             }
         )) {
-            ForEach(AppTab.allCases) { tab in
+            ForEach(AppTab.navigationCases) { tab in
                 Tab(value: tab) {
-                    tabContent(for: tab)
+                    nativeTabRoot(for: tab)
                 } label: {
                     Label(tab.label(lang: appState.language), systemImage: tab.icon)
                         .accessibilityIdentifier("tab.\(tab.rawValue)")
                 }
             }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .tint(ShieldTheme.accent(appState.preferredScheme))
+        .defaultAdaptableTabBarPlacement(.sidebar)
+    }
+
+    @ViewBuilder
+    @available(iOS 26.0, *)
+    private func nativeTabRoot(for tab: AppTab) -> some View {
+        if tab == .settings {
+            // Settings owns its navigation stack and toolbar already.
+            SettingsView(onClose: { selectNativeTab(.library) })
+        } else {
+            NavigationStack {
+                tabContent(for: tab)
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
+        }
+    }
+
+    private func selectNativeTab(_ tab: AppTab) {
+        withAnimation(reduceMotion ? nil : ShieldMotion.press) {
+            appState.activeTab = tab
+        }
     }
 
     @ViewBuilder
@@ -362,13 +473,15 @@ private struct AuthenticatedShellView: View {
     private func tabContent(for tab: AppTab) -> some View {
         switch tab {
         case .library:
-            HomeView()
+            HomeView(onScanTap: openCapture)
         case .gallery:
             StyleGalleryView()
         case .vault:
             VaultView()
         case .settings:
             SettingsView()
+        case .capture:
+            Color.clear
         }
     }
 }

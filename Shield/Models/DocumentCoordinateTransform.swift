@@ -18,6 +18,29 @@ public enum DocumentCoordinateTransform {
         guard value.isFinite else { return 0 }
         return min(1, max(0, value))
     }
+
+    /// Returns the displayed aspect ratio after the editor's crop and rotation.
+    /// Redaction coordinates are normalized to this transformed image space.
+    static func adjustedAspect(_ baseAspect: CGFloat, using adjustment: ImageAdjustmentStore?) -> CGFloat {
+        guard baseAspect.isFinite, baseAspect > 0 else { return 1 }
+        guard let adjustment else { return baseAspect }
+
+        func crop(_ value: Double) -> Double {
+            guard value.isFinite else { return 0 }
+            return min(0.9, max(0, value))
+        }
+
+        let horizontalCrop = min(0.9, crop(adjustment.cropLeft) + crop(adjustment.cropRight))
+        let verticalCrop = min(0.9, crop(adjustment.cropTop) + crop(adjustment.cropBottom))
+        let width = Double(baseAspect) * max(0.1, 1 - horizontalCrop)
+        let height = max(0.1, 1 - verticalCrop)
+        let degrees = adjustment.rotation.isFinite ? adjustment.rotation : 0
+        let radians = degrees * .pi / 180
+        let rotatedWidth = abs(width * cos(radians)) + abs(height * sin(radians))
+        let rotatedHeight = abs(width * sin(radians)) + abs(height * cos(radians))
+        guard rotatedHeight.isFinite, rotatedHeight > 0 else { return baseAspect }
+        return max(0.01, CGFloat(rotatedWidth / rotatedHeight))
+    }
     
     /// Clamps and validates a canonical normalized rectangle within [0, 1] bounds.
     public static func clampedCanonicalRect(_ rect: CGRect, minimumSize: CGFloat = 0.02) -> CGRect {

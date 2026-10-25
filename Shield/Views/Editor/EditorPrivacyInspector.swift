@@ -39,9 +39,17 @@ struct EditorPrivacyInspector: View {
     @ObservedObject var vm: EditorViewModel
     let lang: AppLanguage
     let isPro: Bool
+    let searchQuery: String
+    @Binding var activeTab: PrivacyInspectorTab
+    let onOpenOCR: () -> Void
+    let onPersist: () -> Void
     var onTriggerPaywall: () -> Void
     @Environment(\.colorScheme) private var scheme
-    @State private var activeTab: PrivacyInspectorTab = .detections
+    @State private var revealedSearchMatchIDs: Set<String> = []
+
+    private var currentSearchOccurrences: [LocalSearchOccurrence] {
+        vm.doc.localSearchOccurrences(for: searchQuery, pageIndex: vm.currentPage)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -53,24 +61,36 @@ struct EditorPrivacyInspector: View {
 
             Divider()
 
-            // Inspector Content
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(spacing: ShieldTheme.s4) {
-                    switch activeTab {
-                    case .detections:
-                        detectionsSection
-                    case .mask:
-                        maskPropertiesSection
-                    case .watermark:
-                        watermarkSection
-                    case .export:
-                        exportSection
+            // Inspector Content. The empty detections state uses the available
+            // panel height so it does not bunch up below the actions with a
+            // large unused area underneath on Duo and iPad.
+            GeometryReader { geometry in
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(spacing: ShieldTheme.s4) {
+                        switch activeTab {
+                        case .detections:
+                            detectionsSection
+                        case .mask:
+                            maskPropertiesSection
+                        case .watermark:
+                            watermarkSection
+                        case .export:
+                            exportSection
+                        }
                     }
+                    .padding(ShieldTheme.s4)
+                    .frame(minHeight: geometry.size.height, alignment: .top)
                 }
-                .padding(ShieldTheme.s4)
+                .accessibilityIdentifier("editor.inspector.scroll")
             }
         }
         .background(ShieldTheme.cardBackground(scheme))
+        .onChange(of: searchQuery) { _, _ in
+            revealedSearchMatchIDs.removeAll()
+        }
+        .onChange(of: vm.currentPage) { _, _ in
+            revealedSearchMatchIDs.removeAll()
+        }
     }
 
     // MARK: - Tab Selector
@@ -100,6 +120,7 @@ struct EditorPrivacyInspector: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(tab.label(lang: lang))
+                .accessibilityIdentifier("editor.inspector.tab.\(tab.id)")
                 .accessibilityAddTraits(activeTab == tab ? [.isSelected, .isButton] : .isButton)
             }
         }
@@ -109,6 +130,10 @@ struct EditorPrivacyInspector: View {
 
     private var detectionsSection: some View {
         VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            if !currentSearchOccurrences.isEmpty {
+                localSearchSection
+            }
+
             HStack {
                 Text(lang == .es ? "DATOS SENSIBLES DETECTADOS" : "DETECTED SENSITIVE DATA")
                     .shieldFont(11, weight: .bold)
@@ -136,6 +161,9 @@ struct EditorPrivacyInspector: View {
                     .background(ShieldTheme.accent(scheme), in: RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
+                .disabled(!detectedFields.contains { !isFieldProtected($0) })
+                .opacity(detectedFields.contains { !isFieldProtected($0) } ? 1 : 0.55)
+                .accessibilityIdentifier("editor.inspector.protectAll")
 
                 Button {
                     clearCurrentPageRedactions()
@@ -151,10 +179,14 @@ struct EditorPrivacyInspector: View {
                     .background(ShieldTheme.dangerDim, in: RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
+                .disabled(vm.redactions.isEmpty)
+                .opacity(vm.redactions.isEmpty ? 0.55 : 1)
+                .accessibilityIdentifier("editor.inspector.clear")
             }
 
             // Detected items list
             if detectedFields.isEmpty {
+                Spacer(minLength: ShieldTheme.s4)
                 VStack(spacing: ShieldTheme.s2) {
                     Image(systemName: "text.badge.checkmark")
                         .shieldFont(24)
@@ -163,9 +195,29 @@ struct EditorPrivacyInspector: View {
                         .shieldFont(12)
                         .foregroundStyle(ShieldTheme.secondary(scheme))
                         .multilineTextAlignment(.center)
+                    Text(LanguageManager.shared.editor("editor_ocr_empty_inspector_explanation"))
+                        .shieldFont(11)
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 2)
+
+                    Button(action: onOpenOCR) {
+                        Label(
+                            LanguageManager.shared.editor("editor_ocr_empty_inspector_action"),
+                            systemImage: "text.viewfinder"
+                        )
+                        .shieldFont(12, weight: .bold)
+                        .foregroundStyle(ShieldTheme.accentText)
+                        .padding(.horizontal, 16)
+                        .frame(minHeight: 44)
+                        .background(ShieldTheme.accent(scheme), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("editor.inspector.openOCR")
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, ShieldTheme.s6)
+                Spacer(minLength: ShieldTheme.s4)
             } else {
                 VStack(spacing: 8) {
                     ForEach(detectedFields, id: \.key) { field in
@@ -210,7 +262,135 @@ struct EditorPrivacyInspector: View {
                     }
                 }
             }
+
+            if !vm.currentPageFaceSuggestions.isEmpty {
+                VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                    Text(LanguageManager.shared.editor("editor_face_suggestions_section"))
+                        .shieldFont(11, weight: .bold)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+
+                    Text(LanguageManager.shared.editor("editor_face_suggestions_guidance"))
+                        .shieldFont(11)
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    ForEach(Array(vm.currentPageFaceSuggestions.enumerated()), id: \.element.id) { index, suggestion in
+                        let isProtected = vm.isFaceSuggestionProtected(suggestion)
+                        HStack(spacing: 8) {
+                            Image(systemName: isProtected ? "checkmark.circle.fill" : "face.smiling")
+                                .foregroundStyle(isProtected ? ShieldTheme.success : ShieldTheme.warning)
+                            Text(LanguageManager.shared.editor("editor_face_suggestions_item", index + 1))
+                                .shieldFont(12, weight: .semibold)
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                            Text("Vision \(Int(suggestion.confidence * 100))%")
+                                .shieldFont(10, weight: .medium, design: .monospaced)
+                                .foregroundStyle(ShieldTheme.tertiary(scheme))
+                            Spacer(minLength: 4)
+                            Button {
+                                vm.acceptFaceSuggestion(suggestion)
+                                onPersist()
+                            } label: {
+                                Text(LanguageManager.shared.editor(
+                                    isProtected ? "editor_face_suggestions_protected" : "editor_face_suggestions_protect"
+                                ))
+                                    .shieldFont(11, weight: .bold)
+                                    .foregroundStyle(isProtected ? ShieldTheme.secondary(scheme) : ShieldTheme.accentText)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                .frame(minHeight: 44)
+                                .contentShape(Rectangle())
+                                    .background(
+                                        isProtected
+                                            ? ShieldTheme.rowBackground(scheme)
+                                            : ShieldTheme.accent(scheme),
+                                        in: Capsule()
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(isProtected)
+                            .accessibilityIdentifier("editor.inspector.faceSuggestion.\(index)")
+                            Button {
+                                vm.dismissFaceSuggestion(suggestion)
+                                onPersist()
+                            } label: {
+                                Image(systemName: "xmark.circle")
+                                    .shieldFont(14, weight: .semibold)
+                                    .foregroundStyle(ShieldTheme.tertiary(scheme))
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(LanguageManager.shared.editor("editor_face_suggestions_dismiss"))
+                            .accessibilityIdentifier("editor.inspector.dismissFaceSuggestion.\(index)")
+                        }
+                    }
+                }
+                .padding(ShieldTheme.s3)
+                .background(ShieldTheme.warning.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+            }
         }
+    }
+
+    private var localSearchSection: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+            HStack(spacing: ShieldTheme.s2) {
+                Image(systemName: "text.magnifyingglass")
+                    .foregroundStyle(ShieldTheme.selection(scheme))
+                Text(LanguageManager.shared.editor("editor_local_search_matches_heading"))
+                    .shieldFont(11, weight: .bold)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                Spacer()
+                Text("\(currentSearchOccurrences.count)")
+                    .shieldFont(11, weight: .bold, design: .monospaced)
+                    .foregroundStyle(ShieldTheme.selection(scheme))
+            }
+
+            ForEach(Array(currentSearchOccurrences.enumerated()), id: \.element.id) { index, occurrence in
+                let isRevealed = revealedSearchMatchIDs.contains(occurrence.id)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(LanguageManager.shared.editor(
+                            "editor_local_search_match_page",
+                            index + 1,
+                            occurrence.pageIndex + 1
+                        ))
+                            .shieldFont(11, weight: .semibold)
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                        Spacer()
+                        if let confidence = occurrence.confidence {
+                            Text("\(Int(confidence * 100))%")
+                                .shieldFont(10, weight: .medium, design: .monospaced)
+                                .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        }
+                    }
+
+                    HStack(spacing: ShieldTheme.s2) {
+                        Text(isRevealed ? occurrence.protectedText : "••••••••")
+                            .shieldFont(12, weight: isRevealed ? .regular : .semibold)
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button(LanguageManager.shared.editor(
+                            isRevealed ? "editor_local_search_hide" : "editor_local_search_reveal"
+                        )) {
+                            if isRevealed {
+                                revealedSearchMatchIDs.remove(occurrence.id)
+                            } else {
+                                revealedSearchMatchIDs.insert(occurrence.id)
+                            }
+                        }
+                        .font(.caption.weight(.semibold))
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityIdentifier("editor.searchMatch.reveal.\(index)")
+                    }
+                }
+                .padding(ShieldTheme.s2)
+                .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: 8))
+            }
+        }
+        .padding(ShieldTheme.s3)
+        .background(ShieldTheme.selection(scheme).opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+        .accessibilityIdentifier("editor.localSearch.matches")
     }
 
     // MARK: - Mask Properties Section
@@ -418,6 +598,7 @@ struct EditorPrivacyInspector: View {
                     }
                 ))
                 .labelsHidden()
+                .accessibilityIdentifier("editor.inspector.watermark.enabled")
             }
 
             if var wm = vm.watermark {

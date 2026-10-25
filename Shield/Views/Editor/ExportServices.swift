@@ -4,6 +4,23 @@ import PDFKit
 import ImageIO
 import UniformTypeIdentifiers
 
+enum ExportSensitiveElementCounter {
+    static func remaining(in document: DocumentItem, redactionsByPage: [Int: [Redaction]]) -> Int {
+        (document.fields.ocrPageEvidence ?? []).reduce(into: 0) { count, page in
+            let pageRedactions = redactionsByPage[page.pageIndex] ?? []
+            count += page.entities.count { entity in
+                let observations = page.observations.filter { entity.evidenceIDs.contains($0.id) }
+                guard !observations.isEmpty else { return false }
+                return !observations.allSatisfy { observation in
+                    pageRedactions.contains { redaction in
+                        redaction.rect.insetBy(dx: -0.01, dy: -0.01).contains(observation.boundingRect)
+                    }
+                }
+            }
+        }
+    }
+}
+
 // MARK: - ExportEngine
 
 enum ExportEngine {
@@ -44,18 +61,31 @@ enum ExportEngine {
             let vectorPage: UIImage?
             let expectedPageCount: Int
 
-            if !pageFiles.isEmpty {
+            // Prefer the retained PDF source so imported pages are rendered at
+            // the requested export scale and keep their visible crop geometry.
+            // Scan-review transforms are already baked into pageFiles; until
+            // those transforms can be applied to PDFPage directly, use that
+            // reviewed image representation whenever a transform is present.
+            let hasReviewedPageTransforms = doc.pageTransforms.contains { $0 != .identity }
+            let retainedSourcePDF: PDFDocument? = {
+                guard doc.sourceType == .pdf,
+                      !hasReviewedPageTransforms,
+                      let sourceFileName = doc.sourceFileName,
+                      let pdfData = AppState.loadSourceData(fileName: sourceFileName, isVaulted: doc.isVaulted),
+                      let pdfDocument = PDFDocument(data: pdfData),
+                      pageFiles.isEmpty || pdfDocument.pageCount == pageFiles.count else { return nil }
+                return pdfDocument
+            }()
+
+            if let retainedSourcePDF {
+                guard !retainedSourcePDF.isLocked else { throw ExportError.protectedPDF }
+                sourcePDF = retainedSourcePDF
+                vectorPage = nil
+                expectedPageCount = retainedSourcePDF.pageCount
+            } else if !pageFiles.isEmpty {
                 sourcePDF = nil
                 vectorPage = nil
                 expectedPageCount = pageFiles.count
-            } else if doc.sourceType == .pdf,
-                      let sourceFileName = doc.sourceFileName,
-                      let pdfData = AppState.loadSourceData(fileName: sourceFileName, isVaulted: doc.isVaulted),
-                      let pdfDocument = PDFDocument(data: pdfData) {
-                guard !pdfDocument.isLocked else { throw ExportError.protectedPDF }
-                sourcePDF = pdfDocument
-                vectorPage = nil
-                expectedPageCount = pdfDocument.pageCount
             } else {
                 let pageSize = CGSize(width: 595, height: 595 / 1.6)
                 sourcePDF = nil
@@ -66,6 +96,7 @@ enum ExportEngine {
             guard expectedPageCount > 0 else { throw ExportError.noPages }
 
             var generationError: ExportError?
+            var outputPageSizes: [CGSize] = []
             let defaultBounds = CGRect(x: 0, y: 0, width: 595, height: 842)
             let pdfRenderer = UIGraphicsPDFRenderer(bounds: defaultBounds)
             try pdfRenderer.writePDF(to: tempURL) { ctx in
@@ -77,7 +108,16 @@ enum ExportEngine {
 
                     autoreleasepool {
                         let sourceAndRect: (UIImage, CGRect)?
-                        if !pageFiles.isEmpty {
+                        if let sourcePDF,
+                           let page = sourcePDF.page(at: pageIndex) {
+                            let pageSize = PDFPageDisplayGeometry.size(of: page)
+                            var sourceImage = renderPDFPage(page: page, size: pageSize, scale: scale)
+                            if let adjustment = doc.imageAdjustment {
+                                sourceImage = applyImageAdjustment(sourceImage, store: adjustment) ?? sourceImage
+                            }
+                            sourceAndRect = (sourceImage, CGRect(origin: .zero, size: pageSize))
+                        } else if !pageFiles.isEmpty,
+                                  pageFiles.indices.contains(pageIndex) {
                             if var sourceImage = AppState.loadImage(
                                 fileName: pageFiles[pageIndex],
                                 isVaulted: doc.isVaulted
@@ -92,15 +132,6 @@ enum ExportEngine {
                             } else {
                                 sourceAndRect = nil
                             }
-                        } else if let sourcePDF,
-                                  let page = sourcePDF.page(at: pageIndex) {
-                            let bounds = page.bounds(for: .mediaBox).standardized
-                            let pageSize = bounds.size == .zero ? defaultBounds.size : bounds.size
-                            var sourceImage = renderPDFPage(page: page, size: pageSize, scale: scale)
-                            if let adjustment = doc.imageAdjustment {
-                                sourceImage = applyImageAdjustment(sourceImage, store: adjustment) ?? sourceImage
-                            }
-                            sourceAndRect = (sourceImage, CGRect(origin: .zero, size: pageSize))
                         } else if let vectorPage {
                             let pageRect = CGRect(x: 0, y: 0, width: 595, height: 595 / 1.6)
                             sourceAndRect = (vectorPage, pageRect)
@@ -120,6 +151,7 @@ enum ExportEngine {
                             return
                         }
 
+                        outputPageSizes.append(pageRect.size)
                         ctx.beginPage(withBounds: pageRect, pageInfo: [:])
                         flattenedPage.draw(in: pageRect)
                         progress(Double(pageIndex + 1) / Double(expectedPageCount))
@@ -140,6 +172,7 @@ enum ExportEngine {
             let report = await ExportVerifier.verifyPDF(
                 at: tempURL,
                 expectedPageCount: expectedPageCount,
+                expectedPageSizes: outputPageSizes,
                 normalizedVisualObfuscations: normalizedCount,
                 redactionRectsByPage: pageRedactions.mapValues { $0.map(\.rect) },
                 redactionsApplied: pageRedactions.values.reduce(0) { $0 + $1.count },
@@ -393,7 +426,7 @@ enum ExportEngine {
             cgCtx.saveGState()
             cgCtx.translateBy(x: 0, y: size.height)
             cgCtx.scaleBy(x: 1, y: -1)
-            page.draw(with: .mediaBox, to: cgCtx)
+            page.draw(with: .cropBox, to: cgCtx)
             cgCtx.restoreGState()
         }
     }

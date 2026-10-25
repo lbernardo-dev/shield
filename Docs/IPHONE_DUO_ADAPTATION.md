@@ -1,4 +1,10 @@
-# MASKID — iPhone Duo & iOS 27 Adaptive Privacy Editor Modernization
+# HISTORICAL — iPhone Duo Adaptation (superseded 2026-10-18)
+
+> **Do not use the claims below as a description of the current implementation.** This report predates the iOS 27.1 SDK/runtime and contains unsupported claims about hinge-aware layout, reserved regions, fold validation, resize invariants, and release readiness. The current source audit and status are maintained in [`docs/iphone-duo/`](../docs/iphone-duo/BASELINE_AUDIT.md), especially [`IMPLEMENTATION_REPORT.md`](../docs/iphone-duo/IMPLEMENTATION_REPORT.md), [`TEST_MATRIX.md`](../docs/iphone-duo/TEST_MATRIX.md), and [`RELEASE_READINESS.md`](../docs/iphone-duo/RELEASE_READINESS.md). This historical content is retained for provenance only.
+
+---
+
+# MASKID — iPhone Duo & iOS 27 Adaptive Privacy Editor Modernization (historical)
 
 ## Executive Summary
 

@@ -10,13 +10,15 @@ struct EditorView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var inspectorTab: PrivacyInspectorTab = .detections
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
+    @State private var showPersistenceError = false
+    @State private var showInspectorSheet = false
     @State private var showWatermarkConfig = false
     @State private var showReadjustReview = false
     @State private var readjustPages: [UIImage] = []
-    @State private var shouldPersistOnDismiss = false
     @State private var currentPageAspect: CGFloat? = nil
     @State private var zoomScale: CGFloat = 1
     @GestureState private var magnifyScale: CGFloat = 1
@@ -28,20 +30,49 @@ struct EditorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            topBar
-            documentMetaBar
-            contextBanner
-            if horizontalSizeClass == .regular {
-                regularWorkspace
-            } else {
-                compactWorkspace
+        NavigationStack {
+            // Let NavigationStack supply the current safe-area width, including
+            // Duo's changing side rail, instead of adding a device-specific inset.
+            VStack(spacing: 0) {
+                documentMetaBar
+                contextBanner
+                batchReviewBanner
+                adaptiveWorkspace
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                editorToolbar
+            }
+            .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+        }
+        .confirmationDialog(
+            LanguageManager.shared.editor("editor_exit_confirm"),
+            isPresented: $showCancelConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(LanguageManager.shared.editor("editor_exit"), role: .destructive) {
+                showCancelConfirm = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    closeEditor()
+                }
+            }
+            Button(LanguageManager.shared.editor("editor_keep_editing"), role: .cancel) {
+                showCancelConfirm = false
+            }
+        } message: {
+            Text(LanguageManager.shared.editor("editor_exit_warning"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {
+            if vm.needsGeometryReviewPersistence {
+                _ = persistEdits()
+            }
+            applyPendingSearchNavigationIfPossible()
             if let style = appState.pendingMaskStyle {
                 vm.maskStyle = style
                 appState.pendingMaskStyle = nil
@@ -56,7 +87,6 @@ struct EditorView: View {
                 }
                 appState.pendingRedactionMode = nil
             }
-            vm.bootstrapOCRSuggestionsIfNeeded()
 #if DEBUG
             if ASOScreenshotMode.isEnabled {
                 let scene = ASOScreenshotMode.scene
@@ -68,7 +98,7 @@ struct EditorView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         showWatermarkConfig = true
                     }
-                } else if scene == "10-irreversible-export" || scene == "10" || scene == "06-export-verification" || scene == "06" || scene == "export" {
+                } else if scene == "10-irreversible-export" || scene == "10" || scene == "06-export-verification" || scene == "06" || scene == "07-exif-gps" || scene == "export" {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         vm.showExportSheet = true
                     }
@@ -76,9 +106,55 @@ struct EditorView: View {
             }
 #endif
         }
+        .task {
+            // OCR bootstrap publishes its loading state. Let the initial
+            // SwiftUI layout finish before starting that state transition.
+            await Task.yield()
+            guard !Task.isCancelled else { return }
+            vm.bootstrapOCRSuggestionsIfNeeded()
+            vm.bootstrapFaceSuggestionsIfNeeded()
+        }
+        .onChange(of: vm.doc.fields.ocrFaceSuggestions) { oldValue, newValue in
+            guard oldValue != newValue else { return }
+            _ = persistEdits()
+        }
+        .onChange(of: vm.doc.fields.ocrDismissedFaceSuggestionIDs) { oldValue, newValue in
+            guard oldValue != newValue else { return }
+            _ = persistEdits()
+        }
+        .onChange(of: vm.needsGeometryReviewPersistence) { oldValue, newValue in
+            guard !oldValue, newValue else { return }
+            DispatchQueue.main.async {
+                guard vm.needsGeometryReviewPersistence else { return }
+                _ = persistEdits()
+            }
+        }
+        .onChange(of: vm.doc.fields.ocrPageEvidence) { oldValue, newValue in
+            if oldValue != newValue { _ = persistEdits() }
+            applyPendingSearchNavigationIfPossible()
+        }
+        .onChange(of: appState.searchQuery) { _, newQuery in
+            guard newQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+            appState.pendingDocumentSearchDocumentID = nil
+            appState.pendingDocumentSearchPageIndex = nil
+        }
+        .overlay {
+            if showPersistenceError {
+                ShieldErrorCard(
+                    title: LanguageManager.shared.common("common_error"),
+                    message: LanguageManager.shared.capture("capture_error_storage_write"),
+                    scheme: scheme,
+                    dismissLabel: LanguageManager.shared.common("common_ok"),
+                    dismissAction: { showPersistenceError = false },
+                    accessibilityIdentifier: "editor.persistenceError"
+                )
+                .transition(reduceMotion ? .opacity : .scale(scale: 0.98).combined(with: .opacity))
+                .zIndex(500)
+            }
+        }
+        .animation(reduceMotion ? nil : ShieldMotion.state, value: showPersistenceError)
         .task(id: vm.currentImageFileName) {
-            guard vm.doc.kind == .photo,
-                  let fileName = vm.currentImageFileName,
+            guard let fileName = vm.currentImageFileName,
                   let image = AppState.loadImage(fileName: fileName, isVaulted: vm.doc.isVaulted),
                   image.size.height > 0 else {
                 currentPageAspect = nil
@@ -88,7 +164,7 @@ struct EditorView: View {
             zoomScale = 1
         }
         .sheet(isPresented: $vm.showOCRSheet) {
-            SheetContainer(heightFraction: 0.80) {
+            SheetContainer {
                 OCRSheetView(
                     doc: vm.doc,
                     lang: appState.language,
@@ -107,7 +183,7 @@ struct EditorView: View {
             }
         }
         .sheet(isPresented: $vm.showExportSheet) {
-            SheetContainer(heightFraction: 0.82) {
+            SheetContainer {
                 ExportSheetView(
                     doc: vm.doc,
                     redactions: vm.redactions,
@@ -116,18 +192,26 @@ struct EditorView: View {
                     lang: appState.language,
                     currentPage: vm.currentPage,
                     currentImageFileName: vm.currentImageFileName,
+                    preferredOutputFormat: vm.preferredExportFormat,
                     isPresented: $vm.showExportSheet,
                     onDone: {
-                        appState.updateDocument(vm.documentSnapshot)
-                        vm.markSaved()
+                        guard persistEdits() else {
+                            vm.showExportSheet = false
+                            return
+                        }
                         vm.showExportSheet = false
-                        appState.selectedDoc = nil
-                        dismiss()
+                        closeEditor()
                     },
                     onReview: {
-                        appState.updateDocument(vm.documentSnapshot)
-                        vm.markSaved()
-                        vm.showExportSheet = false
+                        if let pendingPage = vm.batchReviewPendingPageIndices.first {
+                            vm.goToPage(pendingPage)
+                            inspectorTab = .detections
+                        }
+                        if persistEdits() {
+                            vm.showExportSheet = false
+                        } else {
+                            vm.showExportSheet = false
+                        }
                     }
                 )
             }
@@ -136,7 +220,7 @@ struct EditorView: View {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
         .sheet(isPresented: $showWatermarkConfig) {
-            SheetContainer(heightFraction: 0.52) {
+            SheetContainer {
                 WatermarkConfigView(
                     watermark: vm.watermark,
                     lang: appState.language,
@@ -146,6 +230,23 @@ struct EditorView: View {
                     vm.setWatermark(newWatermark)
                 }
             }
+        }
+        .sheet(isPresented: $showInspectorSheet) {
+            NavigationStack {
+                privacyInspector
+                    .navigationTitle(appState.language == .es ? "Privacidad" : "Privacy")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(appState.language == .es ? "Listo" : "Done") {
+                                showInspectorSheet = false
+                            }
+                            .accessibilityIdentifier("editor.inspector.close")
+                        }
+                    }
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $vm.showPresetPicker) {
             RedactionPresetPickerSheet(lang: appState.language) { preset in
@@ -170,32 +271,132 @@ struct EditorView: View {
                     readjustPages = []
                 },
                 onConfirm: { adjustedPages, _, transforms in
-                    let fileNames: [String]
-                    if let all = vm.doc.pageFileNames, !all.isEmpty {
-                        fileNames = all
-                    } else if let first = vm.doc.imageFileName {
-                        fileNames = [first]
-                    } else {
-                        fileNames = []
+                    guard let savedDocument = appState.replaceRenderedPages(
+                        for: vm.documentSnapshot,
+                        with: adjustedPages,
+                        transforms: transforms
+                    ) else {
+                        showPersistenceError = true
+                        showReadjustReview = false
+                        readjustPages = []
+                        return
                     }
-                    for (index, image) in adjustedPages.enumerated() {
-                        guard index < fileNames.count else { break }
-                        let id = (fileNames[index] as NSString).deletingPathExtension
-                        _ = appState.saveImage(image, id: id, isVaulted: vm.doc.isVaulted)
-                    }
-                    vm.updateRenderedPages(transforms: transforms)
+                    vm.adoptSavedDocument(savedDocument)
                     showReadjustReview = false
                     readjustPages = []
                 }
             )
             .environmentObject(appState)
         }
-        .onDisappear {
-            if shouldPersistOnDismiss {
-                appState.updateDocument(vm.documentSnapshot)
-                vm.markSaved()
-            }
+    }
+
+    @discardableResult
+    private func persistEdits() -> Bool {
+        guard appState.updateDocument(vm.documentSnapshot) else {
+            showPersistenceError = true
+            return false
         }
+        vm.markSaved()
+        return true
+    }
+
+    private func closeEditor() {
+        appState.selectedDoc = nil
+        dismiss()
+    }
+
+    private func persistEditsAndClose() {
+        guard persistEdits() else { return }
+        closeEditor()
+    }
+
+    private func applyPendingSearchNavigationIfPossible() {
+        guard appState.pendingDocumentSearchDocumentID == vm.doc.id,
+              let pageIndex = vm.doc.matchingOCRPageIndices(for: appState.searchQuery).first,
+              pageIndex < vm.pageCount else { return }
+        vm.goToPage(pageIndex)
+        appState.pendingDocumentSearchDocumentID = nil
+        appState.pendingDocumentSearchPageIndex = nil
+    }
+
+    @ViewBuilder
+    private var batchReviewBanner: some View {
+        if !vm.batchReviewPendingPageIndices.isEmpty {
+            HStack(spacing: ShieldTheme.s3) {
+                Image(systemName: "eye.fill")
+                    .foregroundStyle(ShieldTheme.warning)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LanguageManager.shared.editor("editor_batch_review_title"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                    Text(LanguageManager.shared.editor("editor_batch_review_guidance"))
+                        .font(.caption)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                    Text(LanguageManager.shared.editor(
+                        "editor_batch_review_page_status",
+                        vm.currentPage + 1,
+                        vm.batchReviewPendingPageIndices.count
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                }
+                Spacer(minLength: ShieldTheme.s2)
+                if vm.batchReviewPendingPageIndices.contains(vm.currentPage) {
+                    Button {
+                        markBatchPageReviewedAndContinue()
+                    } label: {
+                        Text(LanguageManager.shared.editor(
+                            nextPendingBatchReviewPage != nil
+                                ? "editor_batch_review_mark_page"
+                                : "editor_batch_review_mark_complete_page"
+                        ))
+                            .font(.caption.weight(.semibold))
+                            .frame(minHeight: 44)
+                            .padding(.horizontal, ShieldTheme.s2)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .accessibilityIdentifier("editor.batchReview.markPage")
+                    .accessibilityHint(LanguageManager.shared.editor("editor_batch_review_mark_hint"))
+                } else if let nextPage = nextPendingBatchReviewPage {
+                    Button {
+                        vm.goToPage(nextPage)
+                    } label: {
+                        Text(LanguageManager.shared.editor("editor_batch_review_open_next"))
+                            .font(.caption.weight(.semibold))
+                            .frame(minHeight: 44)
+                            .padding(.horizontal, ShieldTheme.s2)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .accessibilityIdentifier("editor.batchReview.openNextPage")
+                    .accessibilityHint(LanguageManager.shared.editor("editor_batch_review_open_hint"))
+                }
+            }
+            .padding(.horizontal, ShieldTheme.s4)
+            .padding(.vertical, ShieldTheme.s2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.warningBackground(scheme), ignoresSafeAreaEdges: [])
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("editor.batchReview.banner")
+        }
+    }
+
+    private func markBatchPageReviewedAndContinue() {
+        let nextPage = nextPendingBatchReviewPage
+        vm.markCurrentBatchPageReviewed()
+        guard persistEdits() else {
+            showPersistenceError = true
+            return
+        }
+        if let nextPage { vm.goToPage(nextPage) }
+    }
+
+    private var nextPendingBatchReviewPage: Int? {
+        vm.batchReviewPendingPageIndices.first { $0 > vm.currentPage }
+            ?? vm.batchReviewPendingPageIndices.first { $0 != vm.currentPage }
     }
 
     private var compactWorkspace: some View {
@@ -206,47 +407,97 @@ struct EditorView: View {
         }
     }
 
+    private var adaptiveWorkspace: some View {
+        GeometryReader { geometry in
+            let minimumWidth: CGFloat = vm.pageCount > 1 ? 740 : 620
+            if horizontalSizeClass == .regular, geometry.size.width >= minimumWidth {
+                regularWorkspace
+            } else {
+                compactWorkspace
+            }
+        }
+    }
+
     private var regularWorkspace: some View {
         GeometryReader { geo in
-            HStack(spacing: 0) {
-                // Page thumbnail rail for multi-page documents
-                if vm.pageCount > 1 {
-                    EditorPageNavigator(vm: vm, lang: appState.language)
-                        .frame(width: max(110, min(geo.size.width * 0.16, 140)))
-                    Rectangle()
-                        .fill(ShieldTheme.line(scheme))
-                        .frame(width: 0.5)
-                }
+            if #available(iOS 27.1, *) {
+                duoRegularWorkspace(containerWidth: geo.size.width)
+            } else {
+                legacyRegularWorkspace(containerWidth: geo.size.width)
+            }
+        }
+    }
 
-                // Central: Document Canvas with contextual panels and bottom toolbar
-                VStack(spacing: 0) {
-                    canvasArea
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    @available(iOS 27.1, *)
+    private func duoRegularWorkspace(containerWidth: CGFloat) -> some View {
+        ArrangementView {
+            expandedEditorPrimary(containerWidth: containerWidth)
+        } secondary: {
+            privacyInspector
+                .frame(
+                    minWidth: 280,
+                    maxWidth: .infinity
+                )
+                .background(ShieldTheme.cardBackground(scheme))
+        }
+        .arrangementViewStyle(.split)
+    }
 
-                    contextualToolPanels
+    private func legacyRegularWorkspace(containerWidth: CGFloat) -> some View {
+        HStack(spacing: 0) {
+            expandedEditorPrimary(containerWidth: containerWidth)
+            Rectangle()
+                .fill(ShieldTheme.line(scheme))
+                .frame(width: 0.5)
+            privacyInspector
+                .frame(width: inspectorWidth(for: containerWidth))
+        }
+    }
 
-                    bottomBar
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+    private func expandedEditorPrimary(containerWidth: CGFloat) -> some View {
+        HStack(spacing: 0) {
+            if vm.pageCount > 1 {
+                EditorPageNavigator(vm: vm, lang: appState.language)
+                    .frame(width: pageNavigatorWidth(for: containerWidth))
                 Rectangle()
                     .fill(ShieldTheme.line(scheme))
                     .frame(width: 0.5)
-
-                // Right: Dedicated Privacy Inspector
-                EditorPrivacyInspector(
-                    vm: vm,
-                    lang: appState.language,
-                    isPro: pm.isPro,
-                    onTriggerPaywall: {
-                        PremiumManager.recordFeatureGate(.advancedStyles, trigger: .styleLocked)
-                        paywallTrigger = .styleLocked
-                        showPaywall = true
-                    }
-                )
-                .frame(width: max(300, min(geo.size.width * 0.35, 380)))
             }
+
+            VStack(spacing: 0) {
+                canvasArea
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                contextualToolPanels
+                bottomBar
+            }
+            .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+
+    private func inspectorWidth(for containerWidth: CGFloat) -> CGFloat {
+        min(340, max(280, containerWidth * 0.32))
+    }
+
+    private func pageNavigatorWidth(for containerWidth: CGFloat) -> CGFloat {
+        min(128, max(112, containerWidth * 0.14))
+    }
+
+    private var privacyInspector: some View {
+        EditorPrivacyInspector(
+            vm: vm,
+            lang: appState.language,
+            isPro: pm.isPro,
+            searchQuery: appState.searchQuery,
+            activeTab: $inspectorTab,
+            onOpenOCR: { vm.showOCRSheet = true },
+            onPersist: { _ = persistEdits() },
+            onTriggerPaywall: {
+                PremiumManager.recordFeatureGate(.advancedStyles, trigger: .styleLocked)
+                paywallTrigger = .styleLocked
+                showPaywall = true
+            }
+        )
     }
 
     @ViewBuilder
@@ -264,132 +515,150 @@ struct EditorView: View {
         }
     }
 
-    // MARK: - Top bar
-
-    private var topBar: some View {
-        HStack {
-            Button(LanguageManager.shared.common("common_cancel")) {
-                if !vm.hasUnsavedChanges {
-                    appState.selectedDoc = nil
-                    dismiss()
-                } else {
-                    showCancelConfirm = true
-                }
-            }
-            .shieldFont(15, weight: .semibold)
-            .foregroundColor(ShieldTheme.accent(scheme))
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
-            .keyboardShortcut(.cancelAction)
-            .accessibilityIdentifier("editor.close")
-            .confirmationDialog(
-                LanguageManager.shared.editor("editor_exit_confirm"),
-                isPresented: $showCancelConfirm,
-                titleVisibility: .visible
-            ) {
-                Button(LanguageManager.shared.editor("editor_exit"), role: .destructive) {
-                    appState.selectedDoc = nil
-                    dismiss()
-                }
-                Button(LanguageManager.shared.editor("editor_keep_editing"), role: .cancel) {}
-            } message: {
-                Text(LanguageManager.shared.editor("editor_exit_warning"))
-            }
-
-            Spacer()
-
-            HStack(spacing: 8) {
-                // Toggle Original Document View Button
-                Button {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        vm.isPeekingOriginal.toggle()
-                    }
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                } label: {
-                    Image(systemName: vm.isPeekingOriginal ? "eye.slash.fill" : "eye.fill")
-                        .shieldFont(15, weight: .semibold)
-                        .foregroundColor(vm.isPeekingOriginal ? ShieldTheme.warning : ShieldTheme.secondary(scheme))
-                        .frame(width: 40, height: 40)
-                        .background(vm.isPeekingOriginal ? ShieldTheme.warning.opacity(0.22) : ShieldTheme.rowBackground(scheme))
-                        .overlay(
-                            Circle()
-                                .stroke(vm.isPeekingOriginal ? ShieldTheme.warning : Color.clear, lineWidth: 1.5)
-                        )
-                        .clipShape(Circle())
-                }
-                .accessibilityLabel(appState.language == .es ? "Ver documento original" : "View original document")
-
-                Menu {
-                    Button {
-                        vm.showPresetPicker = true
-                    } label: {
-                        Label(
-                            appState.language == .es ? "Plantillas de Trámite" : "Procedure Presets",
-                            systemImage: "wand.and.stars"
-                        )
-                    }
-
-                    Button {
-                        vm.showOCRSheet = true
-                    } label: {
-                        Label(
-                            LanguageManager.shared.model("model_detected_fields"),
-                            systemImage: "text.viewfinder"
-                        )
-                    }
-
-                    Button(action: openReadjustReview) {
-                        Label(
-                            LanguageManager.shared.capture("capture_adjustments"),
-                            systemImage: "camera.filters"
-                        )
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .shieldFont(16, weight: .semibold)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel(LanguageManager.shared.common("common_more"))
-
-                Button {
-                    appState.updateDocument(vm.documentSnapshot)
-                    vm.markSaved()
-                    shouldPersistOnDismiss = false
-                    appState.selectedDoc = nil
-                    dismiss()
-                } label: {
-                    Text(LanguageManager.shared.common("common_save"))
-                        .shieldFont(13, weight: .bold)
-                        .foregroundColor(vm.hasUnsavedChanges ? ShieldTheme.accentText : ShieldTheme.tertiary(scheme))
-                        .padding(.horizontal, 14)
-                        .frame(minHeight: 44)
-                        .background(vm.hasUnsavedChanges ? ShieldTheme.success : ShieldTheme.rowBackground(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .disabled(!vm.hasUnsavedChanges)
-                .keyboardShortcut("s", modifiers: .command)
-                .accessibilityIdentifier("editor.save")
-
-                Button {
-                    vm.showExportSheet = true
-                } label: {
-                    Text(LanguageManager.shared.editor("editor_export"))
-                        .shieldFont(13, weight: .bold)
-                        .foregroundColor(ShieldTheme.accentText)
-                        .padding(.horizontal, 14)
-                        .frame(minHeight: 44)
-                        .background(ShieldTheme.accent(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .keyboardShortcut("e", modifiers: [.command, .shift])
-                .accessibilityIdentifier("editor.export")
-            } // HStack
+    @ToolbarContentBuilder
+    private var editorToolbar: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            closeButton
         }
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.vertical, 4) // Reduced from 6
-        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea(edges: .top))
-        .overlay(alignment: .bottom) { ShieldDivider() }
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            originalPreviewButton
+            if horizontalSizeClass != .compact {
+                moreActionsMenu
+            }
+            if horizontalSizeClass == .compact {
+                inspectorButton
+            }
+            saveButton
+        }
+        if #available(iOS 27.0, *) {
+            ToolbarItem(placement: .topBarPinnedTrailing) {
+                exportButton
+            }
+        } else {
+            ToolbarItem(placement: .confirmationAction) {
+                exportButton
+            }
+        }
+    }
+
+    private var closeButton: some View {
+        Button(role: .cancel) {
+            if !vm.hasUnsavedChanges {
+                appState.selectedDoc = nil
+                dismiss()
+            } else {
+                showCancelConfirm = true
+            }
+        } label: {
+            Label(
+                LanguageManager.shared.common("common_cancel"),
+                systemImage: "xmark"
+            )
+        }
+        .foregroundStyle(ShieldTheme.accent(scheme))
+        .keyboardShortcut(.cancelAction)
+        .accessibilityIdentifier("editor.close")
+    }
+
+    private var inspectorButton: some View {
+        Button {
+            showInspectorSheet = true
+        } label: {
+            Label(
+                LanguageManager.shared.editor("editor_inspector_accessibility_label"),
+                systemImage: "slider.horizontal.3"
+            )
+            .labelStyle(.iconOnly)
+        }
+        .accessibilityLabel(LanguageManager.shared.editor("editor_inspector_accessibility_label"))
+        .accessibilityIdentifier("editor.inspector.open")
+    }
+
+    private var originalPreviewButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.15)) {
+                vm.isPeekingOriginal.toggle()
+            }
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        } label: {
+            Label(
+                LanguageManager.shared.editor(
+                    vm.isPeekingOriginal ? "editor_original_preview_hide" : "editor_original_preview_show"
+                ),
+                systemImage: vm.isPeekingOriginal ? "eye.slash.fill" : "eye.fill"
+            )
+            .labelStyle(.iconOnly)
+            .foregroundStyle(vm.isPeekingOriginal ? ShieldTheme.warning : ShieldTheme.secondary(scheme))
+        }
+        .accessibilityLabel(LanguageManager.shared.editor(
+            vm.isPeekingOriginal ? "editor_original_preview_hide" : "editor_original_preview_show"
+        ))
+    }
+
+    private var moreActionsMenu: some View {
+        Menu {
+            Button {
+                vm.showPresetPicker = true
+            } label: {
+                Label(
+                    LanguageManager.shared.editor("editor_protection_profiles_title"),
+                    systemImage: "wand.and.stars"
+                )
+            }
+            .accessibilityIdentifier("editor.menu.presets")
+
+            Button {
+                vm.showOCRSheet = true
+            } label: {
+                Label(
+                    LanguageManager.shared.model("model_detected_fields"),
+                    systemImage: "text.viewfinder"
+                )
+            }
+
+            Button(action: openReadjustReview) {
+                Label(
+                    LanguageManager.shared.capture("capture_adjustments"),
+                    systemImage: "camera.filters"
+                )
+            }
+        } label: {
+            Label(
+                LanguageManager.shared.common("common_more"),
+                systemImage: "ellipsis.circle"
+            )
+            .labelStyle(.iconOnly)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+            .foregroundStyle(ShieldTheme.secondary(scheme))
+        }
+        .accessibilityLabel(LanguageManager.shared.common("common_more"))
+        .accessibilityIdentifier("editor.moreActions")
+    }
+
+    private var saveButton: some View {
+        Button {
+            persistEditsAndClose()
+        } label: {
+            Label(LanguageManager.shared.common("common_save"), systemImage: "square.and.arrow.down")
+        }
+        .disabled(!vm.hasUnsavedChanges)
+        .tint(vm.hasUnsavedChanges ? ShieldTheme.success : ShieldTheme.tertiary(scheme))
+        .accessibilityLabel(LanguageManager.shared.common("common_save"))
+        .keyboardShortcut("s", modifiers: .command)
+        .accessibilityIdentifier("editor.save")
+    }
+
+    private var exportButton: some View {
+        Button {
+            vm.showExportSheet = true
+        } label: {
+            Label(LanguageManager.shared.editor("editor_export"), systemImage: "square.and.arrow.up")
+        }
+        .tint(ShieldTheme.accent(scheme))
+        .accessibilityLabel(LanguageManager.shared.editor("editor_export"))
+        .keyboardShortcut("e", modifiers: [.command, .shift])
+        .accessibilityIdentifier("editor.export")
     }
 
     private func openReadjustReview() {
@@ -417,7 +686,12 @@ struct EditorView: View {
             changeCount: vm.changeCount,
             hasUnsavedChanges: vm.hasUnsavedChanges,
             lang: appState.language
-        )
+        ) {
+            if horizontalSizeClass == .compact {
+                moreActionsMenu
+                    .frame(width: 44, height: 44)
+            }
+        }
     }
 
     // MARK: - Sensitive banner
@@ -438,11 +712,54 @@ struct EditorView: View {
 
     @ViewBuilder
     private var contextBanner: some View {
-        if vm.showSensitiveBanner {
-            sensitiveBanner
-        } else {
-            propagateBanner
+        VStack(spacing: 0) {
+            if vm.showSensitiveBanner {
+                sensitiveBanner
+            }
+            if !vm.currentPageUnresolvedFaceSuggestions.isEmpty {
+                faceSuggestionsBanner
+            }
+            if !vm.showSensitiveBanner && vm.currentPageUnresolvedFaceSuggestions.isEmpty {
+                propagateBanner
+            }
         }
+    }
+
+    private var faceSuggestionsBanner: some View {
+        HStack(spacing: ShieldTheme.s3) {
+            Image(systemName: "face.smiling")
+                .foregroundStyle(ShieldTheme.warning)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LanguageManager.shared.editor("editor_face_suggestions_title"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                Text(LanguageManager.shared.editor(
+                    "editor_face_suggestions_count",
+                    vm.currentPageUnresolvedFaceSuggestions.count
+                ))
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+            }
+            Spacer(minLength: 4)
+            Button {
+                inspectorTab = .detections
+                if horizontalSizeClass != .regular {
+                    showInspectorSheet = true
+                }
+            } label: {
+                Text(LanguageManager.shared.editor("editor_face_suggestions_review"))
+                    .font(.caption.weight(.semibold))
+                    .frame(minHeight: 44)
+                    .padding(.horizontal, ShieldTheme.s2)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(ShieldTheme.accent(scheme))
+            .accessibilityIdentifier("editor.faceSuggestions.open")
+        }
+        .padding(.horizontal, ShieldTheme.s4)
+        .padding(.vertical, ShieldTheme.s2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.warning.opacity(0.09), ignoresSafeAreaEdges: [])
     }
 
     // MARK: - Propagate banner
@@ -459,12 +776,15 @@ struct EditorView: View {
     // MARK: - Canvas area
 
     private func canvasSize(available: CGSize, isLandscape: Bool) -> CGSize {
-        guard vm.doc.kind == .photo else {
+        guard vm.currentImageFileName != nil else {
             let w = max(50, available.width - 32)
             let maxH = max(50, available.height - 32)
             return CGSize(width: w, height: min(w / 1.6, maxH))
         }
-        let aspect = (currentPageAspect != nil && currentPageAspect! > 0) ? currentPageAspect! : 1.0
+        let aspect = DocumentCoordinateTransform.adjustedAspect(
+            currentPageAspect ?? 1.6,
+            using: vm.doc.imageAdjustment
+        )
         return DocumentCoordinateTransform.contentAspectFitRect(
             in: available,
             contentAspect: aspect,
@@ -481,6 +801,10 @@ struct EditorView: View {
             let canvasH = sz.height
             let totalPages = vm.pageCount
             let currentPage = vm.currentPage
+            let localSearchOccurrences = vm.doc.localSearchOccurrences(
+                for: appState.searchQuery,
+                pageIndex: currentPage
+            )
             let effectiveZoom = min(4, max(1, zoomScale * magnifyScale))
 
             let effectivePan = (effectiveZoom > 1 || vm.tool == .pan)
@@ -583,7 +907,8 @@ struct EditorView: View {
                         DocumentCanvas(
                             vm: vm,
                             canvasSize: CGSize(width: canvasW, height: canvasH),
-                            effectiveZoom: effectiveZoom
+                            effectiveZoom: effectiveZoom,
+                            localSearchOccurrences: localSearchOccurrences
                         )
                         .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
                         .frame(width: canvasW, height: canvasH)
@@ -725,6 +1050,7 @@ struct EditorView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(maxHeight: .infinity)
+        .accessibilityIdentifier("editor.canvasArea")
     }
 
     // MARK: - Mode chips
@@ -852,7 +1178,6 @@ struct EditorView: View {
 // MARK: - SheetContainer
 
 struct SheetContainer<Content: View>: View {
-    let heightFraction: CGFloat
     @ViewBuilder let content: () -> Content
     @Environment(\.colorScheme) var scheme
 
@@ -860,6 +1185,7 @@ struct SheetContainer<Content: View>: View {
         VStack(spacing: 0) {
             content()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(ShieldTheme.cardBackground(scheme))
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)

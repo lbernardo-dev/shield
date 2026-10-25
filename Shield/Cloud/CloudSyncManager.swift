@@ -1,6 +1,20 @@
 import CloudKit
 import Foundation
 
+enum CloudKitContainerFactory {
+    static func make(identifier: String) -> CKContainer? {
+        #if targetEnvironment(simulator)
+        // Local simulator builds do not receive the app's iCloud entitlements.
+        // CKContainer(identifier:) traps when CloudKit cannot find the requested
+        // container in the process entitlements, so keep CloudKit unavailable
+        // in simulator runs instead of crashing the app.
+        return nil
+        #else
+        return CKContainer(identifier: identifier)
+        #endif
+    }
+}
+
 struct CloudAssetPayload: Codable {
     enum Kind: String, Codable {
         case image
@@ -49,7 +63,7 @@ final class CloudSyncManager: ObservableObject {
 
     private var ckContainer: CKContainer? {
         guard isSyncEnabled else { return nil }
-        return CKContainer(identifier: Self.cloudKitContainerIdentifier)
+        return CloudKitContainerFactory.make(identifier: Self.cloudKitContainerIdentifier)
     }
 
     private init() {
@@ -296,7 +310,9 @@ final class CloudSyncManager: ObservableObject {
     }
 
     private func privateCloudDatabaseForRemoval() async -> CKDatabase? {
-        let container = CKContainer(identifier: Self.cloudKitContainerIdentifier)
+        guard let container = CloudKitContainerFactory.make(identifier: Self.cloudKitContainerIdentifier) else {
+            return nil
+        }
         do {
             guard try await container.accountStatus() == .available else { return nil }
             return container.privateCloudDatabase
@@ -402,7 +418,9 @@ final class CloudSyncManager: ObservableObject {
     }
 
     private func deleteAllRemoteDocuments() async throws {
-        let container = CKContainer(identifier: Self.cloudKitContainerIdentifier)
+        guard let container = CloudKitContainerFactory.make(identifier: Self.cloudKitContainerIdentifier) else {
+            throw CKError(.notAuthenticated)
+        }
         guard try await container.accountStatus() == .available else {
             throw CKError(.notAuthenticated)
         }

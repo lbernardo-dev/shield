@@ -214,7 +214,9 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     private static let entitlementFallback = "MaskID Pro"
     private let logger = Logger(subsystem: "com.romerodev.shield", category: "RevenueCat")
-    private let cloudKitPremiumContainer = CKContainer(identifier: CloudSyncManager.cloudKitContainerIdentifier)
+    private lazy var cloudKitPremiumContainer = CloudKitContainerFactory.make(
+        identifier: CloudSyncManager.cloudKitContainerIdentifier
+    )
     private var cloudAccountChangeObserver: NSObjectProtocol?
     private var cloudKitIdentityRefreshGeneration: UInt = 0
     private var verifiedCloudKitUserRecordName: String?
@@ -659,6 +661,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         refreshResolvedPremiumAccess()
 
         guard Self.isProductionBuild else { return }
+        guard let cloudKitPremiumContainer else { return }
 
         do {
             guard try await cloudKitPremiumContainer.accountStatus() == .available else { return }
@@ -698,6 +701,10 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     }
 
     private func observeCloudKitAccountChanges() {
+        guard Self.isProductionBuild,
+              let cloudKitPremiumContainer
+        else { return }
+
         cloudAccountChangeObserver = NotificationCenter.default.addObserver(
             forName: .CKAccountChanged,
             object: cloudKitPremiumContainer,

@@ -25,7 +25,7 @@ Calm, cinematic precision: the document stays readable while the sensitive detai
 - Silent autoplay must communicate the story without audio.
 - Use gentle screen-to-screen dissolves and small camera drift.
 - Keep the interface and redaction marks clear; avoid flashes, shake, or rapid zooms.
-- End on the verified export state so the loop resolves on the app's main promise.
+- Move from the document hub through scan/import, batch review, and the local vault; end on a calm, secure destination.
 
 ## Guardrails
 

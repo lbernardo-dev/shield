@@ -6,7 +6,7 @@ import CoreImage.CIFilterBuiltins
 
 // MARK: - Scan Review + Image Adjustments
 
-enum ScanFilterPreset: String, CaseIterable, Identifiable {
+enum ScanFilterPreset: String, CaseIterable, Identifiable, Sendable {
     case original
     case auto
     case blackWhite
@@ -102,7 +102,7 @@ enum ScanAdjustmentPreset: String, CaseIterable, Identifiable {
     }
 }
 
-struct ScanPageAdjustment: Equatable {
+struct ScanPageAdjustment: Equatable, Sendable {
     var filterPreset: ScanFilterPreset = .auto
     var straightenDegrees: Double = 0
     var rotationDegrees: Double = 0
@@ -188,7 +188,7 @@ extension ScanPageAdjustment {
     }
 }
 
-struct ScanQuad: Equatable {
+struct ScanQuad: Equatable, Sendable {
     var topLeft: CGPoint
     var topRight: CGPoint
     var bottomLeft: CGPoint
@@ -531,60 +531,64 @@ struct ScanReviewView: View {
     @State private var showAdvancedControls = false
     @State private var processedImage: UIImage? = nil
     @State private var processingTask: Task<Void, Never>? = nil
+    @State private var applyingTask: Task<Void, Never>? = nil
     @State private var isProcessingImage = false
     @State private var isAdjustingSlider = false
     @State private var renderSequence = 0
 
-    private var topSafeAreaInset: CGFloat {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first else { return 59 }
-        return max(window.safeAreaInsets.top, 20)
-    }
-
     var body: some View {
-        GeometryReader { geo in
-            let contentHeight = geo.size.height - topSafeAreaInset
+        NavigationStack {
+            GeometryReader { geo in
+                VStack(spacing: 0) {
+                    reviewContext
 
-            VStack(spacing: 0) {
-                header()
+                    Group {
+                        if geo.size.width >= 820 {
+                            HStack(spacing: 0) {
+                                previewArea
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                Group {
-                    if geo.size.width >= 820 {
-                        HStack(spacing: 0) {
-                            previewArea
+                                Rectangle()
+                                    .fill(ShieldTheme.line(scheme))
+                                    .frame(width: 0.5)
+
+                                VStack(spacing: 0) {
+                                    pageStrip
+                                    controls
+                                }
+                                .frame(width: min(430, geo.size.width * 0.42))
+                                .background(ShieldTheme.pageBackground(scheme))
+                            }
+                        } else {
+                            VStack(spacing: 0) {
+                                previewArea
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: max(180, geo.size.height * 0.35))
+
+                                VStack(spacing: 0) {
+                                    pageStrip
+                                    controls
+                                }
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                            Rectangle()
-                                .fill(ShieldTheme.line(scheme))
-                                .frame(width: 0.5)
-
-                            VStack(spacing: 0) {
-                                pageStrip
-                                controls
+                                .background(ShieldTheme.pageBackground(scheme))
                             }
-                            .frame(width: min(430, geo.size.width * 0.42))
-                            .background(ShieldTheme.pageBackground(scheme))
-                        }
-                    } else {
-                        VStack(spacing: 0) {
-                            previewArea
-                                .frame(maxWidth: .infinity)
-                                .frame(height: max(180, contentHeight * 0.35))
-
-                            VStack(spacing: 0) {
-                                pageStrip
-                                controls
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(ShieldTheme.pageBackground(scheme))
                         }
                     }
+                    .disabled(applying)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding(.top, topSafeAreaInset)
+            .navigationTitle(LanguageManager.shared.capture("capture_enhance_title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                scanReviewToolbar
+            }
+            .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .tint(ShieldTheme.accent(scheme))
         }
-        .ignoresSafeArea(.container, edges: .top)
-        .background(ShieldTheme.pageBackground(scheme))
+        .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear(perform: setupInitialState)
         .onChange(of: selectedPage) {
@@ -593,6 +597,80 @@ struct ScanReviewView: View {
         }
         .onChange(of: adjustments) { updateProcessedImage() }
         .onChange(of: showQuadEditor) { updateProcessedImage() }
+        .onDisappear {
+            processingTask?.cancel()
+            applyingTask?.cancel()
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var scanReviewToolbar: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button {
+                cancelReview()
+            } label: {
+                Label(LanguageManager.shared.capture("capture_cancel"), systemImage: "xmark")
+            }
+            .foregroundStyle(ShieldTheme.secondary(scheme))
+            .accessibilityIdentifier("scanReview.cancel")
+        }
+
+        if #available(iOS 27.1, *) {
+            ToolbarItem(placement: .topBarPinnedTrailing) {
+                scanReviewPrimaryAction
+            }
+        } else {
+            ToolbarItem(placement: .confirmationAction) {
+                scanReviewPrimaryAction
+            }
+        }
+    }
+
+    private var scanReviewPrimaryAction: some View {
+        Button {
+            if showQuadEditor {
+                applyManualCrop()
+            } else {
+                applyAndContinue()
+            }
+        } label: {
+            Label(
+                showQuadEditor
+                    ? LanguageManager.shared.common("common_apply")
+                    : (applying
+                        ? LanguageManager.shared.capture("capture_processing")
+                        : LanguageManager.shared.common("common_continue")),
+                systemImage: showQuadEditor ? "checkmark" : (applying ? "hourglass" : "arrow.right")
+            )
+        }
+        .disabled(applying)
+        .foregroundStyle(applying ? ShieldTheme.tertiary(scheme) : ShieldTheme.accent(scheme))
+        .accessibilityIdentifier(showQuadEditor ? "scanReview.apply" : "scanReview.continue")
+    }
+
+    private var reviewContext: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text("\(selectedPage + 1)/\(max(1, pages.count))")
+                .shieldFont(12, weight: .bold)
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .padding(.horizontal, 10)
+                .frame(height: 28)
+                .background(ShieldTheme.rowBackground(scheme))
+                .overlay(Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
+                .clipShape(Capsule())
+
+            Text(LanguageManager.shared.capture("capture_enhance_subtitle"))
+                .shieldFont(12, weight: .medium)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.pageBackground(scheme))
     }
 
     private func setupInitialState() {
@@ -642,63 +720,6 @@ struct ScanReviewView: View {
             }
         }
         processingTask = task
-    }
-
-    private func header() -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Button(LanguageManager.shared.capture("capture_cancel")) {
-                    onCancel()
-                }
-                .shieldFont(15, weight: .semibold)
-                .foregroundColor(ShieldTheme.secondary(scheme))
-
-                Spacer()
-
-                if showQuadEditor {
-                    Button(LanguageManager.shared.common("common_apply")) {
-                        applyManualCrop()
-                    }
-                    .shieldFont(15, weight: .bold)
-                    .foregroundColor(ShieldTheme.accent(scheme))
-                }
-
-                Button(applying ? LanguageManager.shared.capture("capture_processing") : LanguageManager.shared.common("common_continue")) {
-                    applyAndContinue()
-                }
-                .disabled(applying || showQuadEditor)
-                .shieldFont(15, weight: .bold)
-                .foregroundColor((applying || showQuadEditor) ? ShieldTheme.tertiary(scheme) : ShieldTheme.accent(scheme))
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 8) {
-                    Text("\(selectedPage + 1)/\(max(1, pages.count))")
-                        .shieldFont(12, weight: .bold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .padding(.horizontal, 10)
-                        .frame(height: 26)
-                        .background(ShieldTheme.rowBackground(scheme))
-                        .overlay(
-                            Capsule().stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
-                        )
-                        .clipShape(Capsule())
-
-                    Text(LanguageManager.shared.capture("capture_enhance_title"))
-                        .shieldFont(20, weight: .heavy)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                }
-
-                Text(LanguageManager.shared.capture("capture_enhance_subtitle"))
-                    .shieldFont(12, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .lineLimit(1)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
-        .background(ShieldTheme.pageBackground(scheme))
     }
 
     private var previewArea: some View {
@@ -803,7 +824,7 @@ struct ScanReviewView: View {
                             Text(LanguageManager.shared.capture("capture_reset_page"))
                                 .shieldFont(13, weight: .semibold)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 40)
+                                .frame(height: 44)
                                 .background(ShieldTheme.rowBackground(scheme))
                                 .foregroundColor(ShieldTheme.primary(scheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -816,7 +837,7 @@ struct ScanReviewView: View {
                             Text(LanguageManager.shared.capture("capture_reset_all"))
                                 .shieldFont(13, weight: .semibold)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 40)
+                                .frame(height: 44)
                                 .background(ShieldTheme.rowBackground(scheme))
                                 .foregroundColor(ShieldTheme.primary(scheme))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -839,14 +860,14 @@ struct ScanReviewView: View {
                         .frame(height: 46)
                         .background(
                             LinearGradient(
-                                colors: [Color(hex: "1591A3"), Color(hex: "20C7D9")],
+                                colors: [ShieldTheme.accentStrong, ShieldTheme.accent],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .shadow(color: Color(hex: "20C7D9").opacity(0.25), radius: 6, x: 0, y: 2)
+                        .shadow(color: ShieldTheme.accent.opacity(0.25), radius: 6, x: 0, y: 2)
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
@@ -1183,22 +1204,57 @@ struct ScanReviewView: View {
     private func applyAndContinue() {
         guard !applying else { return }
         applying = true
-
-        Task {
+        let pageAdjustments = adjustments
+        let sourcePages = pages
+        let defaultAdjustment = ScanPageAdjustment.default
+        let renderTask = Task.detached(priority: .userInitiated) { () -> [UIImage]? in
             var output: [UIImage] = []
-            output.reserveCapacity(pages.count)
+            output.reserveCapacity(sourcePages.count)
 
-            for (idx, page) in pages.enumerated() {
-                let adjustment = adjustments[safe: idx] ?? .default
+            for (idx, page) in sourcePages.enumerated() {
+                guard !Task.isCancelled else { return nil }
+                let adjustment = pageAdjustments.indices.contains(idx) ? pageAdjustments[idx] : defaultAdjustment
                 output.append(ScanImageProcessor.apply(page, adjustment: adjustment) ?? page)
             }
+            return output
+        }
 
-            let hasAdjustments = adjustments.contains { $0.hasAdjustments }
+        applyingTask = Task {
+            let output = await withTaskCancellationHandler {
+                await renderTask.value
+            } onCancel: {
+                renderTask.cancel()
+            }
+
+            guard let output, !Task.isCancelled else {
+                await MainActor.run {
+                    applying = false
+                    applyingTask = nil
+                }
+                return
+            }
+
+            let hasAdjustments = pageAdjustments.contains { $0.hasAdjustments }
             await MainActor.run {
+                guard !Task.isCancelled else {
+                    applying = false
+                    applyingTask = nil
+                    return
+                }
                 applying = false
-                onConfirm(output, hasAdjustments, adjustments.map(\.documentTransform))
+                applyingTask = nil
+                onConfirm(output, hasAdjustments, pageAdjustments.map(\.documentTransform))
             }
         }
+    }
+
+    private func cancelReview() {
+        applyingTask?.cancel()
+        applyingTask = nil
+        processingTask?.cancel()
+        processingTask = nil
+        applying = false
+        onCancel()
     }
 
     private func applyPresetToCurrentPage(_ preset: ScanAdjustmentPreset) {
@@ -1452,17 +1508,21 @@ struct ScanReviewView: View {
                 }
             }
         )
+        .controlSize(.small)
+        .tint(ShieldTheme.accent(scheme))
     }
 
     @ViewBuilder
     private func optionChips<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                content()
-            }
-            .padding(.horizontal, 2)
-            .padding(.vertical, 2)
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: 136, maximum: 184), alignment: .leading)],
+            alignment: .leading,
+            spacing: 8
+        ) {
+            content()
         }
+        .padding(.horizontal, 2)
+        .padding(.vertical, 2)
     }
 
     private func optionChip(title: String, icon: String, isActive: Bool, action: @escaping () -> Void) -> some View {
@@ -1485,6 +1545,7 @@ struct ScanReviewView: View {
             .clipShape(Capsule())
         }
         .buttonStyle(ScaleButtonStyle())
+        .frame(minHeight: ShieldTheme.minimumTapTarget)
     }
 
     private func aspectFitRect(for imageSize: CGSize, in containerSize: CGSize) -> CGRect {

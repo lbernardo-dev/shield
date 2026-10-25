@@ -3,6 +3,19 @@ import SwiftUI
 struct AllDocumentsView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
+    @State private var metric: HomeLibraryMetric
+
+    init(metric: HomeLibraryMetric = .documents) {
+        _metric = State(initialValue: metric)
+    }
+
+    private var visibleDocuments: [DocumentItem] {
+        appState.filteredDocuments.filter(metric.includes)
+    }
+
+    private var hasActiveFilter: Bool {
+        appState.hasActiveFilter || metric != .documents
+    }
 
     var body: some View {
         NavigationStack {
@@ -10,23 +23,24 @@ struct AllDocumentsView: View {
                 SeasonalThemeBackdrop()
 
                 Group {
-                    if appState.filteredDocuments.isEmpty {
+                    if visibleDocuments.isEmpty {
                         ShieldStateView(
                             kind: .empty,
-                            title: appState.hasActiveFilter
+                            title: hasActiveFilter
                                 ? LanguageManager.shared.home("home_no_results")
                                 : LanguageManager.shared.home("home_no_documents"),
-                            message: appState.hasActiveFilter
+                            message: hasActiveFilter
                                 ? LanguageManager.shared.home("home_no_results_subtitle")
                                 : LanguageManager.shared.home("home_no_documents_subtitle"),
-                            actionLabel: appState.hasActiveFilter
+                            actionLabel: hasActiveFilter
                                 ? LanguageManager.shared.home("home_clear_filters")
                                 : nil
                         ) {
-                            if appState.hasActiveFilter {
+                            if hasActiveFilter {
                                 withAnimation(ShieldMotion.state) {
                                     appState.activeCategoryID = DocumentCategory.all.rawValue
                                     appState.searchQuery = ""
+                                    metric = .documents
                                 }
                             }
                         }
@@ -34,9 +48,10 @@ struct AllDocumentsView: View {
                     } else {
                         ScrollView(showsIndicators: false) {
                             VStack(spacing: 8) {
-                                ForEach(appState.filteredDocuments) { doc in
+                                ForEach(visibleDocuments) { doc in
                                     DocumentRow(doc: doc, lang: appState.language) {
                                         guard !doc.isLocked else { return }
+                                        appState.prepareSearchNavigation(to: doc)
                                         appState.selectedDoc = doc
                                         dismiss()
                                     }
@@ -73,7 +88,9 @@ struct AllDocumentsView: View {
                     }
                 }
             }
-            .navigationTitle(LanguageManager.shared.home("home_all_documents"))
+            .navigationTitle(metric == .documents
+                ? LanguageManager.shared.home("home_all_documents")
+                : LanguageManager.shared.home(metric.localizationKey))
             .navigationBarTitleDisplayMode(.large)
             .colorScheme(appState.preferredScheme)
             .toolbar {
@@ -82,6 +99,17 @@ struct AllDocumentsView: View {
                         .font(.body.weight(.semibold))
                         .foregroundColor(ShieldTheme.accent(appState.preferredScheme))
                 }
+            }
+            .searchable(
+                text: $appState.searchQuery,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: Text(LanguageManager.shared.home("home_search_content_hint"))
+            )
+            .onAppear {
+                appState.prepareLocalSearchIndexIfNeeded()
+            }
+            .onChange(of: appState.searchQuery) { _, _ in
+                appState.prepareLocalSearchIndexIfNeeded()
             }
         }
     }

@@ -2543,6 +2543,40 @@
         }
       }
     },
+    "editor_ocr_empty_inspector_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyze text"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analizar texto"
+          }
+        }
+      }
+    },
+    "editor_ocr_empty_inspector_explanation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyze the text to review results and protect them manually."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analiza el texto para revisar resultados y protegerlos manualmente."
+          }
+        }
+      }
+    },
     "editor_ocr_no_fields_detected": {
       "extractionState": "manual",
       "localizations": {
@@ -2779,6 +2813,209 @@
             "value": "Página %d / %d"
           }
         }
+      }
+    },
+    "editor_batch_review_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Review pages before export" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revisa las páginas antes de exportar" } }
+      }
+    },
+    "editor_batch_review_guidance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Inspect every page and adjust masks where needed before confirming." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revisa cada página y ajusta las máscaras si hace falta antes de confirmarla." } }
+      }
+    },
+    "editor_batch_review_page_status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Page %d · %d pages still need review" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Página %d · quedan %d páginas por revisar" } }
+      }
+    },
+    "editor_batch_review_mark_page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Review & continue" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revisar y continuar" } }
+      }
+    },
+    "editor_batch_review_mark_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "After inspecting this page, confirm that its masks are adjusted where needed." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tras revisar esta página, confirma que las máscaras están ajustadas si hacía falta." } }
+      }
+    },
+    "editor_batch_review_mark_complete_page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Mark page reviewed" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Marcar página revisada" } }
+      }
+    },
+    "editor_batch_review_open_next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open next pending page" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abrir siguiente página pendiente" } }
+      }
+    },
+    "editor_batch_review_open_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Opens the next page that still needs review." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abre la siguiente página que todavía requiere revisión." } }
+      }
+    },
+    "editor_batch_review_export_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d pages still require manual review before export." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Quedan %d páginas que necesitan revisión manual antes de exportar." } }
+      }
+    },
+    "editor_batch_review_export_blocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Review required before export" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revisión necesaria antes de exportar" } }
+      }
+    },
+    "editor_batch_review_open_pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Continue review" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Continuar revisión" } }
+      }
+    },
+    "editor_face_suggestions_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Faces detected" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Rostros detectados" } }
+      }
+    },
+    "editor_face_suggestions_count": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d on-device suggestions to review" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%d sugerencias locales para revisar" } }
+      }
+    },
+    "editor_face_suggestions_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Review" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revisar" } }
+      }
+    },
+    "editor_face_suggestions_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "FACES ON THIS PAGE" } },
+        "es": { "stringUnit": { "state": "translated", "value": "ROSTROS EN ESTA PÁGINA" } }
+      }
+    },
+    "editor_face_suggestions_guidance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "On-device suggestions. Review each area before exporting." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sugerencias locales. Revisa cada zona antes de exportar." } }
+      }
+    },
+    "editor_face_suggestions_item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Face %d" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Rostro %d" } }
+      }
+    },
+    "editor_face_suggestions_protected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Protected" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Protegido" } }
+      }
+    },
+    "editor_face_suggestions_protect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Protect" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Proteger" } }
+      }
+    },
+    "editor_face_suggestions_dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Dismiss face suggestion" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Descartar sugerencia de rostro" } }
+      }
+    },
+    "editor_face_suggestion_accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Face suggestion %d, Vision confidence %d percent" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sugerencia de rostro %d, confianza de Vision del %d por ciento" } }
+      }
+    },
+    "editor_inspector_accessibility_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Privacy and detections" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privacidad y detecciones" } }
+      }
+    },
+    "editor_original_preview_show": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "View original document" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ver documento original" } }
+      }
+    },
+    "editor_original_preview_hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Stop viewing original" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Dejar de ver el original" } }
+      }
+    },
+    "editor_protection_profiles_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Protection profiles" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Perfiles de protección" } }
+      }
+    },
+    "editor_local_search_matches_heading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MATCHES ON THIS PAGE" } },
+        "es": { "stringUnit": { "state": "translated", "value": "COINCIDENCIAS EN ESTA PÁGINA" } }
+      }
+    },
+    "editor_local_search_match_page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Match %d · page %d" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Coincidencia %d · página %d" } }
+      }
+    },
+    "editor_local_search_hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hide" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ocultar" } }
+      }
+    },
+    "editor_local_search_reveal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reveal" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Revelar" } }
       }
     },
     "editor_preview": {

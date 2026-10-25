@@ -7,83 +7,71 @@ import Foundation
 /// never exposes document titles, OCR, images, or file names.
 struct ShieldWidgetSnapshot: Codable, Equatable, Sendable {
     let totalDocuments: Int
-    let protectedDocuments: Int
+    let documentsWithRedactions: Int
     let vaultedDocuments: Int
     let watermarkedDocuments: Int
-    let securityScore: Int
-    let lastProtectedDate: Date?
     let hasPremiumAccess: Bool
-    let generatedAt: Date
 
     init(
         totalDocuments: Int,
-        protectedDocuments: Int,
+        documentsWithRedactions: Int,
         vaultedDocuments: Int,
         watermarkedDocuments: Int = 0,
-        securityScore: Int? = nil,
-        lastProtectedDate: Date? = nil,
-        hasPremiumAccess: Bool = false,
-        generatedAt: Date = .now
+        hasPremiumAccess: Bool = false
     ) {
         let safeTotal = max(0, totalDocuments)
-        let safeProtected = max(0, protectedDocuments)
-        let safeVaulted = max(0, vaultedDocuments)
-        let safeWatermarked = max(0, watermarkedDocuments)
+        let safeRedacted = min(safeTotal, max(0, documentsWithRedactions))
+        let safeVaulted = min(safeTotal, max(0, vaultedDocuments))
+        let safeWatermarked = min(safeTotal, max(0, watermarkedDocuments))
         self.totalDocuments = safeTotal
-        self.protectedDocuments = safeProtected
+        self.documentsWithRedactions = safeRedacted
         self.vaultedDocuments = safeVaulted
         self.watermarkedDocuments = safeWatermarked
-        if let score = securityScore {
-            self.securityScore = min(100, max(0, score))
-        } else {
-            self.securityScore = safeTotal > 0 ? min(100, Int((Double(safeProtected) / Double(safeTotal)) * 100)) : 100
-        }
-        self.lastProtectedDate = lastProtectedDate
         self.hasPremiumAccess = hasPremiumAccess
-        self.generatedAt = generatedAt
     }
 
     enum CodingKeys: String, CodingKey {
         case totalDocuments
-        case protectedDocuments
+        case documentsWithRedactions
+        case legacyProtectedDocuments = "protectedDocuments"
         case vaultedDocuments
         case watermarkedDocuments
-        case securityScore
-        case lastProtectedDate
         case hasPremiumAccess
-        case generatedAt
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let total = try container.decodeIfPresent(Int.self, forKey: .totalDocuments) ?? 0
-        let protected = try container.decodeIfPresent(Int.self, forKey: .protectedDocuments) ?? 0
+        let redacted = try container.decodeIfPresent(Int.self, forKey: .documentsWithRedactions)
+            ?? container.decodeIfPresent(Int.self, forKey: .legacyProtectedDocuments)
+            ?? 0
         let vaulted = try container.decodeIfPresent(Int.self, forKey: .vaultedDocuments) ?? 0
         let watermarked = try container.decodeIfPresent(Int.self, forKey: .watermarkedDocuments) ?? 0
-        let score = try container.decodeIfPresent(Int.self, forKey: .securityScore)
-        let lastProtected = try container.decodeIfPresent(Date.self, forKey: .lastProtectedDate)
         let hasPremiumAccess = try container.decodeIfPresent(Bool.self, forKey: .hasPremiumAccess) ?? false
-        let generated = try container.decodeIfPresent(Date.self, forKey: .generatedAt) ?? .now
 
         self.init(
             totalDocuments: total,
-            protectedDocuments: protected,
+            documentsWithRedactions: redacted,
             vaultedDocuments: vaulted,
             watermarkedDocuments: watermarked,
-            securityScore: score,
-            lastProtectedDate: lastProtected,
-            hasPremiumAccess: hasPremiumAccess,
-            generatedAt: generated
+            hasPremiumAccess: hasPremiumAccess
         )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(totalDocuments, forKey: .totalDocuments)
+        try container.encode(documentsWithRedactions, forKey: .documentsWithRedactions)
+        try container.encode(vaultedDocuments, forKey: .vaultedDocuments)
+        try container.encode(watermarkedDocuments, forKey: .watermarkedDocuments)
+        try container.encode(hasPremiumAccess, forKey: .hasPremiumAccess)
     }
 
     static let empty = ShieldWidgetSnapshot(
         totalDocuments: 0,
-        protectedDocuments: 0,
+        documentsWithRedactions: 0,
         vaultedDocuments: 0,
-        watermarkedDocuments: 0,
-        securityScore: 100,
-        lastProtectedDate: nil
+        watermarkedDocuments: 0
     )
 }
 

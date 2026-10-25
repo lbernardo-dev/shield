@@ -13,13 +13,21 @@ struct DocumentMigrationTests {
             contrast: 1.25
         )
         let modifiedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let geometryFingerprint = RedactionReviewGate.fingerprint(
+            pageTransforms: [transform],
+            imageAdjustment: nil
+        )
         let original = DocumentItem(
             kind: .photo,
             title: "Fixture",
             modifiedAt: modifiedAt,
             imageFileName: "rendered.jpg",
             originalPageFileNames: ["original.jpg"],
-            pageTransforms: [transform]
+            pageTransforms: [transform],
+            batchReviewPendingPageIndices: [2, 1, 2],
+            batchSuggestionPageIndices: [1],
+            redactionGeometryReviewedFingerprint: geometryFingerprint,
+            redactionGeometryReviewPendingFingerprint: geometryFingerprint
         )
 
         let data = try JSONEncoder().encode(original)
@@ -28,6 +36,10 @@ struct DocumentMigrationTests {
         #expect(decoded.schemaVersion == DocumentItem.currentSchemaVersion)
         #expect(decoded.originalPageFileNames == ["original.jpg"])
         #expect(decoded.pageTransforms == [transform])
+        #expect(decoded.batchReviewPendingPageIndices == [1, 2])
+        #expect(decoded.batchSuggestionPageIndices == [1])
+        #expect(decoded.redactionGeometryReviewedFingerprint == geometryFingerprint)
+        #expect(decoded.redactionGeometryReviewPendingFingerprint == geometryFingerprint)
         #expect(decoded.modifiedAt == modifiedAt)
     }
 
@@ -54,5 +66,22 @@ struct DocumentMigrationTests {
         #expect(decoded.originalPageFileNames == nil)
         #expect(decoded.pageTransforms == [.identity])
         #expect(decoded.modifiedAt == decoded.date)
+    }
+
+    @Test("Schema 4 keeps immutable originals while adding geometry review metadata")
+    func schemaFourMigrationPreservesOriginals() {
+        var document = DocumentItem(
+            kind: .photo,
+            title: "Schema four",
+            imageFileName: "rendered.jpg",
+            originalPageFileNames: ["source.jpg"],
+            pageTransforms: [.identity]
+        )
+        document.schemaVersion = 4
+
+        document.migrateToCurrentSchema()
+
+        #expect(document.schemaVersion == DocumentItem.currentSchemaVersion)
+        #expect(document.originalPageFileNames == ["source.jpg"])
     }
 }

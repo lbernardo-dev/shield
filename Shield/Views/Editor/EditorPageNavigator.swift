@@ -21,7 +21,7 @@ struct EditorPageNavigator: View {
             }
             .padding(.horizontal, ShieldTheme.s3)
             .padding(.vertical, ShieldTheme.s2)
-            .background(ShieldTheme.cardBackground(scheme))
+            .background(ShieldTheme.cardBackground(scheme), ignoresSafeAreaEdges: [])
 
             Divider()
 
@@ -47,7 +47,7 @@ struct EditorPageNavigator: View {
                 .padding(ShieldTheme.s2)
             }
         }
-        .background(ShieldTheme.pageBackground(scheme))
+        .background(ShieldTheme.pageBackground(scheme), ignoresSafeAreaEdges: [])
     }
 }
 

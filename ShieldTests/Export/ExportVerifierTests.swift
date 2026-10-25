@@ -5,6 +5,10 @@ import ImageIO
 import UniformTypeIdentifiers
 @testable import Shield
 
+private enum OCRRecognitionFixtureError: Error {
+    case unavailable
+}
+
 @Suite("Secure PDF verification")
 @MainActor
 struct ExportVerifierTests {
@@ -61,6 +65,80 @@ struct ExportVerifierTests {
         #expect(report.normalizedVisualObfuscations == 1)
     }
 
+    @Test("Rejects flattened PDF pages whose display geometry changed")
+    func rejectsPageGeometryMismatch() async throws {
+        let url = temporaryPDFURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 320, height: 480))
+        try renderer.writePDF(to: url) { context in
+            context.beginPage()
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 320, height: 480))
+        }
+
+        let report = await ExportVerifier.verifyPDF(
+            at: url,
+            expectedPageCount: 1,
+            expectedPageSizes: [CGSize(width: 480, height: 320)],
+            normalizedVisualObfuscations: 0
+        )
+
+        #expect(!report.isVerified)
+        #expect(report.issues.contains("page_geometry_mismatch"))
+    }
+
+    @Test("Image export counts only detections from the selected source page")
+    func imageExportCountsSensitiveElementsOnSelectedPage() throws {
+        let page0Observation = OCRTextEvidence(
+            pageIndex: 0,
+            text: "FIRST PAGE ID",
+            boundingRect: CGRect(x: 0.1, y: 0.2, width: 0.4, height: 0.08),
+            confidence: 0.98
+        )
+        let page1Observation = OCRTextEvidence(
+            pageIndex: 1,
+            text: "SECOND PAGE ID",
+            boundingRect: CGRect(x: 0.5, y: 0.6, width: 0.4, height: 0.08),
+            confidence: 0.98
+        )
+        let page0Entity = OCRSensitiveEntity(
+            kind: .documentNumber,
+            value: page0Observation.text,
+            pageIndex: 0,
+            evidenceIDs: [page0Observation.id],
+            confidence: 0.98
+        )
+        let page1Entity = OCRSensitiveEntity(
+            kind: .documentNumber,
+            value: page1Observation.text,
+            pageIndex: 1,
+            evidenceIDs: [page1Observation.id],
+            confidence: 0.98
+        )
+        var fields = DocumentFields.empty
+        fields.ocrPageEvidence = [
+            OCRPageEvidence(pageIndex: 0, observations: [page0Observation], entities: [page0Entity]),
+            OCRPageEvidence(pageIndex: 1, observations: [page1Observation], entities: [page1Entity])
+        ]
+        let document = DocumentItem(
+            kind: .photo,
+            title: "Two pages",
+            pageFileNames: ["first.jpg", "second.jpg"],
+            fields: fields
+        )
+        let page1Redaction = Redaction(
+            rect: page1Observation.boundingRect,
+            style: .block
+        )
+
+        #expect(ExportSensitiveElementCounter.remaining(in: document, redactionsByPage: [1: [page1Redaction]]) == 1)
+        #expect(ExportSensitiveElementCounter.remaining(
+            in: document,
+            redactionsByPage: [0: [Redaction(rect: page0Observation.boundingRect, style: .block)], 1: [page1Redaction]]
+        ) == 0)
+    }
+
     @Test("Rejects raster text still visible inside a redaction zone")
     func rejectsOCRResidualInsideRedaction() async throws {
         let url = temporaryPDFURL()
@@ -91,6 +169,71 @@ struct ExportVerifierTests {
         #expect(report.isVerified == false)
         #expect(report.issues.contains("ocr_residual_found"))
         #expect(report.ocrResidualTexts.isEmpty == false)
+    }
+
+    @Test("Rejects a PDF when OCR cannot inspect a redaction region")
+    func rejectsPDFWhenOCRFails() async throws {
+        let url = temporaryPDFURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let data = try #require(rasterPDFData(pageSizes: [CGSize(width: 240, height: 320)]))
+        try data.write(to: url)
+
+        let report = await ExportVerifier.verifyPDF(
+            at: url,
+            expectedPageCount: 1,
+            normalizedVisualObfuscations: 0,
+            redactionRectsByPage: [0: [CGRect(x: 0.2, y: 0.2, width: 0.4, height: 0.1)]],
+            redactionsApplied: 1,
+            ocrTextRecognizer: { _ in throw OCRRecognitionFixtureError.unavailable }
+        )
+
+        #expect(!report.isVerified)
+        #expect(report.issues.contains("ocr_verification_incomplete"))
+        #expect(report.ocrResidualTexts.isEmpty)
+    }
+
+    @Test("Rejects a redacted PDF when its verification geometry is missing")
+    func rejectsPDFWhenRedactionGeometryIsMissing() async throws {
+        let url = temporaryPDFURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let data = try #require(rasterPDFData(pageSizes: [CGSize(width: 240, height: 320)]))
+        try data.write(to: url)
+
+        let report = await ExportVerifier.verifyPDF(
+            at: url,
+            expectedPageCount: 1,
+            normalizedVisualObfuscations: 0,
+            redactionsApplied: 1
+        )
+
+        #expect(!report.isVerified)
+        #expect(report.issues.contains("ocr_verification_incomplete"))
+    }
+
+    @Test("Rejects an image when OCR cannot inspect a redaction region")
+    func rejectsImageWhenOCRFails() async throws {
+        let url = temporaryImageURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 240, height: 180)).image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 240, height: 180))
+        }
+        let data = try #require(ExportEngine.imageDataStrippingMetadata(image))
+        try data.write(to: url)
+
+        let report = await ExportVerifier.verifyImage(
+            at: url,
+            redactionRectsByPage: [0: [CGRect(x: 0.2, y: 0.2, width: 0.4, height: 0.1)]],
+            redactionsApplied: 1,
+            ocrTextRecognizer: { _ in throw OCRRecognitionFixtureError.unavailable }
+        )
+
+        #expect(!report.isVerified)
+        #expect(report.issues.contains("ocr_verification_incomplete"))
+        #expect(report.ocrResidualTexts.isEmpty)
     }
 
     @Test("Detects image metadata and accepts a stripped image")

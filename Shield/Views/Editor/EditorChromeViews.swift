@@ -1,11 +1,26 @@
 import SwiftUI
 
-struct EditorDocumentMetaBar: View {
+struct EditorDocumentMetaBar<TrailingActions: View>: View {
     @Environment(\.colorScheme) private var scheme
     let title: String
     let changeCount: Int
     let hasUnsavedChanges: Bool
     let lang: AppLanguage
+    let trailingActions: TrailingActions
+
+    init(
+        title: String,
+        changeCount: Int,
+        hasUnsavedChanges: Bool,
+        lang: AppLanguage,
+        @ViewBuilder trailingActions: () -> TrailingActions
+    ) {
+        self.title = title
+        self.changeCount = changeCount
+        self.hasUnsavedChanges = hasUnsavedChanges
+        self.lang = lang
+        self.trailingActions = trailingActions()
+    }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -24,10 +39,13 @@ struct EditorDocumentMetaBar: View {
                 .padding(.vertical, 5)
                 .background(hasUnsavedChanges ? ShieldTheme.warning.opacity(0.16) : ShieldTheme.rowBackground(scheme))
                 .clipShape(Capsule())
+
+            trailingActions
         }
         .padding(.horizontal, ShieldTheme.s4)
         .padding(.vertical, 3)
-        .background(ShieldTheme.background(scheme))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.background(scheme), ignoresSafeAreaEdges: [])
     }
 
     private var changeCountLabel: String {
@@ -61,7 +79,8 @@ struct EditorSensitiveBanner: View {
             }
             .padding(.horizontal, ShieldTheme.s4)
             .padding(.vertical, 4)
-            .background(ShieldTheme.warning.opacity(0.10))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.warning.opacity(0.10), ignoresSafeAreaEdges: [])
             .overlay(Rectangle().stroke(ShieldTheme.warning.opacity(0.35), lineWidth: 0.5))
             .transition(.move(edge: .top).combined(with: .opacity))
         }
@@ -205,7 +224,8 @@ struct EditorPropagateBanner: View {
             }
             .padding(.horizontal, ShieldTheme.s4)
             .padding(.vertical, 6)
-            .background(ShieldTheme.accentDim(scheme))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.accentDim(scheme), ignoresSafeAreaEdges: [])
             .overlay(Rectangle().stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.5))
             .transition(.move(edge: .top).combined(with: .opacity))
         }
@@ -275,8 +295,8 @@ struct EditorBottomToolbar: View {
     let onToolTap: (EditorTool) -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            HStack(alignment: .center, spacing: 4) {
+        HStack(alignment: .center, spacing: 4) {
+            HStack(alignment: .center, spacing: 2) {
                 toolbarActionButton(
                     icon: "arrow.uturn.backward",
                     isEnabled: canUndo,
@@ -307,7 +327,7 @@ struct EditorBottomToolbar: View {
                     Image(systemName: "shield.lefthalf.filled")
                         .shieldFont(20, weight: .medium)
                         .foregroundColor(activeMode == nil ? ShieldTheme.primary(scheme) : ShieldTheme.accent(scheme))
-                        .frame(width: 48, height: 48)
+                        .frame(width: 44, height: 44)
                         .background(ShieldTheme.rowBackground(scheme))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -315,17 +335,16 @@ struct EditorBottomToolbar: View {
                 .accessibilityValue(activeMode?.label(lang: lang) ?? "")
             }
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .center, spacing: 6) {
-                    ForEach(EditorTool.allCases) { tool in
-                        let isSelected = selectedTool == tool
-                        let locked = tool.requiresPro && !isPro
-                        let hasBadge = (tool == .watermark && watermarkActive) || (tool == .adjust && adjustDirty)
-                        let effectiveSelected = isSelected || (tool == .adjust && adjustActive)
-                        Button {
-                            onToolTap(tool)
-                        } label: {
-                            VStack(spacing: 2) {
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    HStack(alignment: .center, spacing: 3) {
+                        ForEach(EditorTool.allCases) { tool in
+                            let locked = tool.requiresPro && !isPro
+                            let hasBadge = (tool == .watermark && watermarkActive) || (tool == .adjust && adjustDirty)
+                            let effectiveSelected = selectedTool == tool || (tool == .adjust && adjustActive)
+                            Button {
+                                onToolTap(tool)
+                            } label: {
                                 ZStack(alignment: .topTrailing) {
                                     Image(systemName: locked ? "lock.fill" : tool.icon)
                                         .shieldFont(19, weight: .medium)
@@ -348,26 +367,48 @@ struct EditorBottomToolbar: View {
                                             .offset(x: 2, y: -2)
                                     }
                                 }
-                                Text(tool.label(lang: lang))
-                                    .shieldFont(10, weight: .bold)
-                                    .foregroundColor(effectiveSelected ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                             }
+                            .buttonStyle(ScaleButtonStyle())
+                            .accessibilityLabel(tool.label(lang: lang))
+                            .accessibilityHint(locked
+                                ? (lang == .es ? "Requiere MaskID Pro" : "Requires MaskID Pro")
+                                : "")
+                            .accessibilityValue(effectiveSelected
+                                ? LanguageManager.shared.common("common_selected")
+                                : "")
+                            .accessibilityIdentifier("editor.tool.\(tool.id)")
+                            .accessibilityAddTraits(effectiveSelected ? .isSelected : [])
+                            .help(tool.label(lang: lang))
+                            .id(tool.id)
                         }
-                        .buttonStyle(ScaleButtonStyle())
-                        .frame(minWidth: 48, minHeight: 48)
-                        .accessibilityValue(effectiveSelected
-                            ? LanguageManager.shared.common("common_selected")
-                            : "")
-                        .accessibilityAddTraits(effectiveSelected ? .isSelected : [])
+                    }
+                    .padding(.vertical, 2)
+                }
+                .scrollIndicators(.visible)
+                .accessibilityIdentifier("editor.tools.scroll")
+                .onAppear {
+                    proxy.scrollTo(selectedTool.id, anchor: .center)
+                }
+                .onChange(of: selectedTool) { _, newTool in
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        proxy.scrollTo(newTool.id, anchor: .center)
                     }
                 }
-                .padding(.vertical, 2)
+                .onChange(of: adjustActive) { _, isActive in
+                    guard isActive else { return }
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        proxy.scrollTo(EditorTool.adjust.id, anchor: .center)
+                    }
+                }
             }
         }
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.top, 8)
+        .padding(.horizontal, ShieldTheme.s2)
+        .padding(.top, 6)
         .padding(.bottom, 2)
-        .background(ShieldTheme.cardBackground(scheme).ignoresSafeArea(edges: .bottom))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.cardBackground(scheme), ignoresSafeAreaEdges: .bottom)
         .overlay(alignment: .top) { ShieldDivider() }
     }
 
@@ -376,7 +417,7 @@ struct EditorBottomToolbar: View {
             Image(systemName: icon)
                 .shieldFont(20, weight: .medium)
                 .foregroundColor(isEnabled ? ShieldTheme.primary(scheme) : ShieldTheme.quaternary(scheme))
-                .frame(width: 48, height: 48)
+                .frame(width: 44, height: 44)
                 .background(ShieldTheme.rowBackground(scheme))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }

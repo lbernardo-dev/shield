@@ -7,6 +7,11 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
     case gallery
     case vault
     case settings
+    case capture
+
+    static var navigationCases: [AppTab] {
+        allCases.filter { $0 != .capture }
+    }
 
     var id: Int { rawValue }
 
@@ -16,6 +21,7 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
         case .gallery:  return LanguageManager.shared.t("common_tab_styles", table: "Common", language: lang)
         case .vault:    return LanguageManager.shared.t("common_tab_vault", table: "Common", language: lang)
         case .settings: return LanguageManager.shared.t("common_tab_settings", table: "Common", language: lang)
+        case .capture:  return LanguageManager.shared.capture("capture_scan_document")
         }
     }
 
@@ -26,6 +32,7 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
             case .gallery:  return "wand.and.stars"
             case .vault:    return "lock.shield"
             case .settings: return "slider.horizontal.3"
+            case .capture:  return "camera.viewfinder"
             }
         }
         switch self {
@@ -33,6 +40,7 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
         case .gallery:  return "square.grid.2x2"
         case .vault:    return "lock.rectangle.stack"
         case .settings: return "gearshape"
+        case .capture:  return "camera.viewfinder"
         }
     }
 
@@ -43,6 +51,7 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
             case .gallery:  return "wand.and.stars"
             case .vault:    return "lock.shield.fill"
             case .settings: return "slider.horizontal.3"
+            case .capture:  return "camera.viewfinder"
             }
         }
         switch self {
@@ -50,6 +59,7 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
         case .gallery:  return "square.grid.2x2.fill"
         case .vault:    return "lock.rectangle.stack.fill"
         case .settings: return "gearshape.fill"
+        case .capture:  return "camera.viewfinder"
         }
     }
 }
@@ -59,8 +69,8 @@ enum AppTab: Int, CaseIterable, Identifiable, Hashable {
 struct ShieldTabBar: View {
     @Binding var selected: AppTab
     let lang: AppLanguage
-    var onScanTap: () -> Void
     @Environment(\.colorScheme) var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -78,18 +88,11 @@ struct ShieldTabBar: View {
             HStack(spacing: 0) {
                 tabItem(.library)
                 tabItem(.gallery)
-                Color.clear
-                    .frame(width: 48, height: 48)
-                    .accessibilityHidden(true)
                 tabItem(.vault)
                 tabItem(.settings)
             }
             .frame(height: 52)
             .padding(.horizontal, 4)
-
-            // Center elevated Scan button
-            ShieldScanButton(action: onScanTap)
-                .offset(y: -8)
         }
         .frame(height: 70, alignment: .bottom)
         .background(
@@ -97,161 +100,6 @@ struct ShieldTabBar: View {
                 .ignoresSafeArea(edges: .bottom)
                 .padding(.top, 18)
         )
-    }
-}
-
-struct ShieldScanButton: View {
-    let action: () -> Void
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            ZStack {
-                if ShieldTheme.activeThemeID == .halloween2026 {
-                    SeasonalScanButtonHalo(reduceMotion: reduceMotion)
-                } else {
-                    StandardScanButtonHalo(reduceMotion: reduceMotion)
-                }
-
-                Circle()
-                    .fill(
-                        ShieldTheme.activeThemeID == .halloween2026
-                            ? LinearGradient(
-                                colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                            : LinearGradient(
-                                colors: [Color(hex: "5CEBFA"), Color(hex: "20C7D9"), Color(hex: "0898AA")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                    )
-                    .overlay {
-                        Circle()
-                            .stroke(
-                                ShieldTheme.activeThemeID == .halloween2026
-                                    ? Color(hex: "FFD6A0").opacity(0.9)
-                                    : Color(hex: "C4F8FF").opacity(0.85),
-                                lineWidth: 2.0
-                            )
-                    }
-                    .shadow(
-                        color: ShieldTheme.activeThemeID == .halloween2026
-                            ? Color(hex: "F97316").opacity(0.55)
-                            : Color(hex: "20C7D9").opacity(0.50),
-                        radius: 6,
-                        y: 2
-                    )
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundColor(.white)
-                    .shadow(color: Color.black.opacity(0.18), radius: 2, y: 1)
-            }
-            .frame(width: 48, height: 48)
-            .contentShape(Circle())
-        }
-        .buttonStyle(ScaleButtonStyle())
-        .frame(width: 64, height: 64)
-        .contentShape(Circle())
-        .zIndex(10)
-        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
-        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
-        .accessibilityIdentifier("tab.capture")
-    }
-}
-
-/// The primary Scan action is an accessory to navigation, not a fifth tab.
-/// On iOS 26 the system moves and compacts this accessory with the tab bar,
-/// including the vertical control rail used by iPhone Duo.
-@available(iOS 26.0, *)
-struct ShieldScanAccessory: View {
-    let action: () -> Void
-    @Environment(\.tabViewBottomAccessoryPlacement) private var placement
-
-    var body: some View {
-        HStack {
-            Spacer(minLength: 0)
-            Button(action: action) {
-                if placement == .inline {
-                    Image(systemName: "camera.viewfinder")
-                        .font(.title3.weight(.semibold))
-                        .frame(minWidth: ShieldTheme.minimumTapTarget, minHeight: ShieldTheme.minimumTapTarget)
-                } else {
-                    Label(
-                        LanguageManager.shared.capture("capture_scan_document"),
-                        systemImage: "camera.viewfinder"
-                    )
-                    .font(.headline)
-                    .padding(.horizontal, ShieldTheme.s2)
-                    .frame(minHeight: ShieldTheme.minimumTapTarget)
-                }
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
-            .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
-            .accessibilityIdentifier("tab.capture")
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, ShieldTheme.s2)
-    }
-}
-
-/// Fallback accessory for iOS versions without the system Liquid Glass
-/// accessory placement APIs.
-struct ShieldLegacyScanAccessory: View {
-    let action: () -> Void
-
-    var body: some View {
-        HStack {
-            Spacer(minLength: 0)
-            ShieldScanButton(action: action)
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.vertical, ShieldTheme.s2)
-        .background(.ultraThinMaterial)
-        .clipShape(.rect(cornerRadius: ShieldTheme.rLG, style: .continuous))
-        .accessibilityElement(children: .contain)
-    }
-}
-
-/// Primary Scan action for an adaptable sidebar. ViewThatFits lets the system
-/// keep the label when the rail is wide and collapse it to the symbol when the
-/// available width is narrow, without device-specific coordinates.
-@available(iOS 26.0, *)
-struct ShieldSidebarScanAction: View {
-    let action: () -> Void
-
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            Button(action: action) {
-                Label(
-                    LanguageManager.shared.capture("capture_scan_document"),
-                    systemImage: "camera.viewfinder"
-                )
-                .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-
-            Button(action: action) {
-                Image(systemName: "camera.viewfinder")
-                    .font(.title3.weight(.semibold))
-                    .frame(minWidth: ShieldTheme.minimumTapTarget, minHeight: ShieldTheme.minimumTapTarget)
-            }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-        }
-        .accessibilityLabel(LanguageManager.shared.capture("capture_scan_document"))
-        .accessibilityHint(LanguageManager.shared.capture("capture_scan_accessibility_hint"))
-        .accessibilityIdentifier("sidebar.capture")
     }
 }
 
@@ -268,9 +116,12 @@ private extension ShieldTabBar {
                     .foregroundStyle(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
                     .scaleEffect(isActive ? 1.05 : 1)
                     .animation(.spring(response: 0.25), value: isActive)
-                Text(tab.label(lang: lang))
-                    .font(.system(size: 10, weight: isActive ? .bold : .medium))
-                    .foregroundStyle(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Text(tab.label(lang: lang))
+                        .shieldFont(10, weight: isActive ? .bold : .medium)
+                        .foregroundStyle(isActive ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+                        .lineLimit(1)
+                }
             }
             .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
         }
@@ -304,7 +155,7 @@ struct ShieldSidebar: View {
             .keyboardShortcut("n", modifiers: .command)
             .padding(.bottom, 12)
 
-            ForEach(AppTab.allCases) { tab in
+            ForEach(AppTab.navigationCases) { tab in
                 let active = selected == tab
                 Button {
                     selected = tab

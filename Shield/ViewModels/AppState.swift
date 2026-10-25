@@ -57,6 +57,42 @@ enum SortOption: String, CaseIterable, Identifiable {
     }
 }
 
+/// Applies document collection changes only after the encrypted snapshot has
+/// been written successfully. Keeping this small and side-effect free makes
+/// persistence rollback behavior directly testable.
+enum DocumentCollectionTransaction {
+    @discardableResult
+    static func insert(
+        _ document: DocumentItem,
+        into documents: inout [DocumentItem],
+        persist: ([DocumentItem]) -> Bool
+    ) -> Bool {
+        var candidate = documents
+        candidate.insert(document, at: 0)
+        guard persist(candidate) else { return false }
+        documents = candidate
+        return true
+    }
+
+    @discardableResult
+    static func replace(
+        _ document: DocumentItem,
+        in documents: inout [DocumentItem],
+        persist: ([DocumentItem]) -> Bool
+    ) -> Bool {
+        guard let index = documents.firstIndex(where: { $0.id == document.id }) else { return false }
+        var candidate = documents
+        candidate[index] = document
+        guard persist(candidate) else { return false }
+        documents = candidate
+        return true
+    }
+}
+
+private enum DocumentSnapshotPersistenceError: Error {
+    case encryptedSnapshotWriteFailed
+}
+
 // MARK: - AppState
 
 final class AppState: ObservableObject {
@@ -64,6 +100,8 @@ final class AppState: ObservableObject {
 
     private let session: AppSessionCoordinator
     private var cancellables = Set<AnyCancellable>()
+    private var seasonalIconSyncRequest = 0
+    private var seasonalIconSyncTask: Task<Void, Never>?
 
     // MARK: - Preferences (persisted)
     var language: AppLanguage {
@@ -85,6 +123,7 @@ final class AppState: ObservableObject {
     // MARK: - Navigation
     @Published var selectedDoc: DocumentItem? = nil
     @Published var showCapture: Bool = false
+    @Published var isHomeWorkspaceToolsExpanded = false
     @Published var pendingSharedImportURL: URL? = nil
     /// A handoff error is kept out of the URL/file path and surfaced once by
     /// CaptureView. The message is always generic and contains no source data.
@@ -98,6 +137,8 @@ final class AppState: ObservableObject {
 
     // Redaction mode pre-selected from the Home quick-actions — auto-applied when the editor opens
     @Published var pendingRedactionMode: RedactionMode? = nil
+    @Published var pendingDocumentSearchPageIndex: Int? = nil
+    @Published var pendingDocumentSearchDocumentID: String? = nil
 
     // Pages to re-adjust from EditorView — CaptureView opens its ScanReviewView at the correct level
     @Published var scanReviewPagesForEdit: [UIImage] = []
@@ -106,11 +147,14 @@ final class AppState: ObservableObject {
     // MARK: - Library
     @Published var documents: [DocumentItem] = []
     @Published var searchQuery: String = ""
+    @Published private(set) var isPreparingLocalSearchOCR = false
     @Published var activeCategory: DocumentCategory = .all
     @Published var activeCategoryID: String = DocumentCategory.all.rawValue  // supports custom too
     @Published var sortOption: SortOption = .dateDesc
     @Published var recentDocsPage: Int = 0
     static let recentDocsPageSize = 5
+    private var localSearchOCRTask: Task<Void, Never>?
+    private var localSearchOCRRequestID = UUID()
 
     // Triggered when a vaulted doc is closed from the editor — fires the 60s auto-lock countdown
     @Published var vaultedDocJustClosed: DocumentItem? = nil
@@ -155,11 +199,38 @@ final class AppState: ObservableObject {
                 session.isAuthenticated = false
             case "lock":
                 session.isAuthenticated = false
-            case "capture", "03-smart-scanner", "03":
+            case "capture", "03-smart-scanner", "03", "scan-review":
                 showCapture = true
                 selectedDoc = nil
             case "01-identity-dni", "01", "01-editor-protected", "editor":
                 selectedDoc = documents.first
+            case "editor-empty-detections":
+                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+                    documents[index].fields = .empty
+                    documents[index].pageRedactions = []
+                    documents[index].redactionCount = 0
+                }
+                selectedDoc = documents.first(where: { $0.id == "aso-identity" })
+            case "editor-face-suggestions":
+                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+                    documents[index].fields = .empty
+                    documents[index].fields.ocrFaceSuggestions = [
+                        OCRFaceSuggestion(
+                            pageIndex: 0,
+                            boundingRect: CGRect(x: 0.14, y: 0.20, width: 0.20, height: 0.22),
+                            confidence: 0.94
+                        ),
+                        OCRFaceSuggestion(
+                            pageIndex: 0,
+                            boundingRect: CGRect(x: 0.62, y: 0.20, width: 0.20, height: 0.22),
+                            confidence: 0.88
+                        )
+                    ]
+                    documents[index].fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+                    documents[index].pageRedactions = []
+                    documents[index].redactionCount = 0
+                }
+                selectedDoc = documents.first(where: { $0.id == "aso-identity" })
             case "02-passport-international", "02", "02-editor-manipulating-mask":
                 selectedDoc = documents.first(where: { $0.id == "aso-passport" }) ?? documents.first
             case "04-ai-ocr-detection", "04", "04-ocr-results", "ocr":
@@ -176,6 +247,16 @@ final class AppState: ObservableObject {
             case "08-batch-processing", "08", "08-multipage-pdf", "batch":
                 selectedDoc = nil
                 activeTab = .library
+            case "batch-review-queue":
+                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+                    documents[index].batchReviewPendingPageIndices = [0, 1]
+                    documents[index].batchSuggestionPageIndices = [0]
+                }
+                selectedDoc = nil
+                activeTab = .library
+            case "batch-import-recovery", "batch-import-cancel":
+                showCapture = true
+                selectedDoc = nil
             case "09-mask-styles", "09", "09-templates", "gallery":
                 selectedDoc = nil
                 activeTab = .gallery
@@ -345,20 +426,7 @@ final class AppState: ObservableObject {
             throw AppIconError.proRequired
         }
 
-        #if os(iOS)
-        let isTesting = NSClassFromString("XCTest") != nil || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-        if UIApplication.shared.supportsAlternateIcons && !isTesting {
-            if UIApplication.shared.alternateIconName != icon.alternateIconName {
-                do {
-                    try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
-                } catch {
-                    #if !targetEnvironment(simulator)
-                    throw AppIconError.changeFailed(error.localizedDescription)
-                    #endif
-                }
-            }
-        }
-        #endif
+        try await setSystemAppIcon(icon)
 
         if !allowSeasonalAutomatic {
             UserDefaults.standard.set(true, forKey: "shield.theme.manualIconOverride")
@@ -371,33 +439,67 @@ final class AppState: ObservableObject {
     /// boundary, so an already-installed build cannot silently keep a stale
     /// icon when the user applies a theme.
     @MainActor
-    func applySeasonalThemeIcon(for themeID: SeasonalThemeID, isPro: Bool) {
+    func applySeasonalThemeIcon(for themeID: SeasonalThemeID) {
         let defaults = UserDefaults.standard
         let desiredIcon: AppIconOption = themeID.icon
         currentAppIcon = desiredIcon
+        seasonalIconSyncRequest += 1
+        let request = seasonalIconSyncRequest
+        let previousSync = seasonalIconSyncTask
 
 #if os(iOS)
         let installedIcon = AppIconOption.from(alternateIconName: UIApplication.shared.alternateIconName)
-        if desiredIcon == installedIcon {
+        if desiredIcon == installedIcon, previousSync == nil {
+            defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
             return
         }
 #endif
 
-        Task { @MainActor [weak self] in
+        seasonalIconSyncTask = Task { @MainActor [weak self] in
+            await previousSync?.value
+            guard let self, self.seasonalIconSyncRequest == request else { return }
             do {
-                try await self?.setAppIcon(
-                    desiredIcon,
-                    isPro: isPro,
-                    allowSeasonalAutomatic: true
-                )
+                try await self.setSystemAppIcon(desiredIcon)
+                guard self.seasonalIconSyncRequest == request else { return }
+                self.currentAppIcon = desiredIcon
                 defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
             } catch {
+                guard self.seasonalIconSyncRequest == request else { return }
                 AppState.trackEvent("theme_activation_failed", properties: [
                     "name": themeID.rawValue,
                     "error_type": "icon"
                 ])
             }
+
+            if self.seasonalIconSyncRequest == request {
+                self.seasonalIconSyncTask = nil
+            }
         }
+    }
+
+    @MainActor
+    func waitForSeasonalThemeIconSync() async {
+        await seasonalIconSyncTask?.value
+    }
+
+    @MainActor
+    private func setSystemAppIcon(_ icon: AppIconOption) async throws {
+#if os(iOS)
+        let isTesting = NSClassFromString("XCTest") != nil
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+            || ProcessInfo.processInfo.arguments.contains("-ui-testing")
+        if UIApplication.shared.supportsAlternateIcons,
+           !isTesting,
+           UIApplication.shared.alternateIconName != icon.alternateIconName {
+            do {
+                try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
+            } catch {
+#if !targetEnvironment(simulator)
+                throw AppIconError.changeFailed(error.localizedDescription)
+#endif
+            }
+        }
+#endif
     }
 
     @MainActor
@@ -471,9 +573,9 @@ final class AppState: ObservableObject {
         }
 
         if !searchQuery.isEmpty {
-            let q = searchQuery.lowercased()
-            // Vaulted docs are always visible (title is hidden in UI anyway)
-            docs = docs.filter { $0.isVaulted || $0.title.lowercased().contains(q) }
+            // Search OCR and metadata locally for non-vaulted files. Vaulted
+            // records stay listed without exposing their searchable contents.
+            docs = docs.filter { $0.isVaulted || $0.matchesLocalSearch(searchQuery) }
         }
 
         switch sortOption {
@@ -484,6 +586,134 @@ final class AppState: ObservableObject {
         }
 
         return docs
+    }
+
+    func prepareSearchNavigation(to document: DocumentItem) {
+        guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !document.isVaulted else {
+            pendingDocumentSearchPageIndex = nil
+            pendingDocumentSearchDocumentID = nil
+            return
+        }
+        pendingDocumentSearchDocumentID = document.id
+        pendingDocumentSearchPageIndex = document.matchingOCRPageIndices(for: searchQuery).first
+    }
+
+    @MainActor
+    func prepareLocalSearchIndexIfNeeded() {
+        localSearchOCRTask?.cancel()
+        let requestID = UUID()
+        localSearchOCRRequestID = requestID
+        if isPreparingLocalSearchOCR {
+            isPreparingLocalSearchOCR = false
+        }
+        guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+        localSearchOCRTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .milliseconds(350))
+            } catch {
+                return
+            }
+            guard let self,
+                  !Task.isCancelled,
+                  self.localSearchOCRRequestID == requestID,
+                  !self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+            let candidates = self.documents.filter(Self.needsLocalSearchOCR)
+            guard !candidates.isEmpty else { return }
+            self.isPreparingLocalSearchOCR = true
+            defer {
+                if self.localSearchOCRRequestID == requestID {
+                    self.isPreparingLocalSearchOCR = false
+                }
+            }
+
+            for candidate in candidates {
+                guard !Task.isCancelled,
+                      self.localSearchOCRRequestID == requestID else { break }
+                guard let document = self.documents.first(where: { $0.id == candidate.id }),
+                      Self.needsLocalSearchOCR(document) else { continue }
+
+                let pageFileNames: [String]
+                if let existingPages = document.pageFileNames, !existingPages.isEmpty {
+                    pageFileNames = existingPages
+                } else {
+                    pageFileNames = [document.imageFileName].compactMap { $0 }
+                }
+                let imagesByPage = pageFileNames.map {
+                    AppState.loadImage(fileName: $0, isVaulted: false)
+                }
+                guard imagesByPage.contains(where: { $0 != nil }) else { continue }
+
+                let observations = await OCRService.recognizeObservationsByPageAdaptive(inPages: imagesByPage)
+                guard !Task.isCancelled,
+                      self.localSearchOCRRequestID == requestID else { break }
+                guard let latestDocument = self.documents.first(where: { $0.id == candidate.id }),
+                      !latestDocument.isVaulted,
+                      latestDocument.fields.ocrPageEvidence == nil else { continue }
+
+                var updatedDocument = latestDocument
+                updatedDocument.fields = Self.addLocalSearchOCR(observations, to: latestDocument.fields)
+                _ = self.updateDocument(updatedDocument)
+            }
+        }
+    }
+
+    private static func needsLocalSearchOCR(_ document: DocumentItem) -> Bool {
+        guard !document.isVaulted,
+              document.kind == .photo || document.kind == .genericID,
+              document.fields.ocrPageEvidence == nil else { return false }
+        let hasPageText = !(document.fields.ocrPageTexts ?? []).isEmpty
+        let hasBoundingText = !(document.fields.ocrBoundingTexts ?? []).isEmpty
+        let hasFullText = !(document.fields.ocrFullText ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return !hasPageText && !hasBoundingText && !hasFullText
+    }
+
+    private static func addLocalSearchOCR(
+        _ observations: [[OCRService.TextObservation]],
+        to originalFields: DocumentFields
+    ) -> DocumentFields {
+        let pageLines = observations.map { $0.map(\.text) }
+        let pageTexts = pageLines.map { $0.joined(separator: "\n") }
+        let fieldsByPage = pageLines.map(OCRService.extractFields(from:))
+        let extractedFields = fieldsByPage.max { lhs, rhs in
+            let leftScore = (lhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+                + (lhs.ocrMRZValid == true ? 10 : 0)
+            let rightScore = (rhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+                + (rhs.ocrMRZValid == true ? 10 : 0)
+            return leftScore < rightScore
+        } ?? OCRService.extractFields(from: pageLines.flatMap { $0 })
+
+        var fields = originalFields
+        if fields.documentNumber.isEmpty { fields.documentNumber = extractedFields.documentNumber }
+        if fields.fullName.isEmpty { fields.fullName = extractedFields.fullName }
+        if fields.dateOfBirth.isEmpty { fields.dateOfBirth = extractedFields.dateOfBirth }
+        if fields.nationality.isEmpty { fields.nationality = extractedFields.nationality }
+        if fields.expires.isEmpty { fields.expires = extractedFields.expires }
+        if fields.sex.isEmpty { fields.sex = extractedFields.sex }
+        if fields.address.isEmpty { fields.address = extractedFields.address }
+        if fields.supportNumber?.isEmpty != false { fields.supportNumber = extractedFields.supportNumber }
+        if fields.issued?.isEmpty != false { fields.issued = extractedFields.issued }
+        if fields.mrz?.isEmpty != false { fields.mrz = extractedFields.mrz }
+        fields.ocrPageEvidence = OCRService.buildPageEvidence(
+            observations: observations,
+            extractedFields: fieldsByPage
+        )
+        fields.ocrPageTexts = pageTexts
+        fields.ocrFullText = pageTexts.joined(separator: "\n\n")
+        fields.ocrDocumentType = fields.ocrDocumentType ?? OCRService.detectDocumentType(
+            from: pageLines.flatMap { $0 }
+        ).rawValue
+        fields.ocrMRZValid = fields.ocrMRZValid ?? extractedFields.ocrMRZValid
+        fields.ocrMRZFormat = fields.ocrMRZFormat ?? extractedFields.ocrMRZFormat
+        fields.ocrFieldConfidence = fields.ocrFieldConfidence ?? extractedFields.ocrFieldConfidence
+        if let firstPage = observations.first {
+            fields.ocrBoundingTexts = firstPage.map(\.text)
+            fields.ocrBoundingRects = firstPage.map(\.boundingRect)
+        }
+        return fields
     }
 
     var filteredDocumentsPage: [DocumentItem] {
@@ -507,21 +737,37 @@ final class AppState: ObservableObject {
 
     // MARK: - Document CRUD
 
-    func addDocument(_ doc: DocumentItem) {
+    @discardableResult
+    func addDocument(_ doc: DocumentItem) -> Bool {
         var document = doc
         document.modifiedAt = Date()
-        documents.insert(document, at: 0)
-        persistDocuments()
+        guard DocumentCollectionTransaction.insert(
+            document,
+            into: &documents,
+            persist: persistDocumentsSnapshot
+        ) else {
+            updateWidgetSnapshot(reload: true)
+            return false
+        }
+        updateWidgetSnapshot(reload: true)
         PremiumManager.shared.recordDocumentProcessed()
+        return true
     }
 
-    func updateDocument(_ doc: DocumentItem) {
-        if let idx = documents.firstIndex(where: { $0.id == doc.id }) {
-            var document = doc
-            document.modifiedAt = Date()
-            documents[idx] = document
-            persistDocuments()
+    @discardableResult
+    func updateDocument(_ doc: DocumentItem) -> Bool {
+        var document = doc
+        document.modifiedAt = Date()
+        guard DocumentCollectionTransaction.replace(
+            document,
+            in: &documents,
+            persist: persistDocumentsSnapshot
+        ) else {
+            updateWidgetSnapshot(reload: true)
+            return false
         }
+        updateWidgetSnapshot(reload: true)
+        return true
     }
 
     func deleteDocument(_ doc: DocumentItem) {
@@ -556,13 +802,91 @@ final class AppState: ObservableObject {
             return false
         }
         d.isVaulted.toggle()
-        updateDocument(d)
+        guard updateDocument(d) else {
+            // The asset move succeeded, but the metadata snapshot did not.
+            // Put the files back where the still-current document expects them.
+            _ = relocateAssetsTransactionally(for: d, toVault: doc.isVaulted)
+            return false
+        }
         if d.isVaulted {
             // Remove any package that was backed up before the document entered
             // the Vault. The deletion is queued when CloudKit is unavailable.
             CloudSyncManager.shared.scheduleRemoteDeletion(id: d.id)
         }
         return true
+    }
+
+    /// Replaces processed pages without touching the current files until the
+    /// encrypted document snapshot points at the staged replacements. Vaulted
+    /// documents stay in the Vault directory for the entire operation.
+    @discardableResult
+    func replaceRenderedPages(
+        for document: DocumentItem,
+        with pages: [UIImage],
+        transforms: [DocumentPageTransform]
+    ) -> DocumentItem? {
+        let oldFileNames: [String] = {
+            if let names = document.pageFileNames, !names.isEmpty { return names }
+            if let name = document.imageFileName { return [name] }
+            return []
+        }()
+        guard !pages.isEmpty,
+              oldFileNames.count == pages.count,
+              transforms.count == pages.count,
+              documents.contains(where: { $0.id == document.id }) else {
+            return nil
+        }
+
+        var stagedFileNames: [String] = []
+        for (index, page) in pages.enumerated() {
+            let id = "\(document.id)_rendered_\(UUID().uuidString)_p\(index)"
+            guard let fileName = saveImage(page, id: id, isVaulted: document.isVaulted) else {
+                stagedFileNames.forEach {
+                    removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+                }
+                return nil
+            }
+            stagedFileNames.append(fileName)
+        }
+
+        var updated = document
+        updated.imageFileName = stagedFileNames[0]
+        updated.pageFileNames = (stagedFileNames.count > 1 || document.pageFileNames != nil)
+            ? stagedFileNames
+            : nil
+        updated.pageTransforms = transforms
+        updated.imageAdjustment = nil
+        if RedactionReviewGate.requiresReview(from: document.pageTransforms, to: transforms) {
+            updated.batchReviewPendingPageIndices = RedactionReviewGate.pendingPageIndices(
+                existing: updated.batchReviewPendingPageIndices,
+                pageCount: updated.pageCount
+            )
+            updated.redactionGeometryReviewPendingFingerprint = RedactionReviewGate.fingerprint(
+                pageTransforms: transforms,
+                imageAdjustment: updated.imageAdjustment,
+                rasterBackedTypedDocument: updated.usesRasterBackedTypedDocumentCoordinates
+            )
+            updated.fields.ocrPageEvidence = nil
+            updated.fields.ocrPageTexts = nil
+            updated.fields.ocrFullText = nil
+            updated.fields.ocrBoundingTexts = nil
+            updated.fields.ocrBoundingRects = nil
+            updated.fields.ocrFaceSuggestions = nil
+            updated.fields.ocrFaceSuggestionsRevision = nil
+            updated.fields.ocrDismissedFaceSuggestionIDs = nil
+        }
+
+        guard updateDocument(updated) else {
+            stagedFileNames.forEach {
+                removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+            }
+            return nil
+        }
+
+        oldFileNames.forEach {
+            removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+        }
+        return documents.first { $0.id == document.id }
     }
 
     func deleteAllDocuments() {
@@ -588,6 +912,22 @@ final class AppState: ObservableObject {
     }
 
     func restoreCloudDocument(_ document: DocumentItem, assets: [CloudAssetPayload]) throws {
+        struct PreviousAsset {
+            let url: URL
+            let data: Data?
+        }
+
+        var previousAssets: [PreviousAsset] = []
+        func rollBackAssets() {
+            for previous in previousAssets.reversed() {
+                if let data = previous.data {
+                    try? SecureFileStore.shared.write(data, to: previous.url)
+                } else {
+                    SecureFileStore.shared.removeFile(at: previous.url)
+                }
+            }
+        }
+
         for asset in assets {
             let destination: URL
             switch asset.kind {
@@ -596,15 +936,32 @@ final class AppState: ObservableObject {
             case .source:
                 destination = AppState.resolveSourceURL(fileName: asset.fileName, isVaulted: document.isVaulted)
             }
-            try SecureFileStore.shared.write(asset.data, to: destination)
+
+            do {
+                let existed = FileManager.default.fileExists(atPath: destination.path)
+                let previousData = existed ? try SecureFileStore.shared.read(from: destination) : nil
+                previousAssets.append(PreviousAsset(url: destination, data: previousData))
+                try SecureFileStore.shared.write(asset.data, to: destination)
+            } catch {
+                rollBackAssets()
+                throw error
+            }
         }
-        if let index = documents.firstIndex(where: { $0.id == document.id }) {
-            documents[index] = document
+
+        var candidate = documents
+        if let index = candidate.firstIndex(where: { $0.id == document.id }) {
+            candidate[index] = document
         } else {
-            documents.append(document)
-            documents.sort { $0.date > $1.date }
+            candidate.append(document)
+            candidate.sort { $0.date > $1.date }
         }
-        persistDocuments()
+        guard persistDocumentsSnapshot(candidate) else {
+            rollBackAssets()
+            throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
+        }
+
+        documents = candidate
+        updateWidgetSnapshot(reload: true)
     }
 
     // MARK: - Image storage
@@ -862,36 +1219,36 @@ final class AppState: ObservableObject {
 
     @discardableResult
     private func persistDocuments() -> Bool {
-        do {
-            try Self.writeEncryptedDocumentSnapshot(documents)
+        let didPersist = persistDocumentsSnapshot(documents)
+        updateWidgetSnapshot(reload: true)
+        return didPersist
+    }
 
-            // The encrypted snapshot is now the canonical store. Legacy
-            // per-document JSON must remain until this write is confirmed.
+    private func persistDocumentsSnapshot(_ snapshot: [DocumentItem]) -> Bool {
+        do {
+            try Self.writeEncryptedDocumentSnapshot(snapshot)
+
+            // The encrypted snapshot is now canonical. Retain legacy records
+            // until this write is confirmed.
             DocumentStore.shared.removeLegacyFiles()
-            updateWidgetSnapshot(reload: true)
             return true
         } catch {
             Self.persistenceLogger.error("Failed to persist encrypted documents: \(error.localizedDescription, privacy: .private)")
-            updateWidgetSnapshot(reload: true)
             return false
         }
     }
 
     private func updateWidgetSnapshot(reload: Bool) {
-        let protectedDocs = documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }
+        let documentsWithRedactions = documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }
         let watermarkedCount = documents.filter { doc in
             guard let text = doc.watermark?.text else { return false }
             return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }.count
-        let lastDate = protectedDocs.map(\.modifiedAt).max()
-
         let snapshot = ShieldWidgetSnapshot(
             totalDocuments: documents.count,
-            protectedDocuments: protectedDocs.count,
+            documentsWithRedactions: documentsWithRedactions.count,
             vaultedDocuments: documents.filter(\.isVaulted).count,
             watermarkedDocuments: watermarkedCount,
-            securityScore: nil,
-            lastProtectedDate: lastDate,
             hasPremiumAccess: PremiumManager.shared.isPro
         )
         ShieldWidgetSnapshotStore.save(snapshot)

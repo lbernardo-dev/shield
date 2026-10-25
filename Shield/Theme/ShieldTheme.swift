@@ -36,15 +36,13 @@ enum ShieldTheme {
     static var accentDim: Color { accent.opacity(0.22) }
     static var accentText: Color { activeThemeID == .halloween2026 ? Color(hex: "1B0E05") : Color(hex: "071426") }
 
-    // Semantic
-    static var success: Color { activeThemeID == .halloween2026 ? Color(hex: "65A30D") : Color(hex: "30D158") }
+    // Semantic status colors stay stable across decorative theme choices.
+    static var success: Color { Color(hex: "30D158") }
     static var successDim: Color { success.opacity(0.16) }
-    // The deeper Halloween orange remains readable on the light parchment
-    // surfaces as well as on the dark obsidian surfaces.
-    static var warning: Color { activeThemeID == .halloween2026 ? Color(hex: "C2410C") : Color(hex: "FF9F0A") }
+    static var warning: Color { Color(hex: "FF9F0A") }
     static var danger: Color { Color(hex: "FF453A") }
     static var dangerDim: Color { danger.opacity(0.16) }
-    static var info: Color { activeThemeID == .halloween2026 ? Color(hex: "C084FC") : Color(hex: "64D2FF") }
+    static var info: Color { Color(hex: "64D2FF") }
 
     // Halloween accents are deliberately named so decorative views cannot
     // accidentally reuse a semantic color with insufficient contrast.
@@ -270,24 +268,29 @@ enum SeasonalThemeResolver {
         at clock: SeasonalThemeClock,
         catalog: [SeasonalThemeDefinition] = SeasonalThemeCatalog.definitions
     ) -> SeasonalThemeID {
-        if isPro {
-            switch selection {
-            case .manual(let id):
-                guard let definition = catalog.first(where: { $0.id == id }) else { return .base }
-                if let schedule = definition.schedule,
-                   schedule.availability(at: clock.now, using: clock) == .upcoming {
-                    // A future theme may be inspected, but never becomes the
-                    // effective theme before its window starts.
-                    return .base
-                }
-                return id
-            case .base:
-                return .base
-            case .automatic:
-                break
-            }
+        let scheduledTheme = activeScheduledTheme(at: clock, catalog: catalog)
+        guard isPro else {
+            // The live event theme is included for every customer. Free
+            // accounts cannot manually activate archived themes or opt out
+            // of the active event through a stale persisted selection.
+            return scheduledTheme ?? .base
         }
-        return activeScheduledTheme(at: clock, catalog: catalog) ?? .base
+
+        switch selection {
+        case .base:
+            return .base
+        case .manual(let id):
+            guard let definition = catalog.first(where: { $0.id == id }) else { return .base }
+            if let schedule = definition.schedule,
+               schedule.availability(at: clock.now, using: clock) == .upcoming {
+                // A future theme may be inspected, but never becomes the
+                // effective theme before its window starts.
+                return .base
+            }
+            return id
+        case .automatic:
+            return scheduledTheme ?? .base
+        }
     }
 
     static func canManuallyActivate(
@@ -328,6 +331,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
     @Published private(set) var activeScheduledThemeID: SeasonalThemeID?
     @Published private(set) var selection: SeasonalThemeSelection
     @Published private(set) var isPro: Bool = false
+    @Published private(set) var hasResolvedEntitlement = false
     @Published private(set) var isSoundscapeEnabled: Bool
 #if DEBUG
 #if targetEnvironment(simulator)
@@ -360,6 +364,8 @@ final class SeasonalThemeCoordinator: ObservableObject {
                   let id = SeasonalThemeID(rawValue: rawValue) {
             selection = .manual(id)
         } else {
+            // A first install follows the event calendar. An explicit Base
+            // choice is persisted separately and continues to take priority.
             selection = .automatic
         }
         if userDefaults.object(forKey: soundscapeEnabledKey) == nil {
@@ -393,7 +399,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
             systemTimeObservers.append(observer)
         }
 
-        refresh()
+        refresh(hasResolvedEntitlement: false)
     }
 
     deinit {
@@ -416,8 +422,20 @@ final class SeasonalThemeCoordinator: ObservableObject {
         )
     }
 
-    func refresh(now: Date = Date(), timeZone: TimeZone = .autoupdatingCurrent, isPro: Bool? = nil) {
+    func refresh(
+        now: Date = Date(),
+        timeZone: TimeZone = .autoupdatingCurrent,
+        isPro: Bool? = nil,
+        hasResolvedEntitlement: Bool? = nil
+    ) {
         if let isPro { self.isPro = isPro }
+        if let hasResolvedEntitlement {
+            self.hasResolvedEntitlement = hasResolvedEntitlement
+        } else if isPro != nil {
+            // Direct callers that supply a definitive access state (for
+            // example isolated coordinator tests) are considered resolved.
+            self.hasResolvedEntitlement = true
+        }
         activeScheduledThemeID = SeasonalThemeResolver.activeScheduledTheme(
             at: SeasonalThemeClock(now: now, timeZone: timeZone)
         )
@@ -459,6 +477,15 @@ final class SeasonalThemeCoordinator: ObservableObject {
         )
         updateSoundscape()
         scheduleNextThemeBoundaryRefresh(now: now, timeZone: timeZone)
+    }
+
+    /// A persisted Base choice belongs to a Pro user. Avoid changing the
+    /// system icon until the entitlement source confirms whether that choice
+    /// is still valid; automatic event themes can sync immediately.
+    var shouldDeferSeasonalIconUntilEntitlementResolves: Bool {
+        guard activeScheduledThemeID != nil,
+              case .base = selection else { return false }
+        return !hasResolvedEntitlement
     }
 
     /// Keeps the ambient audio tied to the app's foreground state. Sound is

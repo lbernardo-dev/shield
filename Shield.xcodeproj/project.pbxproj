@@ -145,6 +145,8 @@
 		TIMP /* ImportPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTIM /* ImportPipelineTests.swift */; };
 		TOCR /* OCREvidenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FTOC /* OCREvidenceTests.swift */; };
 		TSEC /* SecurityPrivacyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FSEC /* SecurityPrivacyTests.swift */; };
+		FACE_EVAL_SRC /* FaceDetectionCorpusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE_EVAL_FILE /* FaceDetectionCorpusTests.swift */; };
+		FACE_EVAL_RES /* FaceDetection in Resources */ = {isa = PBXBuildFile; fileRef = FACE_EVAL_FIXTURES /* FaceDetection */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -336,6 +338,8 @@
 		F_ED_INSPECT /* EditorPrivacyInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPrivacyInspector.swift; sourceTree = "<group>"; };
 		F_ED_PAGE_NAV /* EditorPageNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPageNavigator.swift; sourceTree = "<group>"; };
 		FT_COORD_MAP /* CoordinateMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinateMappingTests.swift; sourceTree = "<group>"; };
+		FACE_EVAL_FILE /* FaceDetectionCorpusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetectionCorpusTests.swift; sourceTree = "<group>"; };
+		FACE_EVAL_FIXTURES /* FaceDetection */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fixtures/FaceDetection; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -757,6 +761,8 @@
 				F_TEST_APPICON /* AppIconTests.swift */,
 				F_TEST_ENHANCE /* EnhancementFeaturesTests.swift */,
 				0B1C2D3E4F5061728394A5B7 /* WidgetSnapshotTests.swift */,
+				FACE_EVAL_FILE /* FaceDetectionCorpusTests.swift */,
+				FACE_EVAL_FIXTURES /* FaceDetection */,
 			);
 			path = ShieldTests;
 			sourceTree = "<group>";
@@ -897,6 +903,7 @@
 			buildPhases = (
 				PH_TEST_SOURCES /* Sources */,
 				PH_TEST_FRAMEWORKS /* Frameworks */,
+				PH_TEST_RESOURCES /* Resources */,
 			);
 			buildRules = (
 			);
@@ -1028,6 +1035,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		PH_TEST_RESOURCES /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE_EVAL_RES /* FaceDetection in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -1074,7 +1089,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\n\ntouch \"${SCRIPT_OUTPUT_FILE_0}\"\n\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nif [ \"${PLATFORM_NAME:-}\" = \"iphonesimulator\" ]; then\n  echo \"note: Skipping Crashlytics dSYM upload for simulator builds.\"\n  exit 0\nfi\n\nGOOGLE_SERVICE_PLIST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\nCRASHLYTICS_RUN_SCRIPT=\"${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\nif [ ! -f \"$GOOGLE_SERVICE_PLIST\" ]; then\n  echo \"warning: GoogleService-Info.plist is missing from the built app. Skipping Crashlytics dSYM upload.\"\n  exit 0\nfi\n\nif [ ! -x \"$CRASHLYTICS_RUN_SCRIPT\" ]; then\n  echo \"warning: Firebase Crashlytics run script not found at $CRASHLYTICS_RUN_SCRIPT. Resolve Swift packages before archiving.\"\n  exit 0\nfi\n\n\"$CRASHLYTICS_RUN_SCRIPT\"\n";
+			shellScript = "set -euo pipefail\n\ntouch \"${SCRIPT_OUTPUT_FILE_0}\"\n\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  exit 0\nfi\n\nif [ \"${PLATFORM_NAME:-}\" = \"iphonesimulator\" ]; then\n  echo \"note: Skipping Crashlytics dSYM upload for simulator builds.\"\n  exit 0\nfi\n\nGOOGLE_SERVICE_PLIST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\nCRASHLYTICS_RUN_SCRIPT=\"${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n\nif [ ! -f \"$GOOGLE_SERVICE_PLIST\" ]; then\n  echo \"warning: GoogleService-Info.plist is missing from the built app. Skipping Crashlytics dSYM upload.\"\n  exit 0\nfi\n\nif [ ! -x \"$CRASHLYTICS_RUN_SCRIPT\" ]; then\n  echo \"warning: Firebase Crashlytics run script not found at $CRASHLYTICS_RUN_SCRIPT. Resolve Swift packages before archiving.\"\n  exit 0\nfi\n\nif [ \"${SKIP_CRASHLYTICS_SYMBOL_UPLOAD:-NO}\" = \"YES\" ]; then\n  echo \"note: Skipping Crashlytics dSYM upload for this build.\"\n  exit 0\nfi\n\n\"$CRASHLYTICS_RUN_SCRIPT\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1204,6 +1219,7 @@
 				AT_TEST_APPICON /* AppIconTests.swift in Sources */,
 				AT_TEST_ENHANCE /* EnhancementFeaturesTests.swift in Sources */,
 				0B1C2D3E4F5061728394A5B6 /* WidgetSnapshotTests.swift in Sources */,
+				FACE_EVAL_SRC /* FaceDetectionCorpusTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1246,12 +1262,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1268,12 +1284,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1290,7 +1306,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1301,7 +1317,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1317,7 +1333,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1328,7 +1344,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1449,7 +1465,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1468,7 +1484,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",
@@ -1496,7 +1512,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1142026101601;
+		"CURRENT_PROJECT_VERSION" = 1162026102501;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1515,7 +1531,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.4";
+		"MARKETING_VERSION" = "1.1.6";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",

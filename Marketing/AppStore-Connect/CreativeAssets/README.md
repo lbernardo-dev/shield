@@ -1,30 +1,41 @@
-# MaskID App Store creative videos
+# MaskID App Store creatives
 
-Four silent, localized creative videos for the new App Store placements:
+## Release 1.1.6 · 25 October 2026
 
-| Locale | Placement | File | Output |
-| --- | --- | --- | --- |
-| en-US | Product page header | `en-US/product-page-header.mp4` | 3840 × 1646, 21:9 |
-| en-US | Search results | `en-US/search-results.mp4` | 2880 × 1920, 3:2 |
-| es-ES | Product page header | `es-ES/product-page-header.mp4` | 3840 × 1646, 21:9 |
-| es-ES | Search results | `es-ES/search-results.mp4` | 2880 × 1920, 3:2 |
+The iPhone screenshot package contains exactly 10 localized screenshots in each of `en-US` and `es-ES`. It was captured from MaskID 1.1.6 (build `1162026102502`) on the dedicated iPhone 18 Pro simulator copy running iOS 27.0.
 
-Every video is 15 seconds, 30 fps, MP4/H.264, without an audio track. Each follows the actual product flow: home, OCR suggestions, manual redaction, and verified export. Source screens come from the bilingual simulator-capture set in `Marketing/30-Day-Social-Campaign/source-captures/` and use synthetic examples.
+- Final files: `.asc/screenshots/aso/final/{en-US,es-ES}/iphone-63/`
+- Preview sheets: `.asc/screenshots/aso/review/contact-{en-US,es-ES}.png`
+- Native image size: 1206 × 2622 px. App Store Connect display type: `APP_IPHONE_61`.
+- Base theme was verified through the local DEBUG visual preview on the dedicated simulator copy. Synthetic documents are used throughout.
+- App Store Connect reports all 10 screenshots for each locale as `COMPLETE`.
+- No app preview or app-use video is included in this release. The legacy `en-US` preview was removed after the previous review submission was canceled. App Store Connect now has no preview videos in `en-US` or `es-ES`.
+- Submission `91422bbd-05c7-4306-8911-6ac525e55fcc` for build `1162026102502` is `WAITING_FOR_REVIEW` as of 25 October 2026. The previous submission was canceled to remove the legacy preview.
 
-The header and search versions are separate cuts because Apple requires different aspect ratios. These are **creative assets**, not App Previews. Apple's current specifications support 5–30-second videos at 21:9 for the product page header and 3:2 for search results.
+## Capture order
 
-Header exports remain 21:9 at Apple's required 3840 × 1646 resolution. The actual iPhone product-page preview in App Store Connect crops to a narrower central frame and overlays carousel and share controls near the upper corners. The EN and ES headlines and phones are sized for that frame, clear of the controls, and were checked in ASC's iPhone preview. Only the quiet background treatment extends into the panoramic side areas.
+1. Protect before sharing
+2. Scan and import
+3. Review in batches
+4. Compare mask styles
+5. Encrypted local Vault
+6. Protect your ID
+7. Share travel documents
+8. Review on-device suggestions
+9. Label a protected copy
+10. Check before sharing
 
-## Render
-
-Requirements: Python 3 with Pillow and FFmpeg with `libx264`.
+## Rebuild the package
 
 ```sh
-python3 Marketing/AppStore-Connect/CreativeAssets/render.py
+python3 scripts/compose_aso_screenshots.py
 ```
 
-The renderer writes the four deliverables under this directory. It does not modify the source captures.
+The current scene plan and localized copy are in `.asc/aso-screenshot-plan.json`. Raw simulator captures are in `.asc/screenshots/raw_captures/`.
 
-## App Store Connect
+## Apple requirements checked
 
-The `asc` 5.14 CLI supports uploading these as `CREATIVE_ASSETS` to the Asset Library and assigning the resulting video IDs with placement types `PRODUCT_PAGE_HEADER_ASSET` and `APP_STORE_SEARCH_RESULTS_ASSET` on each version localization. Uploading and assigning assets does not submit a review. The existing App Review hold for version 1.1.3 remains in effect; do not create or submit a review submission as part of this task.
+- Apple lists iPhone 18 Pro in the 6.3-inch screenshot group; 1206 × 2622 px is an accepted size. The corresponding App Store Connect screenshot display type used here is `APP_IPHONE_61`.
+- Apple screenshot requirements: [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
+
+The archived source video assets under `en-US/` and `es-ES/` are not part of this screenshot delivery and were not uploaded with build 1162026102502.

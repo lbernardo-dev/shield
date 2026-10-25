@@ -73,6 +73,85 @@ struct ShieldButton: View {
     }
 }
 
+/// A presentation-safe error surface for failures that can occur while a
+/// sheet or full-screen flow is being dismissed. It stays in the current view
+/// hierarchy instead of asking UIKit to present a second controller.
+struct ShieldErrorCard: View {
+    let title: String
+    let message: String
+    let scheme: ColorScheme
+    let dismissLabel: String
+    let dismissAction: () -> Void
+    let accessibilityIdentifier: String
+    var primaryLabel: String? = nil
+    var primaryAction: (() -> Void)? = nil
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(scheme == .dark ? 0.52 : 0.22)
+                .ignoresSafeArea()
+                .accessibilityHidden(true)
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: ShieldTheme.s4) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 23, weight: .semibold))
+                        .foregroundStyle(ShieldTheme.warning)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                        Text(title)
+                            .shieldFont(20, weight: .bold)
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(message)
+                            .shieldFont(15)
+                            .foregroundStyle(ShieldTheme.secondary(scheme))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack(spacing: ShieldTheme.s2) {
+                        if let primaryLabel, let primaryAction {
+                            Button(action: primaryAction) {
+                                Label(primaryLabel, systemImage: "arrow.clockwise")
+                                    .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(ShieldTheme.accentColor(scheme))
+                            .accessibilityIdentifier("\(accessibilityIdentifier).primary")
+                        }
+
+                        Button(role: .cancel, action: dismissAction) {
+                            Text(dismissLabel)
+                                .frame(maxWidth: .infinity, minHeight: ShieldTheme.minimumTapTarget)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(ShieldTheme.primary(scheme))
+                        .accessibilityIdentifier("\(accessibilityIdentifier).dismiss")
+                    }
+                }
+                .padding(ShieldTheme.s5)
+                .frame(maxWidth: 440, alignment: .leading)
+                .background(
+                    ShieldTheme.cardBackground(scheme),
+                    in: RoundedRectangle(cornerRadius: ShieldTheme.rXL, style: .continuous)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: ShieldTheme.rXL, style: .continuous)
+                        .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                }
+                .shadow(color: .black.opacity(0.16), radius: 28, y: 12)
+                .accessibilityAddTraits(.isModal)
+            }
+            .frame(maxWidth: 440)
+            .padding(.horizontal, ShieldTheme.s5)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+}
+
 // MARK: - ScaleButtonStyle
 
 struct ScaleButtonStyle: ButtonStyle {
@@ -646,3 +725,39 @@ private struct ShieldComponentCatalog: View {
         .environment(\.dynamicTypeSize, .accessibility3)
 }
 #endif
+
+/// Reports the active width of a vertical fold division to custom layouts.
+/// Earlier OS versions and fully open devices return zero so existing gutters
+/// remain unchanged outside the folded inner-display pose.
+struct DuoVerticalDivisionReader: View {
+    @Binding var width: CGFloat
+
+    var body: some View {
+        GeometryReader { _ in
+            Color.clear
+                .onGeometryChange(for: CGFloat.self) { geometry in
+                    Self.activeVerticalDivisionWidth(in: geometry)
+                } action: { nextWidth in
+                    guard abs(width - nextWidth) > 0.5 else { return }
+                    width = nextWidth
+                }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private static func activeVerticalDivisionWidth(in geometry: GeometryProxy) -> CGFloat {
+        guard #available(iOS 27.1, *) else { return 0 }
+
+        return geometry.reservedRegions(
+            kind: .division,
+            options: [.includeInactive],
+            layoutDirectionBehavior: .fixed
+        )
+        .filter { region in
+            region.isActive && region.frame.width > 0 && region.frame.height > region.frame.width
+        }
+        .map(\.frame.width)
+        .max() ?? 0
+    }
+}

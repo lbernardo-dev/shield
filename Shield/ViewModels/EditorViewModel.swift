@@ -85,9 +85,12 @@ final class EditorViewModel: ObservableObject {
     @Published private(set) var doc: DocumentItem
     private var baselineDoc: DocumentItem
     private var ocrBootstrapTask: Task<Void, Never>? = nil
+    private var ocrBootstrapRequestID: UUID?
+    private var faceBootstrapTask: Task<Void, Never>? = nil
 
     @Published var tool: EditorTool = .rect
     @Published var maskStyle: MaskStyle = .block
+    @Published var preferredExportFormat: ProtectionProfileOutputFormat?
     @Published var redactions: [Redaction] = []
     @Published var activeRedactionID: UUID? = nil
     @Published var watermark: Watermark? = nil
@@ -104,9 +107,21 @@ final class EditorViewModel: ObservableObject {
     @Published var isAnalyzingOCRSuggestions: Bool = false
     @Published var isPeekingOriginal: Bool = false
     @Published var showPresetPicker: Bool = false
+    @Published private(set) var needsGeometryReviewPersistence = false
 
     var pageCount: Int { doc.pageCount }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
+    var batchReviewPendingPageIndices: [Int] { doc.batchReviewPendingPageIndices }
+    var currentPageFaceSuggestions: [OCRFaceSuggestion] {
+        guard doc.fields.ocrFaceSuggestionsRevision == OCRService.faceSuggestionRevision else { return [] }
+        let dismissed = Set(doc.fields.ocrDismissedFaceSuggestionIDs ?? [])
+        return (doc.fields.ocrFaceSuggestions ?? [])
+            .filter { $0.pageIndex == currentPage && !dismissed.contains($0.id) }
+            .sorted { $0.boundingRect.minX < $1.boundingRect.minX }
+    }
+    var currentPageUnresolvedFaceSuggestions: [OCRFaceSuggestion] {
+        currentPageFaceSuggestions.filter { !isFaceSuggestionProtected($0) }
+    }
     var suggestedRedactionCount: Int { Self.suggestedRectsForBanner(in: doc).count }
     var hasUnsavedChanges: Bool { normalizedSignature(for: doc) != normalizedSignature(for: baselineDoc) }
     var changeCount: Int {
@@ -144,6 +159,59 @@ final class EditorViewModel: ObservableObject {
         self.historyIdx = 0
     }
 
+    func markCurrentBatchPageReviewed() {
+        guard doc.batchReviewPendingPageIndices.contains(currentPage) else { return }
+        doc.batchReviewPendingPageIndices.removeAll { $0 == currentPage }
+        if doc.batchReviewPendingPageIndices.isEmpty {
+            doc.batchSuggestionPageIndices = []
+            doc.redactionGeometryReviewedFingerprint = currentRedactionGeometryFingerprint
+            doc.redactionGeometryReviewPendingFingerprint = nil
+            // This aggregate event contains only the number of reviewed pages;
+            // AppState sends product analytics only after explicit opt-in.
+            AppState.trackEvent("batch_document_review_completed", properties: [
+                "pages": String(doc.pageCount)
+            ])
+        }
+        needsGeometryReviewPersistence = true
+    }
+
+    func isFaceSuggestionProtected(_ suggestion: OCRFaceSuggestion) -> Bool {
+        let protectedRect = OCRService.protectiveFaceMaskRect(
+            around: suggestion.boundingRect,
+            rollDegrees: suggestion.rollDegrees
+        )
+        return redactions.contains { redaction in
+            let overlap = redaction.rect.intersection(protectedRect)
+            guard !overlap.isNull, !overlap.isEmpty else { return false }
+            let maskArea = protectedRect.width * protectedRect.height
+            guard maskArea > 0 else { return false }
+            return overlap.width * overlap.height / maskArea >= 0.9
+        }
+    }
+
+    func acceptFaceSuggestion(_ suggestion: OCRFaceSuggestion) {
+        guard suggestion.pageIndex == currentPage,
+              !isFaceSuggestionProtected(suggestion) else { return }
+        push(redactions + [Redaction(
+            rect: OCRService.protectiveFaceMaskRect(
+                around: suggestion.boundingRect,
+                rollDegrees: suggestion.rollDegrees
+            ),
+            style: .block
+        )])
+        AppState.trackEvent("face_redaction_suggestion_accepted", properties: [
+            "page": String(currentPage),
+            "confidence": String(format: "%.2f", suggestion.confidence)
+        ])
+    }
+
+    func dismissFaceSuggestion(_ suggestion: OCRFaceSuggestion) {
+        guard suggestion.pageIndex == currentPage else { return }
+        var dismissed = Set(doc.fields.ocrDismissedFaceSuggestionIDs ?? [])
+        dismissed.insert(suggestion.id)
+        doc.fields.ocrDismissedFaceSuggestionIDs = dismissed.sorted { $0.uuidString < $1.uuidString }
+    }
+
     // Drawing state
     @Published var drawingStart: CGPoint? = nil
     @Published var drawingCurrent: CGPoint? = nil
@@ -176,6 +244,31 @@ final class EditorViewModel: ObservableObject {
     init(doc: DocumentItem) {
         self.doc = doc
         self.baselineDoc = doc
+        let currentGeometryFingerprint = RedactionReviewGate.fingerprint(
+            pageTransforms: doc.pageTransforms,
+            imageAdjustment: doc.imageAdjustment,
+            rasterBackedTypedDocument: doc.usesRasterBackedTypedDocumentCoordinates
+        )
+        let reviewedGeometryFingerprint = doc.redactionGeometryReviewedFingerprint
+            ?? RedactionReviewGate.identityFingerprint
+        let hasPendingQueueForCurrentGeometry =
+            doc.redactionGeometryReviewPendingFingerprint == currentGeometryFingerprint &&
+            !doc.batchReviewPendingPageIndices.isEmpty
+        let geometryNeedsReview = currentGeometryFingerprint != reviewedGeometryFingerprint
+        let pendingQueueGeometryChanged = doc.redactionGeometryReviewPendingFingerprint != nil &&
+            doc.redactionGeometryReviewPendingFingerprint != currentGeometryFingerprint
+        if (geometryNeedsReview && !hasPendingQueueForCurrentGeometry) || pendingQueueGeometryChanged {
+            let pendingPages = RedactionReviewGate.pendingPageIndices(
+                existing: doc.batchReviewPendingPageIndices,
+                pageCount: doc.pageCount
+            )
+            if pendingPages != doc.batchReviewPendingPageIndices ||
+                doc.redactionGeometryReviewPendingFingerprint != currentGeometryFingerprint {
+                self.doc.batchReviewPendingPageIndices = pendingPages
+                self.doc.redactionGeometryReviewPendingFingerprint = currentGeometryFingerprint
+                self.needsGeometryReviewPersistence = true
+            }
+        }
         self.redactions = doc.redactions(for: 0)
         self.watermark = doc.watermark
         if let stored = doc.imageAdjustment {
@@ -236,20 +329,30 @@ final class EditorViewModel: ObservableObject {
         guard canUndo else { return }
         historyIdx -= 1
         let snap = history[historyIdx]
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: snap.imageAdjustment)
         redactions = snap.redactions
         imageAdjustment = snap.imageAdjustment
         watermark = snap.watermark
         persistCurrentPageState()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     func redo() {
         guard canRedo else { return }
         historyIdx += 1
         let snap = history[historyIdx]
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: snap.imageAdjustment)
         redactions = snap.redactions
         imageAdjustment = snap.imageAdjustment
         watermark = snap.watermark
         persistCurrentPageState()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     // MARK: - Drawing
@@ -423,30 +526,21 @@ final class EditorViewModel: ObservableObject {
     }
 
     func applyPreset(_ preset: RedactionPreset, lang: AppLanguage) {
-        if preset == .custom {
-            setWatermark(Watermark(
-                text: preset.defaultWatermarkText(lang: lang),
-                opacity: 0.28,
-                isRepeating: true,
-                colorHex: "000000"
-            ))
-            AppState.trackEvent("preset_applied", properties: [
-                "preset": preset.rawValue
-            ])
-            return
-        }
-
+        let customProfile = preset == .custom ? ProtectionProfileStore.load() : nil
+        let maskedEntities = customProfile?.maskedEntities ?? preset.maskedEntities
+        let profileMaskStyle = customProfile?.maskStyle ?? maskStyle
+        preferredExportFormat = customProfile?.preferredOutputFormat
         var newRedactions = redactions
         if let pageEvidence = doc.fields.ocrPageEvidence?.first(where: { $0.pageIndex == currentPage }) {
             let obsMap = Dictionary(uniqueKeysWithValues: pageEvidence.observations.map { ($0.id, $0) })
-            for entity in pageEvidence.entities where preset.maskedEntities.contains(entity.kind) {
+            for entity in pageEvidence.entities where maskedEntities.contains(entity.kind) {
                 for evID in entity.evidenceIDs {
                     if let obs = obsMap[evID] {
                         let overlaps = newRedactions.contains { r in
                             r.rect.intersects(obs.boundingRect)
                         }
                         if !overlaps {
-                            let redaction = Redaction(rect: obs.boundingRect, style: maskStyle)
+                            let redaction = Redaction(rect: obs.boundingRect, style: profileMaskStyle)
                             newRedactions.append(redaction)
                         }
                     }
@@ -454,20 +548,24 @@ final class EditorViewModel: ObservableObject {
             }
         }
 
-        if newRedactions == redactions, doc.kind != .photo, doc.kind != .genericID {
-            let suggested = AutoRedactions.suggested(for: doc.kind, style: maskStyle)
+        if preset != .custom,
+           newRedactions == redactions,
+           doc.kind != .photo,
+           doc.kind != .genericID {
+            let suggested = AutoRedactions.suggested(for: doc.kind, style: profileMaskStyle)
             newRedactions = suggested
         }
 
-        push(newRedactions)
+        if newRedactions != redactions { push(newRedactions) }
 
-        let text = preset.defaultWatermarkText(lang: lang)
-        self.watermark = Watermark(
-            text: text,
-            opacity: 0.28,
-            isRepeating: true,
-            colorHex: "000000"
-        )
+        if customProfile?.shouldApplyWatermark ?? true {
+            let configuredText = customProfile?.watermarkText?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let text = configuredText.flatMap { $0.isEmpty ? nil : $0 }
+                ?? preset.defaultWatermarkText(lang: lang)
+            setWatermark(Watermark(text: text, opacity: 0.28, isRepeating: true, colorHex: "000000"))
+        } else if customProfile != nil {
+            setWatermark(nil)
+        }
 
         AppState.trackEvent("preset_applied", properties: [
             "preset": preset.rawValue
@@ -492,34 +590,117 @@ final class EditorViewModel: ObservableObject {
     // MARK: - Image adjustment
 
     func updateAdjustment(_ adjustment: ImageAdjustment) {
-        imageAdjustment = sanitizedAdjustment(adjustment)
+        let nextAdjustment = sanitizedAdjustment(adjustment)
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: nextAdjustment)
+        imageAdjustment = nextAdjustment
         persistCurrentPageState()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     func resetAdjustment() {
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: .default)
         imageAdjustment = .default
         commitCurrentStateToHistory()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     func rotateImage90CW() {
         var adj = imageAdjustment
         adj.rotation = ((adj.rotation + 90).truncatingRemainder(dividingBy: 360))
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: adj)
         imageAdjustment = adj
         commitCurrentStateToHistory()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     func flipImageHorizontal() {
         var adj = imageAdjustment
         adj.flipHorizontal.toggle()
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: adj)
         imageAdjustment = adj
         commitCurrentStateToHistory()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
     }
 
     func flipImageVertical() {
         var adj = imageAdjustment
         adj.flipVertical.toggle()
+        let geometryChanged = requirePageReviewIfGeometryChanged(from: imageAdjustment, to: adj)
         imageAdjustment = adj
         commitCurrentStateToHistory()
+        if geometryChanged {
+            bootstrapOCRSuggestionsIfNeeded()
+            bootstrapFaceSuggestionsIfNeeded()
+        }
+    }
+
+    @discardableResult
+    private func requirePageReviewIfGeometryChanged(from old: ImageAdjustment, to new: ImageAdjustment) -> Bool {
+        guard RedactionReviewGate.requiresReview(
+            from: storedAdjustment(for: old),
+            to: storedAdjustment(for: new)
+        ) else { return false }
+        doc.batchReviewPendingPageIndices = RedactionReviewGate.pendingPageIndices(
+            existing: doc.batchReviewPendingPageIndices,
+            pageCount: pageCount
+        )
+        doc.redactionGeometryReviewPendingFingerprint = RedactionReviewGate.fingerprint(
+            pageTransforms: doc.pageTransforms,
+            imageAdjustment: storedAdjustment(for: new),
+            rasterBackedTypedDocument: doc.usesRasterBackedTypedDocumentCoordinates
+        )
+        doc.fields.ocrPageEvidence = nil
+        doc.fields.ocrPageTexts = nil
+        doc.fields.ocrFullText = nil
+        doc.fields.ocrBoundingTexts = nil
+        doc.fields.ocrBoundingRects = nil
+        doc.fields.ocrFaceSuggestions = nil
+        doc.fields.ocrFaceSuggestionsRevision = nil
+        doc.fields.ocrDismissedFaceSuggestionIDs = nil
+        showSensitiveBanner = false
+        ocrBootstrapTask?.cancel()
+        ocrBootstrapRequestID = nil
+        isAnalyzingOCRSuggestions = false
+        faceBootstrapTask?.cancel()
+        needsGeometryReviewPersistence = true
+        return true
+    }
+
+    private var currentRedactionGeometryFingerprint: String {
+        RedactionReviewGate.fingerprint(
+            pageTransforms: doc.pageTransforms,
+            imageAdjustment: storedAdjustment(for: imageAdjustment),
+            rasterBackedTypedDocument: doc.usesRasterBackedTypedDocumentCoordinates
+        )
+    }
+
+    private func storedAdjustment(for adjustment: ImageAdjustment) -> ImageAdjustmentStore? {
+        guard !adjustment.isDefault else { return nil }
+        return ImageAdjustmentStore(
+            brightness: adjustment.brightness,
+            contrast: adjustment.contrast,
+            saturation: adjustment.saturation,
+            sharpness: adjustment.sharpness,
+            rotation: adjustment.rotation,
+            flipHorizontal: adjustment.flipHorizontal,
+            flipVertical: adjustment.flipVertical,
+            cropLeft: adjustment.cropLeft,
+            cropRight: adjustment.cropRight,
+            cropTop: adjustment.cropTop,
+            cropBottom: adjustment.cropBottom
+        )
     }
 
     private func sanitizedAdjustment(_ adjustment: ImageAdjustment) -> ImageAdjustment {
@@ -640,10 +821,20 @@ final class EditorViewModel: ObservableObject {
     /// Persists OCR-extracted fields (including bounding boxes) into the document.
     /// Called after the OCR sheet finishes analysis so mode-based masking works.
     func updateOCRFields(_ fields: DocumentFields) {
+        ocrBootstrapTask?.cancel()
+        ocrBootstrapRequestID = nil
+        isAnalyzingOCRSuggestions = false
         var snapshot = doc
-        snapshot.fields = fields
+        var updatedFields = fields
+        if updatedFields.ocrFaceSuggestions == nil {
+            updatedFields.ocrFaceSuggestions = doc.fields.ocrFaceSuggestions
+        }
+        if updatedFields.ocrDismissedFaceSuggestionIDs == nil {
+            updatedFields.ocrDismissedFaceSuggestionIDs = doc.fields.ocrDismissedFaceSuggestionIDs
+        }
+        snapshot.fields = updatedFields
         doc = snapshot
-        baselineDoc.fields = fields
+        baselineDoc.fields = updatedFields
         // Show sensitive banner if OCR found any identifiable fields
         let hasFields = !fields.documentNumber.isEmpty || !fields.fullName.isEmpty
         if hasFields && !showSensitiveBanner {
@@ -656,19 +847,65 @@ final class EditorViewModel: ObservableObject {
     func bootstrapOCRSuggestionsIfNeeded() {
         guard doc.kind == .photo || doc.kind == .genericID else { return }
         guard !isAnalyzingOCRSuggestions else { return }
-        let hasFields = !doc.fields.documentNumber.isEmpty || !doc.fields.fullName.isEmpty
+        let hasPageEvidence = !(doc.fields.ocrPageEvidence ?? []).isEmpty
         let hasBoxes = !(doc.fields.ocrBoundingTexts ?? []).isEmpty
-        guard !hasFields && !hasBoxes else { return }
+        guard !hasPageEvidence && !hasBoxes else { return }
+        let pageFileNames = doc.pageFileNames.flatMap { $0.isEmpty ? nil : $0 }
+            ?? [doc.imageFileName].compactMap { $0 }
+        guard !pageFileNames.isEmpty else { return }
 
-        let images = loadSourceImagesForOCR()
-        guard !images.isEmpty else { return }
+        let documentID = doc.id
+        let isVaulted = doc.isVaulted
+        let adjustment = storedAdjustment(for: imageAdjustment)
+        let geometryFingerprint = currentRedactionGeometryFingerprint
+        let requestID = UUID()
 
         isAnalyzingOCRSuggestions = true
         ocrBootstrapTask?.cancel()
+        ocrBootstrapRequestID = requestID
         ocrBootstrapTask = Task { [weak self] in
             guard let self else { return }
-            let pageObs = await OCRService.recognizeObservationsByPageAdaptive(in: images)
-            if Task.isCancelled { return }
+            do {
+                try await Task.sleep(for: .milliseconds(350))
+            } catch {
+                await MainActor.run { self.finishOCRBootstrap(requestID: requestID) }
+                return
+            }
+
+            var pageObs = Array(repeating: [OCRService.TextObservation](), count: pageFileNames.count)
+            var loadedAtLeastOnePage = false
+            for (pageIndex, fileName) in pageFileNames.enumerated() {
+                guard !Task.isCancelled else {
+                    await MainActor.run { self.finishOCRBootstrap(requestID: requestID) }
+                    return
+                }
+                let stillCurrent = await MainActor.run {
+                    self.doc.id == documentID &&
+                    self.currentRedactionGeometryFingerprint == geometryFingerprint
+                }
+                guard stillCurrent else {
+                    await MainActor.run { self.finishOCRBootstrap(requestID: requestID) }
+                    return
+                }
+                guard let sourceImage = AppState.loadImage(fileName: fileName, isVaulted: isVaulted) else {
+                    continue
+                }
+                loadedAtLeastOnePage = true
+                let image = adjustment.flatMap {
+                    ExportEngine.applyImageAdjustment(sourceImage, store: $0)
+                } ?? sourceImage
+                let pageResult = await OCRService.recognizeObservationsByPageAdaptive(in: [image])
+                guard !Task.isCancelled else {
+                    await MainActor.run { self.finishOCRBootstrap(requestID: requestID) }
+                    return
+                }
+                pageObs[pageIndex] = pageResult.first ?? []
+            }
+            guard loadedAtLeastOnePage else {
+                await MainActor.run { self.finishOCRBootstrap(requestID: requestID) }
+                return
+            }
+
             let pageLines = pageObs.map { $0.map(\.text) }
             let lines = pageLines.flatMap { $0 }
             let perPageFields = pageLines.map(OCRService.extractFields(from:))
@@ -685,18 +922,56 @@ final class EditorViewModel: ObservableObject {
 
             let resolvedFields = fields
             await MainActor.run {
+                guard self.ocrBootstrapRequestID == requestID,
+                      !Task.isCancelled,
+                      self.doc.id == documentID,
+                      self.currentRedactionGeometryFingerprint == geometryFingerprint else {
+                    self.finishOCRBootstrap(requestID: requestID)
+                    return
+                }
                 var snapshot = self.doc
-                snapshot.fields = resolvedFields
+                var mergedFields = snapshot.fields
+                mergedFields.documentNumber = mergedFields.documentNumber.isEmpty
+                    ? resolvedFields.documentNumber
+                    : mergedFields.documentNumber
+                mergedFields.fullName = mergedFields.fullName.isEmpty ? resolvedFields.fullName : mergedFields.fullName
+                mergedFields.dateOfBirth = mergedFields.dateOfBirth.isEmpty
+                    ? resolvedFields.dateOfBirth
+                    : mergedFields.dateOfBirth
+                mergedFields.nationality = mergedFields.nationality.isEmpty
+                    ? resolvedFields.nationality
+                    : mergedFields.nationality
+                mergedFields.expires = mergedFields.expires.isEmpty ? resolvedFields.expires : mergedFields.expires
+                mergedFields.sex = mergedFields.sex.isEmpty ? resolvedFields.sex : mergedFields.sex
+                mergedFields.address = mergedFields.address.isEmpty ? resolvedFields.address : mergedFields.address
+                if mergedFields.supportNumber?.isEmpty != false { mergedFields.supportNumber = resolvedFields.supportNumber }
+                if mergedFields.issued?.isEmpty != false { mergedFields.issued = resolvedFields.issued }
+                if mergedFields.mrz?.isEmpty != false { mergedFields.mrz = resolvedFields.mrz }
+                mergedFields.ocrPageEvidence = resolvedFields.ocrPageEvidence
+                mergedFields.ocrBoundingTexts = resolvedFields.ocrBoundingTexts
+                mergedFields.ocrBoundingRects = resolvedFields.ocrBoundingRects
+                mergedFields.ocrPageTexts = resolvedFields.ocrPageTexts
+                mergedFields.ocrFullText = resolvedFields.ocrFullText
+                if mergedFields.ocrDocumentType == nil { mergedFields.ocrDocumentType = resolvedFields.ocrDocumentType }
+                if mergedFields.ocrMRZValid == nil { mergedFields.ocrMRZValid = resolvedFields.ocrMRZValid }
+                if mergedFields.ocrMRZFormat == nil { mergedFields.ocrMRZFormat = resolvedFields.ocrMRZFormat }
+                if mergedFields.ocrFieldConfidence == nil { mergedFields.ocrFieldConfidence = resolvedFields.ocrFieldConfidence }
+                if mergedFields.ocrDetectedCountry == nil { mergedFields.ocrDetectedCountry = resolvedFields.ocrDetectedCountry }
+                if mergedFields.ocrRiskLevel == nil { mergedFields.ocrRiskLevel = resolvedFields.ocrRiskLevel }
+                if mergedFields.ocrLowConfidenceFields == nil {
+                    mergedFields.ocrLowConfidenceFields = resolvedFields.ocrLowConfidenceFields
+                }
+                snapshot.fields = mergedFields
                 self.doc = snapshot
                 // OCR bootstrap is automatic metadata enrichment, not a user edit.
-                self.baselineDoc.fields = resolvedFields
+                self.baselineDoc.fields = mergedFields
 
                 // For photo/genericID: only show the banner when Vision actually found
                 // identifiable field text (name, doc number, etc.).
                 // An empty OCR result (e.g., a photo of a tree) must NOT trigger the banner.
-                let hasIdentifiableFields = !resolvedFields.documentNumber.isEmpty ||
-                    !resolvedFields.fullName.isEmpty
-                let hasOCRBoundingRects = !(resolvedFields.ocrBoundingTexts ?? []).isEmpty
+                let hasIdentifiableFields = !mergedFields.documentNumber.isEmpty ||
+                    !mergedFields.fullName.isEmpty
+                let hasOCRBoundingRects = !(mergedFields.ocrBoundingTexts ?? []).isEmpty
                 let hasSuggestedRects = !Self.suggestedRectsForBanner(in: snapshot).isEmpty
 
                 if snapshot.kind == .photo || snapshot.kind == .genericID {
@@ -705,7 +980,81 @@ final class EditorViewModel: ObservableObject {
                 } else {
                     self.showSensitiveBanner = hasSuggestedRects || hasIdentifiableFields
                 }
-                self.isAnalyzingOCRSuggestions = false
+                self.finishOCRBootstrap(requestID: requestID)
+            }
+        }
+    }
+
+    private func finishOCRBootstrap(requestID: UUID) {
+        guard ocrBootstrapRequestID == requestID else { return }
+        ocrBootstrapRequestID = nil
+        isAnalyzingOCRSuggestions = false
+    }
+
+    func bootstrapFaceSuggestionsIfNeeded() {
+        let pageFileNames = OCRService.faceSuggestionPageFileNames(for: doc)
+        guard !pageFileNames.isEmpty else { return }
+        guard doc.fields.ocrFaceSuggestions == nil ||
+                doc.fields.ocrFaceSuggestionsRevision != OCRService.faceSuggestionRevision else { return }
+        if doc.fields.ocrFaceSuggestionsRevision != OCRService.faceSuggestionRevision {
+            doc.fields.ocrFaceSuggestions = nil
+            doc.fields.ocrFaceSuggestionsRevision = nil
+            doc.fields.ocrDismissedFaceSuggestionIDs = nil
+            baselineDoc.fields.ocrFaceSuggestions = nil
+            baselineDoc.fields.ocrFaceSuggestionsRevision = nil
+            baselineDoc.fields.ocrDismissedFaceSuggestionIDs = nil
+        }
+        let documentID = doc.id
+        let isVaulted = doc.isVaulted
+        let adjustment = storedAdjustment(for: imageAdjustment)
+        let geometryFingerprint = currentRedactionGeometryFingerprint
+
+        faceBootstrapTask?.cancel()
+        faceBootstrapTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            var candidates: [OCRFaceSuggestion] = []
+            for (pageIndex, fileName) in pageFileNames.enumerated() {
+                guard !Task.isCancelled else { return }
+                let isCurrent = await MainActor.run {
+                    self.doc.id == documentID &&
+                    self.currentRedactionGeometryFingerprint == geometryFingerprint
+                }
+                guard isCurrent else { return }
+                guard let sourceImage = await MainActor.run(body: {
+                    AppState.loadImage(fileName: fileName, isVaulted: isVaulted)
+                }) else {
+                    OCRService.logFaceDetectionFailure(
+                        pageIndex: pageIndex,
+                        reason: "The source page image could not be loaded."
+                    )
+                    return
+                }
+                let image = adjustment.flatMap {
+                    ExportEngine.applyImageAdjustment(sourceImage, store: $0)
+                } ?? sourceImage
+                do {
+                    candidates.append(contentsOf: try await OCRService.detectFaceSuggestions(
+                        in: image,
+                        pageIndex: pageIndex
+                    ))
+                } catch {
+                    return
+                }
+            }
+            guard !Task.isCancelled else { return }
+            let suggestions = OCRService.deduplicatedFaceSuggestions(candidates)
+            await MainActor.run {
+                guard !Task.isCancelled,
+                      self.doc.id == documentID,
+                      self.currentRedactionGeometryFingerprint == geometryFingerprint else { return }
+                var snapshot = self.doc
+                snapshot.fields.ocrFaceSuggestions = suggestions
+                snapshot.fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+                self.doc = snapshot
+                self.baselineDoc.fields.ocrFaceSuggestions = suggestions
+                self.baselineDoc.fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
             }
         }
     }
@@ -783,6 +1132,32 @@ final class EditorViewModel: ObservableObject {
     func markSaved() {
         persistCurrentPageState()
         baselineDoc = doc
+        needsGeometryReviewPersistence = false
+    }
+
+    func adoptSavedDocument(_ document: DocumentItem) {
+        ocrBootstrapTask?.cancel()
+        ocrBootstrapRequestID = nil
+        isAnalyzingOCRSuggestions = false
+        faceBootstrapTask?.cancel()
+        doc = document
+        currentPage = min(currentPage, max(0, document.pageCount - 1))
+        redactions = document.redactions(for: currentPage)
+        watermark = document.watermark
+        imageAdjustment = .default
+        baselineDoc = document
+
+        history = [EditorHistorySnapshot(
+            redactions: redactions,
+            imageAdjustment: imageAdjustment,
+            watermark: watermark
+        )]
+        historyIdx = 0
+        if document.fields.ocrPageEvidence?.isEmpty != false,
+           (document.fields.ocrBoundingTexts ?? []).isEmpty {
+            bootstrapOCRSuggestionsIfNeeded()
+        }
+        if document.fields.ocrFaceSuggestions == nil { bootstrapFaceSuggestionsIfNeeded() }
     }
 
     /// Returns suggested redaction rects for the sensitive-zones banner.
@@ -836,51 +1211,11 @@ final class EditorViewModel: ObservableObject {
         return data.base64EncodedString()
     }
 
-    private func loadSourceImagesForOCR() -> [UIImage] {
-        let rawImages: [UIImage]
-        if let pages = doc.pageFileNames, !pages.isEmpty {
-            rawImages = pages.compactMap { AppState.loadImage(fileName: $0, isVaulted: doc.isVaulted) }
-        } else if let fileName = doc.imageFileName,
-                  let image = AppState.loadImage(fileName: fileName, isVaulted: doc.isVaulted) {
-            rawImages = [image]
-        } else {
-            rawImages = []
-        }
-        guard let adjustment = doc.imageAdjustment else { return rawImages }
-        return rawImages.map { ExportEngine.applyImageAdjustment($0, store: adjustment) ?? $0 }
-    }
-
-    /// Updates the render cache while keeping immutable originals untouched.
-    func updateRenderedPages(transforms: [DocumentPageTransform]) {
-        var snapshot = doc
-        snapshot.pageTransforms = transforms
-        snapshot.imageAdjustment = nil
-        snapshot.date = Date()
-        doc = snapshot
-        imageAdjustment = .default
-    }
-
     private func persistCurrentPageState() {
         var snapshot = doc
         snapshot.setRedactions(redactions, for: currentPage)
         snapshot.watermark = watermark
-        if !imageAdjustment.isDefault {
-            snapshot.imageAdjustment = ImageAdjustmentStore(
-                brightness: imageAdjustment.brightness,
-                contrast: imageAdjustment.contrast,
-                saturation: imageAdjustment.saturation,
-                sharpness: imageAdjustment.sharpness,
-                rotation: imageAdjustment.rotation,
-                flipHorizontal: imageAdjustment.flipHorizontal,
-                flipVertical: imageAdjustment.flipVertical,
-                cropLeft: imageAdjustment.cropLeft,
-                cropRight: imageAdjustment.cropRight,
-                cropTop: imageAdjustment.cropTop,
-                cropBottom: imageAdjustment.cropBottom
-            )
-        } else {
-            snapshot.imageAdjustment = nil
-        }
+        snapshot.imageAdjustment = storedAdjustment(for: imageAdjustment)
         doc = snapshot
     }
 }

@@ -3,6 +3,8 @@ import SwiftUI
 struct CaptureMenuView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var verticalFoldWidth: CGFloat = 0
     let bottomInset: CGFloat
     let selectedScanType: ScanDocumentType
     let showGuide: Bool
@@ -42,15 +44,15 @@ struct CaptureMenuView: View {
 
             ScrollView(showsIndicators: false) {
                 Group {
-                    if horizontalSizeClass == .regular {
-                        HStack(alignment: .top, spacing: 18) {
-                            primaryScanCard
-                                .frame(maxWidth: .infinity)
-                            VStack(alignment: .leading, spacing: 18) {
+                    if horizontalSizeClass == .regular && !dynamicTypeSize.isAccessibilitySize {
+                        VStack(alignment: .leading, spacing: 18) {
+                            HStack(alignment: .top, spacing: 18 + verticalFoldWidth) {
+                                primaryScanCard
+                                    .frame(maxWidth: .infinity, alignment: .top)
                                 sourceSection
-                                typeSection
+                                    .frame(maxWidth: .infinity, alignment: .top)
                             }
-                            .frame(maxWidth: .infinity)
+                            typeSection
                         }
                     } else {
                         VStack(alignment: .leading, spacing: 18) {
@@ -65,6 +67,9 @@ struct CaptureMenuView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, max(24, bottomInset + 12))
+            }
+            .background {
+                DuoVerticalDivisionReader(width: $verticalFoldWidth)
             }
         }
         .background(Color.clear)
@@ -88,16 +93,18 @@ struct CaptureMenuView: View {
                 .font(.headline)
                 .foregroundColor(ShieldTheme.primary(scheme))
 
+            Text(LanguageManager.shared.capture("capture_other_sources_subtitle"))
+                .font(.subheadline)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+
             LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 10),
-                    GridItem(.flexible(), spacing: 10)
-                ],
+                columns: [GridItem(.adaptive(minimum: 96, maximum: 220), spacing: 10)],
                 spacing: 10
             ) {
-                CaptureSourceButton(icon: "photo.on.rectangle.angled", title: LanguageManager.shared.capture("capture_from_photos"), accent: Color(hex: "7DD3FC"), action: onPhotos)
-                CaptureSourceButton(icon: "folder.badge.person.crop", title: LanguageManager.shared.capture("capture_from_files"), accent: Color(hex: "A78BFA"), action: onFiles)
-                CaptureSourceButton(icon: "icloud.and.arrow.down.fill", title: LanguageManager.shared.capture("capture_from_cloud"), accent: Color(hex: "34D399"), action: onCloud)
+                CaptureSourceButton(identifier: "capture.source.photos", icon: "photo.on.rectangle.angled", title: LanguageManager.shared.capture("capture_from_photos"), accent: Color(hex: "7DD3FC"), action: onPhotos)
+                CaptureSourceButton(identifier: "capture.source.files", icon: "folder.badge.person.crop", title: LanguageManager.shared.capture("capture_from_files"), accent: Color(hex: "A78BFA"), action: onFiles)
+                CaptureSourceButton(identifier: "capture.source.cloud", icon: "icloud.and.arrow.down.fill", title: LanguageManager.shared.capture("capture_from_cloud"), accent: Color(hex: "34D399"), action: onCloud)
             }
         }
     }
@@ -274,10 +281,7 @@ private struct CaptureTypeSectionCard: View {
             }
 
             LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 8),
-                    GridItem(.flexible(), spacing: 8)
-                ],
+                columns: [GridItem(.adaptive(minimum: 138), spacing: 8)],
                 spacing: 8
             ) {
                 ForEach(ScanDocumentType.allCases) { type in
@@ -344,6 +348,7 @@ private struct CaptureTypeChip: View {
 
 private struct CaptureSourceButton: View {
     @Environment(\.colorScheme) private var scheme
+    let identifier: String
     let icon: String
     let title: String
     let accent: Color
@@ -375,6 +380,7 @@ private struct CaptureSourceButton: View {
             .clipShape(.rect(cornerRadius: 16))
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier(identifier)
     }
 }
 

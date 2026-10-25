@@ -9,31 +9,76 @@ struct MaskStylePicker: View {
     var onLockedSelect: ((MaskStyle) -> Void)? = nil
     var onSelect: ((MaskStyle) -> Void)? = nil
     @Environment(\.colorScheme) var scheme
+    @State private var showingEndOfStyles = false
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(MaskStyle.allCases) { style in
-                    let unlocked = isUnlocked(style)
-                    StyleCell(
-                        style: style,
-                        isSelected: selected == style,
-                        isUnlocked: unlocked,
-                        lang: lang
-                    ) {
-                        if unlocked {
-                            selected = style
-                            onSelect?(style)
-                        } else {
-                            onLockedSelect?(style)
+        ScrollViewReader { proxy in
+            HStack(spacing: 0) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(MaskStyle.allCases) { style in
+                            let unlocked = isUnlocked(style)
+                            StyleCell(
+                                style: style,
+                                isSelected: selected == style,
+                                isUnlocked: unlocked,
+                                lang: lang
+                            ) {
+                                if unlocked {
+                                    selected = style
+                                    onSelect?(style)
+                                } else {
+                                    onLockedSelect?(style)
+                                }
+                            }
+                            .id(style.id)
                         }
                     }
+                    .padding(.leading, ShieldTheme.s4)
+                    .padding(.trailing, ShieldTheme.s2)
+                    .padding(.vertical, 2)
+                }
+
+                Button {
+                    let styles = MaskStyle.allCases
+                    let target = showingEndOfStyles ? styles[0] : styles[styles.count - 1]
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo(target.id, anchor: showingEndOfStyles ? .leading : .trailing)
+                        showingEndOfStyles.toggle()
+                    }
+                } label: {
+                    Image(systemName: showingEndOfStyles ? "chevron.left" : "chevron.right")
+                        .shieldFont(11, weight: .bold)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .frame(width: 36, height: 48)
+                        .background {
+                            LinearGradient(
+                                colors: [ShieldTheme.background(scheme).opacity(0.15), ShieldTheme.background(scheme)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(
+                    lang == .es
+                        ? (showingEndOfStyles ? "Primeros estilos de máscara" : "Más estilos de máscara")
+                        : (showingEndOfStyles ? "First mask styles" : "More mask styles")
+                )
+                .accessibilityIdentifier("editor.maskStyle.scroll")
+            }
+            .onChange(of: selected) { _, newStyle in
+                let styles = MaskStyle.allCases
+                if let index = styles.firstIndex(of: newStyle) {
+                    showingEndOfStyles = index >= styles.count - 3
+                }
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    proxy.scrollTo(newStyle.id, anchor: .center)
                 }
             }
-            .padding(.horizontal, ShieldTheme.s4)
-            .padding(.vertical, 2)
         }
-        .background(ShieldTheme.background(scheme))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.background(scheme), ignoresSafeAreaEdges: [])
         .overlay(alignment: .top) {
             ShieldDivider()
         }
@@ -85,6 +130,7 @@ private struct StyleCell: View {
             .frame(minWidth: 60)
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("editor.maskStyle.\(style.id)")
     }
 }
 

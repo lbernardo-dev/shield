@@ -6,6 +6,41 @@ import Testing
 
 @Suite("Security and privacy", .serialized)
 struct SecurityPrivacyTests {
+    @Test("Workspace PIN is optional when no usable biometric method is available")
+    @MainActor
+    func workspaceAuthenticationRequiresAUsableMethod() {
+        #expect(AppSessionCoordinator.shouldStartAuthenticated(
+            isOnboarded: true,
+            hasPIN: false,
+            biometricEnabled: false,
+            biometricsAvailable: false
+        ))
+        #expect(AppSessionCoordinator.shouldStartAuthenticated(
+            isOnboarded: true,
+            hasPIN: false,
+            biometricEnabled: true,
+            biometricsAvailable: false
+        ))
+        #expect(!AppSessionCoordinator.shouldStartAuthenticated(
+            isOnboarded: true,
+            hasPIN: false,
+            biometricEnabled: true,
+            biometricsAvailable: true
+        ))
+        #expect(!AppSessionCoordinator.shouldStartAuthenticated(
+            isOnboarded: true,
+            hasPIN: true,
+            biometricEnabled: false,
+            biometricsAvailable: false
+        ))
+        #expect(!AppSessionCoordinator.shouldStartAuthenticated(
+            isOnboarded: false,
+            hasPIN: false,
+            biometricEnabled: false,
+            biometricsAvailable: false
+        ))
+    }
+
     @Test("A missing CloudKit record type is recognized without exposing an internal error")
     @MainActor
     func missingCloudKitRecordType() {

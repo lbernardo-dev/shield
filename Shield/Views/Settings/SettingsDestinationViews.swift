@@ -359,7 +359,7 @@ struct SettingsSummaryCard: View {
                             Button(action: onUnlockPro) {
                                 HStack(spacing: ShieldTheme.s3) {
                                     if isHalloween {
-                                        Image(systemName: "bat.fill")
+                                        Image(systemName: "moon.stars.fill")
                                             .font(.subheadline.weight(.heavy))
                                             .foregroundStyle(Color(hex: "170A02"))
                                     }
@@ -369,7 +369,7 @@ struct SettingsSummaryCard: View {
                                         .foregroundStyle(isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText)
 
                                     if isHalloween {
-                                        Image(systemName: "bat.fill")
+                                        Image(systemName: "moon.stars.fill")
                                             .font(.subheadline.weight(.heavy))
                                             .foregroundStyle(Color(hex: "170A02"))
                                     }
@@ -576,7 +576,7 @@ struct SettingsRowVignetteView: View {
                                     )
                                 )
                                 .frame(width: 32, height: 32)
-                            Image(systemName: "lantern.fill")
+                            Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 15, weight: .bold))
                                 .foregroundStyle(Color(hex: "FFD6A0"), Color(hex: "F97316"))
                         }
@@ -617,7 +617,7 @@ struct SettingsRowVignetteView: View {
                                     )
                                 )
                                 .frame(width: 30, height: 30)
-                            Image(systemName: "lantern.fill")
+                            Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 13, weight: .bold))
                                 .foregroundStyle(Color(hex: "FFD6A0"), Color(hex: "F97316"))
                         }
@@ -631,7 +631,7 @@ struct SettingsRowVignetteView: View {
             default:
                 HStack(spacing: 4) {
                     Spacer()
-                    Image(systemName: "bat.fill")
+                    Image(systemName: "moon.stars.fill")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(Color(hex: "FFD6B0").opacity(0.18))
                         .offset(x: -22, y: -6)
@@ -789,69 +789,67 @@ private struct SettingsDetailScaffold<Content: View>: View {
         ZStack {
             SeasonalThemeBackdrop()
 
-            VStack(spacing: 0) {
-                HStack(spacing: ShieldTheme.s3) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: "chevron.left")
-                                .font(.body.weight(.bold))
-                            Text(LanguageManager.shared.common("common_back"))
-                                .font(.body.weight(.semibold))
-                        }
-                        .foregroundColor(
-                            isHalloween
-                                ? Color(hex: "FFA53D")
-                                : ShieldTheme.accent(scheme)
-                        )
-                        .frame(minHeight: 44)
+            ScrollView(showsIndicators: false) {
+                LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(
+                                isHalloween
+                                    ? Color(hex: "FFD6B0").opacity(0.88)
+                                    : ShieldTheme.secondary(scheme)
+                            )
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    .accessibilityIdentifier("settings.back")
-                    Spacer()
-                    SettingsCloseButton(action: closeSettings)
+                    content
                 }
                 .frame(maxWidth: ShieldTheme.readableWidth)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, ShieldTheme.s4)
-                .background(
-                    isHalloween
-                        ? Color.clear
-                        : ShieldTheme.pageBackground(scheme)
-                )
-
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(alignment: .leading, spacing: ShieldTheme.s5) {
-                        HStack(spacing: 8) {
-                            Text(title)
-                                .font(.largeTitle.weight(.bold))
-                                .foregroundStyle(ShieldTheme.primary(scheme))
-                            if isHalloween {
-                                Text("🎃")
-                                    .font(.system(size: 26))
-                            }
-                        }
-                        if let subtitle {
-                            Text(subtitle)
-                                .font(.subheadline)
-                                .foregroundStyle(
-                                    isHalloween
-                                        ? Color(hex: "FFD6B0").opacity(0.88)
-                                        : ShieldTheme.secondary(scheme)
-                                )
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        content
-                    }
-                    .frame(maxWidth: ShieldTheme.readableWidth)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(ShieldTheme.s4)
-                    .padding(.bottom, 24)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(ShieldTheme.s4)
+                .padding(.bottom, 24)
             }
         }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbarVisibility(.hidden, for: .navigationBar)
+        .toolbar {
+            settingsDetailToolbar
+        }
+        .toolbarBackground(ShieldTheme.pageBackground(scheme), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+    }
+
+    @ToolbarContentBuilder
+    private var settingsDetailToolbar: some ToolbarContent {
+        if #available(iOS 27.1, *) {
+            ToolbarItem(placement: .cancellationAction) {
+                Button {
+                    dismiss()
+                } label: {
+                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
+                }
+                .accessibilityIdentifier("settings.back")
+            }
+            .axisBehavior(.verticalPreferred)
+
+            ToolbarItem(placement: .topBarTrailing) {
+                SettingsCloseButton(action: closeSettings)
+            }
+            .axisBehavior(.verticalPreferred)
+        } else {
+            ToolbarItem(placement: .cancellationAction) {
+                Button {
+                    dismiss()
+                } label: {
+                    Label(LanguageManager.shared.common("common_back"), systemImage: "chevron.left")
+                }
+                .accessibilityIdentifier("settings.back")
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                SettingsCloseButton(action: closeSettings)
+            }
+        }
     }
 }
 
@@ -986,7 +984,13 @@ struct AppPreferencesSettingsView: View {
             }
 
         }
-        .onAppear { selectedLanguage = appState.language }
+        .onAppear {
+            guard selectedLanguage != appState.language else { return }
+            Task { @MainActor in
+                await Task.yield()
+                selectedLanguage = appState.language
+            }
+        }
         .onChange(of: selectedLanguage) { _, newValue in
             guard appState.language != newValue else { return }
             appState.language = newValue
@@ -1059,16 +1063,24 @@ struct SeasonalThemeGalleryView: View {
 #endif
         }
         .onAppear {
-            coordinator.refresh(isPro: premium.isPro)
-            if let target = appState.pendingThemeDeepLink {
-                previewTheme = target
-                appState.pendingThemeDeepLink = nil
-            }
+            let deepLinkTarget = appState.pendingThemeDeepLink
+            Task { @MainActor in
+                await Task.yield()
+                coordinator.refresh(
+                    isPro: premium.isPro,
+                    hasResolvedEntitlement: premium.hasResolvedSubscription
+                )
+                if let deepLinkTarget,
+                   appState.pendingThemeDeepLink == deepLinkTarget {
+                    previewTheme = deepLinkTarget
+                    appState.pendingThemeDeepLink = nil
+                }
 #if DEBUG
 #if targetEnvironment(simulator)
-            debugPreviewSelection = coordinator.debugPreviewThemeID?.rawValue ?? "automatic"
+                debugPreviewSelection = coordinator.debugPreviewThemeID?.rawValue ?? "automatic"
 #endif
 #endif
+            }
         }
         .sheet(item: $previewTheme) { themeID in
             SeasonalThemePreviewSheet(
@@ -1094,14 +1106,17 @@ struct SeasonalThemeGalleryView: View {
     private func selectAutomatic() {
         appState.clearSeasonalIconOverride()
         _ = coordinator.select(.automatic)
-        coordinator.refresh(isPro: premium.isPro)
-        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+        coordinator.refresh(
+            isPro: premium.isPro,
+            hasResolvedEntitlement: premium.hasResolvedSubscription
+        )
+        syncSelectedSeasonalThemeIcon()
     }
 
     private func selectBase() {
         appState.clearSeasonalIconOverride()
         _ = coordinator.select(.base)
-        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+        syncSelectedSeasonalThemeIcon()
     }
 
     private func activate(_ themeID: SeasonalThemeID) {
@@ -1114,8 +1129,13 @@ struct SeasonalThemeGalleryView: View {
         }
         appState.clearSeasonalIconOverride()
         _ = coordinator.select(themeID == .base ? .base : .manual(themeID))
-        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+        syncSelectedSeasonalThemeIcon()
         previewTheme = nil
+    }
+
+    private func syncSelectedSeasonalThemeIcon() {
+        guard !coordinator.shouldDeferSeasonalIconUntilEntitlementResolves else { return }
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID)
     }
 
 #if DEBUG
@@ -1176,7 +1196,7 @@ struct SeasonalThemeGalleryView: View {
         // This simulator-only path intentionally bypasses the production
         // Premium gate so Free accounts can inspect the complete theme.
         coordinator.setDebugPreviewTheme(themeID)
-        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID, isPro: premium.isPro)
+        appState.applySeasonalThemeIcon(for: coordinator.activeThemeID)
     }
 #endif
 #endif
@@ -2340,8 +2360,14 @@ struct SecuritySettingsView: View {
     }
 
     private func sanitizeSelections() {
-        autoLockIndex = max(0, min(autoLockIndex, autoLockOptions.count - 1))
-        confidenceIndex = max(0, min(confidenceIndex, confidenceOptions.count - 1))
+        let validAutoLockIndex = max(0, min(autoLockIndex, autoLockOptions.count - 1))
+        let validConfidenceIndex = max(0, min(confidenceIndex, confidenceOptions.count - 1))
+        guard autoLockIndex != validAutoLockIndex || confidenceIndex != validConfidenceIndex else { return }
+        Task { @MainActor in
+            await Task.yield()
+            autoLockIndex = validAutoLockIndex
+            confidenceIndex = validConfidenceIndex
+        }
     }
 
     private func enableBiometrics() {
@@ -2522,8 +2548,14 @@ struct ExportSettingsView: View {
             )
         }
         .onAppear {
-            formatIndex = max(0, min(formatIndex, formats.count - 1))
-            qualityIndex = max(0, min(qualityIndex, qualities.count - 1))
+            let validFormatIndex = max(0, min(formatIndex, formats.count - 1))
+            let validQualityIndex = max(0, min(qualityIndex, qualities.count - 1))
+            guard formatIndex != validFormatIndex || qualityIndex != validQualityIndex else { return }
+            Task { @MainActor in
+                await Task.yield()
+                formatIndex = validFormatIndex
+                qualityIndex = validQualityIndex
+            }
         }
         .onChange(of: formatIndex) { _, value in UserDefaults.standard.set(value, forKey: "shield.exportFormat") }
         .onChange(of: qualityIndex) { _, value in UserDefaults.standard.set(value, forKey: "shield.exportQuality") }

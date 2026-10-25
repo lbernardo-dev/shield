@@ -5,14 +5,36 @@ import ImageIO
 import CryptoKit
 
 enum ExportVerifier {
+    typealias OCRTextRecognizer = @Sendable (CGImage) async throws -> [String]
+
+    private struct OCRVerificationResult {
+        var residualTexts: [String] = []
+        var unavailableRegionCount = 0
+    }
+
+    private static let visionTextRecognizer: OCRTextRecognizer = { image in
+        var request = RecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = false
+        let observations = try await request.perform(on: image)
+        return observations.compactMap { observation -> String? in
+            guard let candidate = observation.topCandidates(1).first,
+                  candidate.confidence >= 0.25 else { return nil }
+            let text = candidate.string.trimmingCharacters(in: .whitespacesAndNewlines)
+            return text.isEmpty ? nil : text
+        }
+    }
+
     static func verifyPDF(
         at url: URL,
         expectedPageCount: Int,
+        expectedPageSizes: [CGSize]? = nil,
         normalizedVisualObfuscations: Int,
         redactionRectsByPage: [Int: [CGRect]] = [:],
         redactionsApplied: Int = 0,
         watermarkApplied: Bool = false,
-        remainingDetectedSensitiveElements: Int = 0
+        remainingDetectedSensitiveElements: Int = 0,
+        ocrTextRecognizer: OCRTextRecognizer? = nil
     ) async -> ExportVerificationReport {
         guard let document = PDFDocument(url: url) else {
             return ExportVerificationReport(
@@ -39,17 +61,42 @@ enum ExportVerifier {
             count += document.page(at: pageIndex)?.annotations.count ?? 0
         }
         let sensitiveMetadataKeys = sensitiveMetadataKeys(in: document)
-        let ocrResidualTexts = detectResidualText(
+        let ocrResult = await detectResidualText(
             in: document,
-            redactionRectsByPage: redactionRectsByPage
+            redactionRectsByPage: redactionRectsByPage,
+            recognizer: ocrTextRecognizer ?? visionTextRecognizer
         )
 
         var issues: [String] = []
         if document.pageCount != expectedPageCount { issues.append("page_count_mismatch") }
+        if let expectedPageSizes, expectedPageSizes.count == document.pageCount {
+            for (pageIndex, expectedSize) in expectedPageSizes.enumerated() {
+                guard let page = document.page(at: pageIndex) else {
+                    issues.append("page_geometry_mismatch")
+                    continue
+                }
+                let actualSize = PDFPageDisplayGeometry.size(of: page, box: .cropBox)
+                let tolerance = max(1, max(expectedSize.width, expectedSize.height) * 0.002)
+                if abs(actualSize.width - expectedSize.width) > tolerance ||
+                    abs(actualSize.height - expectedSize.height) > tolerance {
+                    issues.append("page_geometry_mismatch")
+                    break
+                }
+            }
+        } else if expectedPageSizes != nil {
+            issues.append("page_geometry_mismatch")
+        }
         if !extractedText.isEmpty { issues.append("extractable_text_found") }
         if annotationCount > 0 { issues.append("annotations_found") }
         if !sensitiveMetadataKeys.isEmpty { issues.append("sensitive_metadata_found") }
-        if !ocrResidualTexts.isEmpty { issues.append("ocr_residual_found") }
+        if ocrResult.unavailableRegionCount > 0 || hasIncompleteRedactionGeometry(
+            redactionsApplied: redactionsApplied,
+            redactionRectsByPage: redactionRectsByPage,
+            pageCount: document.pageCount
+        ) {
+            issues.append("ocr_verification_incomplete")
+        }
+        if !ocrResult.residualTexts.isEmpty { issues.append("ocr_residual_found") }
 
         return ExportVerificationReport(
             format: .pdf,
@@ -61,7 +108,7 @@ enum ExportVerifier {
             annotationCount: annotationCount,
             sensitiveMetadataKeys: sensitiveMetadataKeys,
             metadataRemoved: sensitiveMetadataKeys.isEmpty,
-            ocrResidualTexts: ocrResidualTexts,
+            ocrResidualTexts: ocrResult.residualTexts,
             redactionsApplied: redactionsApplied,
             normalizedVisualObfuscations: normalizedVisualObfuscations,
             watermarkApplied: watermarkApplied,
@@ -77,7 +124,8 @@ enum ExportVerifier {
         redactionsApplied: Int = 0,
         normalizedVisualObfuscations: Int = 0,
         watermarkApplied: Bool = false,
-        remainingDetectedSensitiveElements: Int = 0
+        remainingDetectedSensitiveElements: Int = 0,
+        ocrTextRecognizer: OCRTextRecognizer? = nil
     ) async -> ExportVerificationReport {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
@@ -101,15 +149,23 @@ enum ExportVerifier {
         }
 
         let sensitiveMetadataKeys = imageSensitiveMetadataKeys(in: source)
-        let residualTexts = detectResidualText(
+        let ocrResult = await detectResidualText(
             in: image,
             normalizedRects: redactionRectsByPage[0] ?? [],
-            pageIndex: 0
+            pageIndex: 0,
+            recognizer: ocrTextRecognizer ?? visionTextRecognizer
         )
 
         var issues: [String] = []
         if !sensitiveMetadataKeys.isEmpty { issues.append("sensitive_metadata_found") }
-        if !residualTexts.isEmpty { issues.append("ocr_residual_found") }
+        if ocrResult.unavailableRegionCount > 0 || hasIncompleteRedactionGeometry(
+            redactionsApplied: redactionsApplied,
+            redactionRectsByPage: redactionRectsByPage,
+            pageCount: 1
+        ) {
+            issues.append("ocr_verification_incomplete")
+        }
+        if !ocrResult.residualTexts.isEmpty { issues.append("ocr_residual_found") }
 
         return ExportVerificationReport(
             format: .image,
@@ -121,7 +177,7 @@ enum ExportVerifier {
             annotationCount: 0,
             sensitiveMetadataKeys: sensitiveMetadataKeys,
             metadataRemoved: sensitiveMetadataKeys.isEmpty,
-            ocrResidualTexts: residualTexts,
+            ocrResidualTexts: ocrResult.residualTexts,
             redactionsApplied: redactionsApplied,
             normalizedVisualObfuscations: normalizedVisualObfuscations,
             watermarkApplied: watermarkApplied,
@@ -137,44 +193,79 @@ enum ExportVerifier {
         return digest.map { String(format: "%02x", $0) }.joined()
     }
 
+    private static func hasIncompleteRedactionGeometry(
+        redactionsApplied: Int,
+        redactionRectsByPage: [Int: [CGRect]],
+        pageCount: Int
+    ) -> Bool {
+        let regionCount = redactionRectsByPage.values.reduce(0) { $0 + $1.count }
+        let hasOutOfRangePage = redactionRectsByPage.contains { entry in
+            let (pageIndex, rects) = entry
+            return !rects.isEmpty && !(0..<pageCount).contains(pageIndex)
+        }
+        let countMismatch = redactionsApplied > 0 && regionCount != redactionsApplied
+        return hasOutOfRangePage || countMismatch
+    }
+
     private static func detectResidualText(
         in document: PDFDocument,
-        redactionRectsByPage: [Int: [CGRect]]
-    ) -> [String] {
-        var residualTexts: [String] = []
+        redactionRectsByPage: [Int: [CGRect]],
+        recognizer: OCRTextRecognizer
+    ) async -> OCRVerificationResult {
+        var result = OCRVerificationResult()
 
         for (pageIndex, normalizedRects) in redactionRectsByPage where !normalizedRects.isEmpty {
             guard pageIndex >= 0,
                   pageIndex < document.pageCount,
-                  let page = document.page(at: pageIndex) else { continue }
+                  let page = document.page(at: pageIndex) else {
+                result.unavailableRegionCount += normalizedRects.count
+                continue
+            }
 
-            let bounds = page.bounds(for: .mediaBox).standardized
+            let bounds = page.bounds(for: .cropBox).standardized
             let renderSize = CGSize(
                 width: max(1, bounds.width * 2),
                 height: max(1, bounds.height * 2)
             )
-            let image = page.thumbnail(of: renderSize, for: .mediaBox)
-            guard let pageImage = image.cgImage else { continue }
+            let image = page.thumbnail(of: renderSize, for: .cropBox)
+            guard let pageImage = image.cgImage else {
+                result.unavailableRegionCount += normalizedRects.count
+                continue
+            }
 
-            residualTexts.append(contentsOf: detectResidualText(
+            let pageResult = await detectResidualText(
                 in: pageImage,
                 normalizedRects: normalizedRects,
-                pageIndex: pageIndex
-            ))
+                pageIndex: pageIndex,
+                recognizer: recognizer
+            )
+            result.residualTexts.append(contentsOf: pageResult.residualTexts)
+            result.unavailableRegionCount += pageResult.unavailableRegionCount
         }
 
-        return residualTexts
+        return result
     }
 
     private static func detectResidualText(
         in image: CGImage,
         normalizedRects: [CGRect],
-        pageIndex: Int
-    ) -> [String] {
+        pageIndex: Int,
+        recognizer: OCRTextRecognizer
+    ) async -> OCRVerificationResult {
         let imageBounds = CGRect(x: 0, y: 0, width: image.width, height: image.height)
-        var residualTexts: [String] = []
+        var result = OCRVerificationResult()
 
         for normalizedRect in normalizedRects {
+            guard normalizedRect.origin.x.isFinite,
+                  normalizedRect.origin.y.isFinite,
+                  normalizedRect.width.isFinite,
+                  normalizedRect.height.isFinite,
+                  normalizedRect.width > 0,
+                  normalizedRect.height > 0 else {
+                result.unavailableRegionCount += 1
+                continue
+            }
+
             let rect = normalizedRect.standardized
             let cropRect = CGRect(
                 x: rect.minX * CGFloat(image.width),
@@ -184,24 +275,23 @@ enum ExportVerifier {
             ).integral.intersection(imageBounds)
             guard cropRect.width >= 2,
                   cropRect.height >= 2,
-                  let crop = image.cropping(to: cropRect) else { continue }
-
-            let request = VNRecognizeTextRequest()
-            request.recognitionLevel = .accurate
-            request.usesLanguageCorrection = false
-            let handler = VNImageRequestHandler(cgImage: crop, options: [:])
-            guard (try? handler.perform([request])) != nil else { continue }
-
-            let texts = (request.results ?? []).compactMap { observation -> String? in
-                guard let candidate = observation.topCandidates(1).first,
-                      candidate.confidence >= 0.25 else { return nil }
-                let text = candidate.string.trimmingCharacters(in: .whitespacesAndNewlines)
-                return text.isEmpty ? nil : text
+                  let crop = image.cropping(to: cropRect) else {
+                result.unavailableRegionCount += 1
+                continue
             }
-            residualTexts.append(contentsOf: texts.map { "page_\(pageIndex + 1):\($0)" })
+
+            let texts: [String]
+            do {
+                texts = try await recognizer(crop)
+            } catch {
+                result.unavailableRegionCount += 1
+                continue
+            }
+
+            result.residualTexts.append(contentsOf: texts.map { "page_\(pageIndex + 1):\($0)" })
         }
 
-        return residualTexts
+        return result
     }
 
     private static func sensitiveMetadataKeys(in document: PDFDocument) -> [String] {

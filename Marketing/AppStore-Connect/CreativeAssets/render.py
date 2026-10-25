@@ -21,7 +21,11 @@ DURATION = 15
 SCENE_COUNT = 4
 SCENE_DURATION = DURATION / SCENE_COUNT
 TRANSITION = 0.52
+# Crop coordinates are authored against the old 6.9-inch 1320×2868 captures.
+# Scale them to the source image so native iPhone 18 Pro captures (1206×2622)
+# keep the same framing instead of clipping at the old pixel coordinates.
 SCREEN_CROP = (94, 650, 1226, 2868)
+SCREEN_CROP_REFERENCE_SIZE = (1320, 2868)
 
 INK = "#050D18"
 DEEP = "#071426"
@@ -40,32 +44,32 @@ FONTS = {
 
 COPY = {
     "en-US": {
-        "topline": "MASKID  /  PRIVATE ON-DEVICE",
-        "footer": "YOUR DATA. YOUR DECISION.",
-        "steps": ("SCAN", "REVIEW", "EXPORT"),
+        "topline": "MASKID  /  DOCUMENT PRIVACY",
+        "footer": "YOUR DOCUMENTS. YOUR CHOICE.",
+        "steps": ("SCAN", "REVIEW", "STORE"),
         "scenes": (
-            ("Your identity.\nYour call.", "Scan or import on your device."),
-            ("Review each\nsuggestion.", "You choose what to hide."),
-            ("Hide only what's\nsensitive.", "Adjust redactions before export."),
-            ("Share a verified\ncopy.", "Check the finished file before sharing."),
+            ("Protect before\nsharing.", "Scan or import documents in MaskID."),
+            ("Choose how to\nbring it in.", "Select a type, scan or import pages."),
+            ("Review files\nas a batch.", "Check page suggestions before continuing."),
+            ("Keep selected\nfiles in your vault.", "Store documents in the encrypted local vault."),
         ),
     },
     "es-ES": {
-        "topline": "MASKID  /  PRIVACIDAD EN EL DISPOSITIVO",
-        "footer": "TUS DATOS. TU DECISIÓN.",
-        "steps": ("ESCANEA", "REVISA", "EXPORTA"),
+        "topline": "MASKID  /  PRIVACIDAD DOCUMENTAL",
+        "footer": "TUS DOCUMENTOS. TU DECISIÓN.",
+        "steps": ("ESCANEA", "REVISA", "GUARDA"),
         "scenes": (
-            ("Tu identidad.\nTú decides.", "Escanea o importa en el dispositivo."),
-            ("Revisa cada\nsugerencia.", "Elige qué campos ocultar."),
-            ("Oculta solo lo\nsensible.", "Ajusta las redacciones antes de exportar."),
-            ("Revisa la copia\nantes de compartir.", "Comprueba el archivo exportado."),
+            ("Protege antes\nde compartir.", "Escanea o importa documentos en MaskID."),
+            ("Elige cómo\nincorporarlo.", "Selecciona el tipo, escanea o importa páginas."),
+            ("Revisa varios\ndocumentos.", "Comprueba las sugerencias de página antes de continuar."),
+            ("Guarda tus archivos\nen la bóveda.", "Almacena documentos en la bóveda local cifrada."),
         ),
     },
 }
 
 SCREENS = {
-    "en-US": ("en-01-home.png", "en-04-ocr.png", "en-03-editor.png", "en-05-export.png"),
-    "es-ES": ("es-01-home.png", "es-04-ocr.png", "es-03-editor.png", "es-05-export.png"),
+    "en-US": ("en-01-home.png", "en-02-scanner.png", "en-03-batch.png", "en-04-vault.png"),
+    "es-ES": ("es-01-home.png", "es-02-scanner.png", "es-03-batch.png", "es-04-vault.png"),
 }
 
 FORMATS = {
@@ -121,7 +125,15 @@ def draw_tracking(
 def load_screen(locale: str, name: str) -> Image.Image:
     path = CAPTURES / name
     source = Image.open(path).convert("RGB")
-    return source.crop(SCREEN_CROP)
+    reference_width, reference_height = SCREEN_CROP_REFERENCE_SIZE
+    left, top, right, bottom = SCREEN_CROP
+    scaled_crop = (
+        round(left * source.width / reference_width),
+        round(top * source.height / reference_height),
+        round(right * source.width / reference_width),
+        round(bottom * source.height / reference_height),
+    )
+    return source.crop(scaled_crop)
 
 
 def make_background(width: int, height: int, variant: str) -> Image.Image:

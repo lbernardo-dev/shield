@@ -33,42 +33,9 @@ struct LockScreenView: View {
             lockBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                lockHeader
-                    .padding(.horizontal, ShieldTheme.s5)
-                    .padding(.top, ShieldTheme.topChromePadding)
-
-                Spacer(minLength: ShieldTheme.s4)
-
-                VStack(spacing: ShieldTheme.s5) {
-                    // Center Avatar with Integrated Scanning Sheen & Ambient Halo
-                    identityMark(size: 200)
-
-                    // Title & Description
-                    VStack(spacing: ShieldTheme.s2) {
-                        Text(LanguageManager.shared.auth("lock_access_title"))
-                            .shieldFont(24, weight: .heavy, design: .rounded)
-                            .foregroundStyle(ShieldTheme.primary(scheme))
-                            .multilineTextAlignment(.center)
-
-                        Text(LanguageManager.shared.auth("lock_verify_subtitle"))
-                            .shieldFont(14, weight: .medium)
-                            .foregroundStyle(ShieldTheme.secondary(scheme))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, ShieldTheme.s4)
-                    }
-
-                    // Status Pill / Error Message
-                    lockStatus
-                }
-                .frame(maxWidth: 480)
-
-                Spacer(minLength: ShieldTheme.s4)
-
-                // Actions directly below
-                lockActions
-                    .padding(.horizontal, ShieldTheme.s5)
-                    .padding(.bottom, ShieldTheme.s6)
+            GeometryReader { proxy in
+                lockContent(in: proxy)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
         }
         .preferredColorScheme(appState.preferredScheme)
@@ -96,6 +63,66 @@ struct LockScreenView: View {
         }
     }
 
+    @ViewBuilder
+    private func lockContent(in proxy: GeometryProxy) -> some View {
+        // Duo reserves an asymmetric strip for system controls. Recenter the
+        // lock identity and primary action on the full display axis while
+        // keeping the action inside the app's safe, tappable width.
+        let centerOffset = (proxy.safeAreaInsets.trailing - proxy.safeAreaInsets.leading) / 2
+        let centeredActionWidth = min(296, proxy.size.width)
+
+        lockContentBody(centerOffset: centerOffset, centeredActionWidth: centeredActionWidth)
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+    }
+
+    private func lockContentBody(centerOffset: CGFloat, centeredActionWidth: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            lockHeader
+                .padding(.horizontal, ShieldTheme.s5)
+                .padding(.top, ShieldTheme.topChromePadding)
+
+            Spacer(minLength: ShieldTheme.s4)
+
+            VStack(spacing: ShieldTheme.s5) {
+                // Center Avatar with Integrated Scanning Sheen & Ambient Halo
+                identityMark(size: 200)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
+                    .accessibilityAddTraits(.isImage)
+                    .accessibilityIdentifier("lock.identityMark")
+
+                // Title & Description
+                VStack(spacing: ShieldTheme.s2) {
+                    Text(LanguageManager.shared.auth("lock_access_title"))
+                        .shieldFont(24, weight: .heavy, design: .rounded)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                        .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("lock.title")
+
+                    Text(LanguageManager.shared.auth("lock_verify_subtitle"))
+                        .shieldFont(14, weight: .medium)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, ShieldTheme.s4)
+                }
+
+                // Status Pill / Error Message
+                lockStatus
+            }
+            .frame(maxWidth: min(480, centeredActionWidth))
+            .offset(x: centerOffset)
+
+            Spacer(minLength: ShieldTheme.s4)
+
+            // Actions directly below
+            lockActions
+                .frame(width: centeredActionWidth)
+                .offset(x: centerOffset)
+                .padding(.bottom, ShieldTheme.s6)
+        }
+    }
+
     private var lockHeader: some View {
         HStack(spacing: ShieldTheme.s3) {
             Text(LanguageManager.shared.common("common_app_name"))
@@ -109,13 +136,13 @@ struct LockScreenView: View {
                 systemImage: "lock.shield.fill"
             )
             .shieldFont(12, weight: .bold)
-            .foregroundStyle(Color(hex: "00E5FF"))
+            .foregroundStyle(ShieldTheme.accent(scheme))
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(Color(hex: "00B4D8").opacity(0.16), in: Capsule())
+            .background(ShieldTheme.accentDim(scheme), in: Capsule())
             .overlay(
                 Capsule()
-                    .stroke(Color(hex: "00B4D8").opacity(0.35), lineWidth: 0.8)
+                    .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
             )
             .accessibilityElement(children: .combine)
         }

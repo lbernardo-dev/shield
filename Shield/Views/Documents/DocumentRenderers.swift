@@ -1,4 +1,33 @@
 import SwiftUI
+import UIKit
+
+enum DocumentHeaderTypography {
+    static func fittedPointSize(
+        for text: String,
+        baseSize: CGFloat,
+        maximumWidth: CGFloat,
+        weight: UIFont.Weight
+    ) -> CGFloat {
+        guard baseSize.isFinite, baseSize > 0 else { return 1 }
+        guard maximumWidth.isFinite, maximumWidth > 0 else { return 1 }
+        guard !text.isEmpty else { return baseSize }
+
+        let font = UIFont.systemFont(ofSize: baseSize, weight: weight)
+        let measuredWidth = (text as NSString).size(withAttributes: [.font: font]).width
+        guard measuredWidth.isFinite, measuredWidth > 0 else { return baseSize }
+        return max(1, baseSize * min(1, maximumWidth / measuredWidth))
+    }
+}
+
+enum DocumentRenderingSource: Equatable {
+    case rasterImage(String)
+    case vectorTemplate
+
+    static func resolve(imageFileName: String?) -> Self {
+        guard let imageFileName, !imageFileName.isEmpty else { return .vectorTemplate }
+        return .rasterImage(imageFileName)
+    }
+}
 
 // MARK: - DocumentView dispatcher
 
@@ -14,61 +43,52 @@ func DocumentView(
     isVaulted: Bool = false,
     imageAdjustment: ImageAdjustmentStore? = nil
 ) -> some View {
-    switch kind {
-    case .photo:
+    // Screenshot fixtures use synthetic document identifiers but intentionally
+    // do not persist sample images in the encrypted store. Render those pages
+    // with the built-in vector templates so capture runs never show an empty
+    // image placeholder. This branch is unavailable in production builds.
+#if DEBUG
+    let renderingImageFileName = ASOScreenshotMode.isEnabled && imageFileName?.hasPrefix("aso-") == true
+        ? nil
+        : imageFileName
+#else
+    let renderingImageFileName = imageFileName
+#endif
+
+    switch DocumentRenderingSource.resolve(imageFileName: renderingImageFileName) {
+    case .rasterImage(let fileName):
         PhotoDocumentView(
-            imageFileName: imageFileName,
+            imageFileName: fileName,
             size: size,
             redactions: redactions,
             watermark: watermark,
             isVaulted: isVaulted,
             imageAdjustment: imageAdjustment
         )
-    case .dniESP:
-        DNISpainView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark,
-            showFieldOverlays: showFieldOverlays
-        )
-    case .passportUSA:
-        PassportUSAView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark,
-            showFieldOverlays: showFieldOverlays
-        )
-    case .drivingUK:
-        DrivingUKView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark,
-            showFieldOverlays: showFieldOverlays
-        )
-    case .passportMEX:
-        PassportMEXView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark
-        )
-    case .dniITA:
-        DNIItalyView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark
-        )
-    case .genericID:
-        GenericIDView(
-            size: size,
-            fields: fields,
-            redactions: redactions,
-            watermark: watermark
-        )
+    case .vectorTemplate:
+        switch kind {
+        case .photo:
+            PhotoDocumentView(
+                imageFileName: nil,
+                size: size,
+                redactions: redactions,
+                watermark: watermark,
+                isVaulted: isVaulted,
+                imageAdjustment: imageAdjustment
+            )
+        case .dniESP:
+            DNISpainView(size: size, fields: fields, redactions: redactions, watermark: watermark, showFieldOverlays: showFieldOverlays)
+        case .passportUSA:
+            PassportUSAView(size: size, fields: fields, redactions: redactions, watermark: watermark, showFieldOverlays: showFieldOverlays)
+        case .drivingUK:
+            DrivingUKView(size: size, fields: fields, redactions: redactions, watermark: watermark, showFieldOverlays: showFieldOverlays)
+        case .passportMEX:
+            PassportMEXView(size: size, fields: fields, redactions: redactions, watermark: watermark)
+        case .dniITA:
+            DNIItalyView(size: size, fields: fields, redactions: redactions, watermark: watermark)
+        case .genericID:
+            GenericIDView(size: size, fields: fields, redactions: redactions, watermark: watermark)
+        }
     }
 }
 
@@ -391,13 +411,28 @@ struct DNISpainView: View {
                      with: .color(Color(hex: "1B3A6B")))
 
         // Header text
-        let headerText1 = Text(LanguageManager.shared.model("model_doc_spain_title"))
-            .font(.system(size: h * 0.065, weight: .black))
+        let headerTitle = LanguageManager.shared.model("model_doc_spain_title")
+        let headerSubtitle = LanguageManager.shared.model("model_doc_spain_dni")
+        let headerTitleFontSize = DocumentHeaderTypography.fittedPointSize(
+            for: headerTitle,
+            baseSize: h * 0.065,
+            maximumWidth: w * 0.39,
+            weight: .black
+        )
+        let headerSubtitleFontSize = DocumentHeaderTypography.fittedPointSize(
+            for: headerSubtitle,
+            baseSize: h * 0.045,
+            maximumWidth: w * 0.45,
+            weight: .bold
+        )
+
+        let headerText1 = Text(headerTitle)
+            .font(.system(size: headerTitleFontSize, weight: .black))
             .foregroundColor(Color(hex: "FFD24A"))
         context.draw(headerText1, at: CGPoint(x: w * 0.05, y: headerH * 0.6), anchor: .leading)
 
-        let headerText2 = Text(LanguageManager.shared.model("model_doc_spain_dni"))
-            .font(.system(size: h * 0.045, weight: .bold))
+        let headerText2 = Text(headerSubtitle)
+            .font(.system(size: headerSubtitleFontSize, weight: .bold))
             .foregroundColor(.white)
         context.draw(headerText2, at: CGPoint(x: w * 0.97, y: headerH * 0.6), anchor: .trailing)
 

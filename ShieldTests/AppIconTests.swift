@@ -64,13 +64,19 @@ struct AppIconTests {
     func testAppStateThemeIconApplication() async {
         let appState = AppState()
 
-        appState.applySeasonalThemeIcon(for: .base, isPro: false)
+        appState.applySeasonalThemeIcon(for: .base)
         #expect(appState.currentAppIcon == .base)
 
-        appState.applySeasonalThemeIcon(for: .halloween2026, isPro: true)
+        // The event-owned icon is applied automatically for Free and Pro
+        // while a scheduled seasonal theme is active.
+        appState.applySeasonalThemeIcon(for: .halloween2026)
+        appState.applySeasonalThemeIcon(for: .base)
+        appState.applySeasonalThemeIcon(for: .halloween2026)
+        await appState.waitForSeasonalThemeIconSync()
         #expect(appState.currentAppIcon == .halloween)
 
-        appState.applySeasonalThemeIcon(for: .base, isPro: true)
+        appState.applySeasonalThemeIcon(for: .base)
+        await appState.waitForSeasonalThemeIconSync()
         #expect(appState.currentAppIcon == .base)
     }
 }

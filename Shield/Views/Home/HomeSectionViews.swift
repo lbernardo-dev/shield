@@ -1,5 +1,120 @@
 import SwiftUI
 
+struct HomeQuickAccessSection: View {
+    let scheme: ColorScheme
+    let onOpenLibrary: () -> Void
+    let onOpenVault: () -> Void
+    let onOpenTools: () -> Void
+    let toolsExpanded: Bool
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var columns: [GridItem] {
+        let count = dynamicTypeSize.isAccessibilitySize ? 1 : 2
+        return Array(repeating: GridItem(.flexible(minimum: 44), spacing: ShieldTheme.s2), count: count)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            Text(LanguageManager.shared.home("home_quick_access"))
+                .shieldFont(16, weight: .bold)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                .padding(.horizontal, ShieldTheme.s1)
+
+            LazyVGrid(columns: columns, alignment: .leading, spacing: ShieldTheme.s2) {
+                action(
+                    key: "home_quick_library",
+                    identifier: "home.quickAccess.library",
+                    icon: "doc.text.magnifyingglass",
+                    action: onOpenLibrary
+                )
+                action(
+                    key: "home_quick_vault",
+                    identifier: "home.quickAccess.vault",
+                    icon: "lock.rectangle.stack",
+                    action: onOpenVault
+                )
+            }
+
+            Button {
+                onOpenTools()
+            } label: {
+                HStack(spacing: ShieldTheme.s2) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.accentColor(scheme))
+                        .accessibilityHidden(true)
+                    Text(LanguageManager.shared.home("home_quick_tools"))
+                        .shieldFont(13, weight: .semibold)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                        .multilineTextAlignment(.leading)
+                    Spacer(minLength: ShieldTheme.s2)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .accessibilityHidden(true)
+                }
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .padding(.horizontal, ShieldTheme.s3)
+                .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(LanguageManager.shared.home("home_quick_tools"))
+            .accessibilityHint(LanguageManager.shared.home("home_tools_services_subtitle"))
+            .accessibilityValue(LanguageManager.shared.common(
+                toolsExpanded ? "common_expanded" : "common_collapsed"
+            ))
+            .accessibilityIdentifier("home.quickAccess.tools")
+        }
+        .padding(ShieldTheme.s4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            ShieldTheme.cardBackground(scheme),
+            in: RoundedRectangle(cornerRadius: ShieldTheme.rLG, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: ShieldTheme.rLG, style: .continuous)
+                .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+        }
+    }
+
+    private func action(
+        key: String,
+        identifier: String,
+        icon: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        let title = LanguageManager.shared.home(key)
+
+        return Button(action: action) {
+            VStack(spacing: ShieldTheme.s2) {
+                Image(systemName: icon)
+                    .font(.system(size: 19, weight: .semibold))
+                    .foregroundStyle(ShieldTheme.accentColor(scheme))
+                    .frame(width: 38, height: 38)
+                    .background(ShieldTheme.accentDim(scheme), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityHidden(true)
+
+                Text(title)
+                    .shieldFont(13, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 76)
+            .padding(.horizontal, ShieldTheme.s2)
+            .padding(.vertical, ShieldTheme.s2)
+            .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: ShieldTheme.rMD, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityIdentifier(identifier)
+    }
+}
+
 struct HomeModesSection: View {
     let scheme: ColorScheme
     let lang: AppLanguage
@@ -35,6 +150,7 @@ struct HomeModesSection: View {
                     .clipShape(Capsule())
                 }
                 .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("home.quickModes.batch")
                 .padding(.trailing, ShieldTheme.s5)
             }
 

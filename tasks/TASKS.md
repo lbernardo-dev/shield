@@ -2403,3 +2403,237 @@
    Done by: CODEX
    Done at: 2026-10-16T08:11:40Z
 
+225. iphone-duo-adaptive-experience
+   Id: 225-iphone-duo-adaptive-experience
+   Scope: Auditar y adaptar MaskID/Shield al iPhone Duo; validar en simuladores requeridos y documentar hallazgos, diseño y regresiones
+   Files: Shield/**,ShieldTests/**,ShieldUITests/**,Shield.xcodeproj/**,docs/iphone-duo/**,tasks/TASKS.md,tasks/details/**
+   Note: Recompuesto dashboard Duo en ancho regular: título y CTA de escaneo alineados, columnas equilibradas, panel vacío/herramientas con superficies y categorías horizontales sin cortar etiquetas. Build Debug explícita, instalación y arranque verificados en iPhone 18 Pro iOS 27.0 y iPhone Duo - VitalsPath Session iOS 27.1. Duo sigue en configuración requerida de PIN; no se modificó credencial. iPad ocupado por apps de otras sesiones, genérico Duo ocupado por UpLedger y proyecto sin target watchOS; resultados pendientes documentados.
+   Detail: tasks/details/225-iphone-duo-adaptive-experience.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-18T21:20:36Z
+   Done by: CODEX
+   Done at: 2026-10-18T21:28:17Z
+
+226. refactor-ui-ux-multidispositivo
+   Id: 226-refactor-ui-ux-multidispositivo
+   Scope: Refactor priorizado de UI/UX y arquitectura visual de MaskID para todos los dispositivos iOS/iPadOS soportados
+   Files: Shield/App/**,Shield/Views/**,Shield/Theme/**,Shield/Localization/**,ShieldTests/**,ShieldUITests/**,Docs/**,tasks/**
+   Note: Revalidación UI sobre la fuente de 2403: iPhone 18 Pro 7/7, Duo 4/4, iPad Pro M5 4/4; resumen de Ajustes bajo el header verificado. Stage Manager/Split View, watchOS (sin target) y sincronización de perfiles entre dispositivos siguen pendientes; evidencia en el detalle.
+   Detail: tasks/details/226-refactor-ui-ux-multidispositivo.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T09:38:12Z
+
+227. propuesta-valor-producto-maskid
+   Id: 227-propuesta-valor-producto-maskid
+   Scope: Análisis actualizado del producto, investigación competitiva y propuesta priorizada para ampliar valor al usuario; sin cambios de producto
+   Files: Docs/PROPUESTA_VALOR_PRODUCTO_2026-10-20.md,Shield/**/*.swift,Docs/PRODUCT_POSITIONING.md,tasks/TASKS.md,tasks/details/*
+   Note: Informe de producto y propuesta priorizada documentados; investigación competitiva citada; sin cambios de producto ni builds/pruebas
+   Detail: tasks/details/227-propuesta-valor-producto-maskid.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-20T19:35:26Z
+   Done by: CODEX
+   Done at: 2026-10-20T19:38:33Z
+
+228. dashboard-widgets-in-app-quick-access
+   Id: 228-dashboard-widgets-in-app-quick-access
+   Scope: Completar accesos rápidos de Inicio y widgets informativos del sistema con datos precisos, privacidad, accesibilidad y localización ES/EN
+   Files: Shield/Shared/ShieldWidgetSnapshot.swift,Shield/ViewModels/AppState.swift,Shield/Views/Home/**,ShieldWidgetExtension/**,Shield/Localization/Strings/Home.xcstrings,ShieldTests/WidgetSnapshotTests.swift,ShieldUITests/ShieldLaunchTests.swift,Shield/App/ShieldApp.swift,Docs/PROPUESTA_VALOR_PRODUCTO_2026-10-20.md,tasks/details/**
+   Note: Implementación completada. iPhone 18 Pro y Duo: 5 snapshot + 1 UI pass en cada uno; iPad Pro M5: 5 snapshot pass y expansión UI verificada en Device Hub. XCTest UI iPad quedó bloqueado en la limpieza de sesión y no produjo resultado completo; documentado junto con ausencia de target watchOS y de sesiones con perfiles compartidos/entitlements CloudKit en simulador.
+   Detail: tasks/details/228-dashboard-widgets-in-app-quick-access.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-20T19:49:38Z
+   Done by: CODEX
+   Done at: 2026-10-20T20:26:19Z
+
+229. secure-batch-review-queue
+   Id: 229-secure-batch-review-queue
+   Scope: Corregir protección por lotes por página y completar una cola revisable, cancelable y verificable por archivo
+   Files: Shield/Views/Home/HomeView.swift,Shield/Views/Capture/**,Shield/Models/**,Shield/Views/Editor/ExportServices.swift,ShieldTests/**,ShieldUITests/**,Shield/Localization/Strings/**,tasks/details/**
+   Note: `testBatchPendingReviewQueueOpensTheAffectedDocument` pasó en iPhone 18 Pro, Duo e iPad (1/1 cada uno; resultados en el detalle). La interacción end-to-end de reintentar/cancelar un archivo sigue pendiente.
+   Detail: tasks/details/229-secure-batch-review-queue.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T09:38:12Z
+
+230. preserve-source-pdf-fidelity
+   Id: 230-preserve-source-pdf-fidelity
+   Scope: Preservar el PDF original como fuente canónica para la exportación segura a escala adecuada
+   Files: Shield/Views/Capture/ImportPipeline.swift,Shield/Views/Editor/ExportServices.swift,Shield/Models/**,ShieldTests/**,Docs/**,tasks/details/**
+   Note: Preservación PDF y exportación raster verificados; build y 147/148 unitarios aprobados en los tres destinos iOS/iPadOS.
+   Detail: tasks/details/230-preserve-source-pdf-fidelity.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T08:17:49Z
+   Done by: CODEX
+   Done at: 2026-10-21T09:38:12Z
+
+231. document-search-and-protection-profiles
+   Id: 231-document-search-and-protection-profiles
+   Scope: Añadir búsqueda local dentro de documentos y perfiles de protección editables, cifrados y revisables
+   Files: Shield/ViewModels/AppState.swift,Shield/ViewModels/EditorViewModel.swift,Shield/Models/**,Shield/Storage/**,Shield/Views/**,Shield/Localization/Strings/**,ShieldTests/**,ShieldUITests/**,Docs/**,tasks/details/**
+   Note: UI de búsqueda OCR y perfil personalizado pasó en iPhone 18 Pro, Duo e iPad (resultados en el detalle). CRUD completo, persistencia tras relanzamiento/migración y sincronización entre dispositivos siguen pendientes.
+   Detail: tasks/details/231-document-search-and-protection-profiles.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T09:38:12Z
+
+232. local-face-redaction-suggestions
+   Id: 232-local-face-redaction-suggestions
+   Scope: Añadir sugerencias locales y revisables de rostros, con evaluación de omisiones y falsos positivos
+   Files: Shield/Models/**,Shield/Views/Capture/**,Shield/Views/Editor/**,Shield/ViewModels/**,Shield/Localization/Strings/**,ShieldTests/**,ShieldUITests/**,Docs/**,tasks/details/**
+   Note: Accuracy fix complete: Vision modern request with revision-2 fallback; synthetic corpus and OCR/geometry tests passed 18/18 plus face review UI 1/1 on iPhone 18 Pro and iPad Pro M5. Duo final rerun blocked by CoreSimulatorService connection refused; documented, no foreign process stopped. Real-world consented corpus remains a release-validation limitation.
+   Detail: tasks/details/232-local-face-redaction-suggestions.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-24T09:02:03Z
+   Done by: CODEX
+   Done at: 2026-10-24T09:41:17Z
+
+233. selectable-pdf-output-safety-evaluation
+   Id: 233-selectable-pdf-output-safety-evaluation
+   Scope: Evaluar una exportación PDF con texto seleccionable sin debilitar la eliminación verificable de datos sensibles
+   Files: Shield/Views/Editor/ExportServices.swift,Shield/Models/**,ShieldTests/**,Docs/**,tasks/details/**
+   Note: Benchmark sintético reproducible de raster vs. reconstrucción seleccionable ejecutado y documentado; métricas/tamaño/rendimiento/fidelidad revisados. No-go de texto seleccionable se conserva porque el prototipo ideal no valida OCR ni objetos PDF adversariales. 147 tests previos registrados; ciclo actual del verificador continúa bajo task 237.
+   Detail: tasks/details/233-selectable-pdf-output-safety-evaluation.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T09:38:13Z
+   Done by: CODEX
+   Done at: 2026-10-24T05:45:18Z
+
+234. app-store-screenshot-sets
+   Id: 234-app-store-screenshot-sets
+   Scope: Crear sets de capturas App Store editables en AppDesigns, localizados EN/ES para iPhone, iPad y pantallas iPhone Duo, usando muestras sintéticas
+   Files: build/appdesigns/**,tasks/TASKS.md,tasks/details/**
+   Note: 12 sets saved in appdesigns: EN/ES × iPhone, iPad and iPhone Duo; 10 screenshots per locale/device. Previews checked and links opened.
+   Detail: tasks/details/234-app-store-screenshot-sets.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T10:41:54Z
+   Done by: CODEX
+   Done at: 2026-10-21T12:32:15Z
+
+235. appstore-release-1-1-5
+   Id: 235-appstore-release-1-1-5
+   Scope: Crear App Store Connect 1.1.5, completar What's New en todos los locales, fijar build 1152026102101 en app, widget y extensión, archivar/exportar/subir y asociar el build sin enviar a revisión
+   Files: metadata/version/1.1.5/**,Shield.xcodeproj/project.pbxproj,.asc/artifacts/**,tasks/**
+   Note: ASC 1.1.5 preparada; What's New en-US/es-ES aprobado y sincronizado; build 1152026102101 cargado, VALID y enlazado. Archive/export conservados; no se envió a revisión.
+   Detail: tasks/details/235-appstore-release-1-1-5.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-21T11:45:25Z
+   Done by: CODEX
+   Done at: 2026-10-21T12:09:58Z
+
+236. auditoria-redesign-producto-ui
+   Id: 236-auditoria-redesign-producto-ui
+   Scope: Auditoría integral de producto, demanda de clientes, APIs Apple modernas, rediseño UX/UI y prototipos; solo documentación, sin modificar producto ni builds
+   Files: Docs/**,tasks/TASKS.md,tasks/details/**
+   Note: Informe integral y cinco prototipos completados; auditoría estática, sin cambios de producto, build, pruebas ni limpieza
+   Detail: tasks/details/236-auditoria-redesign-producto-ui.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-23T04:57:40Z
+   Done by: CODEX
+   Done at: 2026-10-23T05:06:08Z
+
+237. product-redesign-phase-1-and-asgating
+   Id: 237-product-redesign-phase-1-and-asgating
+   Scope: Implementar la primera sesión y la jerarquía del UI de MaskID; corregir consentimiento previo al valor; preparar el siguiente ciclo de metadata local y cerrar la matriz pendiente sin someter la release
+   Files: Shield/App/ContentView.swift,Shield/Views/Onboarding/**,Shield/Views/Home/**,Shield/Views/Components/TabBar.swift,Shield/Export/ExportVerifier.swift,metadata/version/1.1.6/**,tasks/TASKS.md,tasks/details/**
+   Note: Regresión de la fuente 2403: iPhone 18 Pro 7/7, Duo 4/4, iPad Pro M5 4/4; Novedades EN/ES 1/1. Build 1162026102501 VALID, adjunto a 1.1.6 y Shield Internal; sin revisión. Sigue el trabajo residual de batch/search/profiles, multitarea iPad, watchOS sin target y sync entre dispositivos.
+   Detail: tasks/details/237-product-redesign-phase-1-and-asgating.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-23T10:14:09Z
+
+238. appstore-release-1-1-6
+   Id: 238-appstore-release-1-1-6
+   Scope: Crear la versión 1.1.6 en App Store Connect, preparar y localizar What's New, archivar con build 1162026102403, cargar, adjuntar a la versión y añadir el grupo de TestFlight existente sin enviar a revisión
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Localization/Strings/SettingsInfo.xcstrings,metadata/version/1.1.6/**,.asc/artifacts/**,tasks/TASKS.md,tasks/details/**
+   Note: Build diario 1162026102501 VALID y adjunto a 1.1.6 / Shield Internal; What's New en-US/es-ES leído y verificado. Versión PREPARE_FOR_SUBMISSION, sin envío a revisión. Archive/IPA preservados, sin limpieza.
+   Detail: tasks/details/238-appstore-release-1-1-6.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-24T19:36:46Z
+   Done by: CODEX
+   Done at: 2026-10-24T23:46:15Z
+
+239. remove-floating-scan-accessory
+   Id: 239-remove-floating-scan-accessory
+   Scope: Eliminar la acción Scan flotante de las barras inferiores iOS/iPadOS cuando no esté en una superficie de escaneo y verificar su ausencia en Inicio y Ajustes, preservando las entradas contextuales de escaneo.
+   Files: Shield/App/ContentView.swift,Shield/Views/Components/TabBar.swift,ShieldUITests/ShieldLaunchTests.swift,tasks/TASKS.md,tasks/details/
+   Note: Scan flotante eliminado; Ajustes y quick tools verificados. UI final: iPhone 18 Pro 4/4, Duo 5/5, iPad 4/4 (+ 1 prueba Duo omitida); Seguridad/Privacidad 13/13. Inicio abre sin PIN configurado. Evidencia en tasks/details/239-remove-floating-scan-accessory.md.
+   Detail: tasks/details/239-remove-floating-scan-accessory.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-24T11:51:43Z
+   Done by: CODEX
+   Done at: 2026-10-24T17:26:43Z
+
+240. appstore-build-1-1-6-20261025
+   Id: 240-appstore-build-1-1-6-20261025
+   Scope: Preparar y, tras autorización explícita, subir el build diario 1162026102501 a la versión 1.1.6 preparada, enlazarlo a Shield Internal sin enviar a revisión
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts/**,tasks/TASKS.md,tasks/details/**
+   Note: Build 1162026102501 VALID, adjunto a versión 1.1.6 y grupo Shield Internal; PREPARE_FOR_SUBMISSION, sin envío a revisión. What's New ES/EN verificado.
+   Detail: tasks/details/240-appstore-build-1-1-6-20261025.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T07:09:39Z
+   Done by: CODEX
+   Done at: 2026-10-25T07:19:00Z
+
+241. seasonal-theme-auto-activation
+   Id: 241-seasonal-theme-auto-activation
+   Scope: Corregir la activación automática del tema Halloween durante la ventana publicada y sincronizar paleta e icono; cubrir instalación nueva y upgrades con preferencia heredada y validar en simulador.
+   Files: Shield/Theme/ShieldTheme.swift,Shield/ViewModels/AppState.swift,Shield/App/ContentView.swift,ShieldTests/EnhancementFeaturesTests.swift,ShieldTests/AppIconTests.swift,tasks/details
+   Note: Tema Halloween automático corregido; Base solo por elección explícita Pro. Sincronización de icono serializada. 35/35 pruebas en iPhone 18 Pro iOS 27.0. Archive/IPA 1162026102502 local, firma válida; no subido. Inspección visual posterior bloqueada por StreakReps en primer plano.
+   Detail: tasks/details/241-seasonal-theme-auto-activation.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T07:26:11Z
+   Done by: CODEX
+   Done at: 2026-10-25T08:36:41Z
+
+242. appstore-build-1-1-6-2502
+   Id: 242-appstore-build-1-1-6-2502
+   Scope: Subir y asociar el build diario 1162026102502 a la versión preparada 1.1.6 y al grupo Shield Internal, sin enviar a revisión
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts/**,tasks/TASKS.md,tasks/details/**
+   Note: Build 1162026102502 VALID; adjunto a 1.1.6 y Shield Internal; versión PREPARE_FOR_SUBMISSION, sin envío a revisión. IPA/xcarchive del build conservados.
+   Detail: tasks/details/242-appstore-build-1-1-6-2502.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T08:59:55Z
+   Done by: CODEX
+   Done at: 2026-10-25T09:00:01Z
+
+243. refresh-app-store-creatives-1-1-6
+   Id: 243-refresh-app-store-creatives-1-1-6
+   Scope: Completar 10 capturas ASO actuales por locale (en-US y es-ES) en iPhone 18 Pro; los vídeos quedan fuera del alcance vigente por indicación del usuario
+   Files: .asc/screenshots/**,.asc/app-previews/**,Marketing/AppStore-Connect/CreativeAssets/**,tasks/TASKS.md,tasks/details/**
+   Note: 20 capturas iPhone 18 Pro COMPLETE en ASC (10 en-US + 10 es-ES); preview antiguo eliminado tras cancelar la primera submission. Sin vídeos. Nueva submission 91422bbd-05c7-4306-8911-6ac525e55fcc en WAITING_FOR_REVIEW.
+   Detail: tasks/details/243-refresh-app-store-creatives-1-1-6.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T11:46:59Z
+   Done by: CODEX
+   Done at: 2026-10-25T14:32:26Z
+
+244. aso-screenshot-fixture-rendering
+   Id: 244-aso-screenshot-fixture-rendering
+   Scope: Renderizar documentos sintéticos del modo ASO con las plantillas vectoriales actuales para evitar páginas vacías en capturas; validar visualmente en iPhone 18 Pro
+   Files: Shield/Views/Documents/DocumentRenderers.swift,tasks/TASKS.md,tasks/details
+   Note: Fixture vectorial DEBUG verificada en iPhone 18 Pro; 10/10 capturas por locale, 1206x2622, listas en App Store Connect
+   Detail: tasks/details/244-aso-screenshot-fixture-rendering.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T12:11:26Z
+   Done by: CODEX
+   Done at: 2026-10-25T12:31:29Z
+
+245. resubmit-appstore-1-1-6-current-creatives
+   Id: 245-resubmit-appstore-1-1-6-current-creatives
+   Scope: Cancelar la submission activa, retirar el preview heredado, verificar las capturas localizadas y reenviar build 1162026102502 a App Review sin vídeo
+   Files: .asc/screenshots/**,.asc/app-previews/**,Marketing/AppStore-Connect/CreativeAssets/README.md,tasks/TASKS.md,tasks/details/**
+   Note: Submission anterior cancelada; preview heredado eliminado; 10 capturas COMPLETE por locale verificadas, sin vídeo; build 1162026102502 reenviado y WAITING_FOR_REVIEW con submission 91422bbd-05c7-4306-8911-6ac525e55fcc. ASC validate: 0 errores, warnings y bloqueos.
+   Detail: tasks/details/245-resubmit-appstore-1-1-6-current-creatives.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T14:37:47Z
+   Done by: CODEX
+   Done at: 2026-10-25T14:38:34Z
+
+246. commit-push-maskid-main
+   Id: 246-commit-push-maskid-main
+   Scope: Registrar y publicar en main los cambios completados de MaskID, pruebas, documentación, creatividades y release 1.1.6
+   Files: Shield/**,ShieldTests/**,ShieldUITests/**,ShieldWidgetExtension/**,Shield.xcodeproj/**,Docs/**,Marketing/**,metadata/**,scripts/**,tasks/**
+   Note: Commit local creado con 145 archivos; diff --check reporta solo espacios finales y líneas Markdown intencionales. Push a origin/main pendiente de confirmación.
+   Detail: tasks/details/246-commit-push-maskid-main.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-25T14:43:21Z
+   Done by: CODEX
+   Done at: 2026-10-25T14:44:42Z
+

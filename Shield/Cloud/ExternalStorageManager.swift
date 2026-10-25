@@ -90,7 +90,11 @@ struct ExternalStoragePickerSheet: View {
             }
         }
         .sheet(isPresented: $showDocPicker) {
-            FilesPickerView { url in
+            FilesPickerView(allowsMultipleSelection: false) { urls in
+                guard let url = urls.first else {
+                    showDocPicker = false
+                    return
+                }
                 showDocPicker = false
                 isPresented = false
                 onImport(url)

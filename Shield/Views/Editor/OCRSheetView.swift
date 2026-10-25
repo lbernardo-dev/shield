@@ -28,18 +28,18 @@ struct OCRSheetView: View {
         ocrFields ?? doc.fields
     }
 
-    private var items: [(key: String, label: String, value: String, boxIndex: Int)] {
+    private var items: [(key: String, label: String, value: String)] {
         let f = resolvedFields
-        var result: [(key: String, label: String, value: String, boxIndex: Int)] = [
-            ("docNum",  LanguageManager.shared.model("model_field_document_number"), f.documentNumber, 0),
-            ("name",    LanguageManager.shared.model("model_field_full_name"),       f.fullName, 1),
-            ("dob",     LanguageManager.shared.model("model_field_date_of_birth"),    f.dateOfBirth, 4),
-            ("expires", LanguageManager.shared.model("model_field_expires"),        f.expires, 5),
-            ("nat",     LanguageManager.shared.model("model_field_nationality"),    f.nationality, 2),
-            ("addr",    LanguageManager.shared.model("model_field_address"),        f.address, 3),
+        var result: [(key: String, label: String, value: String)] = [
+            ("docNum",  LanguageManager.shared.model("model_field_document_number"), f.documentNumber),
+            ("name",    LanguageManager.shared.model("model_field_full_name"),       f.fullName),
+            ("dob",     LanguageManager.shared.model("model_field_date_of_birth"),    f.dateOfBirth),
+            ("expires", LanguageManager.shared.model("model_field_expires"),        f.expires),
+            ("nat",     LanguageManager.shared.model("model_field_nationality"),    f.nationality),
+            ("addr",    LanguageManager.shared.model("model_field_address"),        f.address),
         ]
         if let sn = f.supportNumber, !sn.isEmpty {
-            result.insert(("supportNum", LanguageManager.shared.model("model_field_support_number"), sn, -1), at: 1)
+            result.insert(("supportNum", LanguageManager.shared.model("model_field_support_number"), sn), at: 1)
         }
         return result
     }
@@ -57,16 +57,20 @@ struct OCRSheetView: View {
         ]
     }
 
-    private var boxes: [FieldBox] {
-        DocumentFieldBoxes.boxes(for: doc.kind)
+    private func fallbackRectForField(key: String) -> CGRect? {
+        DocumentFieldBoxes.fallbackRect(for: key, kind: doc.kind)
+    }
+
+    private func maskRectForField(key: String) -> CGRect? {
+        ocrRectForField(key: key) ?? fallbackRectForField(key: key)
     }
 
     // Fields that have a non-empty value (can be actioned)
-    private var detectedItems: [(key: String, label: String, value: String, boxIndex: Int)] {
+    private var detectedItems: [(key: String, label: String, value: String)] {
         items.filter { !$0.value.isEmpty }
     }
 
-    private var missingItems: [(key: String, label: String, value: String, boxIndex: Int)] {
+    private var missingItems: [(key: String, label: String, value: String)] {
         items.filter { $0.value.isEmpty }
     }
 
@@ -219,6 +223,8 @@ struct OCRSheetView: View {
             }
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
+            .accessibilityLabel(LanguageManager.shared.common("common_close"))
+            .accessibilityIdentifier("editor.ocr.close")
         }
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.top, 18)
@@ -530,7 +536,7 @@ struct OCRSheetView: View {
     // MARK: - Field row
 
     @ViewBuilder
-    private func fieldRow(item: (key: String, label: String, value: String, boxIndex: Int)) -> some View {
+    private func fieldRow(item: (key: String, label: String, value: String)) -> some View {
         let isMasked = maskedKeys.contains(item.key)
         let confidence = confidenceByItemKey[item.key] ?? 0
         let confidenceColor: Color = confidence >= 0.85 ? ShieldTheme.success
@@ -661,22 +667,17 @@ struct OCRSheetView: View {
 
     // MARK: - Mask / Unmask logic
 
-    private func toggleMask(item: (key: String, label: String, value: String, boxIndex: Int)) {
+    private func toggleMask(item: (key: String, label: String, value: String)) {
         if maskedKeys.contains(item.key) {
             // Unmask: remove the redaction near the field's rect
-            if let rect = ocrRectForField(key: item.key) {
+            if let rect = maskRectForField(key: item.key) {
                 onUnmaskField(rect)
-            } else if item.boxIndex >= 0 && item.boxIndex < boxes.count {
-                onUnmaskField(boxes[item.boxIndex].rect)
             }
             maskedKeys.remove(item.key)
         } else {
             // Mask: add redaction
-            if let rect = ocrRectForField(key: item.key) {
+            if let rect = maskRectForField(key: item.key) {
                 onMaskField(rect)
-                maskedKeys.insert(item.key)
-            } else if item.boxIndex >= 0 && item.boxIndex < boxes.count {
-                onMaskField(boxes[item.boxIndex].rect)
                 maskedKeys.insert(item.key)
             }
         }
@@ -700,15 +701,9 @@ struct OCRSheetView: View {
         for item in items {
             guard !item.value.isEmpty else { continue }
             // Prefer OCR bounding rect; fall back to template FieldBox
-            if let rect = ocrRectForField(key: item.key) {
+            if let rect = maskRectForField(key: item.key) {
                 let isCovered = currentRedactions.contains { r in
                     abs(r.rect.midX - rect.midX) < 0.06 && abs(r.rect.midY - rect.midY) < 0.06
-                }
-                if isCovered { newMasked.insert(item.key) }
-            } else if item.boxIndex >= 0 && item.boxIndex < boxes.count {
-                let boxRect = boxes[item.boxIndex].rect
-                let isCovered = currentRedactions.contains { r in
-                    abs(r.rect.midX - boxRect.midX) < 0.06 && abs(r.rect.midY - boxRect.midY) < 0.06
                 }
                 if isCovered { newMasked.insert(item.key) }
             }

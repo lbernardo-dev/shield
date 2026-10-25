@@ -12,6 +12,8 @@ enum CaptureImportError: Error, Equatable, Sendable, LocalizedError {
     case memoryBudgetExceeded(maximumMB: Int)
     case unreadablePage(index: Int)
     case sourceReadFailed
+    case photoReadFailed
+    case scannerFailed
     case storageWriteFailed
 
     var errorDescription: String? {
@@ -24,6 +26,8 @@ enum CaptureImportError: Error, Equatable, Sendable, LocalizedError {
         case .memoryBudgetExceeded(let maximum): return LanguageManager.backgroundText("capture_error_memory", table: "Capture", maximum)
         case .unreadablePage(let index): return LanguageManager.backgroundText("capture_error_unreadable_page", table: "Capture", index + 1)
         case .sourceReadFailed: return LanguageManager.backgroundText("capture_error_source_read", table: "Capture")
+        case .photoReadFailed: return LanguageManager.backgroundText("capture_error_photo_read", table: "Capture")
+        case .scannerFailed: return LanguageManager.backgroundText("capture_error_scanner", table: "Capture")
         case .storageWriteFailed: return LanguageManager.backgroundText("capture_error_storage_write", table: "Capture")
         }
     }
@@ -36,6 +40,17 @@ struct CaptureImportLimits: Sendable, Equatable {
     var maximumDecodedBytes = 256 * 1_024 * 1_024
 
     nonisolated static let production = CaptureImportLimits()
+}
+
+enum PDFPageDisplayGeometry {
+    nonisolated static func size(of page: PDFPage, box: PDFDisplayBox = .cropBox) -> CGSize {
+        let bounds = page.bounds(for: box).standardized
+        guard bounds.width > 0, bounds.height > 0 else { return CGSize(width: 595, height: 842) }
+        let rotation = ((page.rotation % 360) + 360) % 360
+        return rotation == 90 || rotation == 270
+            ? CGSize(width: bounds.height, height: bounds.width)
+            : bounds.size
+    }
 }
 
 struct PreparedCaptureImport: @unchecked Sendable {
@@ -61,6 +76,57 @@ enum CaptureImportPipeline {
             throw CaptureImportError.fileTooLarge(maximumMB: limits.maximumFileBytes / 1_024 / 1_024)
         }
 
+        let isPDFFile = url.pathExtension.caseInsensitiveCompare("pdf") == .orderedSame
+            || fileHeaderContainsPDFSignature(at: url)
+
+        if isPDFFile {
+            guard let document = PDFDocument(url: url), document.pageCount > 0 else {
+                throw CaptureImportError.unsupportedFormat
+            }
+            guard !document.isLocked else {
+                throw CaptureImportError.protectedPDF
+            }
+            guard document.pageCount <= limits.maximumPages else {
+                throw CaptureImportError.tooManyPages(maximum: limits.maximumPages)
+            }
+
+            var pages: [UIImage] = []
+            pages.reserveCapacity(document.pageCount)
+            var decodedBytes = 0
+            for pageIndex in 0..<document.pageCount {
+                try Task.checkCancellation()
+                guard let page = document.page(at: pageIndex) else {
+                    throw CaptureImportError.unreadablePage(index: pageIndex)
+                }
+                let pageSize = PDFPageDisplayGeometry.size(of: page)
+                let maximum = CGFloat(limits.maximumPixelDimension)
+                let scale = min(1, maximum / max(pageSize.width, pageSize.height))
+                let target = CGSize(
+                    width: max(1, pageSize.width * scale),
+                    height: max(1, pageSize.height * scale)
+                )
+                let image = page.thumbnail(of: target, for: .cropBox).normalizedForShield()
+                decodedBytes += estimatedDecodedBytes(of: image)
+                guard decodedBytes <= limits.maximumDecodedBytes else {
+                    throw CaptureImportError.memoryBudgetExceeded(maximumMB: limits.maximumDecodedBytes / 1_024 / 1_024)
+                }
+                pages.append(image)
+                await progress(pageIndex + 1, document.pageCount)
+            }
+
+            try Task.checkCancellation()
+            guard let sourceData = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
+                throw CaptureImportError.sourceReadFailed
+            }
+            return PreparedCaptureImport(
+                pages: pages,
+                title: url.deletingPathExtension().lastPathComponent,
+                sourceType: .pdf,
+                sourceData: sourceData,
+                sourceExtension: "pdf"
+            )
+        }
+
         if let image = downsampleImage(at: url, maximumDimension: limits.maximumPixelDimension) {
             try validateMemory(for: [image], limits: limits)
             await progress(1, 1)
@@ -73,51 +139,7 @@ enum CaptureImportPipeline {
             )
         }
 
-        guard let document = PDFDocument(url: url), document.pageCount > 0 else {
-            throw CaptureImportError.unsupportedFormat
-        }
-        guard !document.isLocked else {
-            throw CaptureImportError.protectedPDF
-        }
-        guard document.pageCount <= limits.maximumPages else {
-            throw CaptureImportError.tooManyPages(maximum: limits.maximumPages)
-        }
-
-        var pages: [UIImage] = []
-        pages.reserveCapacity(document.pageCount)
-        var decodedBytes = 0
-        for pageIndex in 0..<document.pageCount {
-            try Task.checkCancellation()
-            guard let page = document.page(at: pageIndex) else {
-                throw CaptureImportError.unreadablePage(index: pageIndex)
-            }
-            let bounds = page.bounds(for: .mediaBox)
-            let maximum = CGFloat(limits.maximumPixelDimension)
-            let scale = min(1, maximum / max(bounds.width, bounds.height))
-            let target = CGSize(
-                width: max(1, bounds.width * scale),
-                height: max(1, bounds.height * scale)
-            )
-            let image = page.thumbnail(of: target, for: .mediaBox).normalizedForShield()
-            decodedBytes += estimatedDecodedBytes(of: image)
-            guard decodedBytes <= limits.maximumDecodedBytes else {
-                throw CaptureImportError.memoryBudgetExceeded(maximumMB: limits.maximumDecodedBytes / 1_024 / 1_024)
-            }
-            pages.append(image)
-            await progress(pageIndex + 1, document.pageCount)
-        }
-
-        try Task.checkCancellation()
-        guard let sourceData = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
-            throw CaptureImportError.sourceReadFailed
-        }
-        return PreparedCaptureImport(
-            pages: pages,
-            title: url.deletingPathExtension().lastPathComponent,
-            sourceType: .pdf,
-            sourceData: sourceData,
-            sourceExtension: "pdf"
-        )
+        throw CaptureImportError.unsupportedFormat
     }
 
     nonisolated static func prepareImages(
@@ -155,6 +177,13 @@ enum CaptureImportPipeline {
     private nonisolated static func downsampleImage(at url: URL, maximumDimension: Int) -> UIImage? {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         return thumbnail(from: source, maximumDimension: maximumDimension)
+    }
+
+    private nonisolated static func fileHeaderContainsPDFSignature(at url: URL) -> Bool {
+        guard let file = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? file.close() }
+        guard let prefix = try? file.read(upToCount: 1_024) else { return false }
+        return prefix.range(of: Data("%PDF-".utf8)) != nil
     }
 
     private nonisolated static func thumbnail(

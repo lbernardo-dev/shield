@@ -1,4 +1,5 @@
 import CoreGraphics
+import ImageIO
 import Testing
 import UIKit
 @testable import Shield
@@ -52,6 +53,238 @@ struct OCREvidenceTests {
         ]
 
         #expect(AutoRedactions.ocrPrecisionModeRects(for: .banking, fields: fields).isEmpty)
+    }
+
+    @Test("Batch suggestions use only evidence from the matching page")
+    func batchSuggestionsStayPageSpecific() throws {
+        let firstObservation = OCRTextEvidence(
+            pageIndex: 0,
+            text: "Address: 1 Main Street",
+            boundingRect: CGRect(x: 0.08, y: 0.2, width: 0.42, height: 0.06),
+            confidence: 0.98
+        )
+        let secondObservation = OCRTextEvidence(
+            pageIndex: 1,
+            text: "Address: 99 River Road",
+            boundingRect: CGRect(x: 0.45, y: 0.68, width: 0.38, height: 0.07),
+            confidence: 0.97
+        )
+        let firstEntity = OCRSensitiveEntity(
+            kind: .address,
+            value: "1 Main Street",
+            pageIndex: 0,
+            evidenceIDs: [firstObservation.id],
+            confidence: 0.98
+        )
+        let secondEntity = OCRSensitiveEntity(
+            kind: .address,
+            value: "99 River Road",
+            pageIndex: 1,
+            evidenceIDs: [secondObservation.id],
+            confidence: 0.97
+        )
+        var fields = DocumentFields.empty
+        fields.ocrPageEvidence = [
+            OCRPageEvidence(pageIndex: 0, observations: [firstObservation], entities: [firstEntity]),
+            OCRPageEvidence(pageIndex: 1, observations: [secondObservation], entities: [secondEntity])
+        ]
+        let document = DocumentItem(
+            kind: .photo,
+            title: "Multipage lease",
+            pageFileNames: ["page-1.jpg", "page-2.jpg", "page-3.jpg"],
+            sourceType: .pdf,
+            fields: fields
+        )
+
+        let plan = BatchRedactionPlanner.plan(for: document, mode: .rental)
+
+        #expect(plan.pageRedactions.map(\.pageIndex) == [0, 1])
+        #expect(plan.pagesWithSuggestions == 2)
+        #expect(plan.pagesWithoutSuggestions == 1)
+        let page0 = try #require(plan.pageRedactions.first(where: { $0.pageIndex == 0 })?.redactions.first)
+        let page1 = try #require(plan.pageRedactions.first(where: { $0.pageIndex == 1 })?.redactions.first)
+        #expect(page0.rect.midY < 0.4)
+        #expect(page1.rect.midY > 0.6)
+    }
+
+    @Test("Face suggestion stays tight and privacy mask expands to the face boundary")
+    func faceSuggestionCoordinatesAndProtectiveMaskStayPrecise() {
+        let rect = OCRService.normalizedFaceRect(
+            fromVisionBoundingBox: CGRect(x: 0.02, y: 0.1, width: 0.3, height: 0.5)
+        )
+
+        #expect(abs(rect.minX - 0.02) < 0.001)
+        #expect(abs(rect.minY - 0.4) < 0.001)
+        #expect(rect.maxX <= 1)
+        #expect(rect.maxY <= 1)
+        #expect(abs(rect.width - 0.3) < 0.001)
+        #expect(abs(rect.height - 0.5) < 0.001)
+
+        let mask = OCRService.protectiveFaceMaskRect(around: rect)
+        #expect(abs(mask.minX) < 0.001)
+        #expect(abs(mask.minY - 0.215) < 0.001)
+        #expect(abs(mask.width - 0.383) < 0.001)
+        #expect(abs(mask.height - 0.785) < 0.001)
+    }
+
+    @Test("Proposed face mask covers full face extent in upright and rotated photos")
+    func protectiveFaceMaskCoversFaceForRoll() {
+        let uprightDetection = CGRect(x: 0.314, y: 0.323, width: 0.361, height: 0.361)
+        let uprightLabel = CGRect(x: 0.25, y: 0.19, width: 0.5, height: 0.59)
+        let uprightMask = OCRService.protectiveFaceMaskRect(around: uprightDetection, rollDegrees: 0)
+        #expect(uprightMask.contains(uprightLabel))
+
+        let sidewaysDetection = CGRect(x: 0.313, y: 0.312, width: 0.367, height: 0.367)
+        let sidewaysLabel = CGRect(x: 0.22, y: 0.25, width: 0.59, height: 0.5)
+        let sidewaysMask = OCRService.protectiveFaceMaskRect(around: sidewaysDetection, rollDegrees: 89)
+        #expect(sidewaysMask.contains(sidewaysLabel))
+    }
+
+    @Test("Face review runs for image-backed identity documents regardless of OCR type")
+    func faceSuggestionPagesFollowImageAssets() {
+        let identityScan = DocumentItem(
+            kind: .dniESP,
+            title: "Identity scan",
+            imageFileName: "dni-front.jpg",
+            pageFileNames: ["dni-front.jpg", "dni-back.jpg"]
+        )
+        let vectorOnlyDocument = DocumentItem(kind: .dniESP, title: "Typed identity")
+
+        #expect(OCRService.faceSuggestionPageFileNames(for: identityScan) == ["dni-front.jpg", "dni-back.jpg"])
+        #expect(OCRService.faceSuggestionPageFileNames(for: vectorOnlyDocument).isEmpty)
+    }
+
+    @Test("UIImage orientation maps to Vision image orientation including mirrors")
+    func faceDetectionPreservesImageOrientation() {
+        let orientations: [(UIImage.Orientation, CGImagePropertyOrientation)] = [
+            (.up, .up),
+            (.down, .down),
+            (.left, .left),
+            (.right, .right),
+            (.upMirrored, .upMirrored),
+            (.downMirrored, .downMirrored),
+            (.leftMirrored, .leftMirrored),
+            (.rightMirrored, .rightMirrored)
+        ]
+
+        for (imageOrientation, expected) in orientations {
+            #expect(OCRService.visionOrientation(for: imageOrientation) == expected)
+        }
+    }
+
+    @Test("Accepting a face suggestion applies a small opaque safety margin")
+    @MainActor
+    func acceptingFaceSuggestionUsesPreciseProtectiveMask() throws {
+        let suggestion = OCRFaceSuggestion(
+            pageIndex: 0,
+            boundingRect: CGRect(x: 0.25, y: 0.25, width: 0.2, height: 0.24),
+            confidence: 0.9
+        )
+        var fields = DocumentFields.empty
+        fields.ocrFaceSuggestions = [suggestion]
+        fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+        let document = DocumentItem(
+            kind: .photo,
+            title: "Face mask geometry",
+            pageFileNames: ["face-mask-geometry.jpg"],
+            fields: fields
+        )
+        let viewModel = EditorViewModel(doc: document)
+
+        viewModel.acceptFaceSuggestion(suggestion)
+
+        let redaction = try #require(viewModel.redactions.first)
+        #expect(redaction.style == .block)
+        #expect(redaction.rect == OCRService.protectiveFaceMaskRect(around: suggestion.boundingRect))
+        #expect(viewModel.isFaceSuggestionProtected(suggestion))
+    }
+
+    @Test("Overlapping face suggestions are deduplicated without merging pages")
+    func duplicateFaceSuggestionsAreRemovedPerPage() throws {
+        let first = OCRFaceSuggestion(
+            pageIndex: 2,
+            boundingRect: CGRect(x: 0.2, y: 0.2, width: 0.3, height: 0.3),
+            confidence: 0.91
+        )
+        let duplicate = OCRFaceSuggestion(
+            pageIndex: 2,
+            boundingRect: CGRect(x: 0.21, y: 0.21, width: 0.29, height: 0.29),
+            confidence: 0.72
+        )
+        let otherPage = OCRFaceSuggestion(
+            pageIndex: 3,
+            boundingRect: first.boundingRect,
+            confidence: 0.88
+        )
+
+        let deduplicated = OCRService.deduplicatedFaceSuggestions([duplicate, otherPage, first])
+
+        #expect(deduplicated.count == 2)
+        #expect(deduplicated.map(\.pageIndex) == [2, 3])
+        #expect(try #require(deduplicated.first).confidence == 0.91)
+    }
+
+    @Test("On-demand OCR preserves page indexes when a source page cannot be loaded")
+    @MainActor
+    func optionalPageOCRPreservesIndexes() async {
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 12, height: 12)).image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 12, height: 12))
+        }
+
+        let observations = await OCRService.recognizeObservationsByPage(inPages: [nil, image, nil])
+
+        #expect(observations.count == 3)
+        #expect(observations[0].isEmpty)
+        #expect(observations[2].isEmpty)
+    }
+
+    @Test("Local search returns page boxes and confidence while keeping vault data private")
+    func localSearchOccurrenceEvidence() throws {
+        let observation = OCRTextEvidence(
+            pageIndex: 1,
+            text: "María García",
+            boundingRect: CGRect(x: 0.2, y: 0.3, width: 0.4, height: 0.08),
+            confidence: 0.93
+        )
+        var fields = DocumentFields.empty
+        fields.ocrPageEvidence = [OCRPageEvidence(pageIndex: 1, observations: [observation], entities: [])]
+        let document = DocumentItem(
+            kind: .photo,
+            title: "Sample",
+            pageFileNames: ["one.jpg", "two.jpg"],
+            fields: fields
+        )
+
+        let occurrence = try #require(document.localSearchOccurrences(for: "garcia").first)
+        #expect(occurrence.pageIndex == 1)
+        #expect(occurrence.boundingRect == observation.boundingRect)
+        #expect(occurrence.confidence == 0.93)
+        #expect(occurrence.protectedText == "María García")
+
+        var vaulted = document
+        vaulted.isVaulted = true
+        #expect(vaulted.localSearchOccurrences(for: "garcia").isEmpty)
+    }
+
+    @Test("Face review suggestions and dismissals survive local document storage")
+    func faceSuggestionsCodableRoundTrip() throws {
+        let suggestion = OCRFaceSuggestion(
+            pageIndex: 2,
+            boundingRect: CGRect(x: 0.2, y: 0.3, width: 0.2, height: 0.25),
+            confidence: 0.9,
+            rollDegrees: 89
+        )
+        var fields = DocumentFields.empty
+        fields.ocrFaceSuggestions = [suggestion]
+        fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+        fields.ocrDismissedFaceSuggestionIDs = [suggestion.id]
+
+        let decoded = try JSONDecoder().decode(DocumentFields.self, from: JSONEncoder().encode(fields))
+
+        #expect(decoded.ocrFaceSuggestions == [suggestion])
+        #expect(decoded.ocrFaceSuggestionsRevision == OCRService.faceSuggestionRevision)
+        #expect(decoded.ocrDismissedFaceSuggestionIDs == [suggestion.id])
     }
 
     @Test("Corpus metrics report precision, recall, and F1 reproducibly")

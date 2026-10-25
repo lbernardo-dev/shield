@@ -38,13 +38,10 @@ struct UserProfileView: View {
                         personalInfoSection
 
                         quickPreferencesSection
-
-                        saveButton
-                            .padding(.top, ShieldTheme.s2)
                     }
                     .frame(maxWidth: ShieldTheme.readableWidth)
                     .padding(.horizontal, ShieldTheme.s4)
-                    .padding(.bottom, ShieldTheme.s6)
+                    .padding(.bottom, ShieldTheme.s10)
                 }
 
                 if showSavedHUD {
@@ -77,19 +74,42 @@ struct UserProfileView: View {
             .navigationTitle(strings.settings("settings_profile_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(strings.common("common_close")) {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button {
                         dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                            .frame(width: 48, height: 48)
+                            .background(ShieldTheme.rowBackground(scheme), in: Circle())
+                            .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 1))
                     }
-                    .foregroundStyle(ShieldTheme.secondary(scheme))
-                }
+                    .accessibilityLabel(strings.common("common_close"))
+                    .accessibilityIdentifier("profile.close")
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(strings.common("common_save")) {
+                    Spacer()
+
+                    Button {
                         saveProfile()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 48, height: 48)
+                            .background(
+                                LinearGradient(
+                                    colors: isHalloween
+                                        ? [Color(hex: "FFA53D"), Color(hex: "F97316")]
+                                        : [Color(hex: "20C7D9"), Color(hex: "0077B6")],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                in: Circle()
+                            )
                     }
-                    .font(.body.weight(.bold))
-                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .accessibilityLabel(strings.common("common_save"))
+                    .accessibilityIdentifier("profile.save")
                 }
             }
             .confirmationDialog(
@@ -380,33 +400,6 @@ struct UserProfileView: View {
                     .foregroundStyle(ShieldTheme.tertiary(scheme))
             }
         }
-    }
-
-    // MARK: - Save Button
-
-    private var saveButton: some View {
-        Button(action: saveProfile) {
-            HStack(spacing: ShieldTheme.s2) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.headline)
-                Text(strings.settings("settings_profile_save"))
-                    .font(.headline.weight(.bold))
-            }
-            .frame(maxWidth: .infinity, minHeight: 52)
-            .foregroundStyle(Color.white)
-            .background(
-                isHalloween
-                    ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    : LinearGradient(colors: [Color(hex: "00B4D8"), Color(hex: "0077B6")], startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-            )
-            .shadow(
-                color: isHalloween ? Color(hex: "F97316").opacity(0.4) : Color(hex: "00B4D8").opacity(0.3),
-                radius: 8,
-                y: 3
-            )
-        }
-        .buttonStyle(ScaleButtonStyle())
     }
 
     private func profileTextField(

@@ -1,10 +1,29 @@
 import Vision
 import UIKit
 import FoundationModels
+import ImageIO
+import OSLog
 
 // MARK: - OCRService
 
 enum OCRService {
+    /// Bump when coordinate, padding, or filtering semantics for face suggestions change.
+    static let faceSuggestionRevision = 5
+
+    enum FaceDetectionError: LocalizedError {
+        case imageUnavailable
+        case inferenceUnavailable(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .imageUnavailable:
+                "The page image could not be prepared for face analysis."
+            case .inferenceUnavailable(_):
+                "Vision could not complete face analysis for this page."
+            }
+        }
+    }
+
     enum DetectedDocumentType: String {
         case dni
         case passport
@@ -22,6 +41,16 @@ enum OCRService {
     }
 
     private static let baseLanguages = ["es-ES", "en-US", "fr-FR", "de-DE", "it-IT", "pt-PT"]
+    private static let faceDetectionLogger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.romerodev.MaskID",
+        category: "FaceDetection"
+    )
+
+    private struct FaceDetectionCandidate {
+        let boundingBox: CGRect
+        let confidence: Float
+        let rollDegrees: Double
+    }
 
     private static func languagesForCountry(_ country: String?) -> [String] {
         switch country?.uppercased() {
@@ -96,6 +125,168 @@ enum OCRService {
         let text: String
         let boundingRect: CGRect
         let confidence: Double
+    }
+
+    static func detectFaceSuggestions(in images: [UIImage]) async throws -> [OCRFaceSuggestion] {
+        try await detectFaceSuggestions(inPages: images.map(Optional.some))
+    }
+
+    static func detectFaceSuggestions(inPages imagesByPage: [UIImage?]) async throws -> [OCRFaceSuggestion] {
+        var candidates: [OCRFaceSuggestion] = []
+        for (pageIndex, candidateImage) in imagesByPage.enumerated() {
+            guard let image = candidateImage else { continue }
+            let pageSuggestions = try await detectFaceSuggestions(in: image, pageIndex: pageIndex)
+            candidates.append(contentsOf: pageSuggestions)
+        }
+        return deduplicatedFaceSuggestions(candidates)
+    }
+
+    static func faceSuggestionPageFileNames(for document: DocumentItem) -> [String] {
+        let pageNames = (document.pageFileNames ?? []).filter { !$0.isEmpty }
+        if !pageNames.isEmpty { return pageNames }
+        return [document.imageFileName].compactMap { $0 }.filter { !$0.isEmpty }
+    }
+
+    static func detectFaceSuggestions(in image: UIImage, pageIndex: Int) async throws -> [OCRFaceSuggestion] {
+        guard let cgImage = image.cgImage else {
+            faceDetectionLogger.error("Face detection could not prepare page \(pageIndex, privacy: .public)")
+            throw FaceDetectionError.imageUnavailable
+        }
+        let orientation = visionOrientation(for: image.imageOrientation)
+        let observations: [FaceDetectionCandidate]
+        do {
+            let request = DetectFaceRectanglesRequest()
+            let modernObservations = try await request.perform(
+                on: cgImage,
+                orientation: orientation
+            )
+            observations = modernObservations.map { observation in
+                FaceDetectionCandidate(
+                    boundingBox: observation.boundingBox.cgRect,
+                    confidence: observation.confidence,
+                    rollDegrees: observation.roll.converted(to: .degrees).value
+                )
+            }
+        } catch {
+            faceDetectionLogger.notice(
+                "Modern Vision face request failed on page \(pageIndex, privacy: .public); trying revision 2: \(String(reflecting: error), privacy: .public)"
+            )
+            do {
+                let compatibilityRequest = VNDetectFaceRectanglesRequest()
+                compatibilityRequest.revision = VNDetectFaceRectanglesRequestRevision2
+                try VNImageRequestHandler(cgImage: cgImage, orientation: orientation)
+                    .perform([compatibilityRequest])
+                observations = (compatibilityRequest.results ?? []).map { observation in
+                    FaceDetectionCandidate(
+                        boundingBox: observation.boundingBox,
+                        confidence: observation.confidence,
+                        rollDegrees: (observation.roll?.doubleValue ?? 0) * 180 / .pi
+                    )
+                }
+            } catch {
+                faceDetectionLogger.error(
+                    "Vision face detection failed on page \(pageIndex, privacy: .public), modern and revision 2: \(String(reflecting: error), privacy: .public)"
+                )
+                throw FaceDetectionError.inferenceUnavailable(String(reflecting: error))
+            }
+        }
+        return observations
+            .filter { $0.confidence >= 0.55 }
+            .sorted { $0.confidence > $1.confidence }
+            .map { observation in
+                OCRFaceSuggestion(
+                    pageIndex: pageIndex,
+                    boundingRect: normalizedFaceRect(fromVisionBoundingBox: observation.boundingBox),
+                    confidence: Double(observation.confidence),
+                    rollDegrees: observation.rollDegrees
+                )
+            }
+    }
+
+    static func logFaceDetectionFailure(pageIndex: Int, reason: String) {
+        faceDetectionLogger.error(
+            "Face detection failed on page \(pageIndex, privacy: .public): \(reason, privacy: .public)"
+        )
+    }
+
+    static func visionOrientation(for orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
+        switch orientation {
+        case .up: .up
+        case .down: .down
+        case .left: .left
+        case .right: .right
+        case .upMirrored: .upMirrored
+        case .downMirrored: .downMirrored
+        case .leftMirrored: .leftMirrored
+        case .rightMirrored: .rightMirrored
+        @unknown default: .up
+        }
+    }
+
+    static func deduplicatedFaceSuggestions(_ candidates: [OCRFaceSuggestion]) -> [OCRFaceSuggestion] {
+        var suggestions: [OCRFaceSuggestion] = []
+        let rankedCandidates = candidates.sorted {
+            if $0.pageIndex != $1.pageIndex { return $0.pageIndex < $1.pageIndex }
+            return $0.confidence > $1.confidence
+        }
+        for candidate in rankedCandidates {
+            let duplicatesExistingFace = suggestions.contains { existing in
+                guard existing.pageIndex == candidate.pageIndex else { return false }
+                let intersection = existing.boundingRect.intersection(candidate.boundingRect)
+                guard !intersection.isNull, !intersection.isEmpty else { return false }
+                let smallerArea = min(
+                    existing.boundingRect.width * existing.boundingRect.height,
+                    candidate.boundingRect.width * candidate.boundingRect.height
+                )
+                guard smallerArea > 0 else { return false }
+                return intersection.width * intersection.height / smallerArea >= 0.8
+            }
+            if !duplicatesExistingFace {
+                suggestions.append(candidate)
+            }
+        }
+        return suggestions.sorted {
+            if $0.pageIndex != $1.pageIndex { return $0.pageIndex < $1.pageIndex }
+            if $0.boundingRect.minX != $1.boundingRect.minX { return $0.boundingRect.minX < $1.boundingRect.minX }
+            return $0.boundingRect.minY < $1.boundingRect.minY
+        }
+    }
+
+    /// Face rectangles are stored without safety padding so the review overlay
+    /// reflects what Vision actually found.
+    static func normalizedFaceRect(fromVisionBoundingBox visionRect: CGRect) -> CGRect {
+        let topLeftRect = CGRect(
+            x: visionRect.minX,
+            y: 1 - visionRect.maxY,
+            width: visionRect.width,
+            height: visionRect.height
+        )
+        return topLeftRect.intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+    }
+
+    /// Vision's rectangle is tight around facial features, not the full area people
+    /// expect to obscure. Expand along the face axes, then rotate the proposed block
+    /// back to page axes so sideways portraits receive the same protection.
+    static func protectiveFaceMaskRect(around faceRect: CGRect, rollDegrees: Double? = nil) -> CGRect {
+        let face = faceRect.intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        guard !face.isNull, !face.isEmpty else { return .zero }
+
+        let horizontalScale: CGFloat = 1.42 // 21% on each side of the detected face box.
+        let verticalScale: CGFloat = 1.74 // 37% on each side in face coordinates.
+        let finiteRollDegrees = rollDegrees.flatMap { $0.isFinite ? $0 : nil } ?? 0
+        let angle = finiteRollDegrees * .pi / 180
+        let cosine = CGFloat(abs(cos(angle)))
+        let sine = CGFloat(abs(sin(angle)))
+        let expandedWidth = face.width * horizontalScale * cosine + face.height * verticalScale * sine
+        let expandedHeight = face.width * horizontalScale * sine + face.height * verticalScale * cosine
+        let expanded = CGRect(
+            x: face.midX - expandedWidth / 2,
+            y: face.midY - expandedHeight / 2,
+            width: expandedWidth,
+            height: expandedHeight
+        )
+        .intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        return NormalizedDocumentGeometry.rect(expanded, minimumSize: 0.001)
     }
 
     static func recognizeText(in image: UIImage, extraLanguages: [String] = []) async -> [String] {
@@ -585,6 +776,15 @@ enum OCRService {
         return await recognizeObservationsByPage(in: images, extraLanguages: extra)
     }
 
+    static func recognizeObservationsByPageAdaptive(inPages imagesByPage: [UIImage?]) async -> [[TextObservation]] {
+        let firstPass = await recognizeObservationsByPage(inPages: imagesByPage)
+        let allLines = firstPass.flatMap { $0 }.map(\.text)
+        let country = detectCountryHint(from: allLines)
+        let extra = languagesForCountry(country)
+        guard !extra.isEmpty else { return firstPass }
+        return await recognizeObservationsByPage(inPages: imagesByPage, extraLanguages: extra)
+    }
+
     static func recognizeTextByPageAdaptive(in images: [UIImage]) async -> [[String]] {
         let obs = await recognizeObservationsByPageAdaptive(in: images)
         return obs.map { $0.map(\.text) }
@@ -606,6 +806,27 @@ enum OCRService {
             results.reserveCapacity(images.count)
             for await result in group { results.append(result) }
             return results.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
+
+    static func recognizeObservationsByPage(
+        inPages imagesByPage: [UIImage?],
+        extraLanguages: [String] = []
+    ) async -> [[TextObservation]] {
+        guard !imagesByPage.isEmpty else { return [] }
+        return await withTaskGroup(of: (Int, [TextObservation]).self) { group in
+            for (index, candidateImage) in imagesByPage.enumerated() {
+                guard let image = candidateImage else { continue }
+                group.addTask {
+                    let observations = await recognizeTextWithObservations(in: image, extraLanguages: extraLanguages)
+                    return (index, observations)
+                }
+            }
+            var results = Array(repeating: [TextObservation](), count: imagesByPage.count)
+            for await (index, observations) in group {
+                results[index] = observations
+            }
+            return results
         }
     }
 

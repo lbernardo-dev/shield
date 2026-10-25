@@ -40,6 +40,8 @@ struct ShieldApp: App {
                         switch url.host {
                         case "capture":
                             appState.showCapture = true
+                        case "library":
+                            appState.activeTab = .library
                         case "vault":
                             appState.activeTab = .vault
                         case "preset":
@@ -108,6 +110,12 @@ struct ShieldApp: App {
             appState.showCapture = true
             AppState.trackEvent("share_extension_started", properties: ["source": "share_sheet"])
         } catch SharedImportStoreError.noPendingImport {
+            return
+        } catch SharedImportStoreError.appGroupUnavailable {
+            // A local simulator or unsigned development build may not have the
+            // App Group entitlement. There can be no readable extension inbox,
+            // so an ordinary app launch should not turn that into an import
+            // failure alert over the initial scene.
             return
         } catch let error as LocalizedError {
             appState.pendingSharedImportError = error.errorDescription

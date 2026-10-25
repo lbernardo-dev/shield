@@ -6,6 +6,7 @@ struct DocumentCanvas: View {
     @ObservedObject var vm: EditorViewModel
     let canvasSize: CGSize
     var effectiveZoom: CGFloat = 1.0
+    var localSearchOccurrences: [LocalSearchOccurrence] = []
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -25,6 +26,7 @@ struct DocumentCanvas: View {
             .allowsHitTesting(false)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(LanguageManager.shared.editor("editor_protected_document_preview"))
+            .accessibilityIdentifier("editor.document.preview")
             .accessibilityAddTraits(.isImage)
 
             // Drawing preview
@@ -47,6 +49,71 @@ struct DocumentCanvas: View {
             if vm.tool == .fields && !vm.isPeekingOriginal {
                 ForEach(DocumentFieldBoxes.boxes(for: vm.doc.kind)) { box in
                     FieldOverlay(box: box, vm: vm, canvasSize: canvasSize)
+                }
+            }
+
+            if !vm.isPeekingOriginal {
+                ForEach(Array(localSearchOccurrences.enumerated()), id: \.element.id) { index, occurrence in
+                    if let rect = occurrence.boundingRect {
+                        let searchRect = scaledRect(rect)
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(ShieldTheme.selection(scheme), style: StrokeStyle(lineWidth: 2, dash: [5, 3]))
+                            .frame(width: searchRect.width, height: searchRect.height)
+                            .overlay(alignment: .topLeading) {
+                                Text("\(index + 1)")
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 5)
+                                    .padding(.vertical, 2)
+                                    .background(ShieldTheme.selection(scheme), in: Capsule())
+                                    .offset(y: -16)
+                            }
+                            .position(x: searchRect.midX, y: searchRect.midY)
+                            .allowsHitTesting(false)
+                            .accessibilityLabel(
+                                occurrence.confidence.map { confidence in
+                                    LanguageManager.shared.home(
+                                        "home_search_occurrence_accessibility",
+                                        index + 1,
+                                        Int(confidence * 100)
+                                    )
+                                } ?? LanguageManager.shared.home(
+                                    "home_search_occurrence_accessibility_no_confidence",
+                                    index + 1
+                                )
+                            )
+                    }
+                }
+            }
+
+            if !vm.isPeekingOriginal {
+                ForEach(Array(vm.currentPageFaceSuggestions.enumerated()), id: \.element.id) { index, suggestion in
+                    if !vm.isFaceSuggestionProtected(suggestion) {
+                        let faceRect = scaledRect(OCRService.protectiveFaceMaskRect(
+                            around: suggestion.boundingRect,
+                            rollDegrees: suggestion.rollDegrees
+                        ))
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(ShieldTheme.warning, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                            .frame(width: faceRect.width, height: faceRect.height)
+                            .overlay(alignment: .topLeading) {
+                                Image(systemName: "face.smiling")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(ShieldTheme.accentText)
+                                    .padding(4)
+                                    .background(ShieldTheme.warning, in: Circle())
+                                    .offset(x: -7, y: -8)
+                            }
+                            .position(x: faceRect.midX, y: faceRect.midY)
+                            .allowsHitTesting(false)
+                            .accessibilityLabel(
+                                LanguageManager.shared.editor(
+                                    "editor_face_suggestion_accessibility",
+                                    index + 1,
+                                    Int(suggestion.confidence * 100)
+                                )
+                            )
+                    }
                 }
             }
 
@@ -122,6 +189,28 @@ private struct FieldOverlay: View {
         }
     }
 
+    private var localizedLabel: String {
+        let key: String
+        switch box.label {
+        case "Surname 1": key = "model_label_surname1"
+        case "Surname 2": key = "model_label_surname2"
+        case "Surname", "Apellido(s)": key = "model_label_surname"
+        case "Given names", "Names", "Nombre(s)": key = "model_label_given_names"
+        case "Name": key = "model_label_given_name"
+        case "Passport №": key = "model_label_passport_no"
+        case "Doc №", "Codice fiscale", "Driver №": key = "model_label_doc_number"
+        case "DOB", "Nacimiento", "Nascita": key = "model_label_dob"
+        case "Expires", "Vence", "Scadenza": key = "model_label_expires"
+        case "Nationality": key = "model_label_nationality"
+        case "Address": key = "model_field_address"
+        case "Issued": key = "model_label_uk_issued"
+        case "Cognome": key = "model_label_ita_surname"
+        case "Nome": key = "model_label_ita_name"
+        default: return box.label
+        }
+        return LanguageManager.shared.model(key)
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             Rectangle()
@@ -133,7 +222,7 @@ private struct FieldOverlay: View {
                 .frame(width: sr.width, height: sr.height)
                 .contentShape(Rectangle())
                 .onTapGesture { vm.toggleField(box) }
-            Text((isSelected ? "✓ " : "") + box.label)
+            Text((isSelected ? "✓ " : "") + localizedLabel)
                 .shieldFont(9, weight: .bold)
                 .foregroundColor(isSelected ? ShieldTheme.success : ShieldTheme.selection(scheme))
                 .padding(.horizontal, 5).padding(.vertical, 2)
@@ -144,7 +233,7 @@ private struct FieldOverlay: View {
         }
         .position(x: sr.midX, y: sr.midY)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(box.label)
+        .accessibilityLabel(localizedLabel)
         .accessibilityValue(LanguageManager.shared.editor(isSelected ? "editor_mask_selected" : "editor_mask_not_selected"))
         .accessibilityHint(LanguageManager.shared.editor("editor_field_toggle_hint"))
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)

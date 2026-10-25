@@ -77,11 +77,22 @@ enum ScanDocumentType: String, CaseIterable, Identifiable {
     }
 }
 
+private struct PendingRenderedImport {
+    let pages: [UIImage]
+    let originalPages: [UIImage]
+    let transforms: [DocumentPageTransform]
+    let title: String
+    let docID: String
+    let sourceType: ImportedDocumentSource
+    let sourceFileName: String?
+}
+
 // MARK: - CaptureView
 
 struct CaptureView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showScanner = false
     @State private var showPhotoPicker = false
     @State private var showFilePicker = false
@@ -92,6 +103,10 @@ struct CaptureView: View {
     @State private var processingMessage = ""
     @State private var processingProgress: Double? = nil
     @State private var processingTask: Task<Void, Never>? = nil
+    @State private var queuedImportURLs: [URL] = []
+    @State private var queuedImportIndex = 0
+    @State private var queuedImportSource = "file"
+    @State private var lastQueuedImportedDocumentID: String?
     @State private var importErrorMessage: String? = nil
     @State private var retryImportURL: URL? = nil
     @State private var retryImportSource: String = "file"
@@ -100,6 +115,8 @@ struct CaptureView: View {
     @State private var stagedSourceType: ImportedDocumentSource = .image
     @State private var stagedSourceFileName: String? = nil
     @State private var stagedDocID: String = UUID().uuidString
+    @State private var pendingRenderedImport: PendingRenderedImport? = nil
+    @State private var pendingDocumentCommit: DocumentItem? = nil
     /// Non-nil when ScanReviewView was opened for re-adjustment of an existing document.
     /// In this mode, confirmed pages overwrite the doc's files instead of creating a new doc.
     @State private var docToReadjust: DocumentItem? = nil
@@ -132,6 +149,10 @@ struct CaptureView: View {
                 stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
             } onCancel: {
                 showScanner = false
+            } onError: {
+                showScanner = false
+                importErrorMessage = CaptureImportError.scannerFailed.errorDescription
+                    ?? CaptureImportError.scannerFailed.localizedDescription
             }
             .ignoresSafeArea()
         }
@@ -146,28 +167,21 @@ struct CaptureView: View {
                     stagedSourceFileName = nil
                     docToReadjust = nil
                     stagedAdjustments = nil
+                    cancelQueuedImports()
                 },
                 onConfirm: { adjustedPages, hasAdjustments, transforms in
                     showScanReview = false
                     if let doc = docToReadjust {
-                        // Edit mode: overwrite existing files in-place
-                        let fileNames: [String]
-                        if let all = doc.pageFileNames, !all.isEmpty {
-                            fileNames = all
-                        } else if let first = doc.imageFileName {
-                            fileNames = [first]
-                        } else {
-                            fileNames = []
+                        guard appState.replaceRenderedPages(
+                            for: doc,
+                            with: adjustedPages,
+                            transforms: transforms
+                        ) != nil else {
+                            importErrorMessage = CaptureImportError.storageWriteFailed.errorDescription
+                                ?? CaptureImportError.storageWriteFailed.localizedDescription
+                            docToReadjust = nil
+                            return
                         }
-                        for (index, image) in adjustedPages.enumerated() {
-                            guard index < fileNames.count else { break }
-                            let id = (fileNames[index] as NSString).deletingPathExtension
-                            appState.saveImage(image, id: id)
-                        }
-                        var updated = doc
-                        updated.pageTransforms = transforms
-                        updated.imageAdjustment = nil
-                        appState.updateDocument(updated)
                         docToReadjust = nil
                     } else {
                         // New document flow
@@ -188,12 +202,15 @@ struct CaptureView: View {
                 stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
             } onCancel: {
                 showPhotoPicker = false
+            } onError: { error in
+                showPhotoPicker = false
+                importErrorMessage = error.errorDescription ?? error.localizedDescription
             }
         }
         .sheet(isPresented: $showFilePicker) {
-            FilesPickerView { url in
+            FilesPickerView { urls in
                 showFilePicker = false
-                processFile(url)
+                beginQueuedImports(urls, source: "file")
             } onCancel: {
                 showFilePicker = false
             }
@@ -201,37 +218,27 @@ struct CaptureView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: paywallTrigger).environmentObject(appState)
         }
-        .alert(
-            LanguageManager.shared.capture("capture_import_failed_title"),
-            isPresented: Binding(
-                get: { importErrorMessage != nil },
-                set: { if !$0 { importErrorMessage = nil } }
-            )
-        ) {
-            if let retryImportURL {
-                Button(LanguageManager.shared.common("common_retry")) {
-                    importErrorMessage = nil
-                    processFile(retryImportURL, source: retryImportSource)
-                }
+        .overlay {
+            if let importErrorMessage {
+                importErrorOverlay(message: importErrorMessage)
+                    .transition(reduceMotion ? .opacity : .scale(scale: 0.98).combined(with: .opacity))
+                    .zIndex(500)
             }
-            Button(LanguageManager.shared.common("common_ok"), role: .cancel) {
-                if let retryImportURL {
-                    SharedImportStore.removeTemporaryFile(retryImportURL)
-                }
-                retryImportSource = "file"
-                retryImportURL = nil
-                importErrorMessage = nil
-            }
-        } message: {
-            Text(importErrorMessage ?? "")
         }
+        .animation(reduceMotion ? nil : ShieldMotion.state, value: importErrorMessage != nil)
         .onDisappear {
             processingTask?.cancel()
-            if let retryImportURL {
-                SharedImportStore.removeTemporaryFile(retryImportURL)
+            if pendingDocumentCommit != nil || pendingRenderedImport != nil || retryImportURL != nil || !queuedImportURLs.isEmpty {
+                discardPendingImport()
             }
         }
-        .onAppear(perform: consumePendingSharedImport)
+        .onAppear {
+            consumePendingSharedImport()
+#if DEBUG
+            configureDebugScanReviewIfNeeded()
+            configureDebugMultiImportQueueIfNeeded()
+#endif
+        }
         .onChange(of: appState.pendingSharedImportURL) { _, _ in
             consumePendingSharedImport()
         }
@@ -239,11 +246,6 @@ struct CaptureView: View {
             guard let newValue else { return }
             appState.pendingSharedImportError = nil
             importErrorMessage = newValue
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("shield.importFileURL"))) { note in
-            if let url = note.object as? URL {
-                processFile(url)
-            }
         }
         .sheet(isPresented: $showCloudPicker) {
             ExternalStoragePickerSheet(isPresented: $showCloudPicker) { url in
@@ -327,6 +329,7 @@ struct CaptureView: View {
             Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {
                 processingTask?.cancel()
                 processingTask = nil
+                retryImportURL = nil
                 isProcessing = false
                 processingProgress = nil
                 cleanupStagedSource()
@@ -335,6 +338,38 @@ struct CaptureView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.pageBackground(appState.preferredScheme).ignoresSafeArea())
+    }
+
+    private var canRetryImport: Bool {
+        pendingDocumentCommit != nil || pendingRenderedImport != nil || retryImportURL != nil
+    }
+
+    private func importErrorOverlay(message: String) -> some View {
+        ShieldErrorCard(
+            title: LanguageManager.shared.capture("capture_import_failed_title"),
+            message: message,
+            scheme: appState.preferredScheme,
+            dismissLabel: queuedImportURLs.isEmpty
+                ? LanguageManager.shared.common("common_ok")
+                : LanguageManager.shared.capture("capture_multi_import_skip"),
+            dismissAction: {
+                importErrorMessage = nil
+                if queuedImportURLs.isEmpty {
+                    discardPendingImport()
+                } else {
+                    skipCurrentQueuedImport()
+                }
+            },
+            accessibilityIdentifier: "capture.importError",
+            primaryLabel: canRetryImport ? LanguageManager.shared.common("common_retry") : nil,
+            primaryAction: canRetryImport ? {
+                importErrorMessage = nil
+                Task { @MainActor in
+                    await Task.yield()
+                    retryPendingImportIfNeeded()
+                }
+            } : nil
+        )
     }
 
     // MARK: - Processing logic
@@ -361,12 +396,13 @@ struct CaptureView: View {
         retryImportURL = url
         retryImportSource = source
         isProcessing = true
-        processingMessage = LanguageManager.shared.capture("capture_importing_file")
+        processingMessage = queuedImportProgressPrefix + LanguageManager.shared.capture("capture_importing_file")
         processingProgress = 0
 
         processingTask?.cancel()
         processingTask = Task {
             var shouldKeepForRetry = false
+            var storedSourceFileName: String?
             defer {
                 if !shouldKeepForRetry {
                     SharedImportStore.removeTemporaryFile(url)
@@ -397,7 +433,8 @@ struct CaptureView: View {
 
                 let prepared = try await CaptureImportPipeline.prepareFile(at: workingURL) { completed, total in
                     processingProgress = total > 0 ? Double(completed) / Double(total) : nil
-                    processingMessage = LanguageManager.shared.editor("editor_page_indicator", completed, total)
+                    processingMessage = queuedImportProgressPrefix
+                        + LanguageManager.shared.editor("editor_page_indicator", completed, total)
                 }
                 try Task.checkCancellation()
                 let docID = UUID().uuidString
@@ -406,10 +443,12 @@ struct CaptureView: View {
                     guard let stored = appState.saveSourceFile(data, id: docID, fileExtension: ext) else {
                         throw CaptureImportError.storageWriteFailed
                     }
+                    storedSourceFileName = stored
                     sourceFileName = stored
                 } else {
                     sourceFileName = nil
                 }
+                try Task.checkCancellation()
                 processingTask = nil
                 retryImportURL = nil
                 stagePreparedPages(
@@ -421,6 +460,12 @@ struct CaptureView: View {
                     entryPoint: source
                 )
             } catch is CancellationError {
+                if let storedSourceFileName {
+                    appState.removeStoredSource(fileName: storedSourceFileName)
+                }
+                if retryImportURL == url {
+                    retryImportURL = nil
+                }
                 isProcessing = false
                 processingProgress = nil
             } catch {
@@ -439,6 +484,170 @@ struct CaptureView: View {
         appState.pendingSharedImportURL = nil
         processFile(url, source: "share_sheet")
     }
+
+    private func beginQueuedImports(_ urls: [URL], source: String) {
+        let supportedURLs = urls.filter { $0.isFileURL }
+        guard !supportedURLs.isEmpty else {
+            importErrorMessage = CaptureImportError.unsupportedFormat.errorDescription
+                ?? CaptureImportError.unsupportedFormat.localizedDescription
+            return
+        }
+
+        queuedImportURLs = supportedURLs
+        queuedImportIndex = 0
+        queuedImportSource = source
+        lastQueuedImportedDocumentID = nil
+        processCurrentQueuedImport()
+    }
+
+    private var queuedImportProgressPrefix: String {
+        guard !queuedImportURLs.isEmpty else { return "" }
+        return LanguageManager.shared.capture(
+            "capture_multi_import_progress",
+            queuedImportIndex + 1,
+            queuedImportURLs.count
+        ) + " · "
+    }
+
+    private func processCurrentQueuedImport() {
+        guard queuedImportURLs.indices.contains(queuedImportIndex) else {
+            finishQueuedImports()
+            return
+        }
+
+        guard pm.canAddDocument(currentCount: appState.documents.count) else {
+            queuedImportURLs.dropFirst(queuedImportIndex).forEach(SharedImportStore.removeTemporaryFile)
+            queuedImportURLs = Array(queuedImportURLs.prefix(queuedImportIndex))
+            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
+            paywallTrigger = .docLimitReached
+            showPaywall = true
+            finishQueuedImports()
+            return
+        }
+
+        let url = queuedImportURLs[queuedImportIndex]
+        processingMessage = LanguageManager.shared.capture(
+            "capture_multi_import_progress",
+            queuedImportIndex + 1,
+            queuedImportURLs.count
+        )
+        processFile(url, source: queuedImportSource)
+    }
+
+    private func advanceQueuedImport() {
+        queuedImportIndex += 1
+        guard queuedImportIndex < queuedImportURLs.count else {
+            finishQueuedImports()
+            return
+        }
+
+        Task { @MainActor in
+            await Task.yield()
+            processCurrentQueuedImport()
+        }
+    }
+
+    private func finishQueuedImports() {
+        let lastDocument = lastQueuedImportedDocumentID.flatMap { id in
+            appState.documents.first(where: { $0.id == id })
+        }
+        queuedImportURLs = []
+        queuedImportIndex = 0
+        queuedImportSource = "file"
+        lastQueuedImportedDocumentID = nil
+
+        if let lastDocument, !showPaywall {
+            appState.selectedDoc = lastDocument
+            appState.showCapture = false
+        }
+    }
+
+    private func cancelQueuedImports() {
+        queuedImportURLs.forEach(SharedImportStore.removeTemporaryFile)
+        queuedImportURLs = []
+        queuedImportIndex = 0
+        queuedImportSource = "file"
+        lastQueuedImportedDocumentID = nil
+    }
+
+    private func skipCurrentQueuedImport() {
+        let nextIndex = queuedImportIndex + 1
+        discardCurrentImportAssets()
+        queuedImportIndex = nextIndex
+        if queuedImportIndex < queuedImportURLs.count {
+            processCurrentQueuedImport()
+        } else {
+            finishQueuedImports()
+        }
+    }
+
+#if DEBUG
+    private func configureDebugScanReviewIfNeeded() {
+        guard ASOScreenshotMode.isEnabled, ASOScreenshotMode.scene == "scan-review" else { return }
+        stagedPages = [Self.scanReviewFixture(language: ASOScreenshotMode.language)]
+        stagedTitle = ASOScreenshotMode.language == .es ? "Documento de prueba" : "Sample document"
+        stagedSourceType = .image
+        stagedSourceFileName = nil
+        stagedDocID = "scan-review-fixture"
+        showScanReview = true
+    }
+
+    private func configureDebugMultiImportQueueIfNeeded() {
+        guard ASOScreenshotMode.isEnabled else { return }
+        let scene = ASOScreenshotMode.scene
+        guard scene == "batch-import-recovery" || scene == "batch-import-cancel" else { return }
+
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ShieldSharedImports", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let runID = UUID().uuidString
+            let imageData = Self.scanReviewFixture(language: ASOScreenshotMode.language).pngData()
+            guard let imageData else { return }
+
+            if scene == "batch-import-recovery" {
+                let invalidPDF = directory.appendingPathComponent("MaskID-UI-\(runID)-invalid.pdf")
+                let validImage = directory.appendingPathComponent("MaskID-UI-\(runID)-valid.png")
+                try Data("not a PDF".utf8).write(to: invalidPDF, options: .atomic)
+                try imageData.write(to: validImage, options: .atomic)
+                beginQueuedImports([invalidPDF, validImage], source: "ui_testing")
+            } else {
+                let firstImage = directory.appendingPathComponent("MaskID-UI-\(runID)-first.png")
+                let secondImage = directory.appendingPathComponent("MaskID-UI-\(runID)-second.png")
+                try imageData.write(to: firstImage, options: .atomic)
+                try imageData.write(to: secondImage, options: .atomic)
+                beginQueuedImports([firstImage, secondImage], source: "ui_testing")
+            }
+        } catch {
+            failImport(error, source: "ui_testing")
+        }
+    }
+
+    private static func scanReviewFixture(language: AppLanguage) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 900, height: 620))
+        return renderer.image { context in
+            let bounds = CGRect(origin: .zero, size: CGSize(width: 900, height: 620))
+            UIColor(red: 0.96, green: 0.95, blue: 0.90, alpha: 1).setFill()
+            context.cgContext.fill(bounds)
+
+            UIColor(red: 0.12, green: 0.24, blue: 0.42, alpha: 1).setFill()
+            context.cgContext.fill(CGRect(x: 0, y: 0, width: 900, height: 106))
+
+            ((language == .es ? "DOCUMENTO DE PRUEBA" : "SAMPLE DOCUMENT") as NSString).draw(
+                at: CGPoint(x: 42, y: 34),
+                withAttributes: [
+                    .font: UIFont.systemFont(ofSize: 34, weight: .bold),
+                    .foregroundColor: UIColor.white
+                ]
+            )
+
+            for (index, width) in [480, 350, 525, 280, 420, 310].enumerated() {
+                UIColor(red: 0.35, green: 0.36, blue: 0.38, alpha: 0.75).setFill()
+                context.cgContext.fill(CGRect(x: 52, y: 170 + index * 58, width: width, height: 14))
+            }
+        }
+    }
+#endif
 
     private func stageScanPages(
         _ pages: [UIImage],
@@ -546,7 +755,7 @@ struct CaptureView: View {
         sourceFileName: String?
     ) {
         isProcessing = true
-        processingMessage = LanguageManager.shared.capture("capture_processing_pages")
+        processingMessage = queuedImportProgressPrefix + LanguageManager.shared.capture("capture_processing_pages")
         processingProgress = 0
 
         processingTask?.cancel()
@@ -562,7 +771,16 @@ struct CaptureView: View {
                     return
                 }
                 guard let fileName = appState.saveImage(page, id: "\(docID)_rendered_p\(idx)") else {
-                    rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: sourceFileName)
+                    rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: nil)
+                    preserveRenderedImportForRetry(
+                        pages: pages,
+                        originalPages: originalPages,
+                        transforms: transforms,
+                        title: title,
+                        docID: docID,
+                        sourceType: sourceType,
+                        sourceFileName: sourceFileName
+                    )
                     failImport(CaptureImportError.storageWriteFailed, source: sourceType.rawValue)
                     return
                 }
@@ -578,7 +796,16 @@ struct CaptureView: View {
                     return
                 }
                 guard let fileName = appState.saveImage(page, id: "\(docID)_original_p\(idx)") else {
-                    rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: sourceFileName)
+                    rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: nil)
+                    preserveRenderedImportForRetry(
+                        pages: pages,
+                        originalPages: originalPages,
+                        transforms: transforms,
+                        title: title,
+                        docID: docID,
+                        sourceType: sourceType,
+                        sourceFileName: sourceFileName
+                    )
                     failImport(CaptureImportError.storageWriteFailed, source: sourceType.rawValue)
                     return
                 }
@@ -588,7 +815,16 @@ struct CaptureView: View {
 
             guard pageFileNames.count == pages.count,
                   originalPageFileNames.count == originalPages.count else {
-                rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: sourceFileName)
+                rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: nil)
+                preserveRenderedImportForRetry(
+                    pages: pages,
+                    originalPages: originalPages,
+                    transforms: transforms,
+                    title: title,
+                    docID: docID,
+                    sourceType: sourceType,
+                    sourceFileName: sourceFileName
+                )
                 failImport(CaptureImportError.storageWriteFailed, source: sourceType.rawValue)
                 return
             }
@@ -622,6 +858,14 @@ struct CaptureView: View {
                 observations: pageObservations,
                 extractedFields: perPageFields
             )
+            do {
+                fields.ocrFaceSuggestions = try await OCRService.detectFaceSuggestions(in: pages)
+                fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+            } catch {
+                // Leave detection unversioned so the editor can retry on a later open.
+                fields.ocrFaceSuggestions = nil
+                fields.ocrFaceSuggestionsRevision = nil
+            }
             let detectedType = OCRService.detectDocumentType(from: lines)
             fields.ocrDocumentType = detectedType.rawValue
             fields.ocrPageTexts = pageTexts
@@ -637,6 +881,12 @@ struct CaptureView: View {
                 if let enriched = await SmartFieldExtractor.enrich(fields: fields, ocrText: fullText) {
                     fields = enriched
                 }
+            }
+            guard !Task.isCancelled else {
+                rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: sourceFileName)
+                isProcessing = false
+                processingProgress = nil
+                return
             }
             let detectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
             fields.ocrDetectedCountry = detectedCountry
@@ -669,6 +919,9 @@ struct CaptureView: View {
                 case .document:        return .work
                 }
             }()
+            let resolvedPageTransforms = transforms.count == pageFileNames.count
+                ? transforms
+                : Array(repeating: DocumentPageTransform.identity, count: pageFileNames.count)
             let doc = DocumentItem(
                 id: docID,
                 kind: resolvedKind,
@@ -684,18 +937,33 @@ struct CaptureView: View {
                 originalPageFileNames: originalPageFileNames.count == pageFileNames.count
                     ? originalPageFileNames
                     : nil,
-                pageTransforms: transforms.count == pageFileNames.count
-                    ? transforms
-                    : Array(repeating: .identity, count: pageFileNames.count),
+                pageTransforms: resolvedPageTransforms,
                 sourceType: sourceType,
                 sourceFileName: sourceFileName,
                 fields: fields,
                 pageRedactions: [],
+                redactionGeometryReviewedFingerprint: RedactionReviewGate.fingerprint(
+                    pageTransforms: resolvedPageTransforms,
+                    imageAdjustment: nil,
+                    rasterBackedTypedDocument: resolvedKind != .photo
+                ),
                 watermark: nil
             )
 
             await MainActor.run {
-                appState.addDocument(doc)
+                guard !Task.isCancelled else {
+                    rollbackImportAssets(pageFileNames + originalPageFileNames, sourceFileName: sourceFileName)
+                    isProcessing = false
+                    processingProgress = nil
+                    return
+                }
+                guard appState.addDocument(doc) else {
+                    // Keep the already encrypted page assets so the user can
+                    // retry the metadata commit without rescanning or losing input.
+                    pendingDocumentCommit = doc
+                    failImport(CaptureImportError.storageWriteFailed, source: sourceType.rawValue)
+                    return
+                }
                 AppState.trackEvent("import_completed", properties: [
                     "source": sourceType.rawValue,
                     "pages": String(pageFileNames.count),
@@ -716,8 +984,13 @@ struct CaptureView: View {
                 processingProgress = nil
                 processingTask = nil
                 stagedSourceFileName = nil
-                appState.selectedDoc = doc
-                appState.showCapture = false
+                if !queuedImportURLs.isEmpty {
+                    lastQueuedImportedDocumentID = doc.id
+                    advanceQueuedImport()
+                } else {
+                    appState.selectedDoc = doc
+                    appState.showCapture = false
+                }
             }
         }
     }
@@ -726,12 +999,109 @@ struct CaptureView: View {
         processingTask = nil
         isProcessing = false
         processingProgress = nil
-        importErrorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        let description = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        if queuedImportURLs.indices.contains(queuedImportIndex) {
+            importErrorMessage = "\(queuedImportURLs[queuedImportIndex].lastPathComponent): \(description)"
+        } else {
+            importErrorMessage = description
+        }
         ReviewFeedbackCoordinator.shared.track(.operationFailed(feature: .documentImport))
         AppState.trackEvent("import_failed", properties: [
             "source": source,
             "error_type": String(describing: type(of: error))
         ])
+    }
+
+    private func preserveRenderedImportForRetry(
+        pages: [UIImage],
+        originalPages: [UIImage],
+        transforms: [DocumentPageTransform],
+        title: String,
+        docID: String,
+        sourceType: ImportedDocumentSource,
+        sourceFileName: String?
+    ) {
+        pendingRenderedImport = PendingRenderedImport(
+            pages: pages,
+            originalPages: originalPages,
+            transforms: transforms,
+            title: title,
+            docID: docID,
+            sourceType: sourceType,
+            sourceFileName: sourceFileName
+        )
+        stagedSourceFileName = sourceFileName
+    }
+
+    private func retryPendingImportIfNeeded() {
+        if let document = pendingDocumentCommit {
+            guard appState.addDocument(document) else {
+                importErrorMessage = CaptureImportError.storageWriteFailed.errorDescription
+                    ?? CaptureImportError.storageWriteFailed.localizedDescription
+                return
+            }
+
+            pendingDocumentCommit = nil
+            stagedSourceFileName = nil
+            AppState.trackEvent("import_completed", properties: [
+                "source": document.sourceType.rawValue,
+                "pages": String(document.pageCount),
+                "detected_type": document.fields.ocrDocumentType ?? "unknown",
+                "mrz_valid": (document.fields.ocrMRZValid == true) ? "true" : "false"
+            ])
+            ReviewFeedbackCoordinator.shared.track(.coreActionCompleted(feature: .documentImport))
+            if !queuedImportURLs.isEmpty {
+                lastQueuedImportedDocumentID = document.id
+                advanceQueuedImport()
+            } else {
+                appState.selectedDoc = appState.documents.first(where: { $0.id == document.id }) ?? document
+                appState.showCapture = false
+            }
+            return
+        }
+
+        if let pending = pendingRenderedImport {
+            pendingRenderedImport = nil
+            processImportedPages(
+                pending.pages,
+                originalPages: pending.originalPages,
+                transforms: pending.transforms,
+                title: pending.title,
+                docID: pending.docID,
+                sourceType: pending.sourceType,
+                sourceFileName: pending.sourceFileName
+            )
+            return
+        }
+
+        if let retryImportURL {
+            processFile(retryImportURL, source: retryImportSource)
+        }
+    }
+
+    private func discardPendingImport() {
+        discardCurrentImportAssets()
+        cancelQueuedImports()
+    }
+
+    private func discardCurrentImportAssets() {
+        if let document = pendingDocumentCommit {
+            document.allImageFileNames.forEach {
+                appState.removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+            }
+            if let sourceFileName = document.sourceFileName {
+                appState.removeStoredSource(fileName: sourceFileName, isVaulted: document.isVaulted)
+            }
+        }
+        pendingDocumentCommit = nil
+        pendingRenderedImport = nil
+
+        if let retryImportURL {
+            SharedImportStore.removeTemporaryFile(retryImportURL)
+        }
+        retryImportURL = nil
+        retryImportSource = "file"
+        cleanupStagedSource()
     }
 
     private func cleanupStagedSource() {

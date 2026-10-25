@@ -100,12 +100,12 @@ final class OnboardingState: ObservableObject {
     @Published var selectedPainPoints: Set<OBPainPoint> = []
     @Published var selectedDocTypes: Set<OBDocType> = []
 
-    // Six onboarding steps + post-value paywall offer:
-    // 0: Welcome, 1: Goal, 2: Pain points, 3: Demo, 4: Camera, 5: Security/PIN, 6: Paywall
-    let totalSteps = 7
+    // Three first-run moments: promise, interactive review demo, optional local security.
+    // Camera access is requested only when the person starts a capture.
+    let totalSteps = 3
 
     var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
-    var showTopBar: Bool { currentStep < totalSteps - 1 }
+    var showTopBar: Bool { true }
 
     init() {
         #if DEBUG

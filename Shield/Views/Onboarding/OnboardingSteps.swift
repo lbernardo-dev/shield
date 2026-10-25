@@ -48,6 +48,7 @@ struct OBWelcomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("onboarding.welcome.continue")
             .sensoryFeedback(.impact(weight: .medium), trigger: state.currentStep)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
@@ -247,6 +248,7 @@ struct OBDemoView: View {
                         }
                     }
                     .buttonStyle(ScaleButtonStyle())
+                    .accessibilityIdentifier("onboarding.demo.field.photo")
 
                     VStack(alignment: .leading, spacing: 8) {
                         // Name (not redactable)
@@ -287,6 +289,7 @@ struct OBDemoView: View {
                     .padding(.horizontal, 16).padding(.vertical, 10)
                 }
                 .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("onboarding.demo.field.address")
             }
             .background(ShieldTheme.surface2)
             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -313,6 +316,7 @@ struct OBDemoView: View {
                     .animation(.easeInOut(duration: 0.2), value: redacted.count >= minRequired)
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("onboarding.demo.showResult")
             .disabled(redacted.count < minRequired)
             .padding(.horizontal, 24).padding(.bottom, 40)
         }
@@ -338,6 +342,7 @@ struct OBDemoView: View {
             }
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("onboarding.demo.field.\(id)")
     }
 
     private var instructionText: String {
@@ -385,6 +390,7 @@ struct OBDemoView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("onboarding.demo.continue")
             .padding(.horizontal, 24).padding(.bottom, 40)
         }
     }
@@ -794,10 +800,9 @@ struct OBCameraPermView: View {
 // MARK: - Screen 6: Security & PIN Setup
 
 struct OBSecuritySetupView: View {
-    @EnvironmentObject var appState: AppState
     @Environment(\.colorScheme) var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ObservedObject var state: OnboardingState
+    let onComplete: () -> Void
 
     @State private var pin = ""
     @State private var confirmPin = ""
@@ -881,6 +886,7 @@ struct OBSecuritySetupView: View {
                     .foregroundColor(ShieldTheme.secondary(scheme))
                     .frame(minHeight: 44)
             }
+            .accessibilityIdentifier("onboarding.security.skip")
             .padding(.bottom, 24)
         }
         .padding(.horizontal, 20)
@@ -925,7 +931,7 @@ struct OBSecuritySetupView: View {
                 if hasBiometrics {
                     enableBiometricsAndProceed()
                 } else {
-                    state.next()
+                    onComplete()
                 }
             } else {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -946,14 +952,14 @@ struct OBSecuritySetupView: View {
         ) { success, _ in
             DispatchQueue.main.async {
                 UserDefaults.standard.set(success, forKey: "shield.biometric")
-                state.next()
+                onComplete()
             }
         }
     }
 
     private func skipPIN() {
         AppState.trackEvent("onboarding_pin_skipped")
-        state.next()
+        onComplete()
     }
 }
 
