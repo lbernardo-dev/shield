@@ -2630,10 +2630,10 @@
    Id: 246-commit-push-maskid-main
    Scope: Registrar y publicar en main los cambios completados de MaskID, pruebas, documentación, creatividades y release 1.1.6
    Files: Shield/**,ShieldTests/**,ShieldUITests/**,ShieldWidgetExtension/**,Shield.xcodeproj/**,Docs/**,Marketing/**,metadata/**,scripts/**,tasks/**
-   Note: Commit local creado con 145 archivos; diff --check reporta solo espacios finales y líneas Markdown intencionales. Push a origin/main pendiente de confirmación.
+   Note: Commit a3d4b10 publicado en origin/main. Se incluyeron 145 archivos de mejoras de MaskID, tests, creatividades, metadata y registros de tareas; el archivo raíz suelto '-' quedó fuera.
    Detail: tasks/details/246-commit-push-maskid-main.md
    Claimed by: CODEX
    Claimed at: 2026-10-25T14:43:21Z
    Done by: CODEX
-   Done at: 2026-10-25T14:44:42Z
+   Done at: 2026-10-25T14:45:53Z
 
