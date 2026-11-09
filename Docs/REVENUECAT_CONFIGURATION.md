@@ -1,10 +1,10 @@
 # RevenueCat Configuration — MaskID
 
-**Status (8 October 2026):** The MaskID project is `bbe3f3db`. Its existing `default` Offering and `MaskID Pro` entitlement were preserved. Event product `prod2ef37965ba` (`com.romerodev.shield.pro.annual.event`) is attached to `MaskID Pro` and included in Offering `event` (`ofrngbe0d32124e`). That Offering contains `$rc_annual` → Event Annual and `$rc_monthly` → the existing Monthly product. `default` remains current. ASC reports Event Annual `READY_TO_SUBMIT`; RevenueCat shows `Ready to Submit`, so Apple review and Sandbox purchase verification remain pending.
+**Status (8 November 2026):** The MaskID project is `bbe3f3db`. Its existing `default` Offering and `MaskID Pro` entitlement were preserved. Event product `prod2ef37965ba` (`com.romerodev.shield.pro.annual.event`) is attached to `MaskID Pro` and included in Offering `event` (`ofrngbe0d32124e`). That Offering contains `$rc_annual` → Event Annual and `$rc_monthly` → the existing Monthly product. `default` remains current. ASC now reports Event Annual `APPROVED`; live Sandbox purchase and restore behavior remain untested. The standard annual product's refreshed RevenueCat store state reports zero introductory-offer territories.
 
 ## Store and project
 
-- RevenueCat SDK in `Package.resolved`: `purchases-ios` 5.81.1. The app configures it from `RevenueCatAPIKey` in Info.plist and uses an anonymous App User ID; never put the secret App Store key in app code.
+- RevenueCat SDK in `Package.resolved`: `purchases-ios` 5.102.3 (latest release checked on 8 November 2026). The app configures it from `RevenueCatAPIKey` in Info.plist and uses an anonymous App User ID; never put the secret App Store key in app code.
 - RevenueCat 5.x StoreKit 2 transaction processing uses the App Store In-App Purchase key configured in the RevenueCat App Store app connection. Confirm its status and server notifications in the dashboard.
 - Keep entitlement identifier `MaskID Pro` matched to `RevenueCatEntitlementIdentifier` in the shipped app configuration.
 - Inspect restore behavior against the no-login identity model before changing it. “Transfer to new App User ID” is a likely fit for anonymous app users, but inspect ownership history first.
@@ -14,9 +14,9 @@
 | App Store product | RevenueCat entitlement | Offering/package | Current state |
 |---|---|---|---|
 | `com.romerodev.shield.pro.monthly` | `MaskID Pro` | `default` / `$rc_monthly`; also `event` | Existing product; keep standard flow |
-| `com.romerodev.shield.pro.annual` | `MaskID Pro` | `default` / `$rc_annual` | Existing Standard Annual; preserve trial eligibility |
+| `com.romerodev.shield.pro.annual` | `MaskID Pro` | `default` / `$rc_annual` | Existing Standard Annual; no introductory offer for new purchases |
 | `com.romerodev.shield.pro.lifetime.unlock` | `MaskID Pro` | `default` / `$rc_lifetime` | Existing one-time product; preserve |
-| `com.romerodev.shield.pro.annual.event` | `MaskID Pro` | `event` / `$rc_annual` | Attached; store status `Ready to Submit`, awaiting Apple review |
+| `com.romerodev.shield.pro.annual.event` | `MaskID Pro` | `event` / `$rc_annual` | Attached; ASC `APPROVED`; current Spain price €29.99/year |
 
 The client selects Event Annual by the underlying Store product ID and validates StoreKit metadata. Package identifiers should be stable and compatible with the existing resolver.
 
@@ -39,8 +39,9 @@ RevenueCat Paywall UI is not required; MaskID uses custom SwiftUI paywalls. Plac
 
 ## Trial and offer behavior
 
-- The checked-in StoreKit fixture has a seven-day trial for Standard Annual. The paywall shows a trial only when RevenueCat reports eligibility for the selected package.
-- Event Annual has no introductory offer. Its €14.99 Spain price is the current Halloween campaign price. App Store price schedules must separately return the product to the Standard-equivalent price after an event for new buyers; end-of-event price increases preserve the current subscriber price under Apple’s rules. RevenueCat Offering selection only changes which product the app presents and cannot alter App Store pricing.
+- The annual introductory offer was removed from ASC on 8 November 2026 after owner approval; ASC list verification and RevenueCat's refreshed store state both show no current introductory offer. The checked-in StoreKit fixture also has no intro offer.
+- Removing an offer prevents it from being presented to new eligible purchasers; it does not rewrite completed purchases, existing subscriptions or transactions already granted an introductory period. Apple continues to control each existing transaction's terms.
+- Event Annual has no introductory offer. Its Spain price is now €29.99 after the scheduled post-event price change. RevenueCat Offering selection changes which product the app presents; it does not change App Store pricing.
 - Offer codes and promotional/win-back offers are separate App Store/RevenueCat features; they are not needed to switch the seasonal paywall.
 - In-app Apple offer-code redemption syncs with RevenueCat only after a verified transaction. External redemption recovery uses CustomerInfo refresh and the explicit Restore Purchases action.
 

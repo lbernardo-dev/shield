@@ -6,6 +6,7 @@ struct EditorView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var pm = PremiumManager.shared
     @StateObject private var vm: EditorViewModel
+    private let isForcedReadOnly: Bool
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -14,6 +15,8 @@ struct EditorView: View {
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showCancelConfirm = false
+    @State private var showAccessBoundaryConfirmation = false
+    @State private var accessBoundarySaveLease: AccessBoundarySaveLease?
     @State private var showPersistenceError = false
     @State private var showInspectorSheet = false
     @State private var showWatermarkConfig = false
@@ -25,8 +28,9 @@ struct EditorView: View {
     @State private var panOffset: CGSize = .zero
     @GestureState private var dragPanOffset: CGSize = .zero
 
-    init(doc: DocumentItem) {
-        _vm = StateObject(wrappedValue: EditorViewModel(doc: doc))
+    init(doc: DocumentItem, isReadOnly: Bool = false) {
+        isForcedReadOnly = isReadOnly
+        _vm = StateObject(wrappedValue: EditorViewModel(doc: doc, isReadOnly: isReadOnly))
     }
 
     var body: some View {
@@ -35,9 +39,10 @@ struct EditorView: View {
             // Duo's changing side rail, instead of adding a device-specific inset.
             VStack(spacing: 0) {
                 documentMetaBar
-                contextBanner
-                batchReviewBanner
+                contextBanner.disabled(vm.isReadOnly)
+                batchReviewBanner.disabled(vm.isReadOnly)
                 adaptiveWorkspace
+                    .disabled(vm.isReadOnly)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("")
@@ -65,14 +70,32 @@ struct EditorView: View {
         } message: {
             Text(LanguageManager.shared.editor("editor_exit_warning"))
         }
+        .alert(
+            LanguageManager.shared.editor("editor_access_boundary_title"),
+            isPresented: $showAccessBoundaryConfirmation
+        ) {
+            Button(LanguageManager.shared.editor("editor_access_boundary_save")) {
+                resolveAccessBoundary(saveChanges: true)
+            }
+            Button(
+                LanguageManager.shared.editor("editor_access_boundary_discard"),
+                role: .destructive
+            ) {
+                resolveAccessBoundary(saveChanges: false)
+            }
+        } message: {
+            Text(LanguageManager.shared.editor("editor_access_boundary_message"))
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ShieldTheme.pageBackground(scheme).ignoresSafeArea())
         .preferredColorScheme(appState.preferredScheme)
         .onAppear {
-            if vm.needsGeometryReviewPersistence {
+            appState.registerActiveEditor(documentID: vm.doc.id, isForcedReadOnly: isForcedReadOnly)
+            if !vm.isReadOnly && vm.needsGeometryReviewPersistence {
                 _ = persistEdits()
             }
-            applyPendingSearchNavigationIfPossible()
+            if !vm.isReadOnly { applyPendingSearchNavigationIfPossible() }
+            guard !vm.isReadOnly else { return }
             if let style = appState.pendingMaskStyle {
                 vm.maskStyle = style
                 appState.pendingMaskStyle = nil
@@ -106,31 +129,56 @@ struct EditorView: View {
             }
 #endif
         }
+        .onChange(of: pm.accessState) { oldState, newState in
+            guard !isForcedReadOnly,
+                  oldState.hasFullAccess,
+                  !newState.hasFullAccess,
+                  newState.isReadOnly
+            else { return }
+            guard let lease = appState.beginAccessBoundarySave(
+                for: vm.doc.id,
+                previousState: oldState,
+                nextState: newState
+            ) else {
+                closeEditor()
+                return
+            }
+            accessBoundarySaveLease = lease
+            if vm.hasUnsavedChangesAtAccessBoundary {
+                showAccessBoundaryConfirmation = true
+            } else {
+                resolveAccessBoundary(saveChanges: false)
+            }
+        }
+        .onDisappear {
+            appState.unregisterActiveEditor(documentID: vm.doc.id)
+        }
         .task {
             // OCR bootstrap publishes its loading state. Let the initial
             // SwiftUI layout finish before starting that state transition.
             await Task.yield()
             guard !Task.isCancelled else { return }
+            guard !vm.isReadOnly else { return }
             vm.bootstrapOCRSuggestionsIfNeeded()
             vm.bootstrapFaceSuggestionsIfNeeded()
         }
         .onChange(of: vm.doc.fields.ocrFaceSuggestions) { oldValue, newValue in
-            guard oldValue != newValue else { return }
+            guard !vm.isReadOnly, oldValue != newValue else { return }
             _ = persistEdits()
         }
         .onChange(of: vm.doc.fields.ocrDismissedFaceSuggestionIDs) { oldValue, newValue in
-            guard oldValue != newValue else { return }
+            guard !vm.isReadOnly, oldValue != newValue else { return }
             _ = persistEdits()
         }
         .onChange(of: vm.needsGeometryReviewPersistence) { oldValue, newValue in
-            guard !oldValue, newValue else { return }
+            guard !vm.isReadOnly, !oldValue, newValue else { return }
             DispatchQueue.main.async {
                 guard vm.needsGeometryReviewPersistence else { return }
                 _ = persistEdits()
             }
         }
         .onChange(of: vm.doc.fields.ocrPageEvidence) { oldValue, newValue in
-            if oldValue != newValue { _ = persistEdits() }
+            if !vm.isReadOnly, oldValue != newValue { _ = persistEdits() }
             applyPendingSearchNavigationIfPossible()
         }
         .onChange(of: appState.searchQuery) { _, newQuery in
@@ -292,6 +340,7 @@ struct EditorView: View {
 
     @discardableResult
     private func persistEdits() -> Bool {
+        guard !vm.isReadOnly else { return true }
         guard appState.updateDocument(vm.documentSnapshot) else {
             showPersistenceError = true
             return false
@@ -301,8 +350,31 @@ struct EditorView: View {
     }
 
     private func closeEditor() {
+        appState.unregisterActiveEditor(documentID: vm.doc.id)
         appState.selectedDoc = nil
         dismiss()
+    }
+
+    private func resolveAccessBoundary(saveChanges: Bool) {
+        guard let lease = accessBoundarySaveLease else {
+            closeEditor()
+            return
+        }
+        if saveChanges {
+            let snapshot = vm.snapshotForAccessBoundaryCommit()
+            guard let savedDocument = appState.commitAccessBoundarySnapshot(snapshot, using: lease) else {
+                showPersistenceError = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    showAccessBoundaryConfirmation = true
+                }
+                return
+            }
+            vm.markAccessBoundarySnapshotSaved(savedDocument)
+        } else {
+            appState.discardAccessBoundarySave(using: lease)
+        }
+        accessBoundarySaveLease = nil
+        closeEditor()
     }
 
     private func persistEditsAndClose() {
@@ -353,8 +425,9 @@ struct EditorView: View {
                                 : "editor_batch_review_mark_complete_page"
                         ))
                             .font(.caption.weight(.semibold))
-                            .frame(minHeight: 44)
+                            .frame(minHeight: 48)
                             .padding(.horizontal, ShieldTheme.s2)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(ShieldTheme.accent(scheme))
@@ -366,8 +439,9 @@ struct EditorView: View {
                     } label: {
                         Text(LanguageManager.shared.editor("editor_batch_review_open_next"))
                             .font(.caption.weight(.semibold))
-                            .frame(minHeight: 44)
+                            .frame(minHeight: 48)
                             .padding(.horizontal, ShieldTheme.s2)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(ShieldTheme.accent(scheme))
@@ -521,14 +595,16 @@ struct EditorView: View {
             closeButton
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
-            originalPreviewButton
-            if horizontalSizeClass != .compact {
-                moreActionsMenu
+            if !vm.isReadOnly {
+                originalPreviewButton
+                if horizontalSizeClass != .compact {
+                    moreActionsMenu
+                }
+                if horizontalSizeClass == .compact {
+                    inspectorButton
+                }
+                saveButton
             }
-            if horizontalSizeClass == .compact {
-                inspectorButton
-            }
-            saveButton
         }
         if #available(iOS 27.0, *) {
             ToolbarItem(placement: .topBarPinnedTrailing) {
@@ -543,7 +619,7 @@ struct EditorView: View {
 
     private var closeButton: some View {
         Button(role: .cancel) {
-            if !vm.hasUnsavedChanges {
+            if vm.isReadOnly || !vm.hasUnsavedChanges {
                 appState.selectedDoc = nil
                 dismiss()
             } else {
@@ -1113,6 +1189,7 @@ struct EditorView: View {
             adjustDirty: !vm.imageAdjustment.isDefault,
             onUndo: { vm.undo() },
             onRedo: { vm.redo() },
+            onAddAccessibleMask: { vm.addAccessibleMask() },
             onModeSelect: { mode in
                 guard vm.applyMode(mode) else {
                     paywallTrigger = .featureLocked

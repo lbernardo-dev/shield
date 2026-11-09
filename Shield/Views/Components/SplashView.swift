@@ -18,6 +18,7 @@ struct MaskIDIdentityMark: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var hasAppeared = false
     @State private var scanPhase: CGFloat = 0
     @State private var pulseScale: CGFloat = 1.0
@@ -29,6 +30,8 @@ struct MaskIDIdentityMark: View {
     var isEmphasized = false
     var icon: AppIconOption? = nil
     var onAnimationFinished: ((Bool) -> Void)?
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     private var resolvedIcon: AppIconOption {
         if let icon { return icon }
@@ -42,14 +45,14 @@ struct MaskIDIdentityMark: View {
             }
 
             markContainer
-                .scaleEffect(isEmphasized && !reduceMotion ? 1.04 : 1)
-                .animation(.smooth(duration: 0.22), value: isEmphasized)
+                .scaleEffect(isEmphasized && !shouldReduceMotion ? 1.04 : 1)
+                .animation(shouldReduceMotion ? nil : .smooth(duration: 0.22), value: isEmphasized)
         }
         .frame(width: size, height: size)
         .scaleEffect(usesEntranceMotion && !hasAppeared ? 0.94 : 1)
         .opacity(usesEntranceMotion && !hasAppeared ? 0 : 1)
         .animation(
-            reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.82),
+            shouldReduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.82),
             value: hasAppeared
         )
         .onAppear {
@@ -179,7 +182,7 @@ struct MaskIDIdentityMark: View {
             }
 
             // Active Laser Scan Sheen Wave
-            if (presentation == .animatedOnce || presentation == .animatedLoop) && !reduceMotion {
+            if (presentation == .animatedOnce || presentation == .animatedLoop) && !shouldReduceMotion {
                 GeometryReader { geo in
                     VStack(spacing: 0) {
                         // Soft vertical beam blur
@@ -255,7 +258,7 @@ struct MaskIDIdentityMark: View {
     }
 
     private func startAnimations() {
-        guard !reduceMotion else { return }
+        guard !shouldReduceMotion else { return }
 
         if showsHalo {
             withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
@@ -334,7 +337,10 @@ struct MaskIDIdentityMark: View {
 struct SplashView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var didFinish = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     let onFinished: () -> Void
 
@@ -377,7 +383,7 @@ struct SplashView: View {
         }
         .accessibilityHidden(true)
         .task {
-            let delay = reduceMotion ? 150_000_000 : 400_000_000
+            let delay = shouldReduceMotion ? 150_000_000 : 400_000_000
             try? await Task.sleep(nanoseconds: UInt64(delay))
             guard !Task.isCancelled else { return }
             finish()

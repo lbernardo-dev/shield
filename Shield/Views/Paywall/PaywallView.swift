@@ -10,6 +10,8 @@ struct PaywallView: View {
     @StateObject private var pm = PremiumManager.shared
     @Binding var isPresented: Bool
     var trigger: PaywallTrigger = .manual
+    var isMandatoryAccess = false
+    var onRecoverOwnData: (() -> Void)? = nil
     @State private var selectedProductID = ShieldProduct.annual.rawValue
     @State private var didStartCheckout = false
 
@@ -51,16 +53,32 @@ struct PaywallView: View {
                 // Close
                 HStack {
                     Spacer()
-                    Button { isPresented = false } label: {
-                        Image(systemName: "xmark")
-                            .shieldFont(14, weight: .semibold)
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-                            .frame(width: 44, height: 44)
-                            .contentShape(Circle())
-                            .background(ShieldTheme.rowBackground(scheme))
-                            .clipShape(Circle())
+                    if isMandatoryAccess {
+                        Button {
+                            onRecoverOwnData?()
+                        } label: {
+                            Label(
+                                appState.language == .es ? "Mis documentos" : "My documents",
+                                systemImage: "doc.text.magnifyingglass"
+                            )
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(ShieldTheme.primary(scheme))
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
+                        }
+                        .accessibilityIdentifier("paywall.recoverOwnData")
+                    } else {
+                        Button { isPresented = false } label: {
+                            Image(systemName: "xmark")
+                                .shieldFont(14, weight: .semibold)
+                                .foregroundColor(ShieldTheme.secondary(scheme))
+                                .frame(width: 44, height: 44)
+                                .contentShape(Circle())
+                                .background(ShieldTheme.rowBackground(scheme))
+                                .clipShape(Circle())
+                        }
+                        .accessibilityIdentifier("paywall.close")
                     }
-                    .accessibilityIdentifier("paywall.close")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -72,6 +90,9 @@ struct PaywallView: View {
 
                         // Context banner
                         contextBanner
+
+                        // Store status stays reachable without expanding the sticky purchase footer.
+                        subscriptionStatusSection
 
                         // Trust Badges
                         trustBadgesSection
@@ -104,6 +125,7 @@ struct PaywallView: View {
             }
         }
         .preferredColorScheme(appState.preferredScheme)
+        .interactiveDismissDisabled(isMandatoryAccess)
         .sensoryFeedback(.selection, trigger: selectedProductID)
         .sensoryFeedback(.success, trigger: pm.isPro) { _, isPro in isPro }
         .task {
@@ -284,7 +306,6 @@ struct PaywallView: View {
             product: product,
             isSelected: selectedProductID == product.id,
             savingsLabel: savingsLabel(for: product),
-            trialLabel: pm.trialLabels[product.id],
             lang: appState.language,
             onTap: {
                 withAnimation(reduceMotion ? nil : ShieldMotion.state) { selectedProductID = product.id }
@@ -371,18 +392,6 @@ struct PaywallView: View {
                 a: appState.language == .es ? "Sí, puedes cancelar en cualquier momento desde Ajustes > Apple ID > Suscripciones con un solo toque y sin penalizaciones." : "Yes, you can cancel anytime from Settings > Apple ID > Subscriptions with 1 tap."
             )
 
-            if let trialLabel = pm.trialLabels[selectedProductID],
-               let selectedProduct = selectedPremiumProduct {
-                let renewalPeriod = ShieldProduct(rawValue: selectedProduct.id) == .monthly
-                    ? (appState.language == .es ? "por mes" : "per month")
-                    : (appState.language == .es ? "por año" : "per year")
-                faqItem(
-                    q: appState.language == .es ? "¿Qué incluye el periodo de prueba gratuito?" : "What does the free trial include?",
-                    a: appState.language == .es
-                        ? "Este plan incluye \(trialLabel) gratis y después se renueva a \(selectedProduct.displayPrice) \(renewalPeriod). Cancela antes de que termine la prueba para evitar el cargo."
-                        : "This plan includes \(trialLabel) free, then renews at \(selectedProduct.displayPrice) \(renewalPeriod). Cancel before the trial ends to avoid the charge."
-                )
-            }
         }
     }
 
@@ -447,11 +456,7 @@ struct PaywallView: View {
                 ProgressView().tint(ShieldTheme.accentText)
             } else {
                 Image(systemName: "sparkles")
-                Text(LanguageManager.shared.paywall(
-                    pm.trialLabels[selectedProductID] != nil
-                        ? "paywall_free_trial"
-                        : "paywall_get_pro"
-                ))
+                Text(LanguageManager.shared.paywall("paywall_get_pro"))
                 .shieldFont(16, weight: .bold)
             }
         }
@@ -459,10 +464,7 @@ struct PaywallView: View {
 
     private var ctaSection: some View {
         VStack(spacing: 6) {
-            SubscriptionTrialDisclosure(
-                product: selectedPremiumProduct,
-                trialLabel: pm.trialLabels[selectedProductID]
-            )
+            SubscriptionRenewalDisclosure(product: selectedPremiumProduct)
 
             Button {
                 purchaseSelectedProduct()
@@ -478,37 +480,77 @@ struct PaywallView: View {
             .disabled(!canPurchase)
             .accessibilityIdentifier("paywall.purchase")
 
-            if let err = pm.purchaseError {
-                Text(err)
+            footerLinks
+        }
+    }
+
+    @ViewBuilder
+    private var subscriptionStatusSection: some View {
+        if let purchaseError = pm.purchaseError {
+            subscriptionStatusCard(
+                message: purchaseError,
+                symbol: "exclamationmark.triangle.fill",
+                isError: true,
+                showsRetry: false
+            )
+        } else if !pm.hasResolvedSubscription {
+            subscriptionStatusCard(
+                message: LanguageManager.shared.paywall(
+                    pm.isResolvingSubscription
+                        ? "paywall_subscription_checking"
+                        : "paywall_subscription_check_failed"
+                ),
+                symbol: pm.isResolvingSubscription ? "arrow.triangle.2.circlepath" : "wifi.exclamationmark",
+                isError: false,
+                showsRetry: !pm.isResolvingSubscription
+            )
+        }
+    }
+
+    private func subscriptionStatusCard(
+        message: String,
+        symbol: String,
+        isError: Bool,
+        showsRetry: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label {
+                Text(message)
                     .shieldFont(12)
-                    .foregroundColor(ShieldTheme.danger)
-                    .multilineTextAlignment(.center)
+                    .foregroundStyle(isError ? ShieldTheme.danger : ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: symbol)
+                    .foregroundStyle(isError ? ShieldTheme.danger : ShieldTheme.accent(scheme))
+                    .accessibilityHidden(true)
             }
 
-            if !pm.hasResolvedSubscription {
-                VStack(spacing: 4) {
-                    Text(LanguageManager.shared.paywall(
-                        pm.isResolvingSubscription
-                            ? "paywall_subscription_checking"
-                            : "paywall_subscription_check_failed"
-                    ))
-                    .shieldFont(11)
-                    .foregroundColor(ShieldTheme.secondary(scheme))
-                    .multilineTextAlignment(.center)
-
-                    if !pm.isResolvingSubscription {
-                        Button(LanguageManager.shared.paywall("paywall_retry")) {
-                            Task {
-                                await pm.updateProStatus()
-                                await pm.loadProducts()
-                            }
-                        }
-                        .shieldFont(11, weight: .semibold)
+            if showsRetry {
+                HStack {
+                    Spacer(minLength: 0)
+                    Button(action: retrySubscriptionCheck) {
+                        Text(LanguageManager.shared.paywall("paywall_retry"))
+                            .shieldFont(12, weight: .semibold)
+                            .foregroundStyle(ShieldTheme.accent(scheme))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("paywall.subscriptionRetry")
                 }
             }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .contain)
+    }
 
-            footerLinks
+    private func retrySubscriptionCheck() {
+        Task {
+            await pm.updateProStatus()
+            await pm.loadProducts()
         }
     }
 
@@ -627,9 +669,8 @@ struct PaywallView: View {
 
 // MARK: - PlanRow
 
-struct SubscriptionTrialDisclosure: View {
+struct SubscriptionRenewalDisclosure: View {
     let product: PremiumProduct?
-    let trialLabel: String?
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -641,8 +682,7 @@ struct SubscriptionTrialDisclosure: View {
                     .foregroundStyle(ShieldTheme.accent(scheme))
                     .accessibilityHidden(true)
 
-                Text(SubscriptionTrialDisclosureCopy.text(
-                    trialLabel: trialLabel,
+                Text(SubscriptionRenewalDisclosureCopy.text(
                     displayPrice: product.displayPrice,
                     renewalPeriodLabel: renewalPeriodLabel,
                     language: LanguageManager.shared.current
@@ -662,37 +702,27 @@ struct SubscriptionTrialDisclosure: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("subscription.trialDisclosure")
+            .accessibilityIdentifier("subscription.renewalDisclosure")
         }
     }
 }
 
 @MainActor
-enum SubscriptionTrialDisclosureCopy {
+enum SubscriptionRenewalDisclosureCopy {
     static func text(
-        trialLabel: String?,
         displayPrice: String,
         renewalPeriodLabel: String,
         language: AppLanguage
     ) -> String {
-        let key = trialLabel == nil
-            ? "paywall_renewal_disclosure"
-            : "paywall_trial_renewal_disclosure"
         let format = LanguageManager.shared.t(
-            key,
+            "paywall_renewal_disclosure",
             table: "Paywall",
             language: language
         )
-        let arguments: [CVarArg]
-        if let trialLabel {
-            arguments = [trialLabel, displayPrice + renewalPeriodLabel]
-        } else {
-            arguments = [displayPrice + renewalPeriodLabel]
-        }
         return String(
             format: format,
             locale: Locale(identifier: language.rawValue),
-            arguments: arguments
+            arguments: [displayPrice + renewalPeriodLabel]
         )
     }
 }
@@ -740,14 +770,13 @@ struct PlanRow: View {
     let product: PremiumProduct
     let isSelected: Bool
     let savingsLabel: String?
-    let trialLabel: String?
     let lang: AppLanguage
     let onTap: () -> Void
 
     var body: some View {
         let plan = ShieldProduct(rawValue: product.id)
         let isAnnual = product.isEventAnnual || plan == .annual || plan == .annualEvent
-        let hasBadges = trialLabel != nil || savingsLabel != nil
+        let hasBadges = savingsLabel != nil
 
         Button(action: onTap) {
             HStack(spacing: 16) {
@@ -776,15 +805,6 @@ struct PlanRow: View {
 
                     if hasBadges {
                         HStack(spacing: 6) {
-                            if let trialLabel {
-                                Text(trialLabel)
-                                    .shieldFont(11, weight: .bold)
-                                    .foregroundColor(Color(hex: "30D158"))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color(hex: "30D158").opacity(0.12))
-                                    .clipShape(Capsule())
-                            }
                             if let s = savingsLabel {
                                 Text(s)
                                     .shieldFont(11, weight: .bold)

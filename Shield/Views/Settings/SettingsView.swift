@@ -26,6 +26,41 @@ struct SettingsView: View {
 
     private var strings: LanguageManager { .shared }
 
+    @ViewBuilder
+    private var accessStatusCard: some View {
+        if case .temporaryFullAccess(let expiresAt, let cohort) = premium.accessState {
+            VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+                Label(
+                    appState.language == .es ? "Acceso Premium temporal" : "Temporary Premium access",
+                    systemImage: "clock.badge.checkmark"
+                )
+                .font(.headline)
+                .foregroundStyle(ShieldTheme.primary(scheme))
+                Text(appState.language == .es
+                    ? "Disponible hasta el \(expiresAt.formatted(date: .long, time: .shortened)). Tus documentos no se eliminan cuando termina."
+                    : "Available until \(expiresAt.formatted(date: .long, time: .shortened)). Your documents are not deleted when it ends.")
+                    .font(.subheadline)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(cohort == .newUser
+                    ? (appState.language == .es ? "Periodo de bienvenida: 15 días." : "Welcome period: 15 days.")
+                    : (appState.language == .es ? "Transición para cuentas Free existentes: 30 días completos." : "Transition for existing Free accounts: 30 full days."))
+                    .font(.caption)
+                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                Button(appState.language == .es ? "Ver planes Premium" : "See Premium plans") {
+                    showPaywall = true
+                }
+                .font(.subheadline.weight(.semibold))
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("settings.access.viewPlans")
+            }
+            .padding(ShieldTheme.s4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: 18))
+            .accessibilityIdentifier("settings.access.status")
+        }
+    }
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack {
@@ -41,6 +76,8 @@ struct SettingsView: View {
                             onManageSubscription: openManageSubscription
                         )
                         .accessibilityIdentifier("settings.summary")
+
+                        accessStatusCard
 
                         Text(strings.settings("settings_eyebrow"))
                             .font(.caption.weight(.bold))

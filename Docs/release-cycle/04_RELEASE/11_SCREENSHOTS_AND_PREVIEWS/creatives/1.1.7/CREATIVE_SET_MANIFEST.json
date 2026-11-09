@@ -1,0 +1,462 @@
+{
+  "version": "1.1.7",
+  "build": "1172026110801",
+  "baseTheme": "MaskID Original",
+  "seasonalTheme": "disabled / Never use seasonal themes",
+  "sourceUi": "Authentic iOS Simulator UI screenshots from the 1.1.7 release build; synthetic fixture documents.",
+  "composition": "Editorial typography, color fields, framing, and feature labels added around source screenshots; app UI itself is not altered.",
+  "locales": {
+    "iphone-6.9": {
+      "es-ES": [
+        {
+          "order": 1,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/01-documento-antes-de-compartir.png",
+          "sha256": "9624a47e080e94e74f525004f78ff3d560f443ac7acebb1d1ef094381976434e",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "d26612ff9714bf1a600250d54395df1dbafcc81faf2d6aac3d24fe1fb2c8ccb8",
+          "headline": "PREPARA TU DOCUMENTO",
+          "subtitle": "Oculta lo que no quieres compartir.",
+          "featureLabel": "TÚ ELIGES QUÉ QUEDA VISIBLE"
+        },
+        {
+          "order": 2,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/02-escanea-y-ajusta.png",
+          "sha256": "b39d0d30ca6f3033f64d6dd11ce39a0f33cf2fe97e607ec95f2d1047c07ff1f8",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/01-review-scan.png",
+          "sourceSha256": "a5d55d1c19c2b55463e2efd95a6a4c2af1b5fc1a6c5c41b999b7bb7f93d5700f",
+          "headline": "ESCANEA Y AJUSTA EL ENCUADRE",
+          "subtitle": "Corrige la captura antes de empezar a editar.",
+          "featureLabel": "AJUSTE ANTES DEL EDITOR"
+        },
+        {
+          "order": 3,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/03-sugerencias-ocr.png",
+          "sha256": "de9f35450d4041e878fe8e6ed7d1071990703a1f48c4aea1a69404877ff4f7b8",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "d26612ff9714bf1a600250d54395df1dbafcc81faf2d6aac3d24fe1fb2c8ccb8",
+          "headline": "OCR SUGIERE. TÚ DECIDES.",
+          "subtitle": "Revisa los campos y ajusta cada máscara.",
+          "featureLabel": "SUGERENCIAS REVISABLES"
+        },
+        {
+          "order": 4,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/04-estilos-de-mascara.png",
+          "sha256": "7c99499d7ff1a68e80aa7c295fef9ba695bb48cc45ce826b9872b49c1ee20401",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "d26612ff9714bf1a600250d54395df1dbafcc81faf2d6aac3d24fe1fb2c8ccb8",
+          "headline": "ELIGE QUÉ QUIERES OCULTAR",
+          "subtitle": "Usa máscara sólida, pixelado o desenfoque.",
+          "featureLabel": "SÓLIDA · PIXELADO · DESENFOQUE"
+        },
+        {
+          "order": 5,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/05-revisa-cada-pagina.png",
+          "sha256": "d88ac9b7661afa6abc5c399ad137287a5526bb1762dbd829530b5276ef79d5bd",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "d26612ff9714bf1a600250d54395df1dbafcc81faf2d6aac3d24fe1fb2c8ccb8",
+          "headline": "REVISA TODAS LAS PÁGINAS",
+          "subtitle": "Comprueba el documento antes de exportar.",
+          "featureLabel": "PÁGINA 1 / 2 · SIGUIENTE PÁGINA"
+        },
+        {
+          "order": 6,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/06-exporta-pdf-o-imagen.png",
+          "sha256": "8105fc594dc6804b2966dd15df7ace93e321f4c4cefb6e75a3589dbb3f1cef7e",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/03-comprobar-exportacion.png",
+          "sourceSha256": "3456aab8657f4be03a8fcf71ee5a93ab3f7648837abada553865b25d23e9d7dd",
+          "headline": "EXPORTA EN PDF O IMAGEN",
+          "subtitle": "Crea una copia rasterizada para compartir.",
+          "featureLabel": "PDF  ·  IMAGEN"
+        },
+        {
+          "order": 7,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/07-comprueba-la-copia.png",
+          "sha256": "59c18a3be37f13bbfbd0dd61d89d67a610952fe4c82702458a4ce489b017e328",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/03-comprobar-exportacion.png",
+          "sourceSha256": "3456aab8657f4be03a8fcf71ee5a93ab3f7648837abada553865b25d23e9d7dd",
+          "headline": "COMPRUEBA LA COPIA EXPORTADA",
+          "subtitle": "La revisión ayuda; revisa cada página por tu cuenta.",
+          "featureLabel": "REVISA ANTES DE COMPARTIR"
+        },
+        {
+          "order": 8,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/08-procesamiento-en-dispositivo.png",
+          "sha256": "ed1636db4f63e2e74ac08e1de2248519105d40c3da65714196ca9553a8cdb75b",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "d26612ff9714bf1a600250d54395df1dbafcc81faf2d6aac3d24fe1fb2c8ccb8",
+          "headline": "OCR Y REDACCIÓN EN EL DISPOSITIVO",
+          "subtitle": "El reconocimiento y la redacción se procesan en el dispositivo.",
+          "featureLabel": "SIN CUENTA MASKID PARA EL FLUJO PRINCIPAL"
+        },
+        {
+          "order": 9,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/09-boveda-local-face-id-pin.png",
+          "sha256": "e8ba7a7c6d71dbd7bdfd681ddaf01d22c6fe69229fbaecf39e95c9eac96b4f38",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/04-boveda-privada.png",
+          "sourceSha256": "c0b0d616d1da9a0121e29ed0294f8185cc6938f828f6754ca8015dd3aed9227e",
+          "headline": "TUS DOCUMENTOS EN EL DISPOSITIVO",
+          "subtitle": "Acceso con Face ID o PIN.",
+          "featureLabel": "FACE ID  ·  PIN"
+        },
+        {
+          "order": 10,
+          "file": "creatives/1.1.7/iphone-6.9/es-ES/10-organiza-tus-copias.png",
+          "sha256": "df2a41b5f18ca7f224e62cde63d09e65af4d8f4e43e6244cddeaadda2bcb7504",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/es-ES/04-boveda-privada.png",
+          "sourceSha256": "c0b0d616d1da9a0121e29ed0294f8185cc6938f828f6754ca8015dd3aed9227e",
+          "headline": "ORGANIZA TUS COPIAS EN LA BÓVEDA",
+          "subtitle": "Vuelve a los documentos que guardas en tu Bóveda.",
+          "featureLabel": "BÓVEDA CIFRADA · SOLO EN EL DISPOSITIVO"
+        }
+      ],
+      "en-US": [
+        {
+          "order": 1,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/01-document-before-sharing.png",
+          "sha256": "3ab8d57f7fb9330056aa65c85c28e8eeec0c0ab6971a1fece3912d8e2c8f3d83",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/02-redact-in-editor.png",
+          "sourceSha256": "e41a1d383513fbc9c2092329765bcecbad852785ac94c4651f953a3832688728",
+          "headline": "PREPARE YOUR DOCUMENT",
+          "subtitle": "Hide what you don’t want to share.",
+          "featureLabel": "YOU CHOOSE WHAT STAYS VISIBLE"
+        },
+        {
+          "order": 2,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/02-scan-and-refine.png",
+          "sha256": "0d653497c7083ebddfd4d2ed74a1131879b933a56ef61c676ef88b364663caf0",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/01-review-scan.png",
+          "sourceSha256": "d8ed94ab82b5820df2bc5e6eac6ffb3c23242e11b67f5fe88a00073c8e6e2b06",
+          "headline": "SCAN & REFINE THE FRAME",
+          "subtitle": "Adjust the capture before editing.",
+          "featureLabel": "REFINE BEFORE THE EDITOR"
+        },
+        {
+          "order": 3,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/03-review-ocr-suggestions.png",
+          "sha256": "28b6260df05897b53ee1f1169dedc066691311017484d8ef0a84d3d9850d89ec",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/02-redact-in-editor.png",
+          "sourceSha256": "e41a1d383513fbc9c2092329765bcecbad852785ac94c4651f953a3832688728",
+          "headline": "OCR SUGGESTS. YOU DECIDE.",
+          "subtitle": "Review suggested fields and adjust each mask.",
+          "featureLabel": "SUGGESTIONS YOU CAN REVIEW"
+        },
+        {
+          "order": 4,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/04-choose-mask-style.png",
+          "sha256": "0339c3768145c4e015596be1f54d8557c084d3891bbffee1163af0f11736ac6c",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/02-redact-in-editor.png",
+          "sourceSha256": "e41a1d383513fbc9c2092329765bcecbad852785ac94c4651f953a3832688728",
+          "headline": "CHOOSE WHAT TO HIDE",
+          "subtitle": "Use solid, pixelated or blurred masks.",
+          "featureLabel": "SOLID · PIXELATE · BLUR"
+        },
+        {
+          "order": 5,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/05-review-every-page.png",
+          "sha256": "571a6659c2ad5a3151c54ea99e3852350a4c980378c90c81fd6a605d204a4515",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/02-redact-in-editor.png",
+          "sourceSha256": "e41a1d383513fbc9c2092329765bcecbad852785ac94c4651f953a3832688728",
+          "headline": "REVIEW EVERY PAGE",
+          "subtitle": "Check the document before exporting.",
+          "featureLabel": "PAGE 1 / 2 · NEXT PAGE"
+        },
+        {
+          "order": 6,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/06-export-pdf-or-image.png",
+          "sha256": "ebaee6658e15501c55c8282ccfdc99271a08376d16faefb2a5820866c406c330",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/03-check-export.png",
+          "sourceSha256": "b6ef549148f41de97de4b45211d4d69cacefb137a6cfb1828a40d8f9ed67a29d",
+          "headline": "EXPORT AS PDF OR IMAGE",
+          "subtitle": "Create a rasterized copy to share.",
+          "featureLabel": "PDF  ·  IMAGE"
+        },
+        {
+          "order": 7,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/07-check-exported-copy.png",
+          "sha256": "038c72d1e4ffd413e70b87eee5934157b5ac79a449a38fd0bbb311137d046f45",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/03-check-export.png",
+          "sourceSha256": "b6ef549148f41de97de4b45211d4d69cacefb137a6cfb1828a40d8f9ed67a29d",
+          "headline": "CHECK THE EXPORTED COPY",
+          "subtitle": "Checks help; review every page yourself.",
+          "featureLabel": "REVIEW BEFORE SHARING"
+        },
+        {
+          "order": 8,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/08-on-device-processing.png",
+          "sha256": "b02f50dfb3b7b88f989040b9fc5f242a9af16707d98dc8482bb2540953ac00f6",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/02-redact-in-editor.png",
+          "sourceSha256": "e41a1d383513fbc9c2092329765bcecbad852785ac94c4651f953a3832688728",
+          "headline": "OCR & REDACTION ON YOUR DEVICE",
+          "subtitle": "Text recognition and redaction run on-device.",
+          "featureLabel": "CORE WORKFLOW NEEDS NO MASKID ACCOUNT"
+        },
+        {
+          "order": 9,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/09-local-vault-face-id-pin.png",
+          "sha256": "027ff054173704bf9e91153ed717d7a4cbeb709c5c3f6365fa86d2ad9a1d28b7",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/04-private-vault.png",
+          "sourceSha256": "c3ad9d7ac743e0052e412b17ed6f0625661abd76457a9e5743b08bc1ad35d681",
+          "headline": "YOUR DOCUMENTS STAY ON DEVICE",
+          "subtitle": "Access with Face ID or a PIN.",
+          "featureLabel": "FACE ID  ·  PIN"
+        },
+        {
+          "order": 10,
+          "file": "creatives/1.1.7/iphone-6.9/en-US/10-organize-protected-copies.png",
+          "sha256": "cddef0004456674106962f7d25f3563c6d2b769284725b5a259e762a249a4bf9",
+          "pixels": "1320x2868",
+          "source": "final/1.1.7/iphone-6.9/en-US/04-private-vault.png",
+          "sourceSha256": "c3ad9d7ac743e0052e412b17ed6f0625661abd76457a9e5743b08bc1ad35d681",
+          "headline": "ORGANIZE YOUR VAULT COPIES",
+          "subtitle": "Return to documents you save in your Vault.",
+          "featureLabel": "ENCRYPTED VAULT · ON DEVICE ONLY"
+        }
+      ]
+    },
+    "ipad-13": {
+      "es-ES": [
+        {
+          "order": 1,
+          "file": "creatives/1.1.7/ipad-13/es-ES/01-documento-antes-de-compartir.png",
+          "sha256": "29b68c3b1a8b5af4d928e544d5d35f4a47617ae04037869888ee6dcb95583a78",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "5bb29df82ebe90fa54d8c3781191a640308fbb790479a061559acdc9a67c3823",
+          "headline": "PREPARA TU DOCUMENTO",
+          "subtitle": "Oculta lo que no quieres compartir.",
+          "featureLabel": "TÚ ELIGES QUÉ QUEDA VISIBLE"
+        },
+        {
+          "order": 2,
+          "file": "creatives/1.1.7/ipad-13/es-ES/02-escanea-y-ajusta.png",
+          "sha256": "48f39a359a75c56486982551a221b131b244707ad84ef23ebbb17e7bed70d1e5",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/01-review-scan.png",
+          "sourceSha256": "71a96841fe037e6ac393fec90b0ef3498baa21708313d93137111a45748723cc",
+          "headline": "ESCANEA Y AJUSTA EL ENCUADRE",
+          "subtitle": "Corrige la captura antes de empezar a editar.",
+          "featureLabel": "AJUSTE ANTES DEL EDITOR"
+        },
+        {
+          "order": 3,
+          "file": "creatives/1.1.7/ipad-13/es-ES/03-sugerencias-ocr.png",
+          "sha256": "eda0e2c33b47071fdddbbda15724744e3e637a8d61c766d17aa90f5f7841860c",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "5bb29df82ebe90fa54d8c3781191a640308fbb790479a061559acdc9a67c3823",
+          "headline": "OCR SUGIERE. TÚ DECIDES.",
+          "subtitle": "Revisa los campos y ajusta cada máscara.",
+          "featureLabel": "SUGERENCIAS REVISABLES"
+        },
+        {
+          "order": 4,
+          "file": "creatives/1.1.7/ipad-13/es-ES/04-estilos-de-mascara.png",
+          "sha256": "e716e2ff03612e993a0de2f1ac99468eb10095bc388b65528fd7cab42a1402e0",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "5bb29df82ebe90fa54d8c3781191a640308fbb790479a061559acdc9a67c3823",
+          "headline": "ELIGE QUÉ QUIERES OCULTAR",
+          "subtitle": "Usa máscara sólida, pixelado o desenfoque.",
+          "featureLabel": "SÓLIDA · PIXELADO · DESENFOQUE"
+        },
+        {
+          "order": 5,
+          "file": "creatives/1.1.7/ipad-13/es-ES/05-revisa-cada-pagina.png",
+          "sha256": "dcb372662d4f37c0fde71528054af9f22d9c92ebdda962fcaba4480085f87573",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "5bb29df82ebe90fa54d8c3781191a640308fbb790479a061559acdc9a67c3823",
+          "headline": "REVISA TODAS LAS PÁGINAS",
+          "subtitle": "Comprueba el documento antes de exportar.",
+          "featureLabel": "PÁGINA 1 / 2 · SIGUIENTE PÁGINA"
+        },
+        {
+          "order": 6,
+          "file": "creatives/1.1.7/ipad-13/es-ES/06-exporta-pdf-o-imagen.png",
+          "sha256": "dab42d99d0e4f9941a073cff46770cf897092ecfef0938b5000b0ede2c0ea186",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/03-comprobar-exportacion.png",
+          "sourceSha256": "c852013d5ef5daa743894bd9f7a30bdde3764f4778cc6316ca02e95b245e1edb",
+          "headline": "EXPORTA EN PDF O IMAGEN",
+          "subtitle": "Crea una copia rasterizada para compartir.",
+          "featureLabel": "PDF  ·  IMAGEN"
+        },
+        {
+          "order": 7,
+          "file": "creatives/1.1.7/ipad-13/es-ES/07-comprueba-la-copia.png",
+          "sha256": "ae9de2bec627eb2dc9b58e348513c01267c4aa22a7f7e8234a02a04e603153ce",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/03-comprobar-exportacion.png",
+          "sourceSha256": "c852013d5ef5daa743894bd9f7a30bdde3764f4778cc6316ca02e95b245e1edb",
+          "headline": "COMPRUEBA LA COPIA EXPORTADA",
+          "subtitle": "La revisión ayuda; revisa cada página por tu cuenta.",
+          "featureLabel": "REVISA ANTES DE COMPARTIR"
+        },
+        {
+          "order": 8,
+          "file": "creatives/1.1.7/ipad-13/es-ES/08-procesamiento-en-dispositivo.png",
+          "sha256": "2e5658e68656224ffa7bc0a5cbc8c33a1bd99bc5d73e46af3f7cb40288918dfd",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/02-ocultar-datos.png",
+          "sourceSha256": "5bb29df82ebe90fa54d8c3781191a640308fbb790479a061559acdc9a67c3823",
+          "headline": "OCR Y REDACCIÓN EN EL DISPOSITIVO",
+          "subtitle": "El reconocimiento y la redacción se procesan en el dispositivo.",
+          "featureLabel": "SIN CUENTA MASKID PARA EL FLUJO PRINCIPAL"
+        },
+        {
+          "order": 9,
+          "file": "creatives/1.1.7/ipad-13/es-ES/09-boveda-local-face-id-pin.png",
+          "sha256": "7a1fd030ed5fa08a1cf2feb63743b9ea987c2724fd95e3486cc7d0f776217b78",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/04-boveda-privada.png",
+          "sourceSha256": "e4ec4a80c60f2df1e06c8cbc39edb81ed3afc76d6906c31f0e06b26727d9c9c4",
+          "headline": "TUS DOCUMENTOS EN EL DISPOSITIVO",
+          "subtitle": "Acceso con Face ID o PIN.",
+          "featureLabel": "FACE ID  ·  PIN"
+        },
+        {
+          "order": 10,
+          "file": "creatives/1.1.7/ipad-13/es-ES/10-organiza-tus-copias.png",
+          "sha256": "bdf0fdd5d280917e525626006cc52d9199e39183dbef7faf439896ce4746e8a7",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/es-ES/04-boveda-privada.png",
+          "sourceSha256": "e4ec4a80c60f2df1e06c8cbc39edb81ed3afc76d6906c31f0e06b26727d9c9c4",
+          "headline": "ORGANIZA TUS COPIAS EN LA BÓVEDA",
+          "subtitle": "Vuelve a los documentos que guardas en tu Bóveda.",
+          "featureLabel": "BÓVEDA CIFRADA · SOLO EN EL DISPOSITIVO"
+        }
+      ],
+      "en-US": [
+        {
+          "order": 1,
+          "file": "creatives/1.1.7/ipad-13/en-US/01-document-before-sharing.png",
+          "sha256": "7ec4050cd13cfe60a033c92574a4754bef786fdfbe7e0780704e9da95a9276f2",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/02-redact-in-editor.png",
+          "sourceSha256": "f155807e996ab4dd24c002a5c83983f0cc00b7438a49ee8c577304537a2d88fd",
+          "headline": "PREPARE YOUR DOCUMENT",
+          "subtitle": "Hide what you don’t want to share.",
+          "featureLabel": "YOU CHOOSE WHAT STAYS VISIBLE"
+        },
+        {
+          "order": 2,
+          "file": "creatives/1.1.7/ipad-13/en-US/02-scan-and-refine.png",
+          "sha256": "1aedb12ae4494cec51324afbedbb16e9f48450ee0d0a931f4bf7dc864f839490",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/01-review-scan.png",
+          "sourceSha256": "34fd6f3db0ae1e33f0a77d60ad670c5d8ff3aa6aa3f351c24b9738fe768d76ae",
+          "headline": "SCAN & REFINE THE FRAME",
+          "subtitle": "Adjust the capture before editing.",
+          "featureLabel": "REFINE BEFORE THE EDITOR"
+        },
+        {
+          "order": 3,
+          "file": "creatives/1.1.7/ipad-13/en-US/03-review-ocr-suggestions.png",
+          "sha256": "f8bac719cd6ea8bb0a67aaa29981d7a5133dcfd28a44427754f9a24073d8d3c5",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/02-redact-in-editor.png",
+          "sourceSha256": "f155807e996ab4dd24c002a5c83983f0cc00b7438a49ee8c577304537a2d88fd",
+          "headline": "OCR SUGGESTS. YOU DECIDE.",
+          "subtitle": "Review suggested fields and adjust each mask.",
+          "featureLabel": "SUGGESTIONS YOU CAN REVIEW"
+        },
+        {
+          "order": 4,
+          "file": "creatives/1.1.7/ipad-13/en-US/04-choose-mask-style.png",
+          "sha256": "3774a962c4ee143e2f4f197512151a3502577cbc35639bfd675b9c2c3e8e5c45",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/02-redact-in-editor.png",
+          "sourceSha256": "f155807e996ab4dd24c002a5c83983f0cc00b7438a49ee8c577304537a2d88fd",
+          "headline": "CHOOSE WHAT TO HIDE",
+          "subtitle": "Use solid, pixelated or blurred masks.",
+          "featureLabel": "SOLID · PIXELATE · BLUR"
+        },
+        {
+          "order": 5,
+          "file": "creatives/1.1.7/ipad-13/en-US/05-review-every-page.png",
+          "sha256": "6273e9c1a4c2783e20b3f15558976ca439af4b5bd9eb18024fab8704aaedcd26",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/02-redact-in-editor.png",
+          "sourceSha256": "f155807e996ab4dd24c002a5c83983f0cc00b7438a49ee8c577304537a2d88fd",
+          "headline": "REVIEW EVERY PAGE",
+          "subtitle": "Check the document before exporting.",
+          "featureLabel": "PAGE 1 / 2 · NEXT PAGE"
+        },
+        {
+          "order": 6,
+          "file": "creatives/1.1.7/ipad-13/en-US/06-export-pdf-or-image.png",
+          "sha256": "ce7dcaafdc2527666db71d8bf7a6449e811cd574e06c26f97b20b85c34bafb16",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/03-check-export.png",
+          "sourceSha256": "f5ce214501ac47f5a3182494718ae3f948190343348f294a844d14b499d151b1",
+          "headline": "EXPORT AS PDF OR IMAGE",
+          "subtitle": "Create a rasterized copy to share.",
+          "featureLabel": "PDF  ·  IMAGE"
+        },
+        {
+          "order": 7,
+          "file": "creatives/1.1.7/ipad-13/en-US/07-check-exported-copy.png",
+          "sha256": "2828b7d7ba684a56fbf6a37bdb09a0f11eb57ae4c6afc79485451f4b82cb4332",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/03-check-export.png",
+          "sourceSha256": "f5ce214501ac47f5a3182494718ae3f948190343348f294a844d14b499d151b1",
+          "headline": "CHECK THE EXPORTED COPY",
+          "subtitle": "Checks help; review every page yourself.",
+          "featureLabel": "REVIEW BEFORE SHARING"
+        },
+        {
+          "order": 8,
+          "file": "creatives/1.1.7/ipad-13/en-US/08-on-device-processing.png",
+          "sha256": "e7bd128103b175a7b4b4445545913b2a6f737823ac1860e9d066e293b6a0c9e6",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/02-redact-in-editor.png",
+          "sourceSha256": "f155807e996ab4dd24c002a5c83983f0cc00b7438a49ee8c577304537a2d88fd",
+          "headline": "OCR & REDACTION ON YOUR DEVICE",
+          "subtitle": "Text recognition and redaction run on-device.",
+          "featureLabel": "CORE WORKFLOW NEEDS NO MASKID ACCOUNT"
+        },
+        {
+          "order": 9,
+          "file": "creatives/1.1.7/ipad-13/en-US/09-local-vault-face-id-pin.png",
+          "sha256": "58a981a597784b3676f57eeb6fe64d03ab7cb566d7fee50478bd6ff7bbacdf65",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/04-private-vault.png",
+          "sourceSha256": "955692a129b351f8b42713f2145471e25d820bbdb49ec13a58e69424bdc8e00b",
+          "headline": "YOUR DOCUMENTS STAY ON DEVICE",
+          "subtitle": "Access with Face ID or a PIN.",
+          "featureLabel": "FACE ID  ·  PIN"
+        },
+        {
+          "order": 10,
+          "file": "creatives/1.1.7/ipad-13/en-US/10-organize-protected-copies.png",
+          "sha256": "f1dbd44bd1ee76d214e14dd46d06beba21cbdb9c1ccad4c69880e2cceea9e6eb",
+          "pixels": "2064x2752",
+          "source": "final/1.1.7/ipad-13/en-US/04-private-vault.png",
+          "sourceSha256": "955692a129b351f8b42713f2145471e25d820bbdb49ec13a58e69424bdc8e00b",
+          "headline": "ORGANIZE YOUR VAULT COPIES",
+          "subtitle": "Return to documents you save in your Vault.",
+          "featureLabel": "ENCRYPTED VAULT · ON DEVICE ONLY"
+        }
+      ]
+    }
+  }
+}

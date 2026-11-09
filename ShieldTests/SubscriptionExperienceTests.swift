@@ -43,45 +43,18 @@ struct SubscriptionExperienceTests {
         #expect(pricing?.eventDisplayPrice == "€14.99")
     }
 
-    @Test("Trial disclosure states the trial duration, next charge, billing period, and renewal")
+    @Test("Recurring plans disclose the next charge, billing period, and renewal")
     @MainActor
-    func trialDisclosureMakesTheNextChargeClear() {
-        let english = SubscriptionTrialDisclosureCopy.text(
-            trialLabel: "7-day free trial",
-            displayPrice: "$24.99",
-            renewalPeriodLabel: "/year",
-            language: .en
-        )
-        #expect(english.contains("7-day free trial"))
-        #expect(english.contains("$24.99/year"))
-        #expect(english.contains("automatically renews until canceled"))
-
-        let spanish = SubscriptionTrialDisclosureCopy.text(
-            trialLabel: "7 días de prueba gratis",
-            displayPrice: "24,99 €",
-            renewalPeriodLabel: "/año",
-            language: .es
-        )
-        #expect(spanish.contains("7 días de prueba gratis"))
-        #expect(spanish.contains("24,99 €/año"))
-        #expect(spanish.contains("se renueva automáticamente"))
-    }
-
-    @Test("Recurring plans without a trial disclose the next charge and renewal")
-    @MainActor
-    func renewalDisclosureMakesTheNextChargeClearWithoutTrial() {
-        let english = SubscriptionTrialDisclosureCopy.text(
-            trialLabel: nil,
+    func renewalDisclosureMakesTheNextChargeClear() {
+        let english = SubscriptionRenewalDisclosureCopy.text(
             displayPrice: "$12.99",
             renewalPeriodLabel: "/year",
             language: .en
         )
         #expect(english.contains("$12.99/year"))
         #expect(english.contains("automatically renews until canceled"))
-        #expect(!english.localizedCaseInsensitiveContains("trial"))
 
-        let spanish = SubscriptionTrialDisclosureCopy.text(
-            trialLabel: nil,
+        let spanish = SubscriptionRenewalDisclosureCopy.text(
             displayPrice: "12,99 €",
             renewalPeriodLabel: "/año",
             language: .es
@@ -212,5 +185,257 @@ struct SubscriptionExperienceTests {
             event: event,
             targetDiscountPercent: 50
         ) == nil)
+    }
+}
+
+@Suite("Temporal commercial access policy")
+struct AccessPolicyTests {
+    private let start = Date(timeIntervalSince1970: 1_800_000_000)
+
+    private func date(days: Int, from date: Date? = nil) -> Date {
+        Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: date ?? start)!
+    }
+
+    @Test("Fresh installations must see the notice before the 15-day clock starts")
+    func freshInstallRequiresNotice() {
+        #expect(AccessMigrationClassifier.cohort(
+            preMigrationInstallEvidence: false,
+            wasOnboarded: false,
+            savedDocumentCount: 0,
+            previouslyProcessedDocumentCount: 0
+        ) == .newUser)
+        #expect(AccessMigrationClassifier.cohort(
+            preMigrationInstallEvidence: true,
+            wasOnboarded: false,
+            savedDocumentCount: 0,
+            previouslyProcessedDocumentCount: 0
+        ) == .existingFreeUser)
+        #expect(AccessMigrationClassifier.cohort(
+            preMigrationInstallEvidence: false,
+            wasOnboarded: false,
+            savedDocumentCount: 1,
+            previouslyProcessedDocumentCount: 0
+        ) == .existingFreeUser)
+        #expect(AccessPolicy.resolve(
+            record: nil,
+            missingRecordCohort: .newUser,
+            now: start,
+            hasPaidAccess: false
+        ) == .newUserNotice)
+        let accepted = AccessRecord.start(cohort: .newUser, at: start)
+        #expect(accepted?.fullAccessStartedAt == start)
+        #expect(accepted?.noticeAcceptedAt == start)
+        #expect(accepted?.noticeVersion == AccessConfiguration.noticeVersion)
+        #expect(accepted?.fullAccessExpiresAt == date(days: 15))
+    }
+
+    @Test("Existing Free installs receive 30 full days followed by 30 read-only days")
+    func existingFreeMigrationWindow() {
+        let record = AccessRecord.start(cohort: .existingFreeUser, at: start)!
+        #expect(record.fullAccessExpiresAt == date(days: 30))
+        #expect(record.recoveryExpiresAt == date(days: 60))
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 29),
+            hasPaidAccess: false
+        ).hasFullAccess)
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 30),
+            hasPaidAccess: false
+        ) == .readOnlyRecovery(until: date(days: 60)))
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 59),
+            hasPaidAccess: false
+        ) == .readOnlyRecovery(until: date(days: 60)))
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 60),
+            hasPaidAccess: false
+        ) == .mandatoryPaywall)
+    }
+
+    @Test("New-user access expires after 15 days and never starts a subscription")
+    func newUserExpiry() {
+        let record = AccessRecord.start(cohort: .newUser, at: start)!
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .newUser,
+            now: date(days: 14),
+            hasPaidAccess: false
+        ).hasFullAccess)
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .newUser,
+            now: date(days: 15),
+            hasPaidAccess: false
+        ) == .mandatoryPaywall)
+        #expect(record.recoveryExpiresAt == nil)
+    }
+
+    @Test("Paid purchases take precedence over expired access and storage errors")
+    func paidEntitlementsTakePrecedence() {
+        #expect(AccessPolicy.resolve(
+            record: nil,
+            missingRecordCohort: .existingFreeUser,
+            now: start,
+            hasPaidAccess: true,
+            storageAvailable: false
+        ) == .purchased)
+        let previouslyPaid = AccessRecord.paidAccessObserved(cohort: .existingFreeUser, at: start)
+        #expect(AccessPolicy.resolve(
+            record: previouslyPaid,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 1),
+            hasPaidAccess: false
+        ) == .mandatoryPaywall)
+    }
+
+    @Test("Recovery and mandatory-paywall modes keep personal data actions but block product writes")
+    func readOnlyCapabilityMatrix() {
+        let record = AccessRecord.start(cohort: .existingFreeUser, at: start)!
+        let recovery = AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: date(days: 30),
+            hasPaidAccess: false
+        )
+        #expect(recovery.allows(.viewOwnData))
+        #expect(recovery.allows(.exportOwnData))
+        #expect(recovery.allows(.deleteOwnData))
+        #expect(recovery.allows(.restorePurchases))
+        #expect(recovery.allows(.legalInformation))
+        #expect(!recovery.allows(.createContent))
+        #expect(!recovery.allows(.modifyContent))
+        #expect(!recovery.allows(.importContent))
+        #expect(!recovery.allows(.cloudWrite))
+    }
+
+    @Test("Clock rollback cannot move the policy before its last stored trusted time")
+    func clockRollbackClampsToLastTrustedValue() {
+        var record = AccessRecord.start(cohort: .newUser, at: start)!
+        record.lastTrustedAt = date(days: 8)
+        #expect(record.trustedNow(date(days: 2)) == date(days: 8))
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .newUser,
+            now: date(days: 2),
+            hasPaidAccess: false
+        ) == .temporaryFullAccess(expiresAt: date(days: 15), cohort: .newUser))
+    }
+
+    @Test("Unaccepted notice cannot expose full access even if a malformed record has dates")
+    func acceptanceIsRequiredForFullAccess() {
+        var record = AccessRecord.start(cohort: .existingFreeUser, at: start)!
+        record.noticeAcceptedAt = nil
+        #expect(AccessPolicy.resolve(
+            record: record,
+            missingRecordCohort: .existingFreeUser,
+            now: start,
+            hasPaidAccess: false
+        ) == .existingUserNotice)
+    }
+
+    @Test("Access periods use the central configuration defaults and can be changed centrally")
+    func configurableAccessPeriods() {
+        let defaults = AccessConfiguration.current
+        #expect(defaults.newUserFullAccessDays == 15)
+        #expect(defaults.existingUserFullAccessDays == 30)
+        #expect(defaults.existingUserRecoveryDays == 30)
+
+        let futurePolicy = AccessConfiguration(
+            newUserFullAccessDays: 14,
+            existingUserFullAccessDays: 45,
+            existingUserRecoveryDays: 20
+        )
+        let newRecord = AccessRecord.start(
+            cohort: .newUser,
+            at: start,
+            configuration: futurePolicy
+        )
+        let existingRecord = AccessRecord.start(
+            cohort: .existingFreeUser,
+            at: start,
+            configuration: futurePolicy
+        )
+        #expect(newRecord?.fullAccessExpiresAt == date(days: 14))
+        #expect(existingRecord?.fullAccessExpiresAt == date(days: 45))
+        #expect(existingRecord?.recoveryExpiresAt == date(days: 65))
+    }
+
+    @Test("Calendar-day periods remain at local noon across the Madrid daylight-saving boundary")
+    func calendarDaysAcrossDaylightSaving() {
+        var madrid = Calendar(identifier: .gregorian)
+        madrid.timeZone = TimeZone(identifier: "Europe/Madrid")!
+        let localStart = madrid.date(from: DateComponents(
+            year: 2026,
+            month: 3,
+            day: 28,
+            hour: 12
+        ))!
+        let record = AccessRecord.start(
+            cohort: .newUser,
+            at: localStart,
+            calendar: madrid
+        )!
+        let expectedLocalExpiry = madrid.date(from: DateComponents(
+            year: 2026,
+            month: 4,
+            day: 12,
+            hour: 12
+        ))!
+        #expect(record.fullAccessExpiresAt == expectedLocalExpiry)
+        #expect(record.fullAccessExpiresAt!.timeIntervalSince(localStart) == 15 * 24 * 60 * 60 - 60 * 60)
+    }
+
+    @Test("Editor boundary save lease is one-shot and limited to the active persisted document")
+    func accessBoundarySaveLeaseEligibility() {
+        let full = AppAccessState.temporaryFullAccess(expiresAt: date(days: 15), cohort: .newUser)
+        let readonly = AppAccessState.mandatoryPaywall
+        #expect(AccessBoundarySavePolicy.canIssueLease(
+            for: "doc-1",
+            activeEditorDocumentID: "doc-1",
+            documentIsPersisted: true,
+            previousState: full,
+            nextState: readonly,
+            leaseAlreadyIssued: false
+        ))
+        #expect(!AccessBoundarySavePolicy.canIssueLease(
+            for: "doc-1",
+            activeEditorDocumentID: "doc-2",
+            documentIsPersisted: true,
+            previousState: full,
+            nextState: readonly,
+            leaseAlreadyIssued: false
+        ))
+        #expect(!AccessBoundarySavePolicy.canIssueLease(
+            for: "unsaved-doc",
+            activeEditorDocumentID: "unsaved-doc",
+            documentIsPersisted: false,
+            previousState: full,
+            nextState: readonly,
+            leaseAlreadyIssued: false
+        ))
+        #expect(!AccessBoundarySavePolicy.canIssueLease(
+            for: "doc-1",
+            activeEditorDocumentID: "doc-1",
+            documentIsPersisted: true,
+            previousState: full,
+            nextState: .purchased,
+            leaseAlreadyIssued: false
+        ))
+        #expect(!AccessBoundarySavePolicy.canIssueLease(
+            for: "doc-1",
+            activeEditorDocumentID: "doc-1",
+            documentIsPersisted: true,
+            previousState: full,
+            nextState: readonly,
+            leaseAlreadyIssued: true
+        ))
     }
 }

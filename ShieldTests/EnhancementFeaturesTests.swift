@@ -65,6 +65,52 @@ struct EnhancementFeaturesTests {
         #expect(newViewModel.doc.batchReviewPendingPageIndices.isEmpty)
     }
 
+    @Test("Quota reconciliation preserves the highest aggregate count without cloud state")
+    func quotaReconciliationPreservesTheHighestAggregateCount() {
+        // A same-account KVS value can advance the count on a second device.
+        #expect(SecureQuotaStore.resolveHighestCount(localCount: 2, keychainCount: 3, iCloudCount: 7) == 7)
+
+        // An unavailable/other-account KVS value must leave this device's
+        // local or Keychain high-water mark intact.
+        #expect(SecureQuotaStore.resolveHighestCount(localCount: 5, keychainCount: 8, iCloudCount: 0) == 8)
+
+        // Invalid negative values cannot create a negative persisted quota.
+        #expect(SecureQuotaStore.resolveHighestCount(localCount: -1, keychainCount: -2, iCloudCount: -3) == 0)
+    }
+
+    @Test("Accessible mask creation and resizing preserve geometry in undo and redo")
+    @MainActor
+    func accessibleMaskCreationIsCenteredAndUndoable() {
+        let viewModel = EditorViewModel(doc: DocumentItem(kind: .photo, title: "Synthetic page"))
+        viewModel.addAccessibleMask()
+
+        let addedMask = viewModel.redactions.first
+        #expect(viewModel.redactions.count == 1)
+        #expect(addedMask?.rect == CGRect(x: 0.38, y: 0.46, width: 0.24, height: 0.08))
+        #expect(viewModel.activeRedactionID == addedMask?.id)
+        #expect(viewModel.tool == .rect)
+        #expect(viewModel.canUndo)
+
+        let movedRect = CGRect(x: 0.4, y: 0.4, width: 0.3, height: 0.1)
+        viewModel.beginRedactionTransform()
+        if let id = addedMask?.id {
+            viewModel.resizeRedaction(id: id, newRect: movedRect)
+        }
+        viewModel.commitRedactionTransform()
+        #expect(viewModel.redactions.first?.rect == movedRect)
+
+        viewModel.undo()
+        #expect(viewModel.redactions.first?.rect == addedMask?.rect)
+        viewModel.undo()
+        #expect(viewModel.redactions.isEmpty)
+        #expect(viewModel.canRedo)
+
+        viewModel.redo()
+        #expect(viewModel.redactions == [addedMask].compactMap { $0 })
+        viewModel.redo()
+        #expect(viewModel.redactions.first?.rect == movedRect)
+    }
+
     @Test("Spanish DNI preview header labels fit without colliding")
     @MainActor
     func spanishDNIHeaderLabelsStayInTheirColumns() {
@@ -520,7 +566,7 @@ struct EnhancementFeaturesTests {
         )
 
         // Save
-        store.saveDocument(testDoc)
+        #expect(store.saveDocument(testDoc))
 
         // Load all
         let allDocs = store.loadAllDocuments()
@@ -538,7 +584,7 @@ struct EnhancementFeaturesTests {
 
     // MARK: - Seasonal themes
 
-    @Test("Automatic mode applies scheduled themes to Free and Pro by local calendar")
+    @Test("Explicit automatic mode applies scheduled themes to Free and Pro by local calendar")
     func seasonalThemeLocalCalendarResolution() {
         let madrid = timeZone("Europe/Madrid")
         let newYork = timeZone("America/New_York")
@@ -548,6 +594,7 @@ struct EnhancementFeaturesTests {
             SeasonalThemeResolver.resolve(
                 isPro: false,
                 selection: .automatic,
+                eventPreference: .automatic,
                 at: SeasonalThemeClock(now: date(2026, 10, 1, 0, 0, timeZone: madrid), timeZone: madrid)
             ) == .halloween2026
         )
@@ -555,6 +602,7 @@ struct EnhancementFeaturesTests {
             SeasonalThemeResolver.resolve(
                 isPro: false,
                 selection: .automatic,
+                eventPreference: .automatic,
                 at: SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: newYork), timeZone: newYork)
             ) == .halloween2026
         )
@@ -562,6 +610,7 @@ struct EnhancementFeaturesTests {
             SeasonalThemeResolver.resolve(
                 isPro: false,
                 selection: .base,
+                eventPreference: .automatic,
                 at: SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: newYork), timeZone: newYork)
             ) == .halloween2026
         )
@@ -569,6 +618,7 @@ struct EnhancementFeaturesTests {
             SeasonalThemeResolver.resolve(
                 isPro: true,
                 selection: .automatic,
+                eventPreference: .automatic,
                 at: SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: newYork), timeZone: newYork)
             ) == .halloween2026
         )
@@ -576,21 +626,23 @@ struct EnhancementFeaturesTests {
             SeasonalThemeResolver.resolve(
                 isPro: true,
                 selection: .automatic,
+                eventPreference: .automatic,
                 at: SeasonalThemeClock(now: date(2026, 11, 1, 0, 0, timeZone: tokyo), timeZone: tokyo)
             ) == .base
         )
     }
 
-    @Test("A new installation defaults to automatic and follows an active event")
+    @Test("A new installation keeps its regular appearance and asks once for an active event")
     @MainActor
-    func seasonalThemeNewInstallDefaultsToAutomatic() {
+    func seasonalThemeNewInstallDefaultsToConsent() {
         let suiteName = "SeasonalThemeNewInstall-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
         let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
-        #expect(coordinator.selection == .automatic)
+        #expect(coordinator.selection == .base)
+        #expect(coordinator.eventThemePreference == .askEachEvent)
 
         let madrid = timeZone("Europe/Madrid")
         coordinator.refresh(
@@ -598,15 +650,170 @@ struct EnhancementFeaturesTests {
             timeZone: madrid,
             isPro: false
         )
-        #expect(coordinator.activeThemeID == .halloween2026)
+        #expect(coordinator.activeThemeID == .base)
         #expect(coordinator.activeScheduledThemeID == .halloween2026)
-        #expect(!coordinator.select(.base))
+        #expect(coordinator.shouldShowEventInvitation)
+
+        #expect(coordinator.acceptCurrentEventTheme())
         #expect(coordinator.activeThemeID == .halloween2026)
+        #expect(coordinator.eventThemePreference == .askEachEvent)
+        #expect(!coordinator.shouldShowEventInvitation)
+
+        coordinator.refresh(
+            now: date(2026, 11, 2, 12, 0, timeZone: madrid),
+            timeZone: madrid,
+            isPro: false
+        )
+        #expect(coordinator.activeThemeID == .base)
     }
 
-    @Test("An explicit Base opt-out waits for current entitlement before syncing the icon")
+    @Test("Seasonal soundscape is opt-in and an explicit choice persists")
     @MainActor
-    func seasonalThemeBaseOptOutWaitsForEntitlementResolution() {
+    func seasonalSoundscapeDefaultsToOffAndPersistsChoice() {
+        let suiteName = "SeasonalSoundscapeConsent-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
+        #expect(!coordinator.isSoundscapeEnabled)
+
+        coordinator.setSoundscapeEnabled(true)
+        #expect(coordinator.isSoundscapeEnabled)
+
+        let relaunched = SeasonalThemeCoordinator(userDefaults: defaults)
+        #expect(relaunched.isSoundscapeEnabled)
+        relaunched.setSoundscapeEnabled(false)
+        #expect(!relaunched.isSoundscapeEnabled)
+
+        let relaunchedAfterOptOut = SeasonalThemeCoordinator(userDefaults: defaults)
+        #expect(!relaunchedAfterOptOut.isSoundscapeEnabled)
+    }
+
+    @Test("Free and Pro new installations use the same ask-first policy")
+    @MainActor
+    func seasonalThemeConsentDoesNotDependOnEntitlement() {
+        let madrid = timeZone("Europe/Madrid")
+        let eventDate = date(2026, 10, 25, 12, 0, timeZone: madrid)
+
+        for isPro in [false, true] {
+            let suiteName = "SeasonalThemeConsentTier-\(UUID().uuidString)"
+            let defaults = UserDefaults(suiteName: suiteName)!
+            defaults.removePersistentDomain(forName: suiteName)
+            let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
+            coordinator.refresh(now: eventDate, timeZone: madrid, isPro: isPro)
+
+            #expect(coordinator.activeThemeID == .base)
+            #expect(coordinator.activeScheduledThemeID == .halloween2026)
+            #expect(coordinator.eventThemePreference == .askEachEvent)
+            #expect(coordinator.shouldShowEventInvitation)
+            #expect(coordinator.acceptCurrentEventTheme())
+            #expect(coordinator.activeThemeID == .halloween2026)
+            #expect(coordinator.eventThemePreference == .askEachEvent)
+
+            defaults.removePersistentDomain(forName: suiteName)
+        }
+    }
+
+    @Test("Dismissal is remembered across launches without enabling a later event")
+    @MainActor
+    func seasonalThemeDismissalIsPersistedPerOccurrence() {
+        let suiteName = "SeasonalThemeDismiss-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let madrid = timeZone("Europe/Madrid")
+        let eventDate = date(2026, 10, 25, 12, 0, timeZone: madrid)
+        let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
+        coordinator.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        let occurrenceID = coordinator.activeEventOccurrenceID
+        #expect(occurrenceID == "halloween-2026-2026")
+        coordinator.markEventInvitationPresented()
+        #expect(!coordinator.shouldShowEventInvitation)
+
+        let reopenedWithoutDecision = SeasonalThemeCoordinator(userDefaults: defaults)
+        reopenedWithoutDecision.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        #expect(!reopenedWithoutDecision.shouldShowEventInvitation)
+
+        coordinator.dismissCurrentEventInvitation()
+
+        let relaunched = SeasonalThemeCoordinator(userDefaults: defaults)
+        relaunched.refresh(now: eventDate, timeZone: madrid, isPro: true)
+        #expect(relaunched.activeThemeID == .base)
+        #expect(!relaunched.shouldShowEventInvitation)
+        #expect(relaunched.eventThemePreference == .askEachEvent)
+    }
+
+    @Test("Automatic event preference applies to Free but can exclude the current event")
+    @MainActor
+    func seasonalThemeAutomaticPreferenceIsReversible() {
+        let suiteName = "SeasonalThemeAutomatic-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let madrid = timeZone("Europe/Madrid")
+        let eventDate = date(2026, 10, 25, 12, 0, timeZone: madrid)
+        let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
+        coordinator.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        coordinator.setEventThemePreference(.automatic)
+        #expect(coordinator.activeThemeID == .halloween2026)
+        #expect(!coordinator.shouldShowEventInvitation)
+
+        coordinator.declineCurrentEventTheme()
+        #expect(coordinator.activeThemeID == .base)
+        #expect(coordinator.eventThemePreference == .automatic)
+        coordinator.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        #expect(coordinator.activeThemeID == .base)
+
+        coordinator.setEventThemePreference(.never)
+        #expect(coordinator.activeThemeID == .base)
+        #expect(coordinator.activeScheduledThemeID == .halloween2026)
+        #expect(!coordinator.shouldShowEventInvitation)
+    }
+
+    @Test("Legacy persisted Automatic represents consent while missing legacy state asks first")
+    @MainActor
+    func seasonalThemeMigrationDistinguishesPersistedConsentFromForcedDefault() {
+        let madrid = timeZone("Europe/Madrid")
+        let eventDate = date(2026, 10, 25, 12, 0, timeZone: madrid)
+
+        let consentSuite = "SeasonalThemeMigrationConsent-\(UUID().uuidString)"
+        let consentDefaults = UserDefaults(suiteName: consentSuite)!
+        consentDefaults.set(try! JSONEncoder().encode(SeasonalThemeSelection.automatic), forKey: "shield.theme.selection")
+        let migratedConsent = SeasonalThemeCoordinator(userDefaults: consentDefaults)
+        migratedConsent.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        #expect(migratedConsent.eventThemePreference == .automatic)
+        #expect(migratedConsent.activeThemeID == .halloween2026)
+        #expect(!migratedConsent.shouldShowEventInvitation)
+        consentDefaults.removePersistentDomain(forName: consentSuite)
+
+        let forcedSuite = "SeasonalThemeMigrationForced-\(UUID().uuidString)"
+        let forcedDefaults = UserDefaults(suiteName: forcedSuite)!
+        let migratedForcedTheme = SeasonalThemeCoordinator(userDefaults: forcedDefaults)
+        migratedForcedTheme.refresh(now: eventDate, timeZone: madrid, isPro: false)
+        #expect(migratedForcedTheme.eventThemePreference == .askEachEvent)
+        #expect(migratedForcedTheme.activeThemeID == .base)
+        #expect(migratedForcedTheme.shouldShowEventInvitation)
+        forcedDefaults.removePersistentDomain(forName: forcedSuite)
+
+        let manualSuite = "SeasonalThemeMigrationManual-\(UUID().uuidString)"
+        let manualDefaults = UserDefaults(suiteName: manualSuite)!
+        manualDefaults.set(try! JSONEncoder().encode(SeasonalThemeSelection.manual(.halloween2026)), forKey: "shield.theme.selection")
+        let migratedManual = SeasonalThemeCoordinator(userDefaults: manualDefaults)
+        migratedManual.refresh(now: eventDate, timeZone: madrid, isPro: true)
+        #expect(migratedManual.selection == .manual(.halloween2026))
+        #expect(migratedManual.activeThemeID == .halloween2026)
+        #expect(!migratedManual.shouldShowEventInvitation)
+        migratedManual.declineCurrentEventTheme()
+        #expect(migratedManual.activeThemeID == .base)
+        manualDefaults.removePersistentDomain(forName: manualSuite)
+    }
+
+    @Test("A legacy Base opt-out remains free and is independent of entitlement resolution")
+    @MainActor
+    func seasonalThemeBaseOptOutIsFreeAndStable() {
         let suiteName = "SeasonalThemeBaseEntitlement-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
@@ -618,16 +825,20 @@ struct EnhancementFeaturesTests {
         let coordinator = SeasonalThemeCoordinator(userDefaults: defaults)
         coordinator.refresh(now: clock, timeZone: madrid, isPro: false, hasResolvedEntitlement: false)
 
-        #expect(coordinator.activeThemeID == .halloween2026)
-        #expect(coordinator.shouldDeferSeasonalIconUntilEntitlementResolves)
+        #expect(coordinator.eventThemePreference == .never)
+        #expect(coordinator.activeThemeID == .base)
+        #expect(!coordinator.shouldDeferSeasonalIconUntilEntitlementResolves)
 
+        coordinator.setEventThemePreference(.askEachEvent)
+        #expect(coordinator.activeThemeID == .base)
+        #expect(coordinator.shouldShowEventInvitation)
         coordinator.refresh(now: clock, timeZone: madrid, isPro: true, hasResolvedEntitlement: true)
         #expect(coordinator.activeThemeID == .base)
         #expect(!coordinator.shouldDeferSeasonalIconUntilEntitlementResolves)
 
         let freeCoordinator = SeasonalThemeCoordinator(userDefaults: defaults)
         freeCoordinator.refresh(now: clock, timeZone: madrid, isPro: false, hasResolvedEntitlement: true)
-        #expect(freeCoordinator.activeThemeID == .halloween2026)
+        #expect(freeCoordinator.activeThemeID == .base)
         #expect(!freeCoordinator.shouldDeferSeasonalIconUntilEntitlementResolves)
 
         let afterEvent = date(2026, 11, 2, 12, 0, timeZone: madrid)
@@ -642,9 +853,9 @@ struct EnhancementFeaturesTests {
         #expect(!unresolvedAfterEvent.shouldDeferSeasonalIconUntilEntitlementResolves)
     }
 
-    @Test("Only a deliberate Pro Base choice suppresses an active event")
+    @Test("Choosing the classic appearance is available to Free and suppresses the current event")
     @MainActor
-    func seasonalThemeBaseOptOutRequiresPremiumAndPersists() {
+    func seasonalThemeBaseOptOutIsFreeAndPersists() {
         let suiteName = "SeasonalThemeExplicitBase-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
@@ -659,8 +870,8 @@ struct EnhancementFeaturesTests {
             isPro: true
         )
 
-        #expect(proCoordinator.selection == .automatic)
-        #expect(proCoordinator.activeThemeID == .halloween2026)
+        #expect(proCoordinator.selection == .base)
+        #expect(proCoordinator.activeThemeID == .base)
         #expect(proCoordinator.select(.base))
         #expect(proCoordinator.activeThemeID == .base)
 
@@ -678,7 +889,7 @@ struct EnhancementFeaturesTests {
             timeZone: madrid,
             isPro: false
         )
-        #expect(restoredProCoordinator.activeThemeID == .halloween2026)
+        #expect(restoredProCoordinator.activeThemeID == .base)
     }
 
     @Test("Pro manual selection takes precedence over the seasonal window")
@@ -754,12 +965,12 @@ struct EnhancementFeaturesTests {
         #expect(definition?.eventDetailArtworkAssetName == "SeasonalThemeEventArtwork")
     }
 
-    @Test("Pro users can always select the standard theme")
+    @Test("All users can always select the standard theme")
     func premiumUsersCanSelectStandardTheme() {
         let madrid = timeZone("Europe/Madrid")
         let clock = SeasonalThemeClock(now: date(2026, 10, 15, 12, 0, timeZone: madrid), timeZone: madrid)
         #expect(SeasonalThemeResolver.canManuallyActivate(isPro: true, themeID: .base, at: clock))
-        #expect(!SeasonalThemeResolver.canManuallyActivate(isPro: false, themeID: .base, at: clock))
+        #expect(SeasonalThemeResolver.canManuallyActivate(isPro: false, themeID: .base, at: clock))
     }
 
     @Test("Seasonal schedules remain valid around daylight saving transitions")

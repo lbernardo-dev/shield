@@ -71,12 +71,7 @@
           "familyShareable" : false,
           "gracePeriod" : null,
           "internalID" : "annual_001",
-          "introductoryOffer" : {
-            "id" : "annual_trial_7d",
-            "offerType" : "FreeTrial",
-            "period" : "P7D",
-            "periodCount" : 1
-          },
+          "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "Acceso anual a MaskID Pro",
@@ -98,7 +93,7 @@
         {
           "adHocOffers" : [],
           "codeOffers" : [],
-          "displayPrice" : "14.99",
+          "displayPrice" : "29.99",
           "familyShareable" : false,
           "gracePeriod" : null,
           "internalID" : "annual_event_001",

@@ -1213,7 +1213,6 @@ struct OBPaywallView: View {
                         product: product,
                         isSelected: selectedProductID == product.id,
                         savingsLabel: savingsLabel(for: product),
-                        trialLabel: pm.trialLabels[product.id],
                         lang: appState.language
                     ) {
                         withAnimation(reduceMotion ? nil : .snappy(duration: 0.24)) {
@@ -1230,10 +1229,7 @@ struct OBPaywallView: View {
 
     private var purchaseSection: some View {
         VStack(spacing: 6) {
-            SubscriptionTrialDisclosure(
-                product: selectedPremiumProduct,
-                trialLabel: pm.trialLabels[selectedProductID]
-            )
+            SubscriptionRenewalDisclosure(product: selectedPremiumProduct)
 
             Button {
                 Task {
@@ -1260,11 +1256,7 @@ struct OBPaywallView: View {
                         ProgressView().tint(ShieldTheme.accentText)
                     } else {
                         Image(systemName: "shield.fill")
-                        Text(LanguageManager.shared.paywall(
-                            pm.trialLabels[selectedProductID] == nil
-                                ? "paywall_get_pro"
-                                : "paywall_free_trial"
-                        ))
+                        Text(LanguageManager.shared.paywall("paywall_get_pro"))
                             .font(.body.bold())
                     }
                 }

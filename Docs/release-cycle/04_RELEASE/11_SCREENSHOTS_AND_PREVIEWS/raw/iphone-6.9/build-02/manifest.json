@@ -1,0 +1,116 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "06146A1C-D7F4-41FB-ABA9-AE6F826A83ED.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-export_0_13C9E1D4-B18D-4F2B-B23B-F3C1A5B1D63E.png",
+        "timestamp" : 1794155142.853
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "23ACC387-35E2-4A69-8442-19BFE3E32DCD.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-vault_0_3FF8821D-8AF8-4BE9-9282-8DF8503471D7.png",
+        "timestamp" : 1794155135.672
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "A444627B-B114-41D7-8520-A55676F9D2D0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-editor_0_40406FF3-ABA4-4BAB-82E4-720E6FEE553E.png",
+        "timestamp" : 1794155129.387
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "F3959446-B5D9-44A1-8AB0-22F45A9D85DD.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-scan-review_0_6FC8F90E-D8D9-418E-BDCF-9D8338F82B64.png",
+        "timestamp" : 1794155122.481
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "07F2A634-788F-4A5C-9D27-D28092B987F0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-home_0_6FC260E8-0EA0-4A94-BBCA-B79FFD1F254C.png",
+        "timestamp" : 1794155114.5
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "489AB7DB-65BE-436A-8A30-6B8ADD3731C3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "en-US-00-base-theme-confirmed_0_420BA1F0-8EF5-41EB-BD1C-53EB74BC4B1B.png",
+        "timestamp" : 1794155107.95
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "808E2307-37FF-4C1C-8E28-0AF0CAF26289.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-export_0_B6B79F52-D60E-453C-B3A8-1AA4340AC07B.png",
+        "timestamp" : 1794155071.4
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "885A288D-57AE-4830-B190-D7FCA0F0E3F5.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-vault_0_2BDFBD6F-030C-446C-AAE8-615A52660F9B.png",
+        "timestamp" : 1794155064.049
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "3A0322AE-E567-4335-AA91-6F1CAF909C24.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-editor_0_517DCFE8-E204-4FFE-85A1-714E488D34EB.png",
+        "timestamp" : 1794155057.643
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "16845C25-0DAF-479F-A20B-A17264465A34.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-scan-review_0_C1B1E1EC-9969-4D0E-8D06-7D7F69C131B5.png",
+        "timestamp" : 1794155050.198
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "8FDC8999-B03B-4191-AEE8-5802C7D35DE0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-home_0_AB7CA346-91F5-48FE-8000-FD9448B463F5.png",
+        "timestamp" : 1794155041.73
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "4CC94B7A-1467-466E-9D1E-DAB3C9AED6C2",
+        "deviceName" : "MaskID Release Capture 18 Pro Max",
+        "exportedFileName" : "5BC61BD8-54A8-48D1-8D85-F7649565B798.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "es-ES-00-base-theme-confirmed_0_3D6F03DD-456F-4B35-A4AB-DDEF3E1BF4BA.png",
+        "timestamp" : 1794155034.972
+      }
+    ],
+    "testIdentifier" : "ShieldLaunchTests/testASOCaptureScreensUseBaseThemeInBothStoreLocales()",
+    "testIdentifierURL" : "test://com.apple.xcode/Shield/ShieldUITests/ShieldLaunchTests/testASOCaptureScreensUseBaseThemeInBothStoreLocales"
+  }
+]

@@ -2421,13 +2421,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eligibility and duration for free trials, introductory offers, promotional offers, or win-back offers are determined by Apple and displayed before confirmation. Unless canceled before the offer ends, an eligible trial converts to the paid subscription shown. Any unused trial portion may be forfeited when purchasing another plan."
+            "value" : "Apple displays the price, duration, and renewal terms for any offer that is available to your Apple Account before purchase. MaskID currently has no new annual introductory trial. The app's time-limited access is internal and does not create a subscription or automatic charge. Existing purchases keep the terms shown when they were made."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple determina elegibilidad y duración de pruebas y ofertas, que se muestran antes de confirmar. Si no cancelas antes del final, una prueba elegible pasa a la suscripción de pago indicada. La parte no usada puede perderse al comprar otro plan."
+            "value" : "Apple muestra el precio, la duración y las condiciones de renovación de cualquier oferta disponible para tu Cuenta Apple antes de comprar. MaskID no tiene actualmente una nueva prueba introductoria anual. El acceso temporal de la app es interno y no crea una suscripción ni un cargo automático. Las compras existentes conservan las condiciones mostradas cuando se hicieron."
           }
         }
       }
@@ -2438,13 +2438,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trials and offers"
+            "value" : "Offers and temporary access"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pruebas y ofertas"
+            "value" : "Ofertas y acceso temporal"
           }
         }
       }

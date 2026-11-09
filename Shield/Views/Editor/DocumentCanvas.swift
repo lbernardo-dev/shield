@@ -478,6 +478,7 @@ private struct RedactionOverlay: View {
         .accessibilityLabel(LanguageManager.shared.editor("editor_mask_accessibility_label"))
         .accessibilityValue(LanguageManager.shared.editor(isActive ? "editor_mask_selected" : "editor_mask_not_selected"))
         .accessibilityHint(LanguageManager.shared.editor("editor_mask_accessibility_hint"))
+        .accessibilityIdentifier("editor.mask.\(redaction.id.uuidString)")
         .accessibilityAddTraits(isActive ? .isSelected : [])
         .accessibilityAction {
             vm.activeRedactionID = isActive ? nil : redaction.id
@@ -512,7 +513,9 @@ private struct RedactionOverlay: View {
             @unknown default:
                 return
             }
+            vm.beginRedactionTransform()
             vm.resizeRedaction(id: redaction.id, newRect: rect)
+            vm.commitRedactionTransform()
         }
     }
 

@@ -1,6 +1,6 @@
 # MaskID — App Store metadata
 
-Status: canonical metadata reference for app `6790398619`, updated 2 October 2026. App Store Connect reports version `1.1.1` as the latest published release (`READY_FOR_SALE` / `READY_FOR_DISTRIBUTION`). Version `1.1.2` (`904cc5ee-994a-48cb-84db-265013b3cd75`) is staged as `PREPARE_FOR_SUBMISSION`, manual release, with EN/ES metadata and screenshots applied. It has no attached build and no What’s New copy; it has not been submitted. Older version/build entries below are historical.
+Status: historical metadata and App Store Connect snapshot, last refreshed 2 October 2026; do not use it as the current release-state source. The current ASC state was not verified on 7 November 2026 because authentication was unavailable. The latest local ASC record in tasks/details/245-resubmit-appstore-1-1-6-current-creatives.md reports version 1.1.6, build 1162026102502, as WAITING_FOR_REVIEW on 25 October 2026. The project currently declares build 1162026102501; reconcile this difference against ASC before release work. The 1.1.1 and 1.1.2 details below describe the October 2 snapshot. Candidate localized 1.1.6 metadata lives under metadata/.
 
 The complete iPad, WidgetKit, Siri/Shortcuts, App Review and release checklist is in [APPLE_SURFACES_AND_APP_STORE_CONNECT.md](APPLE_SURFACES_AND_APP_STORE_CONNECT.md).
 
@@ -85,7 +85,7 @@ Suggested review path:
 
 Camera access is used only for user-initiated capture and scanning. Photos and Files access is user initiated. Face ID or Touch ID gates the encrypted Vault. App Groups move user-selected documents from the Share Extension through an encrypted inbox. Optional Pro iCloud sync stores complete restorable non-Vault document packages in the user's private CloudKit database. Google Drive and Dropbox direct import use OAuth 2.0 + PKCE and device Keychain tokens; the local pipeline receives only the selected file.
 
-On first launch, an optional product-analytics choice is shown. Firebase Analytics is off unless the user explicitly allows it; the choice can be changed later from Settings > Privacy. Declining analytics does not limit document protection, OCR, export, Vault or iCloud controls.
+Firebase Analytics is disabled by default. Users can enable or disable optional product analytics from Settings > Privacy; the app does not interrupt first launch with an analytics prompt. Analytics choice does not limit document protection, OCR, export, Vault or iCloud controls.
 
 ## StoreKit products
 
@@ -106,9 +106,9 @@ Product IDs are immutable legacy identifiers and are never shown as the customer
 - Documents, images, OCR text, titles, Vault contents, file paths, and error-message text are not transmitted to Firebase or RevenueCat
 - Optional private CloudKit backup is used only for app functionality and non-Vault document restoration
 
-App Privacy is published in the authenticated App Store Connect session. It currently declares Device ID, Product Interaction, Crash Data, Performance Data, Purchase History and Other Diagnostic Data, with no tracking. The declaration remains required even though optional Firebase Analytics is off by default, because it can collect those categories after explicit consent. The public API cannot verify the publish flag, so the authenticated-session observation remains the audit evidence.
+An authenticated App Store Connect session recorded App Privacy as published and declaring Device ID, Product Interaction, Crash Data, Performance Data, Purchase History and Other Diagnostic Data, with no tracking. That is a historical observation; its current publication state was not verified on 7 November 2026. The declaration remains required even though optional Firebase Analytics is off by default, because it can collect those categories after explicit consent. The public API cannot verify the publish flag.
 
-## Current external status (2 October 2026)
+## Historical external status (2 October 2026)
 
 - Version 1.1.2 is still a draft and is not submission-ready: a build must be attached and What’s New must be supplied in en-US and es-ES after the release changes are known. `asc validate` reports only that blocking build error, those two What’s New warnings, manual release info, and an App Privacy publish-state check that the public API cannot verify.
 - No baseline App Analytics was available in the audit; the name and creative choices remain hypotheses without measured conversion results.

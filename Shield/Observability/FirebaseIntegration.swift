@@ -5,7 +5,6 @@ import FirebaseCrashlytics
 
 enum FirebaseIntegration {
     static let analyticsConsentKey = "shield.analyticsConsent"
-    static let analyticsConsentPromptAnsweredKey = "shield.analyticsConsentPromptAnswered"
 
     static var analyticsConsent: Bool {
         UserDefaults.standard.bool(forKey: analyticsConsentKey)

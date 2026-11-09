@@ -51,7 +51,7 @@ PremiumManager.isPro → feature gates and app state
 | Product | Entitlement | Duration | Same group/level | Trial/offer |
 |---|---|---|---|---|
 | `com.romerodev.shield.pro.monthly` | `MaskID Pro` | 1 month | Existing group; live level must be confirmed | No fixture intro offer |
-| `com.romerodev.shield.pro.annual` | `MaskID Pro` | 1 year | Baseline for Event; confirm live level | Local 7-day free-trial fixture; eligibility from RevenueCat |
+| `com.romerodev.shield.pro.annual` | `MaskID Pro` | 1 year | Baseline for Event; live level 1 verified | No introductory offer for new purchases; removed from ASC 8 Nov 2026 |
 | `com.romerodev.shield.pro.lifetime.unlock` | `MaskID Pro` | Non-consumable | Not a subscription group product | One-time purchase |
 | `com.romerodev.shield.pro.annual.event` | `MaskID Pro` | 1 year | Must match Standard Annual | One shared ordinary auto-renewable product for all events; no intro offer |
 
@@ -71,7 +71,7 @@ An Event Annual purchaser keeps that subscription and its entitlement after the 
 
 Current product IDs are centralized in `ShieldProduct`; every monetized campaign uses the same `com.romerodev.shield.pro.annual.event` ID and the same local StoreKit product. Keep the ID identical to ASC and RevenueCat. For a new campaign, add its schedule, campaign ID and discount target to the catalog; reuse the `event` Offering and existing product mapping. The time window selects the paywall automatically. Never create an event-specific product ID or mutate a shipped Product ID.
 
-The shared App Store product now exists at €14.99/year in Spain, but is not approved because ASC still needs its review screenshot. The RevenueCat product exists but is not attached to the `MaskID Pro` entitlement and is not in Offering `event`. Until those external steps and Sandbox verification finish, the app correctly falls back to Standard. See [ASC checklist](APP_STORE_CONNECT_SUBSCRIPTIONS.md) and [RevenueCat configuration](REVENUECAT_CONFIGURATION.md).
+The shared App Store product is approved at €29.99/year in Spain following its scheduled post-event price return. It is attached to `MaskID Pro` and Offering `event`; approval of the product does not itself mean the current app build has been reviewed with that product. Sandbox purchase verification and app-version review remain pending. See [ASC checklist](APP_STORE_CONNECT_SUBSCRIPTIONS.md) and [RevenueCat configuration](REVENUECAT_CONFIGURATION.md).
 
 ## Automatic transitions, rollout and rollback
 

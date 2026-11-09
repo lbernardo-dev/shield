@@ -1,0 +1,155 @@
+{
+  "version": "1.2.0",
+  "build": "1202026110802",
+  "baseTheme": "MaskID Original",
+  "seasonalThemePreference": "Never use seasonal themes",
+  "screenshotsAreUnalteredUI": true,
+  "fixtureData": "synthetic; no user records",
+  "count": 16,
+  "screenshots": [
+    {
+      "device": "iphone-6.9",
+      "locale": "es-ES",
+      "scene": "scan-review",
+      "file": "final/iphone-6.9/es-ES/01-review-scan.png",
+      "pixels": "1320x2868",
+      "sha256": "0c06bdd6c538218b0dc1bb86195bf84fa4cbdeeecea4f8c72bfde66910fdace3",
+      "source": "raw/es-ES/scan-review.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "es-ES",
+      "scene": "editor",
+      "file": "final/iphone-6.9/es-ES/02-ocultar-datos.png",
+      "pixels": "1320x2868",
+      "sha256": "1bf1a7d3d3aaf7af2c220dede366a69f0adbee05d786a1d49db06f0f764c053b",
+      "source": "raw/es-ES/editor.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "es-ES",
+      "scene": "export",
+      "file": "final/iphone-6.9/es-ES/03-comprobar-exportacion.png",
+      "pixels": "1320x2868",
+      "sha256": "ea295d8824cda31183dc3968d80d1aa08e25f89019bb0f267985d4eec2e79457",
+      "source": "raw/es-ES/export.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "es-ES",
+      "scene": "vault",
+      "file": "final/iphone-6.9/es-ES/04-boveda-privada.png",
+      "pixels": "1320x2868",
+      "sha256": "9773591cf7d3e9f4b99ced970c435040dcf9e41cb49b6eaf7bce7c416ea21c34",
+      "source": "raw/es-ES/vault.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "en-US",
+      "scene": "scan-review",
+      "file": "final/iphone-6.9/en-US/01-review-scan.png",
+      "pixels": "1320x2868",
+      "sha256": "b9f8691e37365b623e15d8dde55847a866121922accae43f3a132fdfa9200b40",
+      "source": "raw/en-US/scan-review.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "en-US",
+      "scene": "editor",
+      "file": "final/iphone-6.9/en-US/02-redact-in-editor.png",
+      "pixels": "1320x2868",
+      "sha256": "73cd6d02ecf641b18b34c446f8fa7de2f8099ea486ab142dddcbc9e1a6957c90",
+      "source": "raw/en-US/editor.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "en-US",
+      "scene": "export",
+      "file": "final/iphone-6.9/en-US/03-check-export.png",
+      "pixels": "1320x2868",
+      "sha256": "24287fb892335ce6d2188359ba2ac7dace6b08e97693907d5d5295e378717530",
+      "source": "raw/en-US/export.png"
+    },
+    {
+      "device": "iphone-6.9",
+      "locale": "en-US",
+      "scene": "vault",
+      "file": "final/iphone-6.9/en-US/04-private-vault.png",
+      "pixels": "1320x2868",
+      "sha256": "b1d09f9b336fd61c82e05a9d97dd9fa8b0e12de16645c9925ef7a51343873867",
+      "source": "raw/en-US/vault.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "es-ES",
+      "scene": "scan-review",
+      "file": "final/ipad-13/es-ES/01-review-scan.png",
+      "pixels": "2064x2752",
+      "sha256": "1beaa3106fbc5415bbb8b06f8fc2f702956c7e703d2ff699ca1a02f6ab81152a",
+      "source": "raw/ipad-13/es-ES/scan-review.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "es-ES",
+      "scene": "editor",
+      "file": "final/ipad-13/es-ES/02-ocultar-datos.png",
+      "pixels": "2064x2752",
+      "sha256": "79fa7365c0ffbdd8bf01d7315cb34da77b76394134b9aa26d78ed2f2a258949c",
+      "source": "raw/ipad-13/es-ES/editor.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "es-ES",
+      "scene": "export",
+      "file": "final/ipad-13/es-ES/03-comprobar-exportacion.png",
+      "pixels": "2064x2752",
+      "sha256": "7c540a66d85e841ec615ab26ce6401fd6cbeffec1809a5daef9e9906846c4c26",
+      "source": "raw/ipad-13/es-ES/export.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "es-ES",
+      "scene": "vault",
+      "file": "final/ipad-13/es-ES/04-boveda-privada.png",
+      "pixels": "2064x2752",
+      "sha256": "10f0585d6260a7c24edb6bb0daebe62234464573d71fcd33a5e88760bb01cf6b",
+      "source": "raw/ipad-13/es-ES/vault.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "en-US",
+      "scene": "scan-review",
+      "file": "final/ipad-13/en-US/01-review-scan.png",
+      "pixels": "2064x2752",
+      "sha256": "1a8f25eca6b9724ef1002c4202fd18e66fb34a006287878e5256fbee25d13aa5",
+      "source": "raw/ipad-13/en-US/scan-review.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "en-US",
+      "scene": "editor",
+      "file": "final/ipad-13/en-US/02-redact-in-editor.png",
+      "pixels": "2064x2752",
+      "sha256": "fa44b64acda68c1a7620db297891253a8b670ebf7e5f58aafadcfe960e7e223d",
+      "source": "raw/ipad-13/en-US/editor.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "en-US",
+      "scene": "export",
+      "file": "final/ipad-13/en-US/03-check-export.png",
+      "pixels": "2064x2752",
+      "sha256": "56cb6e938a4d5c63cfee67106fd447314561a79820409844142e99e8419c66ce",
+      "source": "raw/ipad-13/en-US/export.png"
+    },
+    {
+      "device": "ipad-13",
+      "locale": "en-US",
+      "scene": "vault",
+      "file": "final/ipad-13/en-US/04-private-vault.png",
+      "pixels": "2064x2752",
+      "sha256": "25075b37806312f63bf82c742805469ab49e1d7d82af0d4747f0eb50d9830117",
+      "source": "raw/ipad-13/en-US/vault.png"
+    }
+  ]
+}

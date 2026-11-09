@@ -165,7 +165,6 @@ struct HomeToolbarBrandLabel: View {
 
 struct HomeProfileToolbarButton: View {
     let scheme: ColorScheme
-    let isManagedTheme: Bool
     let onToggleLanguage: () -> Void
     let onToggleScheme: () -> Void
     let onOpenSettings: () -> Void
@@ -201,7 +200,6 @@ struct HomeProfileToolbarButton: View {
             Button(action: onToggleScheme) {
                 Label(LanguageManager.shared.settings("settings_dark_mode"), systemImage: scheme == .dark ? "sun.max.fill" : "moon.fill")
             }
-            .disabled(isManagedTheme)
 
             Button(action: onOpenSettings) {
                 Label(LanguageManager.shared.common("common_tab_settings"), systemImage: "gearshape")
@@ -313,45 +311,12 @@ private struct DuoAdaptiveHomeProfileAvatar: View {
 
 struct HomeHeroCardView: View {
     let scheme: ColorScheme
-    let isPro: Bool
-    let freeUsed: Int
-    let freeLimit: Int
     var showsHeading = true
     let onProtect: () -> Void
-    let onUpgrade: () -> Void
     let onLearnMore: () -> Void
 
     private var isHalloween: Bool {
         ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
-    }
-
-    private var isAtFreeLimit: Bool {
-        freeUsed >= freeLimit
-    }
-
-    private var usageFraction: Double {
-        min(1.0, Double(freeUsed) / Double(max(freeLimit, 1)))
-    }
-
-    private var usageColor: Color {
-        if isHalloween {
-            return Color(hex: "FFA53D")
-        }
-        switch usageFraction {
-        case ..<0.5: return ShieldTheme.accentColor(scheme)
-        case ..<0.8: return ShieldTheme.warning
-        default: return ShieldTheme.danger
-        }
-    }
-
-    private var usageState: String {
-        if isAtFreeLimit {
-            return LanguageManager.shared.home("home_plan_limit")
-        }
-        if usageFraction >= 0.5 {
-            return LanguageManager.shared.home("home_plan_attention")
-        }
-        return LanguageManager.shared.home("home_plan_available")
     }
 
     var body: some View {
@@ -381,10 +346,6 @@ struct HomeHeroCardView: View {
 
             HomeProcessingCard(scheme: scheme, onLearnMore: onLearnMore)
 
-            if !isPro {
-                freePlanMeter
-                    .padding(.top, 12)
-            }
         }
     }
 
@@ -417,70 +378,6 @@ struct HomeHeroCardView: View {
 
     private var heroSubtitle: String {
         LanguageManager.shared.home("home_hero_subtitle")
-    }
-
-    private var freePlanMeter: some View {
-        Button(action: onUpgrade) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(LanguageManager.shared.home("home_plan_status", usageState, freeUsed, freeLimit))
-                        .shieldFont(14, weight: .bold)
-                        .foregroundColor(usageColor)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    GeometryReader { proxy in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(
-                                    isHalloween
-                                        ? Color(hex: "341846").opacity(0.8)
-                                        : ShieldTheme.rowBackground(scheme)
-                                )
-                                .frame(height: 6)
-                            Capsule()
-                                .fill(
-                                    isHalloween
-                                        ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .leading, endPoint: .trailing)
-                                        : LinearGradient(colors: [usageColor, usageColor], startPoint: .leading, endPoint: .trailing)
-                                )
-                                .frame(width: proxy.size.width * usageFraction, height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-                }
-
-                Spacer(minLength: 4)
-
-                HStack(spacing: 4) {
-                    Text(LanguageManager.shared.home("home_upgrade"))
-                        .shieldFont(13, weight: .bold)
-                }
-                .foregroundColor(usageColor)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(
-                isHalloween
-                    ? Color(hex: "1C1026").opacity(0.85)
-                    : ShieldTheme.cardBackground(scheme).opacity(0.9)
-            )
-            .overlay {
-                if isHalloween {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: [Color(hex: "FF9A3D").opacity(0.45), Color(hex: "7C3AED").opacity(0.3)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        }
-        .buttonStyle(ScaleButtonStyle())
     }
 
 }

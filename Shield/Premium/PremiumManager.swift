@@ -109,8 +109,7 @@ struct PremiumProduct: Identifiable {
 // MARK: - PaywallTrigger (why are we showing the paywall)
 enum PaywallTrigger: String, CaseIterable {
     case manual
-    case docLimitReached
-    case exportLimitReached
+    case accessRequired
     case styleLocked
     case featureLocked
     case vaultUpgrade
@@ -119,8 +118,7 @@ enum PaywallTrigger: String, CaseIterable {
     var localizationKey: String {
         switch self {
         case .manual:           return "paywall_trigger_manual"
-        case .docLimitReached:  return "paywall_trigger_doc_limit"
-        case .exportLimitReached: return "paywall_trigger_export_limit"
+        case .accessRequired:   return "paywall_trigger_access_required"
         case .styleLocked:      return "paywall_trigger_style_locked"
         case .featureLocked:    return "paywall_trigger_feature_locked"
         case .vaultUpgrade:     return "paywall_trigger_vault"
@@ -130,8 +128,7 @@ enum PaywallTrigger: String, CaseIterable {
 
     var featureKey: String? {
         switch self {
-        case .docLimitReached: "document_limit"
-        case .exportLimitReached: "export_limit"
+        case .accessRequired: "document_processing"
         case .styleLocked: "advanced_styles"
         case .featureLocked: nil
         case .vaultUpgrade: nil
@@ -170,6 +167,7 @@ enum SubscriptionEntitlementState: String {
 enum SubscriptionOwnership: String {
     case purchased
     case familyShared = "family_shared"
+    case assigned
     case unknown
 }
 
@@ -221,14 +219,17 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     private var cloudKitIdentityRefreshGeneration: UInt = 0
     private var verifiedCloudKitUserRecordName: String?
     private var hasRevenueCatPremium = false
+    private let accessStateStore = AccessStateStore()
+    private var accessRecord: AccessRecord?
+    private var accessStorageAvailable = true
+    private let missingAccessRecordCohort: AccessCohort
 
     @Published private(set) var isPro: Bool = false
+    @Published private(set) var accessState: AppAccessState = .verifying
+    @Published private(set) var accessExpiresAt: Date?
     @Published private(set) var products: [PremiumProduct] = []
     @Published private(set) var isLoadingProducts: Bool = false
     @Published private(set) var productsLoadFailed: Bool = false
-    /// Product ID → localized free-trial badge. Only populated for products with
-    /// a free-trial introductory offer the user is still eligible for.
-    @Published private(set) var trialLabels: [String: String] = [:]
     @Published private(set) var purchaseError: String? = nil
     @Published var isPurchasing: Bool = false
     @Published var isRestoring: Bool = false
@@ -272,7 +273,21 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     private override init() {
         Self.configureRevenueCat()
+        missingAccessRecordCohort = AccessMigrationClassifier.cohort(
+            preMigrationInstallEvidence: UserDefaults.standard.bool(forKey: "shield.access.preMigrationInstallEvidence"),
+            wasOnboarded: UserDefaults.standard.bool(forKey: "shield.onboarded"),
+            savedDocumentCount: 0,
+            previouslyProcessedDocumentCount: UserDefaults.standard.integer(forKey: Self.processedDocumentsKey)
+        )
         super.init()
+        switch accessStateStore.load() {
+        case .record(let record):
+            accessRecord = record
+        case .missing:
+            accessRecord = nil
+        case .unavailable:
+            accessStorageAvailable = false
+        }
         // RevenueCat CustomerInfo is the only persisted entitlement authority.
         // Legacy UserDefaults booleans are deliberately ignored for access.
         isPro = false
@@ -288,6 +303,9 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         )
         #if DEBUG && targetEnvironment(simulator)
         let override = UserDefaults.standard.bool(forKey: "shield.devProOverride")
+            || ProcessInfo.processInfo.arguments.contains("-ui-testing")
+            || ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         isDebugProOverride = override
         #endif
         refreshResolvedPremiumAccess()
@@ -325,7 +343,6 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             let offerings = try await Purchases.shared.offerings()
             guard let currentOffering = offerings.current else {
                 products = []
-                trialLabels = [:]
                 isEventPaywall = false
                 eventAnnualPricing = nil
                 activeEventIdentifier = nil
@@ -458,10 +475,8 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
                     "Loaded \(self.products.count) packages from RevenueCat Offering \(currentOffering.identifier, privacy: .public)"
                 )
             }
-            await refreshTrialEligibility()
         } catch {
             products = []
-            trialLabels = [:]
             isEventPaywall = false
             eventAnnualPricing = nil
             activeEventIdentifier = nil
@@ -514,37 +529,10 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         )
     }
 
-    private func refreshTrialEligibility() async {
-        var labels: [String: String] = [:]
-        for product in products {
-            guard let offer = product.storeProduct.introductoryDiscount,
-                  offer.paymentMode == .freeTrial,
-                  await Purchases.shared.checkTrialOrIntroDiscountEligibility(product: product.storeProduct) == .eligible
-            else { continue }
-            labels[product.id] = Self.trialBadgeLabel(for: offer.subscriptionPeriod)
-        }
-        trialLabels = labels
-    }
-
-    private static func trialBadgeLabel(for period: RevenueCat.SubscriptionPeriod) -> String {
-        switch period.unit {
-        case .day:
-            return LanguageManager.shared.paywall("paywall_trial_days", period.value)
-        case .week:
-            return LanguageManager.shared.paywall("paywall_trial_days", period.value * 7)
-        case .month:
-            return LanguageManager.shared.paywall("paywall_trial_months", period.value)
-        case .year:
-            return LanguageManager.shared.paywall("paywall_trial_months", period.value * 12)
-        @unknown default:
-            return LanguageManager.shared.paywall("paywall_trial_days", period.value)
-        }
-    }
-
     // MARK: - Purchase
 
     func purchase(_ product: PremiumProduct) async {
-        guard hasResolvedSubscription, !isPro else { return }
+        guard hasResolvedSubscription, !hasPaidPremiumAccess else { return }
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
@@ -645,6 +633,11 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         #if DEBUG && targetEnvironment(simulator)
         if isDebugProOverride { return }
         #endif
+        guard Purchases.isConfigured else {
+            hasResolvedSubscription = true
+            refreshTemporalAccess()
+            return
+        }
         do {
             apply(try await Purchases.shared.customerInfo())
         } catch {
@@ -689,15 +682,110 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     }
 
     private func refreshResolvedPremiumAccess() {
+        refreshTemporalAccess()
+    }
+
+    private var hasPaidPremiumAccess: Bool {
         var storeEntitlementIsActive = hasRevenueCatPremium
         #if DEBUG && targetEnvironment(simulator)
         storeEntitlementIsActive = storeEntitlementIsActive || isDebugProOverride
         #endif
-        isPro = PremiumAccessResolver.hasPremiumAccess(
+        return PremiumAccessResolver.hasPremiumAccess(
             storeEntitlementIsActive: storeEntitlementIsActive,
             verifiedCloudKitUserRecordName: verifiedCloudKitUserRecordName,
             isProductionBuild: Self.isProductionBuild
         )
+    }
+
+    @discardableResult
+    func startTemporaryAccess(at now: Date = Date()) -> Bool {
+        guard hasResolvedSubscription,
+              !hasPaidPremiumAccess,
+              accessStorageAvailable,
+              accessRecord == nil,
+              accessState == .newUserNotice || accessState == .existingUserNotice,
+              let record = AccessRecord.start(cohort: missingAccessRecordCohort, at: now),
+              accessStateStore.save(record)
+        else { return false }
+        accessRecord = record
+        refreshTemporalAccess(now: now)
+        return accessState.hasFullAccess
+    }
+
+    func refreshTemporalAccess(now: Date = Date()) {
+        if hasPaidPremiumAccess {
+            #if DEBUG && targetEnvironment(simulator)
+            let isTestOverride = isDebugProOverride
+            #else
+            let isTestOverride = false
+            #endif
+            if accessRecord == nil, accessStorageAvailable, !isTestOverride {
+                let paidRecord = AccessRecord.paidAccessObserved(
+                    cohort: missingAccessRecordCohort,
+                    at: now
+                )
+                if accessStateStore.save(paidRecord) {
+                    accessRecord = paidRecord
+                } else {
+                    // Never replace a verified paid entitlement with a trial.
+                    // If its status later changes, storage failure stays fail-closed.
+                    accessStorageAvailable = false
+                }
+            }
+            accessState = .purchased
+            accessExpiresAt = nil
+            isPro = true
+            return
+        }
+        guard hasResolvedSubscription else {
+            accessState = .verifying
+            accessExpiresAt = nil
+            isPro = hasPaidPremiumAccess
+            return
+        }
+
+        if let record = accessRecord {
+            let refreshed = AccessPolicy.refreshed(record, at: now)
+            let lastTrustedAt = record.lastTrustedAt ?? .distantPast
+            if refreshed != record, now.timeIntervalSince(lastTrustedAt) >= 60 * 60 {
+                guard accessStateStore.save(refreshed) else {
+                    accessStorageAvailable = false
+                    accessState = AccessPolicy.resolve(
+                        record: accessRecord,
+                        missingRecordCohort: missingAccessRecordCohort,
+                        now: now,
+                        hasPaidAccess: hasPaidPremiumAccess,
+                        storageAvailable: false
+                    )
+                    isPro = accessState.hasFullAccess
+                    return
+                }
+                accessRecord = refreshed
+            }
+        }
+
+        accessState = AccessPolicy.resolve(
+            record: accessRecord,
+            missingRecordCohort: missingAccessRecordCohort,
+            now: now,
+            hasPaidAccess: hasPaidPremiumAccess,
+            storageAvailable: accessStorageAvailable
+        )
+        switch accessState {
+        case .temporaryFullAccess(let date, _), .readOnlyRecovery(let date):
+            accessExpiresAt = date
+        default:
+            accessExpiresAt = nil
+        }
+        isPro = accessState.hasFullAccess
+    }
+
+    var canModifyProductData: Bool {
+        accessState.allows(.modifyContent)
+    }
+
+    var canCreateOrImportProductData: Bool {
+        accessState.allows(.createContent) && accessState.allows(.importContent)
     }
 
     private func observeCloudKitAccountChanges() {
@@ -770,11 +858,13 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         switch ownershipType {
         case .some(.purchased): ownership = .purchased
         case .some(.familyShared): ownership = .familyShared
+        case .some(.assigned): ownership = .assigned
         case .some(.unknown), .none: ownership = .unknown
         @unknown default: ownership = .unknown
         }
         hasResolvedSubscription = true
         isResolvingSubscription = false
+        refreshTemporalAccess()
         UserDefaults.standard.set(nextTier.rawValue, forKey: Self.analyticsTierKey)
         UserDefaults.standard.set(nextState.rawValue, forKey: Self.analyticsSubscriptionStateKey)
 
@@ -809,10 +899,8 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
 
     // MARK: - Limits
 
-    /// Max documents in free tier
-    static let freeDocumentLimit = 10
-    static let freeWeeklyExportLimit = 0 // Secure export is never paywalled.
-    private static let exportHistoryKey = "shield.free.exportHistoryTimestamps"
+    /// Historical counter retained only as migration evidence/usage analytics.
+    private static let legacyUsageMilestones = [1, 3, 5, 8, 10]
 
     func syncProcessedDocumentCountIfNeeded(existingCount: Int) {
         let highest = max(freeDocumentsProcessedCount, existingCount)
@@ -828,7 +916,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         freeDocumentsProcessedCount += 1
         UserDefaults.standard.set(freeDocumentsProcessedCount, forKey: Self.processedDocumentsKey)
         SecureQuotaStore.persistCount(freeDocumentsProcessedCount)
-        if [1, 3, 5, 8, Self.freeDocumentLimit].contains(freeDocumentsProcessedCount) {
+        if Self.legacyUsageMilestones.contains(freeDocumentsProcessedCount) {
             AppState.trackEvent("quota_milestone", properties: [
                 "quota": String(freeDocumentsProcessedCount)
             ])
@@ -836,13 +924,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     }
 
     func canAddDocument(currentCount: Int? = nil) -> Bool {
-        if isPro { return true }
-        let count = max(freeDocumentsProcessedCount, currentCount ?? 0)
-        return count < PremiumManager.freeDocumentLimit
-    }
-
-    var remainingFreeDocuments: Int {
-        max(0, PremiumManager.freeDocumentLimit - freeDocumentsProcessedCount)
+        accessState.allows(.createContent)
     }
 
     #if DEBUG
@@ -858,11 +940,11 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
     #endif
 
     func canUseStyle(_ style: MaskStyle) -> Bool {
-        isPro || !style.isPremium
+        accessState.hasFullAccess
     }
 
     func canUseMode(_ mode: RedactionMode) -> Bool {
-        isPro || !mode.requiresPro
+        accessState.hasFullAccess
     }
 
     static func recordFeatureGate(_ feature: PremiumFeature, trigger: PaywallTrigger? = nil) {
@@ -871,29 +953,6 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
             properties["trigger"] = trigger.rawValue
         }
         AppState.trackEvent("feature_gate_tapped", properties: properties)
-    }
-
-    func canExportNow() -> Bool {
-        true
-    }
-
-    func freeExportsUsedThisWeek() -> Int {
-        let now = Date().timeIntervalSince1970
-        let weekAgo = now - (7 * 24 * 60 * 60)
-        let history = UserDefaults.standard.array(forKey: PremiumManager.exportHistoryKey) as? [Double] ?? []
-        let pruned = history.filter { $0 >= weekAgo }
-        if pruned.count != history.count {
-            UserDefaults.standard.set(pruned, forKey: PremiumManager.exportHistoryKey)
-        }
-        return pruned.count
-    }
-
-    func remainingFreeExportsThisWeek() -> Int {
-        .max
-    }
-
-    func recordExport() {
-        // Intentionally empty: verified exports are a core safety capability.
     }
 
     // MARK: - Helpers for display
@@ -929,12 +988,22 @@ enum SecureQuotaStore {
     static func loadHighestCount(localCount: Int) -> Int {
         let keychainCount = readKeychainCount()
         let iCloudCount = readICloudCount()
-        let resolvedMax = max(localCount, keychainCount, iCloudCount)
+        let resolvedMax = resolveHighestCount(
+            localCount: localCount,
+            keychainCount: keychainCount,
+            iCloudCount: iCloudCount
+        )
 
         if resolvedMax > 0 {
             persistCount(resolvedMax)
         }
         return resolvedMax
+    }
+
+    /// Reconciles the aggregate count without ever reducing a device's local
+    /// record when iCloud is unavailable or belongs to a different account.
+    static func resolveHighestCount(localCount: Int, keychainCount: Int, iCloudCount: Int) -> Int {
+        max(0, max(localCount, max(keychainCount, iCloudCount)))
     }
 
     static func persistCount(_ count: Int) {

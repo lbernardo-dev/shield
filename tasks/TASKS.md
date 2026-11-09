@@ -2637,3 +2637,125 @@
    Done by: CODEX
    Done at: 2026-10-25T14:45:53Z
 
+247. seasonal-theme-consent
+   Id: 247-seasonal-theme-consent
+   Scope: Consentimiento, persistencia, migración y UI de temas estacionales de MaskID
+   Files: Shield/Theme/ShieldTheme.swift,Shield/App/ContentView.swift,Shield/Views/Settings/SettingsDestinationViews.swift,Shield/Localization/Strings/Settings.xcstrings,ShieldTests/EnhancementFeaturesTests.swift,tasks/details
+   Note: Starting audit and implementation of voluntary seasonal theme policy
+   Detail: tasks/details/247-seasonal-theme-consent.md
+   Claimed by: CODEX
+   Claimed at: 2026-10-30T11:24:59Z
+
+248. fase-02-correcciones-auditoria-producto-ux
+   Id: 248-fase-02-correcciones-auditoria-producto-ux
+   Scope: Ejecutar las acciones AUD-001 a AUD-010 del traspaso de la auditoría, conservando y verificando WIP previo; documentar bloqueos externos
+   Files: Shield/Theme/ShieldTheme.swift,Shield/App/ContentView.swift,Shield/Localization/Strings/Settings.xcstrings,ShieldTests/EnhancementFeaturesTests.swift,ShieldUITests/ShieldLaunchTests.swift,Docs/PRIVACY_POLICY_PRODUCT_FACTS.md,Docs/legal/privacy.html,Docs/APP_STORE_METADATA_DRAFT.md,Docs/PRODUCT_POSITIONING.md,Docs/ANALYTICS_TRACKING_PLAN.md,AUDITORIA_PRODUCTO_UX/2026-11-07_0948
+   Note: Implementación local parcial y primer runtime iPhone 18 Pro: 34/37 tests pasan; migración corregida pendiente rerun, editor AX5 y firma de test de persistencia pendientes. Duo/iPad ocupados; VoiceOver/estudio y ASC pendientes. Ver 15_EJECUCION_FASE_02.md.
+   Detail: tasks/details/248-fase-02-correcciones-auditoria-producto-ux.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-07T09:13:09Z
+
+249. auditoria-fase-01-producto-ux
+   Id: 249-auditoria-fase-01-producto-ux
+   Scope: Auditoría de solo lectura de producto, funcionalidad, UI/UX, accesibilidad y calidad; informes y handoff fase 02, sin cambios de producto
+   Files: Shield/**,Shield.xcodeproj/**,ShareExtension/**,ShieldWidgetExtension/**,Docs/**,AUDITORIA_PRODUCTO_UX/2026-11-08_1114/**,tasks/TASKS.md,tasks/details/**
+   Note: Auditoría completa; 18 entregables verificados (JSON/CSV y git diff --check); sin cambios de producto ni ejecución de build/tests en este turno
+   Detail: tasks/details/249-auditoria-fase-01-producto-ux.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-08T10:14:09Z
+   Done by: CODEX
+   Done at: 2026-11-08T10:33:11Z
+
+250. fase-02-ejecucion-plan-auditoria-maskid
+   Id: 250-fase-02-ejecucion-plan-auditoria-maskid
+   Scope: Ejecutar AUD-011–AUD-021 del plan de fase 02: accesibilidad de máscaras, seguridad de borrado, E2E, KVS, UX, roadmap y baseline; preservar WIP preexistente, sin publicar ni modificar ASC
+   Files: Shield/Views/Editor/**,Shield/ViewModels/EditorViewModel.swift,Shield/Views/Vault/**,Shield/ViewModels/AppState.swift,ShieldTests/**,ShieldUITests/**,Shield/Localization/Strings/**,Shield/Models/**,Shield/Premium/PremiumManager.swift,Shield/Theme/ShieldTheme.swift,Shield/Views/Home/**,Shield/Views/Settings/**,ROADMAP.md,Docs/**,AUDITORIA_PRODUCTO_UX/2026-11-08_1114/**,tasks/TASKS.md,tasks/details/**
+   Note: Fase 02 cerrada: 36/36 unit + 4/4 UI en iOS Simulator 27.2; diff-check/JSON/xcstrings OK; ejecución y límites en 16, traspaso a tarea 251.
+   Detail: tasks/details/250-fase-02-ejecucion-plan-auditoria-maskid.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-08T10:35:10Z
+   Done by: CODEX
+   Done at: 2026-11-08T11:57:34Z
+
+251. fase-03-validacion-empirica-y-cuentas-de-prueba
+   Id: 251-fase-03-validacion-empirica-y-cuentas-de-prueba
+   Scope: Cerrar validaciones externas pendientes de AUD-011–AUD-021: VoiceOver/Voice Control y iPad físico; borrado CloudKit con fixture aislado; reconciliación KVS entre dispositivos/cuentas y offline; estudio moderado sobre Home, herramientas y comprensión modo/perfil; confirmar preferencias estacionales y limitaciones de accesibilidad.
+   Files: AUDITORIA_PRODUCTO_UX/2026-11-08_1114/**,ShieldUITests/ShieldLaunchTests.swift,ShieldTests/EnhancementFeaturesTests.swift,Shield/Cloud/**,Shield/Premium/PremiumManager.swift,Shield/Views/Editor/**,Shield/Views/Home/**,Shield/Views/Vault/**,Shield/Theme/**,ROADMAP.md,Docs/PRIVACY_POLICY_PRODUCT_FACTS.md,Docs/legal/privacy.html,tasks/details/**
+   Note: Handoff phase 03: use only synthetic documents and test accounts; no personal iCloud/Keychain reset or ASC writes; moderate 6–8 sessions and report evidence separately.
+   Detail: tasks/details/251-fase-03-validacion-empirica-y-cuentas-de-prueba.md
+
+252. fase-03-monetizacion-access-temporal
+   Id: 252-fase-03-monetizacion-access-temporal
+   Scope: Migrar todos los gates Free/Premium a acceso temporal 15/30/30 con recovery, conservar derechos y compras, actualizar StoreKit2/RevenueCat/UX, implementar tests y entregables fase 03; sin build definitivo ni publicación
+   Files: Shield/Premium/**,Shield/Views/**,Shield/Cloud/**,Shield/Share/**,Shield/Storage/**,Shield/Intents/**,Shield/Localization/**,Shield/Resources/Shield.storekit,ShieldTests/**,ShieldUITests/**,Docs/**,docs/release-cycle/**,README.md,tasks/**
+   Note: Fase 03 implementada, catálogo aprobado alineado; suite completa 235 passed/7 skipped/0 failed, exit 0; no build final/archive/publicación. Sandbox, revisión legal y E2E de expiración editor/captura permanecen como gates documentados.
+   Detail: tasks/details/252-fase-03-monetizacion-access-temporal.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-08T12:14:44Z
+   Done by: CODEX
+   Done at: 2026-11-08T14:40:47Z
+
+253. fase-04-certificacion-release
+   Id: 253-fase-04-certificacion-release
+   Scope: Conciliar fases 01-03; ejecutar QA final; corregir fallos reproducibles; preparar versión/build, metadatos ASO localizados, capturas y archive; documentar release. No publicar ni modificar ASC/RevenueCat sin autorización concreta.
+   Files: Docs/release-cycle/04_RELEASE/**,metadata/**,Shield.xcodeproj/**,Shield/**,ShieldTests/**,ShieldUITests/**,scripts/**,README.md,CHANGELOG.md,tasks/**
+   Note: Cierre local completado para 1.1.7 / 1172026110801: suite final 236 PASS, 7 SKIP, 0 FAIL y sin build/analyzer/runtime warnings; metadata, capturas, archive e IPA validados localmente. Release queda BLOCKED por gates jurídicos, Sandbox/RevenueCat/App Privacy y ASC. Sin commit/tag/push/upload/publicación ni cleanup; path - y cambios previos preservados.
+   Detail: tasks/details/253-fase-04-certificacion-release.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-08T14:44:22Z
+   Done by: CODEX
+   Done at: 2026-11-08T19:13:58Z
+
+254. asc-testflight-metadata-sync
+   Id: 254-asc-testflight-metadata-sync
+   Scope: Sincronizar metadatos y capturas ASO aprobados en ASC para 1.1.7, verificar RevenueCat, cargar IPA autorizado y esperar procesamiento TestFlight sin distribuir ni publicar
+   Files: Docs/release-cycle/04_RELEASE/**,tasks/TASKS.md,tasks/details/**
+   Note: ASC metadata y App Asset Library con 40 creatividades (10x4) escritos/leídos; build 1172026110801 VALID en TestFlight; estado final y IDs documentados. RevenueCat precios y ausencia de trial anual confirmados, lectura de apps/productos/entitlements sigue 403 y se entrega como acción del propietario. Sin distribución, revisión, publicación ni limpieza.
+   Detail: tasks/details/254-asc-testflight-metadata-sync.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-08T19:24:08Z
+   Done by: CODEX
+   Done at: 2026-11-08T20:52:56Z
+
+255. cierre-autonomo-bloqueos-release
+   Id: 255-cierre-autonomo-bloqueos-release
+   Scope: Cerrar autónomamente las verificaciones pendientes de MaskID 1.1.7: RevenueCat/ASC read-back, revisar y corregir únicamente drift comercial ya aprobado, avanzar pruebas locales, reconciliar privacidad técnicamente y actualizar evidencias y handoff; no enviar a revisión, publicar ni invitar testers
+   Files: Docs/release-cycle/04_RELEASE/**,tasks/TASKS.md,tasks/details/**
+   Note: Cierre autónomo completado: RevenueCat dashboard reconciliado; build 1172026110801 adjunto a 1.1.7; What to Test es-ES/en-US guardado; validadores ASC strict y TestFlight pasan sin bloqueos; informes actualizados. Sin distribuir al grupo con un tester existente, enviar a review, publicar, limpiar ni commit/tag/push. Gates restantes documentados.
+   Detail: tasks/details/255-cierre-autonomo-bloqueos-release.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-09T07:32:28Z
+   Done by: CODEX
+   Done at: 2026-11-09T07:48:46Z
+
+256. distribuir-build-testflight-shield-internal
+   Id: 256-distribuir-build-testflight-shield-internal
+   Scope: Asignar el build MaskID 1.1.7 ya procesado al grupo interno Shield Internal con autorización expresa del propietario; verificar vínculo, disponibilidad y notificación sin enviar a Beta App Review ni App Review
+   Files: Docs/release-cycle/04_RELEASE/**,tasks/TASKS.md,tasks/details/**
+   Note: Build 1172026110801 asignado al grupo Shield Internal con autorización expresa; ASC read-back confirma relación explícita, estado IN_BETA_TESTING y autoNotifyEnabled=true. No se añadieron testers ni se envió a Beta App Review/App Review. Validate TestFlight sin bloqueos. Informes/manifiesto actualizados; no publicación.
+   Detail: tasks/details/256-distribuir-build-testflight-shield-internal.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-09T07:53:29Z
+   Done by: CODEX
+   Done at: 2026-11-09T07:58:51Z
+
+257. qa-sandbox-storekit-1-1-7
+   Id: 257-qa-sandbox-storekit-1-1-7
+   Scope: Inspeccionar capacidades locales y cuentas Sandbox existentes para validar compras/restauración StoreKit del build 1.1.7 en el grupo interno autorizado; ejecutar sólo pruebas con identidad de test ya configurada y no crear cuentas ni exponer datos personales
+   Files: Docs/release-cycle/04_RELEASE/**,Shield/Resources/Shield.storekit,ShieldTests/**,ShieldUITests/**,tasks/TASKS.md,tasks/details/**
+   Note: Catalog/RevenueCat local StoreKit resolution PASS 3/3; local purchase/restore test worker stalled/restarted and was interrupted after 190s, no verifiable transaction result; real TestFlight Sandbox and lifecycle remain open. Docs and manifest updated; app/source and scheme unchanged; JSON/CSV/diff checks pass.
+   Detail: tasks/details/257-qa-sandbox-storekit-1-1-7.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-09T07:59:07Z
+   Done by: CODEX
+   Done at: 2026-11-09T08:21:23Z
+
+258. alinear-main-local-remoto
+   Id: 258-alinear-main-local-remoto
+   Scope: Integrar todos los cambios locales del ciclo 1.1.7 en main, actualizar main local y remoto y verificar igualdad de commit sin perder trabajo previo
+   Files: git/**,tasks/TASKS.md,tasks/details/**
+   Note: Inspeccionando estado, archivos y divergencia antes de integrar y publicar main.
+   Detail: tasks/details/258-alinear-main-local-remoto.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-09T08:31:12Z
+

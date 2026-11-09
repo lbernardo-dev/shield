@@ -7,6 +7,8 @@ import UIKit
 struct HomeView: View {
     var onScanTap: (() -> Void)? = nil
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var seasonalThemes: SeasonalThemeCoordinator
+    @Environment(\.seasonalInvitationAllowed) private var seasonalInvitationAllowed
     @StateObject private var pm = PremiumManager.shared
     @ObservedObject private var cloud = CloudSyncManager.shared
     @ObservedObject private var directCloud = DirectCloudStorageManager.shared
@@ -17,6 +19,7 @@ struct HomeView: View {
 
     @State private var showAllDocs = false
     @State private var allDocumentsMetric: HomeLibraryMetric = .documents
+    @State private var presentedSeasonalInvitationOccurrenceID: String?
     @State private var showFilters = false
     @State private var showPaywall = false
     @State private var showCloudImport = false
@@ -54,6 +57,20 @@ struct HomeView: View {
                             regularHomeDashboard
                         } else {
                             LazyVStack(spacing: 0) {
+                                if shouldShowSeasonalInvitation,
+                                   let eventDefinition = seasonalThemes.activeScheduledThemeID.flatMap({ SeasonalThemeCatalog.definition(for: $0) }) {
+                                    SeasonalEventInvitationCard(
+                                        eventName: eventName(for: eventDefinition),
+                                        onApply: { _ = seasonalThemes.acceptCurrentEventTheme() },
+                                        onKeep: seasonalThemes.declineCurrentEventTheme,
+                                        onDismiss: seasonalThemes.dismissCurrentEventInvitation
+                                    )
+                                    .padding(.horizontal, ShieldTheme.s5)
+                                    .padding(.top, 12)
+                                    .padding(.bottom, 4)
+                                    .onAppear(perform: presentSeasonalInvitation)
+                                    .onDisappear { presentedSeasonalInvitationOccurrenceID = nil }
+                                }
                                 heroSection
                                 searchSection
                                 quickAccessSection
@@ -107,7 +124,6 @@ struct HomeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HomeProfileToolbarButton(
                         scheme: appState.preferredScheme,
-                        isManagedTheme: ShieldTheme.activeThemeID.isSeasonal,
                         onToggleLanguage: toggleLanguage,
                         onToggleScheme: toggleColorScheme,
                         onOpenSettings: openSettings
@@ -125,7 +141,6 @@ struct HomeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HomeProfileToolbarButton(
                         scheme: appState.preferredScheme,
-                        isManagedTheme: ShieldTheme.activeThemeID.isSeasonal,
                         onToggleLanguage: toggleLanguage,
                         onToggleScheme: toggleColorScheme,
                         onOpenSettings: openSettings
@@ -247,6 +262,17 @@ struct HomeView: View {
 
     private var regularHomeDashboard: some View {
         VStack(spacing: 18) {
+            if shouldShowSeasonalInvitation,
+               let eventDefinition = seasonalThemes.activeScheduledThemeID.flatMap({ SeasonalThemeCatalog.definition(for: $0) }) {
+                SeasonalEventInvitationCard(
+                    eventName: eventName(for: eventDefinition),
+                    onApply: { _ = seasonalThemes.acceptCurrentEventTheme() },
+                    onKeep: seasonalThemes.declineCurrentEventTheme,
+                    onDismiss: seasonalThemes.dismissCurrentEventInvitation
+                )
+                .onAppear(perform: presentSeasonalInvitation)
+                .onDisappear { presentedSeasonalInvitationOccurrenceID = nil }
+            }
             regularWelcomeHeader
             heroSection
 
@@ -271,6 +297,46 @@ struct HomeView: View {
             }
         }
         .padding(.top, 12)
+    }
+
+    private var shouldShowSeasonalInvitation: Bool {
+        seasonalInvitationAllowed
+            && (seasonalThemes.shouldShowEventInvitation || isPresentedSeasonalInvitationForCurrentEvent)
+            && appState.isOnboarded
+            && appState.isAuthenticated
+            && !appState.showCapture
+            && appState.selectedDoc == nil
+            && !searchFocused
+            && !showAllDocs
+            && !showFilters
+            && !showPaywall
+            && !showCloudImport
+            && !showBatchRedact
+            && showVaultAuthForDoc == nil
+            && !showVaultPINEntry
+            && !showVaultPINSetup
+            && !showVaultAutoLock
+    }
+
+    private var isPresentedSeasonalInvitationForCurrentEvent: Bool {
+        guard seasonalThemes.eventThemePreference == .askEachEvent,
+              let occurrenceID = seasonalThemes.activeEventOccurrenceID,
+              presentedSeasonalInvitationOccurrenceID == occurrenceID else {
+            return false
+        }
+        return seasonalThemes.eventDecisions[occurrenceID] == nil
+    }
+
+    private func presentSeasonalInvitation() {
+        presentedSeasonalInvitationOccurrenceID = seasonalThemes.activeEventOccurrenceID
+        seasonalThemes.markEventInvitationPresented()
+    }
+
+    private func eventName(for definition: SeasonalThemeDefinition) -> String {
+        guard let key = definition.eventNameKey else {
+            return definition.id.title(language: LanguageManager.shared.currentLanguage)
+        }
+        return LanguageManager.shared.settings(key)
     }
 
     private var libraryStatistics: some View {
@@ -355,12 +421,8 @@ struct HomeView: View {
     private var heroSection: some View {
         HomeHeroCardView(
             scheme: appState.preferredScheme,
-            isPro: pm.isPro,
-            freeUsed: max(pm.freeDocumentsProcessedCount, appState.documents.count),
-            freeLimit: PremiumManager.freeDocumentLimit,
             showsHeading: horizontalSizeClass != .regular || dynamicTypeSize.isAccessibilitySize,
             onProtect: openDocumentIntake,
-            onUpgrade: { showPaywall = true },
             onLearnMore: openSettings
         )
         .padding(.horizontal, ShieldTheme.s5)
@@ -384,6 +446,9 @@ struct HomeView: View {
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .focused($searchFocused)
                 .submitLabel(.search)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+                .accessibilityLabel(LanguageManager.shared.home("home_search_content_hint"))
                 .accessibilityIdentifier("home.searchField")
 
             if !appState.searchQuery.isEmpty {
@@ -1032,9 +1097,8 @@ struct HomeView: View {
     }
 
     private func toggleColorScheme() {
-        guard !ShieldTheme.activeThemeID.isSeasonal else { return }
         withAnimation {
-            appState.preferredScheme = appState.preferredScheme == .dark ? .light : .dark
+            appState.setRegularAppearanceScheme(appState.preferredScheme == .dark ? .light : .dark)
         }
     }
 
@@ -1052,6 +1116,77 @@ struct HomeView: View {
         }
     }
 
+}
+
+private struct SeasonalEventInvitationCard: View {
+    let eventName: String
+    let onApply: () -> Void
+    let onKeep: () -> Void
+    let onDismiss: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: ShieldTheme.s3) {
+            HStack(alignment: .top, spacing: ShieldTheme.s2) {
+                Image(systemName: "sparkles")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: ShieldTheme.s1) {
+                    Text(strings.settings("settings_theme_invitation_title", eventName))
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(strings.settings("settings_theme_invitation_detail"))
+                        .font(.caption)
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(ShieldTheme.tertiary(scheme))
+                        .frame(width: 36, height: 36)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(strings.settings("settings_theme_invitation_dismiss"))
+            }
+
+            HStack(spacing: ShieldTheme.s2) {
+                Button(action: onApply) {
+                    Text(strings.settings("settings_theme_invitation_apply"))
+                        .font(.caption.weight(.bold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(ShieldTheme.accentText)
+                        .background(ShieldTheme.accent(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("home.seasonalTheme.apply")
+
+                Button(action: onKeep) {
+                    Text(strings.settings("settings_theme_invitation_keep"))
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                        .background(ShieldTheme.rowBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rSM))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("home.seasonalTheme.keep")
+            }
+        }
+        .padding(ShieldTheme.s4)
+        .shieldSettingsCard()
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("home.seasonalTheme.invitation")
+    }
 }
 
 private struct HomeCategoryChip: View {

@@ -1,0 +1,48 @@
+{
+  "phase": 3,
+  "completed_on": "2026-11-08",
+  "app_name": "MaskID",
+  "bundle_id": "com.romerodev.shield",
+  "commercial_approval_summary": "Owner approved €2.99 monthly, €29.99 annual, €49.99 optional lifetime, no weekly plan; authorized only those commercial changes and removal of the annual 7-day introductory offer for new buyers while preserving acquired rights.",
+  "approved_products_eur_es": {
+    "com.romerodev.shield.pro.monthly": {"price": "2.99 EUR/month", "asc_status": "VERIFIED", "evidence": "ASC read-only pricing summary, Spain, 2026-11-08; APPROVED"},
+    "com.romerodev.shield.pro.annual": {"price": "29.99 EUR/year", "asc_status": "VERIFIED", "evidence": "ASC read-only pricing summary, Spain, 2026-11-08; APPROVED; introductory-offer list empty"},
+    "com.romerodev.shield.pro.lifetime.unlock": {"price": "49.99 EUR once", "asc_status": "VERIFIED", "evidence": "ASC read-only IAP pricing summary, Spain, 2026-11-08; NON_CONSUMABLE"},
+    "com.romerodev.shield.pro.annual.event": {"price": "29.99 EUR/year current", "asc_status": "VERIFIED", "evidence": "ASC read-only pricing summary, Spain, 2026-11-08; APPROVED; event price return effective"}
+  },
+  "storekit_status": "VERIFIED: checked-in StoreKit fixture has no annual introductory offer; product IDs preserved; StoreKit 2 remains the product metadata source. Live purchase transactions not run.",
+  "revenuecat_status": "VERIFIED: project bbe3f3db, entitlement MaskID Pro and default/event package mappings preserved; annual product store state refreshed 2026-11-08 with status ok and zero introductory-offer territories. Sandbox purchase/restore not run.",
+  "all_gates_migrated": true,
+  "migration_tests": {
+    "new_user_15_day_boundary": "PASS unit: AccessPolicyTests/newUserExpiry",
+    "legacy_30_plus_30_boundary": "PASS unit: AccessPolicyTests/existingFreeMigrationWindow",
+    "paid_precedence_and_paid_latch": "PASS unit: AccessPolicyTests/paidEntitlementsTakePrecedence",
+    "read_only_capability_matrix": "PASS unit: AccessPolicyTests/readOnlyCapabilityMatrix",
+    "clock_rollback": "PASS unit: AccessPolicyTests/clockRollbackClampsToLastTrustedValue",
+    "notice_version_and_acceptance": "PASS unit: AccessPolicyTests/freshInstallRequiresNotice and acceptanceIsRequiredForFullAccess",
+    "configurable_period_defaults": "PASS unit added 2026-11-08; full suite evidence recorded in docs/TEST_MATRIX.md",
+    "dst_calendar_days": "PASS unit added 2026-11-08; full suite evidence recorded in docs/TEST_MATRIX.md",
+    "sandbox_purchase_restore_refund_grace": "NOT RUN: no purchase transaction performed in this phase"
+  },
+  "legal_release_blocker": true,
+  "external_config_pending": [
+    "StoreKit Sandbox/TestFlight purchase, restore, cancel, pending, grace, refund, revoke and renewal E2E",
+    "Re-read app version/build parity and Event Annual version review state before release",
+    "RevenueCat restore behavior, API key/notifications and identity transfer review if needed for release"
+  ],
+  "privacy_issues": [
+    "ANTI_RESET_STRICT_NOT_GUARANTEED: no backend or stable MaskID account; ThisDeviceOnly Keychain does not guarantee reinstall/device recovery and local clock advance can expire early",
+    "Editor boundary mitigation implemented: Save/Discard alert plus one-shot lease for the active persisted document; UI E2E remains a release validation gate",
+    "CloudKit rights deletion has a queued remote-delete path independent of paid sync; live offline/retry behavior still needs isolated account validation"
+  ],
+  "p0_p1_open": [
+    "Editor and active-capture boundary flows require UI E2E verification on simulator/device before release"
+  ],
+  "test_evidence": {
+    "unit_command": "xcodebuild test -quiet -project Shield.xcodeproj -scheme Shield -destination platform=iOS Simulator,id=CCC41661-BB97-41D2-87E2-D47FC51B1C6B -only-testing:ShieldTests/AccessPolicyTests -only-testing:ShieldTests/SubscriptionExperienceTests -only-testing:ShieldTests/FreeQuotaTests",
+    "unit_result": "PASS: selected AccessPolicyTests, SubscriptionExperienceTests and legacy usage-history tests; exact final run and broader suite in docs/TEST_MATRIX.md",
+    "full_suite": "PASS: xcodebuild test -quiet -project Shield.xcodeproj -scheme Shield -destination platform=iOS Simulator,id=CCC41661-BB97-41D2-87E2-D47FC51B1C6B; 235 passed, 7 skipped, 0 failed (242 tests), exit 0, 21m12s; .xcresult /Users/romerodev/Library/Developer/Xcode/DerivedData/Shield-emunowwqdzukpfbkshmbfqbgsvss/Logs/Test/Test-Shield-2026.11.08_15-17-39-+0100.xcresult; seven skips: four Duo, two iPad, one RevenueCat remote Offering",
+    "manual_accessibility_sandbox_cloudkit": "NOT RUN: physical-device/account workflows not executed"
+  },
+  "next_phase_required": true
+}

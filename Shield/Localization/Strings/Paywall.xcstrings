@@ -83,23 +83,6 @@
         }
       }
     },
-    "paywall_billed_weekly": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Billed weekly"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Facturación semanal"
-          }
-        }
-      }
-    },
     "paywall_cancel_anytime": {
       "extractionState": "manual",
       "localizations": {
@@ -508,23 +491,6 @@
         }
       }
     },
-    "paywall_free_trial": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start free trial"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Iniciar prueba gratis"
-          }
-        }
-      }
-    },
     "paywall_get_pro": {
       "extractionState": "manual",
       "localizations": {
@@ -787,23 +753,6 @@
         }
       }
     },
-    "paywall_plan_weekly": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Weekly"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semanal"
-          }
-        }
-      }
-    },
     "paywall_legal_actions": {
       "extractionState": "manual",
       "localizations": {
@@ -1033,13 +982,6 @@
         "es": { "stringUnit": { "state": "translated", "value": "/semana" } }
       }
     },
-    "paywall_trial_renewal_disclosure": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "%1$@, then you will be charged %2$@. Subscription automatically renews until canceled." } },
-        "es": { "stringUnit": { "state": "translated", "value": "%1$@; después se te cobrará %2$@. La suscripción se renueva automáticamente hasta que la canceles." } }
-      }
-    },
     "paywall_renewal_disclosure": {
       "extractionState": "manual",
       "localizations": {
@@ -1047,70 +989,19 @@
         "es": { "stringUnit": { "state": "translated", "value": "Se te cobrará %1$@. La suscripción se renueva automáticamente hasta que la canceles." } }
       }
     },
-    "paywall_trial_days": {
+    "paywall_trigger_access_required": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d-day free trial"
+            "value": "A paid plan is required to continue"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%d días de prueba gratis"
-          }
-        }
-      }
-    },
-    "paywall_trial_months": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d-month free trial"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d meses de prueba gratis"
-          }
-        }
-      }
-    },
-    "paywall_trigger_doc_limit": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You've reached the free document limit"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Has alcanzado el límite de documentos gratuitos"
-          }
-        }
-      }
-    },
-    "paywall_trigger_export_limit": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You used all weekly exports on Free."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Has agotado tus exportaciones semanales en Free."
+            "value": "Necesitas un plan de pago para continuar"
           }
         }
       }
@@ -1213,23 +1104,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Activar MaskID Pro"
-          }
-        }
-      }
-    },
-    "paywall_weekly": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Weekly"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Semanal"
           }
         }
       }

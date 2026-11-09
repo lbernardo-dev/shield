@@ -188,6 +188,20 @@
         }
       }
     },
+    "vault_delete_confirmation_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Delete this document permanently?" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¿Eliminar este documento permanentemente?" } }
+      }
+    },
+    "vault_delete_confirmation_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "The document and its Vault files will be deleted. This action cannot be undone." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se eliminarán el documento y sus archivos de la Bóveda. Esta acción no se puede deshacer." } }
+      }
+    },
     "vault_pin_setup_title": {
       "extractionState": "manual",
       "localizations": {

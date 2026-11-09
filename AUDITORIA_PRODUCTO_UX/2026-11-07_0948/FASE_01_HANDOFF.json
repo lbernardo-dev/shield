@@ -1,0 +1,57 @@
+{
+  "phase": 1,
+  "app_name": "MaskID",
+  "bundle_id": "com.romerodev.shield",
+  "audit_directory": "AUDITORIA_PRODUCTO_UX/2026-11-07_0948",
+  "critical_findings": [],
+  "high_findings": [],
+  "material_findings": [
+    {"id": "THEME-002", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"},
+    {"id": "PRIV-001", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"},
+    {"id": "ACC-001", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"},
+    {"id": "THEME-001", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"},
+    {"id": "DOC-001", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"},
+    {"id": "PRIV-002", "priority": "P2", "report": "07_HALLAZGOS_PRIORIZADOS.md"}
+  ],
+  "p0_p1_ids": [],
+  "core_user_jobs": [
+    "Importar un documento sensible.",
+    "Revisar datos reconocidos y corregir máscaras.",
+    "Exportar y verificar una copia compartible.",
+    "Guardar o retomar trabajo de forma protegida cuando haga falta."
+  ],
+  "test_limitations": [
+    "La primera consulta CoreSimulator falló; la revalidación de fase 02 obtuvo inventario, pero iPhone 18 Pro, Duo e iPad M5 estaban ocupados por otras apps/testmanagerd.",
+    "No se compiló, instaló, lanzó ni ejecutó tests; no se cerraron ni modificaron simuladores ajenos.",
+    "ASC no se consultó por error de credenciales -50.",
+    "Sin observación de interfaz, capturas, analítica ni usuarios."
+  ],
+  "next_phase_required": true,
+  "authorization_update": "El usuario autorizó la ejecución del plan de fase 02 el 2026-11-07; véase task 248.",
+  "reports": [
+    "00_RESUMEN_EJECUTIVO.md",
+    "01_MISION_Y_PROMESA.md",
+    "02_INVENTARIO_FUNCIONAL.md",
+    "03_MAPA_NAVEGACION_Y_FLUJOS.md",
+    "04_AUDITORIA_UI_UX_ACCESIBILIDAD.md",
+    "05_AUDITORIA_TEMAS_EVENTOS_MONETIZACION.md",
+    "06_CALIDAD_TECNICA_Y_PRUEBAS.md",
+    "07_HALLAZGOS_PRIORIZADOS.md",
+    "08_PLAN_DE_SIMPLIFICACION.md",
+    "09_MATRIZ_PUNTUACION.md",
+    "10_REVISION_ADVERSARIAL.md",
+    "11_ESCENARIOS_DE_VALIDACION.md",
+    "12_PLAN_ACCION_EJECUTABLE.md",
+    "13_BASELINE_RELEASE_ASO.md",
+    "14_GATE_DE_CALIDAD_INICIAL.md",
+    "HALLAZGOS.csv",
+    "RESULTADO_AUDITORIA.json"
+  ],
+  "siguiente_fase": {
+    "proposito": "Fase 02: corregir producto/UX y temas después de autorización explícita.",
+    "resumen": "Simplificar/ordenar control de tema y audio, verificar privacidad y crear cobertura accesible.",
+    "preservar": ["OCR local", "máscaras manuales", "verificador de exportación", "Vault", "Share Extension"],
+    "riesgo_que_bloquea_release": "No hay bloqueo P0/P1; no aprobar release o cambios hasta validar flujos y confirmar estado de CoreSimulator/ASC.",
+    "no_autoriza_cambios": true
+  }
+}

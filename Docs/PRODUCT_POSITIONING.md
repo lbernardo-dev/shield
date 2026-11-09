@@ -2,17 +2,21 @@
 
 ## Promise
 
-MaskID is the on-device identity-protection workspace for people and teams that need to share documents without exposing unnecessary personal data—and need a reviewable, verifiable output rather than a cosmetic black rectangle.
+MaskID is the on-device identity-protection workspace for people who need to share documents without exposing unnecessary personal data—and need a reviewable, verifiable output rather than a cosmetic black rectangle. The current workspace is for individual use; team-oriented review tools are future work.
 
-## Free
+## Access and data recovery
 
-- Import, camera and scanner.
-- Manual masking and conservative OCR suggestions.
-- Secure rasterized export with verification and no forced watermark.
-- PDF and image exports expose a Protection Check: pages reviewed, redactions,
-  metadata removal, watermark state and detected fields left visible.
-- Local encrypted storage and encrypted Vault.
-- Up to 10 documents processed cumulatively on Free; verified export remains available.
+- New users can activate 15 calendar days of full Premium access without a
+  StoreKit transaction, subscription, or automatic charge.
+- Free users present before the migration receive 30 calendar days of full
+  access, then 30 days of read-only recovery to view and export their documents.
+- After those windows, a mandatory paywall gates commercial workflows. Users
+  can still restore purchases, manage subscriptions, access legal/support
+  information, and retrieve, export, or delete their own data.
+- Existing paid subscriptions and lifetime purchases remain governed by their
+  verified entitlement and are not put on a temporary clock.
+- Secure verified export of previously saved work remains available during
+  recovery and after expiry. Expiration never deletes a local document.
 
 ## Pro
 
@@ -22,8 +26,9 @@ MaskID is the on-device identity-protection workspace for people and teams that 
 - Productivity automations, Files-provider workflows, optional direct Google Drive/Dropbox import and opt-in complete iCloud backup for non-Vault documents.
 - Future team-oriented review tools.
 
-The local encrypted Vault is part of Free. Premium is positioned around repeated work:
-scale, batch speed, advanced controls and moving the workflow between devices or providers.
+The local encrypted Vault remains part of the product; its existing biometric/PIN
+authentication is preserved. Premium is positioned around repeated work: scale,
+batch speed, advanced controls and moving the workflow between devices or providers.
 
 Security correctness, privacy shielding, encryption, output verification and accessibility are product guarantees and never subscription gates.
 

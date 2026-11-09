@@ -748,6 +748,7 @@ struct ScanReviewView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: previewRect.width, height: previewRect.height)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .accessibilityIdentifier("scanReview.preview.image")
 
                             if showQuadEditor {
                                 let currentQuad = Binding<ScanQuad>(
@@ -770,6 +771,7 @@ struct ScanReviewView: View {
                         ProgressView()
                             .tint(ShieldTheme.accent(scheme))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .accessibilityIdentifier("scanReview.preview.loading")
                     }
                 }
             }

@@ -9,9 +9,10 @@ struct VaultView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.colorScheme) var scheme
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var premium = PremiumManager.shared
     @State private var isUnlocked: Bool = {
 #if DEBUG
-        ASOScreenshotMode.isEnabled && (ASOScreenshotMode.scene == "vault" || ASOScreenshotMode.scene == "06-vault-security" || ASOScreenshotMode.scene == "06" || ASOScreenshotMode.scene == "10-vault-security" || ASOScreenshotMode.scene == "10")
+        ASOScreenshotMode.isEnabled && (ASOScreenshotMode.scene == "vault" || ASOScreenshotMode.scene == "vault-delete-confirmation" || ASOScreenshotMode.scene == "06-vault-security" || ASOScreenshotMode.scene == "06" || ASOScreenshotMode.scene == "10-vault-security" || ASOScreenshotMode.scene == "10")
 #else
         false
 #endif
@@ -20,6 +21,7 @@ struct VaultView: View {
     @State private var selectedDoc: DocumentItem? = nil
     @State private var quickExportDoc: DocumentItem? = nil
     @State private var docToReviewAfterExport: DocumentItem? = nil
+    @State private var pendingDeleteDoc: DocumentItem? = nil
     @State private var showPINSetup = false
     @State private var showPINEntry = false
     @State private var showAddToVault = false
@@ -84,6 +86,8 @@ struct VaultView: View {
         .onChange(of: isUnlocked) { _, unlocked in
             if unlocked {
                 DocumentExpiryReminderManager.shared.syncAllVaultReminders(documents: appState.vaultDocuments, lang: appState.language)
+            } else {
+                pendingDeleteDoc = nil
             }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -92,6 +96,28 @@ struct VaultView: View {
                 selectedDoc = nil
                 quickExportDoc = nil
             }
+        }
+        .alert(
+            LanguageManager.shared.vault("vault_delete_confirmation_title"),
+            isPresented: Binding(
+                get: { pendingDeleteDoc != nil },
+                set: { if !$0 { pendingDeleteDoc = nil } }
+            )
+        ) {
+            Button(LanguageManager.shared.vault("vault_delete"), role: .destructive) {
+                if let document = pendingDeleteDoc {
+                    appState.deleteDocument(document)
+                }
+                pendingDeleteDoc = nil
+            }
+            .accessibilityIdentifier("vault.delete.confirm")
+
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {
+                pendingDeleteDoc = nil
+            }
+            .accessibilityIdentifier("vault.delete.cancel")
+        } message: {
+            Text(LanguageManager.shared.vault("vault_delete_confirmation_message"))
         }
     }
 
@@ -303,6 +329,7 @@ struct VaultView: View {
                             )
                     }
                     .buttonStyle(ScaleButtonStyle())
+                    .disabled(!premium.canModifyProductData)
                     .accessibilityLabel(LanguageManager.shared.vault("vault_add_to_vault"))
                     .accessibilityIdentifier("vault.add")
                 }
@@ -330,6 +357,7 @@ struct VaultView: View {
                             ) {
                                 showAddToVault = true
                             }
+                            .disabled(!premium.canModifyProductData)
                             .frame(minHeight: 260)
                         } else {
                             LazyVGrid(
@@ -353,9 +381,9 @@ struct VaultView: View {
                                             Label(LanguageManager.shared.vault("vault_move_out"), systemImage: "lock.open")
                                         }
                                         Button(role: .destructive) {
-                                            appState.deleteDocument(doc)
+                                            pendingDeleteDoc = doc
                                         } label: {
-                                            Label(LanguageManager.shared.common("common_delete"), systemImage: "trash")
+                                            Label(LanguageManager.shared.vault("vault_delete"), systemImage: "trash")
                                         }
                                     }
                                 }

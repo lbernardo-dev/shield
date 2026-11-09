@@ -1,0 +1,56 @@
+{
+  "phase": 1,
+  "app_name": "MaskID",
+  "bundle_id": "com.romerodev.shield",
+  "audit_directory": "AUDITORIA_PRODUCTO_UX/2026-11-08_1114",
+  "critical_findings": [],
+  "high_findings": [],
+  "p0_p1_ids": [],
+  "priority_findings": [
+    {"id": "ACC-002", "priority": "P2", "status": "inferred_accessibility_risk"},
+    {"id": "DATA-001", "priority": "P2", "status": "static_destructive_action_risk"},
+    {"id": "QA-001", "priority": "P2", "status": "end_to_end_validation_pending"},
+    {"id": "PRIV-003", "priority": "P2", "status": "aggregate_quota_sync_validation_pending"}
+  ],
+  "core_user_jobs": [
+    "Importar o capturar un documento para compartirlo.",
+    "Revisar sugerencias y ocultar los datos que el destinatario no necesita.",
+    "Exportar y revisar una copia estructuralmente verificada antes de compartirla.",
+    "Guardar o recuperar trabajo documental con privacidad y control."
+  ],
+  "test_limitations": [
+    "Esta ejecución fue estática; no se compiló ni ejecutó tests.",
+    "Resultados históricos del 7 de noviembre: 34/34 EnhancementFeaturesTests y 1/1 test anterior de editor en reruns; E2E PDF actualizado pendiente.",
+    "No se probó VoiceOver, Voice Control, Switch Control, importación real end-to-end, iPad runtime, compra/restore ni sincronización multi-dispositivo.",
+    "ASC actual y metadata publicada no verificados."
+  ],
+  "audit_mode": "paralelo",
+  "agents_real_or_sequential_roles": [
+    "A estrategia de producto",
+    "B heurística UX",
+    "C UI y accesibilidad",
+    "D calidad técnica y QA",
+    "E revisión adversarial",
+    "Orquestador consolidación"
+  ],
+  "next_phase_required": true,
+  "reports": [
+    "00_RESUMEN_EJECUTIVO.md",
+    "01_MISION_Y_PROMESA.md",
+    "02_INVENTARIO_FUNCIONAL.md",
+    "03_MAPA_NAVEGACION_Y_FLUJOS.md",
+    "04_AUDITORIA_UI_UX_ACCESIBILIDAD.md",
+    "05_AUDITORIA_TEMAS_EVENTOS_MONETIZACION.md",
+    "06_CALIDAD_TECNICA_Y_PRUEBAS.md",
+    "07_HALLAZGOS_PRIORIZADOS.md",
+    "08_PLAN_DE_SIMPLIFICACION.md",
+    "09_MATRIZ_PUNTUACION.md",
+    "10_REVISION_ADVERSARIAL.md",
+    "11_ESCENARIOS_DE_VALIDACION.md",
+    "12_PLAN_ACCION_EJECUTABLE.md",
+    "13_BASELINE_RELEASE_ASO.md",
+    "14_GATE_DE_CALIDAD_INICIAL.md",
+    "HALLAZGOS.csv",
+    "RESULTADO_AUDITORIA.json"
+  ]
+}

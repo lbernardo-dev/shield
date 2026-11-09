@@ -6,7 +6,7 @@ Estado: implementado localmente el 11 de septiembre de 2026.
 
 Firebase Analytics es opcional y está desactivada por defecto. La aplicación no envía eventos de producto antes de una autorización expresa. La decisión se guarda en `UserDefaults` con la clave `shield.analyticsConsent` y se puede cambiar en `Ajustes > Privacidad`.
 
-La elección inicial se registra con `shield.analyticsConsentPromptAnswered`. Tanto permitir como rechazar cierra el aviso; rechazar mantiene Analytics desactivada. El modo de pruebas puede forzar la pantalla con `-show-analytics-consent`, sin activar la analítica.
+La persona puede activar o desactivar Analytics desde Ajustes > Privacidad. No se muestra un aviso durante el primer inicio. El modo de pruebas puede forzar la pantalla con `-show-analytics-consent`, sin activar la analítica.
 
 Firebase Crashlytics permanece separado para diagnósticos de estabilidad. La telemetría local limitada y MetricKit no se envían a Firebase Analytics.
 
@@ -34,7 +34,7 @@ La tabla es representativa; la allowlist de código es la autoridad. No se enví
 ## Validación y control de calidad
 
 1. Instalar una build limpia y comprobar que `shield.analyticsConsent` no existe o es `false`.
-2. Rechazar el aviso inicial y confirmar en Firebase DebugView que no aparece ningún evento de producto.
+2. Dejar Analytics desactivada y confirmar en Firebase DebugView que no aparece ningún evento de producto.
 3. Activar Analytics desde Privacidad y confirmar sólo un evento allowlisted, sin PII.
 4. Desactivarla de nuevo y confirmar que los eventos posteriores no se envían.
 5. Verificar que OCR, máscaras, exportación, Bóveda, compras e iCloud siguen funcionando con Analytics desactivada.

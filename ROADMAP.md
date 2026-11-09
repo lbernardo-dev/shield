@@ -1,112 +1,48 @@
-# Shield (MaskID) - Product & Technical Roadmap
+# MaskID — estado y evolución del producto
 
-> **Visión**: Convertir a Shield en la herramienta de referencia en el ecosistema Apple para la anonimización, redacción documental y protección de privacidad 100% on-device (Zero-Knowledge).
+> Estado del repositorio revisado el 8 de noviembre de 2026. Esta página describe código y pruebas presentes en esta rama; no acredita la versión publicada, despliegues de servicios ni resultados de uso real.
 
----
+## Estado observado en el repositorio
 
-## Estado Actual (Baseline v1.0)
-- ✅ **Motor Híbrido OCR**: Detección determinista de PII (DNI, NIE, IBAN, Pasaportes/MRZ, Emails, Teléfonos).
-- ✅ **Rasterización Segura**: Exportación PDF libre de capas de texto residuales o metadatos sensibles.
-- ✅ **Bóveda Cifrada**: Cifrado local con clave derivada de Secure Enclave / Biometría y sincronización privada vía CloudKit.
-- ✅ **Accesibilidad & HIG**: Hit targets $\ge 44\times 44\text{ pt}$, soporte Dynamic Type AX5 y Reduced Motion en toda la suite.
-- ✅ **100% Cobertura de Integración**: Suite completa de pruebas unitarias y XCUITest automatizadas.
+| Área | Estado observado | Evidencia principal |
+|---|---|---|
+| Captura e importación | Flujos de cámara, fotos y archivos; revisión antes de guardar; cola de importación con reintento/cancelación; límites configurados de tamaño, páginas, dimensión y bytes decodificados. | `Shield/Views/Capture/`, `Shield/Views/Capture/ImportPipeline.swift`, `ShieldTests/ImportPipelineTests.swift` |
+| OCR y máscaras | OCR local, sugerencias por plantilla/evidencia, modos, perfiles de protección, máscaras manuales y revisión humana. La exactitud de detección requiere corpus representativo y no se deduce de que existan reglas o tests. | `Shield/OCR/`, `Shield/Models/RedactionPresets.swift`, `Shield/ViewModels/EditorViewModel.swift` |
+| Exportación | Salida rasterizada y verificación posterior de la copia; la prueba sintética de extremo a extremo cubre la ruta principal, pero no sustituye la matriz de formatos/dispositivos ni validación de documentos reales. | `Shield/Views/Editor/ExportServices.swift`, `Shield/Export/`, `ShieldTests/Export/` |
+| Bóveda | Bóveda local con autenticación biométrica/PIN y operaciones de archivo cifrado. El borrado debe confirmarse desde la interfaz; el alcance de la copia CloudKit depende de la sincronización del documento fuera de la Bóveda. | `Shield/Views/Vault/VaultView.swift`, `Shield/ViewModels/AppState.swift`, `Shield/Security/` |
+| Cuota Free | Contador agregado local/Keychain que se replica como entero en iCloud KVS para reconciliar dispositivos. No se sincroniza contenido mediante esa clave. La separación entre cuentas y el modo sin red requieren validación con cuentas/dispositivos de prueba. | `Shield/Premium/PremiumManager.swift`, `Docs/PRIVACY_POLICY_PRODUCT_FACTS.md`, `Docs/legal/privacy.html` |
+| Atajos de sistema | App Intents y App Shortcuts para iniciar captura y abrir la Bóveda autenticada; no hay un intent de procesamiento por lotes configurado por perfil. | `Shield/App/ShieldAppIntents.swift` |
+| Lotes y perfiles | Hay flujo local de lote con cola de revisión y perfiles configurables. Esto no equivale a automatización de carpetas en segundo plano ni a una API de atajo para lote. | `Shield/Views/Home/HomeView.swift`, `Shield/Models/Document.swift`, `Shield/Models/RedactionPresets.swift` |
+| iPad | El target incluye iPhone e iPad y hay navegación/adaptación de tamaño regular. Apple Pencil/PencilKit, ventanas simultáneas y comparación de proyectos en Stage Manager no se acreditan en el código revisado. | `Shield.xcodeproj/project.pbxproj`, `Shield/App/ContentView.swift`, `Shield/Views/Editor/EditorView.swift` |
+| Calidad y accesibilidad | Hay pruebas Swift Testing/XCUITest, casos AX5 y auditorías de accesibilidad con excepciones documentadas en el informe de fase 02. No se conserva un porcentaje global de cobertura ni una certificación WCAG. | `ShieldTests/`, `ShieldUITests/`, `AUDITORIA_PRODUCTO_UX/2026-11-08_1114/16_FASE_02_EJECUCION.md` |
 
----
+La aplicación procesa localmente por defecto. Cuando una persona activa la sincronización Pro de iCloud, se transfieren paquetes restaurables de documentos fuera de la Bóveda a su base privada de CloudKit. Esto no es una arquitectura “zero-knowledge” frente a Apple ni cifrado de extremo a extremo administrado por MaskID. El producto y su documentación deben mantener esa distinción.
 
-## 🗺️ Roadmap de Evolución
+Los límites configurados del importador incluyen 200 MB por archivo, hasta 50 páginas, dimensión máxima de 2.048 px y un presupuesto de bytes de imagen decodificada de 256 MB. Son límites de entrada del pipeline, no una medición de memoria máxima del proceso. No se afirma un límite de RAM en tiempo de ejecución sin profiling.
 
-```
-                    ┌────────────────────────────────────────────────────────┐
-                    │                   SHIELD ROADMAP                       │
-                    └────────────────────────────────────────────────────────┘
-                                               │
-    ┌──────────────────────┬───────────────────┴──────────────────┬──────────────────────┐
-    ▼                      ▼                                      ▼                      ▼
-[ Fase 1: Q3-Q4 ]     [ Fase 2: Q1 ]                         [ Fase 3: Q2 ]         [ Fase 4: Q3+ ]
-Integraciones iOS 18   IA Contextual On-Device                Automatización Avanzada Expansión Multiplataforma
-• Control Center       • Redacción Semántica (CoreML/SLM)     • Acciones Atajos      • macOS Native (Metal)
-• Action Button        • Perfiles Personalizados              • Watermarking Hash    • iPadOS + Apple Pencil
-• App Intents          • Detección Contextual Avanzada        • Batch Background     • CloudKit Sharing
-```
+## Trabajo próximo, ordenado por evidencia y riesgo
 
----
+### Verificación pendiente del plan de correcciones
 
-## Fase 1: Integración Profunda con iOS 18 & Nuevas APIs
-**Objetivo**: Reducir la fricción de entrada al mínimo (< 2 segundos desde la intención hasta la captura protegida).
+1. Validar con VoiceOver y Voice Control la creación, selección, movimiento, ajuste, borrado y exportación de una máscara; la UI test comprueba su representación accesible, hit target, geometría de inicio e historial, pero no sustituye la operación manual con tecnologías asistivas.
+2. Probar importación, cancelación y recuperación con archivos sintéticos en iPhone y iPad; los resultados del simulador no cubren cámara, Files con proveedores externos, biometría física o fallos de cuenta.
+3. Probar reconciliación de cuota con dos dispositivos de la misma Cuenta de Apple, otra cuenta y sin red. Usar cuentas de prueba; no resetear el Keychain/iCloud KVS de una cuenta personal.
+4. Ejecutar sesiones moderadas para la jerarquía de Home, descubrimiento de herramientas y comprensión de modos/perfiles antes de reordenar o esconder controles.
+5. **Verificado en lectura el 8 nov 2026:** ASC indica 1.1.6 `READY_FOR_SALE` y build 1162026102502 `VALID`; el proyecto local aún configura 1162026102501. La relación del binario remoto con este working tree no está acreditada; reconciliar antes del próximo release. Detalle en `AUDITORIA_PRODUCTO_UX/2026-11-08_1114/13_BASELINE_RELEASE_ASO.md`.
 
-1. **Controles de Centro de Control y Pantalla de Bloqueo (iOS 18+ Controls API)**
-   - Control Widget interactivo para lanzar directamente la cámara de redacción o la importación desde fototeca.
-2. **Soporte de Botón de Acción (Action Button) & App Shortcuts**
-   - Configuración de disparador directo para el Action Button en iPhone 15 Pro / 16.
-   - Atajos parametrizados con `AppIntents` (`RedactDocumentIntent`, `QuickScanIDIntent`).
-3. **Mejoras en la Share Extension**
-   - Soporte para recibir múltiples imágenes/PDFs en un único envío desde Fotos, Mail o Archivos sin abrir la aplicación principal.
+El estado, guion y límites de esas validaciones están en `AUDITORIA_PRODUCTO_UX/2026-11-08_1114/16_FASE_02_EJECUCION.md` y `AUDITORIA_PRODUCTO_UX/2026-11-08_1114/15_GUIA_ESTUDIO_USABILIDAD.md`.
 
----
+### Evolución después de completar esas verificaciones
 
-## Fase 2: Inteligencia Semántica On-Device (Zero-Knowledge AI)
-**Objetivo**: Superar las limitaciones de los patrones regex fijos para detectar información confidencial por contexto.
+- Evaluar detección semántica local solo después de fijar corpus, métricas de precisión/recobrado, revisión humana, presupuesto de memoria/latencia y límites de privacidad. No presentar sugerencias como garantía de que toda la PII fue encontrada.
+- Añadir Atajos de lote o automatización de carpetas únicamente con un contrato claro de revisión humana, límites y resultados observables; el flujo local existente no prueba demanda ni seguridad de un flujo sin intervención.
+- Investigar mejoras de lápiz/precisión en iPad y multiventana después de validar tareas reales; no describir soporte PencilKit o Stage Manager como existente.
+- Mantener fuera del alcance actual macOS nativo, Vault compartida y almacenamiento de contenido sensible en servicios propios. Cualquier ampliación requerirá threat model, modelo de claves, costos y pruebas independientes.
 
-1. **Redacción Semántica Contextual con CoreML / SLM**
-   - Integración de modelos lingüísticos compactos on-device para detectar:
-     - Nombres de personas en contratos o formularios.
-     - Direcciones físicas no estructuradas.
-     - Diagnósticos médicos y referencias de salud.
-     - Importes económicos y cláusulas de confidencialidad.
-   - Procesamiento 100% en el Neural Engine sin enviar datos a servidores externos.
-2. **Perfiles de Anonimización Especializados**
-   - Plantillas predefinidas configurables por el usuario:
-     - 📋 *Perfil Inmobiliario*: Oculta salarios, cuentas bancarias y datos de terceros en nóminas y contratos.
-     - 🩺 *Perfil Médico*: Oculta historiales clínicos, firmas y números de colegiado.
-     - ⚖️ *Perfil Legal / RRHH*: Oculta partes no firmantes y cláusulas monetarias.
-3. **Estilos de Máscara Dinámicos y Tematizados**
-   - Opciones avanzadas de censura visual: desenfoque gaussiano de alta frecuencia, pixelado adaptable y sellos con código de redacción (ej. `[CENSURADO - ART. 9 RGPD]`).
+## Criterios de decisión
 
----
-
-## Fase 3: Automatización Avanzada y Flujos de Trabajo
-**Objetivo**: Permitir a profesionales y empresas integrar Shield en sus flujos diarios de procesamiento.
-
-1. **Acciones de Atajos (Shortcuts) para Procesamiento por Lotes**
-   - Acción de Atajo: `Anonimizar Documentos con Perfil [X]` para procesar carpetas completas en segundo plano.
-2. **Marcas de Agua y Hash de Integridad Criptográfica**
-   - Opción de insertar sello de seguridad con código QR o hash SHA-256 en el pie de página para verificar la autenticidad y no manipulación posterior del documento exportado.
-3. **Clasificación y Organización Automática en la Bóveda**
-   - Etiquetado inteligente de documentos mediante metadatos locales (tipo de documento, fecha de detección, perfil aplicado) facilitando la búsqueda cifrada instantánea.
-
----
-
-## Fase 4: Ecosistema Multiplataforma y Colaboración
-**Objetivo**: Llevar la experiencia de privacidad de Shield a todo el ecosistema de trabajo.
-
-1. **Shield para macOS (Pure SwiftUI / Mac Catalyst)**
-   - Interfaz de escritorio con soporte de Drag & Drop para procesar lotes masivos de documentos.
-   - Aceleración por hardware con Metal y procesamiento multihilo.
-   - Quick Look Preview Extension para anonimizar directamente desde el Finder con la barra espaciadora.
-2. **Shield para iPadOS & Apple Pencil**
-   - Integración completa con PencilKit para redacción manual de precisión milimétrica en planos y esquemas técnicos.
-   - Soporte multiventana (Stage Manager) para comparar documento original vs anonimizado lado a lado.
-3. **Bóveda Compartida Privada (CloudKit Private Sharing)**
-   - Carpetas compartidas cifradas punto a punto entre usuarios autorizados (ej. parejas, equipos de gestión o familias) utilizando CloudKit Sharing sin servidores intermediarios.
-
----
-
-## 📊 Matriz de Priorización Técnica
-
-| Iniciativa | Impacto Usuario | Complejidad | Dependencias | Prioridad |
-|---|---|---|---|---|
-| **Control Center & Action Button** | Alto | Baja | iOS 18 SDK | 🔥 P0 (Inmediato) |
-| **Share Extension Multi-Doc** | Alto | Media | App Groups / Storage | 🔥 P0 (Inmediato) |
-| **Perfiles de Anonimización** | Muy Alto | Media | OCR Pipelines | 🚀 P1 (Corto Plazo) |
-| **Shortcuts / Atajos por Lotes** | Alto | Media | AppIntents API | 🚀 P1 (Corto Plazo) |
-| **IA Semántica On-Device (CoreML)** | Máximo | Alta | Neural Engine / CoreML | 🧠 P2 (Medio Plazo) |
-| **macOS Native App** | Muy Alto | Alta | Arquitectura Unificada | 💻 P3 (Largo Plazo) |
-| **iPadOS + Apple Pencil Support** | Alto | Media | PencilKit | ✏️ P3 (Largo Plazo) |
-
----
-
-## 🛡️ Principios Innegociables de Arquitectura
-
-1. **Zero-Knowledge por Diseño**: Ni un solo byte de imagen o texto no anonimizado abandona el dispositivo hacia servidores de terceros.
-2. **Presupuesto de Memoria Estricto**: El pipeline de procesamiento nunca debe exceder los 150 MB de memoria de trabajo, garantizando estabilidad incluso en terminales con recursos limitados.
-3. **Compatibilidad con Lectores de Pantalla y Accesibilidad**: Toda nueva funcionalidad debe cumplir con WCAG 2.1 AA y las guías HIG de Apple para VoiceOver y Dynamic Type.
+- No cambiar una navegación o jerarquía basándose solo en densidad visual o preferencia interna: medir éxito de tarea, errores, tiempo, recuperación y acceso por lector de pantalla.
+- No equiparar número de tests con porcentaje de cobertura, ni un build correcto con calidad de detección.
+- No priorizar una función solo por ser técnicamente posible. Usar riesgo de exposición, bloqueos de tarea y evidencia de uso.
+- Cada cambio de exportación o persistencia debe conservar revisión humana, Undo/Redo, manejo de errores y pruebas negativas.
+- Toda afirmación de privacidad y sincronización debe coincidir con el paquete que el código realmente transfiere y con la política vigente.

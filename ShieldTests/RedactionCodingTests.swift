@@ -153,7 +153,7 @@ struct FreeProContractTests {
 
     @Test("Contextual paywall triggers expose the feature that caused them")
     func contextualPaywallFeatures() {
-        #expect(PaywallTrigger.docLimitReached.featureKey == "document_limit")
+        #expect(PaywallTrigger.accessRequired.featureKey == "document_processing")
         #expect(PaywallTrigger.styleLocked.featureKey == "advanced_styles")
         #expect(PaywallTrigger.settingsUpgrade.featureKey == "premium_workflow")
         #expect(PaywallTrigger.manual.featureKey == nil)

@@ -1,0 +1,338 @@
+Application, 0x10725be80, pid: 27078, label: 'MaskID' <App element pid: 27078>
+  Window, 0x1072597c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4348723200.4>
+    Other, 0x107259680, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4506532864.5>
+      Other, 0x10a091040, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4506779648.6>
+        Other, 0x10a092bc0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347973376.7>
+          Other, 0x10a091180, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4752965792.8>
+            Other, 0x10a091680, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347818688.9>
+              Other, 0x10a091a40, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347819136.11>
+                Other, 0x10a091900, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4689523840.15>
+                  Toolbar, 0x10a091cc0, {{0.0, 0.0}, {951.0, 669.0}}, identifier: 'Toolbar', label: 'Barra de herramientas' <AX element pid: 27078, elementOrHash.elementID: 4691154560.19>
+                    Other, 0x10a0917c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4691155200.24>
+                  Other, 0x10a091f40, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4521975296.20>
+                    Other, 0x10a092080, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393770496.25>
+                      NavigationBar, 0x10a0921c0, {{0.0, 24.0}, {260.0, 58.0}}, identifier: '_TtGC7SwiftUI32NavigationStackHosting' <AX element pid: 27078, elementOrHash.elementID: 4393154048.30>
+                        Button, 0x10a092300, {{196.0, 28.0}, {40.0, 40.0}}, label: 'Ocultar barra lateral' <AX element pid: 27078, elementOrHash.elementID: 4691160320.48>
+                      Other, 0x10a091e00, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347820480.31>
+                        Other, 0x10a092580, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393119744.49>
+                          Other, 0x10a092800, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4348727296.84>
+                            Other, 0x10a092440, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4724699008.115>
+                              CollectionView, 0x10a0926c0, {{0.0, 0.0}, {260.0, 669.0}}, identifier: 'navigation.sidebar', label: 'Barra lateral' <AX element pid: 27078, elementOrHash.elementID: 4659494912.185>
+                                Other, 0x10a092a80, {{-20.0, -1256.0}, {300.0, 2894.0}} <AX element pid: 27078, elementOrHash.elementID: 4505570432.211>
+                                Other, 0x10a092e40, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4657292032.212>
+                                  Other, 0x10a092f80, {{0.0, 0.0}, {260.0, 122.0}} <AX element pid: 27078, elementOrHash.elementID: 4735600832.229>
+                                Other, 0x10a092d00, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4657291584.213>
+                                Cell, 0x10a093200, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724704512.214>
+                                  Other, 0x10a0935c0, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4394118400.230>
+                                    Other, 0x10a093700, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4393898496.263>
+                                      Other, 0x10a093480, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4678758400.293>
+                                        Other, 0x10a093340, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755908928.319>
+                                  Other, 0x10a093840, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724830912.231>
+                                    Other, 0x10a093ac0, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4347765760.264>
+                                      Other, 0x10a093980, {{20.0, 82.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755906848.294>
+                                        Button, 0x10a093c00, {{20.0, 82.0}, {220.0, 52.0}}, identifier: 'tab.0', label: 'Documentos', value: Seleccionado, Selected <AX element pid: 27078, elementOrHash.elementID: 4755906688.320>
+                                          StaticText, 0x10a093d40, {{37.0, 94.7}, {130.0, 27.0}}, label: 'Documentos' <AX element pid: 27078, elementOrHash.elementID: 4755906048.327>
+                                          Image, 0x10a093e80, {{37.0, 94.7}, {22.0, 27.0}}, identifier: 'doc.on.doc', label: 'Copia' <AX element pid: 27078, elementOrHash.elementID: 4755906528.328>
+                                Cell, 0x10a090780, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724705792.215>
+                                  Other, 0x10a090280, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4394119040.232>
+                                    Other, 0x10b618000, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4393900032.265>
+                                      Other, 0x10b618140, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4678759424.295>
+                                        Other, 0x10b618280, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755909088.321>
+                                  Other, 0x10b6183c0, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724831360.233>
+                                    Other, 0x10b618500, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4347767296.266>
+                                      Other, 0x10b618640, {{20.0, 134.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755907488.296>
+                                        Button, 0x10b618780, {{20.0, 134.0}, {220.0, 52.0}}, identifier: 'tab.1', label: 'Estilos' <AX element pid: 27078, elementOrHash.elementID: 4755907328.322>
+                                          StaticText, 0x10b6188c0, {{38.0, 149.8}, {81.7, 20.3}}, label: 'Estilos' <AX element pid: 27078, elementOrHash.elementID: 4755907008.329>
+                                          Image, 0x10b618a00, {{38.0, 150.3}, {19.7, 19.7}}, identifier: 'square.grid.2x2', label: 'Visualización Como Cuadrícula' <AX element pid: 27078, elementOrHash.elementID: 4755907168.330>
+                                Cell, 0x10b618b40, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724707072.216>
+                                  Other, 0x10b618c80, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4393892864.234>
+                                    Other, 0x10b618dc0, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4393901568.267>
+                                      Other, 0x10b618f00, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4678760448.297>
+                                        Other, 0x10b619040, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755909248.323>
+                                  Other, 0x10b619180, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724831808.235>
+                                    Other, 0x10b6192c0, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4347768832.268>
+                                      Other, 0x10b619400, {{20.0, 186.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755908128.298>
+                                        Button, 0x10b619540, {{20.0, 186.0}, {220.0, 52.0}}, identifier: 'tab.2', label: 'Bóveda' <AX element pid: 27078, elementOrHash.elementID: 4755907968.324>
+                                          StaticText, 0x10b619680, {{35.0, 199.3}, {92.0, 25.3}}, label: 'Bóveda' <AX element pid: 27078, elementOrHash.elementID: 4755907648.331>
+                                          Image, 0x10b6197c0, {{35.0, 199.3}, {26.3, 25.3}}, identifier: 'lock.rectangle.stack', label: 'Candado Sobre Una Pila De Rectángulos' <AX element pid: 27078, elementOrHash.elementID: 4755907808.332>
+                                Cell, 0x10b619900, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724708352.217>
+                                  Other, 0x10b619a40, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4392595968.236>
+                                    Other, 0x10b619b80, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4393903104.269>
+                                      Other, 0x10b619cc0, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4678761472.299>
+                                        Other, 0x10b619e00, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755909408.325>
+                                  Other, 0x10b619f40, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4724832256.237>
+                                    Other, 0x10b61a080, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4347770368.270>
+                                      Other, 0x10b61a1c0, {{20.0, 238.0}, {220.0, 52.0}} <AX element pid: 27078, elementOrHash.elementID: 4755908768.300>
+                                        Button, 0x10b61a300, {{20.0, 238.0}, {220.0, 52.0}}, identifier: 'tab.3', label: 'Ajustes' <AX element pid: 27078, elementOrHash.elementID: 4755908608.326>
+                                          Image, 0x10b61a440, {{36.7, 252.7}, {23.0, 22.7}}, identifier: 'gearshape', label: 'Figura De Engranaje' <AX element pid: 27078, elementOrHash.elementID: 4755908448.333>
+                                          StaticText, 0x10b61a580, {{36.7, 252.7}, {89.7, 22.7}}, label: 'Ajustes' <AX element pid: 27078, elementOrHash.elementID: 4755908288.334>
+                                Other, 0x10b61a6c0, {{227.0, 82.0}, {30.0, 587.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393075200.218>
+                                  Other, 0x10b61a800, {{254.0, 625.0}, {3.0, 7.0}} <AX element pid: 27078, elementOrHash.elementID: 4691798528.238>
+                                Other, 0x10b61a940, {{227.0, 82.0}, {30.0, 587.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393075200.218>
+                                  Other, 0x10b61aa80, {{254.0, 625.0}, {3.0, 7.0}} <AX element pid: 27078, elementOrHash.elementID: 4691798528.238>
+                      Toolbar, 0x10b61abc0, {{0.0, 0.0}, {260.0, 669.0}}, identifier: 'Toolbar', label: 'Barra de herramientas' <AX element pid: 27078, elementOrHash.elementID: 4522681088.32>
+                        Other, 0x10b61ad00, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4522683008.50>
+                    Other, 0x10b61ae40, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393116672.26>
+                      Other, 0x10b61af80, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347761152.33>
+                        Other, 0x10b61b0c0, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393117184.51>
+                          Other, 0x10b61b200, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393117696.85>
+                            Other, 0x10b61b340, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4723348480.116>
+                              Other, 0x10b61b480, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4691796736.186>
+                          Other, 0x10b61b5c0, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4723349120.86>
+                            Other, 0x10b61b700, {{0.0, 0.0}, {260.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393118720.117>
+                  Other, 0x10b61b840, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4522461056.21>
+                    Other, 0x10b61b980, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393772032.27>
+                      NavigationBar, 0x10b61bac0, {{0.0, 24.0}, {951.0, 58.0}}, identifier: '_TtGC7SwiftUI32NavigationStackHosting' <AX element pid: 27078, elementOrHash.elementID: 4393154816.34>
+                        Other, 0x10b61bc00, {{284.0, 28.0}, {131.0, 40.0}} <AX element pid: 27078, elementOrHash.elementID: 4724703232.52>
+                          Other, 0x10b61bd40, {{284.0, 28.0}, {131.0, 40.0}} <AX element pid: 27078, elementOrHash.elementID: 4724698688.87>
+                            Other, 0x10b61be80, {{284.0, 27.0}, {131.0, 42.0}}, identifier: 'home.toolbar.brand', label: 'MaskID' <AX element pid: 27078, elementOrHash.elementID: 4724697408.118>
+                              Image, 0x10b62c000, {{284.0, 27.0}, {42.0, 42.0}} <AX element pid: 27078, elementOrHash.elementID: 4724697568.187>
+                              StaticText, 0x10b62c140, {{335.0, 34.8}, {80.0, 26.3}}, label: 'MaskID' <AX element pid: 27078, elementOrHash.elementID: 4724698368.188>
+                        Other, 0x10b62c280, {{809.0, 28.0}, {54.0, 40.0}} <AX element pid: 27078, elementOrHash.elementID: 4347983616.53>
+                          Other, 0x10b62c3c0, {{809.0, 28.0}, {54.0, 40.0}} <AX element pid: 27078, elementOrHash.elementID: 4724696128.88>
+                            Button, 0x10b62c500, {{809.0, 21.0}, {54.0, 54.0}}, identifier: 'home.toolbar.profile', label: 'Perfil de usuario' <AX element pid: 27078, elementOrHash.elementID: 4724697088.119>
+                              Image, 0x10b62c640, {{809.0, 21.0}, {54.0, 54.0}}, identifier: 'person.fill', label: 'Silueta De Una Persona, Con Relleno' <AX element pid: 27078, elementOrHash.elementID: 4724695968.189>
+                      Toolbar, 0x10b62c780, {{0.0, 0.0}, {951.0, 669.0}}, identifier: 'Toolbar', label: 'Barra de herramientas' <AX element pid: 27078, elementOrHash.elementID: 4522686208.35>
+                        Other, 0x10b62c8c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4522686848.54>
+                      Other, 0x10b62ca00, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4522804992.36>
+                        Other, 0x10b62cb40, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393120768.55>
+                          Other, 0x10b62cc80, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4348728320.89>
+                            Other, 0x10b62cdc0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4755905888.120>
+                              Other, 0x10b62cf00, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4724697248.190>
+                              ScrollView, 0x10b62d040, {{0.0, 0.0}, {951.0, 669.0}}, identifier: 'home.scroll' <AX element pid: 27078, elementOrHash.elementID: 4392628224.191>
+                                Other, 0x10b62d180, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4657290688.219>
+                                  Other, 0x10b62d2c0, {{0.0, 0.0}, {951.0, 122.0}} <AX element pid: 27078, elementOrHash.elementID: 4735601280.239>
+                                Other, 0x10b62d400, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4657290240.220>
+                                Other, 0x10b62d540, {{0.0, 82.0}, {867.0, 991.3}} <AX element pid: 27078, elementOrHash.elementID: 4658363392.221>
+                                  StaticText, 0x10b62d680, {{280.0, 103.0}, {318.7, 38.3}}, label: 'Protege lo necesario' <AX element pid: 27078, elementOrHash.elementID: 4724701248.240>
+                                  StaticText, 0x10b62d7c0, {{280.0, 146.3}, {202.7, 20.3}}, label: 'Tú decides qué compartir.' <AX element pid: 27078, elementOrHash.elementID: 4724698528.241>
+                                  Button, 0x10b62d900, {{280.0, 198.7}, {567.0, 82.0}}, identifier: 'home.primaryAction', label: 'Proteger un documento' <AX element pid: 27078, elementOrHash.elementID: 4724703008.242>
+                                    StaticText, 0x10b62da40, {{280.0, 198.7}, {567.0, 82.0}}, label: 'Proteger un documento' <AX element pid: 27078, elementOrHash.elementID: 4724689728.271>
+                                    Image, 0x10b62db80, {{458.3, 231.7}, {14.3, 17.0}}, identifier: 'shield.lefthalf.filled', label: 'Escudo Con La Mitad Izquierda Rellena' <AX element pid: 27078, elementOrHash.elementID: 4724702208.272>
+                                  Button, 0x10b62dcc0, {{279.6, 292.3}, {567.8, 105.1}}, identifier: 'home.onDeviceInfo', label: 'Procesamiento en el dispositivo' <AX element pid: 27078, elementOrHash.elementID: 4527708736.243>
+                                    StaticText, 0x10b62de00, {{364.0, 306.7}, {245.3, 19.3}}, label: 'Procesamiento en el dispositivo' <AX element pid: 27078, elementOrHash.elementID: 4724702528.273>
+                                    Image, 0x10b62df40, {{312.0, 333.0}, {20.0, 23.7}}, identifier: 'lock.shield.fill', label: 'Candado Dentro De Un Escudo, Con Relleno' <AX element pid: 27078, elementOrHash.elementID: 4724702368.274>
+                                    StaticText, 0x10b62e080, {{364.0, 331.0}, {389.0, 31.3}}, label: 'Tus documentos se analizan en este dispositivo. Tú controlas tu información.' <AX element pid: 27078, elementOrHash.elementID: 4724698208.275>
+                                    StaticText, 0x10b62e1c0, {{364.0, 367.3}, {66.7, 15.7}}, label: 'Saber más' <AX element pid: 27078, elementOrHash.elementID: 4527703776.276>
+                                    Image, 0x10b62e300, {{436.7, 370.7}, {5.3, 9.0}}, identifier: 'chevron.right', label: 'Adelante' <AX element pid: 27078, elementOrHash.elementID: 4527706976.277>
+                                  Image, 0x10b62e440, {{295.7, 455.3}, {13.7, 13.7}}, identifier: 'magnifyingglass', label: 'Búsqueda' <AX element pid: 27078, elementOrHash.elementID: 4527707456.244>
+                                  TextField, 0x10b62e580, {{319.0, 440.0}, {154.7, 44.0}}, identifier: 'home.searchField', label: 'Buscar en nombres y texto de documentos', placeholderValue: 'Buscar en nombres y texto de documentos' <AX element pid: 27078, elementOrHash.elementID: 4347979776.245>
+                                  Button, 0x10b62e6c0, {{481.7, 442.0}, {40.0, 40.0}}, identifier: 'line.3.horizontal.decrease.circle', label: 'Filtros' <AX element pid: 27078, elementOrHash.elementID: 4755898688.246>
+                                  StaticText, 0x10b62e800, {{611.5, 453.0}, {128.0, 19.3}}, label: 'Accesos rápidos' <AX element pid: 27078, elementOrHash.elementID: 4755901248.247>
+                                  Other, 0x10b62e940, {{280.0, 511.0}, {220.0, 200.0}}, identifier: 'home.categoryGrid' <AX element pid: 27078, elementOrHash.elementID: 4755900768.248>
+                                    Button, 0x10b62ea80, {{280.0, 511.0}, {220.0, 44.0}}, identifier: 'home.category.all', label: 'Todos', value: Seleccionado, Selected <AX element pid: 27078, elementOrHash.elementID: 4755899168.278>
+                                      StaticText, 0x10b62ebc0, {{280.0, 511.0}, {220.0, 44.0}}, label: 'Todos' <AX element pid: 27078, elementOrHash.elementID: 4755899008.301>
+                                      Image, 0x10b62ed00, {{290.7, 525.0}, {13.3, 16.0}}, identifier: 'doc.on.doc.fill', label: 'Copia' <AX element pid: 27078, elementOrHash.elementID: 4755898848.302>
+                                    Button, 0x10b62ee40, {{280.0, 563.0}, {220.0, 44.0}}, identifier: 'home.category.identity', label: 'Identidad', value: No seleccionado <AX element pid: 27078, elementOrHash.elementID: 4755899648.279>
+                                      StaticText, 0x10b62ef80, {{280.0, 563.0}, {220.0, 44.0}}, label: 'Identidad' <AX element pid: 27078, elementOrHash.elementID: 4755899488.303>
+                                      Image, 0x10b62f0c0, {{291.3, 579.0}, {10.0, 12.0}}, identifier: 'shield.fill', label: 'Escudo' <AX element pid: 27078, elementOrHash.elementID: 4755899328.304>
+                                    Button, 0x10b62f200, {{280.0, 615.0}, {220.0, 44.0}}, identifier: 'home.category.travel', label: 'Viaje', value: No seleccionado <AX element pid: 27078, elementOrHash.elementID: 4755900128.280>
+                                      StaticText, 0x10b62f340, {{280.0, 615.0}, {220.0, 44.0}}, label: 'Viaje' <AX element pid: 27078, elementOrHash.elementID: 4755899968.305>
+                                      Image, 0x10b62f480, {{291.3, 631.0}, {13.7, 12.3}}, identifier: 'airplane', label: 'Modo Avión' <AX element pid: 27078, elementOrHash.elementID: 4755899808.306>
+                                    Button, 0x10b62f5c0, {{280.0, 667.0}, {220.0, 44.0}}, identifier: 'home.category.driving', label: 'Conducción', value: No seleccionado <AX element pid: 27078, elementOrHash.elementID: 4755900608.281>
+                                      StaticText, 0x10b62f700, {{280.0, 667.0}, {220.0, 44.0}}, label: 'Conducción' <AX element pid: 27078, elementOrHash.elementID: 4755900448.307>
+                                      Image, 0x10b62f840, {{291.3, 683.3}, {14.3, 11.3}}, identifier: 'car.fill', label: 'Coche' <AX element pid: 27078, elementOrHash.elementID: 4755900288.308>
+                                  Other, 0x10b62f980, {{607.7, 484.3}, {223.3, 93.3}} <AX element pid: 27078, elementOrHash.elementID: 4755902368.249>
+                                    Button, 0x10b62fac0, {{607.7, 484.3}, {107.7, 93.3}}, identifier: 'home.quickAccess.library', label: 'Todos los documentos' <AX element pid: 27078, elementOrHash.elementID: 4755901728.282>
+                                      StaticText, 0x10b62fc00, {{607.7, 484.3}, {107.7, 93.3}}, label: 'Todos los documentos' <AX element pid: 27078, elementOrHash.elementID: 4755901568.309>
+                                      Image, 0x10b62fd40, {{642.3, 492.3}, {38.0, 38.0}}, identifier: 'doc.text.magnifyingglass', label: 'Buscar En Documento' <AX element pid: 27078, elementOrHash.elementID: 4755901408.310>
+                                    Button, 0x10b62fe80, {{723.3, 485.0}, {107.7, 92.0}}, identifier: 'home.quickAccess.vault', label: 'Bóveda' <AX element pid: 27078, elementOrHash.elementID: 4755902208.283>
+                                      StaticText, 0x10b634000, {{723.3, 485.0}, {107.7, 92.0}}, label: 'Bóveda' <AX element pid: 27078, elementOrHash.elementID: 4755902048.311>
+                                      Image, 0x10b634140, {{758.0, 500.3}, {38.0, 38.0}}, identifier: 'lock.rectangle.stack', label: 'Candado Sobre Una Pila De Rectángulos' <AX element pid: 27078, elementOrHash.elementID: 4755901888.312>
+                                  Button, 0x10b634280, {{607.7, 590.3}, {223.3, 44.0}}, identifier: 'home.quickAccess.tools', label: 'Modos, lote y nube', value: Contraído <AX element pid: 27078, elementOrHash.elementID: 4755903008.250>
+                                    StaticText, 0x10b6343c0, {{607.7, 590.3}, {223.3, 44.0}}, label: 'Modos, lote y nube' <AX element pid: 27078, elementOrHash.elementID: 4755902688.284>
+                                    Image, 0x10b634500, {{621.7, 605.3}, {14.0, 14.0}}, identifier: 'square.grid.2x2.fill', label: 'Cuadrícula 2 Por 2' <AX element pid: 27078, elementOrHash.elementID: 4755902528.285>
+                                    Image, 0x10b634640, {{812.0, 607.0}, {6.3, 10.7}}, identifier: 'chevron.right', label: 'Adelante' <AX element pid: 27078, elementOrHash.elementID: 4755902848.286>
+                                  Button, 0x10b634780, {{591.7, 670.3}, {255.3, 52.3}}, identifier: 'home.workspace.toggle', label: 'Más herramientas', value: Contraído <AX element pid: 27078, elementOrHash.elementID: 4755903648.251>
+                                    Image, 0x10b6348c0, {{609.7, 688.7}, {15.7, 15.7}}, identifier: 'square.grid.2x2.fill', label: 'Cuadrícula 2 Por 2' <AX element pid: 27078, elementOrHash.elementID: 4755903168.287>
+                                    StaticText, 0x10b634a00, {{639.3, 686.3}, {143.0, 20.3}}, label: 'Más herramientas' <AX element pid: 27078, elementOrHash.elementID: 4755903328.288>
+                                    Image, 0x10b634b40, {{818.0, 693.0}, {11.7, 7.0}}, identifier: 'chevron.down', label: 'Bajar' <AX element pid: 27078, elementOrHash.elementID: 4755903488.289>
+                                  StaticText, 0x10b634c80, {{591.5, 753.7}, {140.3, 57.3}}, label: 'Documento reciente' <AX element pid: 27078, elementOrHash.elementID: 4755903808.252>
+                                  Button, 0x10b634dc0, {{770.3, 750.7}, {76.7, 44.0}}, label: 'Ver todos' <AX element pid: 27078, elementOrHash.elementID: 4755904288.253>
+                                    StaticText, 0x10b634f00, {{770.3, 764.2}, {65.0, 17.0}}, label: 'Ver todos' <AX element pid: 27078, elementOrHash.elementID: 4755903968.290>
+                                    Image, 0x10b635040, {{840.3, 767.7}, {6.0, 10.0}}, identifier: 'chevron.right', label: 'Adelante' <AX element pid: 27078, elementOrHash.elementID: 4755904128.291>
+                                  Other, 0x10b635180, {{591.3, 822.6}, {256.1, 113.5}}, label: 'DNI — copia protegida', value: Revisión pendiente <AX element pid: 27078, elementOrHash.elementID: 4755905568.254>
+                                    Button, 0x10b6352c0, {{591.3, 822.6}, {256.1, 113.5}}, label: 'DNI — copia protegida, 8 nov, Pendiente' <AX element pid: 27078, elementOrHash.elementID: 4755905408.292>
+                                      Other, 0x10b635400, {{605.7, 842.3}, {104.0, 74.0}} <AX element pid: 27078, elementOrHash.elementID: 4755904448.313>
+                                      StaticText, 0x10b635540, {{721.7, 837.0}, {75.0, 32.3}}, label: 'DNI — copia protegida' <AX element pid: 27078, elementOrHash.elementID: 4755904608.314>
+                                      StaticText, 0x10b635680, {{721.7, 873.3}, {36.0, 17.0}}, label: '8 nov' <AX element pid: 27078, elementOrHash.elementID: 4755904768.315>
+                                      Image, 0x10b6357c0, {{825.0, 873.3}, {7.3, 12.3}}, identifier: 'chevron.right', label: 'Adelante' <AX element pid: 27078, elementOrHash.elementID: 4755905248.316>
+                                      Image, 0x10b635900, {{731.7, 901.3}, {13.3, 13.3}}, identifier: 'clock', label: 'Reloj' <AX element pid: 27078, elementOrHash.elementID: 4755904928.317>
+                                      StaticText, 0x10b635a40, {{752.0, 902.3}, {35.0, 11.3}}, label: 'Pendiente' <AX element pid: 27078, elementOrHash.elementID: 4755905088.318>
+                                  StaticText, 0x10b635b80, {{300.0, 951.0}, {99.7, 19.3}}, label: 'Tu biblioteca' <AX element pid: 27078, elementOrHash.elementID: 4755900928.255>
+                                  Other, 0x10b635cc0, {{0.0, 0.0}, {0.0, 0.0}} <AX element pid: 27078, elementOrHash.elementID: 4755901088.256>
+                              Other, 0x10b635e00, {{260.0, 82.0}, {607.0, 553.0}}, identifier: 'home.scroll' <AX element pid: 27078, elementOrHash.elementID: 4724701088.192>
+              Other, 0x10b635f40, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393768960.12>
+                Other, 0x10b636080, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4347819584.16>
+            Other, 0x10b6361c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393677312.10>
+              Toolbar, 0x10b636300, {{0.0, 0.0}, {951.0, 669.0}}, identifier: 'Toolbar', label: 'Barra de herramientas' <AX element pid: 27078, elementOrHash.elementID: 4656389632.13>
+                Other, 0x10b636440, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4656390272.17>
+                  Other, 0x10b636580, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4724827328.22>
+                    Other, 0x10b6366c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4724827776.28>
+                      Other, 0x10b636800, {{0.0, 0.0}, {0.0, 0.0}} <AX element pid: 27078, elementOrHash.elementID: 4724828224.37>
+                        Other, 0x10b636940, {{879.0, 124.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4393894400.56>
+                          Other, 0x10b636a80, {{879.0, 124.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4724828672.90>
+                            Other, 0x10b636bc0, {{884.0, 129.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4724785152.121>
+                              Other, 0x10b636d00, {{884.0, 129.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4392956928.193>
+                                Button, 0x10b636e40, {{884.0, 129.0}, {38.0, 38.0}}, identifier: 'editor.close', label: 'Cancelar' <AX element pid: 27078, elementOrHash.elementID: 4723352960.222>
+                        Other, 0x10b636f80, {{879.0, 184.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4393895424.57>
+                          Other, 0x10b6370c0, {{879.0, 184.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4724829120.91>
+                            Other, 0x10b637200, {{884.0, 189.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4724785920.122>
+                              Other, 0x10b637340, {{884.0, 189.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4392957440.194>
+                                Button, 0x10b637480, {{884.0, 189.0}, {38.0, 38.0}}, identifier: 'editor.export', label: 'Exportar' <AX element pid: 27078, elementOrHash.elementID: 4723354240.223>
+                        Other, 0x10b6375c0, {{879.0, 244.0}, {48.0, 152.0}} <AX element pid: 27078, elementOrHash.elementID: 4393896448.58>
+                          Other, 0x10b637700, {{879.0, 244.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4724829568.92>
+                            Other, 0x10b637840, {{884.0, 249.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4724786688.123>
+                              Other, 0x10b637980, {{884.0, 249.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4392957952.195>
+                                Button, 0x10b637ac0, {{884.0, 249.0}, {38.0, 38.0}}, identifier: 'eye.fill', label: 'Ver documento original' <AX element pid: 27078, elementOrHash.elementID: 4723355520.224>
+                          Other, 0x10b637c00, {{879.0, 296.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4724830016.93>
+                            Other, 0x10b637d40, {{884.0, 301.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4724787456.124>
+                              Other, 0x10b637e80, {{884.0, 301.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4392958464.196>
+                                Button, 0x10b63c000, {{884.0, 301.0}, {38.0, 38.0}}, identifier: 'editor.moreActions', label: 'Más opciones' <AX element pid: 27078, elementOrHash.elementID: 4723356800.225>
+                          Other, 0x10b63c140, {{879.0, 348.0}, {48.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4724830464.94>
+                            Other, 0x10b63c280, {{884.0, 353.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4724788224.125>
+                              Other, 0x10b63c3c0, {{884.0, 353.0}, {38.0, 38.0}} <AX element pid: 27078, elementOrHash.elementID: 4392958976.197>
+                                Button, 0x10b63c500, {{884.0, 353.0}, {38.0, 38.0}}, identifier: 'editor.save', label: 'Guardar' <AX element pid: 27078, elementOrHash.elementID: 4723358080.226>
+              Other, 0x10b63c640, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4522812608.14>
+                Other, 0x10b63c780, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4393430528.18>
+                  Other, 0x10b63c8c0, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4348729344.23>
+                    Other, 0x10b63ca00, {{0.0, 0.0}, {951.0, 669.0}} <AX element pid: 27078, elementOrHash.elementID: 4724695648.29>
+                      StaticText, 0x10b63cb40, {{16.0, 30.8}, {143.0, 15.7}}, label: 'DNI — copia protegida' <AX element pid: 27078, elementOrHash.elementID: 4752970272.38>
+                      StaticText, 0x10b63cc80, {{793.7, 32.0}, {49.3, 13.3}}, label: '1 cambio' <AX element pid: 27078, elementOrHash.elementID: 4752971712.39>
+                      Button, 0x10b63cdc0, {{650.7, 57.3}, {67.0, 44.0}}, label: 'Aplicar' <AX element pid: 27078, elementOrHash.elementID: 4752973152.40>
+                      Button, 0x10b63cf00, {{727.7, 57.3}, {69.3, 44.0}}, label: 'Campos' <AX element pid: 27078, elementOrHash.elementID: 4752972192.41>
+                      Button, 0x10b63d040, {{807.0, 57.3}, {44.0, 44.0}}, identifier: 'xmark', label: 'Cerrar' <AX element pid: 27078, elementOrHash.elementID: 4752973312.42>
+                      Image, 0x10b63d180, {{17.7, 71.7}, {16.7, 15.3}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4752972832.43>
+                      StaticText, 0x10b63d2c0, {{46.0, 65.0}, {170.0, 14.3}}, label: '4 zonas sensibles sugeridas' <AX element pid: 27078, elementOrHash.elementID: 4752972512.44>
+                      StaticText, 0x10b63d400, {{46.0, 80.3}, {231.0, 13.3}}, label: 'Basado en la plantilla del documento actual.' <AX element pid: 27078, elementOrHash.elementID: 4752978112.45>
+                      Other, 0x10b63d540, {{0.0, 105.3}, {867.0, 66.7}}, identifier: 'editor.batchReview.banner' <AX element pid: 27078, elementOrHash.elementID: 4752974752.46>
+                        StaticText, 0x10b63d680, {{54.0, 113.3}, {260.7, 18.0}}, label: 'Revisa las páginas antes de exportar' <AX element pid: 27078, elementOrHash.elementID: 4752973632.59>
+                        Button, 0x10b63d7c0, {{722.0, 114.7}, {129.0, 48.0}}, identifier: 'editor.batchReview.markPage', label: 'Revisar y continuar' <AX element pid: 27078, elementOrHash.elementID: 4752974272.60>
+                        Image, 0x10b63d900, {{17.7, 131.3}, {22.7, 14.3}}, identifier: 'eye.fill', label: 'Mostrar' <AX element pid: 27078, elementOrHash.elementID: 4752973952.61>
+                        StaticText, 0x10b63da40, {{54.0, 133.3}, {427.3, 14.3}}, label: 'Revisa cada página y ajusta las máscaras si hace falta antes de confirmarla.' <AX element pid: 27078, elementOrHash.elementID: 4752972352.62>
+                        StaticText, 0x10b63db80, {{54.0, 149.7}, {221.3, 14.3}}, label: 'Página 1 · quedan 2 páginas por revisar' <AX element pid: 27078, elementOrHash.elementID: 4752972672.63>
+                      Other, 0x10b63dcc0, {{0.0, 172.0}, {867.0, 497.0}} <AX element pid: 27078, elementOrHash.elementID: 4724695808.47>
+                        ScrollView, 0x10b63de00, {{122.0, 172.0}, {311.7, 359.0}}, identifier: 'editor.canvasArea' <AX element pid: 27078, elementOrHash.elementID: 4679541760.64>
+                          Other, 0x10b63df40, {{122.0, 172.0}, {311.7, 359.0}} <AX element pid: 27078, elementOrHash.elementID: 4719969536.95>
+                            Button, 0x10b63e080, {{149.3, 295.7}, {61.3, 104.7}}, identifier: 'editor.mask.192AF9CD-F563-4890-95C3-245AFB761834', label: 'Máscara de ocultación', value: No seleccionada <AX element pid: 27078, elementOrHash.elementID: 4752977792.126>
+                              Other, 0x10b63e1c0, {{149.3, 295.7}, {61.3, 104.7}} <AX element pid: 27078, elementOrHash.elementID: 4752976032.198>
+                            Button, 0x10b63e300, {{308.7, 365.7}, {97.7, 36.0}}, identifier: 'editor.mask.81E8C873-9316-4375-878E-5F1292CC7B00', label: 'Máscara de ocultación', value: No seleccionada <AX element pid: 27078, elementOrHash.elementID: 4752977952.127>
+                              Other, 0x10b63e440, {{308.7, 365.7}, {97.7, 36.0}} <AX element pid: 27078, elementOrHash.elementID: 4752977632.199>
+                            Button, 0x10b63e580, {{219.0, 390.3}, {92.3, 36.0}}, identifier: 'editor.mask.3EFEA4D4-E2A3-4439-A370-7D5C4E10B2E9', label: 'Máscara de ocultación', value: No seleccionada <AX element pid: 27078, elementOrHash.elementID: 4752977472.128>
+                              Other, 0x10b63e6c0, {{219.0, 390.3}, {92.3, 36.0}} <AX element pid: 27078, elementOrHash.elementID: 4752977312.200>
+                            Image, 0x10b63e800, {{138.0, 264.0}, {279.7, 175.0}}, identifier: 'editor.document.preview', label: 'Previsualización protegida del documento' <AX element pid: 27078, elementOrHash.elementID: 4752977152.129>
+                            Button, 0x10b63e940, {{138.0, 408.7}, {279.7, 36.0}}, identifier: 'editor.mask.E34FD6EA-95E7-4A59-83C9-F12DD87B8BDB', label: 'Máscara de ocultación', value: No seleccionada <AX element pid: 27078, elementOrHash.elementID: 4752978752.130>
+                              Other, 0x10b63ea80, {{138.0, 408.7}, {279.7, 36.0}} <AX element pid: 27078, elementOrHash.elementID: 4752976192.201>
+                        StaticText, 0x10b63ebc0, {{12.0, 180.0}, {70.7, 26.3}}, label: 'MODEL_PAGE' <AX element pid: 27078, elementOrHash.elementID: 4752974912.65>
+                        StaticText, 0x10b63ed00, {{93.0, 186.5}, {16.3, 13.3}}, label: '1/2' <AX element pid: 27078, elementOrHash.elementID: 4752974112.66>
+                        Button, 0x10b63ee40, {{445.7, 181.7}, {99.3, 43.7}}, identifier: 'editor.inspector.tab.detections', label: 'Detecciones', Selected <AX element pid: 27078, elementOrHash.elementID: 4692425728.67>
+                          Image, 0x10b63ef80, {{488.3, 189.0}, {14.0, 14.0}}, identifier: 'text.viewfinder', label: 'Texto Dentro De Un Visor' <AX element pid: 27078, elementOrHash.elementID: 4692419968.96>
+                          StaticText, 0x10b63f0c0, {{463.4, 207.2}, {63.7, 12.0}}, label: 'Detecciones' <AX element pid: 27078, elementOrHash.elementID: 4692423968.97>
+                        Button, 0x10b63f200, {{577.6, 189.3}, {42.0, 29.3}}, identifier: 'editor.inspector.tab.mask', label: 'Máscara' <AX element pid: 27078, elementOrHash.elementID: 4692418528.68>
+                          Image, 0x10b63f340, {{590.3, 189.3}, {16.3, 13.0}}, identifier: 'rectangle.dashed', label: 'Rectángulo Con Contorno Discontinuo' <AX element pid: 27078, elementOrHash.elementID: 4692418208.98>
+                          StaticText, 0x10b63f480, {{577.6, 206.7}, {42.0, 12.0}}, label: 'Máscara' <AX element pid: 27078, elementOrHash.elementID: 4692418368.99>
+                        Button, 0x10b63f5c0, {{672.8, 188.7}, {58.3, 30.7}}, identifier: 'editor.inspector.tab.watermark', label: 'Marca Agua' <AX element pid: 27078, elementOrHash.elementID: 4692419328.69>
+                          Image, 0x10b63f700, {{697.0, 188.7}, {10.0, 14.3}}, identifier: 'drop.halffull', label: 'Gota De Agua Medio Llena' <AX element pid: 27078, elementOrHash.elementID: 4692418848.100>
+                          StaticText, 0x10b63f840, {{672.8, 207.3}, {58.3, 12.0}}, label: 'Marca Agua' <AX element pid: 27078, elementOrHash.elementID: 4692418688.101>
+                        Button, 0x10b63f980, {{784.1, 187.3}, {42.3, 33.3}}, identifier: 'editor.inspector.tab.export', label: 'Exportar' <AX element pid: 27078, elementOrHash.elementID: 4692422688.70>
+                          Image, 0x10b63fac0, {{799.0, 187.3}, {12.7, 17.0}}, identifier: 'square.and.arrow.up', label: 'Compartir' <AX element pid: 27078, elementOrHash.elementID: 4692419008.102>
+                          StaticText, 0x10b63fc00, {{784.1, 208.7}, {42.3, 12.0}}, label: 'Exportar' <AX element pid: 27078, elementOrHash.elementID: 4692422528.103>
+                        Button, 0x10b63fd40, {{149.0, 199.0}, {22.0, 22.0}}, identifier: 'editor.canvasArea', label: 'Página anterior', Disabled <AX element pid: 27078, elementOrHash.elementID: 4752979392.71>
+                        StaticText, 0x10b63fe80, {{195.9, 203.3}, {62.0, 13.3}}, identifier: 'editor.canvasArea', label: 'Página 1 / 2' <AX element pid: 27078, elementOrHash.elementID: 4752979552.72>
+                        Button, 0x10b64c000, {{283.0, 199.0}, {22.0, 22.0}}, identifier: 'editor.canvasArea', label: 'Página siguiente' <AX element pid: 27078, elementOrHash.elementID: 4752979712.73>
+                        ScrollView, 0x10b64c140, {{0.0, 214.7}, {121.3, 454.3}} <AX element pid: 27078, elementOrHash.elementID: 4679538688.74>
+                          Other, 0x10b64c280, {{0.0, 214.7}, {121.3, 272.0}} <AX element pid: 27078, elementOrHash.elementID: 4692146560.104>
+                            Other, 0x10b64c3c0, {{8.0, 222.7}, {105.3, 252.0}} <AX element pid: 27078, elementOrHash.elementID: 4752976832.131>
+                              Button, 0x10b64c500, {{8.0, 222.7}, {105.3, 124.0}}, label: 'Page 1, 4 masks', Selected <AX element pid: 27078, elementOrHash.elementID: 4752975552.202>
+                                Button, 0x10b64c640, {{8.0, 222.7}, {105.3, 124.0}}, label: '4, Página 1' <AX element pid: 27078, elementOrHash.elementID: 4752973472.227>
+                                  Image, 0x10b64c780, {{81.3, 233.7}, {8.3, 10.0}}, identifier: 'shield.fill', label: 'Escudo' <AX element pid: 27078, elementOrHash.elementID: 4752975072.257>
+                                  StaticText, 0x10b64c8c0, {{93.0, 232.7}, {7.3, 12.0}}, label: '4' <AX element pid: 27078, elementOrHash.elementID: 4752974592.258>
+                                  Image, 0x10b64ca00, {{50.7, 264.0}, {20.0, 25.3}}, identifier: 'doc.text', label: 'Documento De Texto Sin Formato' <AX element pid: 27078, elementOrHash.elementID: 4752975232.259>
+                                  StaticText, 0x10b64cb40, {{39.3, 330.7}, {42.7, 12.0}}, label: 'Página 1' <AX element pid: 27078, elementOrHash.elementID: 4752975872.260>
+                              Button, 0x10b64cc80, {{11.6, 358.3}, {98.1, 116.4}}, label: 'Page 2, 0 masks' <AX element pid: 27078, elementOrHash.elementID: 4752976672.203>
+                                Button, 0x10b64cdc0, {{11.6, 358.3}, {98.1, 116.4}}, label: 'Página 2' <AX element pid: 27078, elementOrHash.elementID: 4752976512.228>
+                                  Image, 0x10b64cf00, {{50.7, 396.0}, {20.0, 25.3}}, identifier: 'doc.text', label: 'Documento De Texto Sin Formato' <AX element pid: 27078, elementOrHash.elementID: 4752973792.261>
+                                  StaticText, 0x10b64d040, {{39.5, 462.7}, {42.3, 12.0}}, label: 'Página 2' <AX element pid: 27078, elementOrHash.elementID: 4752976352.262>
+                          Other, 0x10b64d180, {{88.3, 214.7}, {30.0, 454.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393113088.105>
+                            Other, 0x10b64d2c0, {{115.3, 366.0}, {3.0, 300.0}} <AX element pid: 27078, elementOrHash.elementID: 4691794496.132>
+                          Other, 0x10b64d400, {{88.3, 214.7}, {30.0, 454.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393113088.105>
+                            Other, 0x10b64d540, {{115.3, 366.0}, {3.0, 300.0}} <AX element pid: 27078, elementOrHash.elementID: 4691794496.132>
+                        ScrollView, 0x10b64d680, {{433.7, 235.0}, {517.3, 434.0}}, identifier: 'editor.inspector.scroll' <AX element pid: 27078, elementOrHash.elementID: 4720331776.75>
+                          Other, 0x10b64d7c0, {{433.7, 235.0}, {433.3, 466.3}} <AX element pid: 27078, elementOrHash.elementID: 4719973376.106>
+                            StaticText, 0x10b64d900, {{449.7, 251.0}, {183.7, 13.3}}, label: 'DATOS SENSIBLES DETECTADOS' <AX element pid: 27078, elementOrHash.elementID: 4692422848.133>
+                            StaticText, 0x10b64da40, {{777.7, 251.7}, {73.3, 12.0}}, label: '2/7 protegidos' <AX element pid: 27078, elementOrHash.elementID: 4692423168.134>
+                            Button, 0x10b64db80, {{449.7, 276.3}, {196.7, 29.3}}, identifier: 'editor.inspector.protectAll', label: 'Proteger todos', Selected <AX element pid: 27078, elementOrHash.elementID: 4692422368.135>
+                              Image, 0x10b64dcc0, {{499.3, 285.3}, {9.3, 11.0}}, identifier: 'checkmark.shield.fill', label: 'Marca De Verificación Dentro De Un Escudo Con Relleno', Selected <AX element pid: 27078, elementOrHash.elementID: 4692419168.204>
+                              StaticText, 0x10b64de00, {{514.0, 284.3}, {84.0, 13.3}}, label: 'Proteger todos' <AX element pid: 27078, elementOrHash.elementID: 4692423328.205>
+                            Button, 0x10b64df40, {{654.3, 276.3}, {196.7, 29.3}}, identifier: 'editor.inspector.clear', label: 'Limpiar' <AX element pid: 27078, elementOrHash.elementID: 4692423648.136>
+                              Image, 0x10b64e080, {{724.7, 285.3}, {11.3, 11.3}}, identifier: 'xmark.circle', label: 'Cerrar' <AX element pid: 27078, elementOrHash.elementID: 4692423488.206>
+                              StaticText, 0x10b64e1c0, {{740.8, 284.3}, {41.0, 13.3}}, label: 'Limpiar' <AX element pid: 27078, elementOrHash.elementID: 4692423808.207>
+                            StaticText, 0x10b64e300, {{482.7, 325.7}, {134.3, 14.3}}, label: 'Número de documento' <AX element pid: 27078, elementOrHash.elementID: 4692423008.137>
+                            Image, 0x10b64e440, {{459.0, 334.0}, {14.3, 13.0}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4692424608.138>
+                            StaticText, 0x10b64e580, {{482.7, 342.0}, {61.0, 13.3}}, label: 'X1234567T' <AX element pid: 27078, elementOrHash.elementID: 4656062912.139>
+                            Button, 0x10b64e6c0, {{774.0, 329.0}, {69.0, 23.3}}, label: 'Proteger' <AX element pid: 27078, elementOrHash.elementID: 4656063072.140>
+                            StaticText, 0x10b64e800, {{482.7, 379.3}, {113.7, 14.3}}, label: 'Número de soporte' <AX element pid: 27078, elementOrHash.elementID: 4656070272.141>
+                            Image, 0x10b64e940, {{459.0, 387.7}, {14.3, 13.0}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4656070112.142>
+                            StaticText, 0x10b64ea80, {{482.7, 395.7}, {62.7, 13.3}}, label: 'SYN123456' <AX element pid: 27078, elementOrHash.elementID: 4656067872.143>
+                            Button, 0x10b64ebc0, {{774.0, 382.3}, {69.0, 23.7}}, label: 'Proteger' <AX element pid: 27078, elementOrHash.elementID: 4656064672.144>
+                            StaticText, 0x10b64ed00, {{482.7, 433.0}, {105.3, 14.3}}, label: 'Nombre completo' <AX element pid: 27078, elementOrHash.elementID: 4656063872.145>
+                            Image, 0x10b64ee40, {{459.0, 441.3}, {14.3, 13.0}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4656068992.146>
+                            StaticText, 0x10b64ef80, {{482.7, 449.3}, {121.7, 13.3}}, label: 'GARCÍA LÓPEZ, MARÍA' <AX element pid: 27078, elementOrHash.elementID: 4656057312.147>
+                            Button, 0x10b64f0c0, {{774.0, 436.0}, {69.0, 23.3}}, label: 'Proteger' <AX element pid: 27078, elementOrHash.elementID: 4656057152.148>
+                            StaticText, 0x10b64f200, {{482.3, 486.7}, {121.7, 14.3}}, label: 'Fecha de nacimiento' <AX element pid: 27078, elementOrHash.elementID: 4656056672.149>
+                            Image, 0x10b64f340, {{459.0, 494.7}, {14.0, 14.0}}, identifier: 'checkmark.circle.fill', label: 'Seleccionado', Selected <AX element pid: 27078, elementOrHash.elementID: 4656056992.150>
+                            StaticText, 0x10b64f480, {{482.3, 503.0}, {59.7, 13.3}}, label: '14/03/1990' <AX element pid: 27078, elementOrHash.elementID: 4656056832.151>
+                            Button, 0x10b64f5c0, {{762.0, 489.7}, {81.0, 23.7}}, label: 'Desmarcar' <AX element pid: 27078, elementOrHash.elementID: 4679847360.152>
+                            StaticText, 0x10b64f700, {{482.7, 540.3}, {63.3, 14.3}}, label: 'Caducidad' <AX element pid: 27078, elementOrHash.elementID: 4679857120.153>
+                            Image, 0x10b64f840, {{459.0, 548.7}, {14.3, 13.0}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4679856800.154>
+                            StaticText, 0x10b64f980, {{482.7, 556.7}, {55.0, 13.3}}, label: '12/11/2031' <AX element pid: 27078, elementOrHash.elementID: 4724693248.155>
+                            Button, 0x10b64fac0, {{774.0, 543.7}, {69.0, 23.3}}, label: 'Proteger' <AX element pid: 27078, elementOrHash.elementID: 4724691328.156>
+                            StaticText, 0x10b64fc00, {{482.7, 594.0}, {76.7, 14.3}}, label: 'Nacionalidad' <AX element pid: 27078, elementOrHash.elementID: 4724694048.157>
+                            Image, 0x10b64fd40, {{459.0, 602.3}, {14.3, 13.0}}, identifier: 'exclamationmark.triangle.fill', label: 'Advertencia' <AX element pid: 27078, elementOrHash.elementID: 4724693408.158>
+                            StaticText, 0x10b64fe80, {{482.7, 610.3}, {58.3, 13.3}}, label: 'ESPAÑOLA' <AX element pid: 27078, elementOrHash.elementID: 4724694368.159>
+                            Button, 0x10b654000, {{774.0, 597.3}, {69.0, 23.3}}, label: 'Proteger' <AX element pid: 27078, elementOrHash.elementID: 4724694528.160>
+                            StaticText, 0x10b654140, {{482.3, 647.7}, {56.0, 14.3}}, label: 'Dirección' <AX element pid: 27078, elementOrHash.elementID: 4724694848.161>
+                            Image, 0x10b654280, {{459.0, 655.7}, {14.0, 14.0}}, identifier: 'checkmark.circle.fill', label: 'Seleccionado', Selected <AX element pid: 27078, elementOrHash.elementID: 4724694208.162>
+                            StaticText, 0x10b6543c0, {{482.3, 664.0}, {154.7, 13.3}}, label: 'CALLE EJEMPLO 24, MADRID' <AX element pid: 27078, elementOrHash.elementID: 4724691008.163>
+                            Button, 0x10b654500, {{762.0, 651.0}, {81.0, 23.3}}, label: 'Desmarcar' <AX element pid: 27078, elementOrHash.elementID: 4724691488.164>
+                          Other, 0x10b654640, {{918.0, 235.0}, {30.0, 379.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393115648.107>
+                            Other, 0x10b654780, {{945.0, 238.0}, {3.0, 323.7}} <AX element pid: 27078, elementOrHash.elementID: 4691796288.165>
+                          Other, 0x10b6548c0, {{918.0, 235.0}, {30.0, 379.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393115648.107>
+                            Other, 0x10b654a00, {{945.0, 238.0}, {3.0, 323.7}} <AX element pid: 27078, elementOrHash.elementID: 4691796288.165>
+                        Other, 0x10b654b40, {{285.7, 471.0}, {132.0, 44.0}}, identifier: 'editor.canvasArea', label: 'Controles de zoom' <AX element pid: 27078, elementOrHash.elementID: 4752979232.76>
+                          Button, 0x10b654c80, {{285.7, 471.0}, {44.0, 44.0}}, identifier: 'minus.magnifyingglass', label: 'Reducir zoom', Disabled <AX element pid: 27078, elementOrHash.elementID: 4752978592.108>
+                          Button, 0x10b654dc0, {{329.7, 471.0}, {44.0, 44.0}}, label: 'Restablecer zoom' <AX element pid: 27078, elementOrHash.elementID: 4752978912.109>
+                          Button, 0x10b654f00, {{373.7, 471.0}, {44.0, 44.0}}, identifier: 'plus.magnifyingglass', label: 'Aumentar zoom' <AX element pid: 27078, elementOrHash.elementID: 4752979072.110>
+                        ScrollView, 0x10b655040, {{122.0, 532.0}, {275.7, 46.0}} <AX element pid: 27078, elementOrHash.elementID: 4679544832.77>
+                          Other, 0x10b655180, {{122.0, 532.0}, {700.0, 46.0}} <AX element pid: 27078, elementOrHash.elementID: 4719970816.111>
+                            Button, 0x10b6552c0, {{137.5, 533.5}, {69.0, 43.0}}, identifier: 'editor.maskStyle.block', label: 'Negro' <AX element pid: 27078, elementOrHash.elementID: 4752979872.166>
+                            Button, 0x10b655400, {{213.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.blockWhite', label: 'Blanco' <AX element pid: 27078, elementOrHash.elementID: 4752978272.167>
+                            Button, 0x10b655540, {{289.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.pixelate', label: 'Pixelado' <AX element pid: 27078, elementOrHash.elementID: 4752980032.168>
+                            Button, 0x10b655680, {{365.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.blurStrong', label: 'Blur fuerte' <AX element pid: 27078, elementOrHash.elementID: 4752980192.169>
+                            Button, 0x10b6557c0, {{441.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.blurSoft', label: 'Blur suave' <AX element pid: 27078, elementOrHash.elementID: 4752980352.170>
+                            Button, 0x10b655900, {{517.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.diagonal', label: 'Diagonal' <AX element pid: 27078, elementOrHash.elementID: 4752980512.171>
+                            Button, 0x10b655a40, {{593.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.secure', label: 'Alta seg.' <AX element pid: 27078, elementOrHash.elementID: 4752980672.172>
+                            Button, 0x10b655b80, {{669.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.redactedTag', label: 'Etiqueta' <AX element pid: 27078, elementOrHash.elementID: 4752980832.173>
+                            Button, 0x10b655cc0, {{745.8, 533.8}, {68.5, 42.5}}, identifier: 'editor.maskStyle.semi', label: 'Semi' <AX element pid: 27078, elementOrHash.elementID: 4752980992.174>
+                        Button, 0x10b655e00, {{397.7, 531.0}, {36.0, 48.0}}, identifier: 'editor.maskStyle.scroll', label: 'Más estilos de máscara' <AX element pid: 27078, elementOrHash.elementID: 4752981312.78>
+                        Button, 0x10b655f40, {{130.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.undo', label: 'Deshacer', Disabled <AX element pid: 27078, elementOrHash.elementID: 4752981472.79>
+                        Button, 0x10b656080, {{176.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.redo', label: 'Rehacer', Disabled <AX element pid: 27078, elementOrHash.elementID: 4752981632.80>
+                        Button, 0x10b6561c0, {{222.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.addMask', label: 'Añadir máscara' <AX element pid: 27078, elementOrHash.elementID: 4752981792.81>
+                        Button, 0x10b656300, {{268.0, 587.0}, {44.0, 44.0}}, label: 'Modos rápidos' <AX element pid: 27078, elementOrHash.elementID: 4726338688.82>
+                          Button, 0x10b656440, {{268.0, 587.0}, {44.0, 44.0}} <AX element pid: 27078, elementOrHash.elementID: 4347253120.112>
+                            Image, 0x10b656580, {{281.7, 599.0}, {16.7, 20.0}}, identifier: 'shield.lefthalf.filled', label: 'Escudo Con La Mitad Izquierda Rellena' <AX element pid: 27078, elementOrHash.elementID: 4726340448.176>
+                        ScrollView, 0x10b6566c0, {{316.0, 585.0}, {109.7, 48.0}}, identifier: 'editor.tools.scroll' <AX element pid: 27078, elementOrHash.elementID: 4720328704.83>
+                          Other, 0x10b656800, {{316.0, 585.0}, {326.0, 48.0}} <AX element pid: 27078, elementOrHash.elementID: 4719972096.113>
+                            Button, 0x10b656940, {{316.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.rect', label: 'Rectángulo', value: Seleccionado, Selected <AX element pid: 27078, elementOrHash.elementID: 4726340928.177>
+                              Image, 0x10b656a80, {{348.3, 587.0}, {11.7, 11.7}}, identifier: 'checkmark.circle.fill', label: 'Seleccionado', Selected <AX element pid: 27078, elementOrHash.elementID: 4726341248.209>
+                              Image, 0x10b656bc0, {{327.0, 600.3}, {22.0, 17.3}}, identifier: 'rectangle.dashed', label: 'Rectángulo Con Contorno Discontinuo' <AX element pid: 27078, elementOrHash.elementID: 4726341088.210>
+                            Button, 0x10b656d00, {{363.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.pan', label: 'Mover' <AX element pid: 27078, elementOrHash.elementID: 4726341408.178>
+                            Button, 0x10b656e40, {{410.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.fields', label: 'Campos' <AX element pid: 27078, elementOrHash.elementID: 4391875232.179>
+                            Button, 0x10b656f80, {{457.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.auto', label: 'Auto', Selected <AX element pid: 27078, elementOrHash.elementID: 4391873152.180>
+                            Button, 0x10b6570c0, {{504.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.text', label: 'Texto' <AX element pid: 27078, elementOrHash.elementID: 4506861728.181>
+                            Button, 0x10b657200, {{551.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.watermark', label: 'Marca agua' <AX element pid: 27078, elementOrHash.elementID: 4506862688.182>
+                            Button, 0x10b657340, {{598.0, 587.0}, {44.0, 44.0}}, identifier: 'editor.tool.adjust', label: 'Ajustar' <AX element pid: 27078, elementOrHash.elementID: 4506872128.183>
+                          Other, 0x10b657480, {{316.0, 606.0}, {109.7, 24.0}}, label: 'Barra de desplazamiento horizontal, 3 páginas', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393114624.114>
+                            Other, 0x10b6575c0, {{415.7, 627.0}, {7.0, 3.0}} <AX element pid: 27078, elementOrHash.elementID: 4691795840.184>
+                          Other, 0x10b657700, {{316.0, 606.0}, {109.7, 24.0}}, label: 'Barra de desplazamiento horizontal, 3 páginas', value: 0 % <AX element pid: 27078, elementOrHash.elementID: 4393114624.114>
+                            Other, 0x10b657840, {{415.7, 627.0}, {7.0, 3.0}} <AX element pid: 27078, elementOrHash.elementID: 4691795840.184>

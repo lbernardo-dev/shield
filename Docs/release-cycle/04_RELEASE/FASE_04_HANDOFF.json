@@ -1,0 +1,39 @@
+{
+  "phase": 4,
+  "bundle_id": "com.romerodev.shield",
+  "release_status": "BLOCKED",
+  "release_version": "1.1.7",
+  "build_number": "1172026110801",
+  "ready_to_submit_boolean": false,
+  "publication_approved_boolean": false,
+  "outstanding_actions": [
+    "Obtain legal approval for privacy, subscription, access-transition and recovery terms",
+    "Restore RevenueCat list-apps/products/entitlements access and reconcile cross-app SKUs and MaskID Pro entitlement; current App Store StoreState has no active annual trial",
+    "Reconcile ASC App Privacy with current SDKs and consent behavior before editing",
+    "Authorize an internal TestFlight group and run isolated StoreKit Sandbox purchase/restore/refund/grace/renewal scenarios",
+    "Complete UI expiry validation with editor/capture active, physical assistive-technology tests and two-device CloudKit checks",
+    "Decide separately whether to submit for App Review after remaining gates close"
+  ],
+  "artifactStatus": {
+    "xcarchive": "BUILT_AND_SIGNATURE_VERIFIED_LOCALLY",
+    "ipa": "EXPORTED_AND_SIGNATURE_VERIFIED_LOCALLY",
+    "persistentTestResult": "PASS_236_7SKIP_0FAIL; 0_RUNTIME_WARNINGS",
+    "ascVersionMetadata": "WRITTEN_AND_READ_BACK_FOR_es-ES_AND_en-US",
+    "ascScreenshotAssets": "40_IMAGES_PREPARE_FOR_SUBMISSION; 40_ACTIVE_PLACEMENTS_IN_4_GROUPS; ORDER_1_TO_10",
+    "ascScreenshotApi": "CURRENT_APP_ASSET_LIBRARY_AND_PLACEMENTS",
+    "ascBuildUpload": "AUTHORIZED_AND_PROCESSED_VALID",
+    "testFlight": "BUILD_VALID; NOT_DISTRIBUTED_TO_TESTERS",
+    "appReview": "NOT_SUBMITTED",
+    "publicRelease": "NOT_PUBLISHED"
+  },
+  "reports": [
+    "00_RELEASE_EXECUTIVE.md",
+    "02_RELEASE_QUALITY_MATRIX.md",
+    "03_QA_TEST_MATRIX.csv",
+    "09_ASO_STRATEGY.md",
+    "15_BUILD_ARCHIVE_TESTFLIGHT.md",
+    "16_ASC_SCREENSHOT_UPLOAD_REPORT.md",
+    "17_OWNER_ACTIONS.md",
+    "RELEASE_MANIFEST.json"
+  ]
+}

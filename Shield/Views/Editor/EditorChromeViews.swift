@@ -290,6 +290,7 @@ struct EditorBottomToolbar: View {
     let adjustDirty: Bool
     let onUndo: () -> Void
     let onRedo: () -> Void
+    let onAddAccessibleMask: () -> Void
     let onModeSelect: (RedactionMode) -> Void
     let onLockedModeTap: () -> Void
     let onToolTap: (EditorTool) -> Void
@@ -300,14 +301,31 @@ struct EditorBottomToolbar: View {
                 toolbarActionButton(
                     icon: "arrow.uturn.backward",
                     isEnabled: canUndo,
+                    label: LanguageManager.shared.editor("editor_undo"),
+                    identifier: "editor.undo",
                     action: onUndo
                 )
 
                 toolbarActionButton(
                     icon: "arrow.uturn.forward",
                     isEnabled: canRedo,
+                    label: LanguageManager.shared.editor("editor_redo"),
+                    identifier: "editor.redo",
                     action: onRedo
                 )
+
+                Button(action: onAddAccessibleMask) {
+                    Image(systemName: "plus.rectangle.fill")
+                        .shieldFont(19, weight: .medium)
+                        .foregroundColor(ShieldTheme.primary(scheme))
+                        .frame(width: 44, height: 44)
+                        .background(ShieldTheme.rowBackground(scheme))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityLabel(LanguageManager.shared.editor("editor_add_accessible_mask"))
+                .accessibilityHint(LanguageManager.shared.editor("editor_add_accessible_mask_hint"))
+                .accessibilityIdentifier("editor.addMask")
 
                 Menu {
                     ForEach(RedactionMode.allCases, id: \.self) { mode in
@@ -412,7 +430,13 @@ struct EditorBottomToolbar: View {
         .overlay(alignment: .top) { ShieldDivider() }
     }
 
-    private func toolbarActionButton(icon: String, isEnabled: Bool, action: @escaping () -> Void) -> some View {
+    private func toolbarActionButton(
+        icon: String,
+        isEnabled: Bool,
+        label: String,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             Image(systemName: icon)
                 .shieldFont(20, weight: .medium)
@@ -422,5 +446,7 @@ struct EditorBottomToolbar: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .disabled(!isEnabled)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(identifier)
     }
 }

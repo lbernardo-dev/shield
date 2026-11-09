@@ -89,6 +89,11 @@ enum DocumentCollectionTransaction {
     }
 }
 
+struct AccessBoundarySaveLease: Equatable {
+    let documentID: String
+    fileprivate let nonce: UUID
+}
+
 private enum DocumentSnapshotPersistenceError: Error {
     case encryptedSnapshotWriteFailed
 }
@@ -122,6 +127,7 @@ final class AppState: ObservableObject {
 
     // MARK: - Navigation
     @Published var selectedDoc: DocumentItem? = nil
+    @Published private(set) var activeEditorDocumentID: String?
     @Published var showCapture: Bool = false
     @Published var isHomeWorkspaceToolsExpanded = false
     @Published var pendingSharedImportURL: URL? = nil
@@ -158,6 +164,7 @@ final class AppState: ObservableObject {
 
     // Triggered when a vaulted doc is closed from the editor — fires the 60s auto-lock countdown
     @Published var vaultedDocJustClosed: DocumentItem? = nil
+    private var accessBoundarySaveLease: AccessBoundarySaveLease?
 
     // MARK: - User categories (persisted)
     @Published var customCategories: [UserCategory] = [] {
@@ -177,6 +184,10 @@ final class AppState: ObservableObject {
         currentAppIcon = SeasonalThemeCoordinator.shared.activeThemeID.icon
 
         documents = AppState.loadDocuments()
+        if !documents.isEmpty,
+           case .missing = AccessStateStore().load() {
+            ud.set(true, forKey: "shield.access.preMigrationInstallEvidence")
+        }
         PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
         customCategories = AppState.loadCustomCategories()
 
@@ -204,6 +215,39 @@ final class AppState: ObservableObject {
                 selectedDoc = nil
             case "01-identity-dni", "01", "01-editor-protected", "editor":
                 selectedDoc = documents.first
+            case "editor-export-accessibility":
+                if var document = documents.first(where: { $0.id == "aso-identity" }) {
+                    let fixtureFileName = "aso-export-accessibility-fixture.jpg"
+                    let fixtureURL = Self.resolveImageURL(fileName: fixtureFileName, isVaulted: false)
+                    let fixtureSize = CGSize(width: 800, height: 500)
+                    let fixtureImage = UIGraphicsImageRenderer(size: fixtureSize).image { context in
+                        UIColor.white.setFill()
+                        context.fill(CGRect(origin: .zero, size: fixtureSize))
+                    }
+                    if let data = fixtureImage.jpegData(compressionQuality: 0.9) {
+                        try? FileManager.default.createDirectory(
+                            at: fixtureURL.deletingLastPathComponent(),
+                            withIntermediateDirectories: true
+                        )
+                        try? SecureFileStore.shared.write(data, to: fixtureURL)
+                    }
+                    document.imageFileName = fixtureFileName
+                    document.pageFileNames = [fixtureFileName]
+                    document.pageTransforms = [.identity]
+                    document.pageRedactions = [
+                        DocumentPageRedactions(
+                            pageIndex: 0,
+                            redactions: [Redaction(rect: CGRect(x: 0, y: 0, width: 1, height: 1))]
+                        )
+                    ]
+                    document.redactionCount = 1
+                    document.watermark = nil
+                    document.batchReviewPendingPageIndices = []
+                    document.batchSuggestionPageIndices = []
+                    document.redactionGeometryReviewedFingerprint = "raster-typed-v1:identity"
+                    document.redactionGeometryReviewPendingFingerprint = nil
+                    selectedDoc = document
+                }
             case "editor-empty-detections":
                 if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
                     documents[index].fields = .empty
@@ -257,6 +301,18 @@ final class AppState: ObservableObject {
             case "batch-import-recovery", "batch-import-cancel":
                 showCapture = true
                 selectedDoc = nil
+            case "batch-import-success":
+                showCapture = true
+                selectedDoc = nil
+            case "vault-delete-confirmation":
+                documents = documents.map { document in
+                    var fixture = document
+                    fixture.isVaulted = fixture.id == "aso-identity"
+                    return fixture
+                }
+                selectedDoc = nil
+                activeTab = .vault
+                session.isAuthenticated = true
             case "09-mask-styles", "09", "09-templates", "gallery":
                 selectedDoc = nil
                 activeTab = .gallery
@@ -517,14 +573,25 @@ final class AppState: ObservableObject {
         if themeID.isSeasonal {
             if defaults.object(forKey: savedSchemeKey) == nil {
                 defaults.set(preferredScheme == .dark ? "dark" : "light", forKey: savedSchemeKey)
-            }
-            if preferredScheme != .dark {
-                preferredScheme = .dark
+                if preferredScheme != .dark {
+                    preferredScheme = .dark
+                }
             }
         } else if let saved = defaults.string(forKey: savedSchemeKey) {
             preferredScheme = saved == "dark" ? .dark : .light
             defaults.removeObject(forKey: savedSchemeKey)
         }
+    }
+
+    @MainActor
+    func setRegularAppearanceScheme(_ scheme: ColorScheme) {
+        if ShieldTheme.activeThemeID.isSeasonal {
+            UserDefaults.standard.set(
+                scheme == .dark ? "dark" : "light",
+                forKey: "shield.theme.previousColorScheme"
+            )
+        }
+        preferredScheme = scheme
     }
 
     @MainActor
@@ -739,6 +806,7 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func addDocument(_ doc: DocumentItem) -> Bool {
+        guard PremiumManager.shared.accessState.allows(.createContent) else { return false }
         var document = doc
         document.modifiedAt = Date()
         guard DocumentCollectionTransaction.insert(
@@ -756,6 +824,7 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func updateDocument(_ doc: DocumentItem) -> Bool {
+        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
         var document = doc
         document.modifiedAt = Date()
         guard DocumentCollectionTransaction.replace(
@@ -789,6 +858,64 @@ final class AppState: ObservableObject {
         CloudSyncManager.shared.scheduleRemoteDeletion(id: doc.id)
     }
 
+    func registerActiveEditor(documentID: String, isForcedReadOnly: Bool) {
+        guard !isForcedReadOnly else { return }
+        activeEditorDocumentID = documentID
+    }
+
+    func unregisterActiveEditor(documentID: String) {
+        guard activeEditorDocumentID == documentID else { return }
+        activeEditorDocumentID = nil
+        accessBoundarySaveLease = nil
+    }
+
+    func beginAccessBoundarySave(
+        for documentID: String,
+        previousState: AppAccessState,
+        nextState: AppAccessState
+    ) -> AccessBoundarySaveLease? {
+        let documentIsPersisted = documents.contains(where: { $0.id == documentID })
+        guard AccessBoundarySavePolicy.canIssueLease(
+            for: documentID,
+            activeEditorDocumentID: activeEditorDocumentID,
+            documentIsPersisted: documentIsPersisted,
+            previousState: previousState,
+            nextState: nextState,
+            leaseAlreadyIssued: accessBoundarySaveLease != nil
+        ), PremiumManager.shared.accessState == nextState else { return nil }
+        let lease = AccessBoundarySaveLease(documentID: documentID, nonce: UUID())
+        accessBoundarySaveLease = lease
+        return lease
+    }
+
+    func commitAccessBoundarySnapshot(
+        _ document: DocumentItem,
+        using lease: AccessBoundarySaveLease
+    ) -> DocumentItem? {
+        guard accessBoundarySaveLease == lease,
+              activeEditorDocumentID == lease.documentID,
+              document.id == lease.documentID,
+              PremiumManager.shared.accessState.isReadOnly,
+              documents.contains(where: { $0.id == document.id })
+        else { return nil }
+
+        var snapshot = document
+        snapshot.modifiedAt = Date()
+        guard DocumentCollectionTransaction.replace(
+            snapshot,
+            in: &documents,
+            persist: persistDocumentsSnapshot
+        ) else { return nil }
+        accessBoundarySaveLease = nil
+        updateWidgetSnapshot(reload: true)
+        return snapshot
+    }
+
+    func discardAccessBoundarySave(using lease: AccessBoundarySaveLease) {
+        guard accessBoundarySaveLease == lease else { return }
+        accessBoundarySaveLease = nil
+    }
+
     func toggleFavorite(_ doc: DocumentItem) {
         var d = doc
         d.isFavorite.toggle()
@@ -797,6 +924,7 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func toggleVault(_ doc: DocumentItem) -> Bool {
+        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
         var d = doc
         guard relocateAssetsTransactionally(for: d, toVault: !doc.isVaulted) else {
             return false
@@ -825,6 +953,7 @@ final class AppState: ObservableObject {
         with pages: [UIImage],
         transforms: [DocumentPageTransform]
     ) -> DocumentItem? {
+        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return nil }
         let oldFileNames: [String] = {
             if let names = document.pageFileNames, !names.isEmpty { return names }
             if let name = document.imageFileName { return [name] }
@@ -912,6 +1041,9 @@ final class AppState: ObservableObject {
     }
 
     func restoreCloudDocument(_ document: DocumentItem, assets: [CloudAssetPayload]) throws {
+        guard PremiumManager.shared.accessState.allows(.cloudWrite) else {
+            throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
+        }
         struct PreviousAsset {
             let url: URL
             let data: Data?
@@ -968,6 +1100,7 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func saveImage(_ image: UIImage, id: String, isVaulted: Bool = false) -> String? {
+        guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
         let fileName = "\(id).jpg"
         let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
         guard let data = image.jpegData(compressionQuality: 0.85) else {
@@ -987,6 +1120,7 @@ final class AppState: ObservableObject {
 
     @discardableResult
     func saveSourceFile(_ data: Data, id: String, fileExtension: String) -> String? {
+        guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
         let ext = fileExtension.trimmingCharacters(in: CharacterSet(charactersIn: "."))
         let fileName = "\(id).\(ext)"
         let url = AppState.librarySourcesDir.appendingPathComponent(fileName)

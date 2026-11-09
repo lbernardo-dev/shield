@@ -747,7 +747,7 @@ Hay **dos pipelines distintos** de ajuste de imagen en la app:
 
 **Archivo:** [Premium/PremiumManager.swift](../Shield/Premium/PremiumManager.swift)
 
-`PremiumManager` usa RevenueCat para comprobar el entitlement configurado en la aplicación. `isPro` se conserva como cache local para el arranque y el estado analítico distingue `free`, `trial`, `premium` y `lifetime`. También registra si la suscripción está activa, con renovación desactivada, con incidencia de cobro o expirada.
+`PremiumManager` usa el entitlement verificado de RevenueCat como autoridad de compras y coordina `AccessPolicy` para el acceso interno temporal. `isPro` es una proyección del acceso completo actual (pago o temporal), no una fuente persistida de autorización. El estado del producto distingue Free, trial histórico, Premium y lifetime para analítica/estado de suscripción. Un entitlement activo incluye cualquier gracia real que RevenueCat marque como activo; un reintento de cobro sin entitlement activo no concede acceso.
 
 **Productos (`ShieldProduct`):**
 
@@ -757,22 +757,11 @@ Hay **dos pipelines distintos** de ajuste de imagen en la app:
 | `com.romerodev.shield.pro.annual` | Suscripción autorrenovable anual |
 | `com.romerodev.shield.pro.lifetime.unlock` | Compra única lifetime |
 
-**Capacidades Free:**
+**Acceso temporal y pago:** instalaciones nuevas reciben 15 días de acceso completo; Free preexistente corroborado recibe 30 días completos y otros 30 días de lectura/exportación. Después, el paywall bloquea las funciones comerciales. Durante recuperación y tras expiración quedan disponibles recuperación, exportación y eliminación de datos propios, restauración/gestión de compras, soporte, aspectos legales y preferencias de apariencia.
 
-| Capacidad | Valor |
-|-----------|-------|
-| Procesamiento de documentos | 10 documentos acumulados (`freeDocumentLimit`) |
-| Exportación segura/verificada | Sin cuota; es una garantía de seguridad |
-| Almacenamiento local y Bóveda | Disponible en Free, cifrado local |
-| Enmascarado manual y OCR conservador | Disponible en Free |
+**Capacidades Premium completas:** procesamiento sin la cuota heredada, estilos y modos avanzados, herramientas de ajuste, marcas personalizadas, procesos por lotes, iCloud y proveedores externos, e iconos alternativos. Entitlements activos y compras vitalicias conservan acceso completo sin reloj.
 
-**Capacidades Pro:**
-
-- Procesamiento ilimitado mientras el entitlement está activo.
-- Estilos avanzados, modos profesionales y herramientas de ajuste.
-- Marcas de agua personalizadas.
-- Redacción por lotes, iCloud y proveedores externos.
-- Iconos alternativos.
+La cuota Free histórica de 10 documentos se conserva solo como dato/counter migratorio, no como gate de acceso. La exportación segura/verificada sigue siendo una garantía del producto.
 
 Los controles de seguridad, cifrado, revisión y exportación verificada no deben convertirse en gates de suscripción.
 
@@ -781,8 +770,7 @@ Los controles de seguridad, cifrado, revisión y exportación verificada no debe
 | Trigger | Cuándo |
 |---------|--------|
 | `.manual` | Entrada voluntaria al paywall |
-| `.docLimitReached` | Intento de importar tras la cuota Free |
-| `.exportLimitReached` | Reservado para una futura regla; actualmente no se activa |
+| `.accessRequired` | Intento de usar una función Premium cuando no hay acceso completo |
 | `.styleLocked` | Seleccionar un estilo avanzado en Free |
 | `.featureLocked` | Intentar un modo o herramienta Pro |
 | `.settingsUpgrade` | Batch, nube, iconos u otra entrada de configuración Pro |

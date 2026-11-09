@@ -1,0 +1,62 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "14E12826-587A-480A-9C24-A997CB91F29E.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Duo editor controls before adaptive hit testing_0_368B076B-6653-4966-AFBB-E9064E7B20D5.png",
+        "timestamp" : 1794149829.955
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "72B41BB7-FF1D-4632-BE3E-A6C0DA804DF9.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "App UI hierarchy for com.romerodev_0_4F443E92-9CD9-4CBE-B376-D48E52CBF738.shield",
+        "timestamp" : 1794149825.437
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "E9FA6168-8A05-454C-8AEC-4EA242061AB6",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-11-08 at 03.57.05 p. m.",
+        "timestamp" : 1794149825.437
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "9073A8CE-EABB-4B9A-B36C-63AE5A8DD66D.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `\"editor.persistenceError.dismiss\" Button`_0_7ED27F56-873E-4ACC-976C-AE2D2A40D2B6.txt",
+        "timestamp" : 1794149825.256
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "57983DD7-1FCB-4B24-9B47-0ADACBB23567.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Debug description for `\"editor.persistenceError.dismiss\" Button`_0_8E2E5DCB-C45C-4237-A5BB-6CE1ABFFEAE6.txt",
+        "timestamp" : 1794149824.418
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F00C5C84-FA78-4090-A927-DAB7723A891C",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "4D1B8336-E319-450C-B0F7-CB47CC53C2A7.mp4",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screen Recording 2026-11-08 at 03.56.53 p. m..mp4",
+        "timestamp" : 1794149813.341
+      }
+    ],
+    "testIdentifier" : "ShieldLaunchTests/testDuoEditorActionsAndToolsStayInTheirAdaptiveRegions()",
+    "testIdentifierURL" : "test://com.apple.xcode/Shield/ShieldUITests/ShieldLaunchTests/testDuoEditorActionsAndToolsStayInTheirAdaptiveRegions"
+  }
+]

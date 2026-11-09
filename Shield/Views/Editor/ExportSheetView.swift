@@ -38,13 +38,15 @@ struct ExportSheetView: View {
     @State private var showVerificationDetails = false
     @State private var showProFeaturesPrompt = false
     @State private var exportWithoutProFeatures = false
-    @State private var paywallTrigger: PaywallTrigger = .exportLimitReached
+    @State private var paywallTrigger: PaywallTrigger = .featureLocked
 
     private var hasProWatermark: Bool {
-        !pm.isPro && watermark != nil
+        guard !pm.accessState.isReadOnly else { return false }
+        return !pm.isPro && watermark != nil
     }
 
     private var hasProStyles: Bool {
+        guard !pm.accessState.isReadOnly else { return false }
         guard !pm.isPro else { return false }
         let marks = format == .pdf ? pageRedactions.values.flatMap { $0 } : redactions
         return marks.contains(where: { $0.style.isPremium })
@@ -135,8 +137,8 @@ struct ExportSheetView: View {
                             .shieldFont(12, weight: .semibold)
                             .foregroundColor(ShieldTheme.danger)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityIdentifier("export.error")
                     }
-
                     if shouldWarnForHighRiskExport {
                         ExportRiskAcknowledgementCard(
                             scheme: scheme,
@@ -195,6 +197,7 @@ struct ExportSheetView: View {
                 exportWithoutProFeatures = true
                 doExport()
             }
+            .accessibilityIdentifier("export.pro.standard")
             Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
         } message: {
             Text(LanguageManager.shared.editor("editor_pro_export_message"))
@@ -260,8 +263,9 @@ struct ExportSheetView: View {
             Button(action: onReview) {
                 Text(LanguageManager.shared.editor("editor_batch_review_open_pending"))
                     .font(.subheadline.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .frame(maxWidth: .infinity, minHeight: 48)
                     .background(ShieldTheme.warningBackground(scheme), in: RoundedRectangle(cornerRadius: 10))
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("export.batchReview.openPending")
@@ -348,13 +352,6 @@ struct ExportSheetView: View {
             AppState.trackEvent("export_blocked_review_pending")
             return
         }
-        guard pm.canExportNow() else {
-            exportErrorMessage = LanguageManager.shared.editor("editor_export_free_limit_reached")
-            AppState.trackEvent("export_blocked_free_limit")
-            showPaywall = true
-            return
-        }
-
         if shouldWarnForHighRiskExport && !acknowledgeHighRiskExport {
             exportErrorMessage = LanguageManager.shared.editor("editor_export_risk_acknowledge_error")
             AppState.trackEvent("export_blocked_risk", properties: ["risk": "high"])
@@ -402,7 +399,6 @@ struct ExportSheetView: View {
                         verificationReport = artifact.report
                         exportedURL = artifact.url
                         isExported = true
-                        pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "pdf", "pages": pageCount])
                         trackSuccessfulExport(isPremium: pm.isPro)
                     }
@@ -430,7 +426,6 @@ struct ExportSheetView: View {
                         exportedURL = artifact.url
                         exportedImage = UIImage(contentsOfFile: artifact.url.path)
                         isExported = true
-                        pm.recordExport()
                         AppState.trackEvent("export_success", properties: ["format": "image", "pages": pageCount])
                         trackSuccessfulExport(isPremium: pm.isPro)
                     }

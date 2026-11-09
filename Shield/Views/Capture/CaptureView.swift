@@ -326,6 +326,7 @@ struct CaptureView: View {
                 .shieldFont(16, weight: .semibold)
                 .foregroundColor(ShieldTheme.primary(appState.preferredScheme))
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier("capture.processing.message")
             Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {
                 processingTask?.cancel()
                 processingTask = nil
@@ -378,8 +379,8 @@ struct CaptureView: View {
         if pm.canAddDocument(currentCount: appState.documents.count) {
             return true
         }
-        PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
-        paywallTrigger = .docLimitReached
+        PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .accessRequired)
+        paywallTrigger = .accessRequired
         showPaywall = true
         return false
     }
@@ -387,8 +388,8 @@ struct CaptureView: View {
     private func processFile(_ url: URL, source: String = "file") {
         guard pm.canAddDocument(currentCount: appState.documents.count) else {
             SharedImportStore.removeTemporaryFile(url)
-            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
-            paywallTrigger = .docLimitReached
+            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .accessRequired)
+            paywallTrigger = .accessRequired
             showPaywall = true
             return
         }
@@ -518,8 +519,8 @@ struct CaptureView: View {
         guard pm.canAddDocument(currentCount: appState.documents.count) else {
             queuedImportURLs.dropFirst(queuedImportIndex).forEach(SharedImportStore.removeTemporaryFile)
             queuedImportURLs = Array(queuedImportURLs.prefix(queuedImportIndex))
-            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .docLimitReached)
-            paywallTrigger = .docLimitReached
+            PremiumManager.recordFeatureGate(.unlimitedDocuments, trigger: .accessRequired)
+            paywallTrigger = .accessRequired
             showPaywall = true
             finishQueuedImports()
             return
@@ -589,13 +590,16 @@ struct CaptureView: View {
         stagedSourceType = .image
         stagedSourceFileName = nil
         stagedDocID = "scan-review-fixture"
-        showScanReview = true
+        Task { @MainActor in
+            await Task.yield()
+            showScanReview = true
+        }
     }
 
     private func configureDebugMultiImportQueueIfNeeded() {
         guard ASOScreenshotMode.isEnabled else { return }
         let scene = ASOScreenshotMode.scene
-        guard scene == "batch-import-recovery" || scene == "batch-import-cancel" else { return }
+        guard scene == "batch-import-recovery" || scene == "batch-import-cancel" || scene == "batch-import-success" else { return }
 
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("ShieldSharedImports", isDirectory: true)
@@ -605,7 +609,11 @@ struct CaptureView: View {
             let imageData = Self.scanReviewFixture(language: ASOScreenshotMode.language).pngData()
             guard let imageData else { return }
 
-            if scene == "batch-import-recovery" {
+            if scene == "batch-import-success" {
+                let validImage = directory.appendingPathComponent("MaskID-UI-\(runID)-success.png")
+                try imageData.write(to: validImage, options: .atomic)
+                beginQueuedImports([validImage], source: "ui_testing")
+            } else if scene == "batch-import-recovery" {
                 let invalidPDF = directory.appendingPathComponent("MaskID-UI-\(runID)-invalid.pdf")
                 let validImage = directory.appendingPathComponent("MaskID-UI-\(runID)-valid.png")
                 try Data("not a PDF".utf8).write(to: invalidPDF, options: .atomic)

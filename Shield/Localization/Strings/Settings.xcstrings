@@ -2028,8 +2028,120 @@
     "settings_theme_event_automatic_message": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Free accounts follow the seasonal calendar automatically during the event." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Las cuentas Free siguen automáticamente el calendario de temporada durante el evento." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Seasonal themes are optional, and your usual appearance stays saved." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Los temas de temporada son opcionales y tu apariencia habitual se conserva." } }
+      }
+    },
+    "settings_theme_event_free_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Try this event theme at no cost while it is active. Premium themes remain separate." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Prueba gratis este tema mientras el evento esté activo. Los temas Premium siguen siendo independientes." } }
+      }
+    },
+    "settings_theme_preference_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Seasonal themes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Temas de temporada" } }
+      }
+    },
+    "settings_theme_preference_ask": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ask me each event" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Preguntarme en cada evento" } }
+      }
+    },
+    "settings_theme_preference_automatic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Activate automatically for future events" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Activarlos automáticamente en futuros eventos" } }
+      }
+    },
+    "settings_theme_preference_never": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Never use seasonal themes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "No utilizar temas de temporada" } }
+      }
+    },
+    "settings_theme_preference_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Your usual appearance stays saved. Event themes are temporary and easy to turn off." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tu apariencia habitual se conserva. Los temas de evento son temporales y puedes desactivarlos cuando quieras." } }
+      }
+    },
+    "settings_theme_current_event": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Current event" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Evento actual" } }
+      }
+    },
+    "settings_theme_apply_event": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Apply seasonal theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aplicar tema de temporada" } }
+      }
+    },
+    "settings_theme_return_regular": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Return to my appearance" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Volver a mi apariencia" } }
+      }
+    },
+    "settings_theme_invitation_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "A seasonal theme is here for %@" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¡Ha llegado %@!" } }
+      }
+    },
+    "settings_theme_invitation_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "A special seasonal look is available. You can try it and return to your usual appearance whenever you want." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Hay un tema especial disponible. Puedes probarlo y volver a tu apariencia habitual cuando quieras." } }
+      }
+    },
+    "settings_theme_invitation_apply": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Apply theme" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aplicar tema" } }
+      }
+    },
+    "settings_theme_invitation_keep": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Keep my appearance" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantener mi apariencia" } }
+      }
+    },
+    "settings_theme_invitation_dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Dismiss seasonal theme invitation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cerrar invitación del tema de temporada" } }
+      }
+    },
+    "settings_reduce_decorative_effects": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reduce decorative effects" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reducir efectos decorativos" } }
+      }
+    },
+    "settings_reduce_decorative_effects_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reduces seasonal motion and sound while respecting system accessibility settings." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reduce el movimiento y el sonido de temporada respetando los ajustes de accesibilidad del sistema." } }
       }
     },
     "settings_theme_event_timezone": {

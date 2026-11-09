@@ -82,6 +82,7 @@ struct ImageAdjustment: Equatable {
 // MARK: - EditorViewModel
 
 final class EditorViewModel: ObservableObject {
+    private let forcedReadOnly: Bool
     @Published private(set) var doc: DocumentItem
     private var baselineDoc: DocumentItem
     private var ocrBootstrapTask: Task<Void, Never>? = nil
@@ -110,6 +111,7 @@ final class EditorViewModel: ObservableObject {
     @Published private(set) var needsGeometryReviewPersistence = false
 
     var pageCount: Int { doc.pageCount }
+    var isReadOnly: Bool { forcedReadOnly || PremiumManager.shared.accessState.isReadOnly }
     var currentImageFileName: String? { doc.imageFileName(for: currentPage) }
     var batchReviewPendingPageIndices: [Int] { doc.batchReviewPendingPageIndices }
     var currentPageFaceSuggestions: [OCRFaceSuggestion] {
@@ -124,6 +126,9 @@ final class EditorViewModel: ObservableObject {
     }
     var suggestedRedactionCount: Int { Self.suggestedRectsForBanner(in: doc).count }
     var hasUnsavedChanges: Bool { normalizedSignature(for: doc) != normalizedSignature(for: baselineDoc) }
+    var hasUnsavedChangesAtAccessBoundary: Bool {
+        normalizedSignature(for: snapshotForAccessBoundaryCommit()) != normalizedSignature(for: baselineDoc)
+    }
     var changeCount: Int {
         guard hasUnsavedChanges else { return 0 }
 
@@ -141,8 +146,23 @@ final class EditorViewModel: ObservableObject {
         Dictionary(uniqueKeysWithValues: doc.pageRedactions.map { ($0.pageIndex, $0.redactions) })
     }
     var documentSnapshot: DocumentItem {
+        guard !isReadOnly else { return doc }
         persistCurrentPageState()
         return doc
+    }
+
+    func snapshotForAccessBoundaryCommit() -> DocumentItem {
+        var snapshot = doc
+        snapshot.setRedactions(redactions, for: currentPage)
+        snapshot.watermark = watermark
+        snapshot.imageAdjustment = storedAdjustment(for: imageAdjustment)
+        return snapshot
+    }
+
+    func markAccessBoundarySnapshotSaved(_ document: DocumentItem) {
+        doc = document
+        baselineDoc = document
+        needsGeometryReviewPersistence = false
     }
 
     func goToPage(_ page: Int) {
@@ -160,6 +180,7 @@ final class EditorViewModel: ObservableObject {
     }
 
     func markCurrentBatchPageReviewed() {
+        guard !isReadOnly else { return }
         guard doc.batchReviewPendingPageIndices.contains(currentPage) else { return }
         doc.batchReviewPendingPageIndices.removeAll { $0 == currentPage }
         if doc.batchReviewPendingPageIndices.isEmpty {
@@ -241,7 +262,8 @@ final class EditorViewModel: ObservableObject {
     var canUndo: Bool { historyIdx > 0 }
     var canRedo: Bool { historyIdx < history.count - 1 }
 
-    init(doc: DocumentItem) {
+    init(doc: DocumentItem, isReadOnly: Bool = false) {
+        forcedReadOnly = isReadOnly
         self.doc = doc
         self.baselineDoc = doc
         let currentGeometryFingerprint = RedactionReviewGate.fingerprint(
@@ -257,7 +279,7 @@ final class EditorViewModel: ObservableObject {
         let geometryNeedsReview = currentGeometryFingerprint != reviewedGeometryFingerprint
         let pendingQueueGeometryChanged = doc.redactionGeometryReviewPendingFingerprint != nil &&
             doc.redactionGeometryReviewPendingFingerprint != currentGeometryFingerprint
-        if (geometryNeedsReview && !hasPendingQueueForCurrentGeometry) || pendingQueueGeometryChanged {
+        if !isReadOnly && ((geometryNeedsReview && !hasPendingQueueForCurrentGeometry) || pendingQueueGeometryChanged) {
             let pendingPages = RedactionReviewGate.pendingPageIndices(
                 existing: doc.batchReviewPendingPageIndices,
                 pageCount: doc.pageCount
@@ -785,6 +807,21 @@ final class EditorViewModel: ObservableObject {
         AppState.trackEvent("redaction_applied", properties: ["source": "manual"])
     }
 
+    /// Creates a reviewable starting mask when drawing by touch or pointer is
+    /// unavailable. The user can then move, resize, or delete it with the
+    /// accessibility actions exposed by `RedactionOverlay`.
+    func addAccessibleMask() {
+        let width: CGFloat = 0.24
+        let height: CGFloat = 0.08
+        let mask = Redaction(
+            rect: CGRect(x: (1 - width) / 2, y: (1 - height) / 2, width: width, height: height),
+            style: maskStyle
+        )
+        tool = .rect
+        addRedaction(mask)
+        activeRedactionID = mask.id
+    }
+
     func updateRedaction(_ redaction: Redaction) {
         push(redactions.map { $0.id == redaction.id ? redaction : $0 })
     }
@@ -1212,6 +1249,7 @@ final class EditorViewModel: ObservableObject {
     }
 
     private func persistCurrentPageState() {
+        guard !isReadOnly else { return }
         var snapshot = doc
         snapshot.setRedactions(redactions, for: currentPage)
         snapshot.watermark = watermark

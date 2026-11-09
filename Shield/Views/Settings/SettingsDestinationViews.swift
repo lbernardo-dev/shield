@@ -935,25 +935,12 @@ struct AppPreferencesSettingsView: View {
     @State private var selectedLanguage: AppLanguage = LanguageManager.shared.current
 
     private var strings: LanguageManager { .shared }
-    private var visualControlsLocked: Bool { coordinator.activeThemeID.isSeasonal }
-
     var body: some View {
         SettingsDetailScaffold(
             title: strings.settings("settings_app_preferences"),
             subtitle: strings.settings("settings_app_preferences_detail")
         ) {
             SettingsCardSection(title: strings.settings("settings_appearance"), icon: "paintbrush.fill") {
-                if visualControlsLocked {
-                    Label(
-                        strings.settings("settings_theme_visuals_locked"),
-                        systemImage: "lock.fill"
-                    )
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(ShieldTheme.secondary(scheme))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, ShieldTheme.s2)
-                }
-
                 SettingsControlRow(
                     icon: "moon.fill",
                     color: Color(hex: "5E5CE6"),
@@ -961,12 +948,27 @@ struct AppPreferencesSettingsView: View {
                 ) {
                     Toggle("", isOn: Binding(
                         get: { appState.preferredScheme == .dark },
-                        set: { appState.preferredScheme = $0 ? .dark : .light }
+                        set: { appState.setRegularAppearanceScheme($0 ? .dark : .light) }
                     ))
                     .labelsHidden()
                     .tint(ShieldTheme.accent(scheme))
                     .accessibilityLabel(strings.settings("settings_dark_mode"))
-                    .disabled(visualControlsLocked)
+                }
+                SettingsRowDivider()
+                SettingsControlRow(
+                    icon: "sparkle.magnifyingglass",
+                    color: Color(hex: "AF52DE"),
+                    title: strings.settings("settings_reduce_decorative_effects"),
+                    subtitle: strings.settings("settings_reduce_decorative_effects_detail")
+                ) {
+                    Toggle("", isOn: Binding(
+                        get: { coordinator.isReducingDecorativeEffects },
+                        set: { coordinator.setReduceDecorativeEffects($0) }
+                    ))
+                    .labelsHidden()
+                    .tint(ShieldTheme.accent(scheme))
+                    .accessibilityLabel(strings.settings("settings_reduce_decorative_effects"))
+                    .accessibilityHint(strings.settings("settings_reduce_decorative_effects_detail"))
                 }
                 SettingsRowDivider()
                 SettingsControlRow(
@@ -1023,10 +1025,21 @@ struct SeasonalThemeGalleryView: View {
         ) {
             SeasonalThemeStatusCard(
                 activeThemeID: coordinator.activeThemeID,
-                selection: coordinator.selection,
                 isPro: premium.isPro,
-                onAutomatic: selectAutomatic,
                 onBase: selectBase
+            )
+
+            SeasonalEventThemePreferenceCard(
+                preference: coordinator.eventThemePreference,
+                activeEventThemeID: coordinator.activeScheduledThemeID,
+                activeThemeID: coordinator.activeThemeID,
+                onPreferenceChange: coordinator.setEventThemePreference,
+                onApply: {
+                    appState.clearSeasonalIconOverride()
+                    _ = coordinator.acceptCurrentEventTheme()
+                    syncSelectedSeasonalThemeIcon()
+                },
+                onReturn: coordinator.declineCurrentEventTheme
             )
 
             SettingsCardSection(
@@ -1040,7 +1053,10 @@ struct SeasonalThemeGalleryView: View {
                         availability: availability,
                         isSelected: coordinator.activeThemeID == definition.id,
                         isPro: premium.isPro,
-                        canActivate: coordinator.canManuallyActivate(definition.id),
+                        canActivate: coordinator.canManuallyActivate(definition.id)
+                            || (definition.id == coordinator.activeScheduledThemeID
+                                && availability == .active
+                                && coordinator.eventThemePreference != .never),
                         reduceMotion: reduceMotion,
                         onPreview: { previewTheme = definition.id },
                         onActivate: { activate(definition.id) },
@@ -1086,8 +1102,12 @@ struct SeasonalThemeGalleryView: View {
             SeasonalThemePreviewSheet(
                 themeID: themeID,
                 isPro: premium.isPro,
+                reduceDecorativeEffects: coordinator.isReducingDecorativeEffects,
                 availability: coordinator.availability(for: themeID),
-                canActivate: coordinator.canManuallyActivate(themeID),
+                canActivate: coordinator.canManuallyActivate(themeID)
+                    || (themeID == coordinator.activeScheduledThemeID
+                        && coordinator.availability(for: themeID) == .active
+                        && coordinator.eventThemePreference != .never),
                 isSelected: coordinator.activeThemeID == themeID,
                 isSoundscapeEnabled: coordinator.isSoundscapeEnabled,
                 onToggleSoundscape: { enabled in
@@ -1103,16 +1123,6 @@ struct SeasonalThemeGalleryView: View {
         }
     }
 
-    private func selectAutomatic() {
-        appState.clearSeasonalIconOverride()
-        _ = coordinator.select(.automatic)
-        coordinator.refresh(
-            isPro: premium.isPro,
-            hasResolvedEntitlement: premium.hasResolvedSubscription
-        )
-        syncSelectedSeasonalThemeIcon()
-    }
-
     private func selectBase() {
         appState.clearSeasonalIconOverride()
         _ = coordinator.select(.base)
@@ -1120,8 +1130,22 @@ struct SeasonalThemeGalleryView: View {
     }
 
     private func activate(_ themeID: SeasonalThemeID) {
+        if themeID == .base {
+            selectBase()
+            previewTheme = nil
+            return
+        }
+        if themeID == coordinator.activeScheduledThemeID,
+           coordinator.availability(for: themeID) == .active,
+           coordinator.eventThemePreference != .never {
+            appState.clearSeasonalIconOverride()
+            _ = coordinator.acceptCurrentEventTheme()
+            syncSelectedSeasonalThemeIcon()
+            previewTheme = nil
+            return
+        }
         guard premium.isPro else {
-            if themeID != .base { showPaywall = true }
+            showPaywall = true
             return
         }
         guard coordinator.canManuallyActivate(themeID) else {
@@ -1208,8 +1232,10 @@ private struct SeasonalThemeSoundControl: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var animPhase: CGFloat = 0
     private var strings: LanguageManager { .shared }
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         HStack(spacing: ShieldTheme.s3) {
@@ -1235,9 +1261,9 @@ private struct SeasonalThemeSoundControl: View {
                             RoundedRectangle(cornerRadius: 1)
                                 .fill(Color(hex: "FFD6A0"))
                                 .frame(width: 3, height: CGFloat(8 + (bar % 3) * 6))
-                                .scaleEffect(y: reduceMotion ? 1.0 : (animPhase > 0 ? 1.2 : 0.6), anchor: .bottom)
+                                .scaleEffect(y: shouldReduceMotion ? 1.0 : (animPhase > 0 ? 1.2 : 0.6), anchor: .bottom)
                                 .animation(
-                                    reduceMotion ? nil : .easeInOut(duration: 0.45).repeatForever(autoreverses: true).delay(Double(bar) * 0.12),
+                                    shouldReduceMotion ? nil : .easeInOut(duration: 0.45).repeatForever(autoreverses: true).delay(Double(bar) * 0.12),
                                     value: animPhase
                                 )
                         }
@@ -1251,7 +1277,7 @@ private struct SeasonalThemeSoundControl: View {
             .frame(width: 46, height: 46)
             .accessibilityHidden(true)
             .onAppear {
-                if !reduceMotion { animPhase = 1 }
+                if !shouldReduceMotion { animPhase = 1 }
             }
 
             VStack(alignment: .leading, spacing: 3) {
@@ -1295,9 +1321,7 @@ private struct SeasonalThemeSoundControl: View {
 
 private struct SeasonalThemeStatusCard: View {
     let activeThemeID: SeasonalThemeID
-    let selection: SeasonalThemeSelection
     let isPro: Bool
-    let onAutomatic: () -> Void
     let onBase: () -> Void
 
     @Environment(\.colorScheme) private var scheme
@@ -1359,57 +1383,94 @@ private struct SeasonalThemeStatusCard: View {
                 .foregroundStyle(ShieldTheme.secondary(scheme))
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: ShieldTheme.s2) {
-                Button(action: onAutomatic) {
-                    Label(
-                        strings.settings("settings_theme_automatic"),
-                        systemImage: isAutomatic ? "checkmark.circle.fill" : "calendar"
-                    )
+            Button(action: onBase) {
+                Label(strings.settings("settings_theme_use_base"), systemImage: "arrow.uturn.backward.circle")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .foregroundStyle(isAutomatic ? (isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText) : ShieldTheme.primary(scheme))
+                    .foregroundStyle(ShieldTheme.primary(scheme))
                     .background(
-                        isAutomatic
-                            ? (isHalloween
-                                ? LinearGradient(colors: [Color(hex: "FFA53D"), Color(hex: "F97316")], startPoint: .top, endPoint: .bottom)
-                                : LinearGradient(colors: [ShieldTheme.accent(scheme)], startPoint: .top, endPoint: .bottom))
-                            : LinearGradient(colors: [ShieldTheme.rowBackground(scheme)], startPoint: .top, endPoint: .bottom),
+                        ShieldTheme.rowBackground(scheme),
                         in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
                     )
-                }
-                .buttonStyle(ScaleButtonStyle())
-
-                if isPro {
-                    Button(action: onBase) {
-                        Label(
-                            strings.settings("settings_theme_base_short"),
-                            systemImage: isBase ? "checkmark.circle.fill" : "circle"
-                        )
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .foregroundStyle(isBase ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
-                        .background(
-                            isBase ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme),
-                            in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
-                        )
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                }
             }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("settings.theme.useBase")
         }
         .padding(ShieldTheme.s4)
         .shieldSettingsCard()
         .accessibilityElement(children: .contain)
     }
 
-    private var isAutomatic: Bool {
-        if case .automatic = selection { return true }
-        return false
-    }
+}
 
-    private var isBase: Bool {
-        if case .base = selection { return true }
-        return false
+private struct SeasonalEventThemePreferenceCard: View {
+    let preference: SeasonalEventThemePreference
+    let activeEventThemeID: SeasonalThemeID?
+    let activeThemeID: SeasonalThemeID
+    let onPreferenceChange: (SeasonalEventThemePreference) -> Void
+    let onApply: () -> Void
+    let onReturn: () -> Void
+
+    @Environment(\.colorScheme) private var scheme
+    private var strings: LanguageManager { .shared }
+
+    var body: some View {
+        SettingsCardSection(
+            title: strings.settings("settings_theme_preference_title"),
+            icon: "calendar"
+        ) {
+            Picker(
+                strings.settings("settings_theme_preference_title"),
+                selection: Binding(
+                    get: { preference },
+                    set: onPreferenceChange
+                )
+            ) {
+                Text(strings.settings("settings_theme_preference_ask")).tag(SeasonalEventThemePreference.askEachEvent)
+                Text(strings.settings("settings_theme_preference_automatic")).tag(SeasonalEventThemePreference.automatic)
+                Text(strings.settings("settings_theme_preference_never")).tag(SeasonalEventThemePreference.never)
+            }
+            .pickerStyle(.menu)
+            .tint(ShieldTheme.accent(scheme))
+            .accessibilityIdentifier("settings.theme.eventPreference")
+
+            Text(strings.settings("settings_theme_preference_detail"))
+                .font(.caption)
+                .foregroundStyle(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let activeEventThemeID,
+               let definition = SeasonalThemeCatalog.definition(for: activeEventThemeID),
+               let eventNameKey = definition.eventNameKey {
+                SettingsRowDivider()
+                VStack(alignment: .leading, spacing: ShieldTheme.s1) {
+                    Text(strings.settings("settings_theme_current_event"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(ShieldTheme.secondary(scheme))
+                    Text(strings.settings(eventNameKey))
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(ShieldTheme.primary(scheme))
+                }
+
+                let isApplied = activeThemeID == activeEventThemeID
+                Button(action: isApplied ? onReturn : onApply) {
+                    Label(
+                        strings.settings(isApplied ? "settings_theme_return_regular" : "settings_theme_apply_event"),
+                        systemImage: isApplied ? "arrow.uturn.backward" : "sparkles"
+                    )
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .foregroundStyle(isApplied ? ShieldTheme.primary(scheme) : ShieldTheme.accentText)
+                    .background(
+                        isApplied ? ShieldTheme.rowBackground(scheme) : ShieldTheme.accent(scheme),
+                        in: RoundedRectangle(cornerRadius: ShieldTheme.rMD)
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+                .disabled(!isApplied && preference == .never)
+                .accessibilityIdentifier("settings.theme.eventAction")
+            }
+        }
     }
 }
 
@@ -1462,7 +1523,7 @@ private struct SeasonalThemeCard: View {
                             Text(definition.id.title(language: strings.currentLanguage))
                                 .font(.headline.weight(.heavy))
                                 .foregroundStyle(ShieldTheme.primary(scheme))
-                            if definition.requiresProForManualActivation {
+                            if definition.requiresProForManualActivation && (isPro || !canActivate) {
                                 Text("PRO")
                                     .font(.caption2.weight(.heavy))
                                     .foregroundStyle(isHalloween ? Color(hex: "170A02") : ShieldTheme.accentText)
@@ -1544,8 +1605,7 @@ private struct SeasonalThemeCard: View {
     private var isLocked: Bool {
         if isSelected { return false }
         if availability == .upcoming { return false }
-        if !isPro && definition.requiresProForManualActivation { return true }
-        if !isPro && definition.id == .base && availability == .active { return true }
+        if !isPro && !canActivate && definition.requiresProForManualActivation { return true }
         return false
     }
 
@@ -1673,6 +1733,7 @@ private struct ThemePremiumCallout: View {
 private struct SeasonalThemePreviewSheet: View {
     let themeID: SeasonalThemeID
     let isPro: Bool
+    let reduceDecorativeEffects: Bool
     let availability: SeasonalThemeAvailability
     let canActivate: Bool
     let isSelected: Bool
@@ -1699,7 +1760,7 @@ private struct SeasonalThemePreviewSheet: View {
                                     .font(.title2.weight(.heavy))
                                     .foregroundStyle(ShieldTheme.primary(scheme))
                                 if let definition = SeasonalThemeCatalog.definition(for: themeID),
-                                   definition.requiresProForManualActivation {
+                                   definition.requiresProForManualActivation && (isPro || !canActivate) {
                                     Text("PRO")
                                         .font(.caption2.weight(.heavy))
                                         .foregroundStyle(themeID == .halloween2026 && scheme == .dark ? Color(hex: "170A02") : ShieldTheme.accentText)
@@ -1733,7 +1794,10 @@ private struct SeasonalThemePreviewSheet: View {
 
                         SeasonalThemePreviewOverview(themeID: themeID)
 
-                        SeasonalThemePreviewVisuals(themeID: themeID, reduceMotion: reduceMotion)
+                        SeasonalThemePreviewVisuals(
+                            themeID: themeID,
+                            reduceMotion: reduceMotion || reduceDecorativeEffects
+                        )
 
                         if let definition = SeasonalThemeCatalog.definition(for: themeID),
                            let eventNameKey = definition.eventNameKey,
@@ -1765,9 +1829,9 @@ private struct SeasonalThemePreviewSheet: View {
                             .foregroundStyle(ShieldTheme.secondary(scheme))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .fixedSize(horizontal: false, vertical: true)
-                        } else if themeID.isSeasonal && !isPro && availability == .active {
+                        } else if themeID.isSeasonal && !isPro && availability == .active && canActivate {
                             Label(
-                                strings.settings("settings_theme_event_automatic_message"),
+                                strings.settings("settings_theme_event_free_message"),
                                 systemImage: "calendar.badge.clock"
                             )
                             .font(.subheadline.weight(.semibold))
@@ -1842,15 +1906,7 @@ private struct SeasonalThemePreviewSheet: View {
     private var isLocked: Bool {
         if isSelected { return false }
         if availability == .upcoming { return false }
-        if !isPro {
-            if let definition = SeasonalThemeCatalog.definition(for: themeID), definition.requiresProForManualActivation {
-                return true
-            }
-            if themeID == .base && availability == .active {
-                return true
-            }
-        }
-        return false
+        return !isPro && !canActivate
     }
 
     private var isButtonDisabled: Bool {

@@ -35,6 +35,13 @@ final class AppSessionCoordinator: ObservableObject {
         isOnboarded = userDefaults.bool(forKey: "shield.onboarded")
 
         let hasInstalled = userDefaults.bool(forKey: "shield.installed")
+        let migrationEvidenceKey = "shield.access.preMigrationInstallEvidence"
+        if userDefaults.object(forKey: migrationEvidenceKey) == nil {
+            let hasPriorUse = hasInstalled
+                || isOnboarded
+                || userDefaults.integer(forKey: PremiumManager.processedDocumentsKey) > 0
+            userDefaults.set(hasPriorUse, forKey: migrationEvidenceKey)
+        }
         if !hasInstalled {
             userDefaults.set(true, forKey: "shield.installed")
             if !isOnboarded {

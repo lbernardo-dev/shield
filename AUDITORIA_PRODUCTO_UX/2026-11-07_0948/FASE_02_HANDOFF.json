@@ -1,0 +1,47 @@
+{
+  "phase": 2,
+  "app_name": "MaskID",
+  "task": "248-fase-02-correcciones-auditoria-producto-ux",
+  "date": "2026-11-07",
+  "authorization": "El usuario pidió ejecutar íntegramente el plan de correcciones de fase 02.",
+  "implementation": {
+    "completed_locally": ["AUD-001", "AUD-002", "AUD-007", "AUD-008", "AUD-009 local", "AUD-010 decision to retain only the aggregate count in KVS"],
+    "completed_with_validation_pending": ["AUD-003", "AUD-004", "AUD-010 KVS sync/offline behavior"],
+    "requires_human_evidence_or_external_access": ["AUD-005", "AUD-006", "AUD-009 ASC", "VoiceOver manual"]
+  },
+  "runtime_validation": {
+    "device": "iPhone 18 Pro",
+    "udid": "CCC41661-BB97-41D2-87E2-D47FC51B1C6B",
+    "runtime": "iOS 27.2",
+    "first_cycle": {"total": 37, "passed": 34, "failed": 3},
+    "signed_nonparallel_reruns": {"EnhancementFeaturesTests": {"total": 34, "passed": 34, "failed": 0}, "previous_editor_ax5_test": {"total": 1, "passed": 1, "failed": 0}},
+    "passed_relevant": ["testHomeQuickAccessActionsAreVisibleAndTappable", "testShortOnboardingDeliversHomeWithoutEarlyPermissionOrPaywall", "seasonalThemeNewInstallDefaultsToConsent", "seasonalSoundscapeDefaultsToOffAndPersistsChoice"],
+    "failed": [
+      {"test": "ShieldLaunchTests.testEditorToExportControlsRemainAccessibleAtAX5", "status": "fallo inicial no reproducido; 1/1 del test anterior pasó firmado/no paralelo. Causa inicial no aislada. Nuevo E2E PDF pendiente."},
+      {"test": "EnhancementFeaturesTests.seasonalThemeMigrationDistinguishesPersistedConsentFromForcedDefault", "status": "corregido usando reloj inyectado en refresh; pasó dentro de 34/34 unit tests."},
+      {"test": "EnhancementFeaturesTests.documentStorePersistence", "status": "pasó en suite firmada/no paralela; falla inicial con firma desactivada no se reproduce, causa no aislada."}
+    ],
+    "result_bundles": ["build/MaskID-AuditPhase02/Logs/Test/Test-Shield-2026.11.07_10-41-50-+0100.xcresult", "build/MaskID-AuditPhase02/Rerun-Signed-01.xcresult", "build/MaskID-AuditPhase02/Rerun-Unit-Signed-01.xcresult"],
+    "test_parallelism": "Primer ciclo usó clon de XCTest. Para siguientes ciclos usar -parallel-testing-enabled NO y destino explícito."
+  },
+  "device_matrix": [
+    {"device": "iPhone 18 Pro", "udid": "CCC41661-BB97-41D2-87E2-D47FC51B1C6B", "runtime": "iOS 27.2", "status": "primer ciclo y reruns focalizados ejecutados; Reps Fitness con XCTest runner volvió a ocuparlo; E2E PDF ampliado en cola"},
+    {"device": "iPhone Duo", "udid": "F00C5C84-FA78-4090-A927-DAB7723A891C", "runtime": "iOS 27.2", "status": "pendiente; personalcare activo"},
+    {"device": "iPad Pro 13-inch M5", "udid": "6745B14E-02FE-4071-AC91-CE88EE57EB36", "runtime": "iPadOS 27.2", "status": "pendiente; personalcare activo"},
+    {"device": "Apple Watch Series 12", "status": "no aplica: el proyecto no tiene target/componente watchOS"}
+  ],
+  "pending": [
+    "Revalidar ocupación del iPhone 18 Pro; ejecutar el nuevo E2E PDF firmado y sin paralelismo.",
+    "Revisar el status de verificación del PDF y el regreso a Home; corregir si el test reproduce un defecto.",
+    "Probar Duo y iPad solo cuando estén libres, según matriz del proyecto.",
+    "Verificar VoiceOver manual, tarea de anonimización completa y estudio moderado de descubribilidad.",
+    "Validar contador KVS conservado: misma cuenta en dos dispositivos, cambio de cuenta y estado offline; no incluir contenido documental.",
+    "ASC no autenticado: auth status error -50; confirmar versión/build publicados sin modificar ASC.",
+    "No limpiar caches ni temporales; AGENTS.md local requiere confirmación del usuario."
+  ],
+  "artifacts": [
+    "15_EJECUCION_FASE_02.md",
+    "11_ESCENARIOS_DE_VALIDACION.md",
+    "RESULTADO_AUDITORIA.json"
+  ]
+}

@@ -3,6 +3,11 @@ import UIKit
 import Combine
 import AVFoundation
 
+extension EnvironmentValues {
+    @Entry var reduceDecorativeEffects = false
+    @Entry var seasonalInvitationAllowed = false
+}
+
 // MARK: - Design tokens (from tokens.css)
 
 enum ShieldTheme {
@@ -109,6 +114,18 @@ enum SeasonalThemeSelection: Codable, Equatable, Sendable {
     case automatic
     case manual(SeasonalThemeID)
     case base
+}
+
+enum SeasonalEventThemePreference: String, Codable, CaseIterable, Sendable {
+    case askEachEvent
+    case automatic
+    case never
+}
+
+enum SeasonalEventThemeDecision: String, Codable, Sendable {
+    case accepted
+    case declined
+    case dismissed
 }
 
 enum SeasonalThemeAvailability: Equatable, Sendable {
@@ -265,31 +282,52 @@ enum SeasonalThemeResolver {
     static func resolve(
         isPro: Bool,
         selection: SeasonalThemeSelection,
+        eventPreference: SeasonalEventThemePreference = .askEachEvent,
+        eventDecision: SeasonalEventThemeDecision? = nil,
         at clock: SeasonalThemeClock,
         catalog: [SeasonalThemeDefinition] = SeasonalThemeCatalog.definitions
     ) -> SeasonalThemeID {
         let scheduledTheme = activeScheduledTheme(at: clock, catalog: catalog)
-        guard isPro else {
-            // The live event theme is included for every customer. Free
-            // accounts cannot manually activate archived themes or opt out
-            // of the active event through a stale persisted selection.
-            return scheduledTheme ?? .base
-        }
-
+        let regularAppearance: SeasonalThemeID
         switch selection {
-        case .base:
-            return .base
+        case .base, .automatic:
+            regularAppearance = .base
         case .manual(let id):
-            guard let definition = catalog.first(where: { $0.id == id }) else { return .base }
+            guard let definition = catalog.first(where: { $0.id == id }),
+                  !definition.requiresProForManualActivation || isPro else {
+                regularAppearance = .base
+                break
+            }
             if let schedule = definition.schedule,
                schedule.availability(at: clock.now, using: clock) == .upcoming {
                 // A future theme may be inspected, but never becomes the
                 // effective theme before its window starts.
-                return .base
+                regularAppearance = .base
+            } else {
+                regularAppearance = id
             }
-            return id
-        case .automatic:
-            return scheduledTheme ?? .base
+        }
+
+        // A deliberately selected Premium appearance remains the user's
+        // regular appearance. Event automation is a temporary layer on top.
+        if case .manual(let selectedID) = selection,
+           selectedID != .base,
+           regularAppearance == selectedID {
+            return selectedID
+        }
+
+        guard let scheduledTheme,
+              eventPreference != .never else {
+            return regularAppearance
+        }
+
+        switch eventDecision {
+        case .accepted:
+            return scheduledTheme
+        case .declined, .dismissed:
+            return regularAppearance
+        case nil:
+            return eventPreference == .automatic ? scheduledTheme : regularAppearance
         }
     }
 
@@ -299,6 +337,7 @@ enum SeasonalThemeResolver {
         at clock: SeasonalThemeClock,
         catalog: [SeasonalThemeDefinition] = SeasonalThemeCatalog.definitions
     ) -> Bool {
+        if themeID == .base { return true }
         guard isPro, let definition = catalog.first(where: { $0.id == themeID }) else { return false }
         guard let schedule = definition.schedule else { return true }
         return schedule.availability(at: clock.now, using: clock) != .upcoming
@@ -329,7 +368,11 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     @Published private(set) var activeThemeID: SeasonalThemeID = .base
     @Published private(set) var activeScheduledThemeID: SeasonalThemeID?
+    @Published private(set) var activeEventOccurrenceID: String?
     @Published private(set) var selection: SeasonalThemeSelection
+    @Published private(set) var eventThemePreference: SeasonalEventThemePreference = .askEachEvent
+    @Published private(set) var eventDecisions: [String: SeasonalEventThemeDecision] = [:]
+    @Published private(set) var isReducingDecorativeEffects: Bool
     @Published private(set) var isPro: Bool = false
     @Published private(set) var hasResolvedEntitlement = false
     @Published private(set) var isSoundscapeEnabled: Bool
@@ -344,6 +387,12 @@ final class SeasonalThemeCoordinator: ObservableObject {
     private let selectionKey = "shield.theme.selection"
     private let selectedThemeKey = "shield.theme.selectedID"
     private let soundscapeEnabledKey = "shield.theme.halloween.soundscapeEnabled"
+    private let eventPreferenceKey = "shield.theme.eventPreference"
+    private let eventDecisionsKey = "shield.theme.eventDecisions"
+    private let eventInvitationShownKey = "shield.theme.eventInvitationShown"
+    private let eventMigrationVersionKey = "shield.theme.eventMigrationVersion"
+    private let reduceDecorativeEffectsKey = "shield.theme.reduceDecorativeEffects"
+    private let eventMigrationVersion = 1
 #if DEBUG
 #if targetEnvironment(simulator)
     private let debugPreviewThemeKey = "shield.theme.debugPreviewID"
@@ -354,9 +403,14 @@ final class SeasonalThemeCoordinator: ObservableObject {
     private let soundscape = SeasonalThemeSoundscape()
     private var isSceneActive = false
     private var scheduleRefreshTask: Task<Void, Never>?
+    private var eventInvitationsShown: Set<String>
+    private var lastEvaluationDate = Date()
+    private var lastEvaluationTimeZone = TimeZone.autoupdatingCurrent
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
+        let hasPersistedSelection = userDefaults.data(forKey: selectionKey) != nil
+            || userDefaults.string(forKey: selectedThemeKey) != nil
         if let data = userDefaults.data(forKey: selectionKey),
            let decoded = try? JSONDecoder().decode(SeasonalThemeSelection.self, from: data) {
             selection = decoded
@@ -364,12 +418,22 @@ final class SeasonalThemeCoordinator: ObservableObject {
                   let id = SeasonalThemeID(rawValue: rawValue) {
             selection = .manual(id)
         } else {
-            // A first install follows the event calendar. An explicit Base
-            // choice is persisted separately and continues to take priority.
-            selection = .automatic
+            // Without saved evidence of consent, a new or legacy installation
+            // keeps the regular appearance and asks about each event.
+            selection = .base
         }
+        if let rawPreference = userDefaults.string(forKey: eventPreferenceKey),
+           let preference = SeasonalEventThemePreference(rawValue: rawPreference) {
+            eventThemePreference = preference
+        }
+        if let data = userDefaults.data(forKey: eventDecisionsKey),
+           let decoded = try? JSONDecoder().decode([String: SeasonalEventThemeDecision].self, from: data) {
+            eventDecisions = decoded
+        }
+        eventInvitationsShown = Set(userDefaults.stringArray(forKey: eventInvitationShownKey) ?? [])
+        isReducingDecorativeEffects = userDefaults.bool(forKey: reduceDecorativeEffectsKey)
         if userDefaults.object(forKey: soundscapeEnabledKey) == nil {
-            isSoundscapeEnabled = true
+            isSoundscapeEnabled = false
         } else {
             isSoundscapeEnabled = userDefaults.bool(forKey: soundscapeEnabledKey)
         }
@@ -382,6 +446,8 @@ final class SeasonalThemeCoordinator: ObservableObject {
         }
 #endif
 #endif
+
+        migrateEventPreferenceIfNeeded(hasPersistedSelection: hasPersistedSelection)
 
         for notification in [
             NSNotification.Name.NSSystemTimeZoneDidChange,
@@ -411,6 +477,131 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     var definitions: [SeasonalThemeDefinition] { SeasonalThemeCatalog.definitions }
 
+    var shouldShowEventInvitation: Bool {
+        guard eventThemePreference == .askEachEvent,
+              let occurrenceID = activeEventOccurrenceID,
+              eventDecisions[occurrenceID] == nil else {
+            return false
+        }
+        return !eventInvitationsShown.contains(occurrenceID)
+    }
+
+    func occurrenceID(for themeID: SeasonalThemeID, clock: SeasonalThemeClock = SeasonalThemeClock()) -> String? {
+        guard let definition = SeasonalThemeCatalog.definition(for: themeID),
+              let schedule = definition.schedule,
+              let bounds = schedule.bounds(using: clock) else { return nil }
+        var calendar = Calendar(identifier: .gregorian)
+        switch schedule.policy {
+        case .deviceLocalCalendar:
+            calendar.timeZone = clock.timeZone
+        case .fixedTimeZone(let identifier):
+            calendar.timeZone = TimeZone(identifier: identifier) ?? clock.timeZone
+        case .absoluteUTC:
+            calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? clock.timeZone
+        }
+        let year = schedule.start.year ?? calendar.component(.year, from: bounds.start)
+        return "\(themeID.rawValue)-\(year)"
+    }
+
+    private func migrateEventPreferenceIfNeeded(hasPersistedSelection: Bool) {
+        guard userDefaults.integer(forKey: eventMigrationVersionKey) < eventMigrationVersion else {
+            if let rawPreference = userDefaults.string(forKey: eventPreferenceKey),
+               let preference = SeasonalEventThemePreference(rawValue: rawPreference) {
+                eventThemePreference = preference
+            }
+            return
+        }
+
+        if userDefaults.string(forKey: eventPreferenceKey) == nil {
+            if !hasPersistedSelection {
+                eventThemePreference = .askEachEvent
+            } else {
+                switch selection {
+                case .automatic:
+                    // This value was persisted only when the user chose the
+                    // old Automatic control, so it is verifiable consent.
+                    eventThemePreference = .automatic
+                case .base:
+                    // Preserve an explicit previous opt-out across the change.
+                    eventThemePreference = .never
+                case .manual:
+                    eventThemePreference = .askEachEvent
+                }
+            }
+        }
+
+        userDefaults.set(eventThemePreference.rawValue, forKey: eventPreferenceKey)
+        userDefaults.set(eventMigrationVersion, forKey: eventMigrationVersionKey)
+    }
+
+    private func persistEventDecisions() {
+        if let data = try? JSONEncoder().encode(eventDecisions) {
+            userDefaults.set(data, forKey: eventDecisionsKey)
+        }
+    }
+
+    private func recordDecision(_ decision: SeasonalEventThemeDecision, for occurrenceID: String) {
+        eventDecisions[occurrenceID] = decision
+        persistEventDecisions()
+    }
+
+    func markEventInvitationPresented() {
+        guard shouldShowEventInvitation, let occurrenceID = activeEventOccurrenceID else { return }
+        eventInvitationsShown.insert(occurrenceID)
+        userDefaults.set(eventInvitationsShown.sorted(), forKey: eventInvitationShownKey)
+        AppState.trackEvent("theme_event_offer_shown", properties: ["event_id": occurrenceID])
+    }
+
+    func setEventThemePreference(_ preference: SeasonalEventThemePreference) {
+        guard eventThemePreference != preference else { return }
+        eventThemePreference = preference
+        userDefaults.set(preference.rawValue, forKey: eventPreferenceKey)
+        if preference == .never, let occurrenceID = activeEventOccurrenceID {
+            recordDecision(.declined, for: occurrenceID)
+        }
+        AppState.trackEvent("theme_event_preference_changed", properties: ["mode": preference.rawValue])
+        refresh(now: lastEvaluationDate, timeZone: lastEvaluationTimeZone)
+    }
+
+    func setReduceDecorativeEffects(_ enabled: Bool) {
+        guard isReducingDecorativeEffects != enabled else { return }
+        isReducingDecorativeEffects = enabled
+        userDefaults.set(enabled, forKey: reduceDecorativeEffectsKey)
+        updateSoundscape()
+    }
+
+    @discardableResult
+    func acceptCurrentEventTheme() -> Bool {
+        guard eventThemePreference != .never,
+              let themeID = activeScheduledThemeID,
+              let occurrenceID = activeEventOccurrenceID else { return false }
+        recordDecision(.accepted, for: occurrenceID)
+        AppState.trackEvent("theme_event_accepted", properties: ["event_id": occurrenceID])
+        refresh(now: lastEvaluationDate, timeZone: lastEvaluationTimeZone)
+        return activeThemeID == themeID
+    }
+
+    func declineCurrentEventTheme() {
+        guard let occurrenceID = activeEventOccurrenceID else { return }
+        if case .manual(let themeID) = selection, themeID == activeScheduledThemeID {
+            // The legacy format has no recoverable appearance beneath this
+            // manually selected event theme, so an explicit return uses the
+            // free classic appearance as the safe fallback.
+            selection = .base
+            persistSelection()
+        }
+        recordDecision(.declined, for: occurrenceID)
+        AppState.trackEvent("theme_event_declined", properties: ["event_id": occurrenceID])
+        refresh(now: lastEvaluationDate, timeZone: lastEvaluationTimeZone)
+    }
+
+    func dismissCurrentEventInvitation() {
+        guard let occurrenceID = activeEventOccurrenceID else { return }
+        recordDecision(.dismissed, for: occurrenceID)
+        AppState.trackEvent("theme_event_dismissed", properties: ["event_id": occurrenceID])
+        refresh(now: lastEvaluationDate, timeZone: lastEvaluationTimeZone)
+    }
+
     func canManuallyActivate(
         _ id: SeasonalThemeID,
         clock: SeasonalThemeClock = SeasonalThemeClock()
@@ -428,6 +619,8 @@ final class SeasonalThemeCoordinator: ObservableObject {
         isPro: Bool? = nil,
         hasResolvedEntitlement: Bool? = nil
     ) {
+        lastEvaluationDate = now
+        lastEvaluationTimeZone = timeZone
         if let isPro { self.isPro = isPro }
         if let hasResolvedEntitlement {
             self.hasResolvedEntitlement = hasResolvedEntitlement
@@ -439,6 +632,19 @@ final class SeasonalThemeCoordinator: ObservableObject {
         activeScheduledThemeID = SeasonalThemeResolver.activeScheduledTheme(
             at: SeasonalThemeClock(now: now, timeZone: timeZone)
         )
+        activeEventOccurrenceID = activeScheduledThemeID.flatMap {
+            occurrenceID(for: $0, clock: SeasonalThemeClock(now: now, timeZone: timeZone))
+        }
+        if case .manual(let themeID) = selection,
+           themeID == activeScheduledThemeID,
+           let occurrenceID = activeEventOccurrenceID,
+           eventDecisions[occurrenceID] == nil {
+            // Use the clock supplied to refresh. Migration runs during init,
+            // before deterministic callers can provide their event date.
+            // A legacy manual selection matching the active event is consent
+            // for that occurrence and should not trigger a duplicate prompt.
+            recordDecision(.accepted, for: occurrenceID)
+        }
 #if DEBUG
 #if targetEnvironment(simulator)
         if let debugPreviewThemeID {
@@ -460,6 +666,8 @@ final class SeasonalThemeCoordinator: ObservableObject {
         let next = SeasonalThemeResolver.resolve(
             isPro: self.isPro,
             selection: selection,
+            eventPreference: eventThemePreference,
+            eventDecision: activeEventOccurrenceID.flatMap { eventDecisions[$0] },
             at: SeasonalThemeClock(now: now, timeZone: timeZone)
         )
         guard next != activeThemeID else {
@@ -471,21 +679,20 @@ final class SeasonalThemeCoordinator: ObservableObject {
         let previous = activeThemeID
         activeThemeID = next
         ShieldTheme.setActiveTheme(next)
-        AppState.trackEvent(
-            "theme_automatic_applied",
-            properties: ["name": next.rawValue, "from_step": previous.rawValue]
-        )
+        if next == activeScheduledThemeID, eventThemePreference == .automatic,
+           activeEventOccurrenceID.flatMap({ eventDecisions[$0] }) == nil {
+            AppState.trackEvent("theme_automatic_applied", properties: ["name": next.rawValue])
+        } else if previous == activeScheduledThemeID, previous != next {
+            AppState.trackEvent("theme_event_reverted", properties: ["event_id": previous.rawValue])
+        }
         updateSoundscape()
         scheduleNextThemeBoundaryRefresh(now: now, timeZone: timeZone)
     }
 
-    /// A persisted Base choice belongs to a Pro user. Avoid changing the
-    /// system icon until the entitlement source confirms whether that choice
-    /// is still valid; automatic event themes can sync immediately.
+    /// The base appearance is free, so seasonal icon synchronization no
+    /// longer needs to wait for an entitlement lookup.
     var shouldDeferSeasonalIconUntilEntitlementResolves: Bool {
-        guard activeScheduledThemeID != nil,
-              case .base = selection else { return false }
-        return !hasResolvedEntitlement
+        false
     }
 
     /// Keeps the ambient audio tied to the app's foreground state. Sound is
@@ -537,6 +744,7 @@ final class SeasonalThemeCoordinator: ObservableObject {
     private func updateSoundscape() {
         guard isSceneActive,
               isSoundscapeEnabled,
+              !isReducingDecorativeEffects,
               activeThemeID == .halloween2026 else {
             Task { await soundscape.stop() }
             return
@@ -568,10 +776,18 @@ final class SeasonalThemeCoordinator: ObservableObject {
 
     @discardableResult
     func select(_ next: SeasonalThemeSelection) -> Bool {
+        if case .automatic = next {
+            setEventThemePreference(.automatic)
+            return true
+        }
+        if case .base = next {
+            selection = .base
+            persistSelection()
+            declineCurrentEventTheme()
+            return true
+        }
         guard isPro else {
-            if case .manual(let id) = next {
-                SeasonalThemeCoordinator.recordLockedThemeTap(id)
-            }
+            if case .manual(let id) = next { SeasonalThemeCoordinator.recordLockedThemeTap(id) }
             return false
         }
         if case .manual(let id) = next, !canManuallyActivate(id) {
@@ -583,11 +799,16 @@ final class SeasonalThemeCoordinator: ObservableObject {
         }
         selection = next
         persistSelection()
+        if case .manual(let id) = next,
+           id == activeScheduledThemeID,
+           let occurrenceID = activeEventOccurrenceID {
+            recordDecision(.accepted, for: occurrenceID)
+        }
         AppState.trackEvent("theme_activation_completed", properties: [
             "name": selection.analyticsName,
             "mode": selection.analyticsMode
         ])
-        refresh()
+        refresh(now: lastEvaluationDate, timeZone: lastEvaluationTimeZone)
         return true
     }
 
@@ -1095,7 +1316,10 @@ private struct SeasonalThemeHalloweenTexture: View {
 private struct SeasonalThemeHalloweenMotif: View {
     let reduceMotion: Bool
 
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var isPulsing = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         ZStack {
@@ -1128,11 +1352,11 @@ private struct SeasonalThemeHalloweenMotif: View {
         .frame(width: 96, height: 96)
         .opacity(0.9)
         .animation(
-            reduceMotion ? nil : .easeInOut(duration: 2.4).repeatForever(autoreverses: true),
+            shouldReduceMotion ? nil : .easeInOut(duration: 2.4).repeatForever(autoreverses: true),
             value: isPulsing
         )
         .onAppear {
-            guard !reduceMotion else { return }
+            guard !shouldReduceMotion else { return }
             isPulsing = true
         }
         .allowsHitTesting(false)
@@ -1147,7 +1371,10 @@ struct SeasonalThemeChangeOverlay: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var isVisible = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         HStack(spacing: ShieldTheme.s3) {
@@ -1180,8 +1407,8 @@ struct SeasonalThemeChangeOverlay: View {
         }
         .shadow(color: ShieldTheme.accent(scheme).opacity(0.24), radius: 16, y: 8)
         .opacity(isVisible ? 1 : 0)
-        .offset(y: isVisible || reduceMotion ? 0 : -12)
-        .animation(reduceMotion ? nil : ShieldMotion.navigation, value: isVisible)
+        .offset(y: isVisible || shouldReduceMotion ? 0 : -12)
+        .animation(shouldReduceMotion ? nil : ShieldMotion.navigation, value: isVisible)
         .onAppear { isVisible = true }
         .accessibilityElement(children: .combine)
     }
@@ -1196,7 +1423,10 @@ struct SeasonalThemeLoadingIndicator: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var isAnimating = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         if ShieldTheme.activeThemeID == .halloween2026 {
@@ -1211,11 +1441,11 @@ struct SeasonalThemeLoadingIndicator: View {
             }
             .frame(width: size, height: size)
             .animation(
-                reduceMotion ? nil : .easeInOut(duration: 0.9).repeatForever(autoreverses: true),
+                shouldReduceMotion ? nil : .easeInOut(duration: 0.9).repeatForever(autoreverses: true),
                 value: isAnimating
             )
             .onAppear {
-                guard !reduceMotion else { return }
+                guard !shouldReduceMotion else { return }
                 isAnimating = true
             }
             .accessibilityHidden(true)
@@ -1231,8 +1461,11 @@ struct SeasonalThemeLoadingIndicator: View {
 /// Glowing spiderweb and ember aura rendered behind the central floating scan button
 struct SeasonalScanButtonHalo: View {
     let reduceMotion: Bool
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var rotation: Double = 0
     @State private var glowPulse: Bool = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         ZStack {
@@ -1286,15 +1519,15 @@ struct SeasonalScanButtonHalo: View {
         .allowsHitTesting(false)
         .accessibilityHidden(true)
         .animation(
-            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            shouldReduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
             value: glowPulse
         )
         .animation(
-            reduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
+            shouldReduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
             value: rotation
         )
         .onAppear {
-            guard !reduceMotion else { return }
+            guard !shouldReduceMotion else { return }
             glowPulse = true
             rotation = 360
         }
@@ -1304,8 +1537,11 @@ struct SeasonalScanButtonHalo: View {
 /// Glowing tech radar and cyber aura rendered behind the standard central floating scan button
 struct StandardScanButtonHalo: View {
     let reduceMotion: Bool
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var rotation: Double = 0
     @State private var glowPulse: Bool = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         ZStack {
@@ -1352,15 +1588,15 @@ struct StandardScanButtonHalo: View {
         .allowsHitTesting(false)
         .accessibilityHidden(true)
         .animation(
-            reduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
+            shouldReduceMotion ? nil : .easeInOut(duration: 1.8).repeatForever(autoreverses: true),
             value: glowPulse
         )
         .animation(
-            reduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
+            shouldReduceMotion ? nil : .linear(duration: 24).repeatForever(autoreverses: false),
             value: rotation
         )
         .onAppear {
-            guard !reduceMotion else { return }
+            guard !shouldReduceMotion else { return }
             glowPulse = true
             rotation = 360
         }
@@ -1371,8 +1607,11 @@ struct StandardScanButtonHalo: View {
 struct SeasonalVaultHeroView: View {
     var size: CGFloat = 160
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.reduceDecorativeEffects) private var reduceDecorativeEffects
     @State private var pulse = false
     @State private var rotateDashes = false
+
+    private var shouldReduceMotion: Bool { reduceMotion || reduceDecorativeEffects }
 
     var body: some View {
         ZStack {
@@ -1457,15 +1696,15 @@ struct SeasonalVaultHeroView: View {
         }
         .frame(width: size, height: size)
         .animation(
-            reduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true),
+            shouldReduceMotion ? nil : .easeInOut(duration: 2.2).repeatForever(autoreverses: true),
             value: pulse
         )
         .animation(
-            reduceMotion ? nil : .linear(duration: 20).repeatForever(autoreverses: false),
+            shouldReduceMotion ? nil : .linear(duration: 20).repeatForever(autoreverses: false),
             value: rotateDashes
         )
         .onAppear {
-            guard !reduceMotion else { return }
+            guard !shouldReduceMotion else { return }
             pulse = true
             rotateDashes = true
         }

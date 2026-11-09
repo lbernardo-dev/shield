@@ -33,9 +33,10 @@ struct RedactionPresetPickerSheet: View {
                         .shieldFont(18, weight: .bold)
                         .foregroundColor(ShieldTheme.textPrimary)
 
-                    Text(lang == .es ? "Elige una intención; revisarás cada sugerencia antes de exportar." : "Choose a purpose; you review every suggestion before exporting.")
+                    Text(LanguageManager.shared.editor("editor_mode_preset_explanation"))
                         .shieldFont(13, weight: .regular)
                         .foregroundColor(ShieldTheme.textSecondary)
+                        .accessibilityIdentifier("editor.preset.explanation")
                 }
 
                 Spacer()

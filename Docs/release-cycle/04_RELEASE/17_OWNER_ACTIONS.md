@@ -1,0 +1,21 @@
+# Acciones del propietario pendientes
+
+Estado actualizado el 9-11-2026. Las acciones pendientes son las que requieren revisión legal, prueba física o una cuenta de prueba autorizada.
+
+1. **Aprobación jurídica:** revisar y aprobar las condiciones de suscripción, aviso de acceso 15/30+30 días, recuperación, solo lectura, restauración, eliminación/exportación, precio/renovación y términos de privacidad para España/UE. Los documentos actuales son borradores; no solicitar App Review hasta documentar esta aprobación.
+2. **App Privacy ASC:** contrastar la declaración publicada con Analytics opt-in, Crashlytics, RevenueCat, CloudKit/KVS, OAuth y soporte. `asc validate --deep` no encontró una sesión web de Apple utilizable y dejó App Privacy sin verificar. No se cambió la declaración.
+3. **StoreKit Sandbox:** el build está distribuido a `Shield Internal` tras autorización del propietario; el grupo tiene 1 tester `INSTALLED`, y ASC muestra un tester Sandbox en ESP. El mapeo del offering con el catálogo local pasó 3/3; una prueba local de purchase/restore quedó interrumpida por XCTest sin resultado y no cuenta como PASS. Completar compra/restauración mensual, anual y vitalicio, cancelación, pending, billing retry/grace, refund/revoke y renovación desde TestFlight en dispositivo. `autoNotifyEnabled=true`, aunque ASC no confirma la entrega de la notificación. No usar documentos personales.
+4. **Accesibilidad y nube física:** ejecutar VoiceOver, Control por voz, Switch Control, Zoom y Dynamic Type en iPhone/iPad; validar iCloud offline/conflicto/restauración con cuenta de prueba y segundo dispositivo.
+5. **Expiración bajo interacción:** probar en dispositivo/editor real la caducidad con cambios sin guardar y captura activa; comprobar Guardar/Descartar/recuperar sin pérdida y el modo de recuperación de solo lectura. No alterar relojes de usuarios reales.
+6. **RevenueCat:** la sesión autenticada del dashboard permitió verificar `default` con paquetes Monthly/Yearly/Lifetime, SKU exactos MaskID, `MaskID Pro` y el grupo de suscripción. Los genéricos `monthly/yearly/lifetime` corresponden a la app Test Store del proyecto, no se observó un segundo producto de App Store de otra app. El catálogo anual expone `trial_duration=P1W` residual, pero App Store no tiene oferta asociada. MCP `list-apps/products/entitlements` y algunas lecturas de Store State aún devuelven 403; sólo sería necesario renovar los scopes de API si se requieren esas lecturas por MCP. No hace falta cambiar precios/offerings ahora.
+7. **Creatividades ASO (completado):** 40 piezas (10 por locale y dispositivo) están asignadas a los cuatro grupos de App Asset Library del borrador 1.1.7; 10 colocaciones activas por grupo y orden 1–10. Evidencia: `16_ASC_SCREENSHOT_UPLOAD_REPORT.md` y hojas de contacto bajo `11_SCREENSHOTS_AND_PREVIEWS/creatives/1.1.7/review/`. Home se excluyó por solapamiento del encabezado; no hay App Preview de vídeo.
+8. **App Review/publicación:** revisar contacto e instrucciones de App Review cuando 1–5 estén cerrados. Después, decidir por separado si autoriza “Add for Review” y, tras aprobación, publicar. El draft permanece `PREPARE_FOR_SUBMISSION`, con release manual y build adjunto; no hay submission activa.
+
+## Trabajo ya completado
+
+- El build procesado se asoció a App Store version 1.1.7. Read-back confirma la relación exacta.
+- Se añadieron notas TestFlight “What to Test” en es-ES y en-US. `asc validate testflight`: 0 errores/avisos/bloqueos.
+- El propietario autorizó la distribución a `Shield Internal`; ASC confirma vínculo explícito y estado `IN_BETA_TESTING`. No se añadieron testers ni se sometió a Beta App Review.
+- `asc validate --strict --ipa` después de asociar el build: 0 errores/avisos/bloqueos; App Privacy queda como información sin verificar porque no había web session CLI cacheada.
+- RevenueCat se leyó en una sesión autenticada; los productos aprobados y las asociaciones comerciales coinciden con la decisión aprobada. No se hicieron cambios de precio ni oferta porque no eran necesarios.
+- El build está distribuido al grupo interno existente, con autorización explícita. No se añadieron testers, no se envió a Beta App Review ni a App Review y no se publicó.

@@ -467,6 +467,74 @@
         }
       }
     },
+    "editor_access_boundary_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium access has ended"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El acceso Premium ha terminado"
+          }
+        }
+      }
+    },
+    "editor_access_boundary_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save the changes you made before access ended, or discard them and continue to data recovery."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda los cambios que hiciste antes de terminar el acceso o descártalos para continuar a la recuperación de datos."
+          }
+        }
+      }
+    },
+    "editor_access_boundary_save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save changes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar cambios"
+          }
+        }
+      }
+    },
+    "editor_access_boundary_discard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard changes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar cambios"
+          }
+        }
+      }
+    },
     "editor_export": {
       "extractionState": "manual",
       "localizations": {
@@ -691,23 +759,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Formato"
-          }
-        }
-      }
-    },
-    "editor_export_free_limit_reached": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You used all weekly exports. Upgrade to Pro for unlimited exports."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Has agotado tus exportaciones semanales. Actualiza a Pro para exportar sin límite."
           }
         }
       }
@@ -3195,6 +3246,27 @@
         }
       }
     },
+    "editor_add_accessible_mask": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add mask" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir máscara" } }
+      }
+    },
+    "editor_add_accessible_mask_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Creates a centered mask. You can then move, resize, or delete it using accessibility actions." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Crea una máscara centrada. Después puedes moverla, cambiar su tamaño o eliminarla con las acciones de accesibilidad." } }
+      }
+    },
+    "editor_mode_preset_explanation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "A mode proposes areas to hide for a purpose. A profile selects data types and output options. Review every suggested mask before exporting." } },
+        "es": { "stringUnit": { "state": "translated", "value": "El modo propone áreas que ocultar según el propósito. El perfil elige los tipos de datos y las opciones de salida. Revisa cada máscara antes de exportar." } }
+      }
+    },
     "editor_safe_to_share": {
       "extractionState": "manual",
       "localizations": {
@@ -4204,13 +4276,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your document includes an Anti-Fraud Watermark or advanced styles exclusive to MaskID Pro. Try 7 days free to export with maximum protection, or export the standard version for free."
+            "value": "Your document includes an Anti-Fraud Watermark or advanced styles exclusive to MaskID Pro. Get MaskID Pro to export with these options, or export a standard version without them."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu documento incluye Marca de Agua Anti-Fraude o estilos avanzados exclusivos de MaskID Pro. Inicia tu prueba gratuita de 7 días para exportarlo protegido o exporta gratis la versión estándar."
+            "value": "Tu documento incluye una Marca de Agua Anti-Fraude o estilos avanzados exclusivos de MaskID Pro. Obtén MaskID Pro para exportar con estas opciones o exporta una versión estándar sin ellas."
           }
         }
       }
@@ -4221,13 +4293,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Try Pro Free (7 Days)"
+            "value": "Get MaskID Pro"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Probar Pro Gratis (7 días)"
+            "value": "Obtener MaskID Pro"
           }
         }
       }

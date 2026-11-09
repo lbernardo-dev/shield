@@ -175,6 +175,8 @@ struct ExportRiskAcknowledgementCard: View {
                 }
             }
             .buttonStyle(ScaleButtonStyle())
+            .accessibilityValue(LanguageManager.shared.common(isAcknowledged ? "common_selected" : "common_not_selected"))
+            .accessibilityIdentifier("export.ocrRisk.acknowledge")
         }
         .padding(10)
         .background(ShieldTheme.rowBackground(scheme))
@@ -223,6 +225,7 @@ struct ExportSheetFooterButton: View {
 
 struct ExportCompletionView: View {
     @State private var showSensitiveShareConfirmation = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let scheme: ColorScheme
     let isPro: Bool
@@ -234,68 +237,56 @@ struct ExportCompletionView: View {
     let onShare: () -> Void
 
     var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            ZStack {
-                RoundedRectangle(cornerRadius: 22)
-                    .fill(ShieldTheme.successDim)
-                    .frame(width: 84, height: 84)
-                Image(systemName: "checkmark")
-                    .shieldFont(40, weight: .semibold)
-                    .foregroundColor(ShieldTheme.success)
-            }
-            VStack(spacing: 4) {
-                Text(LanguageManager.shared.editor("editor_exported"))
-                    .shieldFont(20, weight: .bold)
-                    .foregroundColor(ShieldTheme.primary(scheme))
-                Text(summaryText)
-                    .shieldFont(13)
-                    .foregroundColor(ShieldTheme.secondary(scheme))
-                if showFreeWatermarkNote && !isPro {
-                    Text(LanguageManager.shared.editor("editor_include_wm_free"))
-                        .shieldFont(12)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
+        VStack(spacing: 12) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 22)
+                            .fill(ShieldTheme.successDim)
+                            .frame(width: 84, height: 84)
+                        Image(systemName: "checkmark")
+                            .shieldFont(40, weight: .semibold)
+                            .foregroundColor(ShieldTheme.success)
+                    }
+                    VStack(spacing: 4) {
+                        Text(LanguageManager.shared.editor("editor_exported"))
+                            .shieldFont(20, weight: .bold)
+                            .foregroundColor(ShieldTheme.primary(scheme))
+                        Text(summaryText)
+                            .shieldFont(13)
+                            .foregroundColor(ShieldTheme.secondary(scheme))
+                        if showFreeWatermarkNote && !isPro {
+                            Text(LanguageManager.shared.editor("editor_include_wm_free"))
+                                .shieldFont(12)
+                                .foregroundColor(ShieldTheme.tertiary(scheme))
+                        }
+                    }
+                    if let verificationReport {
+                        ExportProtectionCheckView(
+                            scheme: scheme,
+                            report: verificationReport
+                        )
+                        .padding(.horizontal, ShieldTheme.s5)
+                    }
                 }
-            }
-            if let verificationReport {
-                ExportProtectionCheckView(
-                    scheme: scheme,
-                    report: verificationReport
-                )
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, ShieldTheme.s5)
+                .padding(.vertical, ShieldTheme.s4)
             }
-            Spacer()
-            HStack(spacing: 8) {
-                Button(action: onDone) {
-                    Text(LanguageManager.shared.common("common_done"))
-                        .shieldFont(14, weight: .semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(ShieldTheme.rowBackground(scheme))
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .buttonStyle(ScaleButtonStyle())
+            .accessibilityIdentifier("export.complete.content")
 
-                Button {
-                    if (verificationReport?.remainingDetectedSensitiveElements ?? 0) > 0 {
-                        showSensitiveShareConfirmation = true
-                    } else {
-                        onShare()
+            Group {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: 8) {
+                        doneButton
+                        shareButton
                     }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.up")
-                        Text(LanguageManager.shared.common("common_share"))
+                } else {
+                    HStack(spacing: 8) {
+                        doneButton
+                        shareButton
                     }
-                    .shieldFont(14, weight: .bold)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(ShieldTheme.accent)
-                    .foregroundColor(ShieldTheme.accentText)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .buttonStyle(ScaleButtonStyle())
             }
             .padding(.horizontal, ShieldTheme.s5)
             .padding(.bottom, 32)
@@ -322,6 +313,42 @@ struct ExportCompletionView: View {
                 Text(LanguageManager.shared.editor("editor_sensitive_share_message_plural", remainingCount))
             }
         }
+    }
+
+    private var doneButton: some View {
+        Button(action: onDone) {
+            Text(LanguageManager.shared.common("common_done"))
+                .shieldFont(14, weight: .semibold)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 48)
+                .background(ShieldTheme.rowBackground(scheme))
+                .foregroundColor(ShieldTheme.primary(scheme))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("export.complete.done")
+    }
+
+    private var shareButton: some View {
+        Button {
+            if (verificationReport?.remainingDetectedSensitiveElements ?? 0) > 0 {
+                showSensitiveShareConfirmation = true
+            } else {
+                onShare()
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "square.and.arrow.up")
+                Text(LanguageManager.shared.common("common_share"))
+            }
+            .shieldFont(14, weight: .bold)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 48)
+            .background(ShieldTheme.accent)
+            .foregroundColor(ShieldTheme.accentText)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(ScaleButtonStyle())
     }
 }
 
@@ -415,6 +442,12 @@ struct ExportProtectionCheckView: View {
         )
         .accessibilityElement(children: .contain)
         .accessibilityLabel(LanguageManager.shared.editor("editor_protection_check_title"))
+        .accessibilityValue(
+            report.isReadyToShare
+                ? LanguageManager.shared.editor("editor_protection_check_ready")
+                : LanguageManager.shared.editor("editor_protection_check_review")
+        )
+        .accessibilityIdentifier("export.verification.result")
     }
 }
 
