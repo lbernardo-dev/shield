@@ -2754,8 +2754,10 @@
    Id: 258-alinear-main-local-remoto
    Scope: Integrar todos los cambios locales del ciclo 1.1.7 en main, actualizar main local y remoto y verificar igualdad de commit sin perder trabajo previo
    Files: git/**,tasks/TASKS.md,tasks/details/**
-   Note: Inspeccionando estado, archivos y divergencia antes de integrar y publicar main.
+   Note: Commit 45c50b7 contiene los 411 cambios y ya está en origin/main; HEAD, main y origin/main coinciden. Worktree limpio al verificar; artefactos .asc ignorados por Git se conservaron locales.
    Detail: tasks/details/258-alinear-main-local-remoto.md
    Claimed by: CODEX
    Claimed at: 2026-11-09T08:31:12Z
+   Done by: CODEX
+   Done at: 2026-11-09T08:35:37Z
 
