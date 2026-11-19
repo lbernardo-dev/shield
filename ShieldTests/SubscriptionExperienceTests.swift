@@ -229,35 +229,32 @@ struct AccessPolicyTests {
         #expect(accepted?.fullAccessExpiresAt == date(days: 15))
     }
 
-    @Test("Existing Free installs receive 30 full days followed by 30 read-only days")
+    @Test("Existing Free installs receive the same 15-day period and no recovery extension")
     func existingFreeMigrationWindow() {
         let record = AccessRecord.start(cohort: .existingFreeUser, at: start)!
-        #expect(record.fullAccessExpiresAt == date(days: 30))
-        #expect(record.recoveryExpiresAt == date(days: 60))
+        #expect(record.fullAccessExpiresAt == date(days: 15))
+        #expect(record.recoveryExpiresAt == nil)
         #expect(AccessPolicy.resolve(
             record: record,
             missingRecordCohort: .existingFreeUser,
-            now: date(days: 29),
+            now: date(days: 14),
             hasPaidAccess: false
         ).hasFullAccess)
         #expect(AccessPolicy.resolve(
             record: record,
             missingRecordCohort: .existingFreeUser,
-            now: date(days: 30),
-            hasPaidAccess: false
-        ) == .readOnlyRecovery(until: date(days: 60)))
-        #expect(AccessPolicy.resolve(
-            record: record,
-            missingRecordCohort: .existingFreeUser,
-            now: date(days: 59),
-            hasPaidAccess: false
-        ) == .readOnlyRecovery(until: date(days: 60)))
-        #expect(AccessPolicy.resolve(
-            record: record,
-            missingRecordCohort: .existingFreeUser,
-            now: date(days: 60),
+            now: date(days: 15),
             hasPaidAccess: false
         ) == .mandatoryPaywall)
+
+        var legacyRecord = record
+        legacyRecord.schemaVersion = 1
+        legacyRecord.fullAccessExpiresAt = date(days: 30)
+        legacyRecord.recoveryExpiresAt = date(days: 60)
+        let migratedRecord = AccessRecord.migrateToCurrentPolicy(legacyRecord)!
+        #expect(migratedRecord.fullAccessStartedAt == start)
+        #expect(migratedRecord.fullAccessExpiresAt == date(days: 15))
+        #expect(migratedRecord.recoveryExpiresAt == nil)
     }
 
     @Test("New-user access expires after 15 days and never starts a subscription")
@@ -344,15 +341,9 @@ struct AccessPolicyTests {
     @Test("Access periods use the central configuration defaults and can be changed centrally")
     func configurableAccessPeriods() {
         let defaults = AccessConfiguration.current
-        #expect(defaults.newUserFullAccessDays == 15)
-        #expect(defaults.existingUserFullAccessDays == 30)
-        #expect(defaults.existingUserRecoveryDays == 30)
+        #expect(defaults.fullAccessDays == 15)
 
-        let futurePolicy = AccessConfiguration(
-            newUserFullAccessDays: 14,
-            existingUserFullAccessDays: 45,
-            existingUserRecoveryDays: 20
-        )
+        let futurePolicy = AccessConfiguration(fullAccessDays: 14)
         let newRecord = AccessRecord.start(
             cohort: .newUser,
             at: start,
@@ -364,8 +355,8 @@ struct AccessPolicyTests {
             configuration: futurePolicy
         )
         #expect(newRecord?.fullAccessExpiresAt == date(days: 14))
-        #expect(existingRecord?.fullAccessExpiresAt == date(days: 45))
-        #expect(existingRecord?.recoveryExpiresAt == date(days: 65))
+        #expect(existingRecord?.fullAccessExpiresAt == date(days: 14))
+        #expect(existingRecord?.recoveryExpiresAt == nil)
     }
 
     @Test("Calendar-day periods remain at local noon across the Madrid daylight-saving boundary")

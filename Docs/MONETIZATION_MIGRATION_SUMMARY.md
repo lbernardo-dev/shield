@@ -4,6 +4,8 @@
 **Fecha:** 8 de noviembre de 2026  
 **Estado:** implementación local y configuración comercial verificadas; release bloqueado por revisión jurídica, pruebas Sandbox y comprobación de build/versionado.
 
+> **Actualización superseding — 18 de noviembre de 2026:** la política comercial y el catálogo actuales están documentados en la tarea 260. Todos reciben 15 días; después solo se ofrece Lifetime. El precio base ES de Lifetime se cambió a 9,99 €. ASC retiró las tres suscripciones de la venta y RevenueCat dejó solo Lifetime en la Offering vigente. Este resumen conserva debajo el registro histórico de la fase 03.
+
 ## Resultado
 
 - Se añadió una única política tipada para acceso temporal, recuperación y paywall obligatorio. El inicio interno no ejecuta StoreKit ni crea una renovación.

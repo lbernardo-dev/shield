@@ -12,7 +12,7 @@ struct PaywallView: View {
     var trigger: PaywallTrigger = .manual
     var isMandatoryAccess = false
     var onRecoverOwnData: (() -> Void)? = nil
-    @State private var selectedProductID = ShieldProduct.annual.rawValue
+    @State private var selectedProductID = ShieldProduct.lifetime.rawValue
     @State private var didStartCheckout = false
 
     private func features() -> [(icon: String, color: String, title: String, subtitle: String)] {
@@ -85,29 +85,16 @@ struct PaywallView: View {
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 20) {
-                        // Hero
                         heroSection
-
-                        // Context banner
-                        contextBanner
-
-                        // Store status stays reachable without expanding the sticky purchase footer.
                         subscriptionStatusSection
-
-                        // Trust Badges
-                        trustBadgesSection
-
-                        // Plan selector
                         planSelector
-
-                        // Features grid
-                        featuresGrid
-
-                        // Free value note
-                        freeValueNote
-
-                        // FAQ
-                        faqSection
+                        if !isMandatoryAccess {
+                            contextBanner
+                            trustBadgesSection
+                            featuresGrid
+                            freeValueNote
+                            faqSection
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 16)
@@ -140,27 +127,10 @@ struct PaywallView: View {
             if pm.isResolvingSubscription { await pm.updateProStatus() }
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
-            if pm.isEventPaywall, let pricing = pm.eventAnnualPricing {
-                properties["event_id"] = pm.activeEventIdentifier ?? "unknown"
-                properties["campaign_id"] = pm.activeCampaignIdentifier ?? "unknown"
-                properties["event_price"] = NSDecimalNumber(decimal: pricing.eventPrice).stringValue
-                properties["standard_price"] = NSDecimalNumber(decimal: pricing.standardPrice).stringValue
-                properties["discount"] = String(pricing.discountPercent)
-            }
             AppState.trackEvent("paywall_viewed", properties: properties)
         }
         .onChange(of: pm.products.map(\.id)) { _, _ in
             selectAvailableProductIfNeeded()
-        }
-        .onChange(of: pm.isEventPaywall) { _, isActive in
-            guard isActive, let pricing = pm.eventAnnualPricing else { return }
-            AppState.trackEvent("event_paywall_activated", properties: [
-                "event_id": pm.activeEventIdentifier ?? "unknown",
-                "campaign_id": pm.activeCampaignIdentifier ?? "unknown",
-                "event_price": NSDecimalNumber(decimal: pricing.eventPrice).stringValue,
-                "standard_price": NSDecimalNumber(decimal: pricing.standardPrice).stringValue,
-                "discount": String(pricing.discountPercent)
-            ])
         }
         .onDisappear {
             if !pm.isPro {
@@ -279,7 +249,7 @@ struct PaywallView: View {
             if pm.isLoadingProducts {
                 VStack(spacing: 12) {
                     // Loading skeleton
-                    ForEach(0..<3, id: \.self) { _ in
+                    ForEach(0..<1, id: \.self) { _ in
                         RoundedRectangle(cornerRadius: 16)
                             .fill(ShieldTheme.cardBackground(scheme))
                             .frame(height: 84)
@@ -287,9 +257,10 @@ struct PaywallView: View {
                     }
                 }
             } else if pm.products.isEmpty {
-                PaywallProductsUnavailable {
-                    Task { await pm.loadProducts() }
-                }
+                PaywallProductsUnavailable(
+                    onRetry: { Task { await pm.loadProducts() } },
+                    showsRetry: !isMandatoryAccess
+                )
             } else {
                 VStack(spacing: 12) {
                     ForEach(pm.products, id: \.id) { product in
@@ -341,7 +312,7 @@ struct PaywallView: View {
         HStack(spacing: 8) {
             trustBadgeItem(icon: "lock.shield.fill", title: appState.language == .es ? "Procesamiento local" : "On-device core", subtitle: appState.language == .es ? "Sync opcional" : "Optional sync")
             trustBadgeItem(icon: "faceid", title: appState.language == .es ? "Face ID Vault" : "Face ID Vault", subtitle: appState.language == .es ? "Cifrado local" : "Encrypted storage")
-            trustBadgeItem(icon: "arrow.uturn.backward.circle.fill", title: appState.language == .es ? "Cancela fácil" : "Cancel anytime", subtitle: appState.language == .es ? "En 1 toque" : "In 1 tap")
+            trustBadgeItem(icon: "checkmark.seal.fill", title: appState.language == .es ? "Pago único" : "One-time purchase", subtitle: appState.language == .es ? "Sin renovación" : "No renewal")
         }
         .padding(.vertical, 2)
     }
@@ -388,8 +359,8 @@ struct PaywallView: View {
             )
 
             faqItem(
-                q: appState.language == .es ? "¿Puedo cancelar mi suscripción en cualquier momento?" : "Can I cancel my subscription anytime?",
-                a: appState.language == .es ? "Sí, puedes cancelar en cualquier momento desde Ajustes > Apple ID > Suscripciones con un solo toque y sin penalizaciones." : "Yes, you can cancel anytime from Settings > Apple ID > Subscriptions with 1 tap."
+                q: appState.language == .es ? "¿Lifetime requiere pagos recurrentes?" : "Does Lifetime require recurring payments?",
+                a: appState.language == .es ? "No. Es un pago único procesado por Apple y no se renueva. Los 15 días de acceso inicial tampoco crean una compra ni un cargo." : "No. Apple processes a one-time purchase that never renews. The initial 15-day access period also creates no purchase or charge."
             )
 
         }
@@ -441,10 +412,7 @@ struct PaywallView: View {
 
     private func selectAvailableProductIfNeeded() {
         guard selectedPremiumProduct == nil else { return }
-        let preferredID = pm.isEventPaywall
-            ? (pm.eventAnnualProductIdentifier ?? ShieldProduct.annual.rawValue)
-            : ShieldProduct.annual.rawValue
-        selectedProductID = pm.products.first(where: { $0.id == preferredID })?.id
+        selectedProductID = pm.products.first(where: { $0.id == ShieldProduct.lifetime.rawValue })?.id
             ?? pm.products.first?.id
             ?? selectedProductID
     }
@@ -502,7 +470,7 @@ struct PaywallView: View {
                 ),
                 symbol: pm.isResolvingSubscription ? "arrow.triangle.2.circlepath" : "wifi.exclamationmark",
                 isError: false,
-                showsRetry: !pm.isResolvingSubscription
+                showsRetry: !pm.isResolvingSubscription && !isMandatoryAccess
             )
         }
     }
@@ -561,14 +529,15 @@ struct PaywallView: View {
     // MARK: - Footer
 
     private var footerLinks: some View {
-        HStack(spacing: 0) {
-            restoreLink
-            footerLinkSeparator
-            privacyLink
-            footerLinkSeparator
-            termsLink
-            footerLinkSeparator
-            subscriptionTermsLink
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                restoreLink
+            }
+            HStack(spacing: 0) {
+                privacyLink
+                footerLinkSeparator
+                termsLink
+            }
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .contain)
@@ -617,14 +586,6 @@ struct PaywallView: View {
             title: LanguageManager.shared.paywall("paywall_terms"),
             page: .terms,
             identifier: "paywall.terms"
-        )
-    }
-
-    private var subscriptionTermsLink: some View {
-        publicPageLink(
-            title: LanguageManager.shared.settings("settings_subscription_terms"),
-            page: .subscriptions,
-            identifier: "paywall.subscriptionTerms"
         )
     }
 
@@ -729,6 +690,7 @@ enum SubscriptionRenewalDisclosureCopy {
 
 struct PaywallProductsUnavailable: View {
     let onRetry: () -> Void
+    var showsRetry = true
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -744,19 +706,21 @@ struct PaywallProductsUnavailable: View {
                 .shieldFont(13)
                 .foregroundStyle(ShieldTheme.tertiary(scheme))
                 .multilineTextAlignment(.center)
-            Button(action: onRetry) {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.clockwise")
-                    Text(LanguageManager.shared.paywall("paywall_retry"))
+            if showsRetry {
+                Button(action: onRetry) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.clockwise")
+                        Text(LanguageManager.shared.paywall("paywall_retry"))
+                    }
+                    .shieldFont(14, weight: .semibold)
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .padding(.horizontal, 20)
+                    .frame(minHeight: ShieldTheme.minimumTapTarget)
+                    .background(ShieldTheme.accentDim(scheme), in: .rect(cornerRadius: 12))
                 }
-                .shieldFont(14, weight: .semibold)
-                .foregroundStyle(ShieldTheme.accent(scheme))
-                .padding(.horizontal, 20)
-                .frame(minHeight: ShieldTheme.minimumTapTarget)
-                .background(ShieldTheme.accentDim(scheme), in: .rect(cornerRadius: 12))
+                .buttonStyle(ScaleButtonStyle())
+                .accessibilityIdentifier("paywall.retry")
             }
-            .buttonStyle(ScaleButtonStyle())
-            .accessibilityIdentifier("paywall.retry")
         }
         .padding(.vertical, 22)
         .padding(.horizontal, 16)

@@ -1,6 +1,5 @@
 import SwiftUI
 import AppEngagementKit
-import StoreKit
 
 private struct SettingsAlert: Identifiable {
     let id = UUID()
@@ -19,7 +18,6 @@ struct SettingsView: View {
     @StateObject private var premium = PremiumManager.shared
 
     @State private var showPaywall = false
-    @State private var showOfferCodeRedemption = false
     @State private var activeAlert: SettingsAlert?
     @State private var navigationPath = NavigationPath()
     @State private var isConsumingThemeDeepLink = false
@@ -28,7 +26,7 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var accessStatusCard: some View {
-        if case .temporaryFullAccess(let expiresAt, let cohort) = premium.accessState {
+        if case .temporaryFullAccess(let expiresAt, _) = premium.accessState {
             VStack(alignment: .leading, spacing: ShieldTheme.s3) {
                 Label(
                     appState.language == .es ? "Acceso Premium temporal" : "Temporary Premium access",
@@ -42,12 +40,12 @@ struct SettingsView: View {
                     .font(.subheadline)
                     .foregroundStyle(ShieldTheme.secondary(scheme))
                     .fixedSize(horizontal: false, vertical: true)
-                Text(cohort == .newUser
-                    ? (appState.language == .es ? "Periodo de bienvenida: 15 días." : "Welcome period: 15 days.")
-                    : (appState.language == .es ? "Transición para cuentas Free existentes: 30 días completos." : "Transition for existing Free accounts: 30 full days."))
+                Text(appState.language == .es
+                    ? "Un único periodo de 15 días para todas las cuentas. Reinstalar no reinicia el contador."
+                    : "One 15-day period for every account. Reinstalling does not reset the counter.")
                     .font(.caption)
                     .foregroundStyle(ShieldTheme.secondary(scheme))
-                Button(appState.language == .es ? "Ver planes Premium" : "See Premium plans") {
+                Button(appState.language == .es ? "Ver MaskID Lifetime" : "See MaskID Lifetime") {
                     showPaywall = true
                 }
                 .font(.subheadline.weight(.semibold))
@@ -158,15 +156,6 @@ struct SettingsView: View {
                                 accessibilityIdentifier: "settings.subscription.restore",
                                 action: restorePurchases
                             )
-                            SettingsRowDivider()
-                            SettingsActionRow(
-                                icon: "ticket.fill",
-                                color: Color(hex: "8E44AD"),
-                                title: strings.settings("settings_subscription_redeem_offer"),
-                                subtitle: strings.settings("settings_subscription_redeem_offer_subtitle"),
-                                accessibilityIdentifier: "settings.subscription.redeemOffer",
-                                action: { showOfferCodeRedemption = true }
-                            )
                         }
 
                         SettingsCardSection(
@@ -247,18 +236,6 @@ struct SettingsView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(isPresented: $showPaywall, trigger: .settingsUpgrade)
                 .environmentObject(appState)
-        }
-        .offerCodeRedemption(isPresented: $showOfferCodeRedemption) { result in
-            switch result {
-            case .success:
-                AppState.trackEvent("offer_code_redeem_finished", properties: ["result": "completed"])
-                Task { await premium.reconcileAfterOfferCodeRedemption() }
-            case .failure(let error):
-                AppState.trackEvent("offer_code_redeem_finished", properties: [
-                    "result": "failed",
-                    "error_type": String((error as NSError).code)
-                ])
-            }
         }
         .alert(item: $activeAlert) { alert in
             Alert(

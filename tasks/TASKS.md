@@ -2761,3 +2761,100 @@
    Done by: CODEX
    Done at: 2026-11-09T08:35:37Z
 
+259. app-store-update-and-whats-new
+   Id: 259-app-store-update-and-whats-new
+   Scope: Detectar actualizaciones y presentar novedades tras actualizar
+   Files: Shield/App,Shield/Views/Settings,Shield/Localization/Strings/SettingsInfo.xcstrings,Shield.xcodeproj/project.pbxproj
+   Note: Implementado lookup regional, avisos posponibles y novedades localizadas al actualizar. Build Debug simulator correcto; sin validación visual en dispositivo.
+   Detail: tasks/details/259-app-store-update-and-whats-new.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-18T08:18:45Z
+   Done by: CODEX
+   Done at: 2026-11-18T11:12:50Z
+
+260. acceso-15-dias-lifetime
+   Id: 260-acceso-15-dias-lifetime
+   Scope: Aplicar acceso Full interno de 15 días para usuarios nuevos y existentes, paywall obligatorio con lifetime único, canje de Offer Codes y restauración; retirar ventas/renovaciones de suscripciones y fijar lifetime en 9,99 EUR con precios Apple en todos los mercados
+   Files: Shield/Premium/**,Shield/Views/Paywall/**,Shield/Views/Onboarding/**,Shield/Views/**,Shield/Resources/Shield.storekit,Shield/Localization/**,ShieldTests/**,ShieldUITests/**,Docs/**,.asc/**,tasks/**
+   Note: Implementado acceso 15 días para todos, Lifetime único 9,99 EUR y retirada ASC/RevenueCat de planes de suscripción; build de simulador correcto, sin tests ni publicación.
+   Detail: tasks/details/260-acceso-15-dias-lifetime.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-18T12:26:53Z
+   Done by: CODEX
+   Done at: 2026-11-18T13:16:33Z
+
+261. lifetime-no-offer-code-and-base-theme
+   Id: 261-lifetime-no-offer-code-and-base-theme
+   Scope: Eliminar canje de códigos de compra al ofrecer solo Lifetime y verificar que la configuración visual de release usa tema base, sin audio estacional y con el icono correcto
+   Files: Shield/Views/Paywall/**,Shield/Views/Onboarding/**,Shield/Views/Settings/**,Shield/Premium/**,Shield/Theme/**,Shield/Resources/**,Shield/Assets.xcassets/**,Docs/**,tasks/**
+   Note: Canje eliminado de todas las superficies y lógica; base, icono y audio estacional verificados. Build de simulador correcto; catálogos y metadata válidos; sin tests ni publicación.
+   Detail: tasks/details/261-lifetime-no-offer-code-and-base-theme.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-18T16:57:56Z
+   Done by: CODEX
+   Done at: 2026-11-18T17:14:09Z
+
+262. install-update-iphone-18-pro
+   Id: 262-install-update-iphone-18-pro
+   Scope: Instalar el build actual de MaskID en el simulador iPhone 18 Pro y verificar que abre
+   Files: Shield.xcodeproj/**,tasks/**
+   Note: Build instalado y abierto en iPhone 18 Pro Simulator; versión 1.1.7 (1172026110801), sin borrar datos.
+   Detail: tasks/details/262-install-update-iphone-18-pro.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-18T17:17:43Z
+   Done by: CODEX
+   Done at: 2026-11-18T17:19:02Z
+
+263. upload-testflight-build
+   Id: 263-upload-testflight-build
+   Scope: Crear el build iOS de MaskID, subirlo a App Store Connect y configurar el grupo de pruebas TestFlight apropiado
+   Files: Shield.xcodeproj/**,Shield/**,Docs/release-cycle/04_RELEASE/**,.asc/**,tasks/**
+   Note: Build 1.2.0 (10112026091402) cargado y VALID en ASC; asociado a Shield Internal con tester instalado; notas ES/EN verificadas; diff check OK
+   Detail: tasks/details/263-upload-testflight-build.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-18T18:02:24Z
+   Done by: CODEX
+   Done at: 2026-11-18T18:22:20Z
+
+264. update-prompt-app-store-icon
+   Id: 264-update-prompt-app-store-icon
+   Scope: Mostrar siempre el icono de App Store en el aviso de nueva actualización
+   Files: Shield/App/AppRelease.swift,tasks/TASKS.md,tasks/details
+   Note: Icono App Store en el aviso; Debug simulator OK, sin tests
+   Detail: tasks/details/264-update-prompt-app-store-icon.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T09:42:28Z
+   Done by: CODEX
+   Done at: 2026-11-19T09:46:03Z
+
+265. update-prompt-official-app-store-icon
+   Id: 265-update-prompt-official-app-store-icon
+   Scope: Sustituir el símbolo aproximado del aviso por el recurso oficial de App Store de Apple
+   Files: Shield/App/AppRelease.swift,Shield/Resources/Assets.xcassets/AppStoreIcon.imageset,tasks/TASKS.md,tasks/details
+   Note: Asset oficial integrado desde Marketing Tools; build Debug simulator OK, sin tests
+   Detail: tasks/details/265-update-prompt-official-app-store-icon.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T09:49:44Z
+   Done by: CODEX
+   Done at: 2026-11-19T09:54:53Z
+
+266. feedback-review-trial-retention
+   Id: 266-feedback-review-trial-retention
+   Scope: Mejorar feedback privado, StoreKit review oportuno y extensión voluntaria del acceso temporal sin incentivar reseñas públicas
+   Files: Shield/App/AppReviewManager.swift,Shield/Premium/SubscriptionExperience.swift,Shield/Premium/PremiumManager.swift,Shield/Views/Home/HomeView.swift,Shield/Localization/Strings/SettingsInfo.xcstrings,ShieldTests/AppReviewManagerTests.swift,ShieldTests/SubscriptionExperienceTests.swift
+   Note: Implemented StoreKit 2 review timing, private trial-ending feedback, and one verified 15-day extension per access record. Debug simulator build passed; tests not run.
+   Detail: tasks/details/266-feedback-review-trial-retention.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T10:29:22Z
+   Done by: CODEX
+   Done at: 2026-11-19T10:43:08Z
+
+267. alinear-main-generar-subir-build
+   Id: 267-alinear-main-generar-subir-build
+   Scope: Integrar en main todos los cambios locales de MaskID, seleccionar el próximo build válido, archivar/exportar y subirlo a App Store Connect sin enviar a revisión
+   Files: Shield/**,Packages/**,Shield.xcodeproj/**,Docs/**,tasks/**,.asc/artifacts/**
+   Note: Inicio de integración main y build ASC; inspecciono versión/build remotos antes de fijar numeración
+   Detail: tasks/details/267-alinear-main-generar-subir-build.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T11:52:37Z
+

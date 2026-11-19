@@ -13,6 +13,8 @@ enum ShieldProduct: String, CaseIterable {
     case annualEvent = "com.romerodev.shield.pro.annual.event"
     case lifetime  = "com.romerodev.shield.pro.lifetime.unlock"
 
+    static let purchasableProducts: [ShieldProduct] = [.lifetime]
+
     var analyticsName: String {
         switch self {
         case .monthly: "monthly"
@@ -353,117 +355,34 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
                 return
             }
 
-            let standardPackages = currentOffering.availablePackages
-            let standardMonthly = standardPackages.first {
-                $0.storeProduct.productIdentifier == ShieldProduct.monthly.rawValue
-            }
-            let standardAnnual = standardPackages.first {
-                $0.storeProduct.productIdentifier == ShieldProduct.annual.rawValue
-            }
-            let lifetime = standardPackages.first {
+            let lifetime = currentOffering.availablePackages.first {
                 $0.storeProduct.productIdentifier == ShieldProduct.lifetime.rawValue
             }
 
-            let clock = SeasonalThemeClock()
-            let activeScheduledThemeID = SeasonalThemeResolver.activeScheduledTheme(at: clock)
-            let eventDefinition = activeScheduledThemeID.flatMap {
-                SeasonalThemeCatalog.definition(for: $0)
-            }
-            let monetization = eventDefinition?.monetization
-            let eventOffering = monetization.flatMap { offerings.all[$0.revenueCatOfferingIdentifier] }
-            // All active campaigns share the same Annual Event subscription.
-            let eventProductIdentifier = ShieldProduct.annualEvent.rawValue
-            let eventAnnual = eventOffering?.availablePackages.first {
-                $0.storeProduct.productIdentifier == eventProductIdentifier
-            }
-            let eventMonthly = eventOffering?.availablePackages.first {
-                $0.storeProduct.productIdentifier == ShieldProduct.monthly.rawValue
+            isEventPaywall = false
+            eventAnnualPricing = nil
+            activeEventIdentifier = nil
+            activeCampaignIdentifier = nil
+            eventAnnualProductIdentifier = nil
+
+            guard let lifetime else {
+                products = []
+                productsLoadFailed = true
+                logger.error("RevenueCat current Offering does not contain the lifetime product")
+                return
             }
 
-            var storeKitProductIdentifiers = [
-                ShieldProduct.monthly.rawValue,
-                ShieldProduct.annual.rawValue,
-                ShieldProduct.lifetime.rawValue
-            ]
-            storeKitProductIdentifiers.append(eventProductIdentifier)
-            let storeKitProducts = (try? await StoreKit.Product.products(for: Array(Set(storeKitProductIdentifiers)))) ?? []
-            let storeKitProductsByID = Dictionary(
-                uniqueKeysWithValues: storeKitProducts.map { ($0.id, $0) }
-            )
-            let pricing = Self.validatedAnnualEventPricing(
-                standard: storeKitProductsByID[ShieldProduct.annual.rawValue],
-                event: storeKitProductsByID[eventProductIdentifier],
-                expectedEventProductIdentifier: eventProductIdentifier,
-                targetDiscountPercent: monetization?.targetDiscountPercent ?? 50
-            )
-            let expectedEventProductsAvailable = standardMonthly != nil
-                && standardAnnual != nil
-                && eventMonthly != nil
-                && eventAnnual != nil
-            let showEvent = SubscriptionPaywallExperienceResolver.shouldUseEvent(
-                eventIsActive: eventDefinition != nil,
-                monetizationConfigured: monetization != nil,
-                userIsNotConfirmedFree: isPro || !hasResolvedSubscription,
-                eventOfferingAvailable: eventOffering != nil,
-                expectedProductsAvailable: expectedEventProductsAvailable,
-                validatedPricing: pricing
-            )
-
-            if eventDefinition != nil, !showEvent {
-                let fallbackReason: String
-                if isPro {
-                    fallbackReason = "premium_subscriber"
-                } else if monetization == nil {
-                    fallbackReason = "campaign_monetization_missing"
-                } else if eventOffering == nil {
-                    fallbackReason = "event_offering_missing"
-                } else if !expectedEventProductsAvailable {
-                    fallbackReason = "event_products_missing"
-                } else {
-                    fallbackReason = "storekit_price_or_group_mismatch"
-                }
-                AppState.trackEvent("event_paywall_fallback", properties: [
-                    "event_id": eventDefinition?.id.rawValue ?? "unknown",
-                    "campaign_id": monetization?.campaignIdentifier ?? "unknown",
-                    "reason": fallbackReason
-                ])
+            let storeKitProduct = (try? await StoreKit.Product.products(
+                for: ShieldProduct.purchasableProducts.map(\.rawValue)
+            ))?
+                .first(where: { $0.id == ShieldProduct.lifetime.rawValue })
+            guard storeKitProduct?.type == nil || storeKitProduct?.type == .nonConsumable else {
+                products = []
+                productsLoadFailed = true
+                logger.error("Lifetime product is not a non-consumable StoreKit product")
+                return
             }
-
-            isEventPaywall = showEvent
-            eventAnnualPricing = showEvent ? pricing : nil
-            activeEventIdentifier = showEvent ? eventDefinition?.id.rawValue : nil
-            activeCampaignIdentifier = showEvent ? monetization?.campaignIdentifier : nil
-            eventAnnualProductIdentifier = showEvent ? eventProductIdentifier : nil
-
-            if showEvent, let standardMonthly, let eventAnnual {
-                var eventProducts = [
-                    PremiumProduct(
-                        package: standardMonthly,
-                        storeKitProduct: storeKitProductsByID[ShieldProduct.monthly.rawValue]
-                    ),
-                    PremiumProduct(
-                        package: eventAnnual,
-                        storeKitProduct: storeKitProductsByID[eventProductIdentifier],
-                        comparisonProduct: storeKitProductsByID[ShieldProduct.annual.rawValue],
-                        eventIdentifier: eventDefinition?.id.rawValue,
-                        campaignIdentifier: monetization?.campaignIdentifier
-                    )
-                ]
-                if let lifetime {
-                    eventProducts.append(PremiumProduct(
-                        package: lifetime,
-                        storeKitProduct: storeKitProductsByID[ShieldProduct.lifetime.rawValue]
-                    ))
-                }
-                products = eventProducts
-            } else {
-                products = standardPackages.map { package in
-                    PremiumProduct(
-                        package: package,
-                        storeKitProduct: storeKitProductsByID[package.storeProduct.productIdentifier]
-                    )
-                }
-            }
+            products = [PremiumProduct(package: lifetime, storeKitProduct: storeKitProduct)]
 
             productsLoadFailed = products.isEmpty
             if products.isEmpty {
@@ -471,9 +390,7 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
                     "RevenueCat Offering \(currentOffering.identifier, privacy: .public) contains no available packages"
                 )
             } else {
-                logger.info(
-                    "Loaded \(self.products.count) packages from RevenueCat Offering \(currentOffering.identifier, privacy: .public)"
-                )
+                logger.info("Loaded the lifetime package from RevenueCat Offering \(currentOffering.identifier, privacy: .public)")
             }
         } catch {
             products = []
@@ -487,52 +404,13 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         }
     }
 
-    private static func validatedAnnualEventPricing(
-        standard: StoreKit.Product?,
-        event: StoreKit.Product?,
-        expectedEventProductIdentifier: String,
-        targetDiscountPercent: Int
-    ) -> AnnualEventPricing? {
-        guard let standard = subscriptionSnapshot(for: standard),
-              let event = subscriptionSnapshot(for: event) else {
-            return nil
-        }
-        return AnnualEventPriceValidator.validate(
-            standard: standard,
-            event: event,
-            expectedEventProductIdentifier: expectedEventProductIdentifier,
-            targetDiscountPercent: targetDiscountPercent
-        )
-    }
-
-    private static func subscriptionSnapshot(
-        for product: StoreKit.Product?
-    ) -> SubscriptionProductSnapshot? {
-        guard let product, let subscription = product.subscription else { return nil }
-        let durationUnit: SubscriptionDurationUnit
-        switch subscription.subscriptionPeriod.unit {
-        case .day: durationUnit = .day
-        case .week: durationUnit = .week
-        case .month: durationUnit = .month
-        case .year: durationUnit = .year
-        @unknown default: durationUnit = .other
-        }
-        return SubscriptionProductSnapshot(
-            productIdentifier: product.id,
-            price: product.price,
-            displayPrice: product.displayPrice,
-            durationUnit: durationUnit,
-            durationValue: subscription.subscriptionPeriod.value,
-            subscriptionGroupIdentifier: subscription.subscriptionGroupID,
-            subscriptionGroupLevel: subscription.groupLevel,
-            hasIntroductoryOffer: subscription.introductoryOffer != nil
-        )
-    }
-
     // MARK: - Purchase
 
     func purchase(_ product: PremiumProduct) async {
-        guard hasResolvedSubscription, !hasPaidPremiumAccess else { return }
+        guard ShieldProduct.purchasableProducts.contains(where: { $0.rawValue == product.id }),
+              hasResolvedSubscription,
+              !hasPaidPremiumAccess
+        else { return }
         isPurchasing = true
         purchaseError = nil
         defer { isPurchasing = false }
@@ -584,24 +462,6 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         } catch {
             purchaseError = error.localizedDescription
             AppState.trackEvent("restore_failed", properties: [
-                "error_type": Self.errorType(for: error)
-            ])
-        }
-    }
-
-    /// Reconciles a verified StoreKit offer-code transaction with RevenueCat.
-    /// This is only called after the system redemption sheet reports success.
-    func reconcileAfterOfferCodeRedemption() async {
-        purchaseError = nil
-        do {
-            apply(try await Purchases.shared.syncPurchases())
-            AppState.trackEvent("offer_code_reconciled", properties: [
-                "result": isPro ? "entitled" : "no_entitlement"
-            ])
-        } catch {
-            purchaseError = error.localizedDescription
-            AppState.trackEvent("offer_code_reconciled", properties: [
-                "result": "failed",
                 "error_type": Self.errorType(for: error)
             ])
         }
@@ -710,6 +570,36 @@ final class PremiumManager: NSObject, ObservableObject, PurchasesDelegate {
         accessRecord = record
         refreshTemporalAccess(now: now)
         return accessState.hasFullAccess
+    }
+
+    var canOfferFeedbackExtension: Bool {
+        guard !hasPaidPremiumAccess,
+              accessStorageAvailable,
+              let record = accessRecord,
+              record.paidEntitlementObservedAt == nil,
+              record.feedbackExtensionGrantedAt == nil,
+              let expiresAt = record.fullAccessExpiresAt
+        else { return false }
+
+        let remaining = expiresAt.timeIntervalSince(record.trustedNow(Date()))
+        return remaining > 0 && remaining <= AccessConfiguration.current.feedbackRewardWindow
+    }
+
+    @discardableResult
+    func extendTemporaryAccessForVerifiedFeedback(at now: Date = Date()) -> Bool {
+        guard !hasPaidPremiumAccess,
+              accessStorageAvailable,
+              let record = accessRecord,
+              let extended = AccessRecord.extendForVerifiedFeedback(record, at: now),
+              accessStateStore.save(extended)
+        else { return false }
+
+        accessRecord = extended
+        refreshTemporalAccess(now: now)
+        AppState.trackEvent("feedback_trial_extension_granted", properties: [
+            "days": String(AccessConfiguration.current.feedbackRewardDays)
+        ])
+        return true
     }
 
     func refreshTemporalAccess(now: Date = Date()) {

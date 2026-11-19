@@ -844,7 +844,7 @@ struct OBSecuritySetupView: View {
                 .padding(.bottom, 12)
 
             // 6 PIN Dots
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 ForEach(0..<6, id: \.self) { i in
                     Circle()
                         .fill(i < currentPin.count ? ShieldTheme.accent : ShieldTheme.rowBackground(scheme))
@@ -971,7 +971,7 @@ struct OBPaywallView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var pm = PremiumManager.shared
-    @State private var selectedProductID = ShieldProduct.annual.rawValue
+    @State private var selectedProductID = ShieldProduct.lifetime.rawValue
     var selectedGoal: OBGoal? = nil
     var onBack: () -> Void
     var onComplete: () -> Void
@@ -1040,15 +1040,7 @@ struct OBPaywallView: View {
             if pm.isResolvingSubscription { await pm.updateProStatus() }
             await pm.loadProducts()
             selectAvailableProductIfNeeded()
-            var properties = ["trigger": "onboarding"]
-            if pm.isEventPaywall, let pricing = pm.eventAnnualPricing {
-                properties["event_id"] = pm.activeEventIdentifier ?? "unknown"
-                properties["campaign_id"] = pm.activeCampaignIdentifier ?? "unknown"
-                properties["event_price"] = NSDecimalNumber(decimal: pricing.eventPrice).stringValue
-                properties["standard_price"] = NSDecimalNumber(decimal: pricing.standardPrice).stringValue
-                properties["discount"] = String(pricing.discountPercent)
-            }
-            AppState.trackEvent("paywall_viewed", properties: properties)
+            AppState.trackEvent("paywall_viewed", properties: ["trigger": "onboarding"])
         }
         .onChange(of: pm.products.map(\.id)) { _, availableProductIDs in
             selectAvailableProductIfNeeded(availableProductIDs: availableProductIDs)
@@ -1197,7 +1189,7 @@ struct OBPaywallView: View {
     private var planSelector: some View {
         VStack(spacing: 12) {
             if pm.isLoadingProducts {
-                ForEach(0..<3, id: \.self) { _ in
+                ForEach(0..<1, id: \.self) { _ in
                     RoundedRectangle(cornerRadius: 16)
                         .fill(ShieldTheme.cardBackground(scheme))
                         .frame(height: 84)
@@ -1323,9 +1315,7 @@ struct OBPaywallView: View {
               !ids.isEmpty else {
             return
         }
-        let preferredID = pm.isEventPaywall
-            ? (pm.eventAnnualProductIdentifier ?? ShieldProduct.annual.rawValue)
-            : ShieldProduct.annual.rawValue
+        let preferredID = ShieldProduct.lifetime.rawValue
         selectedProductID = ids.contains(preferredID) ? preferredID : ids[0]
     }
 
@@ -1348,13 +1338,6 @@ struct OBPaywallView: View {
                     page: .terms
                 )
             }
-            .font(.caption)
-            .foregroundStyle(ShieldTheme.textTertiary)
-
-            publicPageLink(
-                LanguageManager.shared.settings("settings_subscription_terms"),
-                page: .subscriptions
-            )
             .font(.caption)
             .foregroundStyle(ShieldTheme.textTertiary)
 

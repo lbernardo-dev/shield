@@ -2,6 +2,8 @@
 
 **Execution status (8 October 2026):** Build and Event Annual validator/schedule tests passed on the required iPhone 18 Pro. The Event paywall was manually inspected on iPhone 18 Pro and iPad Pro 13-inch (M5) in portrait; the iPad was also inspected in landscape. The full UI suite stalled while Xcode finalized its result log and was interrupted; it is not marked passed. Sandbox purchase, renewal, restore, and Apple review are pending.
 
+**Current catalog policy (18 November 2026):** the Event/subscription cases below are historical and do not describe products currently offered for sale. New builds present only Lifetime. Apple offer-code redemption is not supported for Lifetime and must not appear in the paywall, onboarding, or Settings.
+
 ## Automated in-repository coverage
 
 | Case | Automated check | Expected result |
@@ -39,8 +41,7 @@
 | Restore Event | Buy Event Annual, reinstall/reset app data, tap Restore | Event entitlement restores even after campaign | Manual Sandbox pending |
 | Reinstall | Reinstall using same Apple ID | RevenueCat/restore path recovers access; old UserDefaults Boolean grants nothing | Manual device pending |
 | New device | Install on second device, restore same Apple ID | Same valid purchase is recognized; verify RC anonymous-ID transfer behavior | Manual device pending |
-| Offer-code redemption in app | Configure ASC code; redeem through Settings native sheet | Only verified transaction is synced; CustomerInfo refresh grants valid entitlement | ASC/TestFlight pending |
-| Offer code redeemed externally | Redeem from App Store then return/open app; if needed tap Settings Restore | Transaction is reconciled and valid entitlement applied | Manual production/TestFlight pending |
+| Offer-code redemption | Inspect paywall, onboarding, and Settings; search app source for redemption UI | No redemption control, StoreKit sheet, or in-app reconciliation path; Lifetime is the only purchase and Restore remains available | Confirmed by source inspection 18 Nov 2026 |
 | Cancellation / auto-renew off | Cancel from Apple subscription management while paid term remains | Pro remains until expiration; `willRenew == false` and state is auto-renew off | Manual Sandbox pending |
 | Expiration | Advance Sandbox past expiration | Entitlement inactive; app removes Pro after CustomerInfo refresh | Manual Sandbox pending |
 | Billing retry | Cause sandbox billing issue | Follow RevenueCat active entitlement; do not claim a grace period without status | Manual Sandbox pending |
@@ -67,7 +68,6 @@
 - Follow the repository’s simulator matrix: first discover and use **iPhone 18 Pro** by explicit UDID/runtime; do not take over/reset an occupied device. Then iPhone Duo if available, a representative iPad, and Apple Watch only if a watch target exists.
 - Test StoreKit configuration locally and App Store Sandbox separately. A local `.storekit` transaction does not verify ASC or RevenueCat configuration.
 - For each manual test record app build, device/runtime, storefront, Sandbox account, RC App User ID (redacted), product ID, price displayed, entitlement status and result. Do not record passwords or redemption codes.
-- Offer-code Sandbox behavior can differ from production; verify through a controlled TestFlight/production code procedure before launch.
 - No test is considered complete based only on a green compile or a UI screenshot.
 
 ## Device and automated execution (8 October 2026)

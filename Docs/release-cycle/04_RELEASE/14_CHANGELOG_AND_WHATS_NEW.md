@@ -1,5 +1,7 @@
 # Changelog y novedades
 
+> Histórico de la versión 1.1.7; la política vigente del catálogo está en la metadata local 1.2.0.
+
 ## 1.1.7 — borrador de release, 8 de noviembre de 2026
 
 Esta versión actualiza el acceso comercial y el flujo para revisar copias protegidas. Está preparada localmente; todavía no se ha enviado a App Store Connect.

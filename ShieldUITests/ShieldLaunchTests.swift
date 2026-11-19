@@ -528,10 +528,8 @@ final class ShieldLaunchTests: XCTestCase {
     @MainActor
     func testWhatsNewMatchesApprovedEnglishAndSpanishCopy() throws {
         let approvedCopy = [
-            ("en", "Security status indicators retain their meaning across themes."),
-            ("en", "On-device face suggestions respect image orientation; review and adjust each mask before export."),
-            ("es", "Los indicadores del estado de seguridad conservan su significado entre temas."),
-            ("es", "Las sugerencias locales de rostros respetan la orientación de página y se revisan antes de exportar.")
+            ("en", "Easier navigation and export review"),
+            ("es", "Navegación y revisión de exportaciones")
         ]
 
         for (language, expectedCopy) in approvedCopy {
@@ -548,7 +546,10 @@ final class ShieldLaunchTests: XCTestCase {
             scrollToElement(whatsNewRoute, in: app)
             XCTAssertTrue(whatsNewRoute.isHittable)
             whatsNewRoute.tap()
-            XCTAssertTrue(app.staticTexts[expectedCopy].waitForExistence(timeout: 5), app.debugDescription)
+            let highlight = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@", expectedCopy))
+                .firstMatch
+            XCTAssertTrue(highlight.waitForExistence(timeout: 5), app.debugDescription)
             app.terminate()
         }
     }

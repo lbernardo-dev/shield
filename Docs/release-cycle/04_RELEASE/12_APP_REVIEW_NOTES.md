@@ -1,5 +1,7 @@
 # Notas privadas para App Review — borrador 1.1.7
 
+> Histórico de la versión 1.1.7; no refleja la política de compra de la versión siguiente.
+
 Este archivo es texto local para revisión; no se ha escrito en ASC. Confirmar campos de contacto y notas de la nueva versión cuando se cree 1.1.7 en App Store Connect.
 
 ## English — reviewer note

@@ -1,5 +1,7 @@
 # Matriz de pruebas Fase 03
 
+> **Nota de vigencia — 18 de noviembre de 2026:** los resultados de la tabla se ejecutaron para la política de Fase 03 el 8-11-2026. No verifican la política v2 de 15 días para todas las cohortes y el hard paywall Lifetime de la tarea 260; no se han ejecutado pruebas en esa tarea.
+
 ## Evidencia local
 
 **Entorno de ejecución:** iOS Simulator `CCC41661-BB97-41D2-87E2-D47FC51B1C6B` (iPhone 18 Pro; iOS Simulator 27.2 en la configuración observada), Xcode, scheme `Shield`. SDK RevenueCat resuelto en `purchases-ios` 5.102.3.

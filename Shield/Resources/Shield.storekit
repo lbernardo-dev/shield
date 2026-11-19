@@ -3,7 +3,7 @@
   "nonRenewingSubscriptions" : [],
   "products" : [
     {
-      "displayPrice" : "49.99",
+      "displayPrice" : "9.99",
       "familyShareable" : true,
       "internalID" : "lifetime_001",
       "localizations" : [
@@ -32,93 +32,6 @@
       { "current" : null, "enabled" : false, "name" : "Verification" }
     ]
   },
-  "subscriptionGroups" : [
-    {
-      "id" : "shield_pro_group",
-      "localizations" : [],
-      "name" : "MaskID Pro",
-      "subscriptions" : [
-        {
-          "adHocOffers" : [],
-          "codeOffers" : [],
-          "displayPrice" : "2.99",
-          "familyShareable" : false,
-          "gracePeriod" : null,
-          "internalID" : "monthly_001",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Acceso mensual a MaskID Pro",
-              "displayName" : "MaskID Pro Monthly",
-              "locale" : "es_ES"
-            },
-            {
-              "description" : "Monthly access to MaskID Pro",
-              "displayName" : "MaskID Pro Monthly",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.romerodev.shield.pro.monthly",
-          "referenceName" : "MaskID Pro Monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "subscriptionGroupID" : "shield_pro_group",
-          "type" : "RecurringSubscription"
-        },
-        {
-          "adHocOffers" : [],
-          "codeOffers" : [],
-          "displayPrice" : "29.99",
-          "familyShareable" : false,
-          "gracePeriod" : null,
-          "internalID" : "annual_001",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Acceso anual a MaskID Pro",
-              "displayName" : "MaskID Pro Annual",
-              "locale" : "es_ES"
-            },
-            {
-              "description" : "Annual access to MaskID Pro",
-              "displayName" : "MaskID Pro Annual",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.romerodev.shield.pro.annual",
-          "referenceName" : "MaskID Pro Annual",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "subscriptionGroupID" : "shield_pro_group",
-          "type" : "RecurringSubscription"
-        },
-        {
-          "adHocOffers" : [],
-          "codeOffers" : [],
-          "displayPrice" : "29.99",
-          "familyShareable" : false,
-          "gracePeriod" : null,
-          "internalID" : "annual_event_001",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Precio de campaña anual para MaskID Pro",
-              "displayName" : "MaskID Pro Annual Event",
-              "locale" : "es_ES"
-            },
-            {
-              "description" : "Campaign annual price for MaskID Pro",
-              "displayName" : "MaskID Pro Annual Event",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.romerodev.shield.pro.annual.event",
-          "referenceName" : "MaskID Pro Annual Event",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "subscriptionGroupID" : "shield_pro_group",
-          "type" : "RecurringSubscription"
-        }
-      ]
-    }
-  ],
   "version" : {
     "major" : 2,
     "minor" : 0

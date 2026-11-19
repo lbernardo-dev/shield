@@ -85,8 +85,11 @@ struct RedactionCodingTests {
 
 @Suite("Shield Pro catalog")
 struct ShieldProductCatalogTests {
-    @Test("The catalog contains monthly, annual, and lifetime products")
-    func subscriptionProductIdentifiers() {
+    @Test("Only Lifetime is purchasable while legacy identifiers remain recognizable")
+    func purchasableProductIdentifiers() {
+        #expect(ShieldProduct.purchasableProducts.map(\.rawValue) == [
+            "com.romerodev.shield.pro.lifetime.unlock"
+        ])
         #expect(ShieldProduct.allCases.map(\.rawValue) == [
             "com.romerodev.shield.pro.monthly",
             "com.romerodev.shield.pro.annual",
@@ -119,8 +122,6 @@ struct ShieldProductCatalogTests {
         let currentOffering = try await Purchases.shared.offerings().current
 
         #expect(currentOffering?.availablePackages.map(\.storeProduct.productIdentifier) == [
-            "com.romerodev.shield.pro.monthly",
-            "com.romerodev.shield.pro.annual",
             "com.romerodev.shield.pro.lifetime.unlock"
         ])
         #endif

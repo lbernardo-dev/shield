@@ -1,5 +1,7 @@
 # Subscription, Finance & Monetization Audit — MaskID
 
+> **Current-state addendum — 18 November 2026:** supersedes the earlier business-model and catalog recommendations below. Every user now receives one 15-day internal full-access period, stored in the same-device Keychain. ASC Lifetime is €9.99 base in Spain with Apple's prices across 175 territories. ASC has retired all three auto-renewable subscriptions from sale after the owner accepted the existing-subscriber service attestation. RevenueCat exposes only Lifetime in the current Offering; its subscription records remain attached to the existing entitlement for already-paid access and historical restore. The app has no Apple offer-code redemption UI or reconciliation path; the paywall supports Lifetime purchase, restore, and legal links only. This task did not validate Sandbox transactions or publish a new app version.
+
 **Audit date:** 7 October 2026; dashboard follow-up: 8 November 2026
 **Scope:** repository, local StoreKit configuration, public Spain storefront, RevenueCat integration code and available project history.
 **Evidence:** repository and public storefront review; ASC and RevenueCat read-back on 8 November. Event Annual is attached to its RevenueCat entitlement and `event` Offering; ASC reports the product `APPROVED`. App-version review and Sandbox purchase/restore verification remain pending.
@@ -8,13 +10,13 @@
 
 MaskID is a privacy utility for preparing identity and other sensitive documents for sharing. The existing system already uses a single `PremiumManager`, RevenueCat Offerings/Packages, a custom SwiftUI paywall, and `SeasonalThemeCoordinator`. Keep and evolve these components; do not introduce another purchase manager or run StoreKit purchases independently of RevenueCat.
 
-**Current migration status (8 November 2026):** the owner approved €2.99/month, €29.99/year and €49.99 lifetime, with no weekly plan. These match the Spain prices read back from ASC. The annual introductory offer was removed in ASC for future purchases; its live introductory-offer list now returns zero. RevenueCat's refreshed annual product state also reports zero introductory-offer territories. Existing subscriber entitlements, previously completed trials and purchases remain on their original Apple terms. StoreKit fixture and paywall copy have no new-trial configuration or promise.
+**Historical migration status (8 November 2026):** the owner approved €2.99/month, €29.99/year and €49.99 lifetime, with no weekly plan. These matched the Spain prices read back from ASC at that time. The annual introductory offer had been removed for future purchases. Existing customer entitlements and transactions retained their original Apple terms.
 
-MaskID is migrating from an indefinite Free tier to internal time-limited Premium access. This access is not an App Store trial and does not create a transaction. New users receive 15 days; verified pre-migration Free users receive 30 full days followed by 30 read-only recovery days. A mandatory paywall follows, while restore, support/legal, and minimum personal-data recovery remain available.
+At that audit date, MaskID was migrating from an indefinite Free tier to internal time-limited access. New users received 15 days; verified pre-migration Free users received 30 full days followed by 30 read-only recovery days. The addendum above supersedes that policy.
 
 The campaign system uses one generic Annual Event product shared by Halloween 2026 and future events. The app automatically selects it only for confirmed Free users during an event’s catalog time window, after StoreKit confirms a one-year term, the same group/level as Standard Annual, no introductory offer, and a discount within five percentage points of the campaign target. It displays StoreKit’s localized prices and computed discount. Any missing Offering/product, StoreKit lookup failure, or mismatch falls back to Standard. The app calendar controls paywall presentation; App Store Connect separately schedules the campaign price and its post-event return to Standard for new buyers.
 
-**The catalog configuration is verified, but release readiness is not.** ASC product `6820383062` is `APPROVED` at €29.99 in Spain after the 1 Nov price return, with review screenshot, localizations, 175 storefront prices and availability. The phase 02 record documents the app version/build state as `1.1.6`, local and ASC build numbers differ, and app-version review remains a Fase 04 check. RevenueCat product `prod2ef37965ba` is attached to entitlement `MaskID Pro` and Offering `event`. Live Sandbox purchase/restore and commercial-access migration are not verified end-to-end.
+At the time of the audit, ASC product `6820383062` was `APPROVED` at €29.99 in Spain and RevenueCat product `prod2ef37965ba` was attached to entitlement `MaskID Pro` and Offering `event`. Those configurations were retired from new sales on 18 November; the current release and Sandbox state is summarized in the addendum above.
 
 ## B. Business model and product fit
 
@@ -48,7 +50,7 @@ Public source for current Spain prices and MaskID positioning: [MaskID — App S
 | Default Offering | RevenueCat dashboard shows active `default` with three packages | KEEP; preserve standard purchase path |
 | Event Offering | Code requests identifier `event`; expects Monthly and shared Event Annual packages | Configured as `ofrngbe0d32124e`; `default` remains current |
 | Paywalls | Custom SwiftUI paywalls in main app and onboarding | KEEP; Event Annual replaces Standard Annual only when validated |
-| Restore/manage | RevenueCat restore in paywall; Settings now has restore and Apple offer-code entry; Settings also opens Apple subscription management | KEEP and exercise both paths |
+| Restore/manage | RevenueCat restore in paywall and Settings; Settings can still open Apple subscription management for legacy subscribers | Restore remains; offer-code entry is absent from the current app |
 | Placements, experiments, Customer Center, webhooks | No definitive live dashboard evidence available | Dashboard state unverified; do not claim configured |
 | Intro/promotional/win-back offers | Annual introductory offer removed from ASC, refreshed RC state, and checked-in fixture; promotional/win-back offers remain unverified | No new annual introductory trial; no Event Annual intro offer |
 
@@ -58,10 +60,10 @@ Public source for current Spain prices and MaskID positioning: [MaskID — App S
 |---|---|---|
 | Existing RevenueCat purchase/restore and custom paywalls | KEEP | Reuse current `PremiumManager` and package purchase path |
 | Boolean `shield.isPro` persisted in UserDefaults | REFACTOR | Ignore it for authorization. RevenueCat CustomerInfo entitlement is the only Premium authority; keep a boolean only for legacy cleanup if needed |
-| StoreKit and RevenueCat could otherwise become competing authorities | IMPROVE | StoreKit 2 supplies product metadata/prices and its system offer-code sheet; RevenueCat purchases and CustomerInfo grant Premium |
+| StoreKit and RevenueCat could otherwise become competing authorities | IMPROVE | StoreKit 2 supplies product metadata/localized prices; RevenueCat purchases and CustomerInfo grant Premium |
 | New annual introductory trial conflicted with the approved no-trial model | FIXED | Removed the offer from ASC, StoreKit fixture, trial disclosures and CTA branches; existing customer terms remain with Apple |
 | Restore was not available from Settings | FIXED | Add Settings restore action through RevenueCat |
-| Offer-code redemption/reconciliation absent | FIXED IN APP | Add Apple’s native redemption sheet and call RevenueCat `syncPurchases()` only after a verified redemption |
+| Offer-code redemption | REMOVED 18 NOV 2026 | Lifetime is the only IAP; the current app has no redemption sheet, control, or `syncPurchases()` path |
 | RevenueCat was not refreshed on foreground | FIXED | Re-read CustomerInfo when app returns active |
 | Seasonal schedule did not refresh monetization while the paywall was open | FIXED | Publish the scheduled event independently of the selected visual theme; refresh products on boundary changes |
 | No Event Annual catalog/validation | IMPLEMENTED LOCALLY | Add one shared one-year Event product, strict StoreKit validator, price comparison, discount label and standard fallback |
@@ -105,7 +107,6 @@ In this observed sample, the annual low is €22.99, the median of selected annu
 - Apple Family Sharing: [Turn on Family Sharing for in-app purchases](https://developer.apple.com/help/app-store-connect/configure-in-app-purchase-settings/turn-on-family-sharing-for-in-app-purchases/)
 - Apple commission terms and qualifying subscription renewals: [Apple Developer Program License Agreement](https://developer.apple.com/support/terms/apple-developer-program-license-agreement/), [App Store subscriptions](https://developer.apple.com/app-store/subscriptions/)
 - StoreKit product/group/price data: [Product.SubscriptionInfo](https://developer.apple.com/documentation/storekit/product/subscriptioninfo), [groupLevel](https://developer.apple.com/documentation/storekit/product/subscriptioninfo/grouplevel), [Product.displayPrice](https://developer.apple.com/documentation/storekit/product/displayprice)
-- Apple offer-code redemption: [SwiftUI offerCodeRedemption](https://developer.apple.com/documentation/swiftui/view/offercoderedemption%28options%3Aispresented%3Aoncompletion%3A%29)
 - RevenueCat Offerings: [Offerings overview](https://www.revenuecat.com/docs/offerings/overview)
 - RevenueCat restore and transfers: [Restoring purchases](https://www.revenuecat.com/docs/getting-started/restoring-purchases), [Restore Behavior](https://www.revenuecat.com/docs/projects/restore-behavior)
 - RevenueCat cached CustomerInfo: [Caching](https://www.revenuecat.com/docs/test-and-launch/debugging/caching)

@@ -1,6 +1,6 @@
 # RevenueCat Configuration — MaskID
 
-**Status (8 November 2026):** The MaskID project is `bbe3f3db`. Its existing `default` Offering and `MaskID Pro` entitlement were preserved. Event product `prod2ef37965ba` (`com.romerodev.shield.pro.annual.event`) is attached to `MaskID Pro` and included in Offering `event` (`ofrngbe0d32124e`). That Offering contains `$rc_annual` → Event Annual and `$rc_monthly` → the existing Monthly product. `default` remains current. ASC now reports Event Annual `APPROVED`; live Sandbox purchase and restore behavior remain untested. The standard annual product's refreshed RevenueCat store state reports zero introductory-offer territories.
+**Current status (18 November 2026):** The MaskID project is `bbe3f3db`. The `default` Offering remains current and contains only the `$rc_lifetime` package for sale. Monthly and annual subscription products were detached from purchase packages. The `event` Offering (`ofrngbe0d32124e`) was archived and its packages detached. The existing `MaskID Pro` entitlement and all historic product associations remain intact, so current paid periods, prior purchases, and restores continue to resolve. Sandbox purchase/restore checks remain outstanding.
 
 ## Store and project
 
@@ -13,22 +13,24 @@
 
 | App Store product | RevenueCat entitlement | Offering/package | Current state |
 |---|---|---|---|
-| `com.romerodev.shield.pro.monthly` | `MaskID Pro` | `default` / `$rc_monthly`; also `event` | Existing product; keep standard flow |
-| `com.romerodev.shield.pro.annual` | `MaskID Pro` | `default` / `$rc_annual` | Existing Standard Annual; no introductory offer for new purchases |
-| `com.romerodev.shield.pro.lifetime.unlock` | `MaskID Pro` | `default` / `$rc_lifetime` | Existing one-time product; preserve |
-| `com.romerodev.shield.pro.annual.event` | `MaskID Pro` | `event` / `$rc_annual` | Attached; ASC `APPROVED`; current Spain price €29.99/year |
+| `com.romerodev.shield.pro.monthly` | `MaskID Pro` | No purchase package | Historical subscription; ASC retired from sale; retained in entitlement |
+| `com.romerodev.shield.pro.annual` | `MaskID Pro` | No purchase package | Historical subscription; ASC retired from sale; retained in entitlement |
+| `com.romerodev.shield.pro.lifetime.unlock` | `MaskID Pro` | `default` / `$rc_lifetime` | Only product offered for sale; ASC non-consumable, Spain base price €9.99 |
+| `com.romerodev.shield.pro.annual.event` | `MaskID Pro` | No purchase package | Historical subscription; ASC retired from sale; retained in entitlement |
 
-The client selects Event Annual by the underlying Store product ID and validates StoreKit metadata. Package identifiers should be stable and compatible with the existing resolver.
+Monthly, Annual, and Event Annual Product IDs remain only for historical entitlement recognition. The app purchase resolver now accepts only Lifetime.
 
 ## Offerings
 
 ### `default`
 
-Keep `default` assigned as the current Offering with the existing Monthly, Standard Annual, and Lifetime packages. Do not replace its standard purchase path.
+`default` stays current with the Lifetime package only. Its former monthly and annual packages are empty and detached so the app cannot retrieve those plans for a new purchase.
 
 ### `event`
 
-Offering `event` (`ofrngbe0d32124e`, display name `MaskID Pro Event`) in project `bbe3f3db` contains:
+The historical Offering `event` (`ofrngbe0d32124e`, display name `MaskID Pro Event`) in project `bbe3f3db` is archived and has no purchase packages. The historical product associations remain on the entitlement to preserve already-granted access.
+
+Before retirement, Offering `event` contained:
 
 - the existing Monthly product `com.romerodev.shield.pro.monthly`;
 - the shared Event Annual product `com.romerodev.shield.pro.annual.event`.
@@ -41,9 +43,9 @@ RevenueCat Paywall UI is not required; MaskID uses custom SwiftUI paywalls. Plac
 
 - The annual introductory offer was removed from ASC on 8 November 2026 after owner approval; ASC list verification and RevenueCat's refreshed store state both show no current introductory offer. The checked-in StoreKit fixture also has no intro offer.
 - Removing an offer prevents it from being presented to new eligible purchasers; it does not rewrite completed purchases, existing subscriptions or transactions already granted an introductory period. Apple continues to control each existing transaction's terms.
-- Event Annual has no introductory offer. Its Spain price is now €29.99 after the scheduled post-event price change. RevenueCat Offering selection changes which product the app presents; it does not change App Store pricing.
-- Offer codes and promotional/win-back offers are separate App Store/RevenueCat features; they are not needed to switch the seasonal paywall.
-- In-app Apple offer-code redemption syncs with RevenueCat only after a verified transaction. External redemption recovery uses CustomerInfo refresh and the explicit Restore Purchases action.
+- No subscription products are exposed through an active Offering. ASC has retired all three subscription products from sale; RevenueCat keeps their entitlement mappings for existing customers only.
+- Lifetime uses Apple's localized storefront price. Its Spain base price is €9.99.
+- Lifetime is a non-consumable and has no in-app offer-code redemption path. Restore purchases remains available from Settings and the paywall.
 
 ## Restore and identity
 
@@ -54,9 +56,9 @@ RevenueCat Paywall UI is not required; MaskID uses custom SwiftUI paywalls. Plac
 
 ## Required completion checks
 
-1. **Complete:** Event product is attached to `MaskID Pro`; Offering `event` has the existing Monthly and shared Event Annual packages. `default` is still current.
-2. **Complete:** Event Annual has no trial/introductory offer and matches Standard Annual’s group/level/term in ASC.
-3. After Apple approves the product and a compatible app build is available, run Sandbox purchase, CustomerInfo entitlement, restore, and renewal-after-window checks.
+1. **Complete:** current `default` Offering exposes only Lifetime; the event Offering is archived with empty packages.
+2. **Complete:** all three ASC subscriptions are retired from sale and the `MaskID Pro` entitlement mappings are preserved.
+3. Before release, run Sandbox Lifetime purchase, historical entitlement restore, and hard-paywall scenarios. Confirm no offer-code redemption control is present.
 4. Verify App Store key, notifications, restore behavior, and any webhook destinations; record unknowns instead of inferring them from app code.
 
 ### RevenueCat references
@@ -65,5 +67,4 @@ RevenueCat Paywall UI is not required; MaskID uses custom SwiftUI paywalls. Plac
 - [Restoring purchases](https://www.revenuecat.com/docs/getting-started/restoring-purchases)
 - [Restore Behavior](https://www.revenuecat.com/docs/projects/restore-behavior)
 - [CustomerInfo caching](https://www.revenuecat.com/docs/test-and-launch/debugging/caching)
-- [iOS subscription offers and offer-code redemption](https://www.revenuecat.com/docs/subscription-guidance/subscription-offers/ios-subscription-offers)
 - [App Store In-App Purchase key configuration](https://www.revenuecat.com/docs/service-credentials/itunesconnect-app-specific-shared-secret/in-app-purchase-key-configuration)

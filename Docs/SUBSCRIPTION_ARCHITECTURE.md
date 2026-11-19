@@ -1,5 +1,31 @@
 # MaskID Subscription Architecture
 
+> **Current purchase policy (18 November 2026):** this file's event and subscription campaign design below is historical. All users receive one internal 15-day full-access period. Afterward, MaskID offers the non-consumable Lifetime purchase only. The paywall can also restore purchases and open legal pages; no offer-code UI, StoreKit redemption sheet, or `syncPurchases()` redemption flow is shipped. The paywall remains reachable during temporary access so a user can buy Lifetime early. The RevenueCat `default` Offering contains only `$rc_lifetime`; retired subscription records remain mapped to `MaskID Pro` for existing paid periods and historical restores.
+
+## Current purchase path
+
+```text
+15-day internal access in device Keychain
+                 │ expires
+                 ▼
+Mandatory Lifetime paywall ── Restore Purchases
+                 │
+                 ▼
+RevenueCat `$rc_lifetime` Package purchase
+                 │
+                 ▼
+RevenueCat CustomerInfo entitlement “MaskID Pro”
+                 │
+                 ▼
+PremiumManager → access policy and feature gates
+```
+
+StoreKit product metadata provides Apple's localized Lifetime price. The paywall is also accessible during the 15-day period. Its purchase actions are Lifetime and restore; legal links remain available. Apple offer-code redemption is not available for the Lifetime product and is not presented anywhere in the app.
+
+## Archived event and subscription design
+
+The remaining sections document the subscription/event implementation that preceded the Lifetime-only catalog and are retained as migration history.
+
 ## Authority and boundaries
 
 ```text
@@ -31,7 +57,7 @@ PremiumManager.isPro → feature gates and app state
 - **Keep:** `PremiumManager`, RevenueCat `Package` purchases, `CustomerInfo` delegate, custom SwiftUI paywalls, `SeasonalThemeCoordinator`, and the `MaskID Pro` entitlement.
 - **Do not add:** a second subscription manager, StoreKit purchase flow, local premium ledger, login identity or backend entitlement service.
 - `RevenueCat CustomerInfo.entitlements[MaskID Pro].isActive` is the only production authorization source. Ignore the legacy `shield.isPro` UserDefaults value on startup. RevenueCat’s SDK cache can provide an offline `CustomerInfo` response; local booleans do not grant access.
-- StoreKit 2 is used to fetch native product metadata and localized `displayPrice`, compare the Event and Standard annual products, and display Apple’s offer-code redemption sheet. RevenueCat remains responsible for purchase transactions, restore, identity and Premium entitlement.
+- In the archived design, StoreKit 2 fetched native product metadata and localized `displayPrice` for annual campaign comparisons. The current implementation uses StoreKit product metadata for Lifetime pricing only; RevenueCat remains responsible for purchase transactions, restore, identity and Premium entitlement.
 
 ## Product loading and campaign resolution
 
@@ -61,7 +87,7 @@ An Event Annual purchaser keeps that subscription and its entitlement after the 
 
 - Purchases use the RevenueCat `Package` from the relevant Offering. The app does not directly call StoreKit `Product.purchase()`.
 - Restore uses `Purchases.shared.restorePurchases()` from the paywall or Settings. Manage/cancel/upgrade is handed to Apple’s subscription-management sheet.
-- Verified in-app offer-code redemption invokes RevenueCat `syncPurchases()` and applies the returned CustomerInfo. An unverified result is not synced or granted access.
+- Offer-code redemption was removed on 18 November 2026 when Lifetime became the only purchase. There is no in-app redemption or reconciliation path.
 - On foreground, re-fetch CustomerInfo and refresh lifecycle data. The SDK delegate also applies changed CustomerInfo.
 - `expirationDate`, `willRenew`, and `ownership` are status display/telemetry facts; feature access still follows active entitlement.
 - A billing issue does not revoke access while RevenueCat says the entitlement is active. Do not report “grace period” unless RevenueCat/Apple data actually confirms it.

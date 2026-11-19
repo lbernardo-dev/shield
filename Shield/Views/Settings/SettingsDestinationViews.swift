@@ -2906,34 +2906,21 @@ struct SettingsArticleCallout: View {
 
 struct WhatsNewSettingsView: View {
     private var strings: LanguageManager { .shared }
-    private let itemKeys = [
-        "settings_whats_new_item_1", "settings_whats_new_item_2", "settings_whats_new_item_3",
-        "settings_whats_new_item_4", "settings_whats_new_item_5", "settings_whats_new_item_6"
-    ]
 
     var body: some View {
         SettingsDetailScaffold(
             title: strings.settings("settings_whats_new"),
             subtitle: strings.settings("settings_whats_new_intro")
         ) {
-            SettingsCardSection(title: strings.settings("settings_version_value", appVersion), icon: "sparkles") {
-                ForEach(Array(itemKeys.enumerated()), id: \.element) { index, key in
-                    HStack(alignment: .top, spacing: ShieldTheme.s3) {
-                        SettingsIconBadge(icon: "checkmark", color: Color(hex: "00C7BE"), size: 34)
-                        Text(strings.settings(key))
-                            .font(.body)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer()
+            if let version = AppRelease.installedVersion {
+                SettingsCardSection(title: strings.settings("settings_version_value", version), icon: "sparkles") {
+                    if !AppRelease.highlights().isEmpty {
+                        AppReleaseHighlightsView()
+                            .padding(ShieldTheme.s4)
                     }
-                    .padding(ShieldTheme.s4)
-                    if index < itemKeys.count - 1 { SettingsRowDivider(inset: 62) }
                 }
             }
         }
-    }
-
-    private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
     }
 }
 

@@ -21,15 +21,15 @@
     "paywall_subscription_checking": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Checking your App Store subscription…" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Comprobando tu suscripción del App Store…" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Checking App Store purchases…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comprobando las compras del App Store…" } }
       }
     },
     "paywall_subscription_check_failed": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "We couldn’t confirm your subscription status. Check your connection and try again." } },
-        "es": { "stringUnit": { "state": "translated", "value": "No se pudo confirmar el estado de tu suscripción. Comprueba la conexión e inténtalo de nuevo." } }
+        "en": { "stringUnit": { "state": "translated", "value": "We couldn’t confirm purchase access. Check your connection or restore purchases." } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se pudo confirmar el acceso comprado. Comprueba la conexión o restaura las compras." } }
       }
     },
     "paywall_billed_annually": {
@@ -497,13 +497,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get MaskID Pro"
+            "value": "Buy MaskID Lifetime"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activar MaskID Pro"
+            "value": "Comprar MaskID Lifetime"
           }
         }
       }
@@ -514,13 +514,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Free protects one document. Pro accelerates the work that repeats."
+            "value": "Unlock all Premium features with one lifetime purchase."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Free protege tus documentos. Pro acelera el trabajo repetitivo."
+            "value": "Desbloquea todas las funciones Premium con un único pago Lifetime."
           }
         }
       }
@@ -565,13 +565,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Subscription will auto-renew unless canceled. Terms and conditions apply."
+            "value": "Lifetime is a one-time purchase with no recurring charges. Terms and conditions apply."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La suscripción se renovará automáticamente a menos que se cancele. Se aplican términos y condiciones."
+            "value": "Lifetime es un pago único sin cargos recurrentes. Se aplican términos y condiciones."
           }
         }
       }
@@ -759,13 +759,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Purchase and legal actions"
+            "value": "Purchase and legal information"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acciones de compra e información legal"
+            "value": "Compra e información legal"
           }
         }
       }
@@ -929,13 +929,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "MaskID Pro"
+            "value": "MaskID Lifetime"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "MaskID Pro"
+            "value": "MaskID Lifetime"
           }
         }
       }
@@ -985,8 +985,8 @@
     "paywall_renewal_disclosure": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "You will be charged %1$@. Subscription automatically renews until canceled." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Se te cobrará %1$@. La suscripción se renueva automáticamente hasta que la canceles." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Lifetime costs %1$@ once. It does not renew." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Lifetime cuesta %1$@ en un único pago. No se renueva." } }
       }
     },
     "paywall_trigger_access_required": {
@@ -995,13 +995,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A paid plan is required to continue"
+            "value": "Buy MaskID Lifetime to continue"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Necesitas un plan de pago para continuar"
+            "value": "Compra MaskID Lifetime para continuar"
           }
         }
       }
@@ -1046,13 +1046,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a plan for professional-grade protection."
+            "value": "Choose MaskID Lifetime for continued Premium access."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige un plan para protección profesional."
+            "value": "Elige MaskID Lifetime para mantener el acceso Premium."
           }
         }
       }
@@ -1131,13 +1131,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We couldn't load the subscription plans."
+            "value": "We couldn't load the Lifetime purchase."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudieron cargar los planes de suscripción."
+            "value": "No se pudo cargar la compra Lifetime."
           }
         }
       }
@@ -1148,13 +1148,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check your connection and try again. You can keep using MaskID for free."
+            "value": "Restore a previous purchase or try again later."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revisa tu conexión e inténtalo de nuevo. Puedes seguir usando MaskID gratis."
+            "value": "Restaura una compra anterior o inténtalo de nuevo más tarde."
           }
         }
       }

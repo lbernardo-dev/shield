@@ -8,13 +8,16 @@ MaskID is the on-device identity-protection workspace for people who need to sha
 
 - New users can activate 15 calendar days of full Premium access without a
   StoreKit transaction, subscription, or automatic charge.
-- Free users present before the migration receive 30 calendar days of full
-  access, then 30 days of read-only recovery to view and export their documents.
-- After those windows, a mandatory paywall gates commercial workflows. Users
-  can still restore purchases, manage subscriptions, access legal/support
-  information, and retrieve, export, or delete their own data.
-- Existing paid subscriptions and lifetime purchases remain governed by their
-  verified entitlement and are not put on a temporary clock.
+- Every user receives one 15-calendar-day period of full access after accepting
+  the notice. The device Keychain stores its original start so reinstalling does
+  not begin a new period.
+- After those 15 days, a mandatory paywall offers MaskID Lifetime as the only
+  purchase. Users can restore purchases, access legal/support information,
+  and retrieve, export, or delete their own data. Offer-code redemption is not
+  available for Lifetime and is not offered in the app.
+- Existing paid entitlements remain governed by their verified expiry. New
+  subscriptions and renewals are being discontinued; existing purchases retain
+  the Apple terms attached to their transactions.
 - Secure verified export of previously saved work remains available during
   recovery and after expiry. Expiration never deletes a local document.
 

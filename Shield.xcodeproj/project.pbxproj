@@ -20,6 +20,7 @@
 		7C1543973034D36100A8C080 /* MaskIDHalloween.icon in Resources */ = {isa = PBXBuildFile; fileRef = 7C15438B3034D36100A8C080 /* MaskIDHalloween.icon */; };
 		7C1543A33034D36100A8C080 /* MaskIDHalloween.png in Resources */ = {isa = PBXBuildFile; fileRef = 7C1543B33034D36100A8C080 /* MaskIDHalloween.png */; };
 		A001 /* ShieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* ShieldApp.swift */; };
+		AF31A92BD7E74642A7482101 /* AppRelease.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF31A92BD7E74642A7482102 /* AppRelease.swift */; };
 		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* ContentView.swift */; };
 		A003 /* ShieldTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* ShieldTheme.swift */; };
 		A004 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Document.swift */; };
@@ -210,6 +211,7 @@
 		E2F30415263748596A7B8C9D /* ShieldWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShieldWidgetExtension.entitlements; sourceTree = "<group>"; };
 		E3F405162738495A6B7C8D9E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F001 /* ShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldApp.swift; sourceTree = "<group>"; };
+		AF31A92BD7E74642A7482102 /* AppRelease.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRelease.swift; sourceTree = "<group>"; };
 		F002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F003 /* ShieldTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldTheme.swift; sourceTree = "<group>"; };
 		F004 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
@@ -444,6 +446,7 @@
 			isa = PBXGroup;
 			children = (
 				F001 /* ShieldApp.swift */,
+				AF31A92BD7E74642A7482102 /* AppRelease.swift */,
 				F002 /* ContentView.swift */,
 				FENGCFG /* AppEngagementConfiguration.swift */,
 				FREVIEW /* AppReviewManager.swift */,
@@ -1117,6 +1120,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A001 /* ShieldApp.swift in Sources */,
+				AF31A92BD7E74642A7482101 /* AppRelease.swift in Sources */,
 				A002 /* ContentView.swift in Sources */,
 				AENGCFG /* AppEngagementConfiguration.swift in Sources */,
 				AREVIEW /* AppReviewManager.swift in Sources */,
@@ -1262,12 +1266,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1284,12 +1288,12 @@
 	buildSettings = {
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShieldWidgetExtension/ShieldWidgetExtension.entitlements";
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"GENERATE_INFOPLIST_FILE" = NO;
 		"INFOPLIST_FILE" = "ShieldWidgetExtension/Info.plist";
 		"IPHONEOS_DEPLOYMENT_TARGET" = "18.0";
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		SDKROOT = iphoneos;
@@ -1306,7 +1310,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1317,7 +1321,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1333,7 +1337,7 @@
 		"APPLICATION_EXTENSION_API_ONLY" = YES;
 		"CODE_SIGN_ENTITLEMENTS" = "ShareExtension/ShareExtension.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"EXTRACT_APP_INTENTS_METADATA" = NO;
 		"GENERATE_INFOPLIST_FILE" = NO;
@@ -1344,7 +1348,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "com.romerodev.shield.ShareExtension";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -1465,7 +1469,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1484,7 +1488,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",
@@ -1512,7 +1516,7 @@
 		"CODE_SIGN_ENTITLEMENTS" = "Shield/Shield.entitlements";
 		"CODE_SIGN_IDENTITY" = "Apple Development";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 1172026110801;
+		"CURRENT_PROJECT_VERSION" = 10112026091403;
 		"DEVELOPMENT_TEAM" = L2B56644F5;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
@@ -1531,7 +1535,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.1.7";
+		"MARKETING_VERSION" = "1.2.0";
 		"OTHER_LDFLAGS" = (
 			"$(inherited)",
 			"-ObjC",

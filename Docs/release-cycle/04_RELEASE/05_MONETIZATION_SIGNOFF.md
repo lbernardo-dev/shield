@@ -1,5 +1,7 @@
 # Sign-off de monetización
 
+> **Histórico:** el sign-off siguiente refleja la decisión anterior y queda superseded por la tarea 260 (18-11-2026). La política actual ofrece 15 días a todo usuario y, después, una única compra Lifetime. Las suscripciones mensual, anual y anual de evento fueron retiradas de la venta en ASC; los productos y su entitlement permanecen para respetar ciclos ya pagados y restaurar compras históricas. El Lifetime cuesta 9,99 € como precio base de España y está disponible con precio localizado de Apple en los 175 territorios. No se considera este addendum una aprobación jurídica de las condiciones.
+
 ## Política aprobada
 
 | Cohorte / estado | Acceso | Después del periodo | Preservación |

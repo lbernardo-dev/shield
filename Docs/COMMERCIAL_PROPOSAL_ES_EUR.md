@@ -1,5 +1,7 @@
 # Propuesta comercial aprobada — España (EUR)
 
+> **Addendum superseding (18 de noviembre de 2026):** el propietario cambió la política a 15 días de acceso completo para todas las personas y una única compra Lifetime de 9,99 € en España. Se retiraron de la venta las suscripciones mensual, anual y anual de evento; sus transacciones y derechos de ciclos pagados se conservan. Apple determina los precios localizados para otros territorios. El detalle operativo está en [tarea 260](../tasks/details/260-acceso-15-dias-lifetime.md).
+
 **Aprobación del propietario:** mensual 2,99 € + anual 29,99 €; vitalicio opcional 49,99 €; sin semanal. Autorizó aplicar únicamente los cambios comerciales aprobados y retirar el trial anual de 7 días a nuevas altas, manteniendo derechos y transacciones anteriores.
 
 ## Modalidades e IDs

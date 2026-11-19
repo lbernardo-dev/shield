@@ -1,6 +1,193 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "release_117_access_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temporary access"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acceso temporal"
+          }
+        }
+      }
+    },
+    "release_117_access_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every user can activate 15 days of full access, with no automatic renewal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los usuarios pueden activar 15 días de acceso completo sin renovación automática."
+          }
+        }
+      }
+    },
+    "release_117_recovery_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep access to your documents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserva el acceso a tus documentos"
+          }
+        }
+      }
+    },
+    "release_117_recovery_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After 15 days, Lifetime is the only purchase. Users can still view, export, or delete their documents."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de 15 días, Lifetime es la única compra. Se pueden consultar, exportar o eliminar los documentos propios."
+          }
+        }
+      }
+    },
+    "release_117_review_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easier navigation and export review"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navegación y revisión de exportaciones"
+          }
+        }
+      }
+    },
+    "release_117_review_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This version improves navigation, accessibility, and the review of protected copies before sharing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta versión mejora la navegación, la accesibilidad y la revisión de las copias protegidas antes de compartirlas."
+          }
+        }
+      }
+    },
+    "release_update_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update available"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualización disponible"
+          }
+        }
+      }
+    },
+    "release_update_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID %@ is available on the App Store."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID %@ ya está disponible en App Store."
+          }
+        }
+      }
+    },
+    "release_update_action" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update on the App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizar en App Store"
+          }
+        }
+      }
+    },
+    "release_update_later" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más tarde"
+          }
+        }
+      }
+    },
+    "release_whats_new_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What’s new in MaskID"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novedades de MaskID"
+          }
+        }
+      }
+    },
     "settings_access_protection" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2098,13 +2285,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple and the developer may change future prices, plans, or included features. Apple provides required notices and consent flows for subscription price increases. Changes do not remove mandatory rights or entitlements already granted by a completed non-consumable purchase."
+            "value" : "The current Lifetime price may change for future purchasers. Apple controls localized prices. A completed Lifetime purchase keeps its associated entitlement. Previously purchased subscriptions retain the Apple terms attached to each transaction; new subscription sales and renewals have been discontinued."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple y el desarrollador pueden cambiar precios, planes o funciones futuras. Apple ofrece avisos y consentimientos exigidos para subidas. Los cambios no eliminan derechos imperativos ni derechos ya concedidos por una compra no consumible completada."
+            "value" : "El precio actual de Lifetime puede cambiar para futuras compras; Apple determina los precios localizados. Una compra Lifetime completada conserva sus derechos asociados. Las suscripciones anteriores mantienen las condiciones Apple de cada transacción; se han retirado las nuevas ventas y renovaciones."
           }
         }
       }
@@ -2132,13 +2319,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These conditions supplement the Terms of Use for MaskID Pro subscriptions and the lifetime unlock."
+            "value" : "These purchase conditions supplement the MaskID Terms of Use. New purchases are a one-time MaskID Lifetime unlock; existing subscriptions keep the Apple terms attached to their purchases."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Estas condiciones complementan los Términos de uso para las suscripciones MaskID Pro y el desbloqueo vitalicio."
+            "value" : "Estas condiciones complementan los Términos de uso de MaskID. Las nuevas compras son un único desbloqueo MaskID Lifetime; las suscripciones existentes conservan las condiciones Apple de sus compras."
           }
         }
       }
@@ -2183,13 +2370,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manage or cancel subscriptions in Settings > Apple Account > Subscriptions, or through the App Store subscription page. Deleting MaskID does not cancel a subscription. Cancellation stops future renewal and access normally continues until the paid period ends."
+            "value" : "Users with a previous subscription can review its status in Settings > Apple Account > Subscriptions or the App Store subscription page. Deleting MaskID does not change an Apple transaction. Restore purchases in MaskID with the Apple Account used to buy."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gestiona o cancela en Ajustes > Cuenta Apple > Suscripciones o en la página de suscripciones del App Store. Eliminar MaskID no cancela. La cancelación evita renovaciones y el acceso suele continuar hasta acabar el periodo pagado."
+            "value" : "Quienes tengan una suscripción anterior pueden consultar su estado en Ajustes > Cuenta Apple > Suscripciones o en el App Store. Eliminar MaskID no cambia una transacción Apple. Restaura compras en MaskID con la cuenta Apple compradora."
           }
         }
       }
@@ -2217,13 +2404,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Payment is charged to your Apple Account when you confirm the purchase. Apple handles taxes, currency conversion, payment methods, and receipts. MaskID does not receive your full payment-card details."
+            "value" : "The one-time Lifetime payment is charged to your Apple Account after confirmation. Apple handles taxes, currency conversion, payment methods, and receipts. MaskID does not receive your full payment-card details."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El pago se carga en tu cuenta Apple al confirmarlo. Apple gestiona impuestos, conversión, métodos de pago y recibos. MaskID no recibe los datos completos de tu tarjeta."
+            "value" : "El pago único de Lifetime se carga en tu cuenta Apple al confirmarlo. Apple gestiona impuestos, conversión, métodos de pago y recibos. MaskID no recibe los datos completos de tu tarjeta."
           }
         }
       }
@@ -2251,13 +2438,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MaskID may offer monthly and annual auto-renewable subscriptions and a one-time lifetime unlock. The exact product, duration, current localized price, included features, and any offer are displayed by the App Store before purchase and take precedence over general examples."
+            "value" : "MaskID offers one non-consumable Lifetime purchase. In Spain its base price is €9.99; Apple sets the localized price in other storefronts. Previously purchased subscriptions remain governed by their original Apple terms."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "MaskID puede ofrecer suscripciones mensuales y anuales autorrenovables y un desbloqueo vitalicio de pago único. El producto, duración, precio localizado, funciones y ofertas se muestran en el App Store antes de comprar y prevalecen sobre ejemplos generales."
+            "value" : "MaskID ofrece una compra Lifetime no consumible. Su precio base en España es 9,99 €; Apple determina el precio localizado en otros escaparates. Las suscripciones compradas anteriormente mantienen las condiciones Apple originales."
           }
         }
       }
@@ -2319,13 +2506,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A subscription renews automatically for the same period unless you cancel it at least 24 hours before the current period ends. Apple may charge your account within 24 hours before renewal at the price shown for the next period, subject to Apple's notices and applicable law."
+            "value" : "New subscription sales and renewals have been discontinued. Existing subscription purchases keep access until the end of their current paid period and retain the terms Apple showed when purchased. Apple handles the transaction status and any required notices."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La suscripción se renueva por el mismo periodo salvo cancelación al menos 24 horas antes de terminar. Apple puede cobrar dentro de las 24 horas previas al precio mostrado para el siguiente periodo, sujeto a sus avisos y la ley aplicable."
+            "value" : "Se han retirado las nuevas ventas y renovaciones de suscripciones. Las suscripciones existentes mantienen el acceso hasta el final del periodo pagado actual y las condiciones que Apple mostró al comprarlas. Apple gestiona el estado de la transacción y los avisos exigidos."
           }
         }
       }
@@ -2387,13 +2574,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Subscription terms"
+            "value" : "Purchase terms"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Condiciones de suscripción"
+            "value" : "Condiciones de compra"
           }
         }
       }
@@ -2404,13 +2591,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Billing, renewal, cancellation, restoration, and lifetime access"
+            "value" : "Lifetime payment, previous subscriptions, restoration, and access"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Facturación, renovación, cancelación, restauración y acceso vitalicio"
+            "value" : "Pago Lifetime, suscripciones anteriores, restauración y acceso"
           }
         }
       }
@@ -2421,13 +2608,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple displays the price, duration, and renewal terms for any offer that is available to your Apple Account before purchase. MaskID currently has no new annual introductory trial. The app's time-limited access is internal and does not create a subscription or automatic charge. Existing purchases keep the terms shown when they were made."
+            "value" : "Every user can activate 15 calendar days of full access without a StoreKit purchase, card, subscription, or automatic charge. The access record is kept in the device Keychain so a normal reinstall does not start a new period. After 15 days, only MaskID Lifetime is offered."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple muestra el precio, la duración y las condiciones de renovación de cualquier oferta disponible para tu Cuenta Apple antes de comprar. MaskID no tiene actualmente una nueva prueba introductoria anual. El acceso temporal de la app es interno y no crea una suscripción ni un cargo automático. Las compras existentes conservan las condiciones mostradas cuando se hicieron."
+            "value" : "Todos los usuarios pueden activar 15 días naturales de acceso completo sin compra StoreKit, tarjeta, suscripción ni cargo automático. El registro de acceso se guarda en el Keychain del dispositivo para que una reinstalación normal no inicie otro periodo. Después de 15 días solo se ofrece MaskID Lifetime."
           }
         }
       }
@@ -3533,8 +3720,8 @@
     "review_feedback_thanks_message" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your feedback has been prepared for our team." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tus comentarios se han preparado para nuestro equipo." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your feedback was sent to our team." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hemos enviado tus comentarios al equipo." } }
       }
     },
     "review_feedback_thanks_countdown" : {
@@ -3547,8 +3734,8 @@
     "review_feedback_category_missing_feature" : {
       "extractionState" : "manual",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing a feature" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta una función" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "I have a feature request" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Quiero solicitar una función" } }
       }
     },
     "review_feedback_category_too_complicated" : {
@@ -3591,6 +3778,69 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Otro" } }
+      }
+    },
+    "review_feedback_trial_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "One day left in your Premium access" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Te queda un día de acceso Premium" } }
+      }
+    },
+    "review_feedback_trial_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tell us what would make MaskID more useful. Your private feedback is separate from any App Store rating or review." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuéntanos qué haría MaskID más útil. Tu feedback privado es independiente de cualquier valoración o reseña de App Store." } }
+      }
+    },
+    "review_feedback_trial_reward" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send private feedback to add 15 Premium days" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Envía feedback privado y añade 15 días Premium" } }
+      }
+    },
+    "review_feedback_trial_reward_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a category or add a comment. When you send it from the in-app Mail sheet, we add 15 days to your current access. App Store ratings and reviews are never checked or rewarded." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Elige una categoría o añade un comentario. Al enviarlo desde la hoja Mail de la app, sumamos 15 días a tu acceso actual. Nunca comprobamos ni recompensamos valoraciones o reseñas de App Store." } }
+      }
+    },
+    "review_feedback_trial_reward_unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share feedback with us" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comparte tu feedback" } }
+      }
+    },
+    "review_feedback_trial_reward_unavailable_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mail can’t confirm a sent message on this device, so the 15-day extension isn’t available here. You can still share feedback through your email app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mail no puede confirmar el envío en este dispositivo, así que aquí no está disponible la extensión de 15 días. Aun así, puedes compartir feedback desde tu app de correo." } }
+      }
+    },
+    "review_feedback_trial_reward_thanks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "15 more Premium days have been added to your current access." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hemos añadido 15 días Premium a tu acceso actual." } }
+      }
+    },
+    "review_feedback_mail_confirmation_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Email opened" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Correo abierto" } }
+      }
+    },
+    "review_feedback_mail_confirmation_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send the message from your email app to share your feedback. This device can’t confirm that email, so no access extension was applied." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Envía el mensaje desde tu app de correo para compartir el feedback. Este dispositivo no puede confirmar ese envío, por lo que no se ha ampliado el acceso." } }
       }
     }
   },

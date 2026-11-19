@@ -102,7 +102,7 @@ Shield/
 │   ├── Onboarding/
 │   │   └── OnboardingView.swift     — Onboarding 3 pasos + LockScreenView + PINSetupView
 │   ├── Paywall/
-│   │   └── PaywallView.swift        — Paywall con selector de planes + triggers contextuales
+│   │   └── PaywallView.swift        — Paywall Lifetime único + restauración y triggers contextuales
 │   ├── Settings/
 │   │   └── SettingsView.swift       — Preferencias, seguridad, iCloud, exportación, debug
 │   └── Vault/
@@ -757,7 +757,9 @@ Hay **dos pipelines distintos** de ajuste de imagen en la app:
 | `com.romerodev.shield.pro.annual` | Suscripción autorrenovable anual |
 | `com.romerodev.shield.pro.lifetime.unlock` | Compra única lifetime |
 
-**Acceso temporal y pago:** instalaciones nuevas reciben 15 días de acceso completo; Free preexistente corroborado recibe 30 días completos y otros 30 días de lectura/exportación. Después, el paywall bloquea las funciones comerciales. Durante recuperación y tras expiración quedan disponibles recuperación, exportación y eliminación de datos propios, restauración/gestión de compras, soporte, aspectos legales y preferencias de apariencia.
+Las dos primeras son identificadores históricos de transacciones reconocidas por RevenueCat; ASC las retiró de la venta el 18-11-2026. Solo Lifetime aparece en Offerings y paywalls de compra. El entitlement `MaskID Pro` mantiene productos antiguos para respetar ciclos pagados y restaurar compras.
+
+**Acceso temporal y pago (política vigente desde el 18-11-2026):** toda persona puede activar un único periodo de 15 días naturales de acceso completo, sin cobro ni transacción StoreKit. El inicio y vencimiento se guardan en Keychain `ThisDeviceOnly`, para continuar el mismo contador tras una reinstalación normal en el mismo dispositivo. Al vencer, el paywall obligatorio ofrece solo Lifetime, restauración y enlaces legales; no ofrece canje de códigos. Se mantiene acceso mínimo para ver, exportar y eliminar documentos propios. ASC ya no vende las suscripciones antiguas. Su entitlement se conserva para prestar acceso hasta el fin del periodo pagado y restaurar compras históricas. El límite de persistencia es el Keychain del dispositivo: no hay identidad/backend que garantice la fecha tras borrar Keychain o cambiar de dispositivo.
 
 **Capacidades Premium completas:** procesamiento sin la cuota heredada, estilos y modos avanzados, herramientas de ajuste, marcas personalizadas, procesos por lotes, iCloud y proveedores externos, e iconos alternativos. Entitlements activos y compras vitalicias conservan acceso completo sin reloj.
 

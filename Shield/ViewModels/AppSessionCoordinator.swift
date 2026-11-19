@@ -4,6 +4,7 @@ import LocalAuthentication
 
 @MainActor
 final class AppSessionCoordinator: ObservableObject {
+    static let installedKey = "shield.installed"
     private static let biometricPreferenceKey = "shield.biometric"
     private let autoLockTimestampKey = "shield.autoLock.backgroundTimestamp"
     private static let userActivityTimestampKey = "shield.autoLock.lastActivity"
@@ -34,7 +35,7 @@ final class AppSessionCoordinator: ObservableObject {
         bypassAutoLockForAutomation = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
         isOnboarded = userDefaults.bool(forKey: "shield.onboarded")
 
-        let hasInstalled = userDefaults.bool(forKey: "shield.installed")
+        let hasInstalled = userDefaults.bool(forKey: Self.installedKey)
         let migrationEvidenceKey = "shield.access.preMigrationInstallEvidence"
         if userDefaults.object(forKey: migrationEvidenceKey) == nil {
             let hasPriorUse = hasInstalled
@@ -43,7 +44,7 @@ final class AppSessionCoordinator: ObservableObject {
             userDefaults.set(hasPriorUse, forKey: migrationEvidenceKey)
         }
         if !hasInstalled {
-            userDefaults.set(true, forKey: "shield.installed")
+            userDefaults.set(true, forKey: Self.installedKey)
             if !isOnboarded {
                 PINManager.clear()
                 userDefaults.removeObject(forKey: "shield.biometric")

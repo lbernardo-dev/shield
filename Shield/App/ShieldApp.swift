@@ -8,6 +8,9 @@ struct ShieldApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
+        AppRelease.establishBaseline(
+            previousVersion: AppEngagementRuntime.installMetadataStore.lastKnownVersion
+        )
         _ = AppEngagementRuntime.metadata
         FirebaseIntegration.configure()
         PremiumManager.configureRevenueCat()

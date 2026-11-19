@@ -9,12 +9,12 @@ enum AccessCohort: String, Codable, Equatable {
 /// Product policy defaults live in one place so transition periods can be
 /// reviewed or changed without scattering day counts across the app.
 struct AccessConfiguration: Equatable {
-    var newUserFullAccessDays = 15
-    var existingUserFullAccessDays = 30
-    var existingUserRecoveryDays = 30
+    var fullAccessDays = 15
+    var feedbackRewardDays = 15
+    var feedbackRewardWindow: TimeInterval = 24 * 60 * 60
 
     static let current = AccessConfiguration()
-    static let noticeVersion = "commercial-access-2026-11-v1"
+    static let noticeVersion = "commercial-access-2026-11-v2"
 }
 
 enum AccessMigrationClassifier {
@@ -83,7 +83,7 @@ enum AppAccessState: Equatable {
 }
 
 struct AccessRecord: Codable, Equatable {
-    static let currentSchemaVersion = 1
+    static let currentSchemaVersion = 3
 
     var schemaVersion = currentSchemaVersion
     var cohort: AccessCohort
@@ -94,6 +94,7 @@ struct AccessRecord: Codable, Equatable {
     var recoveryExpiresAt: Date?
     var lastTrustedAt: Date?
     var paidEntitlementObservedAt: Date?
+    var feedbackExtensionGrantedAt: Date?
 
     static func start(
         cohort: AccessCohort,
@@ -101,31 +102,79 @@ struct AccessRecord: Codable, Equatable {
         calendar: Calendar = .current,
         configuration: AccessConfiguration = .current
     ) -> AccessRecord? {
-        let fullDays = cohort == .newUser
-            ? configuration.newUserFullAccessDays
-            : configuration.existingUserFullAccessDays
-        guard let fullEnd = calendar.date(byAdding: .day, value: fullDays, to: now) else { return nil }
-        let recoveryEnd: Date?
-        if cohort == .existingFreeUser {
-            guard let value = calendar.date(
-                byAdding: .day,
-                value: configuration.existingUserRecoveryDays,
-                to: fullEnd
-            ) else { return nil }
-            recoveryEnd = value
-        } else {
-            recoveryEnd = nil
-        }
+        guard let fullEnd = calendar.date(
+            byAdding: .day,
+            value: configuration.fullAccessDays,
+            to: now
+        ) else { return nil }
         return AccessRecord(
             cohort: cohort,
             noticeAcceptedAt: now,
             noticeVersion: AccessConfiguration.noticeVersion,
             fullAccessStartedAt: now,
             fullAccessExpiresAt: fullEnd,
-            recoveryExpiresAt: recoveryEnd,
+            recoveryExpiresAt: nil,
             lastTrustedAt: now,
-            paidEntitlementObservedAt: nil
+            paidEntitlementObservedAt: nil,
+            feedbackExtensionGrantedAt: nil
         )
+    }
+
+    static func migrateToCurrentPolicy(
+        _ storedRecord: AccessRecord,
+        calendar: Calendar = .current,
+        configuration: AccessConfiguration = .current
+    ) -> AccessRecord? {
+        guard (1...currentSchemaVersion).contains(storedRecord.schemaVersion) else {
+            return nil
+        }
+        guard storedRecord.schemaVersion < currentSchemaVersion else { return storedRecord }
+
+        var migrated = storedRecord
+        migrated.schemaVersion = currentSchemaVersion
+        if storedRecord.schemaVersion == 1 {
+            migrated.recoveryExpiresAt = nil
+            migrated.noticeVersion = migrated.noticeAcceptedAt == nil ? nil : AccessConfiguration.noticeVersion
+        }
+
+        if storedRecord.schemaVersion == 1,
+           migrated.paidEntitlementObservedAt == nil,
+           let start = migrated.fullAccessStartedAt {
+            guard let fullEnd = calendar.date(
+                byAdding: .day,
+                value: configuration.fullAccessDays,
+                to: start
+            ) else { return nil }
+            migrated.fullAccessExpiresAt = fullEnd
+        }
+
+        return migrated
+    }
+
+    static func extendForVerifiedFeedback(
+        _ storedRecord: AccessRecord,
+        at now: Date,
+        calendar: Calendar = .current,
+        configuration: AccessConfiguration = .current
+    ) -> AccessRecord? {
+        guard storedRecord.paidEntitlementObservedAt == nil,
+              storedRecord.fullAccessStartedAt != nil,
+              let currentEnd = storedRecord.fullAccessExpiresAt,
+              storedRecord.feedbackExtensionGrantedAt == nil,
+              let extendedEnd = calendar.date(
+                byAdding: .day,
+                value: configuration.feedbackRewardDays,
+                to: max(currentEnd, storedRecord.trustedNow(now))
+              )
+        else { return nil }
+
+        var extended = storedRecord
+        extended.schemaVersion = currentSchemaVersion
+        extended.fullAccessExpiresAt = extendedEnd
+        let trustedNow = storedRecord.trustedNow(now)
+        extended.lastTrustedAt = trustedNow
+        extended.feedbackExtensionGrantedAt = trustedNow
+        return extended
     }
 
     static func paidAccessObserved(cohort: AccessCohort, at now: Date) -> AccessRecord {
@@ -137,7 +186,8 @@ struct AccessRecord: Codable, Equatable {
             fullAccessExpiresAt: nil,
             recoveryExpiresAt: nil,
             lastTrustedAt: now,
-            paidEntitlementObservedAt: now
+            paidEntitlementObservedAt: now,
+            feedbackExtensionGrantedAt: nil
         )
     }
 
@@ -172,11 +222,6 @@ enum AccessPolicy {
         }
         if trustedNow < fullEnd {
             return .temporaryFullAccess(expiresAt: fullEnd, cohort: record.cohort)
-        }
-        if record.cohort == .existingFreeUser,
-           let recoveryEnd = record.recoveryExpiresAt,
-           trustedNow < recoveryEnd {
-            return .readOnlyRecovery(until: recoveryEnd)
         }
         return .mandatoryPaywall
     }
@@ -213,7 +258,8 @@ enum AccessRecordLoadResult {
 }
 
 /// Stores only the first-access cohort and its clock in the device Keychain.
-/// This reduces accidental resets; it does not provide server-backed anti-reset guarantees.
+/// The device-only item survives normal app reinstalls on the same device, but
+/// is not an account-level guarantee across device migration or Keychain erasure.
 struct AccessStateStore {
     static let service = "com.romerodev.shield.access-state"
     static let account = "commercial-access-v1"
@@ -231,9 +277,13 @@ struct AccessStateStore {
         if status == errSecItemNotFound { return .missing }
         guard status == errSecSuccess,
               let data = result as? Data,
-              let record = try? JSONDecoder().decode(AccessRecord.self, from: data),
-              record.schemaVersion == AccessRecord.currentSchemaVersion
+              let storedRecord = try? JSONDecoder().decode(AccessRecord.self, from: data),
+              let record = AccessRecord.migrateToCurrentPolicy(storedRecord)
         else { return .unavailable(status == errSecSuccess ? errSecDecode : status) }
+
+        if record != storedRecord, !save(record) {
+            return .unavailable(errSecIO)
+        }
         return .record(record)
     }
 

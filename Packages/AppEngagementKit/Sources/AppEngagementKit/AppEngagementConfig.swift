@@ -66,11 +66,14 @@ public final class AppInstallMetadataStore {
         self.keyPrefix = keyPrefix
     }
 
+    public var lastKnownVersion: String? { defaults.string(forKey: versionKey) }
+
+    private var versionKey: String { "\(keyPrefix).lastKnownVersion" }
+
     @discardableResult
     public func recordLaunch(appVersion: String, now: Date = Date()) -> AppInstallMetadata {
         let installKey = "\(keyPrefix).installDate"
         let lastUpdateKey = "\(keyPrefix).lastUpdateDate"
-        let versionKey = "\(keyPrefix).lastKnownVersion"
 
         let installDate: Date
         if let saved = defaults.object(forKey: installKey) as? Date {
@@ -80,7 +83,7 @@ public final class AppInstallMetadataStore {
             defaults.set(now, forKey: installKey)
         }
 
-        let previousVersion = defaults.string(forKey: versionKey)
+        let previousVersion = lastKnownVersion
         var lastUpdateDate = defaults.object(forKey: lastUpdateKey) as? Date
         if let previousVersion, previousVersion != appVersion {
             lastUpdateDate = now

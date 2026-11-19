@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var showSplash = LaunchSplashState.shouldPresent
     @State private var themeTransition: SeasonalThemeID?
     @State private var showAnalyticsConsent = false
+    @State private var releasePrompt: AppReleasePrompt?
+    @State private var nextAppStoreCheck: Date = .distantPast
 
     var body: some View {
         ZStack {
@@ -92,11 +94,15 @@ struct ContentView: View {
         .environment(\.reduceDecorativeEffects, seasonalThemes.isReducingDecorativeEffects)
         .environment(
             \.seasonalInvitationAllowed,
-            sessionStage == .ready && premium.accessState.hasFullAccess && !showSplash && !appState.showCapture && !showAnalyticsConsent && scenePhase == .active
+            sessionStage == .ready && premium.accessState.hasFullAccess && !showSplash && !appState.showCapture && !showAnalyticsConsent && releasePrompt == nil && scenePhase == .active
         )
+        .task(id: canPresentRelease) { await presentReleaseIfNeeded() }
         .task {
             while !Task.isCancelled {
                 premium.refreshTemporalAccess()
+                if premium.canOfferFeedbackExtension {
+                    ReviewFeedbackCoordinator.shared.track(.temporaryAccessExpiring)
+                }
                 do {
                     try await Task.sleep(for: .seconds(30))
                 } catch {
@@ -173,6 +179,9 @@ struct ContentView: View {
                 showAnalyticsConsent = false
             }
         }
+        .sheet(item: $releasePrompt) { prompt in
+            AppReleaseSheet(prompt: prompt)
+        }
         // Keep the capture presentation hosted by the stable app root. The
         // authenticated navigation tree is intentionally rebuilt when the
         // active tab, language, or managed theme changes; hosting this cover
@@ -192,6 +201,45 @@ struct ContentView: View {
                             .environmentObject(appState)
                     }
                 }
+        }
+    }
+
+    private var canPresentRelease: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return !arguments.contains("-ui-testing")
+            && !arguments.contains("-aso-screenshots")
+            && scenePhase == .active
+            && sessionStage == .ready
+            && appState.activeTab == .library
+            && appState.activeEditorDocumentID == nil
+            && appState.selectedDoc == nil
+            && !appState.showVault
+            && !appState.showCapture
+            && !showAnalyticsConsent
+            && !showSplash
+            && releasePrompt == nil
+    }
+
+    private func presentReleaseIfNeeded() async {
+        guard canPresentRelease else { return }
+        do {
+            // Let the startup and consent presentations finish transitioning.
+            try await Task.sleep(for: .milliseconds(600))
+            if AppRelease.hasUnseenNotes() {
+                releasePrompt = .whatsNew
+                return
+            }
+
+            guard Date.now >= nextAppStoreCheck else { return }
+            let available = try await AppStoreUpdate.availableVersion()
+            try Task.checkCancellation()
+            nextAppStoreCheck = .now.addingTimeInterval(6 * 60 * 60)
+            if let available, AppStoreUpdate.canRemind(about: available) {
+                releasePrompt = .update(available)
+            }
+        } catch {
+            guard !Task.isCancelled else { return }
+            nextAppStoreCheck = .now.addingTimeInterval(15 * 60)
         }
     }
 
@@ -304,7 +352,7 @@ private struct CaptureAccessBoundaryOverlay: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if canOpenPlans {
-                Button(isSpanish ? "Ver planes y precios" : "View plans and prices") {
+                Button(isSpanish ? "Ver Lifetime" : "View Lifetime") {
                     showPlans = true
                 }
                 .buttonStyle(.borderedProminent)
@@ -512,7 +560,7 @@ private struct AccessGateRootView: View {
                 .tint(ShieldTheme.accent(appState.preferredScheme))
                 .accessibilityIdentifier("access.notice.start")
 
-                Button(isSpanish ? "Ver planes y precios" : "View plans and prices") {
+                Button(isSpanish ? "Ver Lifetime y su precio" : "View Lifetime and price") {
                     showPlans = true
                 }
                 .font(.subheadline.weight(.semibold))
@@ -536,30 +584,17 @@ private struct AccessGateRootView: View {
     }
 
     private var noticeTitle: String {
-        switch premium.accessState {
-        case .newUserNotice: isSpanish ? "Acceso temporal a MaskID Premium" : "Temporary MaskID Premium access"
-        default: isSpanish ? "Nuevo acceso a MaskID" : "MaskID access is changing"
-        }
+        isSpanish ? "Acceso temporal a MaskID Premium" : "Temporary MaskID Premium access"
     }
 
     private var noticeBody: String {
-        switch premium.accessState {
-        case .newUserNotice:
-            return isSpanish
-                ? "Comienza 15 días naturales de acceso Premium completo, sin tarjeta, suscripción ni cargos automáticos. Al terminar, necesitarás un plan para seguir usando las funciones comerciales; podrás seguir recuperando tus documentos."
-                : "Start 15 calendar days of full Premium access with no card, subscription, or automatic charge. Afterward, a plan is required to keep using commercial features; you can still recover your documents."
-        default:
-            return isSpanish
-                ? "Como usuario Free existente, tendrás 30 días naturales con todas las funciones y 30 días adicionales para consultar y exportar tus documentos en solo lectura. Después necesitarás un plan para seguir usando las funciones comerciales; tus datos no se eliminan por caducar."
-                : "As an existing Free user, you receive 30 calendar days with all features and 30 additional days to view and export your documents in read-only mode. Afterward, a plan is required for commercial features; your data is not deleted when access expires."
-        }
+        isSpanish
+            ? "Activa 15 días naturales de acceso Premium completo, sin tarjeta, suscripción ni cargos automáticos. Después podrás comprar MaskID Lifetime para continuar usando las funciones Premium; tus documentos seguirán disponibles para consultarlos, exportarlos o eliminarlos."
+            : "Activate 15 calendar days of full Premium access with no card, subscription, or automatic charge. Afterward, you can buy MaskID Lifetime to continue using Premium features; your documents remain available to view, export, or delete."
     }
 
     private var noticeTermOne: String {
-        switch premium.accessState {
-        case .newUserNotice: isSpanish ? "15 días desde que lo activas" : "15 days from activation"
-        default: isSpanish ? "30 días completos desde que continúas" : "30 full days from when you continue"
-        }
+        isSpanish ? "15 días naturales desde que lo activas" : "15 calendar days from activation"
     }
 
     private var noticeTermTwo: String {
@@ -575,10 +610,7 @@ private struct AccessGateRootView: View {
     }
 
     private var startButtonTitle: String {
-        switch premium.accessState {
-        case .newUserNotice: isSpanish ? "Comenzar 15 días" : "Start 15 days"
-        default: isSpanish ? "Continuar con 30 días Premium" : "Continue with 30 days of Premium"
-        }
+        isSpanish ? "Comenzar 15 días" : "Start 15 days"
     }
 
     private func statusScreen(title: String, detail: String) -> some View {
@@ -729,18 +761,18 @@ private struct AccessGateRootView: View {
                     Button(isSpanish ? "Apariencia" : "Appearance") { showAppearance = true }
                     Button(isSpanish ? "Privacidad" : "Privacy") { showPrivacy = true }
                     Button(isSpanish ? "Términos" : "Terms") { showTerms = true }
-                    Button(isSpanish ? "Suscripción" : "Subscription") { showSubscriptionTerms = true }
+                    Button(isSpanish ? "Condiciones de compra" : "Purchase terms") { showSubscriptionTerms = true }
                 }
                 ShieldPublicPageButton(page: .support, language: appState.language, compact: true)
                 if case .mandatoryPaywall = premium.accessState, showRecovery {
-                    Button(isSpanish ? "Volver a los planes" : "Back to plans") {
+                    Button(isSpanish ? "Volver a Lifetime" : "Back to Lifetime") {
                         showRecovery = false
                     }
                     .font(.subheadline.weight(.semibold))
                     .frame(minHeight: 44)
                 }
                 if case .readOnlyRecovery = premium.accessState, !storageIssue {
-                    Button(isSpanish ? "Ver planes Premium" : "See Premium plans") {
+                    Button(isSpanish ? "Ver MaskID Lifetime" : "See MaskID Lifetime") {
                         showPlans = true
                     }
                     .font(.subheadline.weight(.semibold))
@@ -805,7 +837,7 @@ private struct AccessGateRootView: View {
         HStack(spacing: ShieldTheme.s3) {
             Button(isSpanish ? "Privacidad" : "Privacy") { showPrivacy = true }
             Button(isSpanish ? "Términos" : "Terms") { showTerms = true }
-            Button(isSpanish ? "Suscripción" : "Subscription") { showSubscriptionTerms = true }
+            Button(isSpanish ? "Condiciones de compra" : "Purchase terms") { showSubscriptionTerms = true }
             ShieldPublicPageButton(page: .support, language: appState.language, compact: true)
         }
         .font(.footnote.weight(.semibold))

@@ -55,6 +55,7 @@ enum EngagementEvent: Equatable, Sendable {
     case repeatedFailure(feature: FeatureKey)
     case supportRequested
     case returnedAfterInactivity(days: Int)
+    case temporaryAccessExpiring
     case permissionDenied(permission: String)
 }
 
@@ -338,6 +339,7 @@ enum FeedbackTrigger: String, Codable, CaseIterable, Sendable {
     case returnedAfterInactivity = "returned_after_inactivity"
     case repeatedFailure = "repeated_failure"
     case flowAbandoned = "flow_abandoned"
+    case trialEnding = "trial_ending"
     case manual = "manual"
 
     var categories: [FeedbackCategory] {
@@ -350,6 +352,8 @@ enum FeedbackTrigger: String, Codable, CaseIterable, Sendable {
             [.didNotWork, .tooComplicated, .missingFeature, .privacy, .other]
         case .flowAbandoned:
             [.tooComplicated, .missingFeature, .didNotWork, .other]
+        case .trialEnding:
+            [.missingFeature, .tooComplicated, .didNotWork, .tooExpensive, .privacy, .other]
         case .manual:
             FeedbackCategory.allCases
         }
@@ -381,6 +385,7 @@ struct FeedbackContext: Identifiable, Sendable {
         case .subscriptionCancelled: "review_feedback_cancel_title"
         case .returnedAfterInactivity: "review_feedback_return_title"
         case .repeatedFailure, .flowAbandoned: "review_feedback_friction_title"
+        case .trialEnding: "review_feedback_trial_title"
         case .manual: "review_feedback_title"
         }
     }
@@ -390,6 +395,7 @@ struct FeedbackContext: Identifiable, Sendable {
         case .subscriptionCancelled: "review_feedback_cancel_message"
         case .returnedAfterInactivity: "review_feedback_return_message"
         case .repeatedFailure, .flowAbandoned: "review_feedback_friction_message"
+        case .trialEnding: "review_feedback_trial_message"
         case .manual: "review_feedback_message"
         }
     }
@@ -477,31 +483,66 @@ protocol FeedbackTransport {
     func send(_ feedback: FeedbackEnvelope) async throws
 }
 
-enum FeedbackTransportError: Error {
-    case destinationUnavailable
-    case couldNotOpenMail
+enum FeedbackDeliveryResult: Equatable, Sendable {
+    case sent
+    case openedMailWithoutConfirmation
+    case cancelled
+    case failed
 }
 
 @MainActor
-final class MailFeedbackTransport: NSObject, FeedbackTransport, MFMailComposeViewControllerDelegate {
+protocol FeedbackDeliveryConfirming {
+    func sendAndConfirm(_ feedback: FeedbackEnvelope) async -> FeedbackDeliveryResult
+}
+
+enum FeedbackTransportError: Error {
+    case destinationUnavailable
+    case couldNotOpenMail
+    case couldNotConfirmSubmission
+}
+
+@MainActor
+final class MailFeedbackTransport: NSObject, FeedbackTransport, FeedbackDeliveryConfirming, MFMailComposeViewControllerDelegate {
     private let recipient: String
+    private var pendingSend: CheckedContinuation<FeedbackDeliveryResult, Never>?
 
     init(recipient: String? = nil) {
         self.recipient = recipient ?? SettingsSupportConfiguration.email ?? ""
     }
 
     func send(_ feedback: FeedbackEnvelope) async throws {
-        guard !recipient.isEmpty else { throw FeedbackTransportError.destinationUnavailable }
+        switch await sendAndConfirm(feedback) {
+        case .sent:
+            return
+        case .openedMailWithoutConfirmation, .cancelled:
+            throw FeedbackTransportError.couldNotConfirmSubmission
+        case .failed:
+            throw FeedbackTransportError.couldNotOpenMail
+        }
+    }
+
+    var canConfirmSubmission: Bool {
+        MFMailComposeViewController.canSendMail() && Self.topViewController != nil
+    }
+
+    func sendAndConfirm(_ feedback: FeedbackEnvelope) async -> FeedbackDeliveryResult {
+        guard !recipient.isEmpty else { return .failed }
 
         let subject = "Feedback — \(feedback.appName) \(feedback.appVersion)"
-        if MFMailComposeViewController.canSendMail(), let presenter = Self.topViewController {
-            let composer = MFMailComposeViewController()
-            composer.setToRecipients([recipient])
-            composer.setSubject(subject)
-            composer.setMessageBody(feedback.mailBody, isHTML: false)
-            composer.mailComposeDelegate = self
-            presenter.present(composer, animated: true)
-            return
+        if canConfirmSubmission, let presenter = Self.topViewController {
+            return await withCheckedContinuation { continuation in
+                guard pendingSend == nil else {
+                    continuation.resume(returning: .failed)
+                    return
+                }
+                pendingSend = continuation
+                let composer = MFMailComposeViewController()
+                composer.setToRecipients([recipient])
+                composer.setSubject(subject)
+                composer.setMessageBody(feedback.mailBody, isHTML: false)
+                composer.mailComposeDelegate = self
+                presenter.present(composer, animated: true)
+            }
         }
 
         var components = URLComponents()
@@ -511,14 +552,14 @@ final class MailFeedbackTransport: NSObject, FeedbackTransport, MFMailComposeVie
             URLQueryItem(name: "subject", value: subject),
             URLQueryItem(name: "body", value: feedback.mailBody)
         ]
-        guard let url = components.url else { throw FeedbackTransportError.destinationUnavailable }
+        guard let url = components.url else { return .failed }
 
         let opened = await withCheckedContinuation { continuation in
             UIApplication.shared.open(url, options: [:]) { accepted in
                 continuation.resume(returning: accepted)
             }
         }
-        guard opened else { throw FeedbackTransportError.couldNotOpenMail }
+        return opened ? .openedMailWithoutConfirmation : .failed
     }
 
     func mailComposeController(
@@ -527,6 +568,14 @@ final class MailFeedbackTransport: NSObject, FeedbackTransport, MFMailComposeVie
         error: Error?
     ) {
         controller.dismiss(animated: true)
+        let delivery: FeedbackDeliveryResult
+        if error != nil {
+            delivery = .failed
+        } else {
+            delivery = result == .sent ? .sent : .cancelled
+        }
+        pendingSend?.resume(returning: delivery)
+        pendingSend = nil
     }
 
     private static var topViewController: UIViewController? {
@@ -558,6 +607,9 @@ final class ReviewFeedbackCoordinator: ObservableObject {
 
     @Published private(set) var reviewRequestSignal = 0
     @Published var activeFeedbackContext: FeedbackContext?
+    @Published private(set) var didGrantFeedbackExtension = false
+    @Published private(set) var mailWasOpenedWithoutConfirmation = false
+    @Published private(set) var feedbackWasCancelled = false
 
     private enum Key {
         static let state = "shield.review_feedback.engagementState"
@@ -698,6 +750,14 @@ final class ReviewFeedbackCoordinator: ObservableObject {
                 tier: currentTier,
                 now: now
             )
+        case .temporaryAccessExpiring:
+            createFeedbackIfAllowed(
+                &next,
+                trigger: .trialEnding,
+                feature: nil,
+                tier: currentTier,
+                now: now
+            )
         case .permissionDenied:
             next.reviewSuppressedUntil = now.addingTimeInterval(configuration.negativeSignalSuppression)
             next.pendingReviewOpportunity = nil
@@ -718,6 +778,9 @@ final class ReviewFeedbackCoordinator: ObservableObject {
            canPresentFeedback(now: now) {
             state.pendingFeedbackOpportunity = nil
             state.lastFeedbackPromptAt = now
+            didGrantFeedbackExtension = false
+            mailWasOpenedWithoutConfirmation = false
+            feedbackWasCancelled = false
             activeFeedbackContext = FeedbackContext(
                 trigger: pendingFeedback.trigger,
                 feature: pendingFeedback.feature,
@@ -752,6 +815,9 @@ final class ReviewFeedbackCoordinator: ObservableObject {
     /// waiting for an automatic engagement opportunity.
     func presentManualFeedback() {
         guard activeFeedbackContext == nil else { return }
+        didGrantFeedbackExtension = false
+        mailWasOpenedWithoutConfirmation = false
+        feedbackWasCancelled = false
         activeFeedbackContext = FeedbackContext(
             trigger: .manual,
             feature: nil,
@@ -785,6 +851,9 @@ final class ReviewFeedbackCoordinator: ObservableObject {
     }
 
     func submitFeedback(category: FeedbackCategory, message: String?, context: FeedbackContext) async -> Bool {
+        didGrantFeedbackExtension = false
+        mailWasOpenedWithoutConfirmation = false
+        feedbackWasCancelled = false
         let envelope = FeedbackEnvelope(
             category: category,
             message: message,
@@ -802,21 +871,41 @@ final class ReviewFeedbackCoordinator: ObservableObject {
             submittedAt: Date()
         )
 
-        do {
-            try await transport.send(envelope)
-            state.lastFeedbackPromptAt = Date()
-            saveState()
-            AppState.trackEvent("feedback_submitted", properties: [
-                "trigger": context.trigger.rawValue,
-                "category": category.rawValue,
-                "feature_key": context.feature?.rawValue ?? "none",
-                "user_tier": context.tier.rawValue
-            ])
-            return true
-        } catch {
-            debug("Feedback transport failed: \(String(describing: error))")
+        let delivery: FeedbackDeliveryResult
+        if let confirmingTransport = transport as? FeedbackDeliveryConfirming {
+            delivery = await confirmingTransport.sendAndConfirm(envelope)
+        } else {
+            do {
+                try await transport.send(envelope)
+                delivery = .sent
+            } catch {
+                debug("Feedback transport failed: \(String(describing: error))")
+                return false
+            }
+        }
+
+        guard delivery == .sent else {
+            mailWasOpenedWithoutConfirmation = delivery == .openedMailWithoutConfirmation
+            feedbackWasCancelled = delivery == .cancelled
+            if delivery == .failed {
+                debug("Feedback transport failed before submission")
+            }
             return false
         }
+
+        state.lastFeedbackPromptAt = Date()
+        saveState()
+        if context.trigger == .trialEnding {
+            didGrantFeedbackExtension = PremiumManager.shared.extendTemporaryAccessForVerifiedFeedback()
+        }
+        AppState.trackEvent("feedback_submitted", properties: [
+            "trigger": context.trigger.rawValue,
+            "category": category.rawValue,
+            "feature_key": context.feature?.rawValue ?? "none",
+            "user_tier": context.tier.rawValue,
+            "trial_extension_granted": String(didGrantFeedbackExtension)
+        ])
+        return true
     }
 
     func recordSubscriptionSnapshot(_ snapshot: SubscriptionSnapshot, now: Date = Date()) {
@@ -831,6 +920,16 @@ final class ReviewFeedbackCoordinator: ObservableObject {
     }
 
     var currentState: EngagementState { state }
+
+    var canVerifyFeedbackSubmission: Bool {
+        (transport as? MailFeedbackTransport)?.canConfirmSubmission == true
+    }
+
+    var canEarnTrialFeedbackReward: Bool {
+        activeFeedbackContext?.trigger == .trialEnding
+            && canVerifyFeedbackSubmission
+            && PremiumManager.shared.canOfferFeedbackExtension
+    }
 
     private var currentTier: EntitlementTier {
         entitlementTierProvider()
@@ -1006,6 +1105,7 @@ final class ReviewFeedbackCoordinator: ObservableObject {
         case .meaningfulResultDelivered: "meaningful_result"
         case .premiumResultDelivered: "premium_result"
         case .milestoneReached: "milestone"
+        case .temporaryAccessExpiring: "temporary_access_expiring"
         default: "success"
         }
     }
@@ -1137,27 +1237,40 @@ struct ReviewFeedbackBridge: View {
             .onChange(of: scenePhase) { _, _ in consumeIfPossible() }
             .onChange(of: isPresentationAllowed) { _, _ in consumeIfPossible() }
         .sheet(item: $coordinator.activeFeedbackContext) { context in
-                FeedbackPromptView(context: context) { category, message in
+            FeedbackPromptView(
+                context: context,
+                canEarnTrialExtension: coordinator.canEarnTrialFeedbackReward,
+                onSubmit: { category, message in
                     await coordinator.submitFeedback(category: category, message: message, context: context)
-                } onComplete: {
-                    coordinator.completeFeedback()
-                } onDismiss: {
-                    coordinator.dismissFeedback()
-                }
-            }
+                },
+                didEarnTrialExtension: { coordinator.didGrantFeedbackExtension },
+                needsMailConfirmation: { coordinator.mailWasOpenedWithoutConfirmation },
+                wasCancelled: { coordinator.feedbackWasCancelled },
+                onComplete: { coordinator.completeFeedback() },
+                onDismiss: { coordinator.dismissFeedback() }
+            )
+        }
     }
 
     private func consumeIfPossible() {
         guard isPresentationAllowed, scenePhase == .active else { return }
         coordinator.consumeReviewRequest {
-            requestReview()
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                guard scenePhase == .active else { return }
+                requestReview()
+            }
         }
     }
 }
 
 struct FeedbackPromptView: View {
     let context: FeedbackContext
+    let canEarnTrialExtension: Bool
     let onSubmit: (FeedbackCategory, String?) async -> Bool
+    let didEarnTrialExtension: () -> Bool
+    let needsMailConfirmation: () -> Bool
+    let wasCancelled: () -> Bool
     let onComplete: () -> Void
     let onDismiss: () -> Void
 
@@ -1167,7 +1280,9 @@ struct FeedbackPromptView: View {
     @State private var comment = ""
     @State private var isSending = false
     @State private var showSendError = false
+    @State private var showMailConfirmation = false
     @State private var didSubmit = false
+    @State private var didEarnExtension = false
     @State private var thanksSecondsRemaining = FeedbackPromptConfiguration.thanksCountdownSeconds
 
     private var strings: LanguageManager { .shared }
@@ -1175,7 +1290,10 @@ struct FeedbackPromptView: View {
     var body: some View {
         NavigationStack {
             if didSubmit {
-                FeedbackThanksView(secondsRemaining: thanksSecondsRemaining) {
+                FeedbackThanksView(
+                    secondsRemaining: thanksSecondsRemaining,
+                    didEarnTrialExtension: didEarnExtension
+                ) {
                     onComplete()
                     dismiss()
                 }
@@ -1189,6 +1307,28 @@ struct FeedbackPromptView: View {
                             .font(.body)
                             .foregroundStyle(ShieldTheme.secondary(scheme))
                             .fixedSize(horizontal: false, vertical: true)
+
+                        if context.trigger == .trialEnding {
+                            VStack(alignment: .leading, spacing: ShieldTheme.s2) {
+                                Label(
+                                    strings.settings(canEarnTrialExtension
+                                        ? "review_feedback_trial_reward"
+                                        : "review_feedback_trial_reward_unavailable"),
+                                    systemImage: canEarnTrialExtension ? "gift.fill" : "bubble.left.fill"
+                                )
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(ShieldTheme.primary(scheme))
+                                Text(strings.settings(canEarnTrialExtension
+                                    ? "review_feedback_trial_reward_detail"
+                                    : "review_feedback_trial_reward_unavailable_detail"))
+                                    .font(.footnote)
+                                    .foregroundStyle(ShieldTheme.secondary(scheme))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(ShieldTheme.s4)
+                            .background(ShieldTheme.cardBackground(scheme), in: RoundedRectangle(cornerRadius: ShieldTheme.rLG))
+                        }
 
                         VStack(spacing: 0) {
                             ForEach(context.trigger.categories) { category in
@@ -1290,6 +1430,14 @@ struct FeedbackPromptView: View {
         } message: {
             Text(strings.settings("review_feedback_error_message"))
         }
+        .alert(
+            strings.settings("review_feedback_mail_confirmation_title"),
+            isPresented: $showMailConfirmation
+        ) {
+            Button(strings.common("common_ok"), role: .cancel) {}
+        } message: {
+            Text(strings.settings("review_feedback_mail_confirmation_message"))
+        }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
@@ -1301,8 +1449,11 @@ struct FeedbackPromptView: View {
             let didSend = await onSubmit(selectedCategory, comment)
             isSending = false
             if didSend {
+                didEarnExtension = didEarnTrialExtension()
                 didSubmit = true
-            } else {
+            } else if needsMailConfirmation() {
+                showMailConfirmation = true
+            } else if !wasCancelled() {
                 showSendError = true
             }
         }
@@ -1315,6 +1466,7 @@ enum FeedbackPromptConfiguration {
 
 private struct FeedbackThanksView: View {
     let secondsRemaining: Int
+    let didEarnTrialExtension: Bool
     let onClose: () -> Void
 
     @Environment(\.colorScheme) private var scheme
@@ -1335,6 +1487,13 @@ private struct FeedbackThanksView: View {
                 .font(.body)
                 .foregroundStyle(ShieldTheme.secondary(scheme))
                 .multilineTextAlignment(.center)
+            if didEarnTrialExtension {
+                Text(strings.settings("review_feedback_trial_reward_thanks"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(ShieldTheme.accent(scheme))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Text(strings.settings("review_feedback_thanks_countdown", secondsRemaining))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(ShieldTheme.secondary(scheme))
