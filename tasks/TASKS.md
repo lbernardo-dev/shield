@@ -2853,8 +2853,10 @@
    Id: 267-alinear-main-generar-subir-build
    Scope: Integrar en main todos los cambios locales de MaskID, seleccionar el próximo build válido, archivar/exportar y subirlo a App Store Connect sin enviar a revisión
    Files: Shield/**,Packages/**,Shield.xcodeproj/**,Docs/**,tasks/**,.asc/artifacts/**
-   Note: Inicio de integración main y build ASC; inspecciono versión/build remotos antes de fijar numeración
+   Note: Build 1.2.0 (10112026091403) compilado y VALID en ASC/TestFlight; artefactos preservados; sin suites de tests ni envío a revisión/publicación
    Detail: tasks/details/267-alinear-main-generar-subir-build.md
    Claimed by: CODEX
    Claimed at: 2026-11-19T11:52:37Z
+   Done by: CODEX
+   Done at: 2026-11-19T12:04:21Z
 
