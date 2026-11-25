@@ -985,8 +985,8 @@
     "paywall_renewal_disclosure": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Lifetime costs %1$@ once. It does not renew." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Lifetime cuesta %1$@ en un único pago. No se renueva." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Your subscription costs %1$@ and automatically renews until canceled." } },
+        "es": { "stringUnit": { "state": "translated", "value": "La suscripción cuesta %1$@ y se renueva automáticamente hasta que canceles." } }
       }
     },
     "paywall_trigger_access_required": {

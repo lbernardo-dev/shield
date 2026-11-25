@@ -1061,13 +1061,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The full workflow stays on-device."
+            "value" : "Core work stays on-device. Optional OCR enrichment uses Apple PCC only after confirmation."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todo el flujo se mantiene en el dispositivo."
+            "value" : "El trabajo principal es local. El OCR opcional con PCC de Apple solo se usa tras confirmarlo."
           }
         }
       }
@@ -1112,13 +1112,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Core processing on-device. Optional sync."
+            "value" : "Core processing on-device. Optional sync and OCR enrichment through Apple PCC after confirmation."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Procesamiento principal en el dispositivo. Sync opcional."
+            "value" : "Procesamiento principal en el dispositivo. Sync u OCR con PCC de Apple solo tras confirmarlo."
           }
         }
       }

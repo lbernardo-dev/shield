@@ -851,7 +851,7 @@ struct CaptureView: View {
             let pageLines = pageObservations.map { $0.map(\.text) }
             let pageTexts = pageLines.map { $0.joined(separator: "\n") }
             // Extract fields per page so multi-page docs don't bleed fields across pages
-            let perPageFields = pageLines.map { OCRService.extractFields(from: $0) }
+            var perPageFields = pageLines.map { OCRService.extractFields(from: $0) }
             // Merge: use page with highest aggregate confidence (MRZ page wins if valid)
             let bestPageFields = perPageFields.max(by: { a, b in
                 let scoreA = (a.ocrFieldConfidence ?? [:]).values.reduce(0, +)
@@ -866,6 +866,7 @@ struct CaptureView: View {
                 observations: pageObservations,
                 extractedFields: perPageFields
             )
+            let deterministicClassificationFields = fields
             do {
                 fields.ocrFaceSuggestions = try await OCRService.detectFaceSuggestions(in: pages)
                 fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
@@ -884,10 +885,27 @@ struct CaptureView: View {
                 fields.ocrBoundingTexts = page0.map(\.text)
                 fields.ocrBoundingRects = page0.map(\.boundingRect)
             }
-            // Smart enrichment: fill any empty fields using on-device Foundation Model
-            if SmartFieldExtractor.isAvailable() {
-                if let enriched = await SmartFieldExtractor.enrich(fields: fields, ocrText: fullText) {
-                    fields = enriched
+            // The local model may suggest only source-grounded fields. Vision
+            // remains the authority for text, confidence, page, and geometry.
+            if SmartFieldExtractor.hasMissingFields(in: fields), SmartFieldExtractor.isAvailable() {
+                let enrichment = await SmartFieldExtractor.enrich(
+                    fields: fields,
+                    observationsByPage: pageObservations
+                )
+                fields = enrichment.fields
+                if !enrichment.suggestions.isEmpty {
+                    let deterministicFieldsByPage = perPageFields
+                    perPageFields = pageObservations.enumerated().map { index, observations in
+                        SmartFieldExtractor.applying(
+                            enrichment.suggestions,
+                            to: deterministicFieldsByPage.indices.contains(index) ? deterministicFieldsByPage[index] : .empty,
+                            observations: observations
+                        )
+                    }
+                    fields.ocrPageEvidence = OCRService.buildPageEvidence(
+                        observations: pageObservations,
+                        extractedFields: perPageFields
+                    )
                 }
             }
             guard !Task.isCancelled else {
@@ -896,7 +914,7 @@ struct CaptureView: View {
                 processingProgress = nil
                 return
             }
-            let detectedCountry = normalizedCountryCode(from: fields, detectedType: detectedType)
+            let detectedCountry = normalizedCountryCode(from: deterministicClassificationFields, detectedType: detectedType)
             fields.ocrDetectedCountry = detectedCountry
             let risk = OCRService.assessRisk(fields: fields, detectedType: detectedType, threshold: OCRService.minimumConfidenceThreshold())
             fields.ocrRiskLevel = risk.level.rawValue
@@ -908,7 +926,9 @@ struct CaptureView: View {
                 fmt.dateFormat = "d MMM HH:mm"
                 return LanguageManager.shared.capture("capture_scan_fallback_title", fmt.string(from: Date()))
             }()
-            let docTitle = !fields.fullName.isEmpty ? fields.fullName : fallbackTitle
+            let docTitle = !deterministicClassificationFields.fullName.isEmpty
+                ? deterministicClassificationFields.fullName
+                : fallbackTitle
 
             // Resolve the richest DocumentKind from OCR signals
             let resolvedKind = resolveDocumentKind(

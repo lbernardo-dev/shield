@@ -1,5 +1,4 @@
 import SwiftUI
-import FoundationModels
 
 // MARK: - OCRSheetView
 
@@ -23,6 +22,11 @@ struct OCRSheetView: View {
     // Tracks which field keys the user has masked in this session
     @State private var maskedKeys: Set<String> = []
     @State private var sourceImagesAvailable = false
+    @State private var privateCloudStatus: SmartFieldExtractor.PrivateCloudStatus = .featureDisabled
+    @State private var showPrivateCloudConsent = false
+    @State private var privateCloudMessageKey: String?
+    @State private var analysisTask: Task<Void, Never>?
+    @State private var analysisRequestID = UUID()
 
     private var resolvedFields: DocumentFields {
         ocrFields ?? doc.fields
@@ -67,11 +71,11 @@ struct OCRSheetView: View {
 
     // Fields that have a non-empty value (can be actioned)
     private var detectedItems: [(key: String, label: String, value: String)] {
-        items.filter { !$0.value.isEmpty }
+        items.filter { !$0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     private var missingItems: [(key: String, label: String, value: String)] {
-        items.filter { $0.value.isEmpty }
+        items.filter { $0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     private var maskedCount: Int { maskedKeys.count }
@@ -140,6 +144,8 @@ struct OCRSheetView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     summaryBanner
+                    localAIPrivacyNote
+                    privateCloudSection
                     detectedFieldsSection
                     if !missingItems.isEmpty {
                         missingFieldsSection
@@ -153,11 +159,30 @@ struct OCRSheetView: View {
         .background(ShieldTheme.background(scheme))
         .onAppear {
             syncMaskedKeysFromRedactions()
+            refreshPrivateCloudStatus()
             let sourceImages = loadSourceImages()
             sourceImagesAvailable = !sourceImages.isEmpty
             if !sourceImages.isEmpty {
                 runOCR()
             }
+        }
+        .onDisappear {
+            analysisRequestID = UUID()
+            analysisTask?.cancel()
+            analysisTask = nil
+            isRunningOCR = false
+        }
+        .confirmationDialog(
+            LanguageManager.shared.editor("editor_ocr_pcc_consent_title"),
+            isPresented: $showPrivateCloudConsent,
+            titleVisibility: .visible
+        ) {
+            Button(LanguageManager.shared.editor("editor_ocr_pcc_consent_action")) {
+                runPrivateCloudEnrichment()
+            }
+            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
+        } message: {
+            Text(LanguageManager.shared.editor("editor_ocr_pcc_consent_body"))
         }
         .onChange(of: currentRedactions.count) {
             syncMaskedKeysFromRedactions()
@@ -212,6 +237,10 @@ struct OCRSheetView: View {
                         .shieldFont(12)
                         .foregroundColor(ShieldTheme.secondary(scheme))
                 }
+                Button(LanguageManager.shared.common("common_cancel")) {
+                    cancelCurrentAnalysis()
+                }
+                .frame(minHeight: 44)
             }
             Button { isPresented = false } label: {
                 Image(systemName: "xmark")
@@ -357,6 +386,98 @@ struct OCRSheetView: View {
         .padding(.horizontal, ShieldTheme.s5)
         .padding(.vertical, 12)
         .background(ShieldTheme.cardBackground(scheme))
+    }
+
+    private var localAIPrivacyNote: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "lock.fill")
+                .shieldFont(11, weight: .semibold)
+                .foregroundColor(ShieldTheme.success)
+                .padding(.top, 2)
+            Text(LanguageManager.shared.editor("editor_ocr_local_ai_privacy_note"))
+                .shieldFont(11)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, ShieldTheme.s5)
+        .padding(.vertical, 9)
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var privateCloudSection: some View {
+        if missingItems.isEmpty {
+            EmptyView()
+        } else {
+            switch privateCloudStatus {
+            case .featureDisabled, .unavailable:
+                EmptyView()
+            case .available:
+                privateCloudAction
+            case .approachingLimit:
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(LanguageManager.shared.editor("editor_ocr_pcc_approaching_limit"))
+                        .shieldFont(11)
+                        .foregroundColor(ShieldTheme.warning)
+                    privateCloudAction
+                    quotaOptionsButton
+                }
+                .padding(.horizontal, ShieldTheme.s5)
+            case .quotaReached:
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(LanguageManager.shared.editor("editor_ocr_pcc_quota_reached"))
+                        .shieldFont(11)
+                        .foregroundColor(ShieldTheme.warning)
+                    quotaOptionsButton
+                }
+                .padding(.horizontal, ShieldTheme.s5)
+            }
+        }
+    }
+
+    private var privateCloudAction: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                showPrivateCloudConsent = true
+            } label: {
+                Label(
+                    LanguageManager.shared.editor("editor_ocr_pcc_action"),
+                    systemImage: "cloud.fill"
+                )
+                .shieldFont(12, weight: .semibold)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .disabled(isRunningOCR)
+            .accessibilityHint(LanguageManager.shared.editor("editor_ocr_pcc_consent_body"))
+            Text(LanguageManager.shared.editor("editor_ocr_pcc_action_detail"))
+                .shieldFont(10)
+                .foregroundColor(ShieldTheme.secondary(scheme))
+                .fixedSize(horizontal: false, vertical: true)
+            if let privateCloudMessageKey {
+                Text(LanguageManager.shared.editor(privateCloudMessageKey))
+                    .shieldFont(10, weight: .medium)
+                    .foregroundColor(ShieldTheme.secondary(scheme))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.horizontal, ShieldTheme.s5)
+    }
+
+    @ViewBuilder
+    private var quotaOptionsButton: some View {
+        if SmartFieldExtractor.hasPrivateCloudQuotaOptions() {
+            Button(LanguageManager.shared.editor("editor_ocr_pcc_quota_options")) {
+                SmartFieldExtractor.showPrivateCloudQuotaOptions()
+            }
+            .font(.system(size: 11, weight: .semibold))
+            .frame(minHeight: 44)
+        }
+    }
+
+    private func refreshPrivateCloudStatus() {
+        privateCloudStatus = SmartFieldExtractor.privateCloudStatus()
     }
 
     // MARK: - Detected fields section
@@ -714,6 +835,7 @@ struct OCRSheetView: View {
     // MARK: - OCR logic
 
     private func runOCR() {
+        guard !isRunningOCR else { return }
         let images = loadSourceImages()
         guard !images.isEmpty else {
             ocrError = LanguageManager.shared.editor("editor_ocr_error_no_image")
@@ -721,13 +843,24 @@ struct OCRSheetView: View {
         }
         isRunningOCR = true
         ocrError = nil
+        privateCloudMessageKey = nil
+        analysisTask?.cancel()
+        let requestID = UUID()
+        analysisRequestID = requestID
         // Don't clear maskedKeys here — preserve the visual state during re-analysis
 
-        Task {
+        analysisTask = Task {
             let pageObs = await OCRService.recognizeObservationsByPageAdaptive(in: images)
             let allObs = pageObs.flatMap { $0 }
             let lines = allObs.map(\.text)
+            var perPageFields = pageObs.map { observations in
+                OCRService.extractFields(from: observations.map(\.text))
+            }
             var fields = OCRService.extractFields(from: lines)
+            fields.ocrPageEvidence = OCRService.buildPageEvidence(
+                observations: pageObs,
+                extractedFields: perPageFields
+            )
             let detectedType = OCRService.detectDocumentType(from: lines)
             fields.ocrDocumentType = detectedType.rawValue
             let pageTexts = pageObs.map { $0.map(\.text).joined(separator: "\n") }
@@ -739,12 +872,29 @@ struct OCRSheetView: View {
             fields.ocrBoundingTexts = p0obs.map(\.text)
             fields.ocrBoundingRects = p0obs.map(\.boundingRect)
 
-            // Smart enrichment pass: use on-device Foundation Model to fill missing fields
-            if SmartFieldExtractor.isAvailable() {
-                if let enriched = await SmartFieldExtractor.enrich(fields: fields, ocrText: fullText) {
-                    fields = enriched
+            // Only let local generation complete fields when the returned phrase
+            // is present in the OCR source. The inspector's field actions use
+            // page 0 geometry, so suggestions are grounded to that page only.
+            if SmartFieldExtractor.hasMissingFields(in: fields), SmartFieldExtractor.isAvailable() {
+                let enrichment = await SmartFieldExtractor.enrich(
+                    fields: fields,
+                    observationsByPage: [p0obs]
+                )
+                fields = enrichment.fields
+                if !enrichment.suggestions.isEmpty, !perPageFields.isEmpty {
+                    perPageFields[0] = SmartFieldExtractor.applying(
+                        enrichment.suggestions,
+                        to: perPageFields[0],
+                        observations: p0obs
+                    )
+                    fields.ocrPageEvidence = OCRService.buildPageEvidence(
+                        observations: pageObs,
+                        extractedFields: perPageFields
+                    )
                 }
             }
+
+            guard !Task.isCancelled else { return }
 
             let risk = OCRService.assessRisk(fields: fields, detectedType: detectedType,
                                              threshold: OCRService.minimumConfidenceThreshold())
@@ -752,11 +902,86 @@ struct OCRSheetView: View {
             fields.ocrLowConfidenceFields = risk.lowFields
 
             await MainActor.run {
+                guard self.analysisRequestID == requestID else { return }
                 ocrFields = fields
                 page0Observations = p0obs
                 isRunningOCR = false
                 onFieldsUpdated?(fields)
                 syncMaskedKeysFromRedactions()
+            }
+        }
+    }
+
+    private func cancelCurrentAnalysis() {
+        analysisRequestID = UUID()
+        analysisTask?.cancel()
+        analysisTask = nil
+        isRunningOCR = false
+    }
+
+    private func runPrivateCloudEnrichment() {
+        guard !isRunningOCR,
+              (privateCloudStatus == .available || privateCloudStatus == .approachingLimit) else { return }
+        let observations = effectiveObservations
+        guard !observations.isEmpty else { return }
+        let sourceFields = resolvedFields
+        isRunningOCR = true
+        privateCloudMessageKey = nil
+        analysisTask?.cancel()
+        let requestID = UUID()
+        analysisRequestID = requestID
+
+        analysisTask = Task {
+            let result = await SmartFieldExtractor.enrich(
+                fields: sourceFields,
+                observationsByPage: [observations],
+                requestedEngine: .privateCloud,
+                privateCloudConsentGiven: true
+            )
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard self.analysisRequestID == requestID else { return }
+                var updatedFields = result.fields
+                if !result.suggestions.isEmpty {
+                    let pageFields = SmartFieldExtractor.applying(
+                        result.suggestions,
+                        to: OCRService.extractFields(from: observations.map(\.text)),
+                        observations: observations
+                    )
+                    let pageEvidence = OCRService.buildPageEvidence(
+                        observations: [observations],
+                        extractedFields: [pageFields]
+                    )
+                    var allPageEvidence = updatedFields.ocrPageEvidence ?? []
+                    if let firstPageEvidence = pageEvidence.first,
+                       let existingIndex = allPageEvidence.firstIndex(where: { $0.pageIndex == firstPageEvidence.pageIndex }) {
+                        allPageEvidence[existingIndex] = firstPageEvidence
+                    } else {
+                        allPageEvidence.append(contentsOf: pageEvidence)
+                    }
+                    updatedFields.ocrPageEvidence = allPageEvidence.sorted { $0.pageIndex < $1.pageIndex }
+                    ocrFields = updatedFields
+                    onFieldsUpdated?(updatedFields)
+                    syncMaskedKeysFromRedactions()
+                }
+                switch result.status {
+                case .completed:
+                    privateCloudMessageKey = result.engine == .privateCloud
+                        ? "editor_ocr_pcc_result"
+                        : "editor_ocr_pcc_fallback_local"
+                case .noVerifiedCandidates:
+                    privateCloudMessageKey = "editor_ocr_pcc_no_candidates"
+                case .unavailable:
+                    privateCloudMessageKey = "editor_ocr_pcc_unavailable"
+                case .quotaLimited:
+                    privateCloudMessageKey = "editor_ocr_pcc_quota_reached"
+                case .failed:
+                    privateCloudMessageKey = "editor_ocr_pcc_failed"
+                case .cancelled:
+                    privateCloudMessageKey = nil
+                }
+                isRunningOCR = false
+                refreshPrivateCloudStatus()
             }
         }
     }

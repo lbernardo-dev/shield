@@ -1937,8 +1937,8 @@
     "settings_theme_home_preview_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Scan or import sensitive documents on your device." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Escanea o importa documentos sensibles en tu dispositivo." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Scan or import sensitive documents on your device. Optional Apple PCC OCR needs your confirmation." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanea o importa documentos sensibles en tu dispositivo. El OCR opcional con PCC de Apple requiere tu confirmación." } }
       }
     },
     "settings_theme_home_preview_action": {

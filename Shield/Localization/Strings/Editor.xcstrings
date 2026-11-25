@@ -2230,6 +2230,244 @@
         }
       }
     },
+    "editor_ocr_local_ai_privacy_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OCR and initial field suggestions run on this device. An optional second pass may send OCR text to Apple PCC after you confirm; review every page and the final export."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El OCR y las primeras sugerencias de campos se procesan en este dispositivo. Una segunda pasada opcional puede enviar texto OCR a PCC de Apple solo tras tu confirmación; revisa cada página y la exportación final."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Apple PCC for a larger-context second pass"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar PCC de Apple para una segunda pasada con más contexto"
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_action_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional. OCR text is sent to Apple Private Cloud Compute only after you confirm. Availability and usage limits are managed by Apple."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opcional. El texto OCR solo se envía a Private Cloud Compute de Apple después de que lo confirmes. Apple gestiona la disponibilidad y los límites de uso."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_approaching_limit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple reports that this account is nearing its Private Cloud Compute usage limit. On-device analysis remains available."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple indica que esta cuenta se acerca al límite de uso de Private Cloud Compute. El análisis en el dispositivo sigue disponible."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_consent_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send this document's OCR text to Apple PCC?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Enviar el texto OCR de este documento a PCC de Apple?"
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_consent_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send OCR text to Apple PCC"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar texto OCR a PCC de Apple"
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_consent_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This sends OCR text from the current document to Apple's Private Cloud Compute for this analysis. It may include identity, financial, health, or family information. Local OCR and review remain available."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto envía el texto OCR del documento actual a Private Cloud Compute de Apple para este análisis. Puede incluir datos de identidad, financieros, de salud o familiares. El OCR y la revisión locales siguen disponibles."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_result": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source-matched fields were added to review. Check each suggestion before masking or exporting."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se añadieron campos coincidentes con el texto fuente. Revisa cada sugerencia antes de enmascarar o exportar."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_fallback_local": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud was unavailable; the suggestion was processed on this device."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud no estaba disponible; la sugerencia se procesó en este dispositivo."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_no_candidates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No additional field matched the OCR source. The existing result was kept."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ningún campo adicional coincidió con el texto OCR. Se conservó el resultado existente."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_quota_options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See Apple quota options"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver opciones de cuota de Apple"
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_quota_reached": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple's Private Cloud Compute usage limit has been reached. On-device analysis remains available."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se alcanzó el límite de uso de Private Cloud Compute de Apple. El análisis en el dispositivo sigue disponible."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud Compute is unavailable right now. Your existing local result was kept."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Cloud Compute no está disponible ahora. Se conservó el resultado local existente."
+          }
+        }
+      }
+    },
+    "editor_ocr_pcc_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud analysis failed. Your existing local result was kept."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falló el análisis en la nube. Se conservó el resultado local existente."
+          }
+        }
+      }
+    },
     "editor_ocr_detected_type": {
       "extractionState": "manual",
       "localizations": {

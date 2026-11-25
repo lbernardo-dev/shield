@@ -103,6 +103,108 @@
         }
       }
     },
+    "release_118_feedback_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Private feedback, with a thank-you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comentarios privados y un agradecimiento"
+          }
+        }
+      }
+    },
+    "release_118_feedback_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send feedback near the end of temporary access. When the in-app email is confirmed as sent, one 15-day extension can be added."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envía comentarios cerca del final del acceso temporal. Si la app confirma el envío del correo integrado, se puede añadir una única ampliación de 15 días."
+          }
+        }
+      }
+    },
+    "release_118_updates_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clearer update reminders"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos de actualización más claros"
+          }
+        }
+      }
+    },
+    "release_118_updates_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The reminder now shows Apple's official App Store icon and opens MaskID's App Store page."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El aviso ahora muestra el icono oficial de App Store y abre la ficha de MaskID."
+          }
+        }
+      }
+    },
+    "release_118_reviews_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review requests at natural pauses"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitudes de reseña en una pausa natural"
+          }
+        }
+      }
+    },
+    "release_118_reviews_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID waits until after successful use and a natural pause before asking for an App Store review."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MaskID espera a que completes una acción correctamente y hagas una pausa natural antes de solicitar una reseña en App Store."
+          }
+        }
+      }
+    },
     "release_update_title" : {
       "extractionState" : "manual",
       "localizations" : {

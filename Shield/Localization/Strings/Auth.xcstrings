@@ -581,8 +581,8 @@
     "lock_does_zk_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Document processing stays on device by default; optional iCloud sync is controlled by you." } },
-        "es": { "stringUnit": { "state": "translated", "value": "El procesamiento permanece en el dispositivo; tú controlas la sincronización opcional con iCloud." } }
+        "en": { "stringUnit": { "state": "translated", "value": "Document processing stays on device by default. An optional OCR second pass sends text to Apple PCC only after you confirm; iCloud sync is separately controlled by you." } },
+        "es": { "stringUnit": { "state": "translated", "value": "El procesamiento permanece en el dispositivo por defecto. Una segunda pasada OCR opcional envía texto a PCC de Apple solo si la confirmas; la sincronización con iCloud se controla por separado." } }
       }
     },
     "lock_does_shield_title": {

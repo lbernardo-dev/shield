@@ -2860,3 +2860,111 @@
    Done by: CODEX
    Done at: 2026-11-19T12:04:21Z
 
+268. app-store-1-1-8-whats-new
+   Id: 268-app-store-1-1-8-whats-new
+   Scope: Preparar versión 1.1.8 con build 1182026111901 en App Store Connect y notas de novedades localizadas para la app y la ficha
+   Files: Shield/App/**,Shield/Localization/**,metadata/version/1.1.8/**,tasks/TASKS.md,tasks/details/**,.asc/**
+   Note: Versión 1.1.8/build 1182026111901 preparada en ASC; What’s New EN/ES en app y tienda; archive/IPA verificados; build VALID y adjunto; 0 bloqueos, 1 warning no bloqueante; no se envió a revisión ni se limpiaron temporales
+   Detail: tasks/details/268-app-store-1-1-8-whats-new.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T12:49:51Z
+   Done by: CODEX
+   Done at: 2026-11-19T13:05:55Z
+
+269. cloudkit-environment-readiness
+   Id: 269-cloudkit-environment-readiness
+   Scope: Verificar y completar código, entitlements y esquema CloudKit para iCloud en Development y Production; validar build y señalar cualquier límite de prueba real
+   Files: Shield/Cloud/CloudSyncManager.swift,Shield/Shield.entitlements,Shield.xcodeproj/project.pbxproj,Docs/PASOS_MANUALES.md,tasks/TASKS.md,tasks/details
+   Note: CloudKit container, source entitlements and ShieldDocumentV2 verified in Development + Production; IPA profile matches; Production has no pending schema changes; docs updated; diff check OK. Physical-device sync round-trip remains to validate.
+   Detail: tasks/details/269-cloudkit-environment-readiness.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T13:13:56Z
+   Done by: CODEX
+   Done at: 2026-11-19T13:19:27Z
+
+270. cloudkit-physical-device-roundtrip
+   Id: 270-cloudkit-physical-device-roundtrip
+   Scope: Validar opt-in y sincronización CloudKit en dispositivo físico con documento sintético, sin tocar documentos existentes ni restablecer la cuenta iCloud
+   Files: Shield/Cloud/CloudSyncManager.swift,Shield/Views/Settings/SettingsDestinationViews.swift,ShieldTests/SecurityPrivacyTests.swift,tasks/TASKS.md,tasks/details
+   Note: Physical-device test is prepared but blocked: the only paired iPhone reports unavailable; remaining devices are simulators and this app disables CloudKit there. No iCloud data changed.
+   Detail: tasks/details/270-cloudkit-physical-device-roundtrip.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T14:52:52Z
+
+271. app-store-connect-upload-current-binary
+   Id: 271-app-store-connect-upload-current-binary
+   Scope: Generar y subir un build iOS nuevo a App Store Connect, asociarlo a la versión 1.1.8 sin enviarla a revisión y verificar su procesamiento
+   Files: Shield.xcodeproj/project.pbxproj,Shield/**,.asc/artifacts/**,metadata/version/1.1.8/**,tasks/TASKS.md,tasks/details
+   Note: Confirmed current 1.1.8 binary 1182026111901 is VALID and attached in ASC; TestFlight READY_FOR_BETA_TESTING; version remains PREPARE_FOR_SUBMISSION with no review submission. No duplicate binary needed because post-upload changes are docs only.
+   Detail: tasks/details/271-app-store-connect-upload-current-binary.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-19T16:24:41Z
+   Done by: CODEX
+   Done at: 2026-11-19T16:26:26Z
+
+272. auditoria-ia-hibrida-foundation-models
+   Id: 272-auditoria-ia-hibrida-foundation-models
+   Scope: Auditar valor de IA en MaskID, corregir de forma segura la extracción OCR con Apple Foundation Models, añadir pruebas, documentación y validar compatibilidad iOS/PCC
+   Files: Shield/Views/Capture/CaptureOCRServices.swift,Shield/Views/Capture/CaptureView.swift,Shield/Views/Editor/OCRSheetView.swift,Shield/Models/Document.swift,ShieldTests/**,Shield/Localization/Strings/**,Docs/ai/**,tasks/TASKS.md,tasks/details/**
+   Note: Grounded local OCR shipped; PCC prepared but disabled pending App ID/profile/eligibility checks. Focused OCREvidenceTests 21/21; full ShieldTests 180 passed, 1 skipped, 1 pre-existing renewal-copy failure. Build via test compilation; diff/localization validation passed; UI tests not run due 122 MiB free.
+   Detail: tasks/details/272-auditoria-ia-hibrida-foundation-models.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T07:15:28Z
+   Done by: CODEX
+   Done at: 2026-11-20T08:18:21Z
+
+273. validar-ui-ia-hibrida
+   Id: 273-validar-ui-ia-hibrida
+   Scope: Ejecutar y documentar la suite ShieldUITests tras la implementación de OCR Foundation Models/PCC; corregir solo regresiones causadas por esta entrega
+   Files: ShieldUITests/**,Shield/Views/Editor/OCRSheetView.swift,Shield/Views/Capture/CaptureView.swift,Docs/ai/03-EVALUACION.md,Docs/ai/04-ENTREGA_Y_ROLLOUT.md,tasks/TASKS.md,tasks/details/**
+   Note: Suite UI attempted en dos sims booted y en una nueva aislada. No ejecutó tests: testmanagerd socket ausente en Duo/iPad; fallo de DerivedData por disco casi lleno en aislado. Se documentó; no cleanup ni cambios de producto.
+   Detail: tasks/details/273-validar-ui-ia-hibrida.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T13:04:18Z
+   Done by: CODEX
+   Done at: 2026-11-20T13:10:52Z
+
+274. verificar-elegibilidad-pcc-analytics
+   Id: 274-verificar-elegibilidad-pcc-analytics
+   Scope: Verificar en modo solo lectura la elegibilidad PCC y el acceso a informes de primeras descargas de la cuenta; documentar bloqueos externos sin solicitar ni modificar acceso
+   Files: Docs/ai/04-ENTREGA_Y_ROLLOUT.md,tasks/TASKS.md,tasks/details/**
+   Note: Evidencia revisada en modo solo lectura; API report limitada por 429 (37m59s), sin descargas ni solicitud nueva. Developer Portal no autenticado; se documentaron los pasos externos y no se cambió firma/capability.
+   Detail: tasks/details/274-verificar-elegibilidad-pcc-analytics.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T13:23:13Z
+   Done by: CODEX
+   Done at: 2026-11-20T13:23:47Z
+
+275. limpiar-temporales-y-simulador-ai
+   Id: 275-limpiar-temporales-y-simulador-ai
+   Scope: Ejecutar limpieza aprobada del proyecto, retirar temporales creados para auditoría AI/PCC y borrar el simulador aislado MaskID UI Validation sin tocar artefactos release ni datos globales de Xcode
+   Files: scripts/clean.sh,scripts/cleanup_temporaries.sh,.asc/artifacts/**,tasks/TASKS.md,tasks/details/**
+   Note: Limpieza aprobada completada. Ejecutado clean.sh --all; movidos a Papelera los 8 xcresult revisados en /private/tmp y los 2 directorios temporales externos; eliminado el simulador aislado 8DC7B1CA-8B48-4A17-ADD1-59B32756CAAA. Verificado dry-run vacío, .asc/artifacts preservado (170 elementos) y cambios de usuario intactos. No se repitieron builds ni tests.
+   Detail: tasks/details/275-limpiar-temporales-y-simulador-ai.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T13:25:58Z
+   Done by: CODEX
+   Done at: 2026-11-20T13:32:15Z
+
+276. cerrar-ia-hibrida-pcc
+   Id: 276-cerrar-ia-hibrida-pcc
+   Scope: Cerrar la entrega local de IA híbrida de MaskID: revisar y endurecer el enriquecimiento local/PCC, completar validación automatizada y UI posible, verificar la capability gestionada en Apple Developer y dejar documentados solo bloqueos externos reales sin distribuir la app
+   Files: Shield/Views/Capture/CaptureOCRServices.swift,Shield/Views/Capture/CaptureView.swift,Shield/Views/Editor/OCRSheetView.swift,Shield/Shield.entitlements,Shield.xcodeproj/project.pbxproj,ShieldTests/OCREvidenceTests.swift,ShieldUITests/**,Shield/Localization/Strings/Editor.xcstrings,Docs/ai/**,tasks/TASKS.md,tasks/details/**
+   Note: PCC asignado por Apple, capability del App ID activa y perfil/IPA de distribución con entitlement verificados. Auditoría y docs cerradas; ShieldTests firmado 182 pass/1 skip, OCREvidence 22/22, UI OCR/accesibilidad 2/2. Suite UI completa y prueba PCC física quedan documentadas como límites.
+   Detail: tasks/details/276-cerrar-ia-hibrida-pcc.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T13:39:16Z
+   Done by: CODEX
+   Done at: 2026-11-21T14:08:19Z
+
+277. preparar-build-y-testflight-ia
+   Id: 277-preparar-build-y-testflight-ia
+   Scope: Preparar versión/build con PCC tras validar firma, exportar y subir el IPA a App Store Connect, asignarlo al grupo interno existente y documentar resultado sin enviar a revisión de App Store
+   Files: Shield.xcodeproj/project.pbxproj,Shield/Views/Capture/CaptureOCRServices.swift,Shield/Shield.entitlements,Shield/Localization/Strings/Editor.xcstrings,metadata/version/1.2.0,.asc/artifacts,Docs/ai/**,tasks/TASKS.md,tasks/details/**
+   Note: Archive e IPA 1.2.0 (10112026091404) firmados y validados con PCC; upload ASC VALID (build 37f4b70e-2273-4805-ac60-d52daad3971c). Asignado al grupo interno Shield Internal con What to Test en-US/es-ES; tester existente sin nuevas invitaciones. No se envió a revisión App Store o beta.
+   Detail: tasks/details/277-preparar-build-y-testflight-ia.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-20T14:36:42Z
+   Done by: CODEX
+   Done at: 2026-11-21T14:08:23Z
+

@@ -34,6 +34,12 @@ enum AppRelease {
                 Highlight(id: "release_117_recovery", icon: "tray"),
                 Highlight(id: "release_117_review", icon: "checkmark.shield")
             ]
+        case "1.1.8":
+            [
+                Highlight(id: "release_118_feedback", icon: "bubble.left.and.bubble.right"),
+                Highlight(id: "release_118_updates", icon: "arrow.up.forward.app"),
+                Highlight(id: "release_118_reviews", icon: "star.bubble")
+            ]
         default:
             []
         }

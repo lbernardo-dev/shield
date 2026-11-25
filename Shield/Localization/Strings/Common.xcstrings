@@ -834,13 +834,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Core processing on-device. Optional sync."
+            "value": "Core processing stays on-device. Optional sync and OCR enrichment through Apple PCC after confirmation."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Procesamiento principal en el dispositivo. Sync opcional."
+            "value": "El procesamiento principal es local. Sync y OCR con PCC de Apple son opcionales y requieren confirmación."
           }
         }
       }

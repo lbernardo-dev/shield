@@ -1,6 +1,23 @@
 # Shield — pasos externos de publicación
 
-> Estado verificado: 11 de septiembre de 2026. Este documento sustituye las instrucciones históricas de creación de ficha y primera publicación.
+> Estado actualizado: 21 de noviembre de 2026. La línea base histórica de publicación sigue debajo; consulta primero el estado vigente del ciclo IA/PCC.
+
+## Entrega IA híbrida 1.2.0 — estado vigente
+
+| Puerta | Estado | Acción pendiente |
+|---|---|---|
+| Capability PCC | Asignada por Apple, habilitada en `com.romerodev.shield` (`7BX79RLCY5`) y presente en el perfil/IPA de distribución | El Account Holder debe mantener las condiciones de elegibilidad de Apple; validar una inferencia real en hardware compatible |
+| Build | `1.2.0 (10112026091404)`, App Store Connect `VALID`, firma Apple Distribution válida | Prueba de producto en TestFlight |
+| TestFlight | Añadido al grupo interno existente `Shield Internal`; What to Test en `en-US` y `es-ES`; el grupo conserva su único tester actual | Instalarlo en dispositivo compatible y enviar feedback privado si se desea |
+| Revisión/publicación | No se envió a revisión de App Store ni a revisión beta externa; no se notificó ni invitó a nuevos testers | Decidir aparte cualquier envío público futuro |
+| Política de privacidad | El HTML local actualizado explica el uso local y el envío opcional de texto OCR mínimo a PCC tras consentimiento | Publicar la versión remota actualizada antes de una futura publicación pública y revisar App Privacy |
+| Pruebas | `ShieldTests` 182 pasadas, 1 omitida, 0 fallidas; OCR focalizado 22/22; UI OCR/accesibilidad focalizada 2/2 | Completar los 65 casos UI e inferencia PCC en hardware; revisar los dos fallos del intento UI general |
+
+Archive, IPA, perfiles PCC firmados y opciones de exportación se conservan en `.asc/artifacts/`. La UI PCC requiere la acción explícita y consentimiento por análisis; si el servicio o cuota no está disponible se conserva la ruta local/determinista. No se limpiaron los resultados de test ni el simulador aislado de esta validación.
+
+---
+
+> Línea base histórica: 11 de septiembre de 2026. Este documento sustituyó entonces las instrucciones de creación de ficha y primera publicación.
 
 ## Estado rápido
 
@@ -8,7 +25,7 @@
 |---|---|---|
 | Privacy manifest | Completado y validado | App Privacy publicada y verificada en sesión autenticada |
 | Firma Distribution | Archive, export y auditoría IPA superados | Ninguna antes del upload |
-| iCloud/CloudKit | Entitlement de producción y schema `ShieldDocumentV2` verificados | Probar sync opt-in en TestFlight/dispositivo físico |
+| iCloud/CloudKit | Container, entitlements de la IPA 1.1.8 y schema `ShieldDocumentV2` verificados en Development y Production (19 nov 2026) | Probar la sincronización opt-in en un dispositivo físico con una cuenta iCloud de prueba |
 | App Group/Keychain Group | Verificados en app y Share Extension exportadas | Ninguna antes del upload |
 | URL scheme `shield` | Completado | Ninguna |
 | StoreKit | Implementación y productos aprobados | Configurar Billing Grace Period sólo si se decide |
@@ -42,7 +59,7 @@
 
 ## Configuración del Developer Portal
 
-Los dos bundle IDs, el App Group y los entitlements ya están reflejados en el IPA firmado. En CloudKit Console, el contenedor correcto es `iCloud.com.romerodev.shield` —no `iCloud.com.romerodev.expirely`— y `ShieldDocumentV2` está desplegado en Development y Production con `docID`, `modifiedAt` y `package`. El identificador principal todavía aparece con Push Notifications en una consulta remota aunque no existe entitlement ni uso de push en el binario; puede retirarse manualmente como limpieza del portal, pero no afecta al artefacto exportado.
+Los dos bundle IDs, el App Group y los entitlements ya están reflejados en el IPA firmado. En CloudKit Console se verificó el 19 de noviembre de 2026 el contenedor correcto `iCloud.com.romerodev.shield` —no `iCloud.com.romerodev.expirely`—. `ShieldDocumentV2` está presente tanto en Development como en Production, con `docID` (`String`), `modifiedAt` (`Date/Time`) y `package` (`Asset`); Production no muestra cambios de esquema pendientes. La IPA 1.1.8 firmada para distribución declara el mismo contenedor. La sincronización en producción debe probarse en un dispositivo físico con una cuenta iCloud de prueba; la app desactiva deliberadamente CloudKit en procesos de simulador sin entitlements activos.
 
 ## App Store Connect
 

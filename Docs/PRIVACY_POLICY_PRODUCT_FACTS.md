@@ -1,6 +1,6 @@
 # Shield privacy facts
 
-- Document processing, OCR, masking and export run on device.
+- Vision OCR, masking, image processing and export run on device by default. If OCR leaves fields missing, the user may request an optional Apple Foundation Models second pass through Private Cloud Compute (PCC). The app asks for confirmation for every request and sends only OCR text for that analysis, not document images, source files, filenames or MaskID account information. PCC is never automatic. Apple says PCC processes user data without storing it; model suggestions are matched back to local OCR text and still require user review. See [Apple PCC privacy and eligibility](https://developer.apple.com/private-cloud-compute/).
 - Firebase Analytics is optional, disabled by default, and starts only after the user explicitly enables it in Settings > Privacy. The app does not show an analytics prompt during first launch. It sends only allowlisted, sanitized product events. Firebase Crashlytics remains a separate stability-diagnostics service; neither service receives document content, OCR fields, titles, file paths, or images.
 - RevenueCat processes anonymous purchase history to validate transactions and enable entitlements.
 - Imported originals, render caches and local telemetry are encrypted at rest with device-only keys.

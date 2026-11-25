@@ -35,7 +35,7 @@
 
 ## 1. Visión general
 
-Shield es una app iOS de privacidad de documentos: permite importar, escanear, redactar campos sensibles, y exportar documentos sin que ningún dato salga del dispositivo. El procesamiento (OCR, ajuste de imagen, cifrado, exportación) es 100% on-device.
+Shield es una app iOS de privacidad de documentos: permite importar, escanear, redactar campos sensibles y exportar documentos con el trabajo principal en el dispositivo. El OCR Vision, los ajustes de imagen, el cifrado y la exportación son locales. Si la persona lo solicita y confirma cada uso, una segunda pasada opcional puede enviar texto OCR a Apple Private Cloud Compute; no envía la imagen ni el archivo original.
 
 **Patrón arquitectónico:** MVVM + singletons de servicios  
 **UI framework:** SwiftUI (iOS 17+)  
@@ -538,7 +538,9 @@ func deleteRemoteDocument(id: String) async
 func setSyncEnabled(_ enabled: Bool) async -> Bool
 ```
 
-**Estado del schema (8 septiembre 2026):** `ShieldDocumentV2` fue creado en Development y desplegado en Production con `docID` (`String`), `modifiedAt` (`Date/Time`) y `package` (`Asset`). `ShieldDocument` y `Users` no se modificaron.
+**Estado del schema (verificado el 19 noviembre 2026):** `ShieldDocumentV2` está presente en Development y Production con `docID` (`String`), `modifiedAt` (`Date/Time`) y `package` (`Asset`). Production no muestra cambios pendientes de despliegue. `ShieldDocument` y `Users` permanecen como tipos separados; la app usa `ShieldDocumentV2` para sincronizar.
+
+Los builds de desarrollo usan el entorno Development; las apps distribuidas por TestFlight y App Store usan Production. El simulador local de este proyecto no crea `CKContainer` porque no dispone de entitlements activos, por lo que la prueba de punta a punta de iCloud requiere un dispositivo físico.
 
 **Requisito:** Capability "iCloud + CloudKit" en Xcode, container `iCloud.com.romerodev.shield` activo en developer.apple.com y schema de Production desplegado.
 
@@ -620,7 +622,7 @@ Gestión del PIN de 6 dígitos para la bóveda:
 ### `OCRService`
 **Archivo:** [Views/Capture/CaptureView.swift](../Shield/Views/Capture/CaptureView.swift) (línea ~1448)
 
-Motor de OCR usando `Vision.VNRecognizeTextRequest`. API completamente on-device.
+Motor de OCR usando `Vision.VNRecognizeTextRequest`, que se ejecuta en el dispositivo. Una segunda pasada opcional con Foundation Models puede enviar el texto OCR a Apple PCC únicamente después del consentimiento por análisis.
 
 ```swift
 enum OCRService {
