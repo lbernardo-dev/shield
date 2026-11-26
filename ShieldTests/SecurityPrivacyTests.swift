@@ -199,6 +199,27 @@ struct SecurityPrivacyTests {
         #expect(!defaults.bool(forKey: "shield.onboarded"))
     }
 
+    @Test("Successful unlock clears pending background timestamp and prevents re-locking on active phase")
+    @MainActor
+    func successfulUnlockClearsBackgroundTimestamp() {
+        let defaults = UserDefaults(suiteName: "test.unlock.\(UUID().uuidString)")!
+        defaults.set(true, forKey: "shield.onboarded")
+        defaults.set(1, forKey: "shield.autoLock")
+        PINManager.save(pin: "123456")
+
+        let coordinator = AppSessionCoordinator(userDefaults: defaults)
+        #expect(!coordinator.isAuthenticated)
+
+        coordinator.completeSuccessfulUnlock()
+        #expect(coordinator.isAuthenticated)
+        #expect(defaults.object(forKey: "shield.autoLock.backgroundTimestamp") == nil)
+
+        coordinator.handleScenePhaseChange(.active)
+        #expect(coordinator.isAuthenticated)
+
+        PINManager.clear()
+    }
+
     @Test("Feedback mail URL preserves recipient and safely encodes localized content")
     func feedbackURLIsValid() throws {
         let url = try #require(SettingsSupportConfiguration.feedbackURL(
@@ -225,7 +246,7 @@ struct SecurityPrivacyTests {
         #expect(configuration.reviewCooldown >= 120 * 24 * 60 * 60)
     }
 
-    @Test("Only the two exact verified CloudKit record names receive production Premium")
+    @Test("Only the exact verified CloudKit record names receive production Premium")
     @MainActor
     func permanentCloudKitPremiumAllowlistIsExactAndProductionOnly() {
         #expect(PremiumAccessResolver.grantsPermanentCloudKitAccess(
@@ -234,6 +255,10 @@ struct SecurityPrivacyTests {
         ))
         #expect(PremiumAccessResolver.grantsPermanentCloudKitAccess(
             verifiedUserRecordName: "_55d90a302b843b29baf181bb21263103",
+            isProductionBuild: true
+        ))
+        #expect(PremiumAccessResolver.grantsPermanentCloudKitAccess(
+            verifiedUserRecordName: "_fc3fec928c13827cdf6416d897523514",
             isProductionBuild: true
         ))
         #expect(!PremiumAccessResolver.grantsPermanentCloudKitAccess(
@@ -248,6 +273,14 @@ struct SecurityPrivacyTests {
             verifiedUserRecordName: "_ac0fee5ea87e7f0ef40eb34f24ac8d11",
             isProductionBuild: false
         ))
+    }
+
+    @Test("Cached CloudKit record name helper writes and reads accurately")
+    @MainActor
+    func cachedCloudKitRecordNamePersistence() {
+        let testID = "_fc3fec928c13827cdf6416d897523514"
+        PremiumManager.writeCachedCloudKitRecordName(testID)
+        #expect(PremiumManager.readCachedCloudKitRecordName() == testID)
     }
 
     @Test("An active real StoreKit or RevenueCat entitlement remains authoritative")
@@ -286,6 +319,14 @@ struct SecurityPrivacyTests {
 
         FirebaseIntegration.setAnalyticsConsent(false)
         #expect(!FirebaseIntegration.analyticsConsent)
+    }
+
+    @Test("Vaulted documents are not saved to unencrypted public thumbnail disk")
+    func vaultedThumbnailRemainsEncrypted() async throws {
+        let manager = ThumbnailManager.shared
+        let testFileName = "vault_test_\(UUID().uuidString).jpg"
+        let thumb = await manager.thumbnail(for: testFileName, isVaulted: true, maxPixelSize: 100)
+        #expect(thumb == nil)
     }
 }
 

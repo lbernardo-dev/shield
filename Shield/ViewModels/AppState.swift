@@ -1,1736 +1,1846 @@
-import SwiftUI
 import Combine
 import CryptoKit
+import OSLog
 import Security
+import SwiftUI
 import UIKit
 import WidgetKit
-import OSLog
 
 #if DEBUG
-enum ASOScreenshotMode {
+  enum ASOScreenshotMode {
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-aso-screenshots")
 
     static var scene: String {
-        value(after: "-aso-scene") ?? "home"
+      value(after: "-aso-scene") ?? "home"
     }
 
     static var language: AppLanguage {
-        AppLanguage(rawValue: value(after: "-aso-language") ?? "es") ?? .es
+      AppLanguage(rawValue: value(after: "-aso-language") ?? "es") ?? .es
     }
 
     static var colorScheme: ColorScheme {
-        value(after: "-aso-color-scheme") == "light" ? .light : .dark
+      value(after: "-aso-color-scheme") == "light" ? .light : .dark
     }
 
     private static func value(after flag: String) -> String? {
-        let arguments = ProcessInfo.processInfo.arguments
-        guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else {
-            return nil
-        }
-        return arguments[index + 1]
+      let arguments = ProcessInfo.processInfo.arguments
+      guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else {
+        return nil
+      }
+      return arguments[index + 1]
     }
-}
+  }
 #endif
 
 // MARK: - SortOption
 
 enum SortOption: String, CaseIterable, Identifiable {
-    case dateDesc, dateAsc, nameAsc, nameDesc
-    var id: String { rawValue }
+  case dateDesc, dateAsc, nameAsc, nameDesc
+  var id: String { rawValue }
 
-    var icon: String {
-        switch self {
-        case .dateDesc: return "arrow.down.circle"
-        case .dateAsc:  return "arrow.up.circle"
-        case .nameAsc:  return "textformat.abc"
-        case .nameDesc: return "textformat.abc"
-        }
+  var icon: String {
+    switch self {
+    case .dateDesc: return "arrow.down.circle"
+    case .dateAsc: return "arrow.up.circle"
+    case .nameAsc: return "textformat.abc"
+    case .nameDesc: return "textformat.abc"
     }
+  }
 
-    func label(lang: AppLanguage) -> String {
-        switch self {
-        case .dateDesc: return LanguageManager.shared.t("model_sort_date_desc", table: "Model", language: lang)
-        case .dateAsc:  return LanguageManager.shared.t("model_sort_date_asc", table: "Model", language: lang)
-        case .nameAsc:  return LanguageManager.shared.t("model_sort_name_asc", table: "Model", language: lang)
-        case .nameDesc: return LanguageManager.shared.t("model_sort_name_desc", table: "Model", language: lang)
-        }
+  func label(lang: AppLanguage) -> String {
+    switch self {
+    case .dateDesc:
+      return LanguageManager.shared.t("model_sort_date_desc", table: "Model", language: lang)
+    case .dateAsc:
+      return LanguageManager.shared.t("model_sort_date_asc", table: "Model", language: lang)
+    case .nameAsc:
+      return LanguageManager.shared.t("model_sort_name_asc", table: "Model", language: lang)
+    case .nameDesc:
+      return LanguageManager.shared.t("model_sort_name_desc", table: "Model", language: lang)
     }
+  }
 }
 
 /// Applies document collection changes only after the encrypted snapshot has
 /// been written successfully. Keeping this small and side-effect free makes
 /// persistence rollback behavior directly testable.
 enum DocumentCollectionTransaction {
-    @discardableResult
-    static func insert(
-        _ document: DocumentItem,
-        into documents: inout [DocumentItem],
-        persist: ([DocumentItem]) -> Bool
-    ) -> Bool {
-        var candidate = documents
-        candidate.insert(document, at: 0)
-        guard persist(candidate) else { return false }
-        documents = candidate
-        return true
-    }
+  @discardableResult
+  static func insert(
+    _ document: DocumentItem,
+    into documents: inout [DocumentItem],
+    persist: ([DocumentItem]) -> Bool
+  ) -> Bool {
+    var candidate = documents
+    candidate.insert(document, at: 0)
+    guard persist(candidate) else { return false }
+    documents = candidate
+    return true
+  }
 
-    @discardableResult
-    static func replace(
-        _ document: DocumentItem,
-        in documents: inout [DocumentItem],
-        persist: ([DocumentItem]) -> Bool
-    ) -> Bool {
-        guard let index = documents.firstIndex(where: { $0.id == document.id }) else { return false }
-        var candidate = documents
-        candidate[index] = document
-        guard persist(candidate) else { return false }
-        documents = candidate
-        return true
-    }
+  @discardableResult
+  static func replace(
+    _ document: DocumentItem,
+    in documents: inout [DocumentItem],
+    persist: ([DocumentItem]) -> Bool
+  ) -> Bool {
+    guard let index = documents.firstIndex(where: { $0.id == document.id }) else { return false }
+    var candidate = documents
+    candidate[index] = document
+    guard persist(candidate) else { return false }
+    documents = candidate
+    return true
+  }
 }
 
 struct AccessBoundarySaveLease: Equatable {
-    let documentID: String
-    fileprivate let nonce: UUID
+  let documentID: String
+  fileprivate let nonce: UUID
 }
 
 private enum DocumentSnapshotPersistenceError: Error {
-    case encryptedSnapshotWriteFailed
+  case encryptedSnapshotWriteFailed
 }
 
 // MARK: - AppState
 
 final class AppState: ObservableObject {
-    private static let persistenceLogger = Logger(subsystem: "com.romerodev.shield", category: "DocumentPersistence")
+  private static let persistenceLogger = Logger(
+    subsystem: "com.romerodev.shield", category: "DocumentPersistence")
 
-    private let session: AppSessionCoordinator
-    private var cancellables = Set<AnyCancellable>()
-    private var seasonalIconSyncRequest = 0
-    private var seasonalIconSyncTask: Task<Void, Never>?
+  private let session: AppSessionCoordinator
+  private var cancellables = Set<AnyCancellable>()
+  private var seasonalIconSyncRequest = 0
+  private var seasonalIconSyncTask: Task<Void, Never>?
 
-    // MARK: - Preferences (persisted)
-    var language: AppLanguage {
-        get { LanguageManager.shared.current }
-        set {
-            objectWillChange.send()
-            LanguageManager.shared.current = newValue
+  // MARK: - Preferences (persisted)
+  var language: AppLanguage {
+    get { LanguageManager.shared.current }
+    set {
+      objectWillChange.send()
+      LanguageManager.shared.current = newValue
+    }
+  }
+  @Published var preferredScheme: ColorScheme {
+    didSet { UserDefaults.standard.set(preferredScheme == .dark, forKey: "shield.darkMode") }
+  }
+  @Published var currentAppIcon: AppIconOption = .base {
+    didSet {
+      UserDefaults.standard.set(currentAppIcon.rawValue, forKey: "shield.selectedAppIcon")
+    }
+  }
+
+  // MARK: - Navigation
+  enum CaptureDirectLaunchSource: String {
+    case camera
+    case photos
+    case files
+  }
+  @Published var pendingCaptureSource: CaptureDirectLaunchSource? = nil
+  @Published var selectedDoc: DocumentItem? = nil
+  @Published private(set) var activeEditorDocumentID: String?
+  @Published var showCapture: Bool = false
+  @Published var isHomeWorkspaceToolsExpanded = false
+  @Published var pendingSharedImportURL: URL? = nil
+  /// A handoff error is kept out of the URL/file path and surfaced once by
+  /// CaptureView. The message is always generic and contains no source data.
+  @Published var pendingSharedImportError: String? = nil
+  @Published var showVault: Bool = false
+  @Published var activeTab: AppTab = .library {
+    didSet {
+      if oldValue == .vault && activeTab != .vault {
+        isVaultUnlocked = false
+      }
+    }
+  }
+  @Published var pendingThemeDeepLink: SeasonalThemeID? = nil
+
+  // Style pre-selected from gallery — applied to editor when next doc is opened
+  @Published var pendingMaskStyle: MaskStyle? = nil
+
+  // Redaction mode pre-selected from the Home quick-actions — auto-applied when the editor opens
+  @Published var pendingRedactionMode: RedactionMode? = nil
+  @Published var pendingDocumentSearchPageIndex: Int? = nil
+  @Published var pendingDocumentSearchDocumentID: String? = nil
+
+  // Pages to re-adjust from EditorView — CaptureView opens its ScanReviewView at the correct level
+  @Published var scanReviewPagesForEdit: [UIImage] = []
+  @Published var showScanReviewForEdit: Bool = false
+
+  // MARK: - Library
+  @Published var documents: [DocumentItem] = []
+  @Published var searchQuery: String = ""
+  @Published private(set) var isPreparingLocalSearchOCR = false
+  @Published var activeCategory: DocumentCategory = .all
+  @Published var activeCategoryID: String = DocumentCategory.all.rawValue  // supports custom too
+  @Published var sortOption: SortOption = .dateDesc
+  @Published var recentDocsPage: Int = 0
+  static let recentDocsPageSize = 5
+  private var localSearchOCRTask: Task<Void, Never>?
+  private var localSearchOCRRequestID = UUID()
+
+  // Triggered when a vaulted doc is closed from the editor — fires the 60s auto-lock countdown
+  @Published var vaultedDocJustClosed: DocumentItem? = nil
+  @Published var isVaultUnlocked: Bool = {
+    #if DEBUG
+      ASOScreenshotMode.isEnabled
+        && (ASOScreenshotMode.scene == "vault"
+          || ASOScreenshotMode.scene == "vault-delete-confirmation"
+          || ASOScreenshotMode.scene == "06-vault-security" || ASOScreenshotMode.scene == "06"
+          || ASOScreenshotMode.scene == "10-vault-security" || ASOScreenshotMode.scene == "10")
+    #else
+      false
+    #endif
+  }()
+  private var accessBoundarySaveLease: AccessBoundarySaveLease?
+
+  // MARK: - User categories (persisted)
+  @Published var customCategories: [UserCategory] = [] {
+    didSet { persistCustomCategories() }
+  }
+
+  // MARK: - Init
+
+  init() {
+    let ud = UserDefaults.standard
+    session = AppSessionCoordinator(userDefaults: ud)
+    // Language is handled by LanguageManager.shared
+    preferredScheme =
+      ud.object(forKey: "shield.darkMode") == nil
+      ? .light
+      : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
+
+    currentAppIcon = SeasonalThemeCoordinator.shared.activeThemeID.icon
+
+    documents = AppState.loadDocuments()
+    if !documents.isEmpty,
+      case .missing = AccessStateStore().load()
+    {
+      ud.set(true, forKey: "shield.access.preMigrationInstallEvidence")
+    }
+    PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
+    customCategories = AppState.loadCustomCategories()
+
+    #if DEBUG
+      if ASOScreenshotMode.isEnabled {
+        LanguageManager.shared.current = ASOScreenshotMode.language
+        preferredScheme = ASOScreenshotMode.colorScheme
+        session.isOnboarded = true
+        session.isAuthenticated = true
+        documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
+
+        if ASOScreenshotMode.scene.starts(with: "onboarding")
+          || ProcessInfo.processInfo.arguments.contains("-onboarding-step")
+        {
+          session.isOnboarded = false
+          session.isAuthenticated = false
         }
-    }
-    @Published var preferredScheme: ColorScheme {
-        didSet { UserDefaults.standard.set(preferredScheme == .dark, forKey: "shield.darkMode") }
-    }
-    @Published var currentAppIcon: AppIconOption = .base {
-        didSet {
-            UserDefaults.standard.set(currentAppIcon.rawValue, forKey: "shield.selectedAppIcon")
-        }
-    }
 
-    // MARK: - Navigation
-    @Published var selectedDoc: DocumentItem? = nil
-    @Published private(set) var activeEditorDocumentID: String?
-    @Published var showCapture: Bool = false
-    @Published var isHomeWorkspaceToolsExpanded = false
-    @Published var pendingSharedImportURL: URL? = nil
-    /// A handoff error is kept out of the URL/file path and surfaced once by
-    /// CaptureView. The message is always generic and contains no source data.
-    @Published var pendingSharedImportError: String? = nil
-    @Published var showVault: Bool = false
-    @Published var activeTab: AppTab = .library
-    @Published var pendingThemeDeepLink: SeasonalThemeID? = nil
-
-    // Style pre-selected from gallery — applied to editor when next doc is opened
-    @Published var pendingMaskStyle: MaskStyle? = nil
-
-    // Redaction mode pre-selected from the Home quick-actions — auto-applied when the editor opens
-    @Published var pendingRedactionMode: RedactionMode? = nil
-    @Published var pendingDocumentSearchPageIndex: Int? = nil
-    @Published var pendingDocumentSearchDocumentID: String? = nil
-
-    // Pages to re-adjust from EditorView — CaptureView opens its ScanReviewView at the correct level
-    @Published var scanReviewPagesForEdit: [UIImage] = []
-    @Published var showScanReviewForEdit: Bool = false
-
-    // MARK: - Library
-    @Published var documents: [DocumentItem] = []
-    @Published var searchQuery: String = ""
-    @Published private(set) var isPreparingLocalSearchOCR = false
-    @Published var activeCategory: DocumentCategory = .all
-    @Published var activeCategoryID: String = DocumentCategory.all.rawValue  // supports custom too
-    @Published var sortOption: SortOption = .dateDesc
-    @Published var recentDocsPage: Int = 0
-    static let recentDocsPageSize = 5
-    private var localSearchOCRTask: Task<Void, Never>?
-    private var localSearchOCRRequestID = UUID()
-
-    // Triggered when a vaulted doc is closed from the editor — fires the 60s auto-lock countdown
-    @Published var vaultedDocJustClosed: DocumentItem? = nil
-    private var accessBoundarySaveLease: AccessBoundarySaveLease?
-
-    // MARK: - User categories (persisted)
-    @Published var customCategories: [UserCategory] = [] {
-        didSet { persistCustomCategories() }
-    }
-
-    // MARK: - Init
-
-    init() {
-        let ud = UserDefaults.standard
-        session = AppSessionCoordinator(userDefaults: ud)
-        // Language is handled by LanguageManager.shared
-        preferredScheme = ud.object(forKey: "shield.darkMode") == nil
-            ? .light
-            : (ud.bool(forKey: "shield.darkMode") ? .dark : .light)
-
-        currentAppIcon = SeasonalThemeCoordinator.shared.activeThemeID.icon
-
-        documents = AppState.loadDocuments()
-        if !documents.isEmpty,
-           case .missing = AccessStateStore().load() {
-            ud.set(true, forKey: "shield.access.preMigrationInstallEvidence")
-        }
-        PremiumManager.shared.syncProcessedDocumentCountIfNeeded(existingCount: documents.count)
-        customCategories = AppState.loadCustomCategories()
-
-#if DEBUG
-        if ASOScreenshotMode.isEnabled {
-            LanguageManager.shared.current = ASOScreenshotMode.language
-            preferredScheme = ASOScreenshotMode.colorScheme
-            session.isOnboarded = true
-            session.isAuthenticated = true
-            documents = Self.asoSampleDocuments(language: ASOScreenshotMode.language)
-
-            if ASOScreenshotMode.scene.starts(with: "onboarding") || ProcessInfo.processInfo.arguments.contains("-onboarding-step") {
-                session.isOnboarded = false
-                session.isAuthenticated = false
+        switch ASOScreenshotMode.scene {
+        case "onboarding":
+          session.isOnboarded = false
+          session.isAuthenticated = false
+        case "lock":
+          session.isAuthenticated = false
+        case "capture", "03-smart-scanner", "03", "scan-review":
+          showCapture = true
+          selectedDoc = nil
+        case "01-identity-dni", "01", "01-editor-protected", "editor":
+          selectedDoc = documents.first
+        case "editor-export-accessibility":
+          if var document = documents.first(where: { $0.id == "aso-identity" }) {
+            let fixtureFileName = "aso-export-accessibility-fixture.jpg"
+            let fixtureURL = Self.resolveImageURL(fileName: fixtureFileName, isVaulted: false)
+            let fixtureSize = CGSize(width: 800, height: 500)
+            let fixtureImage = UIGraphicsImageRenderer(size: fixtureSize).image { context in
+              UIColor.white.setFill()
+              context.fill(CGRect(origin: .zero, size: fixtureSize))
             }
-
-            switch ASOScreenshotMode.scene {
-            case "onboarding":
-                session.isOnboarded = false
-                session.isAuthenticated = false
-            case "lock":
-                session.isAuthenticated = false
-            case "capture", "03-smart-scanner", "03", "scan-review":
-                showCapture = true
-                selectedDoc = nil
-            case "01-identity-dni", "01", "01-editor-protected", "editor":
-                selectedDoc = documents.first
-            case "editor-export-accessibility":
-                if var document = documents.first(where: { $0.id == "aso-identity" }) {
-                    let fixtureFileName = "aso-export-accessibility-fixture.jpg"
-                    let fixtureURL = Self.resolveImageURL(fileName: fixtureFileName, isVaulted: false)
-                    let fixtureSize = CGSize(width: 800, height: 500)
-                    let fixtureImage = UIGraphicsImageRenderer(size: fixtureSize).image { context in
-                        UIColor.white.setFill()
-                        context.fill(CGRect(origin: .zero, size: fixtureSize))
-                    }
-                    if let data = fixtureImage.jpegData(compressionQuality: 0.9) {
-                        try? FileManager.default.createDirectory(
-                            at: fixtureURL.deletingLastPathComponent(),
-                            withIntermediateDirectories: true
-                        )
-                        try? SecureFileStore.shared.write(data, to: fixtureURL)
-                    }
-                    document.imageFileName = fixtureFileName
-                    document.pageFileNames = [fixtureFileName]
-                    document.pageTransforms = [.identity]
-                    document.pageRedactions = [
-                        DocumentPageRedactions(
-                            pageIndex: 0,
-                            redactions: [Redaction(rect: CGRect(x: 0, y: 0, width: 1, height: 1))]
-                        )
-                    ]
-                    document.redactionCount = 1
-                    document.watermark = nil
-                    document.batchReviewPendingPageIndices = []
-                    document.batchSuggestionPageIndices = []
-                    document.redactionGeometryReviewedFingerprint = "raster-typed-v1:identity"
-                    document.redactionGeometryReviewPendingFingerprint = nil
-                    selectedDoc = document
-                }
-            case "editor-empty-detections":
-                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
-                    documents[index].fields = .empty
-                    documents[index].pageRedactions = []
-                    documents[index].redactionCount = 0
-                }
-                selectedDoc = documents.first(where: { $0.id == "aso-identity" })
-            case "editor-face-suggestions":
-                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
-                    documents[index].fields = .empty
-                    documents[index].fields.ocrFaceSuggestions = [
-                        OCRFaceSuggestion(
-                            pageIndex: 0,
-                            boundingRect: CGRect(x: 0.14, y: 0.20, width: 0.20, height: 0.22),
-                            confidence: 0.94
-                        ),
-                        OCRFaceSuggestion(
-                            pageIndex: 0,
-                            boundingRect: CGRect(x: 0.62, y: 0.20, width: 0.20, height: 0.22),
-                            confidence: 0.88
-                        )
-                    ]
-                    documents[index].fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
-                    documents[index].pageRedactions = []
-                    documents[index].redactionCount = 0
-                }
-                selectedDoc = documents.first(where: { $0.id == "aso-identity" })
-            case "02-passport-international", "02", "02-editor-manipulating-mask":
-                selectedDoc = documents.first(where: { $0.id == "aso-passport" }) ?? documents.first
-            case "04-ai-ocr-detection", "04", "04-ocr-results", "ocr":
-                selectedDoc = documents.first
-            case "05-antifraud-watermark", "05", "03-watermark-config":
-                selectedDoc = documents.first(where: { $0.id == "aso-rental" }) ?? documents.first
-            case "06-vault-security", "06", "10-vault-security", "10", "vault":
-                selectedDoc = nil
-                activeTab = .vault
-                session.isAuthenticated = true
-            case "07-library-dashboard", "07", "05-library", "home", "library":
-                selectedDoc = nil
-                activeTab = .library
-            case "08-batch-processing", "08", "08-multipage-pdf", "batch":
-                selectedDoc = nil
-                activeTab = .library
-            case "batch-review-queue":
-                if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
-                    documents[index].batchReviewPendingPageIndices = [0, 1]
-                    documents[index].batchSuggestionPageIndices = [0]
-                }
-                selectedDoc = nil
-                activeTab = .library
-            case "batch-import-recovery", "batch-import-cancel":
-                showCapture = true
-                selectedDoc = nil
-            case "batch-import-success":
-                showCapture = true
-                selectedDoc = nil
-            case "vault-delete-confirmation":
-                documents = documents.map { document in
-                    var fixture = document
-                    fixture.isVaulted = fixture.id == "aso-identity"
-                    return fixture
-                }
-                selectedDoc = nil
-                activeTab = .vault
-                session.isAuthenticated = true
-            case "09-mask-styles", "09", "09-templates", "gallery":
-                selectedDoc = nil
-                activeTab = .gallery
-            case "10-irreversible-export", "06-export-verification", "07-exif-gps", "export":
-                selectedDoc = documents.first
-            case "settings":
-                selectedDoc = nil
-                activeTab = .settings
-            case "themes":
-                selectedDoc = nil
-                activeTab = .settings
-                pendingThemeDeepLink = .halloween2026
-            default:
-                selectedDoc = nil
-                activeTab = .library
+            if let data = fixtureImage.jpegData(compressionQuality: 0.9) {
+              try? FileManager.default.createDirectory(
+                at: fixtureURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+              )
+              try? SecureFileStore.shared.write(data, to: fixtureURL)
             }
+            document.imageFileName = fixtureFileName
+            document.pageFileNames = [fixtureFileName]
+            document.pageTransforms = [.identity]
+            document.pageRedactions = [
+              DocumentPageRedactions(
+                pageIndex: 0,
+                redactions: [Redaction(rect: CGRect(x: 0, y: 0, width: 1, height: 1))]
+              )
+            ]
+            document.redactionCount = 1
+            document.watermark = nil
+            document.batchReviewPendingPageIndices = []
+            document.batchSuggestionPageIndices = []
+            document.redactionGeometryReviewedFingerprint = "raster-typed-v1:identity"
+            document.redactionGeometryReviewPendingFingerprint = nil
+            selectedDoc = document
+          }
+        case "editor-empty-detections":
+          if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+            documents[index].fields = .empty
+            documents[index].pageRedactions = []
+            documents[index].redactionCount = 0
+          }
+          selectedDoc = documents.first(where: { $0.id == "aso-identity" })
+        case "editor-face-suggestions":
+          if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+            documents[index].fields = .empty
+            documents[index].fields.ocrFaceSuggestions = [
+              OCRFaceSuggestion(
+                pageIndex: 0,
+                boundingRect: CGRect(x: 0.14, y: 0.20, width: 0.20, height: 0.22),
+                confidence: 0.94
+              ),
+              OCRFaceSuggestion(
+                pageIndex: 0,
+                boundingRect: CGRect(x: 0.62, y: 0.20, width: 0.20, height: 0.22),
+                confidence: 0.88
+              ),
+            ]
+            documents[index].fields.ocrFaceSuggestionsRevision = OCRService.faceSuggestionRevision
+            documents[index].pageRedactions = []
+            documents[index].redactionCount = 0
+          }
+          selectedDoc = documents.first(where: { $0.id == "aso-identity" })
+        case "02-passport-international", "02", "02-editor-manipulating-mask":
+          selectedDoc = documents.first(where: { $0.id == "aso-passport" }) ?? documents.first
+        case "04-ai-ocr-detection", "04", "04-ocr-results", "ocr":
+          selectedDoc = documents.first
+        case "05-antifraud-watermark", "05", "03-watermark-config":
+          selectedDoc = documents.first(where: { $0.id == "aso-rental" }) ?? documents.first
+        case "06-vault-security", "06", "10-vault-security", "10", "vault":
+          selectedDoc = nil
+          activeTab = .vault
+          session.isAuthenticated = true
+        case "07-library-dashboard", "07", "05-library", "home", "library":
+          selectedDoc = nil
+          activeTab = .library
+        case "08-batch-processing", "08", "08-multipage-pdf", "batch":
+          selectedDoc = nil
+          activeTab = .library
+        case "batch-review-queue":
+          if let index = documents.firstIndex(where: { $0.id == "aso-identity" }) {
+            documents[index].batchReviewPendingPageIndices = [0, 1]
+            documents[index].batchSuggestionPageIndices = [0]
+          }
+          selectedDoc = nil
+          activeTab = .library
+        case "batch-import-recovery", "batch-import-cancel":
+          showCapture = true
+          selectedDoc = nil
+        case "batch-import-success":
+          showCapture = true
+          selectedDoc = nil
+        case "vault-delete-confirmation":
+          documents = documents.map { document in
+            var fixture = document
+            fixture.isVaulted = fixture.id == "aso-identity"
+            return fixture
+          }
+          selectedDoc = nil
+          activeTab = .vault
+          session.isAuthenticated = true
+        case "09-mask-styles", "09", "09-templates", "gallery":
+          selectedDoc = nil
+          activeTab = .gallery
+        case "10-irreversible-export", "06-export-verification", "07-exif-gps", "export":
+          selectedDoc = documents.first
+        case "settings":
+          selectedDoc = nil
+          activeTab = .settings
+        case "themes":
+          selectedDoc = nil
+          activeTab = .settings
+          pendingThemeDeepLink = .halloween2026
+        default:
+          selectedDoc = nil
+          activeTab = .library
         }
-#endif
-        bindSession()
-        updateWidgetSnapshot(reload: false)
-    }
+      }
+    #endif
+    bindSession()
+    updateWidgetSnapshot(reload: false)
+  }
 
-#if DEBUG
+  #if DEBUG
     private static func asoSampleDocuments(language: AppLanguage) -> [DocumentItem] {
-        var identityFields = DocumentFields.empty
-        identityFields.documentNumber = "X1234567T"
-        identityFields.supportNumber = "SYN123456"
-        // DNISpainView expects "SURNAMES, GIVEN NAME" (comma-separated) to split correctly.
-        identityFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
-        identityFields.dateOfBirth = "14/03/1990"
-        identityFields.nationality = language == .es ? "ESPAÑOLA" : "SPANISH"
-        identityFields.expires = "12/11/2031"
-        identityFields.sex = "F"
-        identityFields.address = language == .es ? "CALLE EJEMPLO 24, MADRID" : "24 SAMPLE STREET, MADRID"
-        identityFields.mrz = "IDESPX1234567T<<<<<<<<<<<<<<<"
-        identityFields.ocrDocumentType = "DNI"
-        identityFields.ocrMRZValid = true
-        identityFields.ocrRiskLevel = "low"
-        identityFields.ocrDetectedCountry = "ESP"
-        identityFields.ocrFieldConfidence = [
-            "documentNumber": 0.98,
-            "fullName": 0.97,
-            "dateOfBirth": 0.96,
-            "address": 0.94,
-            "mrz": 0.99
-        ]
+      var identityFields = DocumentFields.empty
+      identityFields.documentNumber = "X1234567T"
+      identityFields.supportNumber = "SYN123456"
+      // DNISpainView expects "SURNAMES, GIVEN NAME" (comma-separated) to split correctly.
+      identityFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
+      identityFields.dateOfBirth = "14/03/1990"
+      identityFields.nationality = language == .es ? "ESPAÑOLA" : "SPANISH"
+      identityFields.expires = "12/11/2031"
+      identityFields.sex = "F"
+      identityFields.address =
+        language == .es ? "CALLE EJEMPLO 24, MADRID" : "24 SAMPLE STREET, MADRID"
+      identityFields.mrz = "IDESPX1234567T<<<<<<<<<<<<<<<"
+      identityFields.ocrDocumentType = "DNI"
+      identityFields.ocrMRZValid = true
+      identityFields.ocrRiskLevel = "low"
+      identityFields.ocrDetectedCountry = "ESP"
+      identityFields.ocrFieldConfidence = [
+        "documentNumber": 0.98,
+        "fullName": 0.97,
+        "dateOfBirth": 0.96,
+        "address": 0.94,
+        "mrz": 0.99,
+      ]
 
-        let identityRedactions = AutoRedactions.suggested(for: .dniESP, style: .secure)
-        let now = Date()
-        let titles: [(String, String)] = [
-            ("DNI — copia protegida", "ID card — protected copy"),
-            ("Pasaporte — viaje", "Passport — travel"),
-            ("Contrato de alquiler", "Rental agreement"),
-            ("Nómina — abril", "Payslip — April"),
-            ("Extracto bancario", "Bank statement"),
-            ("Informe médico", "Medical report")
-        ]
+      let identityRedactions = AutoRedactions.suggested(for: .dniESP, style: .secure)
+      let now = Date()
+      let titles: [(String, String)] = [
+        ("DNI — copia protegida", "ID card — protected copy"),
+        ("Pasaporte — viaje", "Passport — travel"),
+        ("Contrato de alquiler", "Rental agreement"),
+        ("Nómina — abril", "Payslip — April"),
+        ("Extracto bancario", "Bank statement"),
+        ("Informe médico", "Medical report"),
+      ]
 
-        var passportFields = DocumentFields.empty
-        passportFields.documentNumber = "518749632"
-        passportFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
-        passportFields.dateOfBirth = "14/03/1990"
-        passportFields.nationality = language == .es ? "ESP" : "USA"
-        passportFields.expires = "03/09/2034"
-        passportFields.sex = "F"
-        passportFields.mrz = language == .es
-            ? "P<ESPGARCIA<LOPEZ<<MARIA<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325ESP9003142F3409034<<<<<<<<<<<<<<02"
-            : "P<USAMORGAN<<ALEX<<<<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325USA9003142F3409034<<<<<<<<<<<<<<00"
+      var passportFields = DocumentFields.empty
+      passportFields.documentNumber = "518749632"
+      passportFields.fullName = language == .es ? "GARCÍA LÓPEZ, MARÍA" : "MORGAN, ALEX"
+      passportFields.dateOfBirth = "14/03/1990"
+      passportFields.nationality = language == .es ? "ESP" : "USA"
+      passportFields.expires = "03/09/2034"
+      passportFields.sex = "F"
+      passportFields.mrz =
+        language == .es
+        ? "P<ESPGARCIA<LOPEZ<<MARIA<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325ESP9003142F3409034<<<<<<<<<<<<<<02"
+        : "P<USAMORGAN<<ALEX<<<<<<<<<<<<<<<<<<<<<<<<<<<\n5187496325USA9003142F3409034<<<<<<<<<<<<<<00"
 
-        let passportRedactions = AutoRedactions.suggested(for: .passportUSA, style: .pixelate)
+      let passportRedactions = AutoRedactions.suggested(for: .passportUSA, style: .pixelate)
 
-        return [
-            DocumentItem(
-                id: "aso-identity",
-                kind: .dniESP,
-                title: language == .es ? titles[0].0 : titles[0].1,
-                category: .identity,
-                date: now,
-                isFavorite: true,
-                pageFileNames: ["aso-id-front", "aso-id-back"],
-                fields: identityFields,
-                pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: identityRedactions)],
-                watermark: Watermark(text: language == .es ? "COPIA PROTEGIDA" : "PROTECTED COPY")
-            ),
-            DocumentItem(
-                id: "aso-passport",
-                kind: .passportUSA,
-                title: language == .es ? titles[1].0 : titles[1].1,
-                category: .travel,
-                date: now.addingTimeInterval(-3_600),
-                redactionCount: 4,
-                isFavorite: true,
-                isVaulted: true,
-                pageFileNames: ["aso-passport"],
-                fields: passportFields,
-                pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: passportRedactions)],
-                watermark: Watermark(text: language == .es ? "SOLO PARA TRÁMITE DE VIAJE" : "FOR TRAVEL PURPOSES ONLY")
-            ),
-            DocumentItem(
-                id: "aso-rental",
-                kind: .genericID,
-                title: language == .es ? titles[2].0 : titles[2].1,
-                category: .work,
-                date: now.addingTimeInterval(-86_400),
-                redactionCount: 9,
-                pageFileNames: ["aso-rental-1", "aso-rental-2", "aso-rental-3"]
-            ),
-            DocumentItem(
-                id: "aso-payslip",
-                kind: .dniITA,
-                title: language == .es ? titles[3].0 : titles[3].1,
-                category: .work,
-                date: now.addingTimeInterval(-172_800),
-                redactionCount: 6,
-                isFavorite: true,
-                pageFileNames: ["aso-payslip"]
-            ),
-            DocumentItem(
-                id: "aso-bank",
-                kind: .drivingUK,
-                title: language == .es ? titles[4].0 : titles[4].1,
-                category: .finance,
-                date: now.addingTimeInterval(-259_200),
-                redactionCount: 8,
-                isVaulted: true,
-                pageFileNames: ["aso-bank-1", "aso-bank-2"]
-            ),
-            DocumentItem(
-                id: "aso-medical",
-                kind: .passportMEX,
-                title: language == .es ? titles[5].0 : titles[5].1,
-                category: .health,
-                date: now.addingTimeInterval(-345_600),
-                redactionCount: 5,
-                pageFileNames: ["aso-medical"]
-            )
-        ]
+      return [
+        DocumentItem(
+          id: "aso-identity",
+          kind: .dniESP,
+          title: language == .es ? titles[0].0 : titles[0].1,
+          category: .identity,
+          date: now,
+          isFavorite: true,
+          pageFileNames: ["aso-id-front", "aso-id-back"],
+          fields: identityFields,
+          pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: identityRedactions)],
+          watermark: Watermark(text: language == .es ? "COPIA PROTEGIDA" : "PROTECTED COPY")
+        ),
+        DocumentItem(
+          id: "aso-passport",
+          kind: .passportUSA,
+          title: language == .es ? titles[1].0 : titles[1].1,
+          category: .travel,
+          date: now.addingTimeInterval(-3_600),
+          redactionCount: 4,
+          isFavorite: true,
+          isVaulted: true,
+          pageFileNames: ["aso-passport"],
+          fields: passportFields,
+          pageRedactions: [DocumentPageRedactions(pageIndex: 0, redactions: passportRedactions)],
+          watermark: Watermark(
+            text: language == .es ? "SOLO PARA TRÁMITE DE VIAJE" : "FOR TRAVEL PURPOSES ONLY")
+        ),
+        DocumentItem(
+          id: "aso-rental",
+          kind: .genericID,
+          title: language == .es ? titles[2].0 : titles[2].1,
+          category: .work,
+          date: now.addingTimeInterval(-86_400),
+          redactionCount: 9,
+          pageFileNames: ["aso-rental-1", "aso-rental-2", "aso-rental-3"]
+        ),
+        DocumentItem(
+          id: "aso-payslip",
+          kind: .dniITA,
+          title: language == .es ? titles[3].0 : titles[3].1,
+          category: .work,
+          date: now.addingTimeInterval(-172_800),
+          redactionCount: 6,
+          isFavorite: true,
+          pageFileNames: ["aso-payslip"]
+        ),
+        DocumentItem(
+          id: "aso-bank",
+          kind: .drivingUK,
+          title: language == .es ? titles[4].0 : titles[4].1,
+          category: .finance,
+          date: now.addingTimeInterval(-259_200),
+          redactionCount: 8,
+          isVaulted: true,
+          pageFileNames: ["aso-bank-1", "aso-bank-2"]
+        ),
+        DocumentItem(
+          id: "aso-medical",
+          kind: .passportMEX,
+          title: language == .es ? titles[5].0 : titles[5].1,
+          category: .health,
+          date: now.addingTimeInterval(-345_600),
+          redactionCount: 5,
+          pageFileNames: ["aso-medical"]
+        ),
+      ]
     }
-#endif
+  #endif
 
-    // MARK: - Alternate App Icon Management
+  // MARK: - Alternate App Icon Management
 
-    enum AppIconError: LocalizedError {
-        case proRequired
-        case unsupportedPlatform
-        case changeFailed(String)
+  enum AppIconError: LocalizedError {
+    case proRequired
+    case unsupportedPlatform
+    case changeFailed(String)
 
-        var errorDescription: String? {
-            switch self {
-            case .proRequired:
-                return "MaskID Pro is required to use custom icons."
-            case .unsupportedPlatform:
-                return "Alternate icons are not supported on this platform."
-            case .changeFailed(let msg):
-                return msg
-            }
-        }
+    var errorDescription: String? {
+      switch self {
+      case .proRequired:
+        return "MaskID Pro is required to use custom icons."
+      case .unsupportedPlatform:
+        return "Alternate icons are not supported on this platform."
+      case .changeFailed(let msg):
+        return msg
+      }
     }
+  }
 
-    @MainActor
-    func setAppIcon(
-        _ icon: AppIconOption,
-        isPro: Bool,
-        allowSeasonalAutomatic: Bool = false
-    ) async throws {
-        if icon.isPro && !isPro && !allowSeasonalAutomatic {
-            throw AppIconError.proRequired
-        }
-
-        try await setSystemAppIcon(icon)
-
-        if !allowSeasonalAutomatic {
-            UserDefaults.standard.set(true, forKey: "shield.theme.manualIconOverride")
-        }
-        currentAppIcon = icon
+  @MainActor
+  func setAppIcon(
+    _ icon: AppIconOption,
+    isPro: Bool,
+    allowSeasonalAutomatic: Bool = false
+  ) async throws {
+    if icon.isPro && !isPro && !allowSeasonalAutomatic {
+      throw AppIconError.proRequired
     }
 
-    /// Keeps the application icon aligned with the effective seasonal theme.
-    /// Theme activation clears any manual-icon override at the selection
-    /// boundary, so an already-installed build cannot silently keep a stale
-    /// icon when the user applies a theme.
-    @MainActor
-    func applySeasonalThemeIcon(for themeID: SeasonalThemeID) {
-        let defaults = UserDefaults.standard
-        let desiredIcon: AppIconOption = themeID.icon
-        currentAppIcon = desiredIcon
-        seasonalIconSyncRequest += 1
-        let request = seasonalIconSyncRequest
-        let previousSync = seasonalIconSyncTask
+    try await setSystemAppIcon(icon)
 
-#if os(iOS)
-        let installedIcon = AppIconOption.from(alternateIconName: UIApplication.shared.alternateIconName)
-        if desiredIcon == installedIcon, previousSync == nil {
-            defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
-            return
+    if !allowSeasonalAutomatic {
+      UserDefaults.standard.set(true, forKey: "shield.theme.manualIconOverride")
+    }
+    currentAppIcon = icon
+  }
+
+  /// Keeps the application icon aligned with the effective seasonal theme.
+  /// Theme activation clears any manual-icon override at the selection
+  /// boundary, so an already-installed build cannot silently keep a stale
+  /// icon when the user applies a theme.
+  @MainActor
+  func applySeasonalThemeIcon(for themeID: SeasonalThemeID) {
+    let defaults = UserDefaults.standard
+    let desiredIcon: AppIconOption = themeID.icon
+    currentAppIcon = desiredIcon
+    seasonalIconSyncRequest += 1
+    let request = seasonalIconSyncRequest
+    let previousSync = seasonalIconSyncTask
+
+    #if os(iOS)
+      let installedIcon = AppIconOption.from(
+        alternateIconName: UIApplication.shared.alternateIconName)
+      if desiredIcon == installedIcon, previousSync == nil {
+        defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
+        return
+      }
+    #endif
+
+    seasonalIconSyncTask = Task { @MainActor [weak self] in
+      await previousSync?.value
+      guard let self, self.seasonalIconSyncRequest == request else { return }
+      do {
+        try await self.setSystemAppIcon(desiredIcon)
+        guard self.seasonalIconSyncRequest == request else { return }
+        self.currentAppIcon = desiredIcon
+        defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
+      } catch {
+        guard self.seasonalIconSyncRequest == request else { return }
+        AppState.trackEvent(
+          "theme_activation_failed",
+          properties: [
+            "name": themeID.rawValue,
+            "error_type": "icon",
+          ])
+      }
+
+      if self.seasonalIconSyncRequest == request {
+        self.seasonalIconSyncTask = nil
+      }
+    }
+  }
+
+  @MainActor
+  func waitForSeasonalThemeIconSync() async {
+    await seasonalIconSyncTask?.value
+  }
+
+  @MainActor
+  private func setSystemAppIcon(_ icon: AppIconOption) async throws {
+    #if os(iOS)
+      let isTesting =
+        NSClassFromString("XCTest") != nil
+        || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        || ProcessInfo.processInfo.arguments.contains("-ui-testing")
+      if UIApplication.shared.supportsAlternateIcons,
+        !isTesting,
+        UIApplication.shared.alternateIconName != icon.alternateIconName
+      {
+        do {
+          try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
+        } catch {
+          #if !targetEnvironment(simulator)
+            throw AppIconError.changeFailed(error.localizedDescription)
+          #endif
         }
-#endif
+      }
+    #endif
+  }
 
-        seasonalIconSyncTask = Task { @MainActor [weak self] in
-            await previousSync?.value
-            guard let self, self.seasonalIconSyncRequest == request else { return }
-            do {
-                try await self.setSystemAppIcon(desiredIcon)
-                guard self.seasonalIconSyncRequest == request else { return }
-                self.currentAppIcon = desiredIcon
-                defaults.set(true, forKey: "shield.theme.lastAppliedIcon")
-            } catch {
-                guard self.seasonalIconSyncRequest == request else { return }
-                AppState.trackEvent("theme_activation_failed", properties: [
-                    "name": themeID.rawValue,
-                    "error_type": "icon"
-                ])
-            }
+  @MainActor
+  func clearSeasonalIconOverride() {
+    UserDefaults.standard.removeObject(forKey: "shield.theme.manualIconOverride")
+  }
 
-            if self.seasonalIconSyncRequest == request {
-                self.seasonalIconSyncTask = nil
-            }
+  /// Managed themes own the app's appearance. Preserve the user's previous
+  /// choice and restore it when the standard theme is selected again.
+  @MainActor
+  func applySeasonalThemeAppearance(for themeID: SeasonalThemeID) {
+    let defaults = UserDefaults.standard
+    let savedSchemeKey = "shield.theme.previousColorScheme"
+
+    if themeID.isSeasonal {
+      if defaults.object(forKey: savedSchemeKey) == nil {
+        defaults.set(preferredScheme == .dark ? "dark" : "light", forKey: savedSchemeKey)
+        if preferredScheme != .dark {
+          preferredScheme = .dark
         }
+      }
+    } else if let saved = defaults.string(forKey: savedSchemeKey) {
+      preferredScheme = saved == "dark" ? .dark : .light
+      defaults.removeObject(forKey: savedSchemeKey)
+    }
+  }
+
+  @MainActor
+  func setRegularAppearanceScheme(_ scheme: ColorScheme) {
+    if ShieldTheme.activeThemeID.isSeasonal {
+      UserDefaults.standard.set(
+        scheme == .dark ? "dark" : "light",
+        forKey: "shield.theme.previousColorScheme"
+      )
+    }
+    preferredScheme = scheme
+  }
+
+  @MainActor
+  func syncAppIconWithSystem() {
+    #if os(iOS)
+      if UIApplication.shared.supportsAlternateIcons {
+        let currentSystemName = UIApplication.shared.alternateIconName
+        let systemOption = AppIconOption.from(alternateIconName: currentSystemName)
+        if currentAppIcon != systemOption {
+          currentAppIcon = systemOption
+        }
+      }
+    #endif
+  }
+
+  // MARK: - Computed
+
+  var isOnboarded: Bool {
+    get { session.isOnboarded }
+    set { session.isOnboarded = newValue }
+  }
+
+  var isAuthenticated: Bool {
+    get { session.isAuthenticated }
+    set { session.isAuthenticated = newValue }
+  }
+
+  var hasActiveFilter: Bool {
+    activeCategoryID != DocumentCategory.all.rawValue || !searchQuery.isEmpty
+  }
+
+  // All documents including vaulted — used for the Home recents list.
+  // Vaulted docs appear masked in the UI; tapping them triggers vault auth.
+  var filteredDocuments: [DocumentItem] {
+    var docs = documents  // include vaulted
+
+    if activeCategoryID != DocumentCategory.all.rawValue {
+      docs = docs.filter { doc in
+        // Vaulted docs always appear regardless of category filter
+        if doc.isVaulted { return true }
+        if let cid = doc.customCategoryID {
+          return cid == activeCategoryID
+        }
+        return doc.category.rawValue == activeCategoryID
+      }
     }
 
-    @MainActor
-    func waitForSeasonalThemeIconSync() async {
-        await seasonalIconSyncTask?.value
+    if !searchQuery.isEmpty {
+      // Search OCR and metadata locally for non-vaulted files. Vaulted
+      // records stay listed without exposing their searchable contents.
+      docs = docs.filter { $0.isVaulted || $0.matchesLocalSearch(searchQuery) }
     }
 
-    @MainActor
-    private func setSystemAppIcon(_ icon: AppIconOption) async throws {
-#if os(iOS)
-        let isTesting = NSClassFromString("XCTest") != nil
-            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-            || ProcessInfo.processInfo.arguments.contains("-ui-testing")
-        if UIApplication.shared.supportsAlternateIcons,
-           !isTesting,
-           UIApplication.shared.alternateIconName != icon.alternateIconName {
-            do {
-                try await UIApplication.shared.setAlternateIconName(icon.alternateIconName)
-            } catch {
-#if !targetEnvironment(simulator)
-                throw AppIconError.changeFailed(error.localizedDescription)
-#endif
-            }
-        }
-#endif
+    switch sortOption {
+    case .dateDesc: docs = docs.sorted { $0.date > $1.date }
+    case .dateAsc: docs = docs.sorted { $0.date < $1.date }
+    case .nameAsc: docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedAscending }
+    case .nameDesc: docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedDescending }
     }
 
-    @MainActor
-    func clearSeasonalIconOverride() {
-        UserDefaults.standard.removeObject(forKey: "shield.theme.manualIconOverride")
+    return docs
+  }
+
+  func prepareSearchNavigation(to document: DocumentItem) {
+    guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+      !document.isVaulted
+    else {
+      pendingDocumentSearchPageIndex = nil
+      pendingDocumentSearchDocumentID = nil
+      return
     }
+    pendingDocumentSearchDocumentID = document.id
+    pendingDocumentSearchPageIndex = document.matchingOCRPageIndices(for: searchQuery).first
+  }
 
-    /// Managed themes own the app's appearance. Preserve the user's previous
-    /// choice and restore it when the standard theme is selected again.
-    @MainActor
-    func applySeasonalThemeAppearance(for themeID: SeasonalThemeID) {
-        let defaults = UserDefaults.standard
-        let savedSchemeKey = "shield.theme.previousColorScheme"
-
-        if themeID.isSeasonal {
-            if defaults.object(forKey: savedSchemeKey) == nil {
-                defaults.set(preferredScheme == .dark ? "dark" : "light", forKey: savedSchemeKey)
-                if preferredScheme != .dark {
-                    preferredScheme = .dark
-                }
-            }
-        } else if let saved = defaults.string(forKey: savedSchemeKey) {
-            preferredScheme = saved == "dark" ? .dark : .light
-            defaults.removeObject(forKey: savedSchemeKey)
-        }
+  @MainActor
+  func prepareLocalSearchIndexIfNeeded() {
+    localSearchOCRTask?.cancel()
+    let requestID = UUID()
+    localSearchOCRRequestID = requestID
+    if isPreparingLocalSearchOCR {
+      isPreparingLocalSearchOCR = false
     }
+    guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
-    @MainActor
-    func setRegularAppearanceScheme(_ scheme: ColorScheme) {
-        if ShieldTheme.activeThemeID.isSeasonal {
-            UserDefaults.standard.set(
-                scheme == .dark ? "dark" : "light",
-                forKey: "shield.theme.previousColorScheme"
-            )
+    localSearchOCRTask = Task { [weak self] in
+      do {
+        try await Task.sleep(for: .milliseconds(350))
+      } catch {
+        return
+      }
+      guard let self,
+        !Task.isCancelled,
+        self.localSearchOCRRequestID == requestID,
+        !self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      else { return }
+
+      let candidates = self.documents.filter(Self.needsLocalSearchOCR)
+      guard !candidates.isEmpty else { return }
+      self.isPreparingLocalSearchOCR = true
+      defer {
+        if self.localSearchOCRRequestID == requestID {
+          self.isPreparingLocalSearchOCR = false
         }
-        preferredScheme = scheme
-    }
+      }
 
-    @MainActor
-    func syncAppIconWithSystem() {
-        #if os(iOS)
-        if UIApplication.shared.supportsAlternateIcons {
-            let currentSystemName = UIApplication.shared.alternateIconName
-            let systemOption = AppIconOption.from(alternateIconName: currentSystemName)
-            if currentAppIcon != systemOption {
-                currentAppIcon = systemOption
-            }
-        }
-        #endif
-    }
+      for candidate in candidates {
+        guard !Task.isCancelled,
+          self.localSearchOCRRequestID == requestID
+        else { break }
+        guard let document = self.documents.first(where: { $0.id == candidate.id }),
+          Self.needsLocalSearchOCR(document)
+        else { continue }
 
-    // MARK: - Computed
-
-    var isOnboarded: Bool {
-        get { session.isOnboarded }
-        set { session.isOnboarded = newValue }
-    }
-
-    var isAuthenticated: Bool {
-        get { session.isAuthenticated }
-        set { session.isAuthenticated = newValue }
-    }
-
-    var hasActiveFilter: Bool {
-        activeCategoryID != DocumentCategory.all.rawValue || !searchQuery.isEmpty
-    }
-
-    // All documents including vaulted — used for the Home recents list.
-    // Vaulted docs appear masked in the UI; tapping them triggers vault auth.
-    var filteredDocuments: [DocumentItem] {
-        var docs = documents  // include vaulted
-
-        if activeCategoryID != DocumentCategory.all.rawValue {
-            docs = docs.filter { doc in
-                // Vaulted docs always appear regardless of category filter
-                if doc.isVaulted { return true }
-                if let cid = doc.customCategoryID {
-                    return cid == activeCategoryID
-                }
-                return doc.category.rawValue == activeCategoryID
-            }
-        }
-
-        if !searchQuery.isEmpty {
-            // Search OCR and metadata locally for non-vaulted files. Vaulted
-            // records stay listed without exposing their searchable contents.
-            docs = docs.filter { $0.isVaulted || $0.matchesLocalSearch(searchQuery) }
-        }
-
-        switch sortOption {
-        case .dateDesc: docs = docs.sorted { $0.date > $1.date }
-        case .dateAsc:  docs = docs.sorted { $0.date < $1.date }
-        case .nameAsc:  docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedAscending }
-        case .nameDesc: docs = docs.sorted { $0.title.localizedCompare($1.title) == .orderedDescending }
-        }
-
-        return docs
-    }
-
-    func prepareSearchNavigation(to document: DocumentItem) {
-        guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              !document.isVaulted else {
-            pendingDocumentSearchPageIndex = nil
-            pendingDocumentSearchDocumentID = nil
-            return
-        }
-        pendingDocumentSearchDocumentID = document.id
-        pendingDocumentSearchPageIndex = document.matchingOCRPageIndices(for: searchQuery).first
-    }
-
-    @MainActor
-    func prepareLocalSearchIndexIfNeeded() {
-        localSearchOCRTask?.cancel()
-        let requestID = UUID()
-        localSearchOCRRequestID = requestID
-        if isPreparingLocalSearchOCR {
-            isPreparingLocalSearchOCR = false
-        }
-        guard !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-
-        localSearchOCRTask = Task { [weak self] in
-            do {
-                try await Task.sleep(for: .milliseconds(350))
-            } catch {
-                return
-            }
-            guard let self,
-                  !Task.isCancelled,
-                  self.localSearchOCRRequestID == requestID,
-                  !self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-
-            let candidates = self.documents.filter(Self.needsLocalSearchOCR)
-            guard !candidates.isEmpty else { return }
-            self.isPreparingLocalSearchOCR = true
-            defer {
-                if self.localSearchOCRRequestID == requestID {
-                    self.isPreparingLocalSearchOCR = false
-                }
-            }
-
-            for candidate in candidates {
-                guard !Task.isCancelled,
-                      self.localSearchOCRRequestID == requestID else { break }
-                guard let document = self.documents.first(where: { $0.id == candidate.id }),
-                      Self.needsLocalSearchOCR(document) else { continue }
-
-                let pageFileNames: [String]
-                if let existingPages = document.pageFileNames, !existingPages.isEmpty {
-                    pageFileNames = existingPages
-                } else {
-                    pageFileNames = [document.imageFileName].compactMap { $0 }
-                }
-                let imagesByPage = pageFileNames.map {
-                    AppState.loadImage(fileName: $0, isVaulted: false)
-                }
-                guard imagesByPage.contains(where: { $0 != nil }) else { continue }
-
-                let observations = await OCRService.recognizeObservationsByPageAdaptive(inPages: imagesByPage)
-                guard !Task.isCancelled,
-                      self.localSearchOCRRequestID == requestID else { break }
-                guard let latestDocument = self.documents.first(where: { $0.id == candidate.id }),
-                      !latestDocument.isVaulted,
-                      latestDocument.fields.ocrPageEvidence == nil else { continue }
-
-                var updatedDocument = latestDocument
-                updatedDocument.fields = Self.addLocalSearchOCR(observations, to: latestDocument.fields)
-                _ = self.updateDocument(updatedDocument)
-            }
-        }
-    }
-
-    private static func needsLocalSearchOCR(_ document: DocumentItem) -> Bool {
-        guard !document.isVaulted,
-              document.kind == .photo || document.kind == .genericID,
-              document.fields.ocrPageEvidence == nil else { return false }
-        let hasPageText = !(document.fields.ocrPageTexts ?? []).isEmpty
-        let hasBoundingText = !(document.fields.ocrBoundingTexts ?? []).isEmpty
-        let hasFullText = !(document.fields.ocrFullText ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return !hasPageText && !hasBoundingText && !hasFullText
-    }
-
-    private static func addLocalSearchOCR(
-        _ observations: [[OCRService.TextObservation]],
-        to originalFields: DocumentFields
-    ) -> DocumentFields {
-        let pageLines = observations.map { $0.map(\.text) }
-        let pageTexts = pageLines.map { $0.joined(separator: "\n") }
-        let fieldsByPage = pageLines.map(OCRService.extractFields(from:))
-        let extractedFields = fieldsByPage.max { lhs, rhs in
-            let leftScore = (lhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
-                + (lhs.ocrMRZValid == true ? 10 : 0)
-            let rightScore = (rhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
-                + (rhs.ocrMRZValid == true ? 10 : 0)
-            return leftScore < rightScore
-        } ?? OCRService.extractFields(from: pageLines.flatMap { $0 })
-
-        var fields = originalFields
-        if fields.documentNumber.isEmpty { fields.documentNumber = extractedFields.documentNumber }
-        if fields.fullName.isEmpty { fields.fullName = extractedFields.fullName }
-        if fields.dateOfBirth.isEmpty { fields.dateOfBirth = extractedFields.dateOfBirth }
-        if fields.nationality.isEmpty { fields.nationality = extractedFields.nationality }
-        if fields.expires.isEmpty { fields.expires = extractedFields.expires }
-        if fields.sex.isEmpty { fields.sex = extractedFields.sex }
-        if fields.address.isEmpty { fields.address = extractedFields.address }
-        if fields.supportNumber?.isEmpty != false { fields.supportNumber = extractedFields.supportNumber }
-        if fields.issued?.isEmpty != false { fields.issued = extractedFields.issued }
-        if fields.mrz?.isEmpty != false { fields.mrz = extractedFields.mrz }
-        fields.ocrPageEvidence = OCRService.buildPageEvidence(
-            observations: observations,
-            extractedFields: fieldsByPage
-        )
-        fields.ocrPageTexts = pageTexts
-        fields.ocrFullText = pageTexts.joined(separator: "\n\n")
-        fields.ocrDocumentType = fields.ocrDocumentType ?? OCRService.detectDocumentType(
-            from: pageLines.flatMap { $0 }
-        ).rawValue
-        fields.ocrMRZValid = fields.ocrMRZValid ?? extractedFields.ocrMRZValid
-        fields.ocrMRZFormat = fields.ocrMRZFormat ?? extractedFields.ocrMRZFormat
-        fields.ocrFieldConfidence = fields.ocrFieldConfidence ?? extractedFields.ocrFieldConfidence
-        if let firstPage = observations.first {
-            fields.ocrBoundingTexts = firstPage.map(\.text)
-            fields.ocrBoundingRects = firstPage.map(\.boundingRect)
-        }
-        return fields
-    }
-
-    var filteredDocumentsPage: [DocumentItem] {
-        let all = filteredDocuments
-        let pageSize = AppState.recentDocsPageSize
-        let lastPage = max(0, recentDocsTotalPages - 1)
-        let page = min(max(0, recentDocsPage), lastPage)
-        let end = min((page + 1) * pageSize, all.count)
-        let start = min(page * pageSize, end)
-        guard start < end else { return [] }
-        return Array(all[start..<end])
-    }
-
-    var recentDocsTotalPages: Int {
-        max(1, Int(ceil(Double(filteredDocuments.count) / Double(AppState.recentDocsPageSize))))
-    }
-
-    var vaultDocuments: [DocumentItem] {
-        documents.filter { $0.isVaulted }
-    }
-
-    // MARK: - Document CRUD
-
-    @discardableResult
-    func addDocument(_ doc: DocumentItem) -> Bool {
-        guard PremiumManager.shared.accessState.allows(.createContent) else { return false }
-        var document = doc
-        document.modifiedAt = Date()
-        guard DocumentCollectionTransaction.insert(
-            document,
-            into: &documents,
-            persist: persistDocumentsSnapshot
-        ) else {
-            updateWidgetSnapshot(reload: true)
-            return false
-        }
-        updateWidgetSnapshot(reload: true)
-        PremiumManager.shared.recordDocumentProcessed()
-        return true
-    }
-
-    @discardableResult
-    func updateDocument(_ doc: DocumentItem) -> Bool {
-        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
-        var document = doc
-        document.modifiedAt = Date()
-        guard DocumentCollectionTransaction.replace(
-            document,
-            in: &documents,
-            persist: persistDocumentsSnapshot
-        ) else {
-            updateWidgetSnapshot(reload: true)
-            return false
-        }
-        updateWidgetSnapshot(reload: true)
-        return true
-    }
-
-    func deleteDocument(_ doc: DocumentItem) {
-        guard documents.contains(where: { $0.id == doc.id }) else { return }
-        let previousDocuments = documents
-        documents.removeAll { $0.id == doc.id }
-        guard persistDocuments() else {
-            documents = previousDocuments
-            updateWidgetSnapshot(reload: true)
-            return
-        }
-
-        for fileName in doc.allImageFileNames {
-            SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
-        }
-        if let sourceFileName = doc.sourceFileName {
-            SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
-        }
-        CloudSyncManager.shared.scheduleRemoteDeletion(id: doc.id)
-    }
-
-    func registerActiveEditor(documentID: String, isForcedReadOnly: Bool) {
-        guard !isForcedReadOnly else { return }
-        activeEditorDocumentID = documentID
-    }
-
-    func unregisterActiveEditor(documentID: String) {
-        guard activeEditorDocumentID == documentID else { return }
-        activeEditorDocumentID = nil
-        accessBoundarySaveLease = nil
-    }
-
-    func beginAccessBoundarySave(
-        for documentID: String,
-        previousState: AppAccessState,
-        nextState: AppAccessState
-    ) -> AccessBoundarySaveLease? {
-        let documentIsPersisted = documents.contains(where: { $0.id == documentID })
-        guard AccessBoundarySavePolicy.canIssueLease(
-            for: documentID,
-            activeEditorDocumentID: activeEditorDocumentID,
-            documentIsPersisted: documentIsPersisted,
-            previousState: previousState,
-            nextState: nextState,
-            leaseAlreadyIssued: accessBoundarySaveLease != nil
-        ), PremiumManager.shared.accessState == nextState else { return nil }
-        let lease = AccessBoundarySaveLease(documentID: documentID, nonce: UUID())
-        accessBoundarySaveLease = lease
-        return lease
-    }
-
-    func commitAccessBoundarySnapshot(
-        _ document: DocumentItem,
-        using lease: AccessBoundarySaveLease
-    ) -> DocumentItem? {
-        guard accessBoundarySaveLease == lease,
-              activeEditorDocumentID == lease.documentID,
-              document.id == lease.documentID,
-              PremiumManager.shared.accessState.isReadOnly,
-              documents.contains(where: { $0.id == document.id })
-        else { return nil }
-
-        var snapshot = document
-        snapshot.modifiedAt = Date()
-        guard DocumentCollectionTransaction.replace(
-            snapshot,
-            in: &documents,
-            persist: persistDocumentsSnapshot
-        ) else { return nil }
-        accessBoundarySaveLease = nil
-        updateWidgetSnapshot(reload: true)
-        return snapshot
-    }
-
-    func discardAccessBoundarySave(using lease: AccessBoundarySaveLease) {
-        guard accessBoundarySaveLease == lease else { return }
-        accessBoundarySaveLease = nil
-    }
-
-    func toggleFavorite(_ doc: DocumentItem) {
-        var d = doc
-        d.isFavorite.toggle()
-        updateDocument(d)
-    }
-
-    @discardableResult
-    func toggleVault(_ doc: DocumentItem) -> Bool {
-        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
-        var d = doc
-        guard relocateAssetsTransactionally(for: d, toVault: !doc.isVaulted) else {
-            return false
-        }
-        d.isVaulted.toggle()
-        guard updateDocument(d) else {
-            // The asset move succeeded, but the metadata snapshot did not.
-            // Put the files back where the still-current document expects them.
-            _ = relocateAssetsTransactionally(for: d, toVault: doc.isVaulted)
-            return false
-        }
-        if d.isVaulted {
-            // Remove any package that was backed up before the document entered
-            // the Vault. The deletion is queued when CloudKit is unavailable.
-            CloudSyncManager.shared.scheduleRemoteDeletion(id: d.id)
-        }
-        return true
-    }
-
-    /// Replaces processed pages without touching the current files until the
-    /// encrypted document snapshot points at the staged replacements. Vaulted
-    /// documents stay in the Vault directory for the entire operation.
-    @discardableResult
-    func replaceRenderedPages(
-        for document: DocumentItem,
-        with pages: [UIImage],
-        transforms: [DocumentPageTransform]
-    ) -> DocumentItem? {
-        guard PremiumManager.shared.accessState.allows(.modifyContent) else { return nil }
-        let oldFileNames: [String] = {
-            if let names = document.pageFileNames, !names.isEmpty { return names }
-            if let name = document.imageFileName { return [name] }
-            return []
-        }()
-        guard !pages.isEmpty,
-              oldFileNames.count == pages.count,
-              transforms.count == pages.count,
-              documents.contains(where: { $0.id == document.id }) else {
-            return nil
-        }
-
-        var stagedFileNames: [String] = []
-        for (index, page) in pages.enumerated() {
-            let id = "\(document.id)_rendered_\(UUID().uuidString)_p\(index)"
-            guard let fileName = saveImage(page, id: id, isVaulted: document.isVaulted) else {
-                stagedFileNames.forEach {
-                    removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
-                }
-                return nil
-            }
-            stagedFileNames.append(fileName)
-        }
-
-        var updated = document
-        updated.imageFileName = stagedFileNames[0]
-        updated.pageFileNames = (stagedFileNames.count > 1 || document.pageFileNames != nil)
-            ? stagedFileNames
-            : nil
-        updated.pageTransforms = transforms
-        updated.imageAdjustment = nil
-        if RedactionReviewGate.requiresReview(from: document.pageTransforms, to: transforms) {
-            updated.batchReviewPendingPageIndices = RedactionReviewGate.pendingPageIndices(
-                existing: updated.batchReviewPendingPageIndices,
-                pageCount: updated.pageCount
-            )
-            updated.redactionGeometryReviewPendingFingerprint = RedactionReviewGate.fingerprint(
-                pageTransforms: transforms,
-                imageAdjustment: updated.imageAdjustment,
-                rasterBackedTypedDocument: updated.usesRasterBackedTypedDocumentCoordinates
-            )
-            updated.fields.ocrPageEvidence = nil
-            updated.fields.ocrPageTexts = nil
-            updated.fields.ocrFullText = nil
-            updated.fields.ocrBoundingTexts = nil
-            updated.fields.ocrBoundingRects = nil
-            updated.fields.ocrFaceSuggestions = nil
-            updated.fields.ocrFaceSuggestionsRevision = nil
-            updated.fields.ocrDismissedFaceSuggestionIDs = nil
-        }
-
-        guard updateDocument(updated) else {
-            stagedFileNames.forEach {
-                removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
-            }
-            return nil
-        }
-
-        oldFileNames.forEach {
-            removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
-        }
-        return documents.first { $0.id == document.id }
-    }
-
-    func deleteAllDocuments() {
-        let documentsToDelete = documents
-        documents.removeAll()
-        guard persistDocuments() else {
-            documents = documentsToDelete
-            updateWidgetSnapshot(reload: true)
-            return
-        }
-
-        for doc in documentsToDelete {
-            for fileName in doc.allImageFileNames {
-                SecureFileStore.shared.removeFile(at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
-            }
-            if let sourceFileName = doc.sourceFileName {
-                SecureFileStore.shared.removeFile(at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
-            }
-        }
-        for document in documentsToDelete {
-            CloudSyncManager.shared.scheduleRemoteDeletion(id: document.id)
-        }
-    }
-
-    func restoreCloudDocument(_ document: DocumentItem, assets: [CloudAssetPayload]) throws {
-        guard PremiumManager.shared.accessState.allows(.cloudWrite) else {
-            throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
-        }
-        struct PreviousAsset {
-            let url: URL
-            let data: Data?
-        }
-
-        var previousAssets: [PreviousAsset] = []
-        func rollBackAssets() {
-            for previous in previousAssets.reversed() {
-                if let data = previous.data {
-                    try? SecureFileStore.shared.write(data, to: previous.url)
-                } else {
-                    SecureFileStore.shared.removeFile(at: previous.url)
-                }
-            }
-        }
-
-        for asset in assets {
-            let destination: URL
-            switch asset.kind {
-            case .image:
-                destination = AppState.resolveImageURL(fileName: asset.fileName, isVaulted: document.isVaulted)
-            case .source:
-                destination = AppState.resolveSourceURL(fileName: asset.fileName, isVaulted: document.isVaulted)
-            }
-
-            do {
-                let existed = FileManager.default.fileExists(atPath: destination.path)
-                let previousData = existed ? try SecureFileStore.shared.read(from: destination) : nil
-                previousAssets.append(PreviousAsset(url: destination, data: previousData))
-                try SecureFileStore.shared.write(asset.data, to: destination)
-            } catch {
-                rollBackAssets()
-                throw error
-            }
-        }
-
-        var candidate = documents
-        if let index = candidate.firstIndex(where: { $0.id == document.id }) {
-            candidate[index] = document
+        let pageFileNames: [String]
+        if let existingPages = document.pageFileNames, !existingPages.isEmpty {
+          pageFileNames = existingPages
         } else {
-            candidate.append(document)
-            candidate.sort { $0.date > $1.date }
+          pageFileNames = [document.imageFileName].compactMap { $0 }
         }
-        guard persistDocumentsSnapshot(candidate) else {
-            rollBackAssets()
-            throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
+        let imagesByPage = pageFileNames.map {
+          AppState.loadImage(fileName: $0, isVaulted: false)
         }
+        guard imagesByPage.contains(where: { $0 != nil }) else { continue }
 
-        documents = candidate
-        updateWidgetSnapshot(reload: true)
+        let observations = await OCRService.recognizeObservationsByPageAdaptive(
+          inPages: imagesByPage)
+        guard !Task.isCancelled,
+          self.localSearchOCRRequestID == requestID
+        else { break }
+        guard let latestDocument = self.documents.first(where: { $0.id == candidate.id }),
+          !latestDocument.isVaulted,
+          latestDocument.fields.ocrPageEvidence == nil
+        else { continue }
+
+        var updatedDocument = latestDocument
+        updatedDocument.fields = Self.addLocalSearchOCR(observations, to: latestDocument.fields)
+        _ = self.updateDocument(updatedDocument)
+      }
+    }
+  }
+
+  private static func needsLocalSearchOCR(_ document: DocumentItem) -> Bool {
+    guard !document.isVaulted,
+      document.kind == .photo || document.kind == .genericID,
+      document.fields.ocrPageEvidence == nil
+    else { return false }
+    let hasPageText = !(document.fields.ocrPageTexts ?? []).isEmpty
+    let hasBoundingText = !(document.fields.ocrBoundingTexts ?? []).isEmpty
+    let hasFullText = !(document.fields.ocrFullText ?? "")
+      .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    return !hasPageText && !hasBoundingText && !hasFullText
+  }
+
+  private static func addLocalSearchOCR(
+    _ observations: [[OCRService.TextObservation]],
+    to originalFields: DocumentFields
+  ) -> DocumentFields {
+    let pageLines = observations.map { $0.map(\.text) }
+    let pageTexts = pageLines.map { $0.joined(separator: "\n") }
+    let fieldsByPage = pageLines.map(OCRService.extractFields(from:))
+    let extractedFields =
+      fieldsByPage.max { lhs, rhs in
+        let leftScore =
+          (lhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+          + (lhs.ocrMRZValid == true ? 10 : 0)
+        let rightScore =
+          (rhs.ocrFieldConfidence ?? [:]).values.reduce(0, +)
+          + (rhs.ocrMRZValid == true ? 10 : 0)
+        return leftScore < rightScore
+      } ?? OCRService.extractFields(from: pageLines.flatMap { $0 })
+
+    var fields = originalFields
+    if fields.documentNumber.isEmpty { fields.documentNumber = extractedFields.documentNumber }
+    if fields.fullName.isEmpty { fields.fullName = extractedFields.fullName }
+    if fields.dateOfBirth.isEmpty { fields.dateOfBirth = extractedFields.dateOfBirth }
+    if fields.nationality.isEmpty { fields.nationality = extractedFields.nationality }
+    if fields.expires.isEmpty { fields.expires = extractedFields.expires }
+    if fields.sex.isEmpty { fields.sex = extractedFields.sex }
+    if fields.address.isEmpty { fields.address = extractedFields.address }
+    if fields.supportNumber?.isEmpty != false {
+      fields.supportNumber = extractedFields.supportNumber
+    }
+    if fields.issued?.isEmpty != false { fields.issued = extractedFields.issued }
+    if fields.mrz?.isEmpty != false { fields.mrz = extractedFields.mrz }
+    fields.ocrPageEvidence = OCRService.buildPageEvidence(
+      observations: observations,
+      extractedFields: fieldsByPage
+    )
+    fields.ocrPageTexts = pageTexts
+    fields.ocrFullText = pageTexts.joined(separator: "\n\n")
+    fields.ocrDocumentType =
+      fields.ocrDocumentType
+      ?? OCRService.detectDocumentType(
+        from: pageLines.flatMap { $0 }
+      ).rawValue
+    fields.ocrMRZValid = fields.ocrMRZValid ?? extractedFields.ocrMRZValid
+    fields.ocrMRZFormat = fields.ocrMRZFormat ?? extractedFields.ocrMRZFormat
+    fields.ocrFieldConfidence = fields.ocrFieldConfidence ?? extractedFields.ocrFieldConfidence
+    if let firstPage = observations.first {
+      fields.ocrBoundingTexts = firstPage.map(\.text)
+      fields.ocrBoundingRects = firstPage.map(\.boundingRect)
+    }
+    return fields
+  }
+
+  var filteredDocumentsPage: [DocumentItem] {
+    let all = filteredDocuments
+    let pageSize = AppState.recentDocsPageSize
+    let lastPage = max(0, recentDocsTotalPages - 1)
+    let page = min(max(0, recentDocsPage), lastPage)
+    let end = min((page + 1) * pageSize, all.count)
+    let start = min(page * pageSize, end)
+    guard start < end else { return [] }
+    return Array(all[start..<end])
+  }
+
+  var recentDocsTotalPages: Int {
+    max(1, Int(ceil(Double(filteredDocuments.count) / Double(AppState.recentDocsPageSize))))
+  }
+
+  var vaultDocuments: [DocumentItem] {
+    documents.filter { $0.isVaulted }
+  }
+
+  // MARK: - Document CRUD
+
+  @discardableResult
+  func addDocument(_ doc: DocumentItem) -> Bool {
+    guard PremiumManager.shared.accessState.allows(.createContent) else { return false }
+    var document = doc
+    document.modifiedAt = Date()
+    guard
+      DocumentCollectionTransaction.insert(
+        document,
+        into: &documents,
+        persist: persistDocumentsSnapshot
+      )
+    else {
+      updateWidgetSnapshot(reload: true)
+      return false
+    }
+    updateWidgetSnapshot(reload: true)
+    PremiumManager.shared.recordDocumentProcessed()
+    return true
+  }
+
+  @discardableResult
+  func updateDocument(_ doc: DocumentItem) -> Bool {
+    guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
+    var document = doc
+    document.modifiedAt = Date()
+    guard
+      DocumentCollectionTransaction.replace(
+        document,
+        in: &documents,
+        persist: persistDocumentsSnapshot
+      )
+    else {
+      updateWidgetSnapshot(reload: true)
+      return false
+    }
+    updateWidgetSnapshot(reload: true)
+    return true
+  }
+
+  func deleteDocument(_ doc: DocumentItem) {
+    guard documents.contains(where: { $0.id == doc.id }) else { return }
+    let previousDocuments = documents
+    documents.removeAll { $0.id == doc.id }
+    guard persistDocuments() else {
+      documents = previousDocuments
+      updateWidgetSnapshot(reload: true)
+      return
     }
 
-    // MARK: - Image storage
+    for fileName in doc.allImageFileNames {
+      SecureFileStore.shared.removeFile(
+        at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
+    }
+    if let sourceFileName = doc.sourceFileName {
+      SecureFileStore.shared.removeFile(
+        at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
+    }
+    CloudSyncManager.shared.scheduleRemoteDeletion(id: doc.id)
+  }
 
-    @discardableResult
-    func saveImage(_ image: UIImage, id: String, isVaulted: Bool = false) -> String? {
-        guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
-        let fileName = "\(id).jpg"
-        let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
-        guard let data = image.jpegData(compressionQuality: 0.85) else {
-            return nil
+  func registerActiveEditor(documentID: String, isForcedReadOnly: Bool) {
+    guard !isForcedReadOnly else { return }
+    activeEditorDocumentID = documentID
+  }
+
+  func unregisterActiveEditor(documentID: String) {
+    guard activeEditorDocumentID == documentID else { return }
+    activeEditorDocumentID = nil
+    accessBoundarySaveLease = nil
+  }
+
+  func beginAccessBoundarySave(
+    for documentID: String,
+    previousState: AppAccessState,
+    nextState: AppAccessState
+  ) -> AccessBoundarySaveLease? {
+    let documentIsPersisted = documents.contains(where: { $0.id == documentID })
+    guard
+      AccessBoundarySavePolicy.canIssueLease(
+        for: documentID,
+        activeEditorDocumentID: activeEditorDocumentID,
+        documentIsPersisted: documentIsPersisted,
+        previousState: previousState,
+        nextState: nextState,
+        leaseAlreadyIssued: accessBoundarySaveLease != nil
+      ), PremiumManager.shared.accessState == nextState
+    else { return nil }
+    let lease = AccessBoundarySaveLease(documentID: documentID, nonce: UUID())
+    accessBoundarySaveLease = lease
+    return lease
+  }
+
+  func commitAccessBoundarySnapshot(
+    _ document: DocumentItem,
+    using lease: AccessBoundarySaveLease
+  ) -> DocumentItem? {
+    guard accessBoundarySaveLease == lease,
+      activeEditorDocumentID == lease.documentID,
+      document.id == lease.documentID,
+      PremiumManager.shared.accessState.isReadOnly,
+      documents.contains(where: { $0.id == document.id })
+    else { return nil }
+
+    var snapshot = document
+    snapshot.modifiedAt = Date()
+    guard
+      DocumentCollectionTransaction.replace(
+        snapshot,
+        in: &documents,
+        persist: persistDocumentsSnapshot
+      )
+    else { return nil }
+    accessBoundarySaveLease = nil
+    updateWidgetSnapshot(reload: true)
+    return snapshot
+  }
+
+  func discardAccessBoundarySave(using lease: AccessBoundarySaveLease) {
+    guard accessBoundarySaveLease == lease else { return }
+    accessBoundarySaveLease = nil
+  }
+
+  func toggleFavorite(_ doc: DocumentItem) {
+    var d = doc
+    d.isFavorite.toggle()
+    updateDocument(d)
+  }
+
+  @discardableResult
+  func toggleVault(_ doc: DocumentItem) -> Bool {
+    guard PremiumManager.shared.accessState.allows(.modifyContent) else { return false }
+    var d = doc
+    guard relocateAssetsTransactionally(for: d, toVault: !doc.isVaulted) else {
+      return false
+    }
+    d.isVaulted.toggle()
+    guard updateDocument(d) else {
+      // The asset move succeeded, but the metadata snapshot did not.
+      // Put the files back where the still-current document expects them.
+      _ = relocateAssetsTransactionally(for: d, toVault: doc.isVaulted)
+      return false
+    }
+    if d.isVaulted {
+      // Remove any package that was backed up before the document entered
+      // the Vault. The deletion is queued when CloudKit is unavailable.
+      CloudSyncManager.shared.scheduleRemoteDeletion(id: d.id)
+    }
+    return true
+  }
+
+  /// Replaces processed pages without touching the current files until the
+  /// encrypted document snapshot points at the staged replacements. Vaulted
+  /// documents stay in the Vault directory for the entire operation.
+  @discardableResult
+  func replaceRenderedPages(
+    for document: DocumentItem,
+    with pages: [UIImage],
+    transforms: [DocumentPageTransform]
+  ) -> DocumentItem? {
+    guard PremiumManager.shared.accessState.allows(.modifyContent) else { return nil }
+    let oldFileNames: [String] = {
+      if let names = document.pageFileNames, !names.isEmpty { return names }
+      if let name = document.imageFileName { return [name] }
+      return []
+    }()
+    guard !pages.isEmpty,
+      oldFileNames.count == pages.count,
+      transforms.count == pages.count,
+      documents.contains(where: { $0.id == document.id })
+    else {
+      return nil
+    }
+
+    var stagedFileNames: [String] = []
+    for (index, page) in pages.enumerated() {
+      let id = "\(document.id)_rendered_\(UUID().uuidString)_p\(index)"
+      guard let fileName = saveImage(page, id: id, isVaulted: document.isVaulted) else {
+        stagedFileNames.forEach {
+          removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
         }
-        do {
-            try SecureFileStore.shared.write(data, to: url)
-            return fileName
-        } catch {
-            return nil
-        }
+        return nil
+      }
+      stagedFileNames.append(fileName)
     }
 
-    func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
-        AppState.loadImage(fileName: fileName, isVaulted: isVaulted)
+    var updated = document
+    updated.imageFileName = stagedFileNames[0]
+    updated.pageFileNames =
+      (stagedFileNames.count > 1 || document.pageFileNames != nil)
+      ? stagedFileNames
+      : nil
+    updated.pageTransforms = transforms
+    updated.imageAdjustment = nil
+    if RedactionReviewGate.requiresReview(from: document.pageTransforms, to: transforms) {
+      updated.batchReviewPendingPageIndices = RedactionReviewGate.pendingPageIndices(
+        existing: updated.batchReviewPendingPageIndices,
+        pageCount: updated.pageCount
+      )
+      updated.redactionGeometryReviewPendingFingerprint = RedactionReviewGate.fingerprint(
+        pageTransforms: transforms,
+        imageAdjustment: updated.imageAdjustment,
+        rasterBackedTypedDocument: updated.usesRasterBackedTypedDocumentCoordinates
+      )
+      updated.fields.ocrPageEvidence = nil
+      updated.fields.ocrPageTexts = nil
+      updated.fields.ocrFullText = nil
+      updated.fields.ocrBoundingTexts = nil
+      updated.fields.ocrBoundingRects = nil
+      updated.fields.ocrFaceSuggestions = nil
+      updated.fields.ocrFaceSuggestionsRevision = nil
+      updated.fields.ocrDismissedFaceSuggestionIDs = nil
     }
 
-    @discardableResult
-    func saveSourceFile(_ data: Data, id: String, fileExtension: String) -> String? {
-        guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
-        let ext = fileExtension.trimmingCharacters(in: CharacterSet(charactersIn: "."))
-        let fileName = "\(id).\(ext)"
-        let url = AppState.librarySourcesDir.appendingPathComponent(fileName)
-        do {
-            try SecureFileStore.shared.write(data, to: url)
-            return fileName
-        } catch {
-            return nil
-        }
+    guard updateDocument(updated) else {
+      stagedFileNames.forEach {
+        removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+      }
+      return nil
     }
 
-    func loadSourceData(fileName: String, isVaulted: Bool) -> Data? {
-        AppState.loadSourceData(fileName: fileName, isVaulted: isVaulted)
+    oldFileNames.forEach {
+      removeStoredImage(fileName: $0, isVaulted: document.isVaulted)
+    }
+    return documents.first { $0.id == document.id }
+  }
+
+  func deleteAllDocuments() {
+    let documentsToDelete = documents
+    documents.removeAll()
+    guard persistDocuments() else {
+      documents = documentsToDelete
+      updateWidgetSnapshot(reload: true)
+      return
     }
 
-    func removeStoredImage(fileName: String, isVaulted: Bool = false) {
+    for doc in documentsToDelete {
+      for fileName in doc.allImageFileNames {
         SecureFileStore.shared.removeFile(
-            at: AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
-        )
-    }
-
-    func removeStoredSource(fileName: String, isVaulted: Bool = false) {
+          at: AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted))
+      }
+      if let sourceFileName = doc.sourceFileName {
         SecureFileStore.shared.removeFile(
-            at: AppState.resolveSourceURL(fileName: fileName, isVaulted: isVaulted)
-        )
+          at: AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted))
+      }
+    }
+    for document in documentsToDelete {
+      CloudSyncManager.shared.scheduleRemoteDeletion(id: document.id)
+    }
+  }
+
+  func restoreCloudDocument(_ document: DocumentItem, assets: [CloudAssetPayload]) throws {
+    guard PremiumManager.shared.accessState.allows(.cloudWrite) else {
+      throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
+    }
+    struct PreviousAsset {
+      let url: URL
+      let data: Data?
     }
 
-    // MARK: - Category CRUD
-
-    func addCustomCategory(_ cat: UserCategory) {
-        customCategories.append(cat)
-    }
-
-    func deleteCustomCategory(id: String) {
-        customCategories.removeAll { $0.id == id }
-    }
-
-    // MARK: - Helpers
-
-    func str(_ key: String) -> String {
-        LanguageManager.shared.localize(key: key)
-    }
-
-    func str(_ key: String, _ args: CVarArg...) -> String {
-        let format = LanguageManager.shared.localize(key: key)
-        return String(format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue), arguments: args)
-    }
-
-    func str(_ key: String, args: CVarArg..., table: String) -> String {
-        let format = LanguageManager.shared.t(key, table: table)
-        return String(format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue), arguments: args)
-    }
-
-    static func markUserActivity(force: Bool = false) {
-        AppSessionCoordinator.markUserActivity(force: force)
-    }
-
-    func completeSuccessfulUnlock() {
-        session.completeSuccessfulUnlock()
-    }
-
-    static func trackEvent(_ name: String, properties: [String: String] = [:]) {
-        let safeName = sanitizedTelemetryValue(name)
-        let allowedKeys: Set<String> = [
-            "source", "format", "pages", "redactions", "count", "kind", "mode",
-            "method", "risk", "low_fields", "detected_type", "mrz_valid",
-            "has_adjustments", "product_id", "trigger", "reason", "error_type",
-            "last_step", "from_step", "step", "name", "feature_key", "user_tier",
-            "category", "plan", "started_checkout", "feature", "quota", "docs",
-            "tier", "subscription_state", "event_id", "campaign_id", "event_price",
-            "standard_price", "discount", "result"
-        ]
-        var safeProperties = properties.reduce(into: [String: String]()) { result, item in
-            guard allowedKeys.contains(item.key) else { return }
-            result[item.key] = sanitizedTelemetryValue(item.value)
+    var previousAssets: [PreviousAsset] = []
+    func rollBackAssets() {
+      for previous in previousAssets.reversed() {
+        if let data = previous.data {
+          try? SecureFileStore.shared.write(data, to: previous.url)
+        } else {
+          SecureFileStore.shared.removeFile(at: previous.url)
         }
-        if safeProperties["user_tier"] == nil {
-            safeProperties["user_tier"] = UserDefaults.standard.string(
-                forKey: PremiumManager.analyticsTierKey
-            ) ?? EntitlementTier.free.rawValue
-        }
-        if safeProperties["subscription_state"] == nil {
-            safeProperties["subscription_state"] = UserDefaults.standard.string(
-                forKey: PremiumManager.analyticsSubscriptionStateKey
-            ) ?? SubscriptionEntitlementState.free.rawValue
-        }
-        FirebaseIntegration.logEvent(safeName, parameters: safeProperties)
-        var payload: [String: Any] = safeProperties
-        payload["event"] = safeName
-        payload["timestamp"] = ISO8601DateFormatter().string(from: Date())
-        payload["build"] = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-
-        guard JSONSerialization.isValidJSONObject(payload),
-              let line = try? JSONSerialization.data(withJSONObject: payload, options: [])
-        else {
-            return
-        }
-
-        var log = (try? SecureFileStore.shared.read(from: telemetryURL)) ?? Data()
-        log.append(line)
-        log.append(0x0A)
-        let maximumBytes = 512 * 1_024
-        if log.count > maximumBytes {
-            let suffix = log.suffix(maximumBytes)
-            if let firstLineBreak = suffix.firstIndex(of: 0x0A) {
-                log = Data(suffix[suffix.index(after: firstLineBreak)...])
-            } else {
-                log = Data(suffix)
-            }
-        }
-        try? SecureFileStore.shared.write(log, to: telemetryURL)
-
+      }
     }
 
-    func redactionsCount(_ n: Int) -> String {
-        LanguageManager.shared.t("common_redactions_count", table: "Common", args: n)
+    for asset in assets {
+      let destination: URL
+      switch asset.kind {
+      case .image:
+        destination = AppState.resolveImageURL(
+          fileName: asset.fileName, isVaulted: document.isVaulted)
+      case .source:
+        destination = AppState.resolveSourceURL(
+          fileName: asset.fileName, isVaulted: document.isVaulted)
+      }
+
+      do {
+        let existed = FileManager.default.fileExists(atPath: destination.path)
+        let previousData = existed ? try SecureFileStore.shared.read(from: destination) : nil
+        previousAssets.append(PreviousAsset(url: destination, data: previousData))
+        try SecureFileStore.shared.write(asset.data, to: destination)
+      } catch {
+        rollBackAssets()
+        throw error
+      }
     }
 
-    // MARK: - App lifecycle / auto-lock
-
-    func handleScenePhaseChange(_ phase: ScenePhase) {
-        session.handleScenePhaseChange(phase)
+    var candidate = documents
+    if let index = candidate.firstIndex(where: { $0.id == document.id }) {
+      candidate[index] = document
+    } else {
+      candidate.append(document)
+      candidate.sort { $0.date > $1.date }
+    }
+    guard persistDocumentsSnapshot(candidate) else {
+      rollBackAssets()
+      throw DocumentSnapshotPersistenceError.encryptedSnapshotWriteFailed
     }
 
-    // MARK: - Persistence (private)
+    documents = candidate
+    updateWidgetSnapshot(reload: true)
+  }
 
-    private func bindSession() {
-        session.objectWillChange
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
+  // MARK: - Image storage
+
+  @discardableResult
+  func saveImage(_ image: UIImage, id: String, isVaulted: Bool = false) -> String? {
+    guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
+    let fileName = "\(id).jpg"
+    let url = AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
+    guard let data = image.jpegData(compressionQuality: 0.85) else {
+      return nil
+    }
+    do {
+      try SecureFileStore.shared.write(data, to: url)
+      return fileName
+    } catch {
+      return nil
+    }
+  }
+
+  func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
+    AppState.loadImage(fileName: fileName, isVaulted: isVaulted)
+  }
+
+  @discardableResult
+  func saveSourceFile(_ data: Data, id: String, fileExtension: String) -> String? {
+    guard PremiumManager.shared.accessState.allows(.importContent) else { return nil }
+    let ext = fileExtension.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+    let fileName = "\(id).\(ext)"
+    let url = AppState.librarySourcesDir.appendingPathComponent(fileName)
+    do {
+      try SecureFileStore.shared.write(data, to: url)
+      return fileName
+    } catch {
+      return nil
+    }
+  }
+
+  func loadSourceData(fileName: String, isVaulted: Bool) -> Data? {
+    AppState.loadSourceData(fileName: fileName, isVaulted: isVaulted)
+  }
+
+  func removeStoredImage(fileName: String, isVaulted: Bool = false) {
+    SecureFileStore.shared.removeFile(
+      at: AppState.resolveImageURL(fileName: fileName, isVaulted: isVaulted)
+    )
+  }
+
+  func removeStoredSource(fileName: String, isVaulted: Bool = false) {
+    SecureFileStore.shared.removeFile(
+      at: AppState.resolveSourceURL(fileName: fileName, isVaulted: isVaulted)
+    )
+  }
+
+  // MARK: - Category CRUD
+
+  func addCustomCategory(_ cat: UserCategory) {
+    customCategories.append(cat)
+  }
+
+  func deleteCustomCategory(id: String) {
+    customCategories.removeAll { $0.id == id }
+  }
+
+  // MARK: - Helpers
+
+  func str(_ key: String) -> String {
+    LanguageManager.shared.localize(key: key)
+  }
+
+  func str(_ key: String, _ args: CVarArg...) -> String {
+    let format = LanguageManager.shared.localize(key: key)
+    return String(
+      format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue),
+      arguments: args)
+  }
+
+  func str(_ key: String, args: CVarArg..., table: String) -> String {
+    let format = LanguageManager.shared.t(key, table: table)
+    return String(
+      format: format, locale: Locale(identifier: LanguageManager.shared.current.rawValue),
+      arguments: args)
+  }
+
+  static func markUserActivity(force: Bool = false) {
+    AppSessionCoordinator.markUserActivity(force: force)
+  }
+
+  func completeSuccessfulUnlock() {
+    session.completeSuccessfulUnlock()
+  }
+
+  static func trackEvent(_ name: String, properties: [String: String] = [:]) {
+    let safeName = sanitizedTelemetryValue(name)
+    let allowedKeys: Set<String> = [
+      "source", "format", "pages", "redactions", "count", "kind", "mode",
+      "method", "risk", "low_fields", "detected_type", "mrz_valid",
+      "has_adjustments", "product_id", "trigger", "reason", "error_type",
+      "last_step", "from_step", "step", "name", "feature_key", "user_tier",
+      "category", "plan", "started_checkout", "feature", "quota", "docs",
+      "tier", "subscription_state", "event_id", "campaign_id", "event_price",
+      "standard_price", "discount", "result",
+    ]
+    var safeProperties = properties.reduce(into: [String: String]()) { result, item in
+      guard allowedKeys.contains(item.key) else { return }
+      result[item.key] = sanitizedTelemetryValue(item.value)
+    }
+    if safeProperties["user_tier"] == nil {
+      safeProperties["user_tier"] =
+        UserDefaults.standard.string(
+          forKey: PremiumManager.analyticsTierKey
+        ) ?? EntitlementTier.free.rawValue
+    }
+    if safeProperties["subscription_state"] == nil {
+      safeProperties["subscription_state"] =
+        UserDefaults.standard.string(
+          forKey: PremiumManager.analyticsSubscriptionStateKey
+        ) ?? SubscriptionEntitlementState.free.rawValue
+    }
+    FirebaseIntegration.logEvent(safeName, parameters: safeProperties)
+    var payload: [String: Any] = safeProperties
+    payload["event"] = safeName
+    payload["timestamp"] = ISO8601DateFormatter().string(from: Date())
+    payload["build"] =
+      Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+
+    guard JSONSerialization.isValidJSONObject(payload),
+      let line = try? JSONSerialization.data(withJSONObject: payload, options: [])
+    else {
+      return
     }
 
-    nonisolated private static var appSupportDir: URL {
-        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Shield", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
+    var log = (try? SecureFileStore.shared.read(from: telemetryURL)) ?? Data()
+    log.append(line)
+    log.append(0x0A)
+    let maximumBytes = 512 * 1_024
+    if log.count > maximumBytes {
+      let suffix = log.suffix(maximumBytes)
+      if let firstLineBreak = suffix.firstIndex(of: 0x0A) {
+        log = Data(suffix[suffix.index(after: firstLineBreak)...])
+      } else {
+        log = Data(suffix)
+      }
     }
+    try? SecureFileStore.shared.write(log, to: telemetryURL)
 
-    nonisolated static var imagesDir: URL {
-        libraryImagesDir
+  }
+
+  func redactionsCount(_ n: Int) -> String {
+    LanguageManager.shared.t("common_redactions_count", table: "Common", args: n)
+  }
+
+  // MARK: - App lifecycle / auto-lock
+
+  func handleScenePhaseChange(_ phase: ScenePhase) {
+    if phase == .background {
+      isVaultUnlocked = false
     }
+    session.handleScenePhaseChange(phase)
+  }
 
-    nonisolated static var libraryImagesDir: URL {
-        let dir = appSupportDir.appendingPathComponent("images", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
+  // MARK: - Persistence (private)
+
+  private func bindSession() {
+    session.objectWillChange
+      .sink { [weak self] _ in
+        self?.objectWillChange.send()
+      }
+      .store(in: &cancellables)
+  }
+
+  nonisolated private static var appSupportDir: URL {
+    let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("Shield", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+  }
+
+  nonisolated static var imagesDir: URL {
+    libraryImagesDir
+  }
+
+  nonisolated static var libraryImagesDir: URL {
+    let dir = appSupportDir.appendingPathComponent("images", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+  }
+
+  nonisolated static var vaultImagesDir: URL {
+    let dir = appSupportDir.appendingPathComponent("vault-images", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+  }
+
+  nonisolated static var librarySourcesDir: URL {
+    let dir = appSupportDir.appendingPathComponent("sources", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+  }
+
+  nonisolated static var vaultSourcesDir: URL {
+    let dir = appSupportDir.appendingPathComponent("vault-sources", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir
+  }
+
+  private static var docsURL: URL {
+    appSupportDir.appendingPathComponent("documents.json")
+  }
+
+  private static func writeEncryptedDocumentSnapshot(_ documents: [DocumentItem]) throws {
+    let data = try JSONEncoder().encode(documents)
+    try SecureFileStore.shared.write(data, to: docsURL)
+    guard SecureFileStore.shared.isEncryptedFile(at: docsURL),
+      try SecureFileStore.shared.read(from: docsURL) == data
+    else {
+      throw SecureFileStoreError.invalidCiphertext
     }
+  }
 
-    nonisolated static var vaultImagesDir: URL {
-        let dir = appSupportDir.appendingPathComponent("vault-images", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
+  private static var categoriesURL: URL {
+    appSupportDir.appendingPathComponent("categories.json")
+  }
+
+  private static var telemetryURL: URL {
+    appSupportDir.appendingPathComponent("telemetry.ndjson")
+  }
+
+  private static func sanitizedTelemetryValue(_ value: String) -> String {
+    let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "._,-"))
+    let scalars = value.unicodeScalars.filter { allowed.contains($0) }.prefix(64)
+    return String(String.UnicodeScalarView(scalars))
+  }
+
+  nonisolated static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+    switch isVaulted {
+    case true:
+      return vaultImagesDir.appendingPathComponent(fileName)
+    case false:
+      return libraryImagesDir.appendingPathComponent(fileName)
+    case nil:
+      let vaultURL = vaultImagesDir.appendingPathComponent(fileName)
+      if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
+      return libraryImagesDir.appendingPathComponent(fileName)
     }
+  }
 
-    nonisolated static var librarySourcesDir: URL {
-        let dir = appSupportDir.appendingPathComponent("sources", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
+  nonisolated static func resolveSourceURL(fileName: String, isVaulted: Bool? = nil) -> URL {
+    switch isVaulted {
+    case true:
+      return vaultSourcesDir.appendingPathComponent(fileName)
+    case false:
+      return librarySourcesDir.appendingPathComponent(fileName)
+    case nil:
+      let vaultURL = vaultSourcesDir.appendingPathComponent(fileName)
+      if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
+      return librarySourcesDir.appendingPathComponent(fileName)
     }
+  }
 
-    nonisolated static var vaultSourcesDir: URL {
-        let dir = appSupportDir.appendingPathComponent("vault-sources", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
+  nonisolated static func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
+    SecureFileStore.shared.loadImage(
+      from: resolveImageURL(fileName: fileName, isVaulted: isVaulted))
+  }
+
+  nonisolated static func loadSourceData(fileName: String, isVaulted: Bool? = nil) -> Data? {
+    try? SecureFileStore.shared.read(
+      from: resolveSourceURL(fileName: fileName, isVaulted: isVaulted))
+  }
+
+  @discardableResult
+  private func persistDocuments() -> Bool {
+    let didPersist = persistDocumentsSnapshot(documents)
+    updateWidgetSnapshot(reload: true)
+    return didPersist
+  }
+
+  private func persistDocumentsSnapshot(_ snapshot: [DocumentItem]) -> Bool {
+    do {
+      try Self.writeEncryptedDocumentSnapshot(snapshot)
+
+      // The encrypted snapshot is now canonical. Retain legacy records
+      // until this write is confirmed.
+      DocumentStore.shared.removeLegacyFiles()
+      return true
+    } catch {
+      Self.persistenceLogger.error(
+        "Failed to persist encrypted documents: \(error.localizedDescription, privacy: .private)")
+      return false
     }
+  }
 
-    private static var docsURL: URL {
-        appSupportDir.appendingPathComponent("documents.json")
+  private func updateWidgetSnapshot(reload: Bool) {
+    let documentsWithRedactions = documents.filter {
+      $0.redactionCount > 0 || $0.totalRedactionCount > 0
     }
+    let watermarkedCount = documents.filter { doc in
+      guard let text = doc.watermark?.text else { return false }
+      return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }.count
+    let snapshot = ShieldWidgetSnapshot(
+      totalDocuments: documents.count,
+      documentsWithRedactions: documentsWithRedactions.count,
+      vaultedDocuments: documents.filter(\.isVaulted).count,
+      watermarkedDocuments: watermarkedCount,
+      hasPremiumAccess: PremiumManager.shared.isPro
+    )
+    ShieldWidgetSnapshotStore.save(snapshot)
+    if reload {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+  }
 
-    private static func writeEncryptedDocumentSnapshot(_ documents: [DocumentItem]) throws {
-        let data = try JSONEncoder().encode(documents)
-        try SecureFileStore.shared.write(data, to: docsURL)
-        guard SecureFileStore.shared.isEncryptedFile(at: docsURL),
-              try SecureFileStore.shared.read(from: docsURL) == data else {
+  func refreshWidgetSnapshot() {
+    updateWidgetSnapshot(reload: true)
+  }
+
+  private func persistCustomCategories() {
+    if let data = try? JSONEncoder().encode(customCategories) {
+      try? SecureFileStore.shared.write(data, to: AppState.categoriesURL)
+    }
+  }
+
+  private static func loadDocuments() -> [DocumentItem] {
+    let legacyStore = DocumentStore.shared
+
+    if let data = try? SecureFileStore.shared.read(from: docsURL),
+      let docs = try? JSONDecoder().decode([DocumentItem].self, from: data)
+    {
+      var migratedDocs = docs.map(migratedDocument)
+      let snapshotModifiedAt =
+        (try? docsURL.resourceValues(forKeys: [.contentModificationDateKey]))?
+        .contentModificationDate
+      do {
+        if !SecureFileStore.shared.isEncryptedFile(at: docsURL) {
+          try writeEncryptedDocumentSnapshot(migratedDocs)
+        } else {
+          guard try SecureFileStore.shared.read(from: docsURL) == data else {
             throw SecureFileStoreError.invalidCiphertext
+          }
         }
-    }
-
-    private static var categoriesURL: URL {
-        appSupportDir.appendingPathComponent("categories.json")
-    }
-
-    private static var telemetryURL: URL {
-        appSupportDir.appendingPathComponent("telemetry.ndjson")
-    }
-
-    private static func sanitizedTelemetryValue(_ value: String) -> String {
-        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "._,-"))
-        let scalars = value.unicodeScalars.filter { allowed.contains($0) }.prefix(64)
-        return String(String.UnicodeScalarView(scalars))
-    }
-
-    nonisolated static func resolveImageURL(fileName: String, isVaulted: Bool? = nil) -> URL {
-        switch isVaulted {
-        case true:
-            return vaultImagesDir.appendingPathComponent(fileName)
-        case false:
-            return libraryImagesDir.appendingPathComponent(fileName)
-        case nil:
-            let vaultURL = vaultImagesDir.appendingPathComponent(fileName)
-            if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
-            return libraryImagesDir.appendingPathComponent(fileName)
-        }
-    }
-
-    nonisolated static func resolveSourceURL(fileName: String, isVaulted: Bool? = nil) -> URL {
-        switch isVaulted {
-        case true:
-            return vaultSourcesDir.appendingPathComponent(fileName)
-        case false:
-            return librarySourcesDir.appendingPathComponent(fileName)
-        case nil:
-            let vaultURL = vaultSourcesDir.appendingPathComponent(fileName)
-            if FileManager.default.fileExists(atPath: vaultURL.path) { return vaultURL }
-            return librarySourcesDir.appendingPathComponent(fileName)
-        }
-    }
-
-    nonisolated static func loadImage(fileName: String, isVaulted: Bool? = nil) -> UIImage? {
-        SecureFileStore.shared.loadImage(from: resolveImageURL(fileName: fileName, isVaulted: isVaulted))
-    }
-
-    nonisolated static func loadSourceData(fileName: String, isVaulted: Bool? = nil) -> Data? {
-        try? SecureFileStore.shared.read(from: resolveSourceURL(fileName: fileName, isVaulted: isVaulted))
-    }
-
-    @discardableResult
-    private func persistDocuments() -> Bool {
-        let didPersist = persistDocumentsSnapshot(documents)
-        updateWidgetSnapshot(reload: true)
-        return didPersist
-    }
-
-    private func persistDocumentsSnapshot(_ snapshot: [DocumentItem]) -> Bool {
-        do {
-            try Self.writeEncryptedDocumentSnapshot(snapshot)
-
-            // The encrypted snapshot is now canonical. Retain legacy records
-            // until this write is confirmed.
-            DocumentStore.shared.removeLegacyFiles()
-            return true
-        } catch {
-            Self.persistenceLogger.error("Failed to persist encrypted documents: \(error.localizedDescription, privacy: .private)")
-            return false
-        }
-    }
-
-    private func updateWidgetSnapshot(reload: Bool) {
-        let documentsWithRedactions = documents.filter { $0.redactionCount > 0 || $0.totalRedactionCount > 0 }
-        let watermarkedCount = documents.filter { doc in
-            guard let text = doc.watermark?.text else { return false }
-            return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }.count
-        let snapshot = ShieldWidgetSnapshot(
-            totalDocuments: documents.count,
-            documentsWithRedactions: documentsWithRedactions.count,
-            vaultedDocuments: documents.filter(\.isVaulted).count,
-            watermarkedDocuments: watermarkedCount,
-            hasPremiumAccess: PremiumManager.shared.isPro
-        )
-        ShieldWidgetSnapshotStore.save(snapshot)
-        if reload {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
-    }
-
-    func refreshWidgetSnapshot() {
-        updateWidgetSnapshot(reload: true)
-    }
-
-    private func persistCustomCategories() {
-        if let data = try? JSONEncoder().encode(customCategories) {
-            try? SecureFileStore.shared.write(data, to: AppState.categoriesURL)
-        }
-    }
-
-    private static func loadDocuments() -> [DocumentItem] {
-        let legacyStore = DocumentStore.shared
-
-        if let data = try? SecureFileStore.shared.read(from: docsURL),
-           let docs = try? JSONDecoder().decode([DocumentItem].self, from: data) {
-            var migratedDocs = docs.map(migratedDocument)
-            let snapshotModifiedAt = (try? docsURL.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
-            do {
-                if !SecureFileStore.shared.isEncryptedFile(at: docsURL) {
-                    try writeEncryptedDocumentSnapshot(migratedDocs)
-                } else {
-                    guard try SecureFileStore.shared.read(from: docsURL) == data else {
-                        throw SecureFileStoreError.invalidCiphertext
-                    }
-                }
-                guard SecureFileStore.shared.isEncryptedFile(at: docsURL) else {
-                    throw SecureFileStoreError.invalidCiphertext
-                }
-
-                guard let snapshotModifiedAt else {
-                    persistenceLogger.error("Could not verify the legacy snapshot modification date; preserving legacy records for retry")
-                    return migratedDocs
-                }
-                guard let newerRecords = legacyStore.loadDocumentsModified(after: snapshotModifiedAt) else {
-                    persistenceLogger.error("Could not fully inspect legacy document records; preserving them for retry")
-                    return migratedDocs
-                }
-                if !newerRecords.isEmpty {
-                    var documentsByID: [String: DocumentItem] = [:]
-                    for document in migratedDocs {
-                        documentsByID[document.id] = document
-                    }
-                    for document in newerRecords {
-                        documentsByID[document.id] = migratedDocument(document)
-                    }
-                    let recoveredDocs = documentsByID.values.sorted { $0.date > $1.date }
-                    do {
-                        try writeEncryptedDocumentSnapshot(recoveredDocs)
-                        migratedDocs = recoveredDocs
-                    } catch {
-                        persistenceLogger.error("Failed to save recovered document updates: \(error.localizedDescription, privacy: .private)")
-                        return migratedDocs
-                    }
-                }
-
-                legacyStore.removeLegacyFiles()
-                return migratedDocs
-            } catch {
-                persistenceLogger.error("Failed to encrypt the legacy document snapshot: \(error.localizedDescription, privacy: .private)")
-                return []
-            }
+        guard SecureFileStore.shared.isEncryptedFile(at: docsURL) else {
+          throw SecureFileStoreError.invalidCiphertext
         }
 
-        let legacyDocs = legacyStore.loadAllDocuments()
-        if !legacyDocs.isEmpty {
-            let migratedDocs = legacyDocs.map(migratedDocument)
-            do {
-                try writeEncryptedDocumentSnapshot(migratedDocs)
-                legacyStore.removeLegacyFiles()
-                return migratedDocs
-            } catch {
-                persistenceLogger.error("Failed to migrate legacy documents into encrypted storage: \(error.localizedDescription, privacy: .private)")
-                return []
-            }
+        guard let snapshotModifiedAt else {
+          persistenceLogger.error(
+            "Could not verify the legacy snapshot modification date; preserving legacy records for retry"
+          )
+          return migratedDocs
         }
-
-        // Even an empty legacy snapshot has deletion semantics: commit it in
-        // encrypted storage before removing stale per-document JSON files.
-        guard let legacySnapshot = legacyStore.loadLegacySnapshot(), legacySnapshot.isEmpty else {
-            return []
+        guard let newerRecords = legacyStore.loadDocumentsModified(after: snapshotModifiedAt) else {
+          persistenceLogger.error(
+            "Could not fully inspect legacy document records; preserving them for retry")
+          return migratedDocs
         }
-
-        do {
-            try writeEncryptedDocumentSnapshot([])
-            legacyStore.removeLegacyFiles()
-            return []
-        } catch {
-            persistenceLogger.error("Failed to migrate the empty legacy document snapshot: \(error.localizedDescription, privacy: .private)")
-            return []
-        }
-    }
-
-    private static func migratedDocument(_ document: DocumentItem) -> DocumentItem {
-        var migrated = document
-        migrated.migrateToCurrentSchema()
-        return migrated
-    }
-
-    private static func loadCustomCategories() -> [UserCategory] {
-        // Try encrypted first, fall back to plain (migration path)
-        if let data = try? SecureFileStore.shared.read(from: categoriesURL),
-           let cats = try? JSONDecoder().decode([UserCategory].self, from: data) {
-            return cats
-        }
-        if let data = try? Data(contentsOf: categoriesURL),
-           let cats = try? JSONDecoder().decode([UserCategory].self, from: data) {
-            return cats
-        }
-        return []
-    }
-
-    private func relocateAssetsTransactionally(for doc: DocumentItem, toVault: Bool) -> Bool {
-        var pairs = doc.allImageFileNames.map { fileName in
-            (
-                AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted),
-                AppState.resolveImageURL(fileName: fileName, isVaulted: toVault)
+        if !newerRecords.isEmpty {
+          var documentsByID: [String: DocumentItem] = [:]
+          for document in migratedDocs {
+            documentsByID[document.id] = document
+          }
+          for document in newerRecords {
+            documentsByID[document.id] = migratedDocument(document)
+          }
+          let recoveredDocs = documentsByID.values.sorted { $0.date > $1.date }
+          do {
+            try writeEncryptedDocumentSnapshot(recoveredDocs)
+            migratedDocs = recoveredDocs
+          } catch {
+            persistenceLogger.error(
+              "Failed to save recovered document updates: \(error.localizedDescription, privacy: .private)"
             )
-        }
-        if let sourceFileName = doc.sourceFileName {
-            pairs.append((
-                AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted),
-                AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: toVault)
-            ))
+            return migratedDocs
+          }
         }
 
-        var createdDestinations: [URL] = []
-        do {
-            for (source, destination) in pairs {
-                guard FileManager.default.fileExists(atPath: source.path) else { continue }
-                try SecureFileStore.shared.copyFile(from: source, to: destination)
-                createdDestinations.append(destination)
-            }
-            for (source, _) in pairs {
-                SecureFileStore.shared.removeFile(at: source)
-            }
-            return true
-        } catch {
-            createdDestinations.forEach(SecureFileStore.shared.removeFile(at:))
-            return false
-        }
+        legacyStore.removeLegacyFiles()
+        return migratedDocs
+      } catch {
+        persistenceLogger.error(
+          "Failed to encrypt the legacy document snapshot: \(error.localizedDescription, privacy: .private)"
+        )
+        return []
+      }
     }
+
+    let legacyDocs = legacyStore.loadAllDocuments()
+    if !legacyDocs.isEmpty {
+      let migratedDocs = legacyDocs.map(migratedDocument)
+      do {
+        try writeEncryptedDocumentSnapshot(migratedDocs)
+        legacyStore.removeLegacyFiles()
+        return migratedDocs
+      } catch {
+        persistenceLogger.error(
+          "Failed to migrate legacy documents into encrypted storage: \(error.localizedDescription, privacy: .private)"
+        )
+        return []
+      }
+    }
+
+    // Even an empty legacy snapshot has deletion semantics: commit it in
+    // encrypted storage before removing stale per-document JSON files.
+    guard let legacySnapshot = legacyStore.loadLegacySnapshot(), legacySnapshot.isEmpty else {
+      return []
+    }
+
+    do {
+      try writeEncryptedDocumentSnapshot([])
+      legacyStore.removeLegacyFiles()
+      return []
+    } catch {
+      persistenceLogger.error(
+        "Failed to migrate the empty legacy document snapshot: \(error.localizedDescription, privacy: .private)"
+      )
+      return []
+    }
+  }
+
+  private static func migratedDocument(_ document: DocumentItem) -> DocumentItem {
+    var migrated = document
+    migrated.migrateToCurrentSchema()
+    return migrated
+  }
+
+  private static func loadCustomCategories() -> [UserCategory] {
+    // Try encrypted first, fall back to plain (migration path)
+    if let data = try? SecureFileStore.shared.read(from: categoriesURL),
+      let cats = try? JSONDecoder().decode([UserCategory].self, from: data)
+    {
+      return cats
+    }
+    if let data = try? Data(contentsOf: categoriesURL),
+      let cats = try? JSONDecoder().decode([UserCategory].self, from: data)
+    {
+      return cats
+    }
+    return []
+  }
+
+  private func relocateAssetsTransactionally(for doc: DocumentItem, toVault: Bool) -> Bool {
+    var pairs = doc.allImageFileNames.map { fileName in
+      (
+        AppState.resolveImageURL(fileName: fileName, isVaulted: doc.isVaulted),
+        AppState.resolveImageURL(fileName: fileName, isVaulted: toVault)
+      )
+    }
+    if let sourceFileName = doc.sourceFileName {
+      pairs.append(
+        (
+          AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: doc.isVaulted),
+          AppState.resolveSourceURL(fileName: sourceFileName, isVaulted: toVault)
+        ))
+    }
+
+    var createdDestinations: [URL] = []
+    do {
+      for (source, destination) in pairs {
+        guard FileManager.default.fileExists(atPath: source.path) else { continue }
+        try SecureFileStore.shared.copyFile(from: source, to: destination)
+        createdDestinations.append(destination)
+      }
+      for (source, _) in pairs {
+        SecureFileStore.shared.removeFile(at: source)
+      }
+      return true
+    } catch {
+      createdDestinations.forEach(SecureFileStore.shared.removeFile(at:))
+      return false
+    }
+  }
 }
 
 // MARK: - Secure storage
 
 enum SecureFileStoreError: Error {
-    case invalidCiphertext
-    case unexpectedKeyData
+  case invalidCiphertext
+  case unexpectedKeyData
 }
 
 nonisolated final class SecureFileStore: Sendable {
-    static let shared = SecureFileStore()
+  static let shared = SecureFileStore()
 
-    private let service = "com.romerodev.shield.secure-store"
-    private let libraryKeyAccount = "master-key"
-    private let vaultKeyAccount = "vault-master-key"
-    private let magicHeader = "SHLD1".data(using: .utf8)!
+  private let service = "com.romerodev.shield.secure-store"
+  private let libraryKeyAccount = "master-key"
+  private let vaultKeyAccount = "vault-master-key"
+  private let magicHeader = "SHLD1".data(using: .utf8)!
 
-    private init() {}
+  private init() {}
 
-    func write(_ data: Data, to url: URL) throws {
-        do {
-            let encrypted = magicHeader + (try encrypt(data, for: url))
-            try encrypted.write(to: url, options: .atomic)
-            // Data Protection is not available on the Simulator; ignore the error
-            // on unsupported platforms rather than aborting the whole write.
-            try? FileManager.default.setAttributes(
-                [.protectionKey: FileProtectionType.complete],
-                ofItemAtPath: url.path
-            )
-        } catch {
-            throw error
-        }
+  func write(_ data: Data, to url: URL) throws {
+    do {
+      let encrypted = magicHeader + (try encrypt(data, for: url))
+      try encrypted.write(to: url, options: .atomic)
+      // Data Protection is not available on the Simulator; ignore the error
+      // on unsupported platforms rather than aborting the whole write.
+      try? FileManager.default.setAttributes(
+        [.protectionKey: FileProtectionType.complete],
+        ofItemAtPath: url.path
+      )
+    } catch {
+      throw error
+    }
+  }
+
+  func read(from url: URL) throws -> Data {
+    let data = try Data(contentsOf: url)
+    guard data.starts(with: magicHeader) else {
+      return data
+    }
+    let ciphertext = Data(data.dropFirst(magicHeader.count))
+    do {
+      return try decrypt(ciphertext, for: url)
+    } catch {
+      // Existing vault files from schema v1 used the library key. Read
+      // them once so the next move/write transparently re-encrypts them.
+      guard isVaultURL(url) else { throw error }
+      return try decrypt(ciphertext, account: libraryKeyAccount)
+    }
+  }
+
+  func isEncryptedFile(at url: URL) -> Bool {
+    guard let data = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
+      return false
+    }
+    return data.starts(with: magicHeader)
+  }
+
+  func loadImage(from url: URL) -> UIImage? {
+    if let data = try? read(from: url),
+      let image = UIImage(data: data)
+    {
+      return image
+    }
+    return UIImage(contentsOfFile: url.path)
+  }
+
+  func removeFile(at url: URL) {
+    try? FileManager.default.removeItem(at: url)
+  }
+
+  func moveFile(from sourceURL: URL, to destinationURL: URL) throws {
+    guard sourceURL != destinationURL else { return }
+    guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
+    let plaintext = try read(from: sourceURL)
+    try FileManager.default.createDirectory(
+      at: destinationURL.deletingLastPathComponent(),
+      withIntermediateDirectories: true
+    )
+    try write(plaintext, to: destinationURL)
+    try FileManager.default.removeItem(at: sourceURL)
+  }
+
+  func copyFile(from sourceURL: URL, to destinationURL: URL) throws {
+    guard sourceURL != destinationURL else { return }
+    guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
+    let plaintext = try read(from: sourceURL)
+    try FileManager.default.createDirectory(
+      at: destinationURL.deletingLastPathComponent(),
+      withIntermediateDirectories: true
+    )
+    try write(plaintext, to: destinationURL)
+  }
+
+  private func encrypt(_ data: Data, for url: URL) throws -> Data {
+    let sealedBox = try AES.GCM.seal(data, using: symmetricKey(for: url))
+    guard let combined = sealedBox.combined else {
+      throw SecureFileStoreError.invalidCiphertext
+    }
+    return combined
+  }
+
+  private func decrypt(_ data: Data, for url: URL) throws -> Data {
+    try decrypt(data, account: keyAccount(for: url))
+  }
+
+  private func decrypt(_ data: Data, account: String) throws -> Data {
+    let box = try AES.GCM.SealedBox(combined: data)
+    return try AES.GCM.open(box, using: symmetricKey(account: account))
+  }
+
+  private func symmetricKey(for url: URL) throws -> SymmetricKey {
+    try symmetricKey(account: keyAccount(for: url))
+  }
+
+  private func symmetricKey(account: String) throws -> SymmetricKey {
+    if let stored = try KeychainStore.read(service: service, account: account) {
+      return SymmetricKey(data: stored)
     }
 
-    func read(from url: URL) throws -> Data {
-        let data = try Data(contentsOf: url)
-        guard data.starts(with: magicHeader) else {
-            return data
-        }
-        let ciphertext = Data(data.dropFirst(magicHeader.count))
-        do {
-            return try decrypt(ciphertext, for: url)
-        } catch {
-            // Existing vault files from schema v1 used the library key. Read
-            // them once so the next move/write transparently re-encrypts them.
-            guard isVaultURL(url) else { throw error }
-            return try decrypt(ciphertext, account: libraryKeyAccount)
-        }
-    }
+    let key = SymmetricKey(size: .bits256)
+    let keyData = key.withUnsafeBytes { Data($0) }
+    try KeychainStore.save(
+      keyData,
+      service: service,
+      account: account,
+      accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+    )
+    return key
+  }
 
-    func isEncryptedFile(at url: URL) -> Bool {
-        guard let data = try? Data(contentsOf: url, options: [.mappedIfSafe]) else {
-            return false
-        }
-        return data.starts(with: magicHeader)
-    }
+  private func keyAccount(for url: URL) -> String {
+    isVaultURL(url) ? vaultKeyAccount : libraryKeyAccount
+  }
 
-    func loadImage(from url: URL) -> UIImage? {
-        if let data = try? read(from: url),
-           let image = UIImage(data: data) {
-            return image
-        }
-        return UIImage(contentsOfFile: url.path)
-    }
-
-    func removeFile(at url: URL) {
-        try? FileManager.default.removeItem(at: url)
-    }
-
-    func moveFile(from sourceURL: URL, to destinationURL: URL) throws {
-        guard sourceURL != destinationURL else { return }
-        guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
-        let plaintext = try read(from: sourceURL)
-        try FileManager.default.createDirectory(
-            at: destinationURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        try write(plaintext, to: destinationURL)
-        try FileManager.default.removeItem(at: sourceURL)
-    }
-
-    func copyFile(from sourceURL: URL, to destinationURL: URL) throws {
-        guard sourceURL != destinationURL else { return }
-        guard FileManager.default.fileExists(atPath: sourceURL.path) else { return }
-        let plaintext = try read(from: sourceURL)
-        try FileManager.default.createDirectory(
-            at: destinationURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        try write(plaintext, to: destinationURL)
-    }
-
-    private func encrypt(_ data: Data, for url: URL) throws -> Data {
-        let sealedBox = try AES.GCM.seal(data, using: symmetricKey(for: url))
-        guard let combined = sealedBox.combined else {
-            throw SecureFileStoreError.invalidCiphertext
-        }
-        return combined
-    }
-
-    private func decrypt(_ data: Data, for url: URL) throws -> Data {
-        try decrypt(data, account: keyAccount(for: url))
-    }
-
-    private func decrypt(_ data: Data, account: String) throws -> Data {
-        let box = try AES.GCM.SealedBox(combined: data)
-        return try AES.GCM.open(box, using: symmetricKey(account: account))
-    }
-
-    private func symmetricKey(for url: URL) throws -> SymmetricKey {
-        try symmetricKey(account: keyAccount(for: url))
-    }
-
-    private func symmetricKey(account: String) throws -> SymmetricKey {
-        if let stored = try KeychainStore.read(service: service, account: account) {
-            return SymmetricKey(data: stored)
-        }
-
-        let key = SymmetricKey(size: .bits256)
-        let keyData = key.withUnsafeBytes { Data($0) }
-        try KeychainStore.save(
-            keyData,
-            service: service,
-            account: account,
-            accessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        )
-        return key
-    }
-
-    private func keyAccount(for url: URL) -> String {
-        isVaultURL(url) ? vaultKeyAccount : libraryKeyAccount
-    }
-
-    private func isVaultURL(_ url: URL) -> Bool {
-        url.pathComponents.contains("vault-images") || url.pathComponents.contains("vault-sources")
-    }
+  private func isVaultURL(_ url: URL) -> Bool {
+    url.pathComponents.contains("vault-images") || url.pathComponents.contains("vault-sources")
+  }
 }
 
 nonisolated enum KeychainStore {
-    static func save(_ data: Data, service: String, account: String, accessible: CFString = kSecAttrAccessibleWhenUnlockedThisDeviceOnly) throws {
-        let baseQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account
-        ]
+  static func save(
+    _ data: Data, service: String, account: String,
+    accessible: CFString = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+  ) throws {
+    let baseQuery: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+    ]
 
-        let status = SecItemCopyMatching(baseQuery as CFDictionary, nil)
-        if status == errSecSuccess {
-            // NOTE: kSecAttrAccessible cannot be changed via SecItemUpdate.
-            // Only update the data value; accessibility class is immutable after creation.
-            let updateAttributes: [String: Any] = [kSecValueData as String: data]
-            let updateStatus = SecItemUpdate(baseQuery as CFDictionary, updateAttributes as CFDictionary)
-            if updateStatus == errSecSuccess { return }
+    let status = SecItemCopyMatching(baseQuery as CFDictionary, nil)
+    if status == errSecSuccess {
+      // NOTE: kSecAttrAccessible cannot be changed via SecItemUpdate.
+      // Only update the data value; accessibility class is immutable after creation.
+      let updateAttributes: [String: Any] = [kSecValueData as String: data]
+      let updateStatus = SecItemUpdate(baseQuery as CFDictionary, updateAttributes as CFDictionary)
+      if updateStatus == errSecSuccess { return }
 
-            // If update failed (e.g., existing item has different accessibility class),
-            // delete and re-add with the correct accessibility.
-            SecItemDelete(baseQuery as CFDictionary)
-        }
-
-        var addQuery = baseQuery
-        addQuery[kSecValueData as String] = data
-        addQuery[kSecAttrAccessible as String] = accessible
-        var addStatus = SecItemAdd(addQuery as CFDictionary, nil)
-        if addStatus != errSecSuccess && (accessible as String) == (kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly as String) {
-            addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-            addStatus = SecItemAdd(addQuery as CFDictionary, nil)
-        }
-        guard addStatus == errSecSuccess else {
-            throw NSError(domain: NSOSStatusErrorDomain, code: Int(addStatus))
-        }
+      // If update failed (e.g., existing item has different accessibility class),
+      // delete and re-add with the correct accessibility.
+      SecItemDelete(baseQuery as CFDictionary)
     }
 
-    static func read(service: String, account: String) throws -> Data? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        switch status {
-        case errSecSuccess:
-            return result as? Data
-        case errSecItemNotFound:
-            return nil
-        default:
-            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-        }
+    var addQuery = baseQuery
+    addQuery[kSecValueData as String] = data
+    addQuery[kSecAttrAccessible as String] = accessible
+    var addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+    if addStatus != errSecSuccess
+      && (accessible as String) == (kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly as String)
+    {
+      addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+      addStatus = SecItemAdd(addQuery as CFDictionary, nil)
     }
-
-    static func delete(service: String, account: String) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account
-        ]
-        SecItemDelete(query as CFDictionary)
+    guard addStatus == errSecSuccess else {
+      throw NSError(domain: NSOSStatusErrorDomain, code: Int(addStatus))
     }
+  }
+
+  static func read(service: String, account: String) throws -> Data? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+      kSecReturnData as String: true,
+      kSecMatchLimit as String: kSecMatchLimitOne,
+    ]
+
+    var result: AnyObject?
+    let status = SecItemCopyMatching(query as CFDictionary, &result)
+    switch status {
+    case errSecSuccess:
+      return result as? Data
+    case errSecItemNotFound:
+      return nil
+    default:
+      throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+    }
+  }
+
+  static func delete(service: String, account: String) {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: service,
+      kSecAttrAccount as String: account,
+    ]
+    SecItemDelete(query as CFDictionary)
+  }
 }

@@ -450,3 +450,177 @@ struct EditorBottomToolbar: View {
         .accessibilityIdentifier(identifier)
     }
 }
+
+// MARK: - SmartSuggestionChipsView
+
+struct SmartSuggestionChipsView: View {
+    @ObservedObject var vm: EditorViewModel
+    let lang: AppLanguage
+    @Environment(\.colorScheme) private var scheme
+
+    private struct SuggestionItem: Identifiable {
+        let id: String
+        let title: String
+        let icon: String
+        let rects: [CGRect]
+    }
+
+    private var availableSuggestions: [SuggestionItem] {
+        guard !vm.isReadOnly, !vm.isPeekingOriginal else { return [] }
+        var items: [SuggestionItem] = []
+
+        // 1. DNI / Document Number
+        let docNumberBoxes = DocumentFieldBoxes.boxes(for: vm.doc.kind).filter {
+            $0.label.contains("Doc") || $0.label.contains("Passport") || $0.label.contains("DNI")
+        }
+        let docRects = docNumberBoxes.map(\.rect)
+        if !docRects.isEmpty && !docRects.allSatisfy({ isRectProtected($0) }) {
+            items.append(
+                SuggestionItem(
+                    id: "doc_number",
+                    title: lang == .es ? "Ocultar Nº Documento" : "Hide Document ID",
+                    icon: "person.text.rectangle.fill",
+                    rects: docRects
+                )
+            )
+        }
+
+        // 2. Full Name
+        let nameBoxes = DocumentFieldBoxes.boxes(for: vm.doc.kind).filter {
+            $0.label.contains("Name") || $0.label.contains("Surname") || $0.label.contains("Nombre") || $0.label.contains("Apellido")
+        }
+        let nameRects = nameBoxes.map(\.rect)
+        if !nameRects.isEmpty && !nameRects.allSatisfy({ isRectProtected($0) }) {
+            items.append(
+                SuggestionItem(
+                    id: "full_name",
+                    title: lang == .es ? "Ocultar Nombre" : "Hide Name",
+                    icon: "person.fill",
+                    rects: nameRects
+                )
+            )
+        }
+
+        // 3. Address
+        let addressBoxes = DocumentFieldBoxes.boxes(for: vm.doc.kind).filter {
+            $0.label.contains("Address") || $0.label.contains("Dirección") || $0.label.contains("Domicilio")
+        }
+        let addressRects = addressBoxes.map(\.rect)
+        if !addressRects.isEmpty && !addressRects.allSatisfy({ isRectProtected($0) }) {
+            items.append(
+                SuggestionItem(
+                    id: "address",
+                    title: lang == .es ? "Ocultar Dirección" : "Hide Address",
+                    icon: "mappin.and.ellipse",
+                    rects: addressRects
+                )
+            )
+        }
+
+        // 4. Faces detected by Vision
+        let unmaskedFaces = vm.currentPageFaceSuggestions.filter { !vm.isFaceSuggestionProtected($0) }
+        if !unmaskedFaces.isEmpty {
+            let faceRects = unmaskedFaces.map {
+                OCRService.protectiveFaceMaskRect(around: $0.boundingRect, rollDegrees: $0.rollDegrees)
+            }
+            items.append(
+                SuggestionItem(
+                    id: "faces",
+                    title: lang == .es ? "Ocultar Rostros (\(unmaskedFaces.count))" : "Hide Faces (\(unmaskedFaces.count))",
+                    icon: "face.smiling.inverse",
+                    rects: faceRects
+                )
+            )
+        }
+
+        return items
+    }
+
+    private func isRectProtected(_ rect: CGRect) -> Bool {
+        vm.redactions.contains {
+            abs($0.rect.origin.x - rect.origin.x) < 0.05 &&
+            abs($0.rect.origin.y - rect.origin.y) < 0.05
+        }
+    }
+
+    var body: some View {
+        let suggestions = availableSuggestions
+        if !suggestions.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    if suggestions.count >= 2 {
+                        Button {
+                            protectAll(suggestions)
+                        } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: "shield.fill")
+                                    .font(.system(size: 11, weight: .bold))
+                                Text(lang == .es ? "Proteger Todo" : "Protect All")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundColor(ShieldTheme.accentText)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(ShieldTheme.accent(scheme), in: Capsule())
+                            .shadow(color: ShieldTheme.accent(scheme).opacity(0.35), radius: 4, y: 1)
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+
+                    ForEach(suggestions) { item in
+                        Button {
+                            applySuggestion(item)
+                        } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: item.icon)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.accent(scheme))
+                                Text(item.title)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(ShieldTheme.primary(scheme))
+                            }
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 6)
+                            .background(ShieldTheme.rowBackground(scheme), in: Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(ShieldTheme.line(scheme), lineWidth: 0.8)
+                            )
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+            }
+            .transition(.move(edge: .top).combined(with: .opacity))
+        }
+    }
+
+    private func applySuggestion(_ item: SuggestionItem) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            for rect in item.rects where !isRectProtected(rect) {
+                vm.addRedaction(Redaction(rect: rect, style: vm.maskStyle))
+            }
+        }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        AppState.trackEvent("smart_chip_applied", properties: [
+            "suggestion_id": item.id,
+            "count": String(item.rects.count)
+        ])
+    }
+
+    private func protectAll(_ items: [SuggestionItem]) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+            for item in items {
+                for rect in item.rects where !isRectProtected(rect) {
+                    vm.addRedaction(Redaction(rect: rect, style: vm.maskStyle))
+                }
+            }
+        }
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        AppState.trackEvent("smart_chip_protect_all_applied", properties: [
+            "categories_count": String(items.count)
+        ])
+    }
+}

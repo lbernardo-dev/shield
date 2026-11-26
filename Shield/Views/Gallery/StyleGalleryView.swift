@@ -95,6 +95,20 @@ struct StyleGalleryView: View {
                     .foregroundColor(isHalloween ? Color(hex: "FFD6B0").opacity(0.88) : ShieldTheme.secondary(scheme))
             }
             Spacer()
+
+            Button {
+                appState.activeTab = .settings
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(ShieldTheme.primary(scheme))
+                    .frame(width: 38, height: 38)
+                    .background(ShieldTheme.cardBackground(scheme), in: Circle())
+                    .overlay(Circle().stroke(ShieldTheme.line(scheme), lineWidth: 0.8))
+            }
+            .buttonStyle(ScaleButtonStyle())
+            .accessibilityLabel(LanguageManager.shared.common("common_tab_settings"))
+            .accessibilityIdentifier("tab.3")
         }
         .padding(.horizontal, 20)
         // GeometryReader already lays this view out below the top safe area.

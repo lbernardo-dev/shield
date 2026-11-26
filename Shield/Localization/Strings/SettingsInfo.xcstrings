@@ -24,13 +24,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Every user can activate 15 days of full access, with no automatic renewal."
+            "value" : "Every user can activate 3 days of full access, with no automatic renewal."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos los usuarios pueden activar 15 días de acceso completo sin renovación automática."
+            "value" : "Todos los usuarios pueden activar 3 días de acceso completo sin renovación automática."
           }
         }
       }
@@ -58,13 +58,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "After 15 days, Lifetime is the only purchase. Users can still view, export, or delete their documents."
+            "value" : "After 3 days, Lifetime is the only purchase. Users can still view, export, or delete their documents."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Después de 15 días, Lifetime es la única compra. Se pueden consultar, exportar o eliminar los documentos propios."
+            "value" : "Después de 3 días, Lifetime es la única compra. Se pueden consultar, exportar o eliminar los documentos propios."
           }
         }
       }
@@ -2710,13 +2710,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Every user can activate 15 calendar days of full access without a StoreKit purchase, card, subscription, or automatic charge. The access record is kept in the device Keychain so a normal reinstall does not start a new period. After 15 days, only MaskID Lifetime is offered."
+            "value" : "Every user can activate 3 calendar days of full access without a StoreKit purchase, card, subscription, or automatic charge. The access record is kept in the device Keychain so a normal reinstall does not start a new period. After 3 days, only MaskID Lifetime is offered."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos los usuarios pueden activar 15 días naturales de acceso completo sin compra StoreKit, tarjeta, suscripción ni cargo automático. El registro de acceso se guarda en el Keychain del dispositivo para que una reinstalación normal no inicie otro periodo. Después de 15 días solo se ofrece MaskID Lifetime."
+            "value" : "Todos los usuarios pueden activar 3 días naturales de acceso completo sin compra StoreKit, tarjeta, suscripción ni cargo automático. El registro de acceso se guarda en el Keychain del dispositivo para que una reinstalación normal no inicie otro periodo. Después de 3 días solo se ofrece MaskID Lifetime."
           }
         }
       }

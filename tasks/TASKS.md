@@ -2968,3 +2968,122 @@
    Done by: CODEX
    Done at: 2026-11-21T14:08:23Z
 
+278. plan-integral-mejoras-ux-ui-flows
+   Id: 278-plan-integral-mejoras-ux-ui-flows
+   Scope: Implementar mejoras integrales de UI/UX, Editor (smart chips, lupa de precisión, accesibilidad), Vault (confirmación de borrado), Splash y Exportación verificada
+   Files: Shield/Views/Editor/**,Shield/Views/Vault/**,Shield/Views/Components/**,Shield/Views/Paywall/**
+   Note: Plan integral completado: Lupa de precisión, Smart Suggestion Chips, confirmación de borrado en Home/AllDocs, Sello Criptográfico en Exportación, comparativa en Paywall y Splash optimizado. ShieldTests 100% pass.
+   Detail: tasks/details/278-plan-integral-mejoras-ux-ui-flows.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-25T22:23:01Z
+   Done by: CODEX
+   Done at: 2026-11-26T06:26:44Z
+
+279. ejecucion-integral-lente-onboarding-home
+   Id: 279-ejecucion-integral-lente-onboarding-home
+   Scope: Implementar Split-View wipe slider en Editor, Onboarding contextual con soft-priming de permisos, y reforma integral de la UI de Home (Command Center)
+   Files: Shield/Views/Editor/**,Shield/Views/Onboarding/**,Shield/Views/Home/**
+   Note: Completado Split-View Wipe Slider, Onboarding contextual con soft-priming y reforma integral de Home Command Center con telemetria en vivo y acciones recurrentes. ShieldTests 100% pass.
+   Detail: tasks/details/279-ejecucion-integral-lente-onboarding-home.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T06:29:41Z
+   Done by: CODEX
+   Done at: 2026-11-26T06:41:29Z
+
+280. extraer-icloud-id-iphone-premium
+   Id: 280-extraer-icloud-id-iphone-premium
+   Scope: Instalar en iPhone 15 Pro Max, extraer CloudKit User Record ID y asignar Premium de por vida en codigo
+   Files: Shield/Premium/PremiumManager.swift,ShieldTests/SecurityPrivacyTests.swift
+   Note: Extraido CloudKit recordName _fc3fec928c13827cdf6416d897523514 desde iPhone 15 Pro Max, asignado permanentCloudKitUserRecordNames y validado 100% tests.
+   Detail: tasks/details/280-extraer-icloud-id-iphone-premium.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T06:49:45Z
+   Done by: CODEX
+   Done at: 2026-11-26T06:57:31Z
+
+281. mejoras-ui-header-tabbar-intake-tintes
+   Id: 281-mejoras-ui-header-tabbar-intake-tintes
+   Scope: Ajustes UI: settings en header, vault prominent en footer, ingesta directa por fuente, tintes cristalinos en flujos
+   Files: Shield/Views/Main/ContentView.swift,Shield/Views/Home/HomeView.swift,Shield/Views/Home/HomeDashboardViews.swift,Shield/Views/Home/HomeSectionViews.swift,Shield/Views/Capture/CaptureView.swift
+   Note: UI header/footer/intake direct flows and crystalline tints complete. Tests 100% passed.
+   Detail: tasks/details/281-mejoras-ui-header-tabbar-intake-tintes.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T07:02:57Z
+   Done by: CODEX
+   Done at: 2026-11-26T07:21:05Z
+
+282. cloud-fix-batch-pro-trial-paywall
+   Id: 282-cloud-fix-batch-pro-trial-paywall
+   Scope: Cloud OAuth crash/block fixes, Batch Pro label logic, 3-day full premium trial
+   Files: Shield/Cloud/, Shield/Premium/, Shield/Views/
+   Note: Cloud fixes (Dropbox crash & Google Drive 403 guidance), Batch label locale logic, 3-day full premium trial, paywall advantages for life. Installed & launched on iPhone 15 Pro Max.
+   Detail: tasks/details/282-cloud-fix-batch-pro-trial-paywall.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T07:22:08Z
+   Done by: CODEX
+   Done at: 2026-11-26T07:35:52Z
+
+283. eliminar-flash-paywall-usuarios-premium
+   Id: 283-eliminar-flash-paywall-usuarios-premium
+   Scope: Prevent any paywall flash or momentary presentation for premium users
+   Files: Shield/Premium/PremiumManager.swift,Shield/App/ContentView.swift,Shield/Views/Paywall/PaywallView.swift
+   Note: Eliminado por completo cualquier flash o visualización del paywall para usuarios premium; suite de tests pasando e instalado en iPhone 15 Pro Max
+   Detail: tasks/details/283-eliminar-flash-paywall-usuarios-premium.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T07:39:00Z
+   Done by: CODEX
+   Done at: 2026-11-26T07:46:11Z
+
+284. miniatura-documentos-recientes-vault-blur
+   Id: 284-miniatura-documentos-recientes-vault-blur
+   Scope: Replace generic icon in recent documents and lists with document thumbnail; blur thumbnail and show Vault icon if vaulted
+   Files: Shield/Views/Home/HomeSectionViews.swift,Shield/Views/Documents/DocumentRenderers.swift,Shield/Views/Home/AllDocumentsView.swift
+   Note: Miniaturas de documentos procesados con redacciones y difuminado Vault con badge desplegadas en iPhone 15 Pro Max
+   Detail: tasks/details/284-miniatura-documentos-recientes-vault-blur.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T07:51:41Z
+   Done by: CODEX
+   Done at: 2026-11-26T08:02:47Z
+
+285. fix-vault-infinite-faceid-and-launch-stutter
+   Id: 285-fix-vault-infinite-faceid-and-launch-stutter
+   Scope: Fix infinite Face ID loop on Vault entry and eliminate duplicate splash/Face ID prompt on launch
+   Files: Shield/Views/Vault/VaultView.swift,Shield/App/ContentView.swift,Shield/ViewModels/AppState.swift,Shield/Views/Components/SplashView.swift
+   Note: Fixed Vault infinite Face ID loop, resolved launch stutter and duplicate splash, added thread-safe continuation protection for cloud OAuth, verified with unit tests, deployed to iPhone 15 Pro Max
+   Detail: tasks/details/285-fix-vault-infinite-faceid-and-launch-stutter.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T08:04:30Z
+   Done by: CODEX
+   Done at: 2026-11-26T08:16:43Z
+
+286. tinte-distintivo-vault-prominent-tab
+   Id: 286-tinte-distintivo-vault-prominent-tab
+   Scope: Apply distinctive cyber-violet tint to prominent Vault footer tab button across native and custom tab bars
+   Files: Shield/App/ContentView.swift,Shield/Views/Components/TabBar.swift
+   Note: Applied distinctive Cyber Violet tint to prominent Vault tab in footer menu across native and custom tab bars, tested and deployed to iPhone 15 Pro Max
+   Detail: tasks/details/286-tinte-distintivo-vault-prominent-tab.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T08:20:37Z
+   Done by: CODEX
+   Done at: 2026-11-26T08:23:11Z
+
+287. fix-vault-view-lifecycle-and-inline-pin
+   Id: 287-fix-vault-view-lifecycle-and-inline-pin
+   Scope: Fix VaultView lifecycle resetting, remove dynamic NavigationStack recreation in TabView, use in-place PIN transitions, eliminate Face ID recursion
+   Files: Shield/Views/Vault/VaultView.swift,Shield/App/ContentView.swift
+   Note: VaultView lifecycle and in-place PIN entry deployed to iPhone 15 Pro Max with stable identity, all tests passing
+   Detail: tasks/details/287-fix-vault-view-lifecycle-and-inline-pin.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T08:37:33Z
+   Done by: CODEX
+   Done at: 2026-11-26T08:41:21Z
+
+288. generar-build-subir-app-store-connect
+   Id: 288-generar-build-subir-app-store-connect
+   Scope: Update build number to next ASC-safe number, archive Release build, export IPA, upload to App Store Connect and monitor processing
+   Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts/**
+   Note: Starting ASC build and upload
+   Detail: tasks/details/288-generar-build-subir-app-store-connect.md
+   Claimed by: CODEX
+   Claimed at: 2026-11-26T08:41:58Z
+

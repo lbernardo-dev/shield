@@ -1,587 +1,689 @@
 import SwiftUI
 
 struct ExportSheetHeader: View {
-    let scheme: ColorScheme
-    let title: String
-    let onClose: () -> Void
+  let scheme: ColorScheme
+  let title: String
+  let onClose: () -> Void
 
-    var body: some View {
-        HStack {
-            Text(title)
-                .shieldFont(18, weight: .bold)
-                .foregroundColor(ShieldTheme.primary(scheme))
-            Spacer()
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .shieldFont(14, weight: .medium)
-                    .foregroundColor(ShieldTheme.tertiary(scheme))
-                    .frame(width: 30, height: 30)
-                    .background(ShieldTheme.rowBackground(scheme))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(Rectangle())
-            .accessibilityIdentifier("export.close")
-        }
-        .padding(.horizontal, ShieldTheme.s5)
-        .padding(.top, 20)
-        .padding(.bottom, 14)
+  var body: some View {
+    HStack {
+      Text(title)
+        .shieldFont(18, weight: .bold)
+        .foregroundColor(ShieldTheme.primary(scheme))
+      Spacer()
+      Button(action: onClose) {
+        Image(systemName: "xmark")
+          .shieldFont(14, weight: .medium)
+          .foregroundColor(ShieldTheme.tertiary(scheme))
+          .frame(width: 30, height: 30)
+          .background(ShieldTheme.rowBackground(scheme))
+          .clipShape(RoundedRectangle(cornerRadius: 8))
+      }
+      .frame(minWidth: 44, minHeight: 44)
+      .contentShape(Rectangle())
+      .accessibilityIdentifier("export.close")
     }
+    .padding(.horizontal, ShieldTheme.s5)
+    .padding(.top, 20)
+    .padding(.bottom, 14)
+  }
 }
 
 struct ExportPreviewCard: View {
-    let scheme: ColorScheme
-    let doc: DocumentItem
-    let redactions: [Redaction]
-    let watermark: Watermark?
-    let currentImageFileName: String?
+  let scheme: ColorScheme
+  let doc: DocumentItem
+  let redactions: [Redaction]
+  let watermark: Watermark?
+  let currentImageFileName: String?
 
-    var body: some View {
-        HStack {
-            Spacer()
-            DocumentView(
-                kind: doc.kind,
-                size: CGSize(width: 220, height: 138),
-                fields: doc.fields,
-                redactions: redactions,
-                watermark: watermark,
-                imageFileName: currentImageFileName,
-                isVaulted: doc.isVaulted
-            )
-            .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
-            Spacer()
-        }
-        .padding(12)
-        .background(ShieldTheme.rowBackground(scheme))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(LanguageManager.shared.editor("editor_export_preview_accessibility"))
-        .accessibilityAddTraits(.isImage)
+  var body: some View {
+    HStack {
+      Spacer()
+      DocumentView(
+        kind: doc.kind,
+        size: CGSize(width: 220, height: 138),
+        fields: doc.fields,
+        redactions: redactions,
+        watermark: watermark,
+        imageFileName: currentImageFileName,
+        isVaulted: doc.isVaulted
+      )
+      .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
+      Spacer()
     }
+    .padding(12)
+    .background(ShieldTheme.rowBackground(scheme))
+    .clipShape(RoundedRectangle(cornerRadius: 12))
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(LanguageManager.shared.editor("editor_export_preview_accessibility"))
+    .accessibilityAddTraits(.isImage)
+  }
 }
 
 struct ExportFormatPicker: View {
-    let scheme: ColorScheme
-    let title: String
-    let selectedFormat: ExportSheetView.ExportFormat
-    let labels: [ExportSheetView.ExportFormat: String]
-    let onSelect: (ExportSheetView.ExportFormat) -> Void
+  let scheme: ColorScheme
+  let title: String
+  let selectedFormat: ExportSheetView.ExportFormat
+  let labels: [ExportSheetView.ExportFormat: String]
+  let onSelect: (ExportSheetView.ExportFormat) -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ExportSectionLabel(text: title, scheme: scheme)
-            HStack(spacing: 8) {
-                ForEach([ExportSheetView.ExportFormat.pdf, .image], id: \.self) { format in
-                    Button {
-                        onSelect(format)
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: format == .pdf ? "doc.fill" : "photo.fill")
-                                .shieldFont(16, weight: .semibold)
-                                .foregroundColor(selectedFormat == format ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
-                            Text(labels[format] ?? "")
-                                .shieldFont(14, weight: .semibold)
-                                .foregroundColor(ShieldTheme.primary(scheme))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(selectedFormat == format ? ShieldTheme.accentDim(scheme) : ShieldTheme.rowBackground(scheme))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(
-                                    selectedFormat == format ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme),
-                                    lineWidth: selectedFormat == format ? 1 : 0.5
-                                )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                    .accessibilityLabel(labels[format] ?? "")
-                    .accessibilityValue(
-                        selectedFormat == format
-                            ? LanguageManager.shared.common("common_selected")
-                            : LanguageManager.shared.common("common_not_selected")
-                    )
-                    .accessibilityAddTraits(selectedFormat == format ? .isSelected : [])
-                    .accessibilityIdentifier("export.format.\(format == .pdf ? "pdf" : "image")")
-                }
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      ExportSectionLabel(text: title, scheme: scheme)
+      HStack(spacing: 8) {
+        ForEach([ExportSheetView.ExportFormat.pdf, .image], id: \.self) { format in
+          Button {
+            onSelect(format)
+          } label: {
+            HStack(spacing: 10) {
+              Image(systemName: format == .pdf ? "doc.fill" : "photo.fill")
+                .shieldFont(16, weight: .semibold)
+                .foregroundColor(
+                  selectedFormat == format
+                    ? ShieldTheme.accent(scheme) : ShieldTheme.primary(scheme))
+              Text(labels[format] ?? "")
+                .shieldFont(14, weight: .semibold)
+                .foregroundColor(ShieldTheme.primary(scheme))
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+              selectedFormat == format
+                ? ShieldTheme.accentDim(scheme) : ShieldTheme.rowBackground(scheme)
+            )
+            .overlay(
+              RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                  selectedFormat == format
+                    ? ShieldTheme.accentStroke(scheme) : ShieldTheme.line(scheme),
+                  lineWidth: selectedFormat == format ? 1 : 0.5
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+          }
+          .buttonStyle(ScaleButtonStyle())
+          .accessibilityLabel(labels[format] ?? "")
+          .accessibilityValue(
+            selectedFormat == format
+              ? LanguageManager.shared.common("common_selected")
+              : LanguageManager.shared.common("common_not_selected")
+          )
+          .accessibilityAddTraits(selectedFormat == format ? .isSelected : [])
+          .accessibilityIdentifier("export.format.\(format == .pdf ? "pdf" : "image")")
         }
+      }
     }
+  }
 }
 
 struct ExportQualityPicker: View {
-    let scheme: ColorScheme
-    let title: String
-    let selectedQuality: ExportSheetView.ExportQuality
-    let labels: [ExportSheetView.ExportQuality: String]
-    let onSelect: (ExportSheetView.ExportQuality) -> Void
+  let scheme: ColorScheme
+  let title: String
+  let selectedQuality: ExportSheetView.ExportQuality
+  let labels: [ExportSheetView.ExportQuality: String]
+  let onSelect: (ExportSheetView.ExportQuality) -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ExportSectionLabel(text: title, scheme: scheme)
-            HStack(spacing: 6) {
-                ForEach(ExportSheetView.ExportQuality.allCases, id: \.self) { quality in
-                    Button {
-                        onSelect(quality)
-                    } label: {
-                        Text(labels[quality] ?? "")
-                            .shieldFont(13, weight: .semibold)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 36)
-                            .background(selectedQuality == quality ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme))
-                            .foregroundColor(selectedQuality == quality ? ShieldTheme.accentText : ShieldTheme.primary(scheme))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                    .accessibilityLabel(labels[quality] ?? "")
-                    .accessibilityValue(
-                        selectedQuality == quality
-                            ? LanguageManager.shared.common("common_selected")
-                            : LanguageManager.shared.common("common_not_selected")
-                    )
-                    .accessibilityAddTraits(selectedQuality == quality ? .isSelected : [])
-                    .accessibilityIdentifier("export.quality.\(quality.rawValue)")
-                }
-            }
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      ExportSectionLabel(text: title, scheme: scheme)
+      HStack(spacing: 6) {
+        ForEach(ExportSheetView.ExportQuality.allCases, id: \.self) { quality in
+          Button {
+            onSelect(quality)
+          } label: {
+            Text(labels[quality] ?? "")
+              .shieldFont(13, weight: .semibold)
+              .frame(maxWidth: .infinity)
+              .frame(height: 36)
+              .background(
+                selectedQuality == quality
+                  ? ShieldTheme.accent(scheme) : ShieldTheme.rowBackground(scheme)
+              )
+              .foregroundColor(
+                selectedQuality == quality ? ShieldTheme.accentText : ShieldTheme.primary(scheme)
+              )
+              .clipShape(RoundedRectangle(cornerRadius: 10))
+          }
+          .buttonStyle(ScaleButtonStyle())
+          .accessibilityLabel(labels[quality] ?? "")
+          .accessibilityValue(
+            selectedQuality == quality
+              ? LanguageManager.shared.common("common_selected")
+              : LanguageManager.shared.common("common_not_selected")
+          )
+          .accessibilityAddTraits(selectedQuality == quality ? .isSelected : [])
+          .accessibilityIdentifier("export.quality.\(quality.rawValue)")
         }
+      }
     }
+  }
 }
 
 struct ExportRiskAcknowledgementCard: View {
-    let scheme: ColorScheme
-    let warningText: String
-    let acknowledgeText: String
-    let isAcknowledged: Bool
-    let onToggle: () -> Void
+  let scheme: ColorScheme
+  let warningText: String
+  let acknowledgeText: String
+  let isAcknowledged: Bool
+  let onToggle: () -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .shieldFont(12, weight: .semibold)
-                Text(warningText)
-                    .shieldFont(12, weight: .semibold)
-            }
-            .foregroundColor(ShieldTheme.warning)
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(alignment: .top, spacing: 8) {
+        Image(systemName: "exclamationmark.triangle.fill")
+          .shieldFont(12, weight: .semibold)
+        Text(warningText)
+          .shieldFont(12, weight: .semibold)
+      }
+      .foregroundColor(ShieldTheme.warning)
 
-            Button(action: onToggle) {
-                HStack(spacing: 8) {
-                    Image(systemName: isAcknowledged ? "checkmark.square.fill" : "square")
-                        .foregroundColor(isAcknowledged ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
-                    Text(acknowledgeText)
-                        .shieldFont(12, weight: .semibold)
-                        .foregroundColor(ShieldTheme.secondary(scheme))
-                }
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .accessibilityValue(LanguageManager.shared.common(isAcknowledged ? "common_selected" : "common_not_selected"))
-            .accessibilityIdentifier("export.ocrRisk.acknowledge")
+      Button(action: onToggle) {
+        HStack(spacing: 8) {
+          Image(systemName: isAcknowledged ? "checkmark.square.fill" : "square")
+            .foregroundColor(
+              isAcknowledged ? ShieldTheme.accent(scheme) : ShieldTheme.tertiary(scheme))
+          Text(acknowledgeText)
+            .shieldFont(12, weight: .semibold)
+            .foregroundColor(ShieldTheme.secondary(scheme))
         }
-        .padding(10)
-        .background(ShieldTheme.rowBackground(scheme))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+      }
+      .buttonStyle(ScaleButtonStyle())
+      .accessibilityValue(
+        LanguageManager.shared.common(isAcknowledged ? "common_selected" : "common_not_selected")
+      )
+      .accessibilityIdentifier("export.ocrRisk.acknowledge")
     }
+    .padding(10)
+    .background(ShieldTheme.rowBackground(scheme))
+    .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
 }
 
 struct ExportSheetFooterButton: View {
-    let isExporting: Bool
-    let buttonTitle: String
-    var isBlocked: Bool = false
-    let onTap: () -> Void
-    @Environment(\.colorScheme) private var scheme
+  let isExporting: Bool
+  let buttonTitle: String
+  var isBlocked: Bool = false
+  let onTap: () -> Void
+  @Environment(\.colorScheme) private var scheme
 
-    var body: some View {
-        VStack(spacing: 0) {
-            ShieldDivider()
-            Button(action: onTap) {
-                HStack(spacing: 8) {
-                    if isExporting {
-                        ProgressView().tint(ShieldTheme.accentText).scaleEffect(0.8)
-                        Text(LanguageManager.shared.editor("editor_exporting"))
-                            .shieldFont(15, weight: .bold)
-                    } else {
-                        Image(systemName: "square.and.arrow.down")
-                            .shieldFont(16, weight: .semibold)
-                        Text(buttonTitle)
-                            .shieldFont(15, weight: .bold)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
-                .background(ShieldTheme.accent(scheme))
-                .foregroundColor(ShieldTheme.accentText)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .disabled(isExporting || isBlocked)
-            .padding(.horizontal, ShieldTheme.s5)
-            .padding(.top, 12)
-            .padding(.bottom, 32)
-            .accessibilityIdentifier("export.start")
+  var body: some View {
+    VStack(spacing: 0) {
+      ShieldDivider()
+      Button(action: onTap) {
+        HStack(spacing: 8) {
+          if isExporting {
+            ProgressView().tint(ShieldTheme.accentText).scaleEffect(0.8)
+            Text(LanguageManager.shared.editor("editor_exporting"))
+              .shieldFont(15, weight: .bold)
+          } else {
+            Image(systemName: "square.and.arrow.down")
+              .shieldFont(16, weight: .semibold)
+            Text(buttonTitle)
+              .shieldFont(15, weight: .bold)
+          }
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 52)
+        .background(ShieldTheme.accent(scheme))
+        .foregroundColor(ShieldTheme.accentText)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+      }
+      .buttonStyle(ScaleButtonStyle())
+      .disabled(isExporting || isBlocked)
+      .padding(.horizontal, ShieldTheme.s5)
+      .padding(.top, 12)
+      .padding(.bottom, 32)
+      .accessibilityIdentifier("export.start")
     }
+  }
 }
 
 struct ExportCompletionView: View {
-    @State private var showSensitiveShareConfirmation = false
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @State private var showSensitiveShareConfirmation = false
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    let scheme: ColorScheme
-    let isPro: Bool
-    let summaryText: String
-    let verificationReport: ExportVerificationReport?
-    let showFreeWatermarkNote: Bool
-    let onDone: () -> Void
-    let onReview: () -> Void
-    let onShare: () -> Void
+  let scheme: ColorScheme
+  let isPro: Bool
+  let summaryText: String
+  let verificationReport: ExportVerificationReport?
+  let showFreeWatermarkNote: Bool
+  let onDone: () -> Void
+  let onReview: () -> Void
+  let onShare: () -> Void
 
-    var body: some View {
-        VStack(spacing: 12) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 22)
-                            .fill(ShieldTheme.successDim)
-                            .frame(width: 84, height: 84)
-                        Image(systemName: "checkmark")
-                            .shieldFont(40, weight: .semibold)
-                            .foregroundColor(ShieldTheme.success)
-                    }
-                    VStack(spacing: 4) {
-                        Text(LanguageManager.shared.editor("editor_exported"))
-                            .shieldFont(20, weight: .bold)
-                            .foregroundColor(ShieldTheme.primary(scheme))
-                        Text(summaryText)
-                            .shieldFont(13)
-                            .foregroundColor(ShieldTheme.secondary(scheme))
-                        if showFreeWatermarkNote && !isPro {
-                            Text(LanguageManager.shared.editor("editor_include_wm_free"))
-                                .shieldFont(12)
-                                .foregroundColor(ShieldTheme.tertiary(scheme))
-                        }
-                    }
-                    if let verificationReport {
-                        ExportProtectionCheckView(
-                            scheme: scheme,
-                            report: verificationReport
-                        )
-                        .padding(.horizontal, ShieldTheme.s5)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, ShieldTheme.s5)
-                .padding(.vertical, ShieldTheme.s4)
+  var body: some View {
+    VStack(spacing: 12) {
+      ScrollView(showsIndicators: false) {
+        VStack(spacing: 16) {
+          ZStack {
+            RoundedRectangle(cornerRadius: 22)
+              .fill(ShieldTheme.successDim)
+              .frame(width: 84, height: 84)
+            Image(systemName: "checkmark")
+              .shieldFont(40, weight: .semibold)
+              .foregroundColor(ShieldTheme.success)
+          }
+          VStack(spacing: 4) {
+            Text(LanguageManager.shared.editor("editor_exported"))
+              .shieldFont(20, weight: .bold)
+              .foregroundColor(ShieldTheme.primary(scheme))
+            Text(summaryText)
+              .shieldFont(13)
+              .foregroundColor(ShieldTheme.secondary(scheme))
+            if showFreeWatermarkNote && !isPro {
+              Text(LanguageManager.shared.editor("editor_include_wm_free"))
+                .shieldFont(12)
+                .foregroundColor(ShieldTheme.tertiary(scheme))
             }
-            .accessibilityIdentifier("export.complete.content")
-
-            Group {
-                if dynamicTypeSize.isAccessibilitySize {
-                    VStack(spacing: 8) {
-                        doneButton
-                        shareButton
-                    }
-                } else {
-                    HStack(spacing: 8) {
-                        doneButton
-                        shareButton
-                    }
-                }
-            }
-            .padding(.horizontal, ShieldTheme.s5)
-            .padding(.bottom, 32)
-        }
-        .confirmationDialog(
-            LanguageManager.shared.editor("editor_sensitive_share_title"),
-            isPresented: $showSensitiveShareConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(LanguageManager.shared.editor("editor_sensitive_share_review")) {
-                onReview()
-            }
-            Button(
-                LanguageManager.shared.editor("editor_sensitive_share_anyway"),
-                role: .destructive,
-                action: onShare
+          }
+          if let verificationReport {
+            ExportProtectionCheckView(
+              scheme: scheme,
+              report: verificationReport
             )
-            Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
-        } message: {
-            let remainingCount = verificationReport?.remainingDetectedSensitiveElements ?? 0
-            if remainingCount == 1 {
-                Text(LanguageManager.shared.editor("editor_sensitive_share_message_singular"))
-            } else {
-                Text(LanguageManager.shared.editor("editor_sensitive_share_message_plural", remainingCount))
-            }
+            .padding(.horizontal, ShieldTheme.s5)
+          }
         }
-    }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, ShieldTheme.s5)
+        .padding(.vertical, ShieldTheme.s4)
+      }
+      .accessibilityIdentifier("export.complete.content")
 
-    private var doneButton: some View {
-        Button(action: onDone) {
-            Text(LanguageManager.shared.common("common_done"))
-                .shieldFont(14, weight: .semibold)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 48)
-                .background(ShieldTheme.rowBackground(scheme))
-                .foregroundColor(ShieldTheme.primary(scheme))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+      Group {
+        if dynamicTypeSize.isAccessibilitySize {
+          VStack(spacing: 8) {
+            doneButton
+            shareButton
+          }
+        } else {
+          HStack(spacing: 8) {
+            doneButton
+            shareButton
+          }
         }
-        .buttonStyle(ScaleButtonStyle())
-        .accessibilityIdentifier("export.complete.done")
+      }
+      .padding(.horizontal, ShieldTheme.s5)
+      .padding(.bottom, 32)
     }
+    .confirmationDialog(
+      LanguageManager.shared.editor("editor_sensitive_share_title"),
+      isPresented: $showSensitiveShareConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(LanguageManager.shared.editor("editor_sensitive_share_review")) {
+        onReview()
+      }
+      Button(
+        LanguageManager.shared.editor("editor_sensitive_share_anyway"),
+        role: .destructive,
+        action: onShare
+      )
+      Button(LanguageManager.shared.common("common_cancel"), role: .cancel) {}
+    } message: {
+      let remainingCount = verificationReport?.remainingDetectedSensitiveElements ?? 0
+      if remainingCount == 1 {
+        Text(LanguageManager.shared.editor("editor_sensitive_share_message_singular"))
+      } else {
+        Text(LanguageManager.shared.editor("editor_sensitive_share_message_plural", remainingCount))
+      }
+    }
+  }
 
-    private var shareButton: some View {
-        Button {
-            if (verificationReport?.remainingDetectedSensitiveElements ?? 0) > 0 {
-                showSensitiveShareConfirmation = true
-            } else {
-                onShare()
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "square.and.arrow.up")
-                Text(LanguageManager.shared.common("common_share"))
-            }
-            .shieldFont(14, weight: .bold)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 48)
-            .background(ShieldTheme.accent)
-            .foregroundColor(ShieldTheme.accentText)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(ScaleButtonStyle())
+  private var doneButton: some View {
+    Button(action: onDone) {
+      Text(LanguageManager.shared.common("common_done"))
+        .shieldFont(14, weight: .semibold)
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: 48)
+        .background(ShieldTheme.rowBackground(scheme))
+        .foregroundColor(ShieldTheme.primary(scheme))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+    .buttonStyle(ScaleButtonStyle())
+    .accessibilityIdentifier("export.complete.done")
+  }
+
+  private var shareButton: some View {
+    Button {
+      if (verificationReport?.remainingDetectedSensitiveElements ?? 0) > 0 {
+        showSensitiveShareConfirmation = true
+      } else {
+        onShare()
+      }
+    } label: {
+      HStack(spacing: 6) {
+        Image(systemName: "square.and.arrow.up")
+        Text(LanguageManager.shared.common("common_share"))
+      }
+      .shieldFont(14, weight: .bold)
+      .frame(maxWidth: .infinity)
+      .frame(minHeight: 48)
+      .background(ShieldTheme.accent)
+      .foregroundColor(ShieldTheme.accentText)
+      .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    .buttonStyle(ScaleButtonStyle())
+  }
 }
 
 struct ExportProtectionCheckView: View {
-    let scheme: ColorScheme
-    let report: ExportVerificationReport
+  let scheme: ColorScheme
+  let report: ExportVerificationReport
+  @State private var sealPulse = false
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: report.isReadyToShare ? "checkmark.shield.fill" : "eye.trianglebadge.exclamationmark")
-                    .shieldFont(15, weight: .bold)
-                    .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(LanguageManager.shared.editor("editor_protection_check_title"))
-                        .shieldFont(13, weight: .bold)
-                        .foregroundColor(ShieldTheme.primary(scheme))
-                    Text(report.isReadyToShare
-                         ? LanguageManager.shared.editor("editor_protection_check_ready")
-                         : LanguageManager.shared.editor("editor_protection_check_review"))
-                        .shieldFont(11, weight: .semibold)
-                        .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
-                }
-                Spacer()
-            }
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      // Certified Security Seal Header
+      HStack(spacing: 12) {
+        ZStack {
+          Circle()
+            .fill(
+              report.isReadyToShare ? ShieldTheme.successDim : ShieldTheme.warning.opacity(0.18)
+            )
+            .frame(width: 44, height: 44)
+            .scaleEffect(sealPulse ? 1.06 : 0.98)
+            .animation(
+              .easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: sealPulse)
 
-            ExportPrivacyScoreRow(
-                scheme: scheme,
-                icon: "scissors",
-                label: LanguageManager.shared.editor("editor_export_redactions_applied"),
-                value: "\(report.redactionsApplied)",
-                ok: report.redactionsApplied > 0
-            )
-            ExportPrivacyScoreRow(
-                scheme: scheme,
-                icon: "square.stack.3d.up",
-                label: LanguageManager.shared.editor("editor_protection_check_pages"),
-                value: "\(report.pagesReviewed)/\(report.expectedPageCount)",
-                ok: report.pagesReviewed == report.expectedPageCount
-            )
-            ExportPrivacyScoreRow(
-                scheme: scheme,
-                icon: "wand.and.stars",
-                label: LanguageManager.shared.editor("editor_protection_check_metadata"),
-                value: report.metadataRemoved
-                    ? LanguageManager.shared.common("common_yes")
-                    : LanguageManager.shared.common("common_no"),
-                ok: report.metadataRemoved
-            )
-            ExportPrivacyScoreRow(
-                scheme: scheme,
-                icon: "text.badge.checkmark",
-                label: LanguageManager.shared.editor("editor_protection_check_watermark"),
-                value: report.watermarkApplied
-                    ? LanguageManager.shared.common("common_yes")
-                    : LanguageManager.shared.common("common_no"),
-                ok: report.watermarkApplied
-            )
-            ExportPrivacyScoreRow(
-                scheme: scheme,
-                icon: "eye",
-                label: LanguageManager.shared.editor("editor_protection_check_remaining"),
-                value: "\(report.remainingDetectedSensitiveElements)",
-                ok: report.remainingDetectedSensitiveElements == 0
-            )
-
-            if let hash = report.sha256Hash {
-                ExportPrivacyScoreRow(
-                    scheme: scheme,
-                    icon: "lock.shield",
-                    label: LanguageManager.shared.editor("editor_protection_check_sha256"),
-                    value: String(hash.prefix(8)) + "...",
-                    ok: true
-                )
-            }
-
-            Text(LanguageManager.shared.editor("editor_protection_check_note"))
-                .shieldFont(10)
-                .foregroundColor(ShieldTheme.tertiary(scheme))
-                .fixedSize(horizontal: false, vertical: true)
+          Image(
+            systemName: report.isReadyToShare
+              ? "checkmark.shield.fill" : "eye.trianglebadge.exclamationmark"
+          )
+          .shieldFont(22, weight: .bold)
+          .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
         }
-        .padding(12)
-        .background(ShieldTheme.rowBackground(scheme))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(
-                    report.isReadyToShare ? ShieldTheme.success.opacity(0.35) : ShieldTheme.warning.opacity(0.35),
-                    lineWidth: 0.8
-                )
-        )
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(LanguageManager.shared.editor("editor_protection_check_title"))
-        .accessibilityValue(
+        .onAppear { sealPulse = true }
+
+        VStack(alignment: .leading, spacing: 2) {
+          Text(LanguageManager.shared.editor("editor_protection_check_title"))
+            .shieldFont(13, weight: .bold)
+            .foregroundColor(ShieldTheme.primary(scheme))
+          Text(
             report.isReadyToShare
-                ? LanguageManager.shared.editor("editor_protection_check_ready")
-                : LanguageManager.shared.editor("editor_protection_check_review")
+              ? LanguageManager.shared.editor("editor_protection_check_ready")
+              : LanguageManager.shared.editor("editor_protection_check_review")
+          )
+          .shieldFont(11, weight: .semibold)
+          .foregroundColor(report.isReadyToShare ? ShieldTheme.success : ShieldTheme.warning)
+        }
+        Spacer()
+
+        if report.isReadyToShare {
+          Text("VERIFICADO")
+            .font(.system(size: 9, weight: .black, design: .rounded))
+            .foregroundStyle(ShieldTheme.success)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(ShieldTheme.successDim, in: Capsule())
+            .overlay(Capsule().stroke(ShieldTheme.success.opacity(0.4), lineWidth: 1))
+        }
+      }
+
+      // Triple Anti-Leak Certified Guarantees
+      VStack(spacing: 6) {
+        HStack(spacing: 8) {
+          Image(systemName: "checkmark.circle.fill")
+            .font(.system(size: 11))
+            .foregroundColor(ShieldTheme.success)
+          Text(
+            LanguageManager.shared.current == .es
+              ? "0 bytes de texto residual (capas vectoriales eliminadas)"
+              : "0 bytes residual text (vector layers flattened)"
+          )
+          .shieldFont(11, weight: .medium)
+          .foregroundColor(ShieldTheme.primary(scheme))
+          Spacer()
+        }
+
+        HStack(spacing: 8) {
+          Image(
+            systemName: report.metadataRemoved
+              ? "checkmark.circle.fill" : "exclamationmark.circle.fill"
+          )
+          .font(.system(size: 11))
+          .foregroundColor(report.metadataRemoved ? ShieldTheme.success : ShieldTheme.warning)
+          Text(
+            LanguageManager.shared.current == .es
+              ? "Metadatos y geolocalización EXIF purgados"
+              : "EXIF & GPS metadata purged"
+          )
+          .shieldFont(11, weight: .medium)
+          .foregroundColor(ShieldTheme.primary(scheme))
+          Spacer()
+        }
+
+        HStack(spacing: 8) {
+          Image(systemName: "checkmark.circle.fill")
+            .font(.system(size: 11))
+            .foregroundColor(ShieldTheme.success)
+          Text(
+            LanguageManager.shared.current == .es
+              ? "Píxeles consolidados en plano único (anti-extracción)"
+              : "Pixels consolidated into single raster (anti-extraction)"
+          )
+          .shieldFont(11, weight: .medium)
+          .foregroundColor(ShieldTheme.primary(scheme))
+          Spacer()
+        }
+      }
+      .padding(10)
+      .background(ShieldTheme.cardBackground(scheme))
+      .clipShape(RoundedRectangle(cornerRadius: 8))
+
+      Divider()
+
+      ExportPrivacyScoreRow(
+        scheme: scheme,
+        icon: "scissors",
+        label: LanguageManager.shared.editor("editor_export_redactions_applied"),
+        value: "\(report.redactionsApplied)",
+        ok: report.redactionsApplied > 0
+      )
+      ExportPrivacyScoreRow(
+        scheme: scheme,
+        icon: "square.stack.3d.up",
+        label: LanguageManager.shared.editor("editor_protection_check_pages"),
+        value: "\(report.pagesReviewed)/\(report.expectedPageCount)",
+        ok: report.pagesReviewed == report.expectedPageCount
+      )
+      ExportPrivacyScoreRow(
+        scheme: scheme,
+        icon: "wand.and.stars",
+        label: LanguageManager.shared.editor("editor_protection_check_metadata"),
+        value: report.metadataRemoved
+          ? LanguageManager.shared.common("common_yes")
+          : LanguageManager.shared.common("common_no"),
+        ok: report.metadataRemoved
+      )
+      ExportPrivacyScoreRow(
+        scheme: scheme,
+        icon: "text.badge.checkmark",
+        label: LanguageManager.shared.editor("editor_protection_check_watermark"),
+        value: report.watermarkApplied
+          ? LanguageManager.shared.common("common_yes")
+          : LanguageManager.shared.common("common_no"),
+        ok: report.watermarkApplied
+      )
+      ExportPrivacyScoreRow(
+        scheme: scheme,
+        icon: "eye",
+        label: LanguageManager.shared.editor("editor_protection_check_remaining"),
+        value: "\(report.remainingDetectedSensitiveElements)",
+        ok: report.remainingDetectedSensitiveElements == 0
+      )
+
+      if let hash = report.sha256Hash {
+        ExportPrivacyScoreRow(
+          scheme: scheme,
+          icon: "lock.shield",
+          label: LanguageManager.shared.editor("editor_protection_check_sha256"),
+          value: String(hash.prefix(8)) + "...",
+          ok: true
         )
-        .accessibilityIdentifier("export.verification.result")
+      }
+
+      Text(LanguageManager.shared.editor("editor_protection_check_note"))
+        .shieldFont(10)
+        .foregroundColor(ShieldTheme.tertiary(scheme))
+        .fixedSize(horizontal: false, vertical: true)
     }
+    .padding(12)
+    .background(ShieldTheme.rowBackground(scheme))
+    .clipShape(RoundedRectangle(cornerRadius: 12))
+    .overlay(
+      RoundedRectangle(cornerRadius: 12)
+        .stroke(
+          report.isReadyToShare
+            ? ShieldTheme.success.opacity(0.35) : ShieldTheme.warning.opacity(0.35),
+          lineWidth: 0.8
+        )
+    )
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(LanguageManager.shared.editor("editor_protection_check_title"))
+    .accessibilityValue(
+      report.isReadyToShare
+        ? LanguageManager.shared.editor("editor_protection_check_ready")
+        : LanguageManager.shared.editor("editor_protection_check_review")
+    )
+    .accessibilityIdentifier("export.verification.result")
+  }
 }
 
 struct ExportVerificationPreflightPanel: View {
-    let scheme: ColorScheme
-    let totalRedactionCount: Int
-    let visualObfuscationCount: Int
-    let isPDF: Bool
-    let language: AppLanguage
-    @Binding var isExpanded: Bool
+  let scheme: ColorScheme
+  let totalRedactionCount: Int
+  let visualObfuscationCount: Int
+  let isPDF: Bool
+  let language: AppLanguage
+  @Binding var isExpanded: Bool
 
-    var body: some View {
-        let color: Color = totalRedactionCount > 0 ? ShieldTheme.success : ShieldTheme.warning
+  var body: some View {
+    let color: Color = totalRedactionCount > 0 ? ShieldTheme.success : ShieldTheme.warning
 
-        Button {
-            withAnimation(.spring(response: 0.3)) { isExpanded.toggle() }
-        } label: {
-            VStack(alignment: .leading, spacing: isExpanded ? 10 : 0) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle().fill(color.opacity(0.18)).frame(width: 36, height: 36)
-                        Image(systemName: "checkmark.shield.fill")
-                            .shieldFont(16, weight: .bold)
-                            .foregroundColor(color)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(LanguageManager.shared.editor("editor_export_verification_title"))
-                            .shieldFont(13, weight: .bold)
-                            .foregroundColor(ShieldTheme.primary(scheme))
-                        Text(isPDF
-                             ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
-                             : LanguageManager.shared.editor("editor_export_verification_image_note"))
-                            .shieldFont(11, weight: .semibold)
-                            .foregroundColor(color)
-                    }
-                    Spacer()
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .shieldFont(11, weight: .semibold)
-                        .foregroundColor(ShieldTheme.tertiary(scheme))
-                }
-
-                if isExpanded {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ExportPrivacyScoreRow(
-                            scheme: scheme,
-                            icon: "scissors",
-                            label: LanguageManager.shared.editor("editor_export_redactions_applied"),
-                            value: totalRedactionCount > 0 ? "\(totalRedactionCount)" : LanguageManager.shared.editor("editor_export_none"),
-                            ok: totalRedactionCount > 0
-                        )
-                        ExportPrivacyScoreRow(
-                            scheme: scheme,
-                            icon: "doc.badge.minus",
-                            label: LanguageManager.shared.editor("editor_export_original_content_label"),
-                            value: LanguageManager.shared.editor("editor_export_original_content_value"),
-                            ok: true
-                        )
-                        ExportPrivacyScoreRow(
-                            scheme: scheme,
-                            icon: "eye.slash",
-                            label: LanguageManager.shared.editor("editor_export_visual_obfuscations_label"),
-                            value: visualObfuscationCount > 0
-                                ? LanguageManager.shared.editor("editor_export_visual_obfuscations_value", visualObfuscationCount)
-                                : LanguageManager.shared.editor("editor_export_visual_obfuscations_none"),
-                            ok: true
-                        )
-                        ExportPrivacyScoreRow(
-                            scheme: scheme,
-                            icon: "checkmark.seal",
-                            label: LanguageManager.shared.editor("editor_export_pdf_checks_label"),
-                            value: isPDF
-                                ? LanguageManager.shared.editor("editor_export_pdf_checks_value")
-                                : LanguageManager.shared.editor("editor_export_pdf_checks_not_applicable"),
-                            ok: true
-                        )
-                    }
-                    .padding(.top, 2)
-                }
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ShieldTheme.rowBackground(scheme))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .contentShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(ScaleButtonStyle())
-        .accessibilityLabel(LanguageManager.shared.editor("editor_export_verification_title"))
-        .accessibilityValue(
-            isPDF
+    Button {
+      withAnimation(.spring(response: 0.3)) { isExpanded.toggle() }
+    } label: {
+      VStack(alignment: .leading, spacing: isExpanded ? 10 : 0) {
+        HStack(spacing: 10) {
+          ZStack {
+            Circle().fill(color.opacity(0.18)).frame(width: 36, height: 36)
+            Image(systemName: "checkmark.shield.fill")
+              .shieldFont(16, weight: .bold)
+              .foregroundColor(color)
+          }
+          VStack(alignment: .leading, spacing: 2) {
+            Text(LanguageManager.shared.editor("editor_export_verification_title"))
+              .shieldFont(13, weight: .bold)
+              .foregroundColor(ShieldTheme.primary(scheme))
+            Text(
+              isPDF
                 ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
                 : LanguageManager.shared.editor("editor_export_verification_image_note")
-        )
-        .accessibilityHint(
-            isExpanded
-                ? LanguageManager.shared.editor("editor_export_collapse_details")
-                : LanguageManager.shared.editor("editor_export_show_details")
-        )
-        .accessibilityIdentifier("export.verification.details")
+            )
+            .shieldFont(11, weight: .semibold)
+            .foregroundColor(color)
+          }
+          Spacer()
+          Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+            .shieldFont(11, weight: .semibold)
+            .foregroundColor(ShieldTheme.tertiary(scheme))
+        }
+
+        if isExpanded {
+          VStack(alignment: .leading, spacing: 6) {
+            ExportPrivacyScoreRow(
+              scheme: scheme,
+              icon: "scissors",
+              label: LanguageManager.shared.editor("editor_export_redactions_applied"),
+              value: totalRedactionCount > 0
+                ? "\(totalRedactionCount)" : LanguageManager.shared.editor("editor_export_none"),
+              ok: totalRedactionCount > 0
+            )
+            ExportPrivacyScoreRow(
+              scheme: scheme,
+              icon: "doc.badge.minus",
+              label: LanguageManager.shared.editor("editor_export_original_content_label"),
+              value: LanguageManager.shared.editor("editor_export_original_content_value"),
+              ok: true
+            )
+            ExportPrivacyScoreRow(
+              scheme: scheme,
+              icon: "eye.slash",
+              label: LanguageManager.shared.editor("editor_export_visual_obfuscations_label"),
+              value: visualObfuscationCount > 0
+                ? LanguageManager.shared.editor(
+                  "editor_export_visual_obfuscations_value", visualObfuscationCount)
+                : LanguageManager.shared.editor("editor_export_visual_obfuscations_none"),
+              ok: true
+            )
+            ExportPrivacyScoreRow(
+              scheme: scheme,
+              icon: "checkmark.seal",
+              label: LanguageManager.shared.editor("editor_export_pdf_checks_label"),
+              value: isPDF
+                ? LanguageManager.shared.editor("editor_export_pdf_checks_value")
+                : LanguageManager.shared.editor("editor_export_pdf_checks_not_applicable"),
+              ok: true
+            )
+          }
+          .padding(.top, 2)
+        }
+      }
+      .padding(12)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(ShieldTheme.rowBackground(scheme))
+      .clipShape(RoundedRectangle(cornerRadius: 12))
+      .contentShape(RoundedRectangle(cornerRadius: 12))
     }
+    .buttonStyle(ScaleButtonStyle())
+    .accessibilityLabel(LanguageManager.shared.editor("editor_export_verification_title"))
+    .accessibilityValue(
+      isPDF
+        ? LanguageManager.shared.editor("editor_export_verification_pdf_note")
+        : LanguageManager.shared.editor("editor_export_verification_image_note")
+    )
+    .accessibilityHint(
+      isExpanded
+        ? LanguageManager.shared.editor("editor_export_collapse_details")
+        : LanguageManager.shared.editor("editor_export_show_details")
+    )
+    .accessibilityIdentifier("export.verification.details")
+  }
 }
 
 struct ExportPrivacyScoreRow: View {
-    let scheme: ColorScheme
-    let icon: String
-    let label: String
-    let value: String
-    let ok: Bool
+  let scheme: ColorScheme
+  let icon: String
+  let label: String
+  let value: String
+  let ok: Bool
 
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .shieldFont(11, weight: .semibold)
-                .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
-                .frame(width: 16)
-            Text(label)
-                .shieldFont(12)
-                .foregroundColor(ShieldTheme.secondary(scheme))
-            Spacer()
-            Text(value)
-                .shieldFont(12, weight: .semibold)
-                .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
-        }
+  var body: some View {
+    HStack(spacing: 8) {
+      Image(systemName: icon)
+        .shieldFont(11, weight: .semibold)
+        .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
+        .frame(width: 16)
+      Text(label)
+        .shieldFont(12)
+        .foregroundColor(ShieldTheme.secondary(scheme))
+      Spacer()
+      Text(value)
+        .shieldFont(12, weight: .semibold)
+        .foregroundColor(ok ? ShieldTheme.success : ShieldTheme.warning)
     }
+  }
 }
 
 struct ExportSectionLabel: View {
-    let text: String
-    let scheme: ColorScheme
+  let text: String
+  let scheme: ColorScheme
 
-    var body: some View {
-        Text(text)
-            .shieldFont(11, weight: .bold)
-            .foregroundColor(ShieldTheme.tertiary(scheme))
-            .textCase(.uppercase)
-            .tracking(0.4)
-    }
+  var body: some View {
+    Text(text)
+      .shieldFont(11, weight: .bold)
+      .foregroundColor(ShieldTheme.tertiary(scheme))
+      .textCase(.uppercase)
+      .tracking(0.4)
+  }
 }

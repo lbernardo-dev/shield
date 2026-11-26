@@ -37,6 +37,23 @@ struct OBWelcomeView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 40)
 
+            Spacer().frame(height: 20)
+
+            HStack(spacing: 8) {
+                Image(systemName: "lock.shield.fill")
+                    .foregroundColor(ShieldTheme.success)
+                    .font(.system(size: 14))
+                Text(LanguageManager.shared.current == .es
+                     ? "100% On-Device: Cero servidores, procesamiento local con Apple Silicon"
+                     : "100% On-Device: Zero servers, local Apple Silicon processing")
+                    .shieldFont(12, weight: .medium)
+                    .foregroundColor(ShieldTheme.textSecondary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(ShieldTheme.surface2, in: Capsule())
+            .overlay(Capsule().stroke(ShieldTheme.surfaceLine, lineWidth: 0.8))
+
             Spacer()
 
             Button(action: state.next) {

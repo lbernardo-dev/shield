@@ -96,6 +96,7 @@ struct CaptureView: View {
     @State private var showScanner = false
     @State private var showPhotoPicker = false
     @State private var showFilePicker = false
+    @State private var isDirectLaunch = false
     @State private var showPaywall = false
     @State private var paywallTrigger: PaywallTrigger = .manual
     @State private var showScanReview = false
@@ -149,6 +150,9 @@ struct CaptureView: View {
                 stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
             } onCancel: {
                 showScanner = false
+                if isDirectLaunch {
+                    appState.showCapture = false
+                }
             } onError: {
                 showScanner = false
                 importErrorMessage = CaptureImportError.scannerFailed.errorDescription
@@ -202,6 +206,9 @@ struct CaptureView: View {
                 stageScanPages(images, title: nil, sourceType: .image, sourceFileName: nil, docID: UUID().uuidString)
             } onCancel: {
                 showPhotoPicker = false
+                if isDirectLaunch {
+                    appState.showCapture = false
+                }
             } onError: { error in
                 showPhotoPicker = false
                 importErrorMessage = error.errorDescription ?? error.localizedDescription
@@ -213,6 +220,9 @@ struct CaptureView: View {
                 beginQueuedImports(urls, source: "file")
             } onCancel: {
                 showFilePicker = false
+                if isDirectLaunch {
+                    appState.showCapture = false
+                }
             }
         }
         .sheet(isPresented: $showPaywall) {
@@ -233,6 +243,25 @@ struct CaptureView: View {
             }
         }
         .onAppear {
+            if let source = appState.pendingCaptureSource {
+                appState.pendingCaptureSource = nil
+                isDirectLaunch = true
+                Task { @MainActor in
+                    await Task.yield()
+                    switch source {
+                    case .camera:
+                        if VNDocumentCameraViewController.isSupported {
+                            showScanner = true
+                        } else {
+                            showPhotoPicker = true
+                        }
+                    case .photos:
+                        showPhotoPicker = true
+                    case .files:
+                        showFilePicker = true
+                    }
+                }
+            }
             consumePendingSharedImport()
 #if DEBUG
             configureDebugScanReviewIfNeeded()

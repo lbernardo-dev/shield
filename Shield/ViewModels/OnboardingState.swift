@@ -3,136 +3,163 @@ import SwiftUI
 // MARK: - OBGoal
 
 enum OBGoal: String, CaseIterable, Identifiable {
-    case rental, work, vehicle, banking, travel, other
-    var id: String { rawValue }
-    var emoji: String {
-        switch self {
-        case .rental:  return "🏠"
-        case .work:    return "💼"
-        case .vehicle: return "🚗"
-        case .banking: return "🏦"
-        case .travel:  return "✈️"
-        case .other:   return "📋"
-        }
+  case rental, work, vehicle, banking, travel, other
+  var id: String { rawValue }
+  var emoji: String {
+    switch self {
+    case .rental: return "🏠"
+    case .work: return "💼"
+    case .vehicle: return "🚗"
+    case .banking: return "🏦"
+    case .travel: return "✈️"
+    case .other: return "📋"
     }
-    func label(lang: AppLanguage) -> String {
-        switch self {
-        case .rental:  return LanguageManager.shared.t("onboarding_goal_rental", table: "Onboarding", language: lang)
-        case .work:    return LanguageManager.shared.t("onboarding_goal_work", table: "Onboarding", language: lang)
-        case .vehicle: return LanguageManager.shared.t("onboarding_goal_vehicle", table: "Onboarding", language: lang)
-        case .banking: return LanguageManager.shared.t("onboarding_goal_banking", table: "Onboarding", language: lang)
-        case .travel:  return LanguageManager.shared.t("onboarding_goal_travel", table: "Onboarding", language: lang)
-        case .other:   return LanguageManager.shared.t("onboarding_goal_other", table: "Onboarding", language: lang)
-        }
+  }
+  func label(lang: AppLanguage) -> String {
+    switch self {
+    case .rental:
+      return LanguageManager.shared.t("onboarding_goal_rental", table: "Onboarding", language: lang)
+    case .work:
+      return LanguageManager.shared.t("onboarding_goal_work", table: "Onboarding", language: lang)
+    case .vehicle:
+      return LanguageManager.shared.t(
+        "onboarding_goal_vehicle", table: "Onboarding", language: lang)
+    case .banking:
+      return LanguageManager.shared.t(
+        "onboarding_goal_banking", table: "Onboarding", language: lang)
+    case .travel:
+      return LanguageManager.shared.t("onboarding_goal_travel", table: "Onboarding", language: lang)
+    case .other:
+      return LanguageManager.shared.t("onboarding_goal_other", table: "Onboarding", language: lang)
     }
+  }
 }
 
 // MARK: - OBPainPoint
 
 enum OBPainPoint: String, CaseIterable, Identifiable, Hashable {
-    case photo, dob, docNumber, address, bank, notSure
-    var id: String { rawValue }
-    var emoji: String {
-        switch self {
-        case .photo:     return "😰"
-        case .dob:       return "📅"
-        case .docNumber: return "🔢"
-        case .address:   return "🏠"
-        case .bank:      return "💳"
-        case .notSure:   return "🤷"
-        }
+  case photo, dob, docNumber, address, bank, notSure
+  var id: String { rawValue }
+  var emoji: String {
+    switch self {
+    case .photo: return "😰"
+    case .dob: return "📅"
+    case .docNumber: return "🔢"
+    case .address: return "🏠"
+    case .bank: return "💳"
+    case .notSure: return "🤷"
     }
-    func label(lang: AppLanguage) -> String {
-        switch self {
-        case .photo:     return LanguageManager.shared.t("onboarding_pain_photo", table: "Onboarding", language: lang)
-        case .dob:       return LanguageManager.shared.t("onboarding_pain_dob", table: "Onboarding", language: lang)
-        case .docNumber: return LanguageManager.shared.t("onboarding_pain_doc_num", table: "Onboarding", language: lang)
-        case .address:   return LanguageManager.shared.t("onboarding_pain_address", table: "Onboarding", language: lang)
-        case .bank:      return LanguageManager.shared.t("onboarding_pain_bank", table: "Onboarding", language: lang)
-        case .notSure:   return LanguageManager.shared.t("onboarding_pain_not_sure", table: "Onboarding", language: lang)
-        }
+  }
+  func label(lang: AppLanguage) -> String {
+    switch self {
+    case .photo:
+      return LanguageManager.shared.t("onboarding_pain_photo", table: "Onboarding", language: lang)
+    case .dob:
+      return LanguageManager.shared.t("onboarding_pain_dob", table: "Onboarding", language: lang)
+    case .docNumber:
+      return LanguageManager.shared.t(
+        "onboarding_pain_doc_num", table: "Onboarding", language: lang)
+    case .address:
+      return LanguageManager.shared.t(
+        "onboarding_pain_address", table: "Onboarding", language: lang)
+    case .bank:
+      return LanguageManager.shared.t("onboarding_pain_bank", table: "Onboarding", language: lang)
+    case .notSure:
+      return LanguageManager.shared.t(
+        "onboarding_pain_not_sure", table: "Onboarding", language: lang)
     }
-    var solutionKeys: (title: String, fix: String) {
-        switch self {
-        case .photo:     return ("onboarding_solution_photo_title", "onboarding_solution_photo_fix")
-        case .dob:       return ("onboarding_solution_dob_title", "onboarding_solution_dob_fix")
-        case .docNumber: return ("onboarding_solution_doc_num_title", "onboarding_solution_doc_num_fix")
-        case .address:   return ("onboarding_solution_address_title", "onboarding_solution_address_fix")
-        case .bank:      return ("onboarding_solution_bank_title", "onboarding_solution_bank_fix")
-        case .notSure:   return ("onboarding_solution_not_sure_title", "onboarding_solution_not_sure_fix")
-        }
+  }
+  var solutionKeys: (title: String, fix: String) {
+    switch self {
+    case .photo: return ("onboarding_solution_photo_title", "onboarding_solution_photo_fix")
+    case .dob: return ("onboarding_solution_dob_title", "onboarding_solution_dob_fix")
+    case .docNumber: return ("onboarding_solution_doc_num_title", "onboarding_solution_doc_num_fix")
+    case .address: return ("onboarding_solution_address_title", "onboarding_solution_address_fix")
+    case .bank: return ("onboarding_solution_bank_title", "onboarding_solution_bank_fix")
+    case .notSure: return ("onboarding_solution_not_sure_title", "onboarding_solution_not_sure_fix")
     }
+  }
 }
 
 // MARK: - OBDocType
 
 enum OBDocType: String, CaseIterable, Identifiable, Hashable {
-    case dni, passport, license, payslip, bank, medical
-    var id: String { rawValue }
-    var emoji: String {
-        switch self {
-        case .dni:      return "🪪"
-        case .passport: return "🛂"
-        case .license:  return "🚗"
-        case .payslip:  return "📄"
-        case .bank:     return "🏦"
-        case .medical:  return "🏥"
-        }
+  case dni, passport, license, payslip, bank, medical
+  var id: String { rawValue }
+  var emoji: String {
+    switch self {
+    case .dni: return "🪪"
+    case .passport: return "🛂"
+    case .license: return "🚗"
+    case .payslip: return "📄"
+    case .bank: return "🏦"
+    case .medical: return "🏥"
     }
-    func label(lang: AppLanguage) -> String {
-        switch self {
-        case .dni:      return LanguageManager.shared.t("onboarding_pref_dni", table: "Onboarding", language: lang)
-        case .passport: return LanguageManager.shared.t("onboarding_pref_passport", table: "Onboarding", language: lang)
-        case .license:  return LanguageManager.shared.t("onboarding_pref_license", table: "Onboarding", language: lang)
-        case .payslip:  return LanguageManager.shared.t("onboarding_pref_payslip", table: "Onboarding", language: lang)
-        case .bank:     return LanguageManager.shared.t("onboarding_pref_bank", table: "Onboarding", language: lang)
-        case .medical:  return LanguageManager.shared.t("onboarding_pref_medical", table: "Onboarding", language: lang)
-        }
+  }
+  func label(lang: AppLanguage) -> String {
+    switch self {
+    case .dni:
+      return LanguageManager.shared.t("onboarding_pref_dni", table: "Onboarding", language: lang)
+    case .passport:
+      return LanguageManager.shared.t(
+        "onboarding_pref_passport", table: "Onboarding", language: lang)
+    case .license:
+      return LanguageManager.shared.t(
+        "onboarding_pref_license", table: "Onboarding", language: lang)
+    case .payslip:
+      return LanguageManager.shared.t(
+        "onboarding_pref_payslip", table: "Onboarding", language: lang)
+    case .bank:
+      return LanguageManager.shared.t("onboarding_pref_bank", table: "Onboarding", language: lang)
+    case .medical:
+      return LanguageManager.shared.t(
+        "onboarding_pref_medical", table: "Onboarding", language: lang)
     }
+  }
 }
 
 // MARK: - OnboardingState
 
 @MainActor
 final class OnboardingState: ObservableObject {
-    @Published var currentStep: Int = 0
-    @Published var selectedGoal: OBGoal? = nil
-    @Published var selectedPainPoints: Set<OBPainPoint> = []
-    @Published var selectedDocTypes: Set<OBDocType> = []
+  @Published var currentStep: Int = 0
+  @Published var selectedGoal: OBGoal? = nil
+  @Published var selectedPainPoints: Set<OBPainPoint> = []
+  @Published var selectedDocTypes: Set<OBDocType> = []
 
-    // Three first-run moments: promise, interactive review demo, optional local security.
-    // Camera access is requested only when the person starts a capture.
-    let totalSteps = 3
+  // Four first-run moments: promise, purpose goal, interactive review demo, optional local security.
+  let totalSteps = 4
 
-    var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
-    var showTopBar: Bool { true }
+  var progress: Double { Double(currentStep) / Double(totalSteps - 1) }
+  var showTopBar: Bool { true }
 
-    init() {
-        #if DEBUG
-        let args = ProcessInfo.processInfo.arguments
-        if let idx = args.firstIndex(of: "-onboarding-step"), args.indices.contains(idx + 1),
-           let step = Int(args[idx + 1]) {
-            currentStep = max(0, min(totalSteps - 1, step))
-        }
-        #endif
+  init() {
+    #if DEBUG
+      let args = ProcessInfo.processInfo.arguments
+      if let idx = args.firstIndex(of: "-onboarding-step"), args.indices.contains(idx + 1),
+        let step = Int(args[idx + 1])
+      {
+        currentStep = max(0, min(totalSteps - 1, step))
+      }
+    #endif
+  }
+
+  func next() {
+    guard currentStep < totalSteps - 1 else { return }
+    withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep += 1 }
+  }
+
+  func previous() {
+    guard currentStep > 0 else { return }
+    withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep -= 1 }
+  }
+
+  func persistAnswers() {
+    let ud = UserDefaults.standard
+    if let goal = selectedGoal {
+      ud.set(goal.rawValue, forKey: "shield.onboarding.goal")
     }
-
-    func next() {
-        guard currentStep < totalSteps - 1 else { return }
-        withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep += 1 }
-    }
-
-    func previous() {
-        guard currentStep > 0 else { return }
-        withAnimation(.snappy(duration: 0.32, extraBounce: 0.04)) { currentStep -= 1 }
-    }
-
-    func persistAnswers() {
-        let ud = UserDefaults.standard
-        if let goal = selectedGoal {
-            ud.set(goal.rawValue, forKey: "shield.onboarding.goal")
-        }
-        ud.set(Array(selectedPainPoints).map(\.rawValue), forKey: "shield.onboarding.painPoints")
-        ud.set(Array(selectedDocTypes).map(\.rawValue), forKey: "shield.onboarding.docTypes")
-    }
+    ud.set(Array(selectedPainPoints).map(\.rawValue), forKey: "shield.onboarding.painPoints")
+    ud.set(Array(selectedDocTypes).map(\.rawValue), forKey: "shield.onboarding.docTypes")
+  }
 }

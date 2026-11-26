@@ -107,6 +107,8 @@ final class EditorViewModel: ObservableObject {
     @Published var isResizingRedaction: Bool = false
     @Published var isAnalyzingOCRSuggestions: Bool = false
     @Published var isPeekingOriginal: Bool = false
+    @Published var isSplitViewActive: Bool = false
+    @Published var splitViewPosition: CGFloat = 0.5
     @Published var showPresetPicker: Bool = false
     @Published private(set) var needsGeometryReviewPersistence = false
 

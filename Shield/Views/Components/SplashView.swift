@@ -381,10 +381,17 @@ struct SplashView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            finish()
+        }
         .accessibilityHidden(true)
         .task {
-            let delay = shouldReduceMotion ? 150_000_000 : 400_000_000
-            try? await Task.sleep(nanoseconds: UInt64(delay))
+            if shouldReduceMotion {
+                finish()
+                return
+            }
+            try? await Task.sleep(nanoseconds: 250_000_000)
             guard !Task.isCancelled else { return }
             finish()
         }

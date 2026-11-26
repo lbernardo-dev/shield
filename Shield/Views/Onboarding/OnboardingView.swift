@@ -4,435 +4,448 @@ import SwiftUI
 // MARK: - LockScreenView
 
 struct LockScreenView: View {
-    @EnvironmentObject var appState: AppState
-    @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var isAuthenticating = false
-    @State private var verified = false
-    @State private var authError: String? = nil
-    @State private var showPINEntry = false
-    @State private var showPINSetup = false
-    @State private var didTriggerAutoBiometric = false
+  var isBlockedBySplash: Bool = false
+  @EnvironmentObject var appState: AppState
+  @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.colorScheme) private var scheme
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+  @State private var isAuthenticating = false
+  @State private var verified = false
+  @State private var authError: String? = nil
+  @State private var showPINEntry = false
+  @State private var showPINSetup = false
+  @State private var didTriggerAutoBiometric = false
 
-    private var biometricEnabled: Bool {
-        if UserDefaults.standard.object(forKey: "shield.biometric") != nil {
-            return UserDefaults.standard.bool(forKey: "shield.biometric")
-        }
-        return hasBiometrics
+  private var biometricEnabled: Bool {
+    if UserDefaults.standard.object(forKey: "shield.biometric") != nil {
+      return UserDefaults.standard.bool(forKey: "shield.biometric")
     }
+    return hasBiometrics
+  }
 
-    private var hasBiometrics: Bool {
-        let ctx = LAContext()
-        var err: NSError?
-        return ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
+  private var hasBiometrics: Bool {
+    let ctx = LAContext()
+    var err: NSError?
+    return ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
+  }
+
+  var body: some View {
+    ZStack {
+      lockBackground
+        .ignoresSafeArea()
+
+      GeometryReader { proxy in
+        lockContent(in: proxy)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+      }
     }
-
-    var body: some View {
-        ZStack {
-            lockBackground
-                .ignoresSafeArea()
-
-            GeometryReader { proxy in
-                lockContent(in: proxy)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            }
+    .preferredColorScheme(appState.preferredScheme)
+    .fullScreenCover(isPresented: $showPINEntry) {
+      PINEntryView(isPresented: $showPINEntry) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+          appState.completeSuccessfulUnlock()
         }
-        .preferredColorScheme(appState.preferredScheme)
-        .fullScreenCover(isPresented: $showPINEntry) {
-            PINEntryView(isPresented: $showPINEntry) {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    appState.completeSuccessfulUnlock()
-                }
-            }.environmentObject(appState)
-        }
-        .fullScreenCover(isPresented: $showPINSetup) {
-            PINSetupView(isPresented: $showPINSetup) {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    appState.completeSuccessfulUnlock()
-                }
-            }.environmentObject(appState)
-        }
-        .onAppear {
-            autoPromptIfNeeded()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                autoPromptIfNeeded()
-            }
-        }
+      }.environmentObject(appState)
     }
-
-    @ViewBuilder
-    private func lockContent(in proxy: GeometryProxy) -> some View {
-        // Duo reserves an asymmetric strip for system controls. Recenter the
-        // lock identity and primary action on the full display axis while
-        // keeping the action inside the app's safe, tappable width.
-        let centerOffset = (proxy.safeAreaInsets.trailing - proxy.safeAreaInsets.leading) / 2
-        let centeredActionWidth = min(296, proxy.size.width)
-
-        lockContentBody(centerOffset: centerOffset, centeredActionWidth: centeredActionWidth)
-            .frame(width: proxy.size.width, height: proxy.size.height)
-            .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-    }
-
-    private func lockContentBody(centerOffset: CGFloat, centeredActionWidth: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            lockHeader
-                .padding(.horizontal, ShieldTheme.s5)
-                .padding(.top, ShieldTheme.topChromePadding)
-
-            Spacer(minLength: ShieldTheme.s4)
-
-            VStack(spacing: ShieldTheme.s5) {
-                // Center Avatar with Integrated Scanning Sheen & Ambient Halo
-                identityMark(size: 200)
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
-                    .accessibilityAddTraits(.isImage)
-                    .accessibilityIdentifier("lock.identityMark")
-
-                // Title & Description
-                VStack(spacing: ShieldTheme.s2) {
-                    Text(LanguageManager.shared.auth("lock_access_title"))
-                        .shieldFont(24, weight: .heavy, design: .rounded)
-                        .foregroundStyle(ShieldTheme.primary(scheme))
-                        .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("lock.title")
-
-                    Text(LanguageManager.shared.auth("lock_verify_subtitle"))
-                        .shieldFont(14, weight: .medium)
-                        .foregroundStyle(ShieldTheme.secondary(scheme))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, ShieldTheme.s4)
-                }
-
-                // Status Pill / Error Message
-                lockStatus
-            }
-            .frame(maxWidth: min(480, centeredActionWidth))
-            .offset(x: centerOffset)
-
-            Spacer(minLength: ShieldTheme.s4)
-
-            // Actions directly below
-            lockActions
-                .frame(width: centeredActionWidth)
-                .offset(x: centerOffset)
-                .padding(.bottom, ShieldTheme.s6)
+    .fullScreenCover(isPresented: $showPINSetup) {
+      PINSetupView(isPresented: $showPINSetup) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+          appState.completeSuccessfulUnlock()
         }
+      }.environmentObject(appState)
     }
-
-    private var lockHeader: some View {
-        HStack(spacing: ShieldTheme.s3) {
-            Text(LanguageManager.shared.common("common_app_name"))
-                .shieldFont(20, weight: .heavy)
-                .foregroundStyle(ShieldTheme.primary(scheme))
-
-            Spacer(minLength: ShieldTheme.s2)
-
-            Label(
-                LanguageManager.shared.auth("lock_protection_active"),
-                systemImage: "lock.shield.fill"
-            )
-            .shieldFont(12, weight: .bold)
-            .foregroundStyle(ShieldTheme.accent(scheme))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(ShieldTheme.accentDim(scheme), in: Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
-            )
-            .accessibilityElement(children: .combine)
-        }
-        .frame(maxWidth: .infinity)
+    .onAppear {
+      autoPromptIfNeeded()
     }
-
-    private func identityMark(size: CGFloat) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            if ShieldTheme.activeThemeID == .halloween2026 {
-                SeasonalVaultHeroView(size: min(size * 0.9, 170))
-            } else {
-                MaskIDIdentityMark(
-                    size: size,
-                    presentation: .animatedLoop,
-                    treatment: .hero,
-                    isEmphasized: isAuthenticating
-                )
-            }
-
-            if verified {
-                Image(systemName: "checkmark.circle.fill")
-                    .shieldFont(28, weight: .bold)
-                    .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
-                    .contentTransition(.symbolEffect(.replace))
-                    .accessibilityHidden(true)
-            }
-        }
+    .onChange(of: scenePhase) { _, newPhase in
+      if newPhase == .active {
+        autoPromptIfNeeded()
+      }
     }
+    .onChange(of: isBlockedBySplash) { _, blocked in
+      if !blocked {
+        autoPromptIfNeeded()
+      }
+    }
+  }
 
-    private var lockStatus: some View {
-        HStack(alignment: .center, spacing: ShieldTheme.s2) {
-            if isAuthenticating {
-                ProgressView()
-                    .controlSize(.small)
-                    .tint(ShieldTheme.accentColor(scheme))
-                    .accessibilityHidden(true)
-            } else {
-                Image(systemName: authError == nil ? lockStatusIcon : "exclamationmark.triangle.fill")
-                    .accessibilityHidden(true)
-            }
+  @ViewBuilder
+  private func lockContent(in proxy: GeometryProxy) -> some View {
+    // Duo reserves an asymmetric strip for system controls. Recenter the
+    // lock identity and primary action on the full display axis while
+    // keeping the action inside the app's safe, tappable width.
+    let centerOffset = (proxy.safeAreaInsets.trailing - proxy.safeAreaInsets.leading) / 2
+    let centeredActionWidth = min(296, proxy.size.width)
 
-            Text(authError ?? lockStatusMessage)
-                .shieldFont(12, weight: .semibold)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
+    lockContentBody(centerOffset: centerOffset, centeredActionWidth: centeredActionWidth)
+      .frame(width: proxy.size.width, height: proxy.size.height)
+      .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+  }
+
+  private func lockContentBody(centerOffset: CGFloat, centeredActionWidth: CGFloat) -> some View {
+    VStack(spacing: 0) {
+      lockHeader
+        .padding(.horizontal, ShieldTheme.s5)
+        .padding(.top, ShieldTheme.topChromePadding)
+
+      Spacer(minLength: ShieldTheme.s4)
+
+      VStack(spacing: ShieldTheme.s5) {
+        // Center Avatar with Integrated Scanning Sheen & Ambient Halo
+        identityMark(size: 200)
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel(LanguageManager.shared.common("common_app_name"))
+          .accessibilityAddTraits(.isImage)
+          .accessibilityIdentifier("lock.identityMark")
+
+        // Title & Description
+        VStack(spacing: ShieldTheme.s2) {
+          Text(LanguageManager.shared.auth("lock_access_title"))
+            .shieldFont(24, weight: .heavy, design: .rounded)
+            .foregroundStyle(ShieldTheme.primary(scheme))
+            .multilineTextAlignment(.center)
+            .accessibilityIdentifier("lock.title")
+
+          Text(LanguageManager.shared.auth("lock_verify_subtitle"))
+            .shieldFont(14, weight: .medium)
+            .foregroundStyle(ShieldTheme.secondary(scheme))
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, ShieldTheme.s4)
         }
-        .foregroundStyle(authError == nil ? ShieldTheme.secondary(scheme) : ShieldTheme.danger)
-        .padding(.horizontal, ShieldTheme.s4)
-        .padding(.vertical, 8)
-        .background(
-            authError == nil
-                ? ShieldTheme.cardBackground(scheme).opacity(0.85)
-                : ShieldTheme.errorBackground(scheme),
-            in: Capsule()
+
+        // Status Pill / Error Message
+        lockStatus
+      }
+      .frame(maxWidth: min(480, centeredActionWidth))
+      .offset(x: centerOffset)
+
+      Spacer(minLength: ShieldTheme.s4)
+
+      // Actions directly below
+      lockActions
+        .frame(width: centeredActionWidth)
+        .offset(x: centerOffset)
+        .padding(.bottom, ShieldTheme.s6)
+    }
+  }
+
+  private var lockHeader: some View {
+    HStack(spacing: ShieldTheme.s3) {
+      Text(LanguageManager.shared.common("common_app_name"))
+        .shieldFont(20, weight: .heavy)
+        .foregroundStyle(ShieldTheme.primary(scheme))
+
+      Spacer(minLength: ShieldTheme.s2)
+
+      Label(
+        LanguageManager.shared.auth("lock_protection_active"),
+        systemImage: "lock.shield.fill"
+      )
+      .shieldFont(12, weight: .bold)
+      .foregroundStyle(ShieldTheme.accent(scheme))
+      .padding(.horizontal, 12)
+      .padding(.vertical, 6)
+      .background(ShieldTheme.accentDim(scheme), in: Capsule())
+      .overlay(
+        Capsule()
+          .stroke(ShieldTheme.accentStroke(scheme), lineWidth: 0.8)
+      )
+      .accessibilityElement(children: .combine)
+    }
+    .frame(maxWidth: .infinity)
+  }
+
+  private func identityMark(size: CGFloat) -> some View {
+    ZStack(alignment: .bottomTrailing) {
+      if ShieldTheme.activeThemeID == .halloween2026 {
+        SeasonalVaultHeroView(size: min(size * 0.9, 170))
+      } else {
+        MaskIDIdentityMark(
+          size: size,
+          presentation: .animatedLoop,
+          treatment: .hero,
+          isEmphasized: isAuthenticating
         )
-        .overlay(
-            Capsule()
-                .stroke(authError == nil ? ShieldTheme.line(scheme) : ShieldTheme.danger.opacity(0.4), lineWidth: 0.8)
-        )
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("lock.status")
+      }
+
+      if verified {
+        Image(systemName: "checkmark.circle.fill")
+          .shieldFont(28, weight: .bold)
+          .foregroundStyle(ShieldTheme.success, ShieldTheme.cardBackground(scheme))
+          .contentTransition(.symbolEffect(.replace))
+          .accessibilityHidden(true)
+      }
     }
+  }
 
-    private var lockActions: some View {
-        VStack(spacing: ShieldTheme.s3) {
-            primaryUnlockButton
+  private var lockStatus: some View {
+    HStack(alignment: .center, spacing: ShieldTheme.s2) {
+      if isAuthenticating {
+        ProgressView()
+          .controlSize(.small)
+          .tint(ShieldTheme.accentColor(scheme))
+          .accessibilityHidden(true)
+      } else {
+        Image(systemName: authError == nil ? lockStatusIcon : "exclamationmark.triangle.fill")
+          .accessibilityHidden(true)
+      }
 
-            if showsSecondaryPINButton {
-                Button {
-                    if PINManager.hasPIN {
-                        showPINEntry = true
-                    } else {
-                        showPINSetup = true
-                    }
-                } label: {
-                    Text(PINManager.hasPIN ? LanguageManager.shared.auth("lock_use_pin") : LanguageManager.shared.auth("lock_setup_pin"))
-                        .shieldFont(14, weight: .semibold)
-                        .foregroundStyle(
-                            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
-                                ? Color(hex: "FFD6A0").opacity(0.75)
-                                : ShieldTheme.secondary(scheme)
-                        )
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(ScaleButtonStyle())
-                .accessibilityIdentifier("lock.secondaryPIN")
-            }
-
-            if biometricEnabled && hasBiometrics && authError != nil {
-                Button {
-                    authenticate()
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "faceid")
-                        Text(LanguageManager.shared.auth("lock_unlock_faceid"))
-                    }
-                    .shieldFont(13, weight: .bold)
-                    .foregroundStyle(ShieldTheme.accentColor(scheme))
-                    .padding(.vertical, 6)
-                }
-                .buttonStyle(ScaleButtonStyle())
-            }
-        }
-        .frame(maxWidth: .infinity)
+      Text(authError ?? lockStatusMessage)
+        .shieldFont(12, weight: .semibold)
+        .lineLimit(2)
+        .multilineTextAlignment(.center)
     }
+    .foregroundStyle(authError == nil ? ShieldTheme.secondary(scheme) : ShieldTheme.danger)
+    .padding(.horizontal, ShieldTheme.s4)
+    .padding(.vertical, 8)
+    .background(
+      authError == nil
+        ? ShieldTheme.cardBackground(scheme).opacity(0.85)
+        : ShieldTheme.errorBackground(scheme),
+      in: Capsule()
+    )
+    .overlay(
+      Capsule()
+        .stroke(
+          authError == nil ? ShieldTheme.line(scheme) : ShieldTheme.danger.opacity(0.4),
+          lineWidth: 0.8)
+    )
+    .accessibilityElement(children: .combine)
+    .accessibilityIdentifier("lock.status")
+  }
 
-    @ViewBuilder
-    private var primaryUnlockButton: some View {
-        if ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark {
-            Button(action: primaryUnlockAction) {
-                HStack(spacing: ShieldTheme.s3) {
-                    if isAuthenticating {
-                        SeasonalThemeLoadingIndicator(size: 20, color: Color(hex: "170A02"))
-                    } else {
-                        Image(systemName: primaryUnlockIcon)
-                            .font(.system(size: 18, weight: .bold))
-                    }
-                    Text(primaryUnlockTitle)
-                        .font(.headline.weight(.heavy))
-                }
-                .foregroundStyle(Color(hex: "170A02"))
-                .frame(maxWidth: .infinity)
-                .frame(height: 54)
-                .background(
-                    LinearGradient(
-                        colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(Capsule())
-                .overlay {
-                    Capsule()
-                        .stroke(Color(hex: "FFD6A0").opacity(0.6), lineWidth: 1)
-                }
-                .shadow(color: Color(hex: "F97316").opacity(0.6), radius: 14, y: 4)
-            }
-            .buttonStyle(ScaleButtonStyle())
-            .disabled(isAuthenticating)
-            .accessibilityIdentifier("lock.primaryUnlock")
-        } else {
-            ShieldButton(
-                label: primaryUnlockTitle,
-                icon: primaryUnlockIcon,
-                height: 54,
-                isLoading: isAuthenticating,
-                action: primaryUnlockAction
-            )
-            .disabled(isAuthenticating)
-            .accessibilityIdentifier("lock.primaryUnlock")
-        }
-    }
+  private var lockActions: some View {
+    VStack(spacing: ShieldTheme.s3) {
+      primaryUnlockButton
 
-    private var primaryUnlockTitle: String {
-        if biometricEnabled && hasBiometrics {
-            return LanguageManager.shared.auth("lock_unlock_faceid")
-        }
-        if PINManager.hasPIN {
-            return LanguageManager.shared.auth("lock_unlock_pin")
-        }
-        return LanguageManager.shared.auth("lock_set_pin_continue")
-    }
-
-    private var primaryUnlockIcon: String {
-        if biometricEnabled && hasBiometrics {
-            return "faceid"
-        }
-        if PINManager.hasPIN {
-            return "number.square.fill"
-        }
-        return "key.fill"
-    }
-
-    private func primaryUnlockAction() {
-        if biometricEnabled && hasBiometrics {
-            authenticate()
-            return
-        }
-        if PINManager.hasPIN {
+      if showsSecondaryPINButton {
+        Button {
+          if PINManager.hasPIN {
             showPINEntry = true
-            return
+          } else {
+            showPINSetup = true
+          }
+        } label: {
+          Text(
+            PINManager.hasPIN
+              ? LanguageManager.shared.auth("lock_use_pin")
+              : LanguageManager.shared.auth("lock_setup_pin")
+          )
+          .shieldFont(14, weight: .semibold)
+          .foregroundStyle(
+            ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark
+              ? Color(hex: "FFD6A0").opacity(0.75)
+              : ShieldTheme.secondary(scheme)
+          )
+          .padding(.vertical, 6)
         }
-        showPINSetup = true
-    }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityIdentifier("lock.secondaryPIN")
+      }
 
-    private var showsSecondaryPINButton: Bool {
-        biometricEnabled && hasBiometrics
+      if biometricEnabled && hasBiometrics && authError != nil {
+        Button {
+          authenticate()
+        } label: {
+          HStack(spacing: 6) {
+            Image(systemName: "faceid")
+            Text(LanguageManager.shared.auth("lock_unlock_faceid"))
+          }
+          .shieldFont(13, weight: .bold)
+          .foregroundStyle(ShieldTheme.accentColor(scheme))
+          .padding(.vertical, 6)
+        }
+        .buttonStyle(ScaleButtonStyle())
+      }
     }
+    .frame(maxWidth: .infinity)
+  }
 
-    private var lockStatusIcon: String {
-        if isAuthenticating {
-            return "faceid"
+  @ViewBuilder
+  private var primaryUnlockButton: some View {
+    if ShieldTheme.activeThemeID == .halloween2026 && scheme == .dark {
+      Button(action: primaryUnlockAction) {
+        HStack(spacing: ShieldTheme.s3) {
+          if isAuthenticating {
+            SeasonalThemeLoadingIndicator(size: 20, color: Color(hex: "170A02"))
+          } else {
+            Image(systemName: primaryUnlockIcon)
+              .font(.system(size: 18, weight: .bold))
+          }
+          Text(primaryUnlockTitle)
+            .font(.headline.weight(.heavy))
         }
-        if biometricEnabled && hasBiometrics {
-            return "faceid"
+        .foregroundStyle(Color(hex: "170A02"))
+        .frame(maxWidth: .infinity)
+        .frame(height: 54)
+        .background(
+          LinearGradient(
+            colors: [Color(hex: "FFA53D"), Color(hex: "F97316"), Color(hex: "EA580C")],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+          )
+        )
+        .clipShape(Capsule())
+        .overlay {
+          Capsule()
+            .stroke(Color(hex: "FFD6A0").opacity(0.6), lineWidth: 1)
         }
-        if PINManager.hasPIN {
-            return "number.square.fill"
-        }
-        return "key.horizontal.fill"
+        .shadow(color: Color(hex: "F97316").opacity(0.6), radius: 14, y: 4)
+      }
+      .buttonStyle(ScaleButtonStyle())
+      .disabled(isAuthenticating)
+      .accessibilityIdentifier("lock.primaryUnlock")
+    } else {
+      ShieldButton(
+        label: primaryUnlockTitle,
+        icon: primaryUnlockIcon,
+        height: 54,
+        isLoading: isAuthenticating,
+        action: primaryUnlockAction
+      )
+      .disabled(isAuthenticating)
+      .accessibilityIdentifier("lock.primaryUnlock")
     }
+  }
 
-    private var lockStatusMessage: String {
-        if isAuthenticating {
-            return LanguageManager.shared.auth("lock_verifying")
-        }
-        if biometricEnabled && hasBiometrics {
-            return LanguageManager.shared.auth("lock_ready_faceid")
-        }
-        if PINManager.hasPIN {
-            return LanguageManager.shared.auth("lock_ready_pin")
-        }
-        return LanguageManager.shared.auth("lock_setup_passcode_message")
+  private var primaryUnlockTitle: String {
+    if biometricEnabled && hasBiometrics {
+      return LanguageManager.shared.auth("lock_unlock_faceid")
     }
-
-    private var lockBackground: some View {
-        ZStack {
-            if ShieldTheme.activeThemeID == .halloween2026 {
-                SeasonalThemeBackdrop()
-            } else if scheme == .dark {
-                RadialGradient(
-                    colors: [
-                        Color(hex: "071E36"),
-                        Color(hex: "030E1B"),
-                        Color(hex: "01050A")
-                    ],
-                    center: .center,
-                    startRadius: 30,
-                    endRadius: 460
-                )
-            } else {
-                RadialGradient(
-                    colors: [
-                        Color(hex: "E0F2FE"),
-                        Color(hex: "F0F7FF"),
-                        Color(hex: "FFFFFF")
-                    ],
-                    center: .center,
-                    startRadius: 30,
-                    endRadius: 460
-                )
-            }
-        }
+    if PINManager.hasPIN {
+      return LanguageManager.shared.auth("lock_unlock_pin")
     }
+    return LanguageManager.shared.auth("lock_set_pin_continue")
+  }
 
-    private func authenticate() {
-        guard !isAuthenticating, !appState.isAuthenticated else { return }
-        let ctx = LAContext()
-        var err: NSError?
-        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
-            authError = LanguageManager.shared.auth("lock_faceid_unavailable")
-            return
-        }
-        isAuthenticating = true
-        authError = nil
-        ctx.evaluatePolicy(
-            .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: LanguageManager.shared.auth("lock_reason")
-        ) { success, evalErr in
-            DispatchQueue.main.async {
-                isAuthenticating = false
-                if success {
-                    verified = true
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        appState.completeSuccessfulUnlock()
-                    }
-                } else {
-                    authError = evalErr?.localizedDescription
-                }
-            }
-        }
+  private var primaryUnlockIcon: String {
+    if biometricEnabled && hasBiometrics {
+      return "faceid"
     }
-
-    private func autoPromptIfNeeded() {
-#if DEBUG
-        guard !ASOScreenshotMode.isEnabled else { return }
-#endif
-        guard !didTriggerAutoBiometric else { return }
-        guard !appState.isAuthenticated else { return }
-        guard scenePhase == .active else { return }
-        guard biometricEnabled, hasBiometrics else { return }
-        guard !showPINEntry, !showPINSetup, !isAuthenticating else { return }
-
-        didTriggerAutoBiometric = true
-        Task {
-            // Give the lock UI time to settle before presenting Face ID.
-            try? await Task.sleep(nanoseconds: 350_000_000)
-            if !appState.isAuthenticated, scenePhase == .active, !isAuthenticating {
-                authenticate()
-            }
-        }
+    if PINManager.hasPIN {
+      return "number.square.fill"
     }
+    return "key.fill"
+  }
+
+  private func primaryUnlockAction() {
+    if biometricEnabled && hasBiometrics {
+      authenticate()
+      return
+    }
+    if PINManager.hasPIN {
+      showPINEntry = true
+      return
+    }
+    showPINSetup = true
+  }
+
+  private var showsSecondaryPINButton: Bool {
+    biometricEnabled && hasBiometrics
+  }
+
+  private var lockStatusIcon: String {
+    if isAuthenticating {
+      return "faceid"
+    }
+    if biometricEnabled && hasBiometrics {
+      return "faceid"
+    }
+    if PINManager.hasPIN {
+      return "number.square.fill"
+    }
+    return "key.horizontal.fill"
+  }
+
+  private var lockStatusMessage: String {
+    if isAuthenticating {
+      return LanguageManager.shared.auth("lock_verifying")
+    }
+    if biometricEnabled && hasBiometrics {
+      return LanguageManager.shared.auth("lock_ready_faceid")
+    }
+    if PINManager.hasPIN {
+      return LanguageManager.shared.auth("lock_ready_pin")
+    }
+    return LanguageManager.shared.auth("lock_setup_passcode_message")
+  }
+
+  private var lockBackground: some View {
+    ZStack {
+      if ShieldTheme.activeThemeID == .halloween2026 {
+        SeasonalThemeBackdrop()
+      } else if scheme == .dark {
+        RadialGradient(
+          colors: [
+            Color(hex: "071E36"),
+            Color(hex: "030E1B"),
+            Color(hex: "01050A"),
+          ],
+          center: .center,
+          startRadius: 30,
+          endRadius: 460
+        )
+      } else {
+        RadialGradient(
+          colors: [
+            Color(hex: "E0F2FE"),
+            Color(hex: "F0F7FF"),
+            Color(hex: "FFFFFF"),
+          ],
+          center: .center,
+          startRadius: 30,
+          endRadius: 460
+        )
+      }
+    }
+  }
+
+  private func authenticate() {
+    guard !isAuthenticating, !appState.isAuthenticated else { return }
+    let ctx = LAContext()
+    var err: NSError?
+    guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+      authError = LanguageManager.shared.auth("lock_faceid_unavailable")
+      return
+    }
+    isAuthenticating = true
+    authError = nil
+    ctx.evaluatePolicy(
+      .deviceOwnerAuthenticationWithBiometrics,
+      localizedReason: LanguageManager.shared.auth("lock_reason")
+    ) { success, evalErr in
+      DispatchQueue.main.async {
+        isAuthenticating = false
+        if success {
+          verified = true
+          withAnimation(.easeInOut(duration: 0.2)) {
+            appState.completeSuccessfulUnlock()
+          }
+        } else {
+          authError = evalErr?.localizedDescription
+        }
+      }
+    }
+  }
+
+  private func autoPromptIfNeeded() {
+    #if DEBUG
+      guard !ASOScreenshotMode.isEnabled else { return }
+    #endif
+    guard !isBlockedBySplash else { return }
+    guard !didTriggerAutoBiometric else { return }
+    guard !appState.isAuthenticated else { return }
+    guard scenePhase == .active else { return }
+    guard biometricEnabled, hasBiometrics else { return }
+    guard !showPINEntry, !showPINSetup, !isAuthenticating else { return }
+
+    didTriggerAutoBiometric = true
+    Task {
+      // Give the lock UI time to settle before presenting Face ID.
+      try? await Task.sleep(nanoseconds: 350_000_000)
+      if !appState.isAuthenticated, scenePhase == .active, !isAuthenticating, !isBlockedBySplash {
+        authenticate()
+      }
+    }
+  }
 }

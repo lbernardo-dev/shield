@@ -1,125 +1,131 @@
-import UIKit
-import ImageIO
 import CryptoKit
+import ImageIO
+import UIKit
 
 // MARK: - ThumbnailManager
 
 actor ThumbnailManager {
-    static let shared = ThumbnailManager()
+  static let shared = ThumbnailManager()
 
-    private let memoryCache = NSCache<NSString, UIImage>()
-    private let fileManager = FileManager.default
-    private let thumbnailsDir: URL
+  private let memoryCache = NSCache<NSString, UIImage>()
+  private let fileManager = FileManager.default
+  private let thumbnailsDir: URL
 
-    private init() {
-        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        self.thumbnailsDir = docs.appendingPathComponent("shield_thumbnails", isDirectory: true)
+  private init() {
+    let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    self.thumbnailsDir = docs.appendingPathComponent("shield_thumbnails", isDirectory: true)
 
-        if !fileManager.fileExists(atPath: thumbnailsDir.path) {
-            try? fileManager.createDirectory(at: thumbnailsDir, withIntermediateDirectories: true)
-        }
-
-        memoryCache.countLimit = 150
-        memoryCache.totalCostLimit = 40 * 1024 * 1024 // 40MB max in-memory thumbnail cache
+    if !fileManager.fileExists(atPath: thumbnailsDir.path) {
+      try? fileManager.createDirectory(at: thumbnailsDir, withIntermediateDirectories: true)
     }
 
-    // MARK: - API
+    memoryCache.countLimit = 150
+    memoryCache.totalCostLimit = 40 * 1024 * 1024  // 40MB max in-memory thumbnail cache
+  }
 
-    func thumbnail(
-        for filename: String,
-        isVaulted: Bool = false,
-        maxPixelSize: CGFloat = 360
-    ) async -> UIImage? {
-        let cacheKey = "\(filename)_\(Int(maxPixelSize))_\(isVaulted)" as NSString
+  // MARK: - API
 
-        // 1. Memory Cache
-        if let memoryImage = memoryCache.object(forKey: cacheKey) {
-            return memoryImage
-        }
+  func thumbnail(
+    for filename: String,
+    isVaulted: Bool = false,
+    maxPixelSize: CGFloat = 360
+  ) async -> UIImage? {
+    let cacheKey = "\(filename)_\(Int(maxPixelSize))_\(isVaulted)" as NSString
 
-        // 2. Vaulted documents are not cached unencrypted to public thumbnail disk
-        if isVaulted {
-            guard let fullImage = AppState.loadImage(fileName: filename, isVaulted: true) else {
-                return nil
-            }
-            let downsampled = downsample(image: fullImage, maxPixelSize: maxPixelSize)
-            if let downsampled {
-                let cost = Int(downsampled.size.width * downsampled.size.height * 4)
-                memoryCache.setObject(downsampled, forKey: cacheKey, cost: cost)
-            }
-            return downsampled
-        }
+    // 1. Memory Cache
+    if let memoryImage = memoryCache.object(forKey: cacheKey) {
+      return memoryImage
+    }
 
-        // 3. Disk Thumbnail Cache
-        let thumbFileURL = thumbnailsDir.appendingPathComponent("\(filename)_\(Int(maxPixelSize)).jpg")
-        if let diskImage = UIImage(contentsOfFile: thumbFileURL.path) {
-            let cost = Int(diskImage.size.width * diskImage.size.height * 4)
-            memoryCache.setObject(diskImage, forKey: cacheKey, cost: cost)
-            return diskImage
-        }
+    // 2. Vaulted documents are not cached unencrypted to public thumbnail disk
+    if isVaulted {
+      guard let fullImage = AppState.loadImage(fileName: filename, isVaulted: true) else {
+        return nil
+      }
+      let downsampled = downsample(image: fullImage, maxPixelSize: maxPixelSize)
+      if let downsampled {
+        let cost = Int(downsampled.size.width * downsampled.size.height * 4)
+        memoryCache.setObject(downsampled, forKey: cacheKey, cost: cost)
+      }
+      return downsampled
+    }
 
-        // 4. Generate from original source file
-        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let originalURL = docs.appendingPathComponent("shield_images").appendingPathComponent(filename)
+    // 3. Disk Thumbnail Cache
+    let thumbFileURL = thumbnailsDir.appendingPathComponent("\(filename)_\(Int(maxPixelSize)).jpg")
+    if let diskImage = UIImage(contentsOfFile: thumbFileURL.path) {
+      let cost = Int(diskImage.size.width * diskImage.size.height * 4)
+      memoryCache.setObject(diskImage, forKey: cacheKey, cost: cost)
+      return diskImage
+    }
 
-        guard fileManager.fileExists(atPath: originalURL.path) else { return nil }
-
-        guard let source = CGImageSourceCreateWithURL(originalURL as CFURL, nil) else { return nil }
-
-        let options: [CFString: Any] = [
+    // 4. Generate from decrypted library image or fallback source file
+    var fullImage = AppState.loadImage(fileName: filename, isVaulted: false)
+    if fullImage == nil {
+      let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      let originalURL = docs.appendingPathComponent("shield_images").appendingPathComponent(
+        filename)
+      if fileManager.fileExists(atPath: originalURL.path),
+        let source = CGImageSourceCreateWithURL(originalURL as CFURL, nil),
+        let cgThumb = CGImageSourceCreateThumbnailAtIndex(
+          source, 0,
+          [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceShouldCacheImmediately: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
-        ]
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+          ] as CFDictionary)
+      {
+        fullImage = UIImage(cgImage: cgThumb)
+      }
+    }
+    guard let fullImage else { return nil }
 
-        guard let cgThumb = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return nil
-        }
+    let downsampled = downsample(image: fullImage, maxPixelSize: maxPixelSize) ?? fullImage
 
-        let thumbnail = UIImage(cgImage: cgThumb)
-
-        // Save to disk
-        if let jpegData = thumbnail.jpegData(compressionQuality: 0.82) {
-            try? jpegData.write(to: thumbFileURL, options: .atomic)
-        }
-
-        // Cache in memory
-        let cost = Int(thumbnail.size.width * thumbnail.size.height * 4)
-        memoryCache.setObject(thumbnail, forKey: cacheKey, cost: cost)
-
-        return thumbnail
+    // Save to disk
+    if let jpegData = downsampled.jpegData(compressionQuality: 0.82) {
+      try? jpegData.write(to: thumbFileURL, options: .atomic)
     }
 
-    private func downsample(image: UIImage, maxPixelSize: CGFloat) -> UIImage? {
-        guard let data = image.jpegData(compressionQuality: 0.9) ?? image.pngData() else { return image }
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return image }
+    // Cache in memory
+    let cost = Int(downsampled.size.width * downsampled.size.height * 4)
+    memoryCache.setObject(downsampled, forKey: cacheKey, cost: cost)
 
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
-        ]
+    return downsampled
+  }
 
-        guard let cgThumb = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return image
-        }
-        return UIImage(cgImage: cgThumb)
+  private func downsample(image: UIImage, maxPixelSize: CGFloat) -> UIImage? {
+    guard let data = image.jpegData(compressionQuality: 0.9) ?? image.pngData() else {
+      return image
     }
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return image }
 
-    func invalidate(filename: String) {
-        let enumerator = fileManager.enumerator(at: thumbnailsDir, includingPropertiesForKeys: nil)
-        while let file = enumerator?.nextObject() as? URL {
-            if file.lastPathComponent.hasPrefix(filename) {
-                try? fileManager.removeItem(at: file)
-            }
-        }
-    }
+    let options: [CFString: Any] = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceShouldCacheImmediately: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+    ]
 
-    func clearAll() {
-        memoryCache.removeAllObjects()
-        try? fileManager.removeItem(at: thumbnailsDir)
-        try? fileManager.createDirectory(at: thumbnailsDir, withIntermediateDirectories: true)
+    guard let cgThumb = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
+    else {
+      return image
     }
+    return UIImage(cgImage: cgThumb)
+  }
+
+  func invalidate(filename: String) {
+    let enumerator = fileManager.enumerator(at: thumbnailsDir, includingPropertiesForKeys: nil)
+    while let file = enumerator?.nextObject() as? URL {
+      if file.lastPathComponent.hasPrefix(filename) {
+        try? fileManager.removeItem(at: file)
+      }
+    }
+  }
+
+  func clearAll() {
+    memoryCache.removeAllObjects()
+    try? fileManager.removeItem(at: thumbnailsDir)
+    try? fileManager.createDirectory(at: thumbnailsDir, withIntermediateDirectories: true)
+  }
 }

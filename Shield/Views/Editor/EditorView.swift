@@ -476,6 +476,9 @@ struct EditorView: View {
     private var compactWorkspace: some View {
         VStack(spacing: 0) {
             canvasArea
+            if !vm.isReadOnly && !vm.isPeekingOriginal {
+                SmartSuggestionChipsView(vm: vm, lang: appState.language)
+            }
             contextualToolPanels
             bottomBar
         }
@@ -541,6 +544,10 @@ struct EditorView: View {
             VStack(spacing: 0) {
                 canvasArea
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if !vm.isReadOnly && !vm.isPeekingOriginal {
+                    SmartSuggestionChipsView(vm: vm, lang: appState.language)
+                }
 
                 contextualToolPanels
                 bottomBar
@@ -673,6 +680,21 @@ struct EditorView: View {
 
     private var moreActionsMenu: some View {
         Menu {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    vm.isSplitViewActive.toggle()
+                    if vm.isSplitViewActive {
+                        vm.isPeekingOriginal = false
+                    }
+                }
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            } label: {
+                Label(
+                    appState.language == .es ? "Lente Comparativa (Antes/Después)" : "Comparison Lens (Before/After)",
+                    systemImage: vm.isSplitViewActive ? "rectangle.split.2x1.fill" : "rectangle.split.2x1"
+                )
+            }
+
             Button {
                 vm.showPresetPicker = true
             } label: {
@@ -975,6 +997,35 @@ struct EditorView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .padding(.top, 10)
                     .zIndex(3)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                if vm.isSplitViewActive {
+                    HStack(spacing: 8) {
+                        Image(systemName: "rectangle.split.2x1.fill")
+                            .shieldFont(12, weight: .bold)
+                        Text(appState.language == .es ? "Lente Comparativa: Desliza el divisor" : "Comparison Lens: Slide divider")
+                            .shieldFont(12, weight: .bold)
+                        Button {
+                            withAnimation(.spring(response: 0.25)) {
+                                vm.isSplitViewActive = false
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .shieldFont(14, weight: .bold)
+                                .foregroundColor(ShieldTheme.accentText)
+                        }
+                    }
+                    .foregroundColor(ShieldTheme.accentText)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(ShieldTheme.accent(scheme))
+                    .clipShape(Capsule())
+                    .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 10)
+                    .zIndex(4)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 

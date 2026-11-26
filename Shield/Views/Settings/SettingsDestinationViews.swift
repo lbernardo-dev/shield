@@ -2518,6 +2518,25 @@ struct CloudSettingsView: View {
                 title: strings.settings("settings_private_by_design"),
                 bodyText: strings.settings("settings_icloud_privacy_explanation")
             )
+
+            if let recordName = premium.verifiedCloudKitUserRecordName {
+                SettingsCardSection(title: "iCloud Identity", icon: "person.crop.circle.badge.checkmark") {
+                    SettingsControlRow(
+                        icon: "key.fill",
+                        color: ShieldTheme.accent(scheme),
+                        title: "CloudKit Record ID",
+                        subtitle: recordName
+                    ) {
+                        Button {
+                            UIPasteboard.general.string = recordName
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(ShieldTheme.accentColor(scheme))
+                        }
+                    }
+                }
+            }
         }
         .onChange(of: isEnabled) { _, enabled in
             Task {
