@@ -18,6 +18,21 @@
   - **TestFlight Internal State**: `READY_FOR_BETA_TESTING`
   - **TestFlight External State**: `READY_FOR_BETA_SUBMISSION`
 
+## Optimización ASO Integral (Título, Subtítulo y Palabras Clave)
+Conforme a las directrices de Apple y las mejores prácticas del mercado, se eliminaron duplicidades de términos entre título, subtítulo y keywords, maximizando el presupuesto de caracteres para reflejar la misión de la app (proteger, ocultar y enmascarar datos personales en documentos antes de compartir):
+
+- **Español (`es-ES`)**:
+  - **Título** (28/30 caracteres): `MaskID: Protege tu identidad`
+  - **Subtítulo** (25/30 caracteres): `Oculta datos al compartir`
+  - **Palabras clave** (99/100 caracteres): `documentos,pdf,fotos,capturas,dni,pasaporte,enmascarar,tapar,pixelar,censurar,redactar,boveda,firma`
+- **Inglés (`en-US`)**:
+  - **Título** (29/30 caracteres): `MaskID: Protect Your Identity`
+  - **Subtítulo** (29/30 caracteres): `Hide & mask data when sharing`
+  - **Palabras clave** (100/100 caracteres exactos): `document,pdf,photo,screenshot,redact,censor,blackout,blur,passport,license,scanner,vault,secure,iban`
+
+- **Validación App Store Connect (`asc validate`)**: `0` Errores, `0` Warnings, `0` Bloqueos.
+
+
 ## Corrección del Ciclo Infinito de Desbloqueo y Bloqueo
 - **Causa Raíz Identificada**:
   1. Durante la evaluación biométrica de Face ID (`evaluatePolicy`), iOS pasa la escena a `.inactive` de forma transitoria.
