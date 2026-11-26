@@ -3082,8 +3082,10 @@
    Id: 288-generar-build-subir-app-store-connect
    Scope: Update build number to next ASC-safe number, archive Release build, export IPA, upload to App Store Connect and monitor processing
    Files: Shield.xcodeproj/project.pbxproj,.asc/artifacts/**
-   Note: Starting ASC build and upload
+   Note: Build 1182026112601 (1.1.8) archived, exported, uploaded and processed with VALID state on App Store Connect (Build ID d0202ccf-7c0b-4c68-804c-7e251f4883de)
    Detail: tasks/details/288-generar-build-subir-app-store-connect.md
    Claimed by: CODEX
    Claimed at: 2026-11-26T08:41:58Z
+   Done by: CODEX
+   Done at: 2026-11-26T10:07:14Z
 

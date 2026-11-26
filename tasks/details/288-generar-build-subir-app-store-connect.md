@@ -6,8 +6,17 @@
 - Build: 1182026112601
 
 ## Estado Actual
-- **En Espera de Certificación del Usuario**: Conforme a la instrucción explícita del usuario, no se generará el archivo Release (`xcarchive`) ni se subirá a App Store Connect hasta que el usuario pruebe y certifique el correcto funcionamiento en su dispositivo físico.
-- **Despliegue Físico**: Compilado y desplegado con éxito en el iPhone 15 Pro Max (`00008130-0011199026A0001C`), PID activo **32360**.
+- **Certificación de Usuario**: Recibida y aprobada en iPhone 15 Pro Max físico (`00008130-0011199026A0001C`).
+- **Archive Release**: Generado exitosamente en `.asc/artifacts/MaskID-1.1.8-1182026112601.xcarchive`.
+- **Exportación IPA**: Exportado exitosamente a `.asc/artifacts/MaskID-1.1.8-1182026112601.ipa` (53 MB) firmado para App Store Connect.
+- **Subida y Procesamiento App Store Connect**: Completado con éxito:
+  - **App ID**: `6790398619`
+  - **Build ID**: `d0202ccf-7c0b-4c68-804c-7e251f4883de`
+  - **Versión**: `1.1.8`
+  - **Build Number**: `1182026112601`
+  - **Estado de Procesamiento**: `VALID`
+  - **TestFlight Internal State**: `READY_FOR_BETA_TESTING`
+  - **TestFlight External State**: `READY_FOR_BETA_SUBMISSION`
 
 ## Corrección del Ciclo Infinito de Desbloqueo y Bloqueo
 - **Causa Raíz Identificada**:
